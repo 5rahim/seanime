@@ -3,11 +3,12 @@ import { websocketAtom, WebSocketContext } from "@/app/(main)/_atoms/websocket.a
 import { ElectronRestartServerPrompt } from "@/app/(main)/_electron/electron-restart-server-prompt"
 import { TauriRestartServerPrompt } from "@/app/(main)/_tauri/tauri-restart-server-prompt"
 import { __openDrawersAtom } from "@/components/ui/drawer"
+import { useMainTab } from "@/hooks/use-main-tab"
 import { logger } from "@/lib/helpers/debug"
 import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
-import React from "react"
+import React, { useRef } from "react"
 import { useCookies } from "react-cookie"
 import { ImSpinner2 } from "react-icons/im"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
@@ -26,6 +27,23 @@ export const websocketConnectionErrorCountAtom = atom(0)
 
 export const clientIdAtom = atom<string | null>(null)
 
+const isMainTabAtom = atom(false)
+
+export function useIsMainTab() {
+    return useAtomValue(isMainTabAtom)
+}
+
+export function useIsMainTabRef() {
+    const isMainTab = useIsMainTab()
+    const isMainTabRef = useRef(isMainTab)
+
+    React.useLayoutEffect(() => {
+        isMainTabRef.current = isMainTab
+    }, [isMainTab])
+
+    return isMainTabRef
+}
+
 export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useAtom(websocketAtom)
     const [isConnected, setIsConnected] = useAtom(websocketConnectedAtom)
@@ -34,6 +52,12 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     const [cookies, setCookie, removeCookie] = useCookies(["Seanime-Client-Id"])
 
     const [, setClientId] = useAtom(clientIdAtom)
+    const setMainTab = useSetAtom(isMainTabAtom)
+
+    const isMainTab = useMainTab()
+    React.useLayoutEffect(() => {
+        setMainTab(isMainTab)
+    }, [isMainTab])
 
     // Refs to manage connection state
     const heartbeatRef = React.useRef<NodeJS.Timeout | null>(null)

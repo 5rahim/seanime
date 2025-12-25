@@ -1,4 +1,5 @@
 import { useListExtensionData } from "@/api/hooks/extensions.hooks"
+import { useIsMainTabRef } from "@/app/websocket-provider"
 import { WSEvents } from "@/lib/server/ws-events"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { startTransition, useEffect, useState } from "react"
@@ -17,6 +18,7 @@ export function PluginManager() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const { sendScreenChangedEvent } = usePluginSendScreenChangedEvent()
+    const isMainTabRef = useIsMainTabRef()
 
     const { data: extensions } = useListExtensionData()
 
@@ -32,6 +34,7 @@ export function PluginManager() {
     })
 
     useEffect(() => {
+        if (!isMainTabRef.current) return
         sendScreenChangedEvent({
             pathname: pathname,
             query: window.location.search,
@@ -39,6 +42,7 @@ export function PluginManager() {
     }, [pathname, searchParams])
 
     usePluginListenScreenGetCurrentEvent((event, extensionId) => {
+        if (!isMainTabRef.current) return
         sendScreenChangedEvent({
             pathname: pathname,
             query: window.location.search,
@@ -46,6 +50,7 @@ export function PluginManager() {
     }, "") // Listen to all plugins
 
     usePluginListenScreenNavigateToEvent((event) => {
+        if (!isMainTabRef.current) return
         if ([
             "/entry", "/lists", "/search", "/manga",
             "/settings", "/auto-downloader", "/debrid", "/torrent-list",
@@ -58,6 +63,7 @@ export function PluginManager() {
     }, "") // Listen to all plugins
 
     usePluginListenScreenReloadEvent((event) => {
+        if (!isMainTabRef.current) return
         router.refresh()
     }, "") // Listen to all plugins
 

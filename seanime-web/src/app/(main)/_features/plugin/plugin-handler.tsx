@@ -1,4 +1,5 @@
 import { useWebsocketMessageListener, useWebsocketPluginMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { useIsMainTabRef } from "@/app/websocket-provider"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useDOMManager } from "./dom-manager"
 import {
@@ -13,6 +14,8 @@ import {
 } from "./generated/plugin-events"
 
 export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string, onUnloaded: () => void }) {
+    const isMainTabRef = useIsMainTabRef()
+
     // DOM Manager
     const {
         handleDOMQuery,
@@ -35,11 +38,11 @@ export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string
         },
     })
 
-    // Listen for DOM events
     useWebsocketPluginMessageListener({
         extensionId,
         type: PluginServerEvents.DOMQuery,
         onMessage: (payload: Plugin_Server_DOMQueryEventPayload) => {
+            if (!isMainTabRef.current) return
             handleDOMQuery(payload)
         },
     })
@@ -48,6 +51,7 @@ export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string
         extensionId,
         type: PluginServerEvents.DOMQueryOne,
         onMessage: (payload: Plugin_Server_DOMQueryOneEventPayload) => {
+            if (!isMainTabRef.current) return
             handleDOMQueryOne(payload)
         },
     })
@@ -56,6 +60,7 @@ export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string
         extensionId,
         type: PluginServerEvents.DOMObserve,
         onMessage: (payload: Plugin_Server_DOMObserveEventPayload) => {
+            if (!isMainTabRef.current) return
             handleDOMObserve(payload)
         },
     })
@@ -64,6 +69,7 @@ export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string
         extensionId,
         type: PluginServerEvents.DOMObserveInView,
         onMessage: (payload: Plugin_Server_DOMObserveInViewEventPayload) => {
+            if (!isMainTabRef.current) return
             handleDOMObserveInView(payload)
         },
     })
@@ -72,6 +78,7 @@ export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string
         extensionId,
         type: PluginServerEvents.DOMStopObserve,
         onMessage: (payload: Plugin_Server_DOMStopObserveEventPayload) => {
+            if (!isMainTabRef.current) return
             handleDOMStopObserve(payload)
         },
     })
@@ -80,6 +87,7 @@ export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string
         extensionId,
         type: PluginServerEvents.DOMCreate,
         onMessage: (payload: Plugin_Server_DOMCreateEventPayload) => {
+            if (!isMainTabRef.current) return
             handleDOMCreate(payload)
         },
     })
@@ -88,6 +96,9 @@ export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string
         extensionId,
         type: PluginServerEvents.DOMManipulate,
         onMessage: (payload: Plugin_Server_DOMManipulateEventPayload) => {
+            if (!isMainTabRef.current) {
+                return
+            }
             handleDOMManipulate(payload)
         },
     })

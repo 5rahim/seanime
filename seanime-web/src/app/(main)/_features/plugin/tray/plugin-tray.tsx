@@ -1,4 +1,5 @@
 import { PluginProvider, registry, RenderPluginComponents } from "@/app/(main)/_features/plugin/components/registry"
+import { useIsMainTabRef } from "@/app/websocket-provider"
 import { SeaImage } from "@/components/shared/sea-image"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
@@ -83,6 +84,8 @@ export function PluginTray(props: TrayPluginProps) {
     const { sendTrayClosedEvent } = usePluginSendTrayClosedEvent()
     const { sendTrayClickedEvent } = usePluginSendTrayClickedEvent()
 
+    const isMainTabRef = useIsMainTabRef()
+
     const hasNavigated = useAtomValue(__plugin_hasNavigatedAtom)
 
     const [unpinnedTrayIconClicked, setUnpinnedTrayIconClicked] = useAtom(__plugin_unpinnedTrayIconClickedAtom)
@@ -130,10 +133,12 @@ export function PluginTray(props: TrayPluginProps) {
     }, props.trayIcon.extensionId)
 
     usePluginListenTrayOpenEvent((data) => {
+        if (!isMainTabRef.current) return
         setOpen(true)
     }, props.trayIcon.extensionId)
 
     usePluginListenTrayCloseEvent((data) => {
+        if (!isMainTabRef.current) return
         setOpen(false)
     }, props.trayIcon.extensionId)
 

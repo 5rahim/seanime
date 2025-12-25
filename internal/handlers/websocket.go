@@ -71,6 +71,12 @@ func (h *Handler) webSocketEventHandler(c echo.Context) error {
 			continue // Skip further processing for ping messages
 		}
 
+		// Handle main-tab-claim messages by broadcasting to all clients
+		if event.Type == "main-tab-claim" {
+			h.App.WSEventManager.SendEvent("main-tab-claim", event.Payload)
+			continue
+		}
+
 		h.HandleClientEvents(event)
 
 		// h.App.Logger.Debug().Msgf("ws: message received: %+v", msg)
