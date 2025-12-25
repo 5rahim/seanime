@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.2.4
+
+- ⚡️ Plugins: Enhanced API stability across tabs
+  - DOM and Screen APIs are now stable across multiple tabs
+  - Eliminated conflicting DOM events causing UI crashes
+- 🦺 Custom Sources: Fixed media not appearing in collection on restart
+- 🏗️ Server: Load custom sources synchronously before AniList data is fetched
+
 ## v3.2.3
 
 - ✨️ Nakama: Cloud Rooms (Public Beta)
