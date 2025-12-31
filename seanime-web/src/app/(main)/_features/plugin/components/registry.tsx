@@ -4,6 +4,7 @@ import {
     PluginAnchor,
     PluginButton,
     PluginCheckbox,
+    PluginCSS,
     PluginDiv,
     PluginFlex,
     PluginForm,
@@ -13,6 +14,7 @@ import {
     PluginStack,
     PluginSwitch,
     PluginText,
+    PluginTooltip,
 } from "@/app/(main)/_features/plugin/components/registry-components"
 import type React from "react"
 import { createContext, useContext } from "react"
@@ -32,6 +34,8 @@ export const registry: ComponentRegistry = new Map([
     ["radio-group", PluginRadioGroup],
     ["checkbox", PluginCheckbox],
     ["select", PluginSelect],
+    ["css", PluginCSS],
+    ["tooltip", PluginTooltip],
 ] as any)
 
 

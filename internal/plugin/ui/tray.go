@@ -170,6 +170,8 @@ func (t *TrayManager) jsNewTray(call goja.FunctionCall) goja.Value {
 	_ = trayObj.Set("switch", t.componentManager.jsSwitch)
 	_ = trayObj.Set("checkbox", t.componentManager.jsCheckbox)
 	_ = trayObj.Set("select", t.componentManager.jsSelect)
+	_ = trayObj.Set("css", t.componentManager.jsCSS)
+	_ = trayObj.Set("tooltip", t.componentManager.jsTooltip)
 
 	return trayObj
 }

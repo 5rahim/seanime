@@ -11,6 +11,7 @@ import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
 import { GlobalPlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { PlaylistListModal } from "@/app/(main)/_features/playlists/playlist-list-modal"
 import { PluginManager } from "@/app/(main)/_features/plugin/plugin-manager"
+import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { SeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
@@ -116,6 +117,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <TopIndefiniteLoader />
             <Announcements />
             <LibraryExplorerDrawer />
+            <PluginWebviewSlot slot="fixed" />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

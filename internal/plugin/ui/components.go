@@ -279,3 +279,30 @@ func (c *ComponentManager) jsSwitch(call goja.FunctionCall) goja.Value {
 		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
 	})
 }
+
+// jsCSS
+//
+//	Example:
+//	const switch = tray.css({
+//		css: `
+//			.my-class {
+//				color: red;
+//			}
+//		`
+//	})
+func (c *ComponentManager) jsCSS(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "css", []ComponentProp{
+		{Name: "css", Type: "string", Required: true, OptionalFirstArg: true, Validate: validateType("string")},
+	})
+}
+
+// jsTooltip
+//
+//	Example:
+//	const switch = tray.tooltip([tray.button("Click me")], { text: "This is a tooltip" })
+func (c *ComponentManager) jsTooltip(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "tooltip", []ComponentProp{
+		{Name: "text", Type: "string", Required: true, Validate: validateType("string")},
+		{Name: "item", Type: "any", Required: true, OptionalFirstArg: true},
+	})
+}

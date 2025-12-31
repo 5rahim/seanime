@@ -41,6 +41,7 @@ func GeneratePluginEventFile(inFilePath string, outDir string) {
 	if err != nil {
 		panic(err)
 	}
+	packageName := file.Name.Name
 
 	// Create output directory if it doesn't exist
 	_ = os.MkdirAll(outDir, os.ModePerm)
@@ -248,7 +249,8 @@ func GeneratePluginEventFile(inFilePath string, outDir string) {
 							for _, field := range structType.Fields.List {
 								if len(field.Names) > 0 {
 									fieldName := jsonFieldName(field)
-									fieldType := fieldTypeToTypescriptType(field.Type, "")
+									_, usedStructPkgName := getUsedStructType(typeSpec.Type, packageName)
+									fieldType := fieldTypeToTypescriptType(field.Type, usedStructPkgName)
 									f.WriteString(fmt.Sprintf("    %s: %s\n", fieldName, fieldType))
 								}
 							}

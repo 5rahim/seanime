@@ -32,6 +32,7 @@ var additionalStructNames = []string{
 	"videocore.ClientEventType",
 	"videocore.ServerEvent",
 	"videocore.PlaybackState",
+	"plugin_ui.WebviewSlot",
 }
 
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.

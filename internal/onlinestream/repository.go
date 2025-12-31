@@ -50,16 +50,16 @@ type (
 	EpisodeSource struct {
 		Number       int            `json:"number"`
 		VideoSources []*VideoSource `json:"videoSources"`
-		Subtitles    []*Subtitle    `json:"subtitles,omitempty"`
 	}
 
 	VideoSource struct {
-		Server  string                             `json:"server"`
-		Headers map[string]string                  `json:"headers,omitempty"`
-		URL     string                             `json:"url"`
-		Label   string                             `json:"label,omitempty"`
-		Quality string                             `json:"quality"`
-		Type    hibikeonlinestream.VideoSourceType `json:"type"`
+		Server    string                             `json:"server"`
+		Headers   map[string]string                  `json:"headers,omitempty"`
+		URL       string                             `json:"url"`
+		Label     string                             `json:"label,omitempty"`
+		Quality   string                             `json:"quality"`
+		Type      hibikeonlinestream.VideoSourceType `json:"type"`
+		Subtitles []*Subtitle                        `json:"subtitles,omitempty"`
 	}
 
 	EpisodeListResponse struct {
@@ -266,18 +266,13 @@ func (r *Repository) GetEpisodeSources(ctx context.Context, provider string, mId
 						Label:   vs.Label,
 						Quality: vs.Quality,
 						Type:    vs.Type,
-					})
-					// Add subtitles if available
-					// Subtitles are stored in each video source, but they are the same, so only add them once.
-					if len(vs.Subtitles) > 0 && s.Subtitles == nil {
-						s.Subtitles = make([]*Subtitle, 0, len(vs.Subtitles))
-						for _, sub := range vs.Subtitles {
-							s.Subtitles = append(s.Subtitles, &Subtitle{
+						Subtitles: lo.Map(vs.Subtitles, func(sub *hibikeonlinestream.VideoSubtitle, _ int) *Subtitle {
+							return &Subtitle{
 								URL:      sub.URL,
 								Language: sub.Language,
-							})
-						}
-					}
+							}
+						}),
+					})
 				}
 			}
 			sources = s

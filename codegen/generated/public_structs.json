@@ -40103,8 +40103,8 @@
         "name": "ui",
         "jsonName": "ui",
         "goType": "plugin_ui.UI",
-        "typescriptType": "UI",
-        "usedTypescriptType": "UI",
+        "typescriptType": "PluginUI_UI",
+        "usedTypescriptType": "PluginUI_UI",
         "usedStructName": "plugin_ui.UI",
         "required": false,
         "public": false,
@@ -40396,6 +40396,17 @@
         "typescriptType": "CancelFunc",
         "usedTypescriptType": "CancelFunc",
         "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "loadOnlyType",
+        "jsonName": "loadOnlyType",
+        "goType": "atomic.Value",
+        "typescriptType": "Value",
+        "usedTypescriptType": "Value",
+        "usedStructName": "atomic.Value",
         "required": false,
         "public": false,
         "comments": []
@@ -66164,17 +66175,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Subtitles",
-        "jsonName": "subtitles",
-        "goType": "[]Subtitle",
-        "typescriptType": "Array\u003cOnlinestream_Subtitle\u003e",
-        "usedTypescriptType": "Onlinestream_Subtitle",
-        "usedStructName": "onlinestream.Subtitle",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -66238,6 +66238,17 @@
         "typescriptType": "HibikeOnlinestream_VideoSourceType",
         "usedTypescriptType": "HibikeOnlinestream_VideoSourceType",
         "usedStructName": "hibikeonlinestream.VideoSourceType",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Subtitles",
+        "jsonName": "subtitles",
+        "goType": "[]Subtitle",
+        "typescriptType": "Array\u003cOnlinestream_Subtitle\u003e",
+        "usedTypescriptType": "Onlinestream_Subtitle",
+        "usedStructName": "onlinestream.Subtitle",
         "required": false,
         "public": true,
         "comments": []
@@ -70036,7 +70047,7 @@
     "filepath": "../internal/plugin/ui/_scheduler.go",
     "filename": "_scheduler.go",
     "name": "Job",
-    "formattedName": "Job",
+    "formattedName": "PluginUI_Job",
     "package": "plugin_ui",
     "fields": [
       {
@@ -70077,7 +70088,7 @@
     "filepath": "../internal/plugin/ui/_scheduler.go",
     "filename": "_scheduler.go",
     "name": "Scheduler",
-    "formattedName": "Scheduler",
+    "formattedName": "PluginUI_Scheduler",
     "package": "plugin_ui",
     "fields": [
       {
@@ -70104,8 +70115,8 @@
         "name": "context",
         "jsonName": "context",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -70137,8 +70148,8 @@
         "name": "currentJob",
         "jsonName": "currentJob",
         "goType": "Job",
-        "typescriptType": "Job",
-        "usedTypescriptType": "Job",
+        "typescriptType": "PluginUI_Job",
+        "usedTypescriptType": "PluginUI_Job",
         "usedStructName": "plugin_ui.Job",
         "required": false,
         "public": false,
@@ -70165,15 +70176,15 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "ActionManager",
-    "formattedName": "ActionManager",
+    "formattedName": "PluginUI_ActionManager",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ctx",
         "jsonName": "ctx",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -70256,7 +70267,7 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "BaseActionProps",
-    "formattedName": "BaseActionProps",
+    "formattedName": "PluginUI_BaseActionProps",
     "package": "plugin_ui",
     "fields": [
       {
@@ -70311,7 +70322,7 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "BaseAction",
-    "formattedName": "BaseAction",
+    "formattedName": "PluginUI_BaseAction",
     "package": "plugin_ui",
     "fields": [],
     "comments": [
@@ -70325,7 +70336,7 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "AnimePageButton",
-    "formattedName": "AnimePageButton",
+    "formattedName": "PluginUI_AnimePageButton",
     "package": "plugin_ui",
     "fields": [
       {
@@ -70347,7 +70358,7 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "EpisodeCardContextMenuItem",
-    "formattedName": "EpisodeCardContextMenuItem",
+    "formattedName": "PluginUI_EpisodeCardContextMenuItem",
     "package": "plugin_ui",
     "fields": [],
     "comments": [],
@@ -70359,7 +70370,7 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "EpisodeGridItemMenuItem",
-    "formattedName": "EpisodeGridItemMenuItem",
+    "formattedName": "PluginUI_EpisodeGridItemMenuItem",
     "package": "plugin_ui",
     "fields": [
       {
@@ -70381,7 +70392,7 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "MangaPageButton",
-    "formattedName": "MangaPageButton",
+    "formattedName": "PluginUI_MangaPageButton",
     "package": "plugin_ui",
     "fields": [
       {
@@ -70403,7 +70414,7 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "AnimePageDropdownMenuItem",
-    "formattedName": "AnimePageDropdownMenuItem",
+    "formattedName": "PluginUI_AnimePageDropdownMenuItem",
     "package": "plugin_ui",
     "fields": [],
     "comments": [],
@@ -70415,7 +70426,7 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "AnimeLibraryDropdownMenuItem",
-    "formattedName": "AnimeLibraryDropdownMenuItem",
+    "formattedName": "PluginUI_AnimeLibraryDropdownMenuItem",
     "package": "plugin_ui",
     "fields": [],
     "comments": [],
@@ -70427,7 +70438,7 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "MediaCardContextMenuItemFor",
-    "formattedName": "MediaCardContextMenuItemFor",
+    "formattedName": "PluginUI_MediaCardContextMenuItemFor",
     "package": "plugin_ui",
     "fields": [],
     "aliasOf": {
@@ -70445,15 +70456,15 @@
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
     "name": "MediaCardContextMenuItem",
-    "formattedName": "MediaCardContextMenuItem",
+    "formattedName": "PluginUI_MediaCardContextMenuItem",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "For",
         "jsonName": "for",
         "goType": "MediaCardContextMenuItemFor",
-        "typescriptType": "MediaCardContextMenuItemFor",
-        "usedTypescriptType": "MediaCardContextMenuItemFor",
+        "typescriptType": "PluginUI_MediaCardContextMenuItemFor",
+        "usedTypescriptType": "PluginUI_MediaCardContextMenuItemFor",
         "usedStructName": "plugin_ui.MediaCardContextMenuItemFor",
         "required": true,
         "public": true,
@@ -70471,15 +70482,15 @@
     "filepath": "../internal/plugin/ui/command.go",
     "filename": "command.go",
     "name": "CommandPaletteManager",
-    "formattedName": "CommandPaletteManager",
+    "formattedName": "PluginUI_CommandPaletteManager",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ctx",
         "jsonName": "ctx",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -70510,8 +70521,8 @@
         "name": "componentManager",
         "jsonName": "componentManager",
         "goType": "ComponentManager",
-        "typescriptType": "ComponentManager",
-        "usedTypescriptType": "ComponentManager",
+        "typescriptType": "PluginUI_ComponentManager",
+        "usedTypescriptType": "PluginUI_ComponentManager",
         "usedStructName": "plugin_ui.ComponentManager",
         "required": false,
         "public": false,
@@ -70557,8 +70568,8 @@
         "name": "renderedItems",
         "jsonName": "renderedItems",
         "goType": "[]CommandItemJSON",
-        "typescriptType": "Array\u003cCommandItemJSON\u003e",
-        "usedTypescriptType": "CommandItemJSON",
+        "typescriptType": "Array\u003cPluginUI_CommandItemJSON\u003e",
+        "usedTypescriptType": "PluginUI_CommandItemJSON",
         "usedStructName": "plugin_ui.CommandItemJSON",
         "required": false,
         "public": false,
@@ -70577,7 +70588,7 @@
     "filepath": "../internal/plugin/ui/command.go",
     "filename": "command.go",
     "name": "CommandItemJSON",
-    "formattedName": "CommandItemJSON",
+    "formattedName": "PluginUI_CommandItemJSON",
     "package": "plugin_ui",
     "fields": [
       {
@@ -70650,7 +70661,7 @@
     "filepath": "../internal/plugin/ui/command.go",
     "filename": "command.go",
     "name": "NewCommandPaletteOptions",
-    "formattedName": "NewCommandPaletteOptions",
+    "formattedName": "PluginUI_NewCommandPaletteOptions",
     "package": "plugin_ui",
     "fields": [
       {
@@ -70678,7 +70689,7 @@
     "filepath": "../internal/plugin/ui/component_utils.go",
     "filename": "component_utils.go",
     "name": "ComponentProp",
-    "formattedName": "ComponentProp",
+    "formattedName": "PluginUI_ComponentProp",
     "package": "plugin_ui",
     "fields": [
       {
@@ -70754,15 +70765,15 @@
     "filepath": "../internal/plugin/ui/components.go",
     "filename": "components.go",
     "name": "ComponentManager",
-    "formattedName": "ComponentManager",
+    "formattedName": "PluginUI_ComponentManager",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ctx",
         "jsonName": "ctx",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -70787,15 +70798,15 @@
     "filepath": "../internal/plugin/ui/context.go",
     "filename": "context.go",
     "name": "BatchedPluginEvents",
-    "formattedName": "BatchedPluginEvents",
+    "formattedName": "PluginUI_BatchedPluginEvents",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "Events",
         "jsonName": "events",
         "goType": "[]ServerPluginEvent",
-        "typescriptType": "Array\u003cServerPluginEvent\u003e",
-        "usedTypescriptType": "ServerPluginEvent",
+        "typescriptType": "Array\u003cPluginUI_ServerPluginEvent\u003e",
+        "usedTypescriptType": "PluginUI_ServerPluginEvent",
         "usedStructName": "plugin_ui.ServerPluginEvent",
         "required": false,
         "public": true,
@@ -70810,7 +70821,7 @@
     "filepath": "../internal/plugin/ui/context.go",
     "filename": "context.go",
     "name": "BatchedEvents",
-    "formattedName": "BatchedEvents",
+    "formattedName": "PluginUI_BatchedEvents",
     "package": "plugin_ui",
     "fields": [
       {
@@ -70833,15 +70844,15 @@
     "filepath": "../internal/plugin/ui/context.go",
     "filename": "context.go",
     "name": "Context",
-    "formattedName": "Context",
+    "formattedName": "PluginUI_Context",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ui",
         "jsonName": "ui",
         "goType": "UI",
-        "typescriptType": "UI",
-        "usedTypescriptType": "UI",
+        "typescriptType": "PluginUI_UI",
+        "usedTypescriptType": "PluginUI_UI",
         "usedStructName": "plugin_ui.UI",
         "required": false,
         "public": false,
@@ -70925,8 +70936,8 @@
       {
         "name": "stateSubscribers",
         "jsonName": "stateSubscribers",
-        "goType": "[]",
-        "typescriptType": "Array\u003cany\u003e",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": false,
         "comments": []
@@ -71074,8 +71085,8 @@
         "name": "pendingClientEvents",
         "jsonName": "pendingClientEvents",
         "goType": "[]ServerPluginEvent",
-        "typescriptType": "Array\u003cServerPluginEvent\u003e",
-        "usedTypescriptType": "ServerPluginEvent",
+        "typescriptType": "Array\u003cPluginUI_ServerPluginEvent\u003e",
+        "usedTypescriptType": "PluginUI_ServerPluginEvent",
         "usedStructName": "plugin_ui.ServerPluginEvent",
         "required": false,
         "public": false,
@@ -71129,24 +71140,11 @@
         "comments": []
       },
       {
-        "name": "webviewManager",
-        "jsonName": "webviewManager",
-        "goType": "WebviewManager",
-        "typescriptType": "WebviewManager",
-        "usedTypescriptType": "WebviewManager",
-        "usedStructName": "plugin_ui.WebviewManager",
-        "required": false,
-        "public": false,
-        "comments": [
-          " UNUSED"
-        ]
-      },
-      {
         "name": "screenManager",
         "jsonName": "screenManager",
         "goType": "ScreenManager",
-        "typescriptType": "ScreenManager",
-        "usedTypescriptType": "ScreenManager",
+        "typescriptType": "PluginUI_ScreenManager",
+        "usedTypescriptType": "PluginUI_ScreenManager",
         "usedStructName": "plugin_ui.ScreenManager",
         "required": false,
         "public": false,
@@ -71158,8 +71156,8 @@
         "name": "trayManager",
         "jsonName": "trayManager",
         "goType": "TrayManager",
-        "typescriptType": "TrayManager",
-        "usedTypescriptType": "TrayManager",
+        "typescriptType": "PluginUI_TrayManager",
+        "usedTypescriptType": "PluginUI_TrayManager",
         "usedStructName": "plugin_ui.TrayManager",
         "required": false,
         "public": false,
@@ -71168,11 +71166,24 @@
         ]
       },
       {
+        "name": "webviewManager",
+        "jsonName": "webviewManager",
+        "goType": "WebviewManager",
+        "typescriptType": "PluginUI_WebviewManager",
+        "usedTypescriptType": "PluginUI_WebviewManager",
+        "usedStructName": "plugin_ui.WebviewManager",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Register and manage webviews"
+        ]
+      },
+      {
         "name": "actionManager",
         "jsonName": "actionManager",
         "goType": "ActionManager",
-        "typescriptType": "ActionManager",
-        "usedTypescriptType": "ActionManager",
+        "typescriptType": "PluginUI_ActionManager",
+        "usedTypescriptType": "PluginUI_ActionManager",
         "usedStructName": "plugin_ui.ActionManager",
         "required": false,
         "public": false,
@@ -71184,8 +71195,8 @@
         "name": "formManager",
         "jsonName": "formManager",
         "goType": "FormManager",
-        "typescriptType": "FormManager",
-        "usedTypescriptType": "FormManager",
+        "typescriptType": "PluginUI_FormManager",
+        "usedTypescriptType": "PluginUI_FormManager",
         "usedStructName": "plugin_ui.FormManager",
         "required": false,
         "public": false,
@@ -71197,8 +71208,8 @@
         "name": "toastManager",
         "jsonName": "toastManager",
         "goType": "ToastManager",
-        "typescriptType": "ToastManager",
-        "usedTypescriptType": "ToastManager",
+        "typescriptType": "PluginUI_ToastManager",
+        "usedTypescriptType": "PluginUI_ToastManager",
         "usedStructName": "plugin_ui.ToastManager",
         "required": false,
         "public": false,
@@ -71210,8 +71221,8 @@
         "name": "commandPaletteManager",
         "jsonName": "commandPaletteManager",
         "goType": "CommandPaletteManager",
-        "typescriptType": "CommandPaletteManager",
-        "usedTypescriptType": "CommandPaletteManager",
+        "typescriptType": "PluginUI_CommandPaletteManager",
+        "usedTypescriptType": "PluginUI_CommandPaletteManager",
         "usedStructName": "plugin_ui.CommandPaletteManager",
         "required": false,
         "public": false,
@@ -71223,8 +71234,8 @@
         "name": "domManager",
         "jsonName": "domManager",
         "goType": "DOMManager",
-        "typescriptType": "DOMManager",
-        "usedTypescriptType": "DOMManager",
+        "typescriptType": "PluginUI_DOMManager",
+        "usedTypescriptType": "PluginUI_DOMManager",
         "usedStructName": "plugin_ui.DOMManager",
         "required": false,
         "public": false,
@@ -71236,8 +71247,8 @@
         "name": "notificationManager",
         "jsonName": "notificationManager",
         "goType": "NotificationManager",
-        "typescriptType": "NotificationManager",
-        "usedTypescriptType": "NotificationManager",
+        "typescriptType": "PluginUI_NotificationManager",
+        "usedTypescriptType": "PluginUI_NotificationManager",
         "usedStructName": "plugin_ui.NotificationManager",
         "required": false,
         "public": false,
@@ -71291,8 +71302,38 @@
   {
     "filepath": "../internal/plugin/ui/context.go",
     "filename": "context.go",
+    "name": "StateSubscriber",
+    "formattedName": "PluginUI_StateSubscriber",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Chan",
+        "jsonName": "Chan",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "closeOnce",
+        "jsonName": "closeOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/context.go",
+    "filename": "context.go",
     "name": "State",
-    "formattedName": "State",
+    "formattedName": "PluginUI_State",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71322,7 +71363,7 @@
     "filepath": "../internal/plugin/ui/context.go",
     "filename": "context.go",
     "name": "EventListener",
-    "formattedName": "EventListener",
+    "formattedName": "PluginUI_EventListener",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71338,8 +71379,8 @@
         "name": "ListenTo",
         "jsonName": "ListenTo",
         "goType": "[]ClientEventType",
-        "typescriptType": "Array\u003cClientEventType\u003e",
-        "usedTypescriptType": "ClientEventType",
+        "typescriptType": "Array\u003cPluginUI_ClientEventType\u003e",
+        "usedTypescriptType": "PluginUI_ClientEventType",
         "usedStructName": "plugin_ui.ClientEventType",
         "required": false,
         "public": true,
@@ -71351,8 +71392,8 @@
         "name": "queue",
         "jsonName": "queue",
         "goType": "[]ClientPluginEvent",
-        "typescriptType": "Array\u003cClientPluginEvent\u003e",
-        "usedTypescriptType": "ClientPluginEvent",
+        "typescriptType": "Array\u003cPluginUI_ClientPluginEvent\u003e",
+        "usedTypescriptType": "PluginUI_ClientPluginEvent",
         "usedStructName": "plugin_ui.ClientPluginEvent",
         "required": false,
         "public": false,
@@ -71400,15 +71441,15 @@
     "filepath": "../internal/plugin/ui/dom.go",
     "filename": "dom.go",
     "name": "DOMManager",
-    "formattedName": "DOMManager",
+    "formattedName": "PluginUI_DOMManager",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ctx",
         "jsonName": "ctx",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -71441,7 +71482,7 @@
     "filepath": "../internal/plugin/ui/dom.go",
     "filename": "dom.go",
     "name": "ElementObserver",
-    "formattedName": "ElementObserver",
+    "formattedName": "PluginUI_ElementObserver",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71480,7 +71521,7 @@
     "filepath": "../internal/plugin/ui/dom.go",
     "filename": "dom.go",
     "name": "DOMEventListener",
-    "formattedName": "DOMEventListener",
+    "formattedName": "PluginUI_DOMEventListener",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71528,7 +71569,7 @@
     "filepath": "../internal/plugin/ui/dom.go",
     "filename": "dom.go",
     "name": "QueryElementOptions",
-    "formattedName": "QueryElementOptions",
+    "formattedName": "PluginUI_QueryElementOptions",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71565,7 +71606,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientEventType",
-    "formattedName": "ClientEventType",
+    "formattedName": "PluginUI_ClientEventType",
     "package": "plugin_ui",
     "fields": [],
     "aliasOf": {
@@ -71577,6 +71618,8 @@
         "\"tray:opened\"",
         "\"tray:closed\"",
         "\"tray:clicked\"",
+        "\"webview:mounted\"",
+        "\"webview:unmounted\"",
         "\"command-palette:list\"",
         "\"command-palette:opened\"",
         "\"command-palette:closed\"",
@@ -71612,7 +71655,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientPluginEvent",
-    "formattedName": "ClientPluginEvent",
+    "formattedName": "PluginUI_ClientPluginEvent",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71628,8 +71671,8 @@
         "name": "Type",
         "jsonName": "type",
         "goType": "ClientEventType",
-        "typescriptType": "ClientEventType",
-        "usedTypescriptType": "ClientEventType",
+        "typescriptType": "PluginUI_ClientEventType",
+        "usedTypescriptType": "PluginUI_ClientEventType",
         "usedStructName": "plugin_ui.ClientEventType",
         "required": true,
         "public": true,
@@ -71653,7 +71696,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientRenderTrayEventPayload",
-    "formattedName": "ClientRenderTrayEventPayload",
+    "formattedName": "PluginUI_ClientRenderTrayEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71662,7 +71705,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientListTrayIconsEventPayload",
-    "formattedName": "ClientListTrayIconsEventPayload",
+    "formattedName": "PluginUI_ClientListTrayIconsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71671,7 +71714,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientTrayOpenedEventPayload",
-    "formattedName": "ClientTrayOpenedEventPayload",
+    "formattedName": "PluginUI_ClientTrayOpenedEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71680,7 +71723,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientTrayClosedEventPayload",
-    "formattedName": "ClientTrayClosedEventPayload",
+    "formattedName": "PluginUI_ClientTrayClosedEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71689,7 +71732,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientTrayClickedEventPayload",
-    "formattedName": "ClientTrayClickedEventPayload",
+    "formattedName": "PluginUI_ClientTrayClickedEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71697,8 +71740,46 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
+    "name": "ClientWebviewMountedEventPayload",
+    "formattedName": "PluginUI_ClientWebviewMountedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Slot",
+        "jsonName": "slot",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientWebviewUnmountedEventPayload",
+    "formattedName": "PluginUI_ClientWebviewUnmountedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Slot",
+        "jsonName": "slot",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
     "name": "ClientActionRenderAnimePageButtonsEventPayload",
-    "formattedName": "ClientActionRenderAnimePageButtonsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderAnimePageButtonsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71707,7 +71788,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientActionRenderAnimePageDropdownItemsEventPayload",
-    "formattedName": "ClientActionRenderAnimePageDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderAnimePageDropdownItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71716,7 +71797,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientActionRenderMangaPageButtonsEventPayload",
-    "formattedName": "ClientActionRenderMangaPageButtonsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderMangaPageButtonsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71725,7 +71806,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientActionRenderMediaCardContextMenuItemsEventPayload",
-    "formattedName": "ClientActionRenderMediaCardContextMenuItemsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderMediaCardContextMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71734,7 +71815,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientActionRenderAnimeLibraryDropdownItemsEventPayload",
-    "formattedName": "ClientActionRenderAnimeLibraryDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderAnimeLibraryDropdownItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71743,7 +71824,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientActionRenderEpisodeCardContextMenuItemsEventPayload",
-    "formattedName": "ClientActionRenderEpisodeCardContextMenuItemsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderEpisodeCardContextMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71752,7 +71833,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientActionRenderEpisodeGridItemMenuItemsEventPayload",
-    "formattedName": "ClientActionRenderEpisodeGridItemMenuItemsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderEpisodeGridItemMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71761,7 +71842,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientListCommandPalettesEventPayload",
-    "formattedName": "ClientListCommandPalettesEventPayload",
+    "formattedName": "PluginUI_ClientListCommandPalettesEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71770,7 +71851,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientCommandPaletteOpenedEventPayload",
-    "formattedName": "ClientCommandPaletteOpenedEventPayload",
+    "formattedName": "PluginUI_ClientCommandPaletteOpenedEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71779,7 +71860,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientCommandPaletteClosedEventPayload",
-    "formattedName": "ClientCommandPaletteClosedEventPayload",
+    "formattedName": "PluginUI_ClientCommandPaletteClosedEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71788,7 +71869,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientActionClickedEventPayload",
-    "formattedName": "ClientActionClickedEventPayload",
+    "formattedName": "PluginUI_ClientActionClickedEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71816,7 +71897,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientEventHandlerTriggeredEventPayload",
-    "formattedName": "ClientEventHandlerTriggeredEventPayload",
+    "formattedName": "PluginUI_ClientEventHandlerTriggeredEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71844,7 +71925,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientFormSubmittedEventPayload",
-    "formattedName": "ClientFormSubmittedEventPayload",
+    "formattedName": "PluginUI_ClientFormSubmittedEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71872,7 +71953,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientScreenChangedEventPayload",
-    "formattedName": "ClientScreenChangedEventPayload",
+    "formattedName": "PluginUI_ClientScreenChangedEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71900,7 +71981,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientFieldRefSendValueEventPayload",
-    "formattedName": "ClientFieldRefSendValueEventPayload",
+    "formattedName": "PluginUI_ClientFieldRefSendValueEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71928,7 +72009,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientRenderCommandPaletteEventPayload",
-    "formattedName": "ClientRenderCommandPaletteEventPayload",
+    "formattedName": "PluginUI_ClientRenderCommandPaletteEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -71937,7 +72018,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientCommandPaletteItemSelectedEventPayload",
-    "formattedName": "ClientCommandPaletteItemSelectedEventPayload",
+    "formattedName": "PluginUI_ClientCommandPaletteItemSelectedEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71956,7 +72037,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientCommandPaletteInputEventPayload",
-    "formattedName": "ClientCommandPaletteInputEventPayload",
+    "formattedName": "PluginUI_ClientCommandPaletteInputEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -71975,7 +72056,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientDOMEventTriggeredEventPayload",
-    "formattedName": "ClientDOMEventTriggeredEventPayload",
+    "formattedName": "PluginUI_ClientDOMEventTriggeredEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72012,7 +72093,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientDOMQueryResultEventPayload",
-    "formattedName": "ClientDOMQueryResultEventPayload",
+    "formattedName": "PluginUI_ClientDOMQueryResultEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72040,7 +72121,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientDOMQueryOneResultEventPayload",
-    "formattedName": "ClientDOMQueryOneResultEventPayload",
+    "formattedName": "PluginUI_ClientDOMQueryOneResultEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72068,7 +72149,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientDOMObserveResultEventPayload",
-    "formattedName": "ClientDOMObserveResultEventPayload",
+    "formattedName": "PluginUI_ClientDOMObserveResultEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72096,7 +72177,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientDOMCreateResultEventPayload",
-    "formattedName": "ClientDOMCreateResultEventPayload",
+    "formattedName": "PluginUI_ClientDOMCreateResultEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72124,7 +72205,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientDOMElementUpdatedEventPayload",
-    "formattedName": "ClientDOMElementUpdatedEventPayload",
+    "formattedName": "PluginUI_ClientDOMElementUpdatedEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72170,7 +72251,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientDOMStopObserveEventPayload",
-    "formattedName": "ClientDOMStopObserveEventPayload",
+    "formattedName": "PluginUI_ClientDOMStopObserveEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72189,7 +72270,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientDOMReadyEventPayload",
-    "formattedName": "ClientDOMReadyEventPayload",
+    "formattedName": "PluginUI_ClientDOMReadyEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -72198,7 +72279,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ClientDOMMainTabReadyEventPayload",
-    "formattedName": "ClientDOMMainTabReadyEventPayload",
+    "formattedName": "PluginUI_ClientDOMMainTabReadyEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -72207,7 +72288,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerEventType",
-    "formattedName": "ServerEventType",
+    "formattedName": "PluginUI_ServerEventType",
     "package": "plugin_ui",
     "fields": [],
     "aliasOf": {
@@ -72219,6 +72300,9 @@
         "\"tray:badge-updated\"",
         "\"tray:open\"",
         "\"tray:close\"",
+        "\"webview:updated\"",
+        "\"webview:iframe\"",
+        "\"webview:sync-state\"",
         "\"command-palette:info\"",
         "\"command-palette:updated\"",
         "\"command-palette:open\"",
@@ -72254,7 +72338,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerPluginEvent",
-    "formattedName": "ServerPluginEvent",
+    "formattedName": "PluginUI_ServerPluginEvent",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72272,8 +72356,8 @@
         "name": "Type",
         "jsonName": "type",
         "goType": "ServerEventType",
-        "typescriptType": "ServerEventType",
-        "usedTypescriptType": "ServerEventType",
+        "typescriptType": "PluginUI_ServerEventType",
+        "usedTypescriptType": "PluginUI_ServerEventType",
         "usedStructName": "plugin_ui.ServerEventType",
         "required": true,
         "public": true,
@@ -72297,7 +72381,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerTrayUpdatedEventPayload",
-    "formattedName": "ServerTrayUpdatedEventPayload",
+    "formattedName": "PluginUI_ServerTrayUpdatedEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72316,7 +72400,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerCommandPaletteUpdatedEventPayload",
-    "formattedName": "ServerCommandPaletteUpdatedEventPayload",
+    "formattedName": "PluginUI_ServerCommandPaletteUpdatedEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72344,7 +72428,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerTrayOpenEventPayload",
-    "formattedName": "ServerTrayOpenEventPayload",
+    "formattedName": "PluginUI_ServerTrayOpenEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72363,7 +72447,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerTrayCloseEventPayload",
-    "formattedName": "ServerTrayCloseEventPayload",
+    "formattedName": "PluginUI_ServerTrayCloseEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72382,7 +72466,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerTrayIconEventPayload",
-    "formattedName": "ServerTrayIconEventPayload",
+    "formattedName": "PluginUI_ServerTrayIconEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72482,7 +72566,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerTrayBadgeUpdatedEventPayload",
-    "formattedName": "ServerTrayBadgeUpdatedEventPayload",
+    "formattedName": "PluginUI_ServerTrayBadgeUpdatedEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72509,8 +72593,119 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
+    "name": "ServerWebviewUpdatedEventPayload",
+    "formattedName": "PluginUI_ServerWebviewUpdatedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Slot",
+        "jsonName": "slot",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Components",
+        "jsonName": "components",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerWebviewIframeEventPayload",
+    "formattedName": "PluginUI_ServerWebviewIframeEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Slot",
+        "jsonName": "slot",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Content",
+        "jsonName": "content",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerWebviewSyncStateEventPayload",
+    "formattedName": "PluginUI_ServerWebviewSyncStateEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "WebviewID",
+        "jsonName": "webviewId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Key",
+        "jsonName": "key",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Token",
+        "jsonName": "token",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
     "name": "ServerFormResetEventPayload",
-    "formattedName": "ServerFormResetEventPayload",
+    "formattedName": "PluginUI_ServerFormResetEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72540,7 +72735,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerFormSetValuesEventPayload",
-    "formattedName": "ServerFormSetValuesEventPayload",
+    "formattedName": "PluginUI_ServerFormSetValuesEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72568,7 +72763,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerFieldRefSetValueEventPayload",
-    "formattedName": "ServerFieldRefSetValueEventPayload",
+    "formattedName": "PluginUI_ServerFieldRefSetValueEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72596,7 +72791,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerFieldRefGetValueEventPayload",
-    "formattedName": "ServerFieldRefGetValueEventPayload",
+    "formattedName": "PluginUI_ServerFieldRefGetValueEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72615,7 +72810,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerFatalErrorEventPayload",
-    "formattedName": "ServerFatalErrorEventPayload",
+    "formattedName": "PluginUI_ServerFatalErrorEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72634,7 +72829,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerScreenNavigateToEventPayload",
-    "formattedName": "ServerScreenNavigateToEventPayload",
+    "formattedName": "PluginUI_ServerScreenNavigateToEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72653,7 +72848,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerActionRenderAnimePageButtonsEventPayload",
-    "formattedName": "ServerActionRenderAnimePageButtonsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderAnimePageButtonsEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72672,7 +72867,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerActionRenderAnimePageDropdownItemsEventPayload",
-    "formattedName": "ServerActionRenderAnimePageDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderAnimePageDropdownItemsEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72691,7 +72886,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerActionRenderMangaPageButtonsEventPayload",
-    "formattedName": "ServerActionRenderMangaPageButtonsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderMangaPageButtonsEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72710,7 +72905,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerActionRenderMediaCardContextMenuItemsEventPayload",
-    "formattedName": "ServerActionRenderMediaCardContextMenuItemsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderMediaCardContextMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72729,7 +72924,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerActionRenderAnimeLibraryDropdownItemsEventPayload",
-    "formattedName": "ServerActionRenderAnimeLibraryDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderAnimeLibraryDropdownItemsEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72748,7 +72943,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerActionRenderEpisodeCardContextMenuItemsEventPayload",
-    "formattedName": "ServerActionRenderEpisodeCardContextMenuItemsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderEpisodeCardContextMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72767,7 +72962,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerActionRenderEpisodeGridItemMenuItemsEventPayload",
-    "formattedName": "ServerActionRenderEpisodeGridItemMenuItemsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderEpisodeGridItemMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72786,7 +72981,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerScreenReloadEventPayload",
-    "formattedName": "ServerScreenReloadEventPayload",
+    "formattedName": "PluginUI_ServerScreenReloadEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -72795,7 +72990,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerCommandPaletteInfoEventPayload",
-    "formattedName": "ServerCommandPaletteInfoEventPayload",
+    "formattedName": "PluginUI_ServerCommandPaletteInfoEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72823,7 +73018,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerCommandPaletteOpenEventPayload",
-    "formattedName": "ServerCommandPaletteOpenEventPayload",
+    "formattedName": "PluginUI_ServerCommandPaletteOpenEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -72832,7 +73027,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerCommandPaletteCloseEventPayload",
-    "formattedName": "ServerCommandPaletteCloseEventPayload",
+    "formattedName": "PluginUI_ServerCommandPaletteCloseEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -72841,7 +73036,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerCommandPaletteGetInputEventPayload",
-    "formattedName": "ServerCommandPaletteGetInputEventPayload",
+    "formattedName": "PluginUI_ServerCommandPaletteGetInputEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -72850,7 +73045,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerCommandPaletteSetInputEventPayload",
-    "formattedName": "ServerCommandPaletteSetInputEventPayload",
+    "formattedName": "PluginUI_ServerCommandPaletteSetInputEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72869,7 +73064,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerScreenGetCurrentEventPayload",
-    "formattedName": "ServerScreenGetCurrentEventPayload",
+    "formattedName": "PluginUI_ServerScreenGetCurrentEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -72878,7 +73073,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerDOMQueryEventPayload",
-    "formattedName": "ServerDOMQueryEventPayload",
+    "formattedName": "PluginUI_ServerDOMQueryEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72935,7 +73130,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerDOMQueryOneEventPayload",
-    "formattedName": "ServerDOMQueryOneEventPayload",
+    "formattedName": "PluginUI_ServerDOMQueryOneEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72990,7 +73185,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerDOMObserveEventPayload",
-    "formattedName": "ServerDOMObserveEventPayload",
+    "formattedName": "PluginUI_ServerDOMObserveEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73045,7 +73240,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerDOMStopObserveEventPayload",
-    "formattedName": "ServerDOMStopObserveEventPayload",
+    "formattedName": "PluginUI_ServerDOMStopObserveEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73064,7 +73259,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerDOMCreateEventPayload",
-    "formattedName": "ServerDOMCreateEventPayload",
+    "formattedName": "PluginUI_ServerDOMCreateEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73092,7 +73287,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerDOMManipulateEventPayload",
-    "formattedName": "ServerDOMManipulateEventPayload",
+    "formattedName": "PluginUI_ServerDOMManipulateEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73138,7 +73333,7 @@
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
     "name": "ServerDOMObserveInViewEventPayload",
-    "formattedName": "ServerDOMObserveInViewEventPayload",
+    "formattedName": "PluginUI_ServerDOMObserveInViewEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73202,15 +73397,15 @@
     "filepath": "../internal/plugin/ui/form.go",
     "filename": "form.go",
     "name": "FormManager",
-    "formattedName": "FormManager",
+    "formattedName": "PluginUI_FormManager",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ctx",
         "jsonName": "ctx",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -73223,7 +73418,7 @@
     "filepath": "../internal/plugin/ui/form.go",
     "filename": "form.go",
     "name": "FormField",
-    "formattedName": "FormField",
+    "formattedName": "PluginUI_FormField",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73284,8 +73479,8 @@
         "name": "Options",
         "jsonName": "options",
         "goType": "[]FormFieldOption",
-        "typescriptType": "Array\u003cFormFieldOption\u003e",
-        "usedTypescriptType": "FormFieldOption",
+        "typescriptType": "Array\u003cPluginUI_FormFieldOption\u003e",
+        "usedTypescriptType": "PluginUI_FormFieldOption",
         "usedStructName": "plugin_ui.FormFieldOption",
         "required": false,
         "public": true,
@@ -73307,7 +73502,7 @@
     "filepath": "../internal/plugin/ui/form.go",
     "filename": "form.go",
     "name": "FormFieldOption",
-    "formattedName": "FormFieldOption",
+    "formattedName": "PluginUI_FormFieldOption",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73335,7 +73530,7 @@
     "filepath": "../internal/plugin/ui/form.go",
     "filename": "form.go",
     "name": "Form",
-    "formattedName": "Form",
+    "formattedName": "PluginUI_Form",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73369,8 +73564,8 @@
         "name": "Props",
         "jsonName": "props",
         "goType": "FormProps",
-        "typescriptType": "FormProps",
-        "usedTypescriptType": "FormProps",
+        "typescriptType": "PluginUI_FormProps",
+        "usedTypescriptType": "PluginUI_FormProps",
         "usedStructName": "plugin_ui.FormProps",
         "required": true,
         "public": true,
@@ -73380,8 +73575,8 @@
         "name": "manager",
         "jsonName": "manager",
         "goType": "FormManager",
-        "typescriptType": "FormManager",
-        "usedTypescriptType": "FormManager",
+        "typescriptType": "PluginUI_FormManager",
+        "usedTypescriptType": "PluginUI_FormManager",
         "usedStructName": "plugin_ui.FormManager",
         "required": false,
         "public": false,
@@ -73394,7 +73589,7 @@
     "filepath": "../internal/plugin/ui/form.go",
     "filename": "form.go",
     "name": "FormProps",
-    "formattedName": "FormProps",
+    "formattedName": "PluginUI_FormProps",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73410,8 +73605,8 @@
         "name": "Fields",
         "jsonName": "fields",
         "goType": "[]FormField",
-        "typescriptType": "Array\u003cFormField\u003e",
-        "usedTypescriptType": "FormField",
+        "typescriptType": "Array\u003cPluginUI_FormField\u003e",
+        "usedTypescriptType": "PluginUI_FormField",
         "usedStructName": "plugin_ui.FormField",
         "required": false,
         "public": true,
@@ -73424,15 +73619,15 @@
     "filepath": "../internal/plugin/ui/notification.go",
     "filename": "notification.go",
     "name": "NotificationManager",
-    "formattedName": "NotificationManager",
+    "formattedName": "PluginUI_NotificationManager",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ctx",
         "jsonName": "ctx",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -73445,15 +73640,15 @@
     "filepath": "../internal/plugin/ui/screen.go",
     "filename": "screen.go",
     "name": "ScreenManager",
-    "formattedName": "ScreenManager",
+    "formattedName": "PluginUI_ScreenManager",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ctx",
         "jsonName": "ctx",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -73477,15 +73672,15 @@
     "filepath": "../internal/plugin/ui/toast.go",
     "filename": "toast.go",
     "name": "ToastManager",
-    "formattedName": "ToastManager",
+    "formattedName": "PluginUI_ToastManager",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ctx",
         "jsonName": "ctx",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -73498,15 +73693,15 @@
     "filepath": "../internal/plugin/ui/tray.go",
     "filename": "tray.go",
     "name": "TrayManager",
-    "formattedName": "TrayManager",
+    "formattedName": "PluginUI_TrayManager",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ctx",
         "jsonName": "ctx",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -73546,8 +73741,8 @@
         "name": "componentManager",
         "jsonName": "componentManager",
         "goType": "ComponentManager",
-        "typescriptType": "ComponentManager",
-        "usedTypescriptType": "ComponentManager",
+        "typescriptType": "PluginUI_ComponentManager",
+        "usedTypescriptType": "PluginUI_ComponentManager",
         "usedStructName": "plugin_ui.ComponentManager",
         "required": false,
         "public": false,
@@ -73560,7 +73755,7 @@
     "filepath": "../internal/plugin/ui/tray.go",
     "filename": "tray.go",
     "name": "Tray",
-    "formattedName": "Tray",
+    "formattedName": "PluginUI_Tray",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73648,8 +73843,8 @@
         "name": "trayManager",
         "jsonName": "trayManager",
         "goType": "TrayManager",
-        "typescriptType": "TrayManager",
-        "usedTypescriptType": "TrayManager",
+        "typescriptType": "PluginUI_TrayManager",
+        "usedTypescriptType": "PluginUI_TrayManager",
         "usedStructName": "plugin_ui.TrayManager",
         "required": false,
         "public": false,
@@ -73662,7 +73857,7 @@
     "filepath": "../internal/plugin/ui/tray.go",
     "filename": "tray.go",
     "name": "Component",
-    "formattedName": "Component",
+    "formattedName": "PluginUI_Component",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73708,7 +73903,7 @@
     "filepath": "../internal/plugin/ui/ui.go",
     "filename": "ui.go",
     "name": "UI",
-    "formattedName": "UI",
+    "formattedName": "PluginUI_UI",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73726,8 +73921,8 @@
         "name": "context",
         "jsonName": "context",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
@@ -73837,7 +74032,7 @@
     "filepath": "../internal/plugin/ui/ui.go",
     "filename": "ui.go",
     "name": "NewUIOptions",
-    "formattedName": "NewUIOptions",
+    "formattedName": "PluginUI_NewUIOptions",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73913,7 +74108,7 @@
     "filepath": "../internal/plugin/ui/ui.go",
     "filename": "ui.go",
     "name": "BatchedClientEvents",
-    "formattedName": "BatchedClientEvents",
+    "formattedName": "PluginUI_BatchedClientEvents",
     "package": "plugin_ui",
     "fields": [
       {
@@ -73934,19 +74129,191 @@
   {
     "filepath": "../internal/plugin/ui/webview.go",
     "filename": "webview.go",
+    "name": "WebviewSlot",
+    "formattedName": "PluginUI_WebviewSlot",
+    "package": "plugin_ui",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"fixed\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/webview.go",
+    "filename": "webview.go",
     "name": "WebviewManager",
-    "formattedName": "WebviewManager",
+    "formattedName": "PluginUI_WebviewManager",
     "package": "plugin_ui",
     "fields": [
       {
         "name": "ctx",
         "jsonName": "ctx",
         "goType": "Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
         "usedStructName": "plugin_ui.Context",
         "required": false,
         "public": false,
+        "comments": []
+      },
+      {
+        "name": "webviews",
+        "jsonName": "webviews",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "updateMutex",
+        "jsonName": "updateMutex",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "componentManager",
+        "jsonName": "componentManager",
+        "goType": "ComponentManager",
+        "typescriptType": "PluginUI_ComponentManager",
+        "usedTypescriptType": "PluginUI_ComponentManager",
+        "usedStructName": "plugin_ui.ComponentManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/webview.go",
+    "filename": "webview.go",
+    "name": "WebviewChannel",
+    "formattedName": "PluginUI_WebviewChannel",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "webview",
+        "jsonName": "webview",
+        "goType": "Webview",
+        "typescriptType": "PluginUI_Webview",
+        "usedTypescriptType": "PluginUI_Webview",
+        "usedStructName": "plugin_ui.Webview",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "syncedStates",
+        "jsonName": "syncedStates",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " map[key]stateID"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/webview.go",
+    "filename": "webview.go",
+    "name": "Webview",
+    "formattedName": "PluginUI_Webview",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "webviewManager",
+        "jsonName": "webviewManager",
+        "goType": "WebviewManager",
+        "typescriptType": "PluginUI_WebviewManager",
+        "usedTypescriptType": "PluginUI_WebviewManager",
+        "usedStructName": "plugin_ui.WebviewManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "id",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "channel",
+        "jsonName": "channel",
+        "goType": "WebviewChannel",
+        "typescriptType": "PluginUI_WebviewChannel",
+        "usedTypescriptType": "PluginUI_WebviewChannel",
+        "usedStructName": "plugin_ui.WebviewChannel",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "renderFunc",
+        "jsonName": "renderFunc",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mounted",
+        "jsonName": "mounted",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "contentFunc",
+        "jsonName": "contentFunc",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastUpdatedAt",
+        "jsonName": "lastUpdatedAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " for renderFunc"
+        ]
+      },
+      {
+        "name": "Slot",
+        "jsonName": "Slot",
+        "goType": "WebviewSlot",
+        "typescriptType": "PluginUI_WebviewSlot",
+        "usedTypescriptType": "PluginUI_WebviewSlot",
+        "usedStructName": "plugin_ui.WebviewSlot",
+        "required": true,
+        "public": true,
         "comments": []
       }
     ],

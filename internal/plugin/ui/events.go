@@ -18,11 +18,13 @@ type ClientPluginEvent struct {
 }
 
 const (
-	ClientRenderTrayEvent                              ClientEventType = "tray:render"                                   // Client wants to render the tray
-	ClientListTrayIconsEvent                           ClientEventType = "tray:list-icons"                               // Client wants to list all icons from all plugins
-	ClientTrayOpenedEvent                              ClientEventType = "tray:opened"                                   // When the tray is opened
-	ClientTrayClosedEvent                              ClientEventType = "tray:closed"                                   // When the tray is closed
-	ClientTrayClickedEvent                             ClientEventType = "tray:clicked"                                  // When the tray is clicked
+	ClientRenderTrayEvent                              ClientEventType = "tray:render"     // Client wants to render the tray
+	ClientListTrayIconsEvent                           ClientEventType = "tray:list-icons" // Client wants to list all icons from all plugins
+	ClientTrayOpenedEvent                              ClientEventType = "tray:opened"     // When the tray is opened
+	ClientTrayClosedEvent                              ClientEventType = "tray:closed"     // When the tray is closed
+	ClientTrayClickedEvent                             ClientEventType = "tray:clicked"    // When the tray is clicked
+	ClientWebviewMountedEvent                          ClientEventType = "webview:mounted"
+	ClientWebviewUnmountedEvent                        ClientEventType = "webview:unmounted"
 	ClientListCommandPalettesEvent                     ClientEventType = "command-palette:list"                          // When the client wants to list all command palettes
 	ClientCommandPaletteOpenedEvent                    ClientEventType = "command-palette:opened"                        // When the client opens the command palette
 	ClientCommandPaletteClosedEvent                    ClientEventType = "command-palette:closed"                        // When the client closes the command palette
@@ -58,6 +60,12 @@ type ClientListTrayIconsEventPayload struct{}
 type ClientTrayOpenedEventPayload struct{}
 type ClientTrayClosedEventPayload struct{}
 type ClientTrayClickedEventPayload struct{}
+type ClientWebviewMountedEventPayload struct {
+	Slot string `json:"slot"`
+}
+type ClientWebviewUnmountedEventPayload struct {
+	Slot string `json:"slot"`
+}
 type ClientActionRenderAnimePageButtonsEventPayload struct{}
 type ClientActionRenderAnimePageDropdownItemsEventPayload struct{}
 type ClientActionRenderMangaPageButtonsEventPayload struct{}
@@ -164,11 +172,16 @@ type ServerPluginEvent struct {
 }
 
 const (
-	ServerTrayUpdatedEvent                             ServerEventType = "tray:updated"                                   // When the trays are updated
-	ServerTrayIconEvent                                ServerEventType = "tray:icon"                                      // When the tray sends its icon to the client
-	ServerTrayBadgeUpdatedEvent                        ServerEventType = "tray:badge-updated"                             // When the tray badge is updated
-	ServerTrayOpenEvent                                ServerEventType = "tray:open"                                      // When the tray is opened
-	ServerTrayCloseEvent                               ServerEventType = "tray:close"                                     // When the tray is closed
+	ServerTrayUpdatedEvent      ServerEventType = "tray:updated"       // When the trays are updated
+	ServerTrayIconEvent         ServerEventType = "tray:icon"          // When the tray sends its icon to the client
+	ServerTrayBadgeUpdatedEvent ServerEventType = "tray:badge-updated" // When the tray badge is updated
+	ServerTrayOpenEvent         ServerEventType = "tray:open"          // When the tray is opened
+	ServerTrayCloseEvent        ServerEventType = "tray:close"         // When the tray is closed
+
+	ServerWebviewUpdatedEvent   ServerEventType = "webview:updated"    // When the webviews are updated
+	ServerWebviewIframeEvent    ServerEventType = "webview:iframe"     // When the webviews are updated
+	ServerWebviewSyncStateEvent ServerEventType = "webview:sync-state" // When a state is synced to the webview
+
 	ServerCommandPaletteInfoEvent                      ServerEventType = "command-palette:info"                           // When the command palette sends its state to the client
 	ServerCommandPaletteUpdatedEvent                   ServerEventType = "command-palette:updated"                        // When the command palette is updated
 	ServerCommandPaletteOpenEvent                      ServerEventType = "command-palette:open"                           // When the command palette is opened
@@ -232,6 +245,24 @@ type ServerTrayIconEventPayload struct {
 type ServerTrayBadgeUpdatedEventPayload struct {
 	BadgeNumber int    `json:"badgeNumber"`
 	BadgeIntent string `json:"badgeIntent"`
+}
+
+type ServerWebviewUpdatedEventPayload struct {
+	Slot       string      `json:"slot"`
+	Components interface{} `json:"components"`
+}
+
+type ServerWebviewIframeEventPayload struct {
+	Slot    string `json:"slot"`
+	Content string `json:"content"`
+	ID      string `json:"id"`
+}
+
+type ServerWebviewSyncStateEventPayload struct {
+	WebviewID string      `json:"webviewId"`
+	Key       string      `json:"key"`
+	Value     interface{} `json:"value"`
+	Token     string      `json:"token"`
 }
 
 type ServerFormResetEventPayload struct {

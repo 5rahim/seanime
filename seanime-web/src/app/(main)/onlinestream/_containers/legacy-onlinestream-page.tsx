@@ -72,6 +72,7 @@ export function LegacyOnlinestreamPage({ animeEntry, animeEntryLoading, hideBack
         loadPage,
         // media,
         episodeSource,
+        videoSource,
         currentEpisodeNumber,
         handleChangeEpisodeNumber,
         episodeLoading,
@@ -296,7 +297,7 @@ export function LegacyOnlinestreamPage({ animeEntry, animeEntryLoading, hideBack
                             onCanPlay={onCanPlay}
                             onGoToNextEpisode={hasNextEpisode ? goToNextEpisode : undefined}
                             onGoToPreviousEpisode={hasPreviousEpisode ? goToPreviousEpisode : undefined}
-                            tracks={episodeSource?.subtitles?.map((sub) => ({
+                            tracks={videoSource?.subtitles?.map((sub) => ({
                                 id: sub.language,
                                 label: sub.language,
                                 kind: "subtitles",

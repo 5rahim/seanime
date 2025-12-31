@@ -8,6 +8,8 @@ export enum PluginClientEvents {
     TrayOpened = "tray:opened",
     TrayClosed = "tray:closed",
     TrayClicked = "tray:clicked",
+    WebviewMounted = "webview:mounted",
+    WebviewUnmounted = "webview:unmounted",
     ListCommandPalettes = "command-palette:list",
     CommandPaletteOpened = "command-palette:opened",
     CommandPaletteClosed = "command-palette:closed",
@@ -43,6 +45,9 @@ export enum PluginServerEvents {
     TrayBadgeUpdated = "tray:badge-updated",
     TrayOpen = "tray:open",
     TrayClose = "tray:close",
+    WebviewUpdated = "webview:updated",
+    WebviewIframe = "webview:iframe",
+    WebviewSyncState = "webview:sync-state",
     CommandPaletteInfo = "command-palette:info",
     CommandPaletteUpdated = "command-palette:updated",
     CommandPaletteOpen = "command-palette:open",
@@ -148,6 +153,38 @@ export function usePluginSendTrayClickedEvent() {
 
     return {
         sendTrayClickedEvent,
+    }
+}
+
+export type Plugin_Client_WebviewMountedEventPayload = {
+    slot: string
+}
+
+export function usePluginSendWebviewMountedEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendWebviewMountedEvent = useCallback((payload: Plugin_Client_WebviewMountedEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.WebviewMounted, payload, extensionID)
+    }, [])
+
+    return {
+        sendWebviewMountedEvent,
+    }
+}
+
+export type Plugin_Client_WebviewUnmountedEventPayload = {
+    slot: string
+}
+
+export function usePluginSendWebviewUnmountedEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendWebviewUnmountedEvent = useCallback((payload: Plugin_Client_WebviewUnmountedEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.WebviewUnmounted, payload, extensionID)
+    }, [])
+
+    return {
+        sendWebviewUnmountedEvent,
     }
 }
 
@@ -653,6 +690,54 @@ export function usePluginListenTrayCloseEvent(cb: (payload: Plugin_Server_TrayCl
     return useWebsocketPluginMessageListener<Plugin_Server_TrayCloseEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.TrayClose,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_WebviewUpdatedEventPayload = {
+    slot: string
+    components: any
+}
+
+export function usePluginListenWebviewUpdatedEvent(cb: (payload: Plugin_Server_WebviewUpdatedEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_WebviewUpdatedEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.WebviewUpdated,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_WebviewIframeEventPayload = {
+    slot: string
+    content: string
+    id: string
+}
+
+export function usePluginListenWebviewIframeEvent(cb: (payload: Plugin_Server_WebviewIframeEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_WebviewIframeEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.WebviewIframe,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_WebviewSyncStateEventPayload = {
+    webviewId: string
+    key: string
+    value: any
+    token: string
+}
+
+export function usePluginListenWebviewSyncStateEvent(cb: (payload: Plugin_Server_WebviewSyncStateEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_WebviewSyncStateEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.WebviewSyncState,
         onMessage: cb,
     })
 }

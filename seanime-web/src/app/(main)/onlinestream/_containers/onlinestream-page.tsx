@@ -618,7 +618,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                             streamType: overrideStreamType
                                                 ? overrideStreamType
                                                 : ((url && isHLSSrc(url)) || videoSource?.type === "m3u8") ? "hls" : "native",
-                                            subtitleTracks: episodeSource?.subtitles?.map((sub, index) => ({
+                                            subtitleTracks: videoSource?.subtitles?.map((sub, index) => ({
                                                 index: index,
                                                 label: sub.language,
                                                 src: sub.url,

@@ -10,6 +10,7 @@ import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
 import { Textarea } from "@/components/ui/textarea"
+import { Tooltip } from "@/components/ui/tooltip"
 import { useDebounce } from "@/hooks/use-debounce"
 import React, { useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -27,6 +28,77 @@ import { usePluginTray } from "../tray/plugin-tray"
 type FieldRef<T> = {
     current: T
     __ID: string
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface TooltipProps {
+    item?: any
+    text: string
+}
+
+export function PluginTooltip({ item, text }: TooltipProps) {
+    if (!item) return
+    return (
+        <Tooltip
+            trigger={<div className="w-fit"><RenderPluginComponents data={item} /></div>}
+        >
+            {text}
+        </Tooltip>
+    )
+}
+
+///////////////////
+
+
+interface PluginCSSProps {
+    css: string
+}
+
+export function PluginCSS(props: PluginCSSProps) {
+    const scopeId = React.useId().replace(/:/g, "_")
+
+    // Scope CSS to only apply to siblings and their children
+    const scopedCSS = scopeCSSToSiblings(props.css, scopeId)
+
+    return (
+        <>
+            <style>{scopedCSS}</style>
+            <span data-css-scope={scopeId} style={{ display: "none" }} />
+        </>
+    )
+}
+
+// Helper function to scope CSS rules to siblings
+function scopeCSSToSiblings(css: string, scopeId: string): string {
+    const scope = `[data-css-scope="${scopeId}"]`
+
+    // Parse and scope CSS rules
+    // This regex matches CSS selectors before opening braces
+    return css.replace(
+        /([^{}]+)\{/g,
+        (match, selector) => {
+            // Clean up the selector
+            const cleanSelector = selector.trim()
+
+            // Skip @rules like @media, @keyframes, etc.
+            if (cleanSelector.startsWith("@")) {
+                return match
+            }
+
+            // Split multiple selectors separated by commas
+            const selectors = cleanSelector.split(",").map((s: string) => s.trim())
+
+            // Scope each selector to apply only to siblings and their descendants
+            const scopedSelectors = selectors.map((sel: string) => {
+                // Use general sibling combinator (~) to target all siblings after the scope marker
+                return `${scope} ~ * ${sel}, ${scope} ~ ${sel}`
+            }).join(", ")
+
+            return `${scopedSelectors} {`
+        },
+    )
 }
 
 

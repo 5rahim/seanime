@@ -144,8 +144,8 @@ declare namespace $ui {
 
         /**
          * Registers a field reference for field components.
-         * @param fieldName - The name of the field
          * @returns A field reference object
+         * @param defaultValue
          */
         fieldRef<T extends any = string>(defaultValue?: T): FieldRef<T>
 
@@ -155,6 +155,13 @@ declare namespace $ui {
          * @returns A tray icon object.
          */
         newTray(options: TrayOptions): Tray
+
+        /**
+         * Creates a new webview.
+         * @param options - The options for the webview.
+         * @returns A webview object.
+         */
+        newWebview(options: WebviewOptions): Webview
 
         /**
          * Creates a new command palette.
@@ -186,6 +193,8 @@ declare namespace $ui {
         /** Sets a new value */
         set(value: T | ((prev: T) => T)): void
     }
+
+    type ReadOnlyState<T> = Omit<State<T>, "set">
 
     interface FetchOptions {
         /** HTTP method, defaults to GET */
@@ -266,6 +275,8 @@ declare namespace $ui {
         checkbox: CheckboxComponentFunction
         radioGroup: RadioGroupComponentFunction
         switch: SwitchComponentFunction
+        css: CSSComponentFunction
+        tooltip: TooltipComponentFunction
 
         /** Invoked when the tray icon is clicked */
         onClick(cb: () => void): void
@@ -290,6 +301,81 @@ declare namespace $ui {
 
         /** Updates the badge number of the tray icon. 0 = no badge. Default intent is "info". */
         updateBadge(options: { number: number, intent?: "success" | "error" | "warning" | "info" }): void
+    }
+
+    interface WebviewOptions {
+        slot: "fixed"
+    }
+
+    interface WebviewChannel {
+        /**
+         * Shorthand for syncing a state with the webview.
+         * @example
+         * const state = useState(0)
+         * ctx.webview.channel.sync("state", state)
+         * @param eventName
+         * @param state
+         */
+        sync(eventName: string, state: State<any> | ReadOnlyState<any>): void
+
+        /**
+         * Registers an event listener for messages from the webview.
+         * @example
+         * ctx.webview.channel.on("eventName", (payload) => {
+         *     // Handle message here
+         * })
+         * @param eventName
+         * @param cb
+         */
+        on(eventName: string, cb: (payload: any) => void): void
+
+        /**
+         * Sends a message to the webview.
+         * @example
+         * ctx.webview.channel.send("eventName", payload)
+         * @param eventName The name of the event to send.
+         * @param payload The payload to send.
+         */
+        send(eventName: string, payload: any): void
+    }
+
+    interface Webview {
+        /** UI components for building webviews */
+        div: DivComponentFunction
+        flex: FlexComponentFunction
+        stack: StackComponentFunction
+        text: TextComponentFunction
+        button: ButtonComponentFunction
+        anchor: AnchorComponentFunction
+        input: InputComponentFunction
+        select: SelectComponentFunction
+        checkbox: CheckboxComponentFunction
+        radioGroup: RadioGroupComponentFunction
+        switch: SwitchComponentFunction
+        css: CSSComponentFunction
+        tooltip: TooltipComponentFunction
+        /**
+         * Communication channel between the webview's iframe code and the Plugin context.
+         */
+        channel: WebviewChannel
+
+        /** Invoked when the webview is mounted */
+        onMount(cb: () => void): void
+
+        /** Invoked when the webview is unmounted */
+        onUnmount(cb: () => void): void
+
+        /** Registers the render function for the webview */
+        render(fn: () => void): void
+
+        /** Schedules a re-render of the webview rendered with render() */
+        update(): void
+
+        /** Schedules a re-render of the webview's iframe */
+        rerun(): void
+
+        /** Set webview's iframe content */
+        setContent(fn: () => string): void
     }
 
     interface Playback {
@@ -669,6 +755,9 @@ declare namespace $ui {
 
         /** Called when navigation occurs */
         onNavigate(cb: (event: { pathname: string, searchParams: Record<string, string> }) => void): void
+
+        /** Returns a state object containing the current screen data */
+        state(): ReadOnlyState<{ pathname: string, searchParams: Record<string, string> }>
     }
 
     interface Toast {
@@ -703,6 +792,10 @@ declare namespace $ui {
         (props: { items: any[] } & ComponentProps): void
         (items: any[], props?: ComponentProps): void
     }
+    type CSSComponentFunction = {
+        (props: { css: string }): void
+        (css: string): void
+    }
     type FlexComponentFunction = {
         (props: { items: any[], gap?: number, direction?: "row" | "column" } & ComponentProps): void
         (items: any[], props?: { gap?: number, direction?: "row" | "column" } & ComponentProps): void
@@ -714,6 +807,10 @@ declare namespace $ui {
     type TextComponentFunction = {
         (props: { text: string } & ComponentProps): void
         (text: string, props?: ComponentProps): void
+    }
+    type TooltipComponentFunction = {
+        (props: { text: string, items: any[] }): void
+        (item: any, props: { text: string }): void
     }
 
     /**
