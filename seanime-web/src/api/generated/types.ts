@@ -4241,7 +4241,27 @@ export type Onlinestream_VideoSource = {
  * - Filename: webview.go
  * - Package: plugin_ui
  */
-export type PluginUI_WebviewSlot = "fixed"
+export type PluginUI_WebviewOptions = {
+    className?: string
+    style?: string
+    width?: string
+    height?: string
+    maxWidth?: string
+    maxHeight?: string
+    zIndex?: number
+    draggable?: boolean
+    defaultX?: number
+    defaultY?: number
+    autoHeight?: boolean
+    fullWidth?: boolean
+}
+
+/**
+ * - Filepath: internal/plugin/ui/webview.go
+ * - Filename: webview.go
+ * - Package: plugin_ui
+ */
+export type PluginUI_WebviewSlot = "fixed" | "after-home-screen-toolbar"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Report

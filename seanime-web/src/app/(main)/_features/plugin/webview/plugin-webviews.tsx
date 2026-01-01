@@ -1,14 +1,22 @@
-import { PluginUI_WebviewSlot } from "@/api/generated/types"
+import { PluginUI_WebviewOptions, PluginUI_WebviewSlot } from "@/api/generated/types"
 import {
     Plugin_Server_WebviewIframeEventPayload,
     Plugin_Server_WebviewSyncStateEventPayload,
+    usePluginListenWebviewCloseEvent,
+    usePluginListenWebviewHideEvent,
     usePluginListenWebviewIframeEvent,
+    usePluginListenWebviewShowEvent,
     usePluginListenWebviewSyncStateEvent,
     usePluginSendEventHandlerTriggeredEvent,
+    usePluginSendWebviewLoadedEvent,
     usePluginSendWebviewMountedEvent,
 } from "@/app/(main)/_features/plugin/generated/plugin-events"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useIsMainTab, useIsMainTabRef } from "@/app/websocket-provider"
+import { cn } from "@/components/ui/core/styling"
+import { useMeasureElement } from "@/hooks/use-measure-element"
 import { logger } from "@/lib/helpers/debug"
+import { WSEvents } from "@/lib/server/ws-events"
 import { Portal } from "@radix-ui/react-portal"
 import { useMap } from "@uidotdev/usehooks"
 import React from "react"
@@ -24,7 +32,29 @@ type IframeWebview = {
     webviewId: string
     extensionId: string
     src: string
+    slot: PluginUI_WebviewSlot
     token: string // unique token for message verification
+    options?: PluginUI_WebviewOptions
+    visible?: boolean
+    position?: { x: number; y: number }
+    size?: { width: number; height: number }
+}
+
+type MessageFromWebview = {
+    webviewId: string
+    type: WebviewMessageType
+    event: string
+    token: string
+    payload?: any
+}
+
+
+const enum WebviewMessageType {
+    SyncState = "plugin-webview-sync",
+    Trigger = "plugin-webview-trigger",
+    Resize = "plugin-webview-resize",
+    RequestContainerWidth = "plugin-webview-request-container-width",
+    ContainerWidth = "plugin-webview-container-width",
 }
 
 function getWebviewId(extensionId: string, slot: PluginUI_WebviewSlot) {
@@ -38,33 +68,79 @@ function generateWebviewToken() {
 
 // language=JavaScript
 const generateBridgeScript = (token: string, parentOrigin: string, widgetId: string) => `
-    const WEBVIEW_TOKEN = "${token}";
-    const PARENT_ORIGIN = "${parentOrigin}";
+    const WEBVIEW_TOKEN = "${token}"
+    const PARENT_ORIGIN = "${parentOrigin}"
 
     window.webview = {
+        // Send a message to Seanime
         send: (event, payload) => {
             window.parent.postMessage({
-                type: "plugin-webview-trigger",
+                type: "${WebviewMessageType.Trigger}",
                 event,
                 payload,
                 webviewId: "${widgetId}",
                 token: WEBVIEW_TOKEN
             }, PARENT_ORIGIN)
         },
+        // Receive messages from Seanime
         on: (event, callback) => {
-            window.addEventListener("message", (e) => {
-                const isTrustedOrigin = e.origin === PARENT_ORIGIN || e.origin === "null";
-                if (!isTrustedOrigin || e.data.token !== WEBVIEW_TOKEN) return;
-
-                if (e.data.type === "plugin-webview-sync" && e.data.key === event) {
+            const handler = (e) => {
+                const isTrustedOrigin = e.origin === PARENT_ORIGIN || e.origin === "null"
+                if (!isTrustedOrigin || e.data.token !== WEBVIEW_TOKEN) return
+                // State syncing
+                if (e.data.type === "${WebviewMessageType.SyncState}" && e.data.key === event) {
                     callback(e.data.value)
                 }
-            })
+                // Handle response from requestContainerWidth()
+                if (e.data.type === "${WebviewMessageType.ContainerWidth}") {
+                    if (event === "containerWidth") {
+                        callback(e.data.width)
+                    }
+                }
+            }
+            window.addEventListener("message", handler)
+            // Return cancel function
+            return () => {
+                window.removeEventListener("message", handler)
+            }
+        },
+        // Get the width of the container the webview is in.
+        requestContainerWidth: () => {
+            window.parent.postMessage({
+                type: "${WebviewMessageType.RequestContainerWidth}",
+                webviewId: "${widgetId}",
+                token: WEBVIEW_TOKEN
+            }, PARENT_ORIGIN)
+        },
+        // Notify Seanime when the webview body changed size
+        _onResizeObserved: () => {
+            const height = document.body.scrollHeight
+            const width = document.body.scrollWidth
+            window.parent.postMessage({
+                type: "${WebviewMessageType.Resize}",
+                webviewId: "${widgetId}",
+                width: width,
+                height: height,
+                token: WEBVIEW_TOKEN
+            }, PARENT_ORIGIN)
         }
-    };
+    }
+
+    // Notify Seanime to resize iframe when content changes
+    if (window.ResizeObserver) {
+        window.addEventListener("load", () => {
+            const resizeObserver = new ResizeObserver(() => {
+                if (window.webview) window.webview._onResizeObserved()
+            })
+            if (document.body) {
+                resizeObserver.observe(document.body)
+            }
+        })
+    }
 `
 
 export const processUserHtml = (userHtml: string, token: string, parentOrigin: string, widgetId: string): string => {
+    // minify
     const bridgeScript = generateBridgeScript(token, parentOrigin, widgetId)
     const scriptTag = `<script>${bridgeScript}</script>`
 
@@ -111,6 +187,10 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         previousMainTab.current = isMainTab
     }, [isMainTab])
 
+    function getWebviewIframeElement(webviewId: string): HTMLIFrameElement | undefined {
+        return document.getElementById(`webview-${webviewId}`) as HTMLIFrameElement | undefined
+    }
+
     // listen for messages from iframe webviews
     React.useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -121,14 +201,13 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
                 return
             }
 
-            const data = event.data
-            if (data.type !== "plugin-webview-trigger") return
+            const data = event.data as MessageFromWebview & any
 
             // find the webview by webviewId and validate token
             const webview = iframeWebviews.get(data.webviewId) as IframeWebview | undefined
 
             if (!webview) {
-                log.warn("Received message from unknown webview", data.webviewId)
+                // log.warn("Received message from unknown webview", data.webviewId)
                 return
             }
 
@@ -136,6 +215,38 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
                 log.warn("Rejected message with invalid token", { webviewId: data.webviewId })
                 return
             }
+
+            // Handle resize notifications
+            if (data.type === WebviewMessageType.Resize) {
+                console.warn(data)
+                if (webview.options?.autoHeight) {
+                    const iframe = getWebviewIframeElement(data.webviewId)
+                    if (iframe) {
+                        iframe.style.height = `${data.height}px`
+                        if (!webview.options?.fullWidth) {
+                            iframe.style.width = `${data.width}px`
+                        }
+                    }
+                }
+                return
+            }
+
+            // Handle container width requests
+            if (data.type === WebviewMessageType.RequestContainerWidth) {
+                const iframe = getWebviewIframeElement(data.webviewId)
+                if (iframe && iframe.contentWindow) {
+                    const container = iframe.parentElement
+                    const containerWidth = container?.clientWidth || window.innerWidth
+                    iframe.contentWindow.postMessage({
+                        type: WebviewMessageType.ContainerWidth,
+                        width: containerWidth,
+                        token: webview.token,
+                    }, "*")
+                }
+                return
+            }
+
+            if (data.type !== WebviewMessageType.Trigger) return
 
             // forward the event to the server
             log.info("Forwarding webview event to server", {
@@ -157,19 +268,39 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         iframeWebviews.clear()
     })
 
+    useWebsocketMessageListener({
+        type: WSEvents.PLUGIN_UNLOADED,
+        onMessage: (extensionId) => {
+            if (!isMainTabRef) return
+            iframeWebviews.forEach((webview, webviewId) => {
+                if (webview.extensionId === extensionId) {
+                    iframeWebviews.delete(webviewId)
+                }
+            })
+            setTimeout(() => {
+                sendWebviewMountedEvent({ slot: slot })
+            }, 500)
+        },
+    })
+
     const setupIframeWebview = React.useCallback((extensionId: string, payload: Plugin_Server_WebviewIframeEventPayload) => {
         log.info("Setting up iframe webview", { extensionId, content: payload.content.slice(0, 100) + "..." })
         if (!isMainTabRef) return
 
-        // If the iframe is already mounted, remove the script and add it back
-        if (iframeWebviews.has(extensionId)) {
-            document.getElementById(`webview-${extensionId}`)?.remove()
+        const webviewId = getWebviewId(extensionId, slot)
+
+        // If the iframe is already mounted, preserve position/size if draggable/resizable
+        const existingWebview = iframeWebviews.get(webviewId) as IframeWebview | undefined
+        const preservedPosition = existingWebview?.position
+        const preservedSize = existingWebview?.size
+
+        // Remove old iframe
+        if (iframeWebviews.has(webviewId)) {
+            document.getElementById(`webview-${webviewId}`)?.remove()
         }
 
         // generate unique token for this webview instance
         const token = generateWebviewToken()
-
-        const webviewId = getWebviewId(extensionId, slot)
 
         // construct the HTML document for the iframe
         const srcDoc = processUserHtml(
@@ -179,8 +310,22 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
             webviewId,
         )
 
+        // @ts-ignore - payload.options exists
+        const options = payload.options as WebviewOptions | undefined
 
-        iframeWebviews.set(webviewId, { webviewId, extensionId, src: srcDoc, token } satisfies IframeWebview)
+        iframeWebviews.set(webviewId, {
+            webviewId,
+            extensionId,
+            src: srcDoc,
+            token,
+            options,
+            visible: true,
+            position: preservedPosition || (options?.defaultX !== undefined && options?.defaultY !== undefined
+                ? { x: options.defaultX, y: options.defaultY }
+                : undefined),
+            size: preservedSize,
+            slot,
+        } satisfies IframeWebview)
     }, [iframeWebviews])
 
     // Get the iframe event
@@ -191,6 +336,9 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
     }, "")
 
     // Listen for state sync events from the server
+    // i.e., when
+    // - webview.channel.sync("count", count)
+    // - webview.channel.send("foo", $store.get("foo"))
     usePluginListenWebviewSyncStateEvent((payload: Plugin_Server_WebviewSyncStateEventPayload, extensionId) => {
         if (!isMainTabRef.current) return
 
@@ -211,11 +359,36 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         // send the state update to the iframe
         // log.info("Sending state update to iframe", { webviewId: payload.webviewId, key: payload.key })
         iframeElement.contentWindow.postMessage({
-            type: "plugin-webview-sync",
+            type: WebviewMessageType.SyncState,
             key: payload.key,
             value: payload.value,
             token: webview.token,
         }, "*")
+    }, "")
+
+    usePluginListenWebviewCloseEvent((payload, extensionId) => {
+        if (!isMainTabRef) return
+        const webview = iframeWebviews.get(payload.webviewId) as IframeWebview | undefined
+        if (webview) {
+            iframeWebviews.delete(webview.webviewId)
+            document.getElementById(`webview-${webview.webviewId}`)?.remove()
+        }
+    }, "")
+
+    usePluginListenWebviewShowEvent((payload, extensionId) => {
+        if (!isMainTabRef) return
+        const webview = iframeWebviews.get(payload.webviewId) as IframeWebview | undefined
+        if (webview) {
+            iframeWebviews.set(webview.webviewId, { ...webview, visible: true })
+        }
+    }, "")
+
+    usePluginListenWebviewHideEvent((payload, extensionId) => {
+        if (!isMainTabRef) return
+        const webview = iframeWebviews.get(payload.webviewId) as IframeWebview | undefined
+        if (webview) {
+            iframeWebviews.set(webview.webviewId, { ...webview, visible: false })
+        }
     }, "")
 
     // Render the iframe
@@ -223,18 +396,280 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         return (
             <>
                 <Portal container={document.body} className="plugin-webview-portal">
-                    {Array.from(iframeWebviews.values()).map(({ webviewId, src, token }) => (
-                        <iframe
-                            key={webviewId}
-                            id={`webview-${webviewId}`}
-                            srcDoc={src}
-                            sandbox="allow-scripts" // BLOCKS: allow-same-origin, allow-forms, allow-popups
-                            className="size-[20rem] border-none fixed top-0 left-0 z-[100]"
+                    {Array.from(iframeWebviews.values()).map((webview) => (
+                        <WebviewIframe
+                            key={webview.webviewId}
+                            webview={webview}
+                            onUpdatePosition={(x, y) => {
+                                const updated = { ...webview, position: { x, y } }
+                                iframeWebviews.set(webview.webviewId, updated)
+                            }}
+                            onUpdateSize={(width, height) => {
+                                const updated = { ...webview, size: { width, height } }
+                                iframeWebviews.set(webview.webviewId, updated)
+                            }}
+                            onClose={() => {
+                                iframeWebviews.delete(webview.webviewId)
+                                document.getElementById(`webview-${webview.webviewId}`)?.remove()
+                            }}
                         />
                     ))}
                 </Portal>
             </>
         )
     }
-    return null
+    return <>
+        {Array.from(iframeWebviews.values()).map((webview) => (
+            <WebviewIframe
+                key={webview.webviewId}
+                webview={webview}
+                onUpdatePosition={(x, y) => {
+                    const updated = { ...webview, position: { x, y } }
+                    iframeWebviews.set(webview.webviewId, updated)
+                }}
+                onUpdateSize={(width, height) => {
+                    const updated = { ...webview, size: { width, height } }
+                    iframeWebviews.set(webview.webviewId, updated)
+                }}
+                onClose={() => {
+                    iframeWebviews.delete(webview.webviewId)
+                    document.getElementById(`webview-${webview.webviewId}`)?.remove()
+                }}
+            />
+        ))}
+    </>
+}
+
+type WebviewIframeProps = {
+    webview: IframeWebview
+    onUpdatePosition: (x: number, y: number) => void
+    onUpdateSize: (width: number, height: number) => void
+    onClose: () => void
+}
+
+function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: WebviewIframeProps) {
+    const { sendWebviewLoadedEvent } = usePluginSendWebviewLoadedEvent()
+
+    const iframeRef = React.useRef<HTMLIFrameElement>(null)
+    const [isDragging, setIsDragging] = React.useState(false)
+    // const [isResizing, setIsResizing] = React.useState(false)
+    const dragStartPos = React.useRef({ x: 0, y: 0, elemX: 0, elemY: 0 })
+    // const resizeStartPos = React.useRef({ x: 0, y: 0, width: 0, height: 0 })
+
+    const options = webview.options || {}
+    const position = webview.position || { x: options.defaultX || 0, y: options.defaultY || 0 }
+    const size = webview.size
+
+    // Build inline styles
+    const buildStyles = (): React.CSSProperties => {
+        const styles: React.CSSProperties = {
+            position: webview.slot === "fixed" ? "fixed" : "relative",
+            border: "none",
+            zIndex: options.zIndex || (webview.slot === "fixed" ? 100 : 5),
+            background: "transparent",
+        }
+
+        if (options.fullWidth) {
+            styles.width = "100%"
+        } else if (size?.width) {
+            styles.width = `${size.width}px`
+        } else if (options.width) {
+            styles.width = options.width
+        }
+
+        if (size?.height) {
+            styles.height = `${size.height}px`
+        } else if (options.height) {
+            styles.height = options.height
+        } else if (options.autoHeight) {
+            styles.height = "auto"
+        }
+
+        if (options.maxWidth) styles.maxWidth = options.maxWidth
+        if (options.maxHeight) styles.maxHeight = options.maxHeight
+
+        if (webview.slot === "fixed") {
+            if (options.draggable) {
+                styles.left = `${position.x}px`
+                styles.top = `${position.y}px`
+            } else {
+                styles.left = options.defaultX !== undefined ? `${options.defaultX}px` : "0"
+                styles.top = options.defaultY !== undefined ? `${options.defaultY}px` : "0"
+            }
+        }
+
+        // Parse custom style string
+        if (options.style) {
+            const customStyles = options.style.split(";").reduce((acc, rule) => {
+                const [key, value] = rule.split(":").map(s => s.trim())
+                if (key && value) {
+                    // Convert kebab-case to camelCase
+                    const camelKey = key.replace(/-([a-z])/g, g => g[1].toUpperCase())
+                    ;(acc as any)[camelKey] = value
+                }
+                return acc
+            }, {} as React.CSSProperties)
+            Object.assign(styles, customStyles)
+        }
+
+        return styles
+    }
+
+    // Dragging logic
+    const handleMouseDown = React.useCallback((e: React.MouseEvent) => {
+        if (!options.draggable) return
+        e.preventDefault()
+        setIsDragging(true)
+        dragStartPos.current = {
+            x: e.clientX,
+            y: e.clientY,
+            elemX: position.x,
+            elemY: position.y,
+        }
+    }, [options.draggable, position])
+
+    React.useEffect(() => {
+        if (!isDragging) return
+
+        const handleMouseMove = (e: MouseEvent) => {
+            const deltaX = e.clientX - dragStartPos.current.x
+            const deltaY = e.clientY - dragStartPos.current.y
+            onUpdatePosition(
+                dragStartPos.current.elemX + deltaX,
+                dragStartPos.current.elemY + deltaY,
+            )
+        }
+
+        const handleMouseUp = () => setIsDragging(false)
+
+        document.addEventListener("mousemove", handleMouseMove)
+        document.addEventListener("mouseup", handleMouseUp)
+
+        return () => {
+            document.removeEventListener("mousemove", handleMouseMove)
+            document.removeEventListener("mouseup", handleMouseUp)
+        }
+    }, [isDragging, onUpdatePosition])
+
+    // // Resizing logic
+    // const handleResizeMouseDown = React.useCallback((e: React.MouseEvent) => {
+    //     if (!options.resizable) return
+    //     e.preventDefault()
+    //     e.stopPropagation()
+    //     setIsResizing(true)
+    //     const currentWidth = iframeRef.current?.offsetWidth || 400
+    //     const currentHeight = iframeRef.current?.offsetHeight || 300
+    //     resizeStartPos.current = {
+    //         x: e.clientX,
+    //         y: e.clientY,
+    //         width: currentWidth,
+    //         height: currentHeight,
+    //     }
+    // }, [options.resizable])
+
+    // React.useEffect(() => {
+    //     if (!isResizing) return
+    //
+    //     const handleMouseMove = (e: MouseEvent) => {
+    //         const deltaX = e.clientX - resizeStartPos.current.x
+    //         const deltaY = e.clientY - resizeStartPos.current.y
+    //         onUpdateSize(
+    //             Math.max(200, resizeStartPos.current.width + deltaX),
+    //             Math.max(100, resizeStartPos.current.height + deltaY),
+    //         )
+    //     }
+    //
+    //     const handleMouseUp = () => setIsResizing(false)
+    //
+    //     document.addEventListener("mousemove", handleMouseMove)
+    //     document.addEventListener("mouseup", handleMouseUp)
+    //
+    //     return () => {
+    //         document.removeEventListener("mousemove", handleMouseMove)
+    //         document.removeEventListener("mouseup", handleMouseUp)
+    //     }
+    // }, [isResizing, onUpdateSize])
+
+    // Tell the plugin that the webview is loaded
+    const handleIframeLoaded = () => {
+        log.info("Loaded iframe webview", webview.webviewId)
+        sendWebviewLoadedEvent({ slot: webview.slot }, webview.extensionId)
+        iframeRef?.current?.contentDocument?.body?.setAttribute("style", "background: transparent !important;")
+    }
+
+    if (!webview.visible) return null
+
+    return (
+        <div
+            className={options.className}
+            style={{
+                ...(webview.slot === "fixed" ? {
+                    position: "fixed",
+                    left: position.x,
+                    top: position.y,
+                    zIndex: options.zIndex || (webview.slot === "fixed" ? 100 : 5),
+                } : {
+                    display: "contents",
+                }),
+            }}
+        >
+            <WebviewIframeDragHandle
+                onMouseDown={handleMouseDown}
+                draggable={!!options.draggable && webview.slot === "fixed"}
+                iframeRef={iframeRef}
+            />
+
+            {/*{options.closable && (*/}
+            {/*    <button*/}
+            {/*        onClick={onClose}*/}
+            {/*        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white z-[2] flex items-center justify-center text-xs"*/}
+            {/*        style={{ pointerEvents: "auto" }}*/}
+            {/*    >*/}
+            {/*        ✕*/}
+            {/*    </button>*/}
+            {/*)}*/}
+
+            <iframe
+                ref={iframeRef}
+                id={`webview-${webview.webviewId}`}
+                srcDoc={webview.src}
+                sandbox="allow-scripts"
+                style={buildStyles()}
+                onLoad={handleIframeLoaded}
+                className={cn(
+                    // (isResizing) && "pointer-events-none",
+                    (isDragging) && "pointer-events-none",
+                )}
+            />
+
+            {/*/!* Resize handle *!/*/}
+            {/*{options.resizable && (*/}
+            {/*    <div*/}
+            {/*        onMouseDown={handleResizeMouseDown}*/}
+            {/*        className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-[1]"*/}
+            {/*        style={{*/}
+            {/*            pointerEvents: "auto",*/}
+            {/*            background: "linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.3) 50%)",*/}
+            {/*        }}*/}
+            {/*    />*/}
+            {/*)}*/}
+        </div>
+    )
+}
+
+function WebviewIframeDragHandle({ onMouseDown, draggable, iframeRef }: {
+    onMouseDown: (e: React.MouseEvent) => void,
+    draggable: boolean,
+    iframeRef: React.RefObject<HTMLIFrameElement>
+}) {
+    const { width: dragHandleWidth } = useMeasureElement(iframeRef)
+
+    if (!draggable) return null
+    return (
+        <div
+            onMouseDown={onMouseDown}
+            className="absolute top-0 left-0 right-0 h-8 cursor-move bg-gradient-to-b from-black/20 to-transparent z-[9999]"
+            style={{ pointerEvents: "auto", width: dragHandleWidth }}
+        />
+    )
 }

@@ -24,6 +24,7 @@ const (
 	ClientTrayClosedEvent                              ClientEventType = "tray:closed"     // When the tray is closed
 	ClientTrayClickedEvent                             ClientEventType = "tray:clicked"    // When the tray is clicked
 	ClientWebviewMountedEvent                          ClientEventType = "webview:mounted"
+	ClientWebviewLoadedEvent                           ClientEventType = "webview:loaded"
 	ClientWebviewUnmountedEvent                        ClientEventType = "webview:unmounted"
 	ClientListCommandPalettesEvent                     ClientEventType = "command-palette:list"                          // When the client wants to list all command palettes
 	ClientCommandPaletteOpenedEvent                    ClientEventType = "command-palette:opened"                        // When the client opens the command palette
@@ -61,6 +62,9 @@ type ClientTrayOpenedEventPayload struct{}
 type ClientTrayClosedEventPayload struct{}
 type ClientTrayClickedEventPayload struct{}
 type ClientWebviewMountedEventPayload struct {
+	Slot string `json:"slot"`
+}
+type ClientWebviewLoadedEventPayload struct {
 	Slot string `json:"slot"`
 }
 type ClientWebviewUnmountedEventPayload struct {
@@ -181,6 +185,9 @@ const (
 	ServerWebviewUpdatedEvent   ServerEventType = "webview:updated"    // When the webviews are updated
 	ServerWebviewIframeEvent    ServerEventType = "webview:iframe"     // When the webviews are updated
 	ServerWebviewSyncStateEvent ServerEventType = "webview:sync-state" // When a state is synced to the webview
+	ServerWebviewCloseEvent     ServerEventType = "webview:close"      // When a webview should be closed
+	ServerWebviewShowEvent      ServerEventType = "webview:show"       // When a webview should be shown
+	ServerWebviewHideEvent      ServerEventType = "webview:hide"       // When a webview should be hidden
 
 	ServerCommandPaletteInfoEvent                      ServerEventType = "command-palette:info"                           // When the command palette sends its state to the client
 	ServerCommandPaletteUpdatedEvent                   ServerEventType = "command-palette:updated"                        // When the command palette is updated
@@ -253,9 +260,22 @@ type ServerWebviewUpdatedEventPayload struct {
 }
 
 type ServerWebviewIframeEventPayload struct {
-	Slot    string `json:"slot"`
-	Content string `json:"content"`
-	ID      string `json:"id"`
+	Slot    string      `json:"slot"`
+	Content string      `json:"content"`
+	ID      string      `json:"id"`
+	Options interface{} `json:"options,omitempty"`
+}
+
+type ServerWebviewCloseEventPayload struct {
+	WebviewID string `json:"webviewId"`
+}
+
+type ServerWebviewShowEventPayload struct {
+	WebviewID string `json:"webviewId"`
+}
+
+type ServerWebviewHideEventPayload struct {
+	WebviewID string `json:"webviewId"`
 }
 
 type ServerWebviewSyncStateEventPayload struct {

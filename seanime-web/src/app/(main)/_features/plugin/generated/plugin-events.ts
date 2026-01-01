@@ -9,6 +9,7 @@ export enum PluginClientEvents {
     TrayClosed = "tray:closed",
     TrayClicked = "tray:clicked",
     WebviewMounted = "webview:mounted",
+    WebviewLoaded = "webview:loaded",
     WebviewUnmounted = "webview:unmounted",
     ListCommandPalettes = "command-palette:list",
     CommandPaletteOpened = "command-palette:opened",
@@ -48,6 +49,9 @@ export enum PluginServerEvents {
     WebviewUpdated = "webview:updated",
     WebviewIframe = "webview:iframe",
     WebviewSyncState = "webview:sync-state",
+    WebviewClose = "webview:close",
+    WebviewShow = "webview:show",
+    WebviewHide = "webview:hide",
     CommandPaletteInfo = "command-palette:info",
     CommandPaletteUpdated = "command-palette:updated",
     CommandPaletteOpen = "command-palette:open",
@@ -169,6 +173,22 @@ export function usePluginSendWebviewMountedEvent() {
 
     return {
         sendWebviewMountedEvent,
+    }
+}
+
+export type Plugin_Client_WebviewLoadedEventPayload = {
+    slot: string
+}
+
+export function usePluginSendWebviewLoadedEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendWebviewLoadedEvent = useCallback((payload: Plugin_Client_WebviewLoadedEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.WebviewLoaded, payload, extensionID)
+    }, [])
+
+    return {
+        sendWebviewLoadedEvent,
     }
 }
 
@@ -713,6 +733,7 @@ export type Plugin_Server_WebviewIframeEventPayload = {
     slot: string
     content: string
     id: string
+    options: any
 }
 
 export function usePluginListenWebviewIframeEvent(cb: (payload: Plugin_Server_WebviewIframeEventPayload, extensionId: string) => void,
@@ -738,6 +759,48 @@ export function usePluginListenWebviewSyncStateEvent(cb: (payload: Plugin_Server
     return useWebsocketPluginMessageListener<Plugin_Server_WebviewSyncStateEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.WebviewSyncState,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_WebviewCloseEventPayload = {
+    webviewId: string
+}
+
+export function usePluginListenWebviewCloseEvent(cb: (payload: Plugin_Server_WebviewCloseEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_WebviewCloseEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.WebviewClose,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_WebviewShowEventPayload = {
+    webviewId: string
+}
+
+export function usePluginListenWebviewShowEvent(cb: (payload: Plugin_Server_WebviewShowEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_WebviewShowEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.WebviewShow,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_WebviewHideEventPayload = {
+    webviewId: string
+}
+
+export function usePluginListenWebviewHideEvent(cb: (payload: Plugin_Server_WebviewHideEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_WebviewHideEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.WebviewHide,
         onMessage: cb,
     })
 }

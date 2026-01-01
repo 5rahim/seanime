@@ -13,10 +13,11 @@ import (
 type WebviewSlot string
 
 const (
-	FixedSlot WebviewSlot = "fixed"
+	FixedSlot              WebviewSlot = "fixed"
+	AfterHomeScreenToolbar WebviewSlot = "after-home-screen-toolbar"
 )
 
-var WebviewSlots = []WebviewSlot{FixedSlot}
+var WebviewSlots = []WebviewSlot{FixedSlot, AfterHomeScreenToolbar}
 
 type WebviewManager struct {
 	ctx         *Context
@@ -120,6 +121,7 @@ func (t *WebviewManager) renderWebviewIframeScheduled(slot WebviewSlot) {
 			Slot:    string(slot),
 			Content: str,
 			ID:      webview.id,
+			Options: webview.options,
 		})
 		return nil
 	})
@@ -144,6 +146,31 @@ type Webview struct {
 	lastUpdatedAt time.Time // for renderFunc
 
 	Slot WebviewSlot
+
+	// Styling and window management options
+	options *WebviewOptions
+}
+
+type WebviewOptions struct {
+	// Styling
+	ClassName string `json:"className,omitempty"`
+	Style     string `json:"style,omitempty"`
+	Width     string `json:"width,omitempty"`
+	Height    string `json:"height,omitempty"`
+	MaxWidth  string `json:"maxWidth,omitempty"`
+	MaxHeight string `json:"maxHeight,omitempty"`
+	ZIndex    int    `json:"zIndex,omitempty"`
+
+	// Window management
+	Draggable bool `json:"draggable,omitempty"`
+	//Resizable bool `json:"resizable,omitempty"`
+	//Closable  bool `json:"closable,omitempty"`
+	DefaultX int `json:"defaultX,omitempty"`
+	DefaultY int `json:"defaultY,omitempty"`
+
+	// Responsiveness
+	AutoHeight bool `json:"autoHeight,omitempty"`
+	FullWidth  bool `json:"fullWidth,omitempty"`
 }
 
 // jsNewWebview
@@ -161,6 +188,7 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 		channel: &WebviewChannel{
 			syncedStates: result.NewMap[string, string](),
 		},
+		options: &WebviewOptions{},
 	}
 
 	// Set the webview reference in the channel
@@ -172,6 +200,66 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 		if propsObj["slot"] != nil {
 			s, _ := propsObj["slot"].(string)
 			webview.Slot = WebviewSlot(s)
+		}
+
+		// Parse styling options
+		if propsObj["className"] != nil {
+			webview.options.ClassName, _ = propsObj["className"].(string)
+		}
+		if propsObj["style"] != nil {
+			webview.options.Style, _ = propsObj["style"].(string)
+		}
+		if propsObj["width"] != nil {
+			webview.options.Width, _ = propsObj["width"].(string)
+		}
+		if propsObj["height"] != nil {
+			webview.options.Height, _ = propsObj["height"].(string)
+		}
+		if propsObj["maxWidth"] != nil {
+			webview.options.MaxWidth, _ = propsObj["maxWidth"].(string)
+		}
+		if propsObj["maxHeight"] != nil {
+			webview.options.MaxHeight, _ = propsObj["maxHeight"].(string)
+		}
+		if propsObj["zIndex"] != nil {
+			if zIdx, ok := propsObj["zIndex"].(int64); ok {
+				webview.options.ZIndex = int(zIdx)
+			} else if zIdx, ok := propsObj["zIndex"].(float64); ok {
+				webview.options.ZIndex = int(zIdx)
+			}
+		}
+
+		// Parse window management options
+		if propsObj["draggable"] != nil {
+			webview.options.Draggable, _ = propsObj["draggable"].(bool)
+		}
+		//if propsObj["resizable"] != nil {
+		//	webview.options.Resizable, _ = propsObj["resizable"].(bool)
+		//}
+		//if propsObj["closable"] != nil {
+		//	webview.options.Closable, _ = propsObj["closable"].(bool)
+		//}
+		if propsObj["defaultX"] != nil {
+			if x, ok := propsObj["defaultX"].(int64); ok {
+				webview.options.DefaultX = int(x)
+			} else if x, ok := propsObj["defaultX"].(float64); ok {
+				webview.options.DefaultX = int(x)
+			}
+		}
+		if propsObj["defaultY"] != nil {
+			if y, ok := propsObj["defaultY"].(int64); ok {
+				webview.options.DefaultY = int(y)
+			} else if y, ok := propsObj["defaultY"].(float64); ok {
+				webview.options.DefaultY = int(y)
+			}
+		}
+
+		// Parse responsiveness options
+		if propsObj["autoHeight"] != nil {
+			webview.options.AutoHeight, _ = propsObj["autoHeight"].(bool)
+		}
+		if propsObj["fullWidth"] != nil {
+			webview.options.FullWidth, _ = propsObj["fullWidth"].(bool)
 		}
 	}
 
@@ -186,6 +274,13 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 	_ = webviewObj.Set("render", webview.jsRender)
 	_ = webviewObj.Set("setContent", webview.jsSetContent)
 	_ = webviewObj.Set("update", webview.jsUpdate)
+	_ = webviewObj.Set("setOptions", webview.jsSetOptions)
+	_ = webviewObj.Set("close", webview.jsClose)
+	_ = webviewObj.Set("show", webview.jsShow)
+	_ = webviewObj.Set("hide", webview.jsHide)
+	_ = webviewObj.Set("onMount", webview.jsOnMount)
+	_ = webviewObj.Set("onLoad", webview.jsOnLoad)
+	_ = webviewObj.Set("onUnmount", webview.jsOnUnmount)
 
 	// Create a new webview object
 	channelObj := t.ctx.vm.NewObject()
@@ -272,13 +367,208 @@ func (w *Webview) jsRender(call goja.FunctionCall) goja.Value {
 //
 //	Example:
 //	webview.update()
-func (w *Webview) jsUpdate(call goja.FunctionCall) goja.Value {
+func (w *Webview) jsUpdate(_ goja.FunctionCall) goja.Value {
 	// Update the context's lastUIUpdateAt to prevent duplicate updates
 	w.webviewManager.ctx.uiUpdateMu.Lock()
 	w.webviewManager.ctx.lastUIUpdateAt = time.Now()
 	w.webviewManager.ctx.uiUpdateMu.Unlock()
 
 	w.webviewManager.renderWebviewScheduled(w.Slot)
+	return goja.Undefined()
+}
+
+// jsSetOptions updates the webview options dynamically
+//
+//	Example:
+//	webview.setOptions({ width: "400px", height: "300px", draggable: true })
+func (w *Webview) jsSetOptions(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		w.webviewManager.ctx.handleTypeError("setOptions requires an options object")
+	}
+
+	propsObj, ok := call.Argument(0).Export().(map[string]interface{})
+	if !ok {
+		w.webviewManager.ctx.handleTypeError("setOptions requires an options object")
+	}
+
+	// Update options
+	if propsObj["className"] != nil {
+		w.options.ClassName, _ = propsObj["className"].(string)
+	}
+	if propsObj["style"] != nil {
+		w.options.Style, _ = propsObj["style"].(string)
+	}
+	if propsObj["width"] != nil {
+		w.options.Width, _ = propsObj["width"].(string)
+	}
+	if propsObj["height"] != nil {
+		w.options.Height, _ = propsObj["height"].(string)
+	}
+	if propsObj["maxWidth"] != nil {
+		w.options.MaxWidth, _ = propsObj["maxWidth"].(string)
+	}
+	if propsObj["maxHeight"] != nil {
+		w.options.MaxHeight, _ = propsObj["maxHeight"].(string)
+	}
+	if propsObj["zIndex"] != nil {
+		if zIdx, ok := propsObj["zIndex"].(int64); ok {
+			w.options.ZIndex = int(zIdx)
+		} else if zIdx, ok := propsObj["zIndex"].(float64); ok {
+			w.options.ZIndex = int(zIdx)
+		}
+	}
+	if propsObj["draggable"] != nil {
+		w.options.Draggable, _ = propsObj["draggable"].(bool)
+	}
+	//if propsObj["resizable"] != nil {
+	//	w.options.Resizable, _ = propsObj["resizable"].(bool)
+	//}
+	//if propsObj["closable"] != nil {
+	//	w.options.Closable, _ = propsObj["closable"].(bool)
+	//}
+	if propsObj["defaultX"] != nil {
+		if x, ok := propsObj["defaultX"].(int64); ok {
+			w.options.DefaultX = int(x)
+		} else if x, ok := propsObj["defaultX"].(float64); ok {
+			w.options.DefaultX = int(x)
+		}
+	}
+	if propsObj["defaultY"] != nil {
+		if y, ok := propsObj["defaultY"].(int64); ok {
+			w.options.DefaultY = int(y)
+		} else if y, ok := propsObj["defaultY"].(float64); ok {
+			w.options.DefaultY = int(y)
+		}
+	}
+	if propsObj["autoHeight"] != nil {
+		w.options.AutoHeight, _ = propsObj["autoHeight"].(bool)
+	}
+	if propsObj["fullWidth"] != nil {
+		w.options.FullWidth, _ = propsObj["fullWidth"].(bool)
+	}
+
+	// Send update to client
+	w.webviewManager.renderWebviewIframeScheduled(w.Slot)
+	return goja.Undefined()
+}
+
+// jsClose closes/hides the webview
+//
+//	Example:
+//	webview.close()
+func (w *Webview) jsClose(_ goja.FunctionCall) goja.Value {
+	w.webviewManager.ctx.SendEventToClient(ServerWebviewCloseEvent, ServerWebviewCloseEventPayload{
+		WebviewID: w.GetID(),
+	})
+	return goja.Undefined()
+}
+
+// jsShow shows the webview (reverses hide)
+//
+//	Example:
+//	webview.show()
+func (w *Webview) jsShow(_ goja.FunctionCall) goja.Value {
+	w.webviewManager.ctx.SendEventToClient(ServerWebviewShowEvent, ServerWebviewShowEventPayload{
+		WebviewID: w.GetID(),
+	})
+	return goja.Undefined()
+}
+
+// jsHide hides the webview without closing it
+//
+//	Example:
+//	webview.hide()
+func (w *Webview) jsHide(_ goja.FunctionCall) goja.Value {
+	w.webviewManager.ctx.SendEventToClient(ServerWebviewHideEvent, ServerWebviewHideEventPayload{
+		WebviewID: w.GetID(),
+	})
+	return goja.Undefined()
+}
+
+// jsOnMount is called when the webview is mounted and before it is loaded
+func (w *Webview) jsOnMount(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		w.webviewManager.ctx.handleTypeError("onMount requires a callback function")
+	}
+
+	callback, ok := goja.AssertFunction(call.Argument(0))
+	if !ok {
+		w.webviewManager.ctx.handleTypeError("onMount requires a callback function")
+	}
+
+	eventListener := w.webviewManager.ctx.RegisterEventListener(ClientWebviewMountedEvent)
+	payload := ClientWebviewMountedEventPayload{}
+
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		if event.ParsePayloadAs(ClientWebviewMountedEvent, &payload) && payload.Slot == string(w.Slot) {
+			w.webviewManager.ctx.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), w.webviewManager.ctx.vm.ToValue(map[string]interface{}{}))
+				if err != nil {
+					w.webviewManager.ctx.logger.Error().Err(err).Msg("plugin: Error running webview on mount callback")
+				}
+				return err
+			})
+		}
+	})
+
+	return goja.Undefined()
+}
+
+// jsOnLoad is called when the webview is loaded after it's been mounted
+func (w *Webview) jsOnLoad(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		w.webviewManager.ctx.handleTypeError("onLoad requires a callback function")
+	}
+
+	callback, ok := goja.AssertFunction(call.Argument(0))
+	if !ok {
+		w.webviewManager.ctx.handleTypeError("onLoad requires a callback function")
+	}
+
+	eventListener := w.webviewManager.ctx.RegisterEventListener(ClientWebviewLoadedEvent)
+	payload := ClientWebviewLoadedEventPayload{}
+
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		if event.ParsePayloadAs(ClientWebviewLoadedEvent, &payload) && payload.Slot == string(w.Slot) {
+			w.webviewManager.ctx.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), w.webviewManager.ctx.vm.ToValue(map[string]interface{}{}))
+				if err != nil {
+					w.webviewManager.ctx.logger.Error().Err(err).Msg("plugin: Error running webview on load callback")
+				}
+				return err
+			})
+		}
+	})
+
+	return goja.Undefined()
+}
+
+// jsOnUnmount is called after the webview has been unmounted
+func (w *Webview) jsOnUnmount(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		w.webviewManager.ctx.handleTypeError("onUnmount requires a callback function")
+	}
+
+	callback, ok := goja.AssertFunction(call.Argument(0))
+	if !ok {
+		w.webviewManager.ctx.handleTypeError("onUnmount requires a callback function")
+	}
+
+	eventListener := w.webviewManager.ctx.RegisterEventListener(ClientWebviewUnmountedEvent)
+	payload := ClientWebviewUnmountedEventPayload{}
+
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		if event.ParsePayloadAs(ClientWebviewUnmountedEvent, &payload) && payload.Slot == string(w.Slot) {
+			w.webviewManager.ctx.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), w.webviewManager.ctx.vm.ToValue(map[string]interface{}{}))
+				if err != nil {
+					w.webviewManager.ctx.logger.Error().Err(err).Msg("plugin: Error running webview on unmount callback")
+				}
+				return err
+			})
+		}
+	})
+
 	return goja.Undefined()
 }
 

@@ -71619,6 +71619,7 @@
         "\"tray:closed\"",
         "\"tray:clicked\"",
         "\"webview:mounted\"",
+        "\"webview:loaded\"",
         "\"webview:unmounted\"",
         "\"command-palette:list\"",
         "\"command-palette:opened\"",
@@ -71742,6 +71743,25 @@
     "filename": "events.go",
     "name": "ClientWebviewMountedEventPayload",
     "formattedName": "PluginUI_ClientWebviewMountedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Slot",
+        "jsonName": "slot",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientWebviewLoadedEventPayload",
+    "formattedName": "PluginUI_ClientWebviewLoadedEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -72303,6 +72323,9 @@
         "\"webview:updated\"",
         "\"webview:iframe\"",
         "\"webview:sync-state\"",
+        "\"webview:close\"",
+        "\"webview:show\"",
+        "\"webview:hide\"",
         "\"command-palette:info\"",
         "\"command-palette:updated\"",
         "\"command-palette:open\"",
@@ -72646,6 +72669,72 @@
       {
         "name": "ID",
         "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Options",
+        "jsonName": "options",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerWebviewCloseEventPayload",
+    "formattedName": "PluginUI_ServerWebviewCloseEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "WebviewID",
+        "jsonName": "webviewId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerWebviewShowEventPayload",
+    "formattedName": "PluginUI_ServerWebviewShowEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "WebviewID",
+        "jsonName": "webviewId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerWebviewHideEventPayload",
+    "formattedName": "PluginUI_ServerWebviewHideEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "WebviewID",
+        "jsonName": "webviewId",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -74137,7 +74226,8 @@
       "goType": "string",
       "typescriptType": "string",
       "declaredValues": [
-        "\"fixed\""
+        "\"fixed\"",
+        "\"after-home-screen-toolbar\""
       ]
     },
     "comments": []
@@ -74313,6 +74403,135 @@
         "usedTypescriptType": "PluginUI_WebviewSlot",
         "usedStructName": "plugin_ui.WebviewSlot",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "options",
+        "jsonName": "options",
+        "goType": "WebviewOptions",
+        "typescriptType": "PluginUI_WebviewOptions",
+        "usedTypescriptType": "PluginUI_WebviewOptions",
+        "usedStructName": "plugin_ui.WebviewOptions",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/webview.go",
+    "filename": "webview.go",
+    "name": "WebviewOptions",
+    "formattedName": "PluginUI_WebviewOptions",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ClassName",
+        "jsonName": "className",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Style",
+        "jsonName": "style",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Width",
+        "jsonName": "width",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Height",
+        "jsonName": "height",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxWidth",
+        "jsonName": "maxWidth",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxHeight",
+        "jsonName": "maxHeight",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ZIndex",
+        "jsonName": "zIndex",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Draggable",
+        "jsonName": "draggable",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DefaultX",
+        "jsonName": "defaultX",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DefaultY",
+        "jsonName": "defaultY",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AutoHeight",
+        "jsonName": "autoHeight",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FullWidth",
+        "jsonName": "fullWidth",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
         "public": true,
         "comments": []
       }

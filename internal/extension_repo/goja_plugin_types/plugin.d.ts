@@ -304,35 +304,81 @@ declare namespace $ui {
     }
 
     interface WebviewOptions {
-        slot: "fixed"
+        slot: "fixed" | "after-home-screen-toolbar"
+
+        // Styling options
+        className?: string
+        style?: string
+        width?: string
+        height?: string
+        maxWidth?: string
+        maxHeight?: string
+        zIndex?: number
+
+        /**
+         * Only applies if slot is "fixed"
+         */
+        draggable?: boolean
+        /**
+         * Only applies if slot is "fixed"
+         */
+        resizable?: boolean
+        /**
+         * Only applies if slot is "fixed"
+         */
+        defaultX?: number
+        /**
+         * Only applies if slot is "fixed"
+         */
+        defaultY?: number
+        /**
+         * Whether the height of the webview should be automatically adjusted to fit its content.
+         */
+        autoHeight?: boolean
+        /**
+         * Whether the width of the webview should be automatically adjusted to fit its container.
+         */
+        fullWidth?: boolean
     }
 
     interface WebviewChannel {
         /**
-         * Shorthand for syncing a state with the webview.
+         * Automatically syncs a state with the webview.
          * @example
-         * const state = useState(0)
-         * ctx.webview.channel.sync("state", state)
+         * // Plugin context:
+         * const count = ctx.state(0)
+         * myWebview.channel.sync("count", count)
+         * //...
+         * count.set(count.get() + 1)
+         *
+         * // Webview code:
+         * webview.channel.on("count", (count) => {
+         *     console.log("Received from plugin context: " + count)
+         * })
          * @param eventName
          * @param state
          */
         sync(eventName: string, state: State<any> | ReadOnlyState<any>): void
-
         /**
          * Registers an event listener for messages from the webview.
          * @example
-         * ctx.webview.channel.on("eventName", (payload) => {
+         * myWebview.channel.on("eventName", (payload) => {
          *     // Handle message here
          * })
          * @param eventName
          * @param cb
          */
         on(eventName: string, cb: (payload: any) => void): void
-
         /**
          * Sends a message to the webview.
          * @example
-         * ctx.webview.channel.send("eventName", payload)
+         * // Plugin context:
+         * myWebview.channel.send("eventName", payload)
+         *
+         * // Webview code:
+         * webview.channel.on("eventName", (payload) => {
+         *     // Handle message here
+         * })
          * @param eventName The name of the event to send.
          * @param payload The payload to send.
          */
@@ -359,10 +405,13 @@ declare namespace $ui {
          */
         channel: WebviewChannel
 
-        /** Invoked when the webview is mounted */
+        /** Invoked when the webview is mounted, before it's loaded */
         onMount(cb: () => void): void
 
-        /** Invoked when the webview is unmounted */
+        /** Invoked when the webview is loaded, after it's mounted */
+        onLoad(cb: () => void): void
+
+        /** Invoked after the webview is unmounted */
         onUnmount(cb: () => void): void
 
         /** Registers the render function for the webview */
@@ -376,6 +425,18 @@ declare namespace $ui {
 
         /** Set webview's iframe content */
         setContent(fn: () => string): void
+
+        /** Update webview options dynamically */
+        setOptions(options: Partial<WebviewOptions>): void
+
+        /** Removes the webview from the DOM (not reversible) */
+        close(): void
+
+        /** Show the webview (reverses hide) */
+        show(): void
+
+        /** Hide the webview without closing it */
+        hide(): void
     }
 
     interface Playback {
