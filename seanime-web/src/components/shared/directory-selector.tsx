@@ -31,11 +31,20 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
 
     const firstRender = React.useRef(true)
 
-    const [input, setInput] = React.useState(defaultValue ? upath.normalizeSafe(defaultValue) : "")
+    const sanitizePath = React.useCallback((path: string) => {
+        if (!path) return ""
+        return upath.normalizeSafe(path.replace(/[<>"]/g, ""))
+    }, [])
+
+    const [input, setInputRaw] = React.useState(defaultValue ? sanitizePath(defaultValue) : "")
     const [debouncedInput] = useDebounce(input, 300)
     const selectorState = useBoolean(false)
     const prevState = React.useRef<string>(input)
     const currentState = React.useRef<string>(input)
+
+    const setInput = React.useCallback((newInput: string) => {
+        setInputRaw(sanitizePath(newInput))
+    }, [sanitizePath])
 
     const { data, isLoading, error } = useDirectorySelector(debouncedInput)
 
@@ -58,13 +67,14 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
     React.useEffect(() => {
         currentState.current = input
         if (input === ".") {
-            setInput("")
+            setInputRaw("")
         }
     }, [input])
 
     useUpdateEffect(() => {
-        onSelect(debouncedInput)
-        prevState.current = debouncedInput
+        const trimmedValue = debouncedInput.trim()
+        onSelect(trimmedValue)
+        prevState.current = trimmedValue
 
         // if (!isLoading && data && shouldExist && !data.exists && input.length > 0) {
         //     onSelect("")
@@ -74,16 +84,10 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
     const checkDirectoryExists = React.useCallback(() => {
         if (!isLoading && data && shouldExist && !data.exists && input.length > 0) {
             React.startTransition(() => {
-                setInput("")
+                setInputRaw("")
             })
         }
     }, [isLoading, data, input, shouldExist, prevState.current])
-
-    function sanitizeInput(input: string) {
-        // cross-platform sanitization
-        input = input.replace(/[<>"]/g, '');
-        return upath.normalizeSafe(input.trim())
-    }
 
     return (
         <>
@@ -99,7 +103,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                                     input.length > 0 ? <BiX className="text-red-500" /> : null : <BiFolderPlus />)}
                         </div>}
                         onChange={e => {
-                            setInput(sanitizeInput(e.target.value ?? ""))
+                            setInput(e.target.value ?? "")
                         }}
                         ref={ref}
                         onBlur={checkDirectoryExists}
@@ -137,7 +141,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                             <BiCheck className="text-green-500" /> : shouldExist ?
                                 <BiX className="text-red-500" /> : <BiFolderPlus />)}
                         onChange={e => {
-                            setInput(upath.normalizeSafe(e.target.value ?? ""))
+                            setInput(e.target.value ?? "")
                         }}
                         onClick={() => {
                             if (shouldExist) selectorState.on()
@@ -155,7 +159,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                             <div
                                 key={folder.fullPath}
                                 className="py-1 flex items-center gap-2 text-sm px-3 rounded-[--radius-md] border flex-none cursor-pointer bg-gray-900 hover:bg-gray-800"
-                                onClick={() => setInput(upath.normalizeSafe(folder.fullPath))}
+                                onClick={() => setInput(folder.fullPath)}
                             >
                                 <FiFolder className="w-4 h-4 text-[--brand]" />
                                 <span className="break-normal">{folder.folderName}</span>
@@ -172,7 +176,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                             <div
                                 key={folder.fullPath}
                                 className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-gray-800"
-                                onClick={() => setInput(upath.normalizeSafe(folder.fullPath))}
+                                onClick={() => setInput(folder.fullPath)}
                             >
                                 <FiFolder className="w-4 h-4 text-[--brand]" />
                                 <span className="break-normal">{folder.folderName}</span>

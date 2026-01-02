@@ -1,5 +1,6 @@
 import { Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useTorrentClientDownload, useTorrentClientGetFiles } from "@/api/hooks/torrent_client.hooks"
+import { useLibraryPathSelector } from "@/app/(main)/_hooks/use-library-path-selector"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { __torrentSearch_selectionAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
@@ -9,6 +10,7 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select } from "@/components/ui/select"
 import { Vaul, VaulContent } from "@/components/vaul"
 import { logger } from "@/lib/helpers/debug"
 import { upath } from "@/lib/helpers/upath"
@@ -34,7 +36,7 @@ export function getDefaultDestination(entry: Anime_Entry, libraryPath?: string):
     return fPath ? upath.normalize(upath.dirname(fPath)) : newPath
 }
 
-function sanitizeDirectoryName(input: string): string {
+export function sanitizeDirectoryName(input: string): string {
     const disallowedChars = /[<>:"/\\|?*\x00-\x1F]/g // Pattern for disallowed characters
     // Replace disallowed characters with an underscore
     const sanitized = input.replace(disallowedChars, " ")
@@ -56,6 +58,10 @@ export function TorrentDownloadFileSelection({ entry }: { entry: Anime_Entry }) 
 
     const [selectedFileIndices, setSelectedFileIndices] = React.useState<number[]>([])
 
+    const animeFolderName = React.useMemo(() => {
+        return sanitizeDirectoryName(entry.media?.title?.romaji || "")
+    }, [entry.media?.title?.romaji])
+
     const selectedTorrent = fileSelection?.torrent
     const destination = fileSelection?.destination ?? getDefaultDestination(entry, libraryPath)
 
@@ -67,6 +73,23 @@ export function TorrentDownloadFileSelection({ entry }: { entry: Anime_Entry }) 
             })
         }
     }, [fileSelection, setFileSelection])
+
+    const {
+        selectedLibrary,
+        libraryOptions,
+        handleLibraryPathSelect: baseHandleLibraryPathSelect,
+        showLibrarySelector,
+    } = useLibraryPathSelector({
+        destination,
+        setDestination: handleDestinationChange,
+        animeFolderName,
+    })
+
+    const handleLibraryPathSelect = React.useCallback((selectedLibraryPath: string) => {
+        if (fileSelection) {
+            baseHandleLibraryPathSelect(selectedLibraryPath)
+        }
+    }, [fileSelection, baseHandleLibraryPathSelect])
 
     const { data: filepaths, isLoading } = useTorrentClientGetFiles({ torrent: selectedTorrent, provider: selectedTorrent?.provider })
 
@@ -141,6 +164,15 @@ export function TorrentDownloadFileSelection({ entry }: { entry: Anime_Entry }) 
                     <h4 className="text-center mb-4">
                         Select files to download
                     </h4>
+
+                    {showLibrarySelector && (
+                        <Select
+                            label="Library"
+                            value={selectedLibrary}
+                            options={libraryOptions}
+                            onValueChange={handleLibraryPathSelect}
+                        />
+                    )}
 
                     <DirectorySelector
                         name="destination"
