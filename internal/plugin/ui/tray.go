@@ -172,6 +172,21 @@ func (t *TrayManager) jsNewTray(call goja.FunctionCall) goja.Value {
 	_ = trayObj.Set("select", t.componentManager.jsSelect)
 	_ = trayObj.Set("css", t.componentManager.jsCSS)
 	_ = trayObj.Set("tooltip", t.componentManager.jsTooltip)
+	_ = trayObj.Set("modal", t.componentManager.jsModal)
+	_ = trayObj.Set("dropdownMenu", t.componentManager.jsDropdownMenu)
+	_ = trayObj.Set("dropdownMenuItem", t.componentManager.jsDropdownMenuItem)
+	_ = trayObj.Set("dropdownMenuSeparator", t.componentManager.jsDropdownMenuSeparator)
+	_ = trayObj.Set("dropdownMenuLabel", t.componentManager.jsDropdownMenuLabel)
+	_ = trayObj.Set("popover", t.componentManager.jsPopover)
+	_ = trayObj.Set("a", t.componentManager.jsA)
+	_ = trayObj.Set("p", t.componentManager.jsP)
+	_ = trayObj.Set("alert", t.componentManager.jsAlert)
+	_ = trayObj.Set("tabs", t.componentManager.jsTabs)
+	_ = trayObj.Set("tabsList", t.componentManager.jsTabsList)
+	_ = trayObj.Set("tabsTrigger", t.componentManager.jsTabsTrigger)
+	_ = trayObj.Set("tabsContent", t.componentManager.jsTabsContent)
+	_ = trayObj.Set("badge", t.componentManager.jsBadge)
+	_ = trayObj.Set("span", t.componentManager.jsSpan)
 
 	return trayObj
 }

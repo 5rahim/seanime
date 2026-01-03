@@ -1,24 +1,38 @@
 "use client"
 
 import {
+    PluginA,
+    PluginAlert,
     PluginAnchor,
+    PluginBadge,
     PluginButton,
     PluginCheckbox,
     PluginCSS,
     PluginDiv,
+    PluginDropdownMenu,
+    PluginDropdownMenuItem,
+    PluginDropdownMenuLabel,
+    PluginDropdownMenuSeparator,
     PluginFlex,
     PluginForm,
     PluginInput,
+    PluginModal,
+    PluginP,
+    PluginPopover,
     PluginRadioGroup,
     PluginSelect,
+    PluginSpan,
     PluginStack,
     PluginSwitch,
+    PluginTabs,
+    PluginTabsContent,
+    PluginTabsList,
+    PluginTabsTrigger,
     PluginText,
     PluginTooltip,
 } from "@/app/(main)/_features/plugin/components/registry-components"
 import type React from "react"
 import { createContext, useContext } from "react"
-import { ErrorBoundary } from "react-error-boundary"
 
 // Create and initialize the registry
 export const registry: ComponentRegistry = new Map([
@@ -36,6 +50,21 @@ export const registry: ComponentRegistry = new Map([
     ["select", PluginSelect],
     ["css", PluginCSS],
     ["tooltip", PluginTooltip],
+    ["modal", PluginModal],
+    ["dropdown-menu", PluginDropdownMenu],
+    ["dropdown-menu-item", PluginDropdownMenuItem],
+    ["dropdown-menu-separator", PluginDropdownMenuSeparator],
+    ["dropdown-menu-label", PluginDropdownMenuLabel],
+    ["popover", PluginPopover],
+    ["a", PluginA],
+    ["p", PluginP],
+    ["alert", PluginAlert],
+    ["tabs", PluginTabs],
+    ["tabs-list", PluginTabsList],
+    ["tabs-trigger", PluginTabsTrigger],
+    ["tabs-content", PluginTabsContent],
+    ["badge", PluginBadge],
+    ["span", PluginSpan],
 ] as any)
 
 
@@ -61,7 +90,11 @@ function ErrorFallbackComponent({ error }: { error: Error }) {
     )
 }
 
-export function RenderPluginComponents({ data, fallback: Fallback = DefaultFallback }: RenderPluginComponentsProps) {
+export function RenderPluginComponents({
+    data,
+    fallback: Fallback = DefaultFallback,
+    ...rest
+}: RenderPluginComponentsProps & React.ComponentPropsWithoutRef<any>) {
     const registry = usePluginRegistry()
 
     // Handle array of components
@@ -79,14 +112,16 @@ export function RenderPluginComponents({ data, fallback: Fallback = DefaultFallb
     const Component = registry.get(data.type)
 
     if (!Component) {
+        if (data.type === "" && typeof (data as any)?.props?.item === "string") {
+            return (data as any).props?.item
+        }
+
         return <Fallback type={data.type} />
     }
 
     // Render component with error boundary
     return (
-        <ErrorBoundary FallbackComponent={ErrorFallbackComponent}>
-            <Component key={data.id} {...data.props} />
-        </ErrorBoundary>
+        <Component key={data.id} {...data.props} {...rest} />
     )
 }
 

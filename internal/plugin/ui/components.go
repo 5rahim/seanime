@@ -306,3 +306,208 @@ func (c *ComponentManager) jsTooltip(call goja.FunctionCall) goja.Value {
 		{Name: "item", Type: "any", Required: true, OptionalFirstArg: true},
 	})
 }
+
+// jsModal
+//
+//	Example:
+//	const modal = tray.modal({
+//		trigger: tray.button("Open Modal"),
+//		title: "Modal Title",
+//		items: [tray.text("Modal content")],
+//	})
+func (c *ComponentManager) jsModal(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "modal", []ComponentProp{
+		{Name: "trigger", Type: "any", Required: true},
+		{Name: "title", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "description", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "items", Type: "array", Required: false},
+		{Name: "footer", Type: "array", Required: false},
+		{Name: "open", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
+		{Name: "onOpenChange", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsDropdownMenu
+//
+//	Example:
+//	const menu = tray.dropdownMenu({
+//		trigger: tray.button("Open Menu"),
+//		items: [
+//			tray.dropdownMenuItem({ label: "Item 1", onClick: "item-1" }),
+//			tray.dropdownMenuSeparator(),
+//			tray.dropdownMenuItem({ label: "Item 2", onClick: "item-2" }),
+//		]
+//	})
+func (c *ComponentManager) jsDropdownMenu(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "dropdown-menu", []ComponentProp{
+		{Name: "trigger", Type: "any", Required: true},
+		{Name: "items", Type: "array", Required: true},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsDropdownMenuItem
+//
+//	Example:
+//	const item = tray.dropdownMenuItem({ item: tray.span("Item 1"), onClick: "item-1" })
+func (c *ComponentManager) jsDropdownMenuItem(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "dropdown-menu-item", []ComponentProp{
+		{Name: "item", Type: "any", Required: true, OptionalFirstArg: true},
+		{Name: "onClick", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsDropdownMenuSeparator
+//
+//	Example:
+//	const separator = tray.dropdownMenuSeparator()
+func (c *ComponentManager) jsDropdownMenuSeparator(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "dropdown-menu-separator", []ComponentProp{})
+}
+
+// jsDropdownMenuLabel
+//
+//	Example:
+//	const label = tray.dropdownMenuLabel("Section Title")
+func (c *ComponentManager) jsDropdownMenuLabel(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "dropdown-menu-label", []ComponentProp{
+		{Name: "label", Type: "string", Required: true, OptionalFirstArg: true, Validate: validateType("string")},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsPopover
+//
+//	Example:
+//	const popover = tray.popover({
+//		trigger: tray.button("Open Popover"),
+//		items: [tray.text("Popover content")],
+//	})
+func (c *ComponentManager) jsPopover(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "popover", []ComponentProp{
+		{Name: "trigger", Type: "any", Required: true},
+		{Name: "items", Type: "array", Required: true},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsA
+//
+//	Example:
+//	const link = tray.a({ href: "https://example.com", items: [tray.text("Click here")] })
+func (c *ComponentManager) jsA(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "a", []ComponentProp{
+		{Name: "href", Type: "string", Required: true, Validate: validateType("string")},
+		{Name: "items", Type: "array", Required: true, OptionalFirstArg: true},
+		{Name: "target", Type: "string", Required: false, Default: "_blank", Validate: validateType("string")},
+		{Name: "onClick", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsP
+//
+//	Example:
+//	const paragraph = tray.p({ items: [tray.text("Some text")] })
+func (c *ComponentManager) jsP(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "p", []ComponentProp{
+		{Name: "items", Type: "array", Required: true, OptionalFirstArg: true},
+		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsAlert
+//
+//	Example:
+//	const alert = tray.alert({ title: "Alert", description: "This is an alert", intent: "info" })
+func (c *ComponentManager) jsAlert(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "alert", []ComponentProp{
+		{Name: "title", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "description", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "intent", Type: "string", Required: false, Default: "info", Validate: validateType("string")},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsTabs
+//
+//	Example:
+//	const tabs = tray.tabs({
+//		items: [
+//			tray.tabsList
+//		]
+//	})
+func (c *ComponentManager) jsTabs(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "tabs", []ComponentProp{
+		{Name: "defaultValue", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "items", Type: "array", Required: true, OptionalFirstArg: true},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsTabsTrigger
+//
+//	Example:
+//	const trigger = tray.tabsTrigger({ value: "tab1", item: "Tab 1" })
+func (c *ComponentManager) jsTabsTrigger(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "tabs-trigger", []ComponentProp{
+		{Name: "item", Type: "any", Required: true, OptionalFirstArg: true},
+		{Name: "value", Type: "string", Required: true, Validate: validateType("string")},
+	})
+}
+
+// jsTabsContent
+//
+//	Example:
+//	const content = tray.tabsContent({ value: "tab1", items: [tray.text("Content")] })
+func (c *ComponentManager) jsTabsContent(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "tabs-content", []ComponentProp{
+		{Name: "value", Type: "string", Required: true, Validate: validateType("string")},
+		{Name: "items", Type: "array", Required: true, OptionalFirstArg: true},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsBadge
+//
+//	Example:
+//	const badge = tray.badge("New")
+//	// or
+//	const badge = tray.badge({ text: "New", intent: "success" })
+func (c *ComponentManager) jsBadge(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "badge", []ComponentProp{
+		{Name: "text", Type: "string", Required: true, OptionalFirstArg: true, Validate: validateType("string")},
+		{Name: "intent", Type: "string", Required: false, Default: "gray", Validate: validateType("string")},
+		{Name: "size", Type: "string", Required: false, Default: "md", Validate: validateType("string")},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsTabsList
+//
+//	Example:
+//	const list = tray.tabsList({ items: [tray.tabsTrigger({ value: "tab1", label: "Tab 1" })] })
+func (c *ComponentManager) jsTabsList(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "tabs-list", []ComponentProp{
+		{Name: "items", Type: "array", Required: true, OptionalFirstArg: true},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
+// jsSpan
+//
+//	Example:
+//	const span = tray.span({ items: [tray.text("Some text")] })
+func (c *ComponentManager) jsSpan(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "span", []ComponentProp{
+		{Name: "text", Type: "string", Required: true, OptionalFirstArg: true, Validate: validateType("string")},
+		{Name: "items", Type: "array", Required: false},
+		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}

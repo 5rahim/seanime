@@ -277,6 +277,21 @@ declare namespace $ui {
         switch: SwitchComponentFunction
         css: CSSComponentFunction
         tooltip: TooltipComponentFunction
+        modal: ModalComponentFunction
+        dropdownMenu: DropdownMenuComponentFunction
+        dropdownMenuItem: DropdownMenuItemComponentFunction
+        dropdownMenuSeparator: DropdownMenuSeparatorComponentFunction
+        dropdownMenuLabel: DropdownMenuLabelComponentFunction
+        popover: PopoverComponentFunction
+        a: AComponentFunction
+        p: PComponentFunction
+        alert: AlertComponentFunction
+        tabs: TabsComponentFunction
+        tabsList: TabsListComponentFunction
+        tabsTrigger: TabsTriggerComponentFunction
+        tabsContent: TabsContentComponentFunction
+        badge: BadgeComponentFunction
+        span: SpanComponentFunction
 
         /** Invoked when the tray icon is clicked */
         onClick(cb: () => void): void
@@ -393,6 +408,21 @@ declare namespace $ui {
         switch: SwitchComponentFunction
         css: CSSComponentFunction
         tooltip: TooltipComponentFunction
+        modal: ModalComponentFunction
+        dropdownMenu: DropdownMenuComponentFunction
+        dropdownMenuItem: DropdownMenuItemComponentFunction
+        dropdownMenuSeparator: DropdownMenuSeparatorComponentFunction
+        dropdownMenuLabel: DropdownMenuLabelComponentFunction
+        popover: PopoverComponentFunction
+        a: AComponentFunction
+        p: PComponentFunction
+        alert: AlertComponentFunction
+        tabs: TabsComponentFunction
+        tabsList: TabsListComponentFunction
+        tabsTrigger: TabsTriggerComponentFunction
+        tabsContent: TabsContentComponentFunction
+        badge: BadgeComponentFunction
+        span: SpanComponentFunction
         /**
          * Communication channel between the webview and the Plugin context.
          */
@@ -754,6 +784,28 @@ declare namespace $ui {
         text: TextComponentFunction
         button: ButtonComponentFunction
         anchor: AnchorComponentFunction
+        input: InputComponentFunction
+        select: SelectComponentFunction
+        checkbox: CheckboxComponentFunction
+        radioGroup: RadioGroupComponentFunction
+        switch: SwitchComponentFunction
+        css: CSSComponentFunction
+        tooltip: TooltipComponentFunction
+        modal: ModalComponentFunction
+        dropdownMenu: DropdownMenuComponentFunction
+        dropdownMenuItem: DropdownMenuItemComponentFunction
+        dropdownMenuSeparator: DropdownMenuSeparatorComponentFunction
+        dropdownMenuLabel: DropdownMenuLabelComponentFunction
+        popover: PopoverComponentFunction
+        a: AComponentFunction
+        p: PComponentFunction
+        alert: AlertComponentFunction
+        tabs: TabsComponentFunction
+        tabsList: TabsListComponentFunction
+        tabsTrigger: TabsTriggerComponentFunction
+        tabsContent: TabsContentComponentFunction
+        badge: BadgeComponentFunction
+        span: SpanComponentFunction
 
         /** Sets the items in the command palette */
         setItems(items: CommandPaletteItem[]): void
@@ -936,6 +988,129 @@ declare namespace $ui {
     type SwitchComponentFunction = {
         (props: { label: string, side?: "left" | "right" } & FieldComponentProps<boolean>): void
         (label: string, props?: { side?: "left" | "right" } & FieldComponentProps<boolean>): void
+    }
+
+    type ModalComponentFunction = {
+        (props: {
+            trigger: any,
+            title?: string,
+            description?: string,
+            items?: any[],
+            footer?: any[],
+            open?: boolean,
+            onOpenChange?: string
+        } & ComponentProps): void
+    }
+
+    type DropdownMenuComponentFunction = {
+        (props: {
+            trigger: any,
+            items: any[]
+        } & ComponentProps): void
+    }
+
+    type DropdownMenuItemComponentFunction = {
+        (props: {
+            item: any,
+            onClick?: string,
+            disabled?: boolean
+        } & ComponentProps): void
+        (item: any, props?: { onClick?: string, disabled?: boolean } & ComponentProps): void
+    }
+
+    type DropdownMenuSeparatorComponentFunction = {
+        (props?: ComponentProps): void
+    }
+
+    type DropdownMenuLabelComponentFunction = {
+        (props: { label: string } & ComponentProps): void
+        (label: string, props?: ComponentProps): void
+    }
+
+    type PopoverComponentFunction = {
+        (props: {
+            trigger: any,
+            items: any[]
+        } & ComponentProps): void
+    }
+
+    /**
+     * @default target="_blank"
+     */
+    type AComponentFunction = {
+        (props: {
+            href: string,
+            items: any[],
+            target?: string,
+            onClick?: string
+        } & ComponentProps): void
+        (items: any[], props: { href: string, target?: string, onClick?: string } & ComponentProps): void
+    }
+
+    type PComponentFunction = {
+        (props: { items: any[] } & ComponentProps): void
+        (items: any[], props?: ComponentProps): void
+    }
+
+    /**
+     * @default intent="info"
+     */
+    type AlertComponentFunction = {
+        (props: {
+            title?: string,
+            description?: string,
+            intent?: "info" | "success" | "warning" | "alert"
+        } & ComponentProps): void
+    }
+
+    type TabsComponentFunction = {
+        (props: {
+            defaultValue?: string,
+            items: any[]
+        } & ComponentProps): void
+        (items: any[], props?: { defaultValue?: string } & ComponentProps): void
+    }
+
+    type TabsListComponentFunction = {
+        (props: { items: any[] } & ComponentProps): void
+        (items: any[], props?: ComponentProps): void
+    }
+
+    type TabsTriggerComponentFunction = {
+        (item: any, props: { value: string }): void
+        (props: {
+            item: any,
+            value: string
+        }): void
+    }
+
+    type TabsContentComponentFunction = {
+        (props: {
+            value: string,
+            items: any[]
+        } & ComponentProps): void
+        (items: any[], props: { value: string } & ComponentProps): void
+    }
+
+    /**
+     * @default intent="gray"
+     * @default size="md"
+     */
+    type BadgeComponentFunction = {
+        (props: {
+            text: string,
+            intent?: "gray" | "primary" | "success" | "warning" | "alert" | "info" | "blue",
+            size?: "sm" | "md" | "lg" | "xl"
+        } & ComponentProps): void
+        (text: string, props?: {
+            intent?: "gray" | "primary" | "success" | "warning" | "alert" | "info" | "blue",
+            size?: "sm" | "md" | "lg" | "xl"
+        } & ComponentProps): void
+    }
+
+    type SpanComponentFunction = {
+        (props: { text: string, items?: any[] } & ComponentProps): void
+        (text: string, props?: { items?: any[] } & ComponentProps): void
     }
 
     // DOM Element interface

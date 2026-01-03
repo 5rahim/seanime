@@ -1,13 +1,19 @@
 import { RenderPluginComponents } from "@/app/(main)/_features/plugin/components/registry"
 import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+import { Alert } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Button, ButtonProps } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
 import { DatePicker } from "@/components/ui/date-picker"
+import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Modal } from "@/components/ui/modal"
+import { Popover } from "@/components/ui/popover"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { Textarea } from "@/components/ui/textarea"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -117,13 +123,14 @@ interface PluginButtonProps {
 }
 
 export function PluginButton(props: PluginButtonProps) {
+    const { onClick, label, style, className, size, loading, disabled, intent, ...rest } = props
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { trayIcon } = usePluginTray()
 
     function handleClick() {
-        if (props.onClick) {
+        if (onClick) {
             sendEventHandlerTriggeredEvent({
-                handlerName: props.onClick,
+                handlerName: onClick,
                 event: {},
             }, trayIcon.extensionId)
         }
@@ -131,15 +138,15 @@ export function PluginButton(props: PluginButtonProps) {
 
     return (
         <Button
-            intent={props.intent || "white-subtle"}
-            style={props.style}
+            intent={intent || "white-subtle"}
+            style={style}
             onClick={handleClick}
-            disabled={props.disabled}
-            loading={props.loading}
-            size={props.size || "sm"}
-            className={props.className}
+            disabled={disabled}
+            loading={loading}
+            size={size || "sm"}
+            className={className}
         >
-            {props.label || "Button"}
+            {label || "Button"}
         </Button>
     )
 }
@@ -654,6 +661,326 @@ export function PluginText({ text, style, className }: TextProps) {
     return <p className={cn("w-full break-all", className)} style={style}>{text}</p>
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Modal
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface PluginModalProps {
+    trigger?: any
+    title?: string
+    description?: string
+    items?: any[]
+    footer?: any[]
+    open?: boolean
+    onOpenChange?: string
+    className?: string
+}
+
+export function PluginModal(props: PluginModalProps) {
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
+    const { trayIcon } = usePluginTray()
+    const [isOpen, setIsOpen] = React.useState(props.open ?? false)
+
+    function handleOpenChange(open: boolean) {
+        setIsOpen(open)
+        if (props.onOpenChange) {
+            sendEventHandlerTriggeredEvent({
+                handlerName: props.onOpenChange,
+                event: { open },
+            }, trayIcon.extensionId)
+        }
+    }
+
+    return (
+        <Modal
+            trigger={props.trigger ? <div className="w-fit"><RenderPluginComponents data={props.trigger} /></div> : undefined}
+            title={props.title}
+            description={props.description}
+            open={isOpen}
+            onOpenChange={handleOpenChange}
+            footer={props.footer ? <RenderPluginComponents data={props.footer} /> : undefined}
+            contentClass={props.className}
+        >
+            {props.items && <RenderPluginComponents data={props.items} />}
+        </Modal>
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Dropdown Menu
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface PluginDropdownMenuProps {
+    trigger?: any
+    items?: any[]
+    className?: string
+}
+
+export function PluginDropdownMenu(props: PluginDropdownMenuProps) {
+    return (
+        <DropdownMenu
+            trigger={props.trigger ? <div className="w-fit"><RenderPluginComponents data={props.trigger} /></div> : <div />}
+            className={props.className}
+        >
+            {props.items && <RenderPluginComponents data={props.items} />}
+        </DropdownMenu>
+    )
+}
+
+interface PluginDropdownMenuItemProps {
+    item?: any
+    onClick?: string
+    disabled?: boolean
+    className?: string
+}
+
+export function PluginDropdownMenuItem(props: PluginDropdownMenuItemProps) {
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
+    const { trayIcon } = usePluginTray()
+
+    function handleClick() {
+        if (props.onClick) {
+            sendEventHandlerTriggeredEvent({
+                handlerName: props.onClick,
+                event: {},
+            }, trayIcon.extensionId)
+        }
+    }
+
+    return (
+        <DropdownMenuItem
+            onClick={handleClick}
+            disabled={props.disabled}
+            className={props.className}
+        >
+            {props.item && <RenderPluginComponents data={props.item} />}
+        </DropdownMenuItem>
+    )
+}
+
+interface PluginDropdownMenuSeparatorProps {
+    className?: string
+}
+
+export function PluginDropdownMenuSeparator(props: PluginDropdownMenuSeparatorProps) {
+    return <DropdownMenuSeparator className={props.className} />
+}
+
+interface PluginDropdownMenuLabelProps {
+    label?: string
+    className?: string
+}
+
+export function PluginDropdownMenuLabel(props: PluginDropdownMenuLabelProps) {
+    return <DropdownMenuLabel className={props.className}>{props.label}</DropdownMenuLabel>
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Popover
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface PluginPopoverProps {
+    trigger?: any
+    items?: any[]
+    className?: string
+}
+
+export function PluginPopover(props: PluginPopoverProps) {
+    return (
+        <Popover
+            trigger={props.trigger ? <RenderPluginComponents data={props.trigger} /> : <div />}
+            className={props.className}
+        >
+            {props.items && <RenderPluginComponents data={props.items} />}
+        </Popover>
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// A (Anchor with items)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface PluginAProps {
+    href?: string
+    items?: any[]
+    target?: string
+    onClick?: string
+    style?: React.CSSProperties
+    className?: string
+}
+
+export function PluginA(props: PluginAProps) {
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
+    const { trayIcon } = usePluginTray()
+
+    function handleClick(e: React.MouseEvent) {
+        if (props.onClick) {
+            e.preventDefault()
+            sendEventHandlerTriggeredEvent({
+                handlerName: props.onClick,
+                event: { href: props.href },
+            }, trayIcon.extensionId)
+        }
+    }
+
+    return (
+        <a
+            href={props.href}
+            target={props.target || "_blank"}
+            rel="noopener noreferrer"
+            style={props.style}
+            onClick={handleClick}
+            className={cn("underline cursor-pointer", props.className)}
+        >
+            {props.items && <RenderPluginComponents data={props.items} />}
+        </a>
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// P (Paragraph with items)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface PluginPProps {
+    items?: any[]
+    style?: React.CSSProperties
+    className?: string
+}
+
+export function PluginP(props: PluginPProps) {
+    return (
+        <p className={cn("w-full", props.className)} style={props.style}>
+            {props.items && <RenderPluginComponents data={props.items} />}
+        </p>
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Alert
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface PluginAlertProps {
+    title?: string
+    description?: string
+    intent?: "info" | "success" | "warning" | "alert"
+    className?: string
+}
+
+export function PluginAlert(props: PluginAlertProps) {
+    return (
+        <Alert
+            title={props.title}
+            description={props.description}
+            intent={props.intent || "info"}
+            className={props.className}
+        />
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Tabs
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface PluginTabsProps {
+    defaultValue?: string
+    items?: any[]
+    className?: string
+}
+
+export function PluginTabs(props: PluginTabsProps) {
+    return (
+        <Tabs defaultValue={props.defaultValue} className={props.className}>
+            {props.items && <RenderPluginComponents data={props.items} />}
+        </Tabs>
+    )
+}
+
+interface PluginTabsListProps {
+    items?: any[]
+    className?: string
+}
+
+export function PluginTabsList(props: PluginTabsListProps) {
+    return (
+        <TabsList className={props.className}>
+            {props.items && <RenderPluginComponents data={props.items} />}
+        </TabsList>
+    )
+}
+
+interface PluginTabsTriggerProps {
+    value?: string
+    item?: any
+    className?: string
+}
+
+export function PluginTabsTrigger(props: PluginTabsTriggerProps) {
+    return (
+        <TabsTrigger value={props.value || ""} className={props.className}>
+            {props.item && <RenderPluginComponents data={props.item} />}
+        </TabsTrigger>
+    )
+}
+
+interface PluginTabsContentProps {
+    value?: string
+    items?: any[]
+    className?: string
+}
+
+export function PluginTabsContent(props: PluginTabsContentProps) {
+    return (
+        <TabsContent value={props.value || ""} className={props.className}>
+            {props.items && <RenderPluginComponents data={props.items} />}
+        </TabsContent>
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Badge
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface PluginBadgeProps {
+    text?: string
+    intent?: "gray" | "primary" | "success" | "warning" | "alert" | "info" | "blue"
+    size?: "sm" | "md" | "lg" | "xl"
+    className?: string
+}
+
+export function PluginBadge(props: PluginBadgeProps) {
+    return (
+        <Badge
+            intent={props.intent || "gray"}
+            size={props.size || "md"}
+            className={props.className}
+        >
+            {props.text}
+        </Badge>
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Span
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface PluginSpanProps {
+    text: string
+    items?: any[]
+    style?: React.CSSProperties
+    className?: string
+}
+
+export function PluginSpan(props: PluginSpanProps) {
+    return (
+        <span className={props.className} style={props.style}>
+            {!!props.text && props.text}
+            {props.items && <RenderPluginComponents data={props.items} />}
+        </span>
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Form
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 interface FormProps {
