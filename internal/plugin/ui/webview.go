@@ -13,11 +13,15 @@ import (
 type WebviewSlot string
 
 const (
-	FixedSlot              WebviewSlot = "fixed"
+	// The webview has its own screen/page
+	ScreenSlot WebviewSlot = "screen"
+	// The webview is rendered above all elements
+	FixedSlot WebviewSlot = "fixed"
+	// The webview is rendered after the home screen toolbar
 	AfterHomeScreenToolbar WebviewSlot = "after-home-screen-toolbar"
 )
 
-var WebviewSlots = []WebviewSlot{FixedSlot, AfterHomeScreenToolbar}
+var WebviewSlots = []WebviewSlot{ScreenSlot, FixedSlot, AfterHomeScreenToolbar}
 
 type WebviewManager struct {
 	ctx         *Context
@@ -281,6 +285,7 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 	_ = webviewObj.Set("onMount", webview.jsOnMount)
 	_ = webviewObj.Set("onLoad", webview.jsOnLoad)
 	_ = webviewObj.Set("onUnmount", webview.jsOnUnmount)
+	_ = webviewObj.Set("getScreenPath", webview.jsGetScreenPath)
 
 	// Create a new webview object
 	channelObj := t.ctx.vm.NewObject()
@@ -570,6 +575,9 @@ func (w *Webview) jsOnUnmount(call goja.FunctionCall) goja.Value {
 	})
 
 	return goja.Undefined()
+}
+func (w *Webview) jsGetScreenPath(_ goja.FunctionCall) goja.Value {
+	return w.webviewManager.ctx.vm.ToValue("/webview?id=" + w.GetID())
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

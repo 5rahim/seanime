@@ -162,6 +162,7 @@ func NewGojaPlugin(
 	p.pool, err = runtimeManager.GetOrCreatePrivatePool(ext.ID, func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger, ext, wsEventManager)
+		goja_bindings.BindFetch(runtime, ext.Plugin.Permissions.GetNetworkAccessAllowedDomains())
 		BindUserConfig(runtime, ext, logger)
 		p.BindPluginAPIs(runtime, logger)
 		return runtime
@@ -178,6 +179,7 @@ func NewGojaPlugin(
 	uiVM.SetParserOptions(parser.WithDisableSourceMaps)
 	// Bind shared APIs
 	ShareBinds(uiVM, logger, ext, wsEventManager)
+	goja_bindings.BindFetch(uiVM, ext.Plugin.Permissions.GetNetworkAccessAllowedDomains())
 	BindUserConfig(uiVM, ext, logger)
 	// Bind the store to the UI VM
 	p.BindPluginAPIs(uiVM, logger)

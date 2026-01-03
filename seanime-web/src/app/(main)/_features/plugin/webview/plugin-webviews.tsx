@@ -218,7 +218,6 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
 
             // Handle resize notifications
             if (data.type === WebviewMessageType.Resize) {
-                console.warn(data)
                 if (webview.options?.autoHeight) {
                     const iframe = getWebviewIframeElement(data.webviewId)
                     if (iframe) {
@@ -345,7 +344,6 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         // find the webview by webviewId
         const webview = iframeWebviews.get(payload.webviewId) as IframeWebview | undefined
         if (!webview) {
-            log.warn("Received sync state for unknown webview", payload.webviewId)
             return
         }
 

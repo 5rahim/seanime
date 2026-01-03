@@ -95,6 +95,7 @@ type BaseExtension interface {
 	GetUserConfig() *UserConfig
 	GetSavedUserConfig() *SavedUserConfig
 	GetIsDevelopment() bool
+	GetPluginManifest() *PluginManifest
 }
 
 type Configurable interface {
@@ -108,17 +109,18 @@ func ToExtensionData(ext BaseExtension) *Extension {
 		Version:         ext.GetVersion(),
 		ManifestURI:     ext.GetManifestURI(),
 		Language:        ext.GetLanguage(),
-		Lang:            GetExtensionLang(ext.GetLang()),
 		Type:            ext.GetType(),
 		Description:     ext.GetDescription(),
-		Notes:           ext.GetNotes(),
 		Author:          ext.GetAuthor(),
-		Permissions:     ext.GetPermissions(),
-		UserConfig:      ext.GetUserConfig(),
 		Icon:            ext.GetIcon(),
 		Website:         ext.GetWebsite(),
+		Notes:           ext.GetNotes(),
+		Lang:            GetExtensionLang(ext.GetLang()),
+		Permissions:     ext.GetPermissions(),
+		UserConfig:      ext.GetUserConfig(),
 		Payload:         ext.GetPayload(),
 		PayloadURI:      ext.GetPayloadURI(),
+		Plugin:          ext.GetPluginManifest(),
 		IsDevelopment:   ext.GetIsDevelopment(),
 		SavedUserConfig: ext.GetSavedUserConfig(),
 	}

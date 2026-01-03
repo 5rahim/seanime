@@ -2195,6 +2195,8 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  *  The user must acknowledge these permissions before the plugin can be loaded.
  */
 export type Extension_PluginAllowlist = {
+    networkAccess?: Extension_PluginNetworkAcess
+    unsafeFlags?: Array<Extension_PluginUnsafe>
     readPaths?: Array<string>
     writePaths?: Array<string>
     commandScopes?: Array<Extension_CommandScope>
@@ -2208,6 +2210,16 @@ export type Extension_PluginAllowlist = {
 export type Extension_PluginManifest = {
     version: string
     permissions?: Extension_PluginPermissions
+}
+
+/**
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
+ * - Package: extension
+ */
+export type Extension_PluginNetworkAcess = {
+    allowedDomains?: Array<string>
+    reasoning?: string
 }
 
 /**
@@ -2226,6 +2238,23 @@ export type Extension_PluginPermissions = {
     scopes?: Array<Extension_PluginPermissionScope>
     allow?: Extension_PluginAllowlist
 }
+
+/**
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
+ * - Package: extension
+ */
+export type Extension_PluginUnsafe = {
+    flag: Extension_PluginUnsafeFlag
+    reason: string
+}
+
+/**
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
+ * - Package: extension
+ */
+export type Extension_PluginUnsafeFlag = "dom-script-manipulation" | "dom-link-manipulation"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -2296,6 +2325,7 @@ export type ExtensionRepo_AllExtensions = {
     invalidExtensions?: Array<Extension_InvalidExtension>
     invalidUserConfigExtensions?: Array<Extension_InvalidExtension>
     hasUpdate?: Array<ExtensionRepo_UpdateData>
+    unsafeExtensions?: Record<string, boolean>
 }
 
 /**
@@ -2411,6 +2441,7 @@ export type ExtensionRepo_UpdateData = {
     extensionID: string
     manifestURI: string
     version: string
+    payload: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4261,7 +4292,7 @@ export type PluginUI_WebviewOptions = {
  * - Filename: webview.go
  * - Package: plugin_ui
  */
-export type PluginUI_WebviewSlot = "fixed" | "after-home-screen-toolbar"
+export type PluginUI_WebviewSlot = "screen" | "fixed" | "after-home-screen-toolbar"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Report

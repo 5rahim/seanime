@@ -6,8 +6,8 @@ import (
 	"github.com/dop251/goja"
 )
 
-func (c *Context) bindFetch(obj *goja.Object) {
-	f := goja_bindings.NewFetch(c.vm)
+func (c *Context) bindFetch(obj *goja.Object, allowedDomains []string) {
+	f := goja_bindings.NewFetch(c.vm, allowedDomains)
 
 	_ = obj.Set("fetch", f.Fetch)
 

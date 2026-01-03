@@ -2,6 +2,7 @@ package plugin_ui
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"seanime/internal/events"
@@ -176,7 +177,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	_ = obj.Set("eventHandler", c.jsEventHandler)
 	_ = obj.Set("fieldRef", c.jsfieldRef)
 
-	c.bindFetch(obj)
+	c.bindFetch(obj, c.ext.Plugin.Permissions.GetNetworkAccessAllowedDomains())
 	c.bindChromeDP(obj)
 	// Bind screen manager
 	c.screenManager.bind(obj)
@@ -411,7 +412,7 @@ func (c *Context) GetContextObj() (*goja.Object, bool) {
 // handleTypeError interrupts the UI the first time we encounter a type error.
 // Interrupting early is better to catch wrong usage of the API.
 func (c *Context) handleTypeError(msg string) {
-	c.logger.Error().Err(fmt.Errorf(msg)).Msg("plugin: Type error")
+	c.logger.Error().Err(errors.New(msg)).Msg("plugin: Type error")
 	// c.fatalError(fmt.Errorf(msg))
 	panic(c.vm.NewTypeError(msg))
 }

@@ -33,6 +33,7 @@ type ExtensionCardProps = {
     isInstalled: boolean
     userConfigError?: Extension_InvalidExtension | undefined
     allowReload?: boolean
+    isUnsafe?: boolean
 }
 
 export function ExtensionCard(props: ExtensionCardProps) {
@@ -43,6 +44,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
         isInstalled,
         userConfigError,
         allowReload,
+        isUnsafe = false,
         ...rest
     } = props
 
@@ -58,6 +60,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                 "group/extension-card border border-[rgb(255_255_255_/_5%)] relative overflow-hidden",
                 "bg-gray-900 rounded-xl p-3",
                 !!updateData && "border-[--green]",
+                userConfigError && "border-[--orange]",
             )}
         >
             <div
@@ -78,7 +81,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                                         side="top"
                                         trigger={<IconButton
                                             size="sm"
-                                            intent={userConfigError ? "alert" : "gray-basic"}
+                                            intent={userConfigError ? "warning" : "gray-basic"}
                                             icon={<LuSettings2 />}
                                             className={cn(
                                                 userConfigError && "animate-bounce",
@@ -95,7 +98,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                             <Tooltip
                                 trigger={<IconButton
                                     size="sm"
-                                    intent="gray-basic"
+                                    intent={!updateData ? "gray-basic" : "gray-glass"}
                                     icon={<LuEllipsisVertical />}
                                 />}
                             >Info</Tooltip>
@@ -191,9 +194,14 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     {isBuiltin && <Badge className="rounded-md tracking-wide border-transparent px-0 italic opacity-50" intent="unstyled">
                         Built-in
                     </Badge>}
-                    {!!extension.version && <Badge className="rounded-md tracking-wide" intent={!!updateData ? "success" : "unstyled"}>
-                        {extension.version}{!!updateData ? " → " + updateData.version : ""}
+                    {!!extension.version && !updateData && <Badge className="rounded-md tracking-wide" intent={!!updateData ? "success" : "unstyled"}>
+                        {extension.version}
                     </Badge>}
+                    {!!extension.version && updateData && <ExtensionCodeModal extension={extension} diff={updateData?.payload ?? ""} readOnly>
+                        <Badge className="cursor-pointer rounded-md tracking-wide" intent={!!updateData ? "success" : "unstyled"}>
+                            {extension.version}{!!updateData ? " → " + updateData.version : ""}
+                        </Badge>
+                    </ExtensionCodeModal>}
                     {!isBuiltin && <Badge className="rounded-md" intent="unstyled">
                         {extension.author}
                     </Badge>}
@@ -321,18 +329,28 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
                             <p className="">
                                 Update available: <span className="font-bold text-white">{fetchedExtensionData?.version || updateData?.version}</span>
                             </p>
-                            <Button
-                                intent="white"
-                                leftIcon={<TbCloudDownload className="text-lg" />}
-                                loading={isInstalling}
-                                onClick={() => {
-                                    installExtension({
-                                        manifestUri: fetchedExtensionData?.manifestURI || updateData?.manifestURI || "",
-                                    })
-                                }}
-                            >
-                                Install update
-                            </Button>
+                            <div className="flex gap-2">
+                                <ExtensionCodeModal extension={extension} diff={updateData?.payload ?? ""} readOnly>
+                                    <Button
+                                        size="md"
+                                        intent="gray-glass"
+                                    >
+                                        View updated code
+                                    </Button>
+                                </ExtensionCodeModal>
+                                <Button
+                                    intent="white"
+                                    leftIcon={<TbCloudDownload className="text-lg" />}
+                                    loading={isInstalling}
+                                    onClick={() => {
+                                        installExtension({
+                                            manifestUri: fetchedExtensionData?.manifestURI || updateData?.manifestURI || "",
+                                        })
+                                    }}
+                                >
+                                    Install update
+                                </Button>
+                            </div>
                         </AppLayoutStack>
                     )}
 

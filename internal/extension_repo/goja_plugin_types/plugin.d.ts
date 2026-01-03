@@ -401,7 +401,7 @@ declare namespace $ui {
         css: CSSComponentFunction
         tooltip: TooltipComponentFunction
         /**
-         * Communication channel between the webview's iframe code and the Plugin context.
+         * Communication channel between the webview and the Plugin context.
          */
         channel: WebviewChannel
 
@@ -414,14 +414,12 @@ declare namespace $ui {
         /** Invoked after the webview is unmounted */
         onUnmount(cb: () => void): void
 
-        /** Registers the render function for the webview */
-        render(fn: () => void): void
-
-        /** Schedules a re-render of the webview rendered with render() */
+        /**
+         * Updates the webview's content.
+         *
+         * This is useful if the webview's content depends on the state of the Plugin context.
+         */
         update(): void
-
-        /** Schedules a re-render of the webview's iframe */
-        rerun(): void
 
         /** Set webview's iframe content */
         setContent(fn: () => string): void
@@ -437,6 +435,12 @@ declare namespace $ui {
 
         /** Hide the webview without closing it */
         hide(): void
+
+        /**
+         * Returns the path of the webview's screen
+         * @example /webview?id=my-plugin
+         */
+        getScreenPath(): string
     }
 
     interface Playback {

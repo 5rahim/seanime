@@ -1,6 +1,6 @@
 "use client"
 
-import { useUnauthorizedPluginCount } from "@/api/hooks/extensions.hooks"
+import { usePluginWithIssuesCount } from "@/api/hooks/extensions.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { __extensions_currentPageAtom, ExtensionList } from "@/app/(main)/extensions/_containers/extension-list"
 import { MarketplaceExtensions } from "@/app/(main)/extensions/_containers/marketplace-extensions"
@@ -16,7 +16,7 @@ import { LuPackageCheck, LuShoppingBasket } from "react-icons/lu"
 export default function Page() {
 
     const [page, setPage] = useAtom(__extensions_currentPageAtom)
-    const unauthorizedPluginCount = useUnauthorizedPluginCount()
+    const unauthorizedPluginCount = usePluginWithIssuesCount()
 
     const searchParams = useSearchParams()
     React.useEffect(() => {

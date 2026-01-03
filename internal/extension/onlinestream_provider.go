@@ -100,3 +100,7 @@ func (m *OnlinestreamProviderExtensionImpl) GetPayloadURI() string {
 func (m *OnlinestreamProviderExtensionImpl) GetIsDevelopment() bool {
 	return m.ext.IsDevelopment
 }
+
+func (m *OnlinestreamProviderExtensionImpl) GetPluginManifest() *PluginManifest {
+	return m.ext.Plugin
+}

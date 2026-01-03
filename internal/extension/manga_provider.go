@@ -100,3 +100,7 @@ func (m *MangaProviderExtensionImpl) GetPayloadURI() string {
 func (m *MangaProviderExtensionImpl) GetIsDevelopment() bool {
 	return m.ext.IsDevelopment
 }
+
+func (m *MangaProviderExtensionImpl) GetPluginManifest() *PluginManifest {
+	return m.ext.Plugin
+}

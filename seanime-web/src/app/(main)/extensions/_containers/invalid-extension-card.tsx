@@ -6,6 +6,7 @@ import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extensio
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { SeaImage } from "@/components/shared/sea-image"
+import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -163,6 +164,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
 type UnauthorizedExtensionPluginCardProps = {
     extension: Extension_InvalidExtension
     isInstalled: boolean
+    isUnsafe?: boolean
 }
 
 const shouldGrantPluginPermissionsAtom = atom<string[]>([])
@@ -172,6 +174,7 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
     const {
         extension,
         isInstalled,
+        isUnsafe = false,
         ...rest
     } = props
 
@@ -221,8 +224,26 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                         The plugin <span className="font-bold">{extension.extension?.name}</span> is requesting the following permissions:
                     </p>
 
+                    {isUnsafe && <Alert
+                        intent="warning"
+                        title="Warning"
+                        description="This plugin uses unsafe code execution methods which may pose a security risk. Proceed at your own risk."
+                        // className="mb-4"
+                    />}
+
                     <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-md leading-relaxed text-left bg-[--subtle] p-2 rounded-md">
-                        {extension.pluginPermissionDescription}
+                        {extension.pluginPermissionDescription?.split("\n").map((line, index) => {
+                            line = line.trimEnd()
+                            if (line.startsWith("•")) {
+                                return <span key={index} className="pl-4 mb-1 block">
+                                    <span className="font-bold bg-[--background] px-2 py-[0.1rem] rounded-lg inline-block">{line.replace("•", "")
+                                        .split(":")[0].trim()}</span> {line.split(":")[1]}<br />
+                                </span>
+                            }
+                            return <span key={index}>
+                                {line}<br />
+                            </span>
+                        })}
                     </p>
 
                     <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-sm text-center text-[--muted]">

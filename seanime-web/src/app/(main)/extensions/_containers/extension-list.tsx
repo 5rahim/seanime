@@ -102,7 +102,7 @@ export function ExtensionList(props: ExtensionListProps) {
                 <div className="flex flex-1"></div>
 
                 <div className="flex items-center gap-2 flex-wrap">
-                    {!!allExtensions?.hasUpdate?.length && (
+                    {!!allExtensions?.hasUpdate?.filter(update => !allExtensions.unsafeExtensions?.[update.extensionID]).length && (
                         <Button
                             className="rounded-full animate-pulse"
                             intent="success"
@@ -111,6 +111,10 @@ export function ExtensionList(props: ExtensionListProps) {
                             onClick={() => {
                                 toast.info("Installing updates...")
                                 allExtensions?.hasUpdate?.forEach(update => {
+                                    if (allExtensions.unsafeExtensions?.[update.extensionID]) {
+                                        toast.warning(`Skipped "${update.extensionID}" because it uses unsafe flags. Update it manually.`)
+                                        return
+                                    }
                                     installExtension({
                                         manifestUri: update.manifestURI,
                                     })
@@ -176,6 +180,7 @@ export function ExtensionList(props: ExtensionListProps) {
                                 key={extension.id}
                                 extension={extension}
                                 isInstalled={isExtensionInstalled(extension.id)}
+                                isUnsafe={allExtensions?.unsafeExtensions?.[extension.id] ?? false}
                             />
                         ))}
                     </div>
@@ -211,6 +216,7 @@ export function ExtensionList(props: ExtensionListProps) {
                                 updateData={allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
                                 isInstalled={isExtensionInstalled(extension.id)}
                                 userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                                isUnsafe={allExtensions?.unsafeExtensions?.[extension.id] ?? false}
                                 allowReload={true}
                             />
                         ))}
@@ -234,6 +240,7 @@ export function ExtensionList(props: ExtensionListProps) {
                                 updateData={allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
                                 isInstalled={isExtensionInstalled(extension.id)}
                                 userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                                isUnsafe={allExtensions?.unsafeExtensions?.[extension.id] ?? false}
                                 allowReload
                             />
                         ))}
@@ -252,6 +259,7 @@ export function ExtensionList(props: ExtensionListProps) {
                                 updateData={allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
                                 isInstalled={isExtensionInstalled(extension.id)}
                                 userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                                isUnsafe={allExtensions?.unsafeExtensions?.[extension.id] ?? false}
                                 allowReload
                             />
                         ))}
@@ -271,6 +279,7 @@ export function ExtensionList(props: ExtensionListProps) {
                                 updateData={allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
                                 isInstalled={isExtensionInstalled(extension.id)}
                                 userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                                isUnsafe={allExtensions?.unsafeExtensions?.[extension.id] ?? false}
                                 allowReload
                             />
                         ))}
@@ -289,6 +298,7 @@ export function ExtensionList(props: ExtensionListProps) {
                                 updateData={allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
                                 isInstalled={isExtensionInstalled(extension.id)}
                                 userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                                isUnsafe={allExtensions?.unsafeExtensions?.[extension.id] ?? false}
                                 allowReload
                             />
                         ))}

@@ -39524,6 +39524,28 @@
     "package": "extension",
     "fields": [
       {
+        "name": "NetworkAccess",
+        "jsonName": "networkAccess",
+        "goType": "PluginNetworkAcess",
+        "typescriptType": "Extension_PluginNetworkAcess",
+        "usedTypescriptType": "Extension_PluginNetworkAcess",
+        "usedStructName": "extension.PluginNetworkAcess",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UnsafeFlags",
+        "jsonName": "unsafeFlags",
+        "goType": "[]PluginUnsafe",
+        "typescriptType": "Array\u003cExtension_PluginUnsafe\u003e",
+        "usedTypescriptType": "Extension_PluginUnsafe",
+        "usedStructName": "extension.PluginUnsafe",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ReadPaths",
         "jsonName": "readPaths",
         "goType": "[]string",
@@ -39558,6 +39580,81 @@
       "",
       " The user must acknowledge these permissions before the plugin can be loaded."
     ]
+  },
+  {
+    "filepath": "../internal/extension/plugin.go",
+    "filename": "plugin.go",
+    "name": "PluginUnsafeFlag",
+    "formattedName": "Extension_PluginUnsafeFlag",
+    "package": "extension",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"dom-script-manipulation\"",
+        "\"dom-link-manipulation\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/plugin.go",
+    "filename": "plugin.go",
+    "name": "PluginUnsafe",
+    "formattedName": "Extension_PluginUnsafe",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "Flag",
+        "jsonName": "flag",
+        "goType": "PluginUnsafeFlag",
+        "typescriptType": "Extension_PluginUnsafeFlag",
+        "usedTypescriptType": "Extension_PluginUnsafeFlag",
+        "usedStructName": "extension.PluginUnsafeFlag",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Reason",
+        "jsonName": "reason",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/plugin.go",
+    "filename": "plugin.go",
+    "name": "PluginNetworkAcess",
+    "formattedName": "Extension_PluginNetworkAcess",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "AllowedDomains",
+        "jsonName": "allowedDomains",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Reasoning",
+        "jsonName": "reasoning",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/extension/plugin.go",
@@ -40464,6 +40561,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "UnsafeExtensions",
+        "jsonName": "unsafeExtensions",
+        "goType": "map[string]bool",
+        "typescriptType": "Record\u003cstring, boolean\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -40496,6 +40602,15 @@
       {
         "name": "Version",
         "jsonName": "version",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Payload",
+        "jsonName": "payload",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -41017,6 +41132,28 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "allowedDomains",
+        "jsonName": "allowedDomains",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": false,
+        "comments": [
+          " empty = allow all domains"
+        ]
+      },
+      {
+        "name": "rules",
+        "jsonName": "rules",
+        "goType": "[]accessRule",
+        "typescriptType": "Array\u003caccessRule\u003e",
+        "usedTypescriptType": "accessRule",
+        "usedStructName": "goja_bindings.accessRule",
+        "required": false,
         "public": false,
         "comments": []
       }
@@ -71472,6 +71609,24 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "unsafeScriptManipulation",
+        "jsonName": "unsafeScriptManipulation",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "unsafeLinkManipulation",
+        "jsonName": "unsafeLinkManipulation",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -74226,6 +74381,7 @@
       "goType": "string",
       "typescriptType": "string",
       "declaredValues": [
+        "\"screen\"",
         "\"fixed\"",
         "\"after-home-screen-toolbar\""
       ]

@@ -358,7 +358,7 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 			}
 
 			// Get the extension data from the repository
-			extFromRepo, err := r.fetchExternalExtensionData(ext.GetManifestURI(), true)
+			extFromRepo, err := r.fetchExternalExtensionData(ext.GetManifestURI())
 			if err != nil {
 				r.logger.Error().Err(err).Str("id", ext.GetID()).Str("url", ext.GetManifestURI()).Msg("extensions: Failed to fetch extension data while checking for update")
 				return
@@ -370,6 +370,7 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 				return
 			}
 
+			// Disallow updates if the extension ID changed
 			if extFromRepo.ID != ext.GetID() {
 				r.logger.Warn().Str("id", ext.GetID()).Str("newID", extFromRepo.ID).Str("url", ext.GetManifestURI()).Msg("extensions: Extension ID changed while checking for update")
 				return
@@ -382,6 +383,7 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 					ExtensionID: extFromRepo.ID,
 					Version:     extFromRepo.Version,
 					ManifestURI: extFromRepo.ManifestURI,
+					Payload:     extFromRepo.Payload,
 				})
 				mu.Unlock()
 			}
