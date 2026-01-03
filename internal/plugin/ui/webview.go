@@ -165,16 +165,27 @@ type WebviewOptions struct {
 	MaxHeight string `json:"maxHeight,omitempty"`
 	ZIndex    int    `json:"zIndex,omitempty"`
 
+	Window WebviewWindowOptions `json:"window,omitempty"`
+
+	// Responsiveness
+	AutoHeight bool `json:"autoHeight,omitempty"`
+	FullWidth  bool `json:"fullWidth,omitempty"`
+
+	Sidebar WebviewSidebarOptions `json:"sidebar,omitempty"`
+}
+
+type WebviewWindowOptions struct {
 	// Window management
 	Draggable bool `json:"draggable,omitempty"`
 	//Resizable bool `json:"resizable,omitempty"`
 	//Closable  bool `json:"closable,omitempty"`
 	DefaultX int `json:"defaultX,omitempty"`
 	DefaultY int `json:"defaultY,omitempty"`
+}
 
-	// Responsiveness
-	AutoHeight bool `json:"autoHeight,omitempty"`
-	FullWidth  bool `json:"fullWidth,omitempty"`
+type WebviewSidebarOptions struct {
+	Label string `json:"label,omitempty"`
+	Icon  string `json:"icon,omitempty"`
 }
 
 // jsNewWebview
@@ -233,28 +244,32 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 			}
 		}
 
-		// Parse window management options
-		if propsObj["draggable"] != nil {
-			webview.options.Draggable, _ = propsObj["draggable"].(bool)
-		}
-		//if propsObj["resizable"] != nil {
-		//	webview.options.Resizable, _ = propsObj["resizable"].(bool)
-		//}
-		//if propsObj["closable"] != nil {
-		//	webview.options.Closable, _ = propsObj["closable"].(bool)
-		//}
-		if propsObj["defaultX"] != nil {
-			if x, ok := propsObj["defaultX"].(int64); ok {
-				webview.options.DefaultX = int(x)
-			} else if x, ok := propsObj["defaultX"].(float64); ok {
-				webview.options.DefaultX = int(x)
-			}
-		}
-		if propsObj["defaultY"] != nil {
-			if y, ok := propsObj["defaultY"].(int64); ok {
-				webview.options.DefaultY = int(y)
-			} else if y, ok := propsObj["defaultY"].(float64); ok {
-				webview.options.DefaultY = int(y)
+		if propsObj["window"] != nil {
+			if windowObj, ok := propsObj["window"].(map[string]interface{}); ok {
+				// Parse window management options
+				if windowObj["draggable"] != nil {
+					webview.options.Window.Draggable, _ = windowObj["draggable"].(bool)
+				}
+				//if windowObj["resizable"] != nil {
+				//	webview.options.Resizable, _ = windowObj["resizable"].(bool)
+				//}
+				//if windowObj["closable"] != nil {
+				//	webview.options.Closable, _ = windowObj["closable"].(bool)
+				//}
+				if windowObj["defaultX"] != nil {
+					if x, ok := windowObj["defaultX"].(int64); ok {
+						webview.options.Window.DefaultX = int(x)
+					} else if x, ok := windowObj["defaultX"].(float64); ok {
+						webview.options.Window.DefaultX = int(x)
+					}
+				}
+				if windowObj["defaultY"] != nil {
+					if y, ok := windowObj["defaultY"].(int64); ok {
+						webview.options.Window.DefaultY = int(y)
+					} else if y, ok := windowObj["defaultY"].(float64); ok {
+						webview.options.Window.DefaultY = int(y)
+					}
+				}
 			}
 		}
 
@@ -423,7 +438,7 @@ func (w *Webview) jsSetOptions(call goja.FunctionCall) goja.Value {
 		}
 	}
 	if propsObj["draggable"] != nil {
-		w.options.Draggable, _ = propsObj["draggable"].(bool)
+		w.options.Window.Draggable, _ = propsObj["draggable"].(bool)
 	}
 	//if propsObj["resizable"] != nil {
 	//	w.options.Resizable, _ = propsObj["resizable"].(bool)
@@ -433,16 +448,16 @@ func (w *Webview) jsSetOptions(call goja.FunctionCall) goja.Value {
 	//}
 	if propsObj["defaultX"] != nil {
 		if x, ok := propsObj["defaultX"].(int64); ok {
-			w.options.DefaultX = int(x)
+			w.options.Window.DefaultX = int(x)
 		} else if x, ok := propsObj["defaultX"].(float64); ok {
-			w.options.DefaultX = int(x)
+			w.options.Window.DefaultX = int(x)
 		}
 	}
 	if propsObj["defaultY"] != nil {
 		if y, ok := propsObj["defaultY"].(int64); ok {
-			w.options.DefaultY = int(y)
+			w.options.Window.DefaultY = int(y)
 		} else if y, ok := propsObj["defaultY"].(float64); ok {
-			w.options.DefaultY = int(y)
+			w.options.Window.DefaultY = int(y)
 		}
 	}
 	if propsObj["autoHeight"] != nil {

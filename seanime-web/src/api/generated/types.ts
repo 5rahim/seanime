@@ -2195,7 +2195,7 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  *  The user must acknowledge these permissions before the plugin can be loaded.
  */
 export type Extension_PluginAllowlist = {
-    networkAccess?: Extension_PluginNetworkAcess
+    networkAccess: Extension_PluginNetworkAcess
     unsafeFlags?: Array<Extension_PluginUnsafe>
     readPaths?: Array<string>
     writePaths?: Array<string>
@@ -2236,7 +2236,7 @@ export type Extension_PluginPermissionScope = string
  */
 export type Extension_PluginPermissions = {
     scopes?: Array<Extension_PluginPermissionScope>
-    allow?: Extension_PluginAllowlist
+    allow: Extension_PluginAllowlist
 }
 
 /**
@@ -4280,11 +4280,20 @@ export type PluginUI_WebviewOptions = {
     maxWidth?: string
     maxHeight?: string
     zIndex?: number
-    draggable?: boolean
-    defaultX?: number
-    defaultY?: number
+    window?: PluginUI_WebviewWindowOptions
     autoHeight?: boolean
     fullWidth?: boolean
+    sidebar?: PluginUI_WebviewSidebarOptions
+}
+
+/**
+ * - Filepath: internal/plugin/ui/webview.go
+ * - Filename: webview.go
+ * - Package: plugin_ui
+ */
+export type PluginUI_WebviewSidebarOptions = {
+    label?: string
+    icon?: string
 }
 
 /**
@@ -4293,6 +4302,17 @@ export type PluginUI_WebviewOptions = {
  * - Package: plugin_ui
  */
 export type PluginUI_WebviewSlot = "screen" | "fixed" | "after-home-screen-toolbar"
+
+/**
+ * - Filepath: internal/plugin/ui/webview.go
+ * - Filename: webview.go
+ * - Package: plugin_ui
+ */
+export type PluginUI_WebviewWindowOptions = {
+    draggable?: boolean
+    defaultX?: number
+    defaultY?: number
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Report

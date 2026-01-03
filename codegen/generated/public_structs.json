@@ -39509,7 +39509,7 @@
         "typescriptType": "Extension_PluginAllowlist",
         "usedTypescriptType": "Extension_PluginAllowlist",
         "usedStructName": "extension.PluginAllowlist",
-        "required": false,
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -39530,7 +39530,7 @@
         "typescriptType": "Extension_PluginNetworkAcess",
         "usedTypescriptType": "Extension_PluginNetworkAcess",
         "usedStructName": "extension.PluginNetworkAcess",
-        "required": false,
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -74647,6 +74647,56 @@
         "comments": []
       },
       {
+        "name": "Window",
+        "jsonName": "window",
+        "goType": "WebviewWindowOptions",
+        "typescriptType": "PluginUI_WebviewWindowOptions",
+        "usedTypescriptType": "PluginUI_WebviewWindowOptions",
+        "usedStructName": "plugin_ui.WebviewWindowOptions",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AutoHeight",
+        "jsonName": "autoHeight",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FullWidth",
+        "jsonName": "fullWidth",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Sidebar",
+        "jsonName": "sidebar",
+        "goType": "WebviewSidebarOptions",
+        "typescriptType": "PluginUI_WebviewSidebarOptions",
+        "usedTypescriptType": "PluginUI_WebviewSidebarOptions",
+        "usedStructName": "plugin_ui.WebviewSidebarOptions",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/webview.go",
+    "filename": "webview.go",
+    "name": "WebviewWindowOptions",
+    "formattedName": "PluginUI_WebviewWindowOptions",
+    "package": "plugin_ui",
+    "fields": [
+      {
         "name": "Draggable",
         "jsonName": "draggable",
         "goType": "bool",
@@ -74672,21 +74722,31 @@
         "required": false,
         "public": true,
         "comments": []
-      },
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/webview.go",
+    "filename": "webview.go",
+    "name": "WebviewSidebarOptions",
+    "formattedName": "PluginUI_WebviewSidebarOptions",
+    "package": "plugin_ui",
+    "fields": [
       {
-        "name": "AutoHeight",
-        "jsonName": "autoHeight",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
       },
       {
-        "name": "FullWidth",
-        "jsonName": "fullWidth",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "Icon",
+        "jsonName": "icon",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []

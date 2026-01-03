@@ -167,7 +167,11 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
     const isMainTabRef = useIsMainTabRef()
     const previousMainTab = React.useRef(isMainTabRef.current)
 
-    const iframeWebviews = useMap()
+    const iframeWebviews = useMap() as Map<string, IframeWebview>
+
+    const iframeWebviewsRef = React.useRef(iframeWebviews)
+
+    React.useEffect(() => { iframeWebviewsRef.current = iframeWebviews }, [iframeWebviews])
 
     const mountedRef = React.useRef(false)
     useMount(() => {
@@ -203,8 +207,10 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
 
             const data = event.data as MessageFromWebview & any
 
+            const currentMap = iframeWebviewsRef.current
+
             // find the webview by webviewId and validate token
-            const webview = iframeWebviews.get(data.webviewId) as IframeWebview | undefined
+            const webview = currentMap.get(data.webviewId) as IframeWebview | undefined
 
             if (!webview) {
                 // log.warn("Received message from unknown webview", data.webviewId)
@@ -261,7 +267,7 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
 
         window.addEventListener("message", handleMessage)
         return () => window.removeEventListener("message", handleMessage)
-    }, [iframeWebviews, slot, sendEventHandlerTriggeredEvent])
+    }, [slot, sendEventHandlerTriggeredEvent])
 
     useUnmount(() => {
         iframeWebviews.clear()
@@ -278,9 +284,24 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
             })
             setTimeout(() => {
                 sendWebviewMountedEvent({ slot: slot })
-            }, 500)
+            }, 0)
         },
     })
+
+    const handleUpdatePosition = React.useCallback((id: string, x: number, y: number) => {
+        const wv = iframeWebviews.get(id)
+        if (wv) iframeWebviews.set(id, { ...wv, position: { x, y } })
+    }, [iframeWebviews])
+
+    const handleUpdateSize = React.useCallback((id: string, width: number, height: number) => {
+        const wv = iframeWebviews.get(id)
+        if (wv) iframeWebviews.set(id, { ...wv, size: { width, height } })
+    }, [iframeWebviews])
+
+    const handleClose = React.useCallback((id: string) => {
+        iframeWebviews.delete(id)
+        document.getElementById(`webview-${id}`)?.remove()
+    }, [iframeWebviews])
 
     const setupIframeWebview = React.useCallback((extensionId: string, payload: Plugin_Server_WebviewIframeEventPayload) => {
         log.info("Setting up iframe webview", { extensionId, content: payload.content.slice(0, 100) + "..." })
@@ -295,7 +316,7 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
 
         // Remove old iframe
         if (iframeWebviews.has(webviewId)) {
-            document.getElementById(`webview-${webviewId}`)?.remove()
+            iframeWebviews.delete(webviewId)
         }
 
         // generate unique token for this webview instance
@@ -309,8 +330,7 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
             webviewId,
         )
 
-        // @ts-ignore - payload.options exists
-        const options = payload.options as WebviewOptions | undefined
+        const options = payload.options as PluginUI_WebviewOptions | undefined
 
         iframeWebviews.set(webviewId, {
             webviewId,
@@ -319,8 +339,8 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
             token,
             options,
             visible: true,
-            position: preservedPosition || (options?.defaultX !== undefined && options?.defaultY !== undefined
-                ? { x: options.defaultX, y: options.defaultY }
+            position: preservedPosition || (options?.window?.defaultX !== undefined && options?.window?.defaultY !== undefined
+                ? { x: options?.window?.defaultX, y: options?.window?.defaultY }
                 : undefined),
             size: preservedSize,
             slot,
@@ -398,18 +418,9 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
                         <WebviewIframe
                             key={webview.webviewId}
                             webview={webview}
-                            onUpdatePosition={(x, y) => {
-                                const updated = { ...webview, position: { x, y } }
-                                iframeWebviews.set(webview.webviewId, updated)
-                            }}
-                            onUpdateSize={(width, height) => {
-                                const updated = { ...webview, size: { width, height } }
-                                iframeWebviews.set(webview.webviewId, updated)
-                            }}
-                            onClose={() => {
-                                iframeWebviews.delete(webview.webviewId)
-                                document.getElementById(`webview-${webview.webviewId}`)?.remove()
-                            }}
+                            onUpdatePosition={handleUpdatePosition}
+                            onUpdateSize={handleUpdateSize}
+                            onClose={handleClose}
                         />
                     ))}
                 </Portal>
@@ -421,18 +432,9 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
             <WebviewIframe
                 key={webview.webviewId}
                 webview={webview}
-                onUpdatePosition={(x, y) => {
-                    const updated = { ...webview, position: { x, y } }
-                    iframeWebviews.set(webview.webviewId, updated)
-                }}
-                onUpdateSize={(width, height) => {
-                    const updated = { ...webview, size: { width, height } }
-                    iframeWebviews.set(webview.webviewId, updated)
-                }}
-                onClose={() => {
-                    iframeWebviews.delete(webview.webviewId)
-                    document.getElementById(`webview-${webview.webviewId}`)?.remove()
-                }}
+                onUpdatePosition={handleUpdatePosition}
+                onUpdateSize={handleUpdateSize}
+                onClose={handleClose}
             />
         ))}
     </>
@@ -440,9 +442,9 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
 
 type WebviewIframeProps = {
     webview: IframeWebview
-    onUpdatePosition: (x: number, y: number) => void
-    onUpdateSize: (width: number, height: number) => void
-    onClose: () => void
+    onUpdatePosition: (id: string, x: number, y: number) => void
+    onUpdateSize: (id: string, width: number, height: number) => void
+    onClose: (id: string) => void
 }
 
 function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: WebviewIframeProps) {
@@ -455,7 +457,7 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
     // const resizeStartPos = React.useRef({ x: 0, y: 0, width: 0, height: 0 })
 
     const options = webview.options || {}
-    const position = webview.position || { x: options.defaultX || 0, y: options.defaultY || 0 }
+    const position = webview.position || { x: options?.window?.defaultX || 0, y: options?.window?.defaultY || 0 }
     const size = webview.size
 
     // Build inline styles
@@ -487,12 +489,12 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
         if (options.maxHeight) styles.maxHeight = options.maxHeight
 
         if (webview.slot === "fixed") {
-            if (options.draggable) {
+            if (options?.window?.draggable) {
                 styles.left = `${position.x}px`
                 styles.top = `${position.y}px`
             } else {
-                styles.left = options.defaultX !== undefined ? `${options.defaultX}px` : "0"
-                styles.top = options.defaultY !== undefined ? `${options.defaultY}px` : "0"
+                styles.left = options?.window?.defaultX !== undefined ? `${options?.window?.defaultX}px` : "0"
+                styles.top = options?.window?.defaultY !== undefined ? `${options?.window?.defaultY}px` : "0"
             }
         }
 
@@ -515,7 +517,7 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
 
     // Dragging logic
     const handleMouseDown = React.useCallback((e: React.MouseEvent) => {
-        if (!options.draggable) return
+        if (!options?.window?.draggable) return
         e.preventDefault()
         setIsDragging(true)
         dragStartPos.current = {
@@ -524,7 +526,7 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
             elemX: position.x,
             elemY: position.y,
         }
-    }, [options.draggable, position])
+    }, [options?.window?.draggable, position])
 
     React.useEffect(() => {
         if (!isDragging) return
@@ -533,6 +535,7 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
             const deltaX = e.clientX - dragStartPos.current.x
             const deltaY = e.clientY - dragStartPos.current.y
             onUpdatePosition(
+                webview.webviewId,
                 dragStartPos.current.elemX + deltaX,
                 dragStartPos.current.elemY + deltaY,
             )
@@ -595,6 +598,8 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
         iframeRef?.current?.contentDocument?.body?.setAttribute("style", "background: transparent !important;")
     }
 
+    const { width: dragHandleWidth } = useMeasureElement(iframeRef)
+
     if (!webview.visible) return null
 
     return (
@@ -611,11 +616,13 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
                 }),
             }}
         >
-            <WebviewIframeDragHandle
+
+            {!!options?.window?.draggable && webview.slot === "fixed" && <div
+                data-plugin-webview-el="drag-handle"
                 onMouseDown={handleMouseDown}
-                draggable={!!options.draggable && webview.slot === "fixed"}
-                iframeRef={iframeRef}
-            />
+                className="absolute top-0 left-0 right-0 h-8 cursor-move bg-gradient-to-b from-black/20 to-transparent z-[9999]"
+                style={{ pointerEvents: "auto", width: dragHandleWidth }}
+            />}
 
             {/*{options.closable && (*/}
             {/*    <button*/}
@@ -652,22 +659,5 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
             {/*    />*/}
             {/*)}*/}
         </div>
-    )
-}
-
-function WebviewIframeDragHandle({ onMouseDown, draggable, iframeRef }: {
-    onMouseDown: (e: React.MouseEvent) => void,
-    draggable: boolean,
-    iframeRef: React.RefObject<HTMLIFrameElement>
-}) {
-    const { width: dragHandleWidth } = useMeasureElement(iframeRef)
-
-    if (!draggable) return null
-    return (
-        <div
-            onMouseDown={onMouseDown}
-            className="absolute top-0 left-0 right-0 h-8 cursor-move bg-gradient-to-b from-black/20 to-transparent z-[9999]"
-            style={{ pointerEvents: "auto", width: dragHandleWidth }}
-        />
     )
 }

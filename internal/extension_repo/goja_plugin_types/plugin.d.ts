@@ -318,19 +318,12 @@ declare namespace $ui {
         /**
          * Only applies if slot is "fixed"
          */
-        draggable?: boolean
-        /**
-         * Only applies if slot is "fixed"
-         */
-        resizable?: boolean
-        /**
-         * Only applies if slot is "fixed"
-         */
-        defaultX?: number
-        /**
-         * Only applies if slot is "fixed"
-         */
-        defaultY?: number
+        window?: {
+            draggable?: boolean
+            resizable?: boolean
+            defaultX?: number
+            defaultY?: number
+        }
         /**
          * Whether the height of the webview should be automatically adjusted to fit its content.
          */
