@@ -8,6 +8,7 @@ export enum PluginClientEvents {
     TrayOpened = "tray:opened",
     TrayClosed = "tray:closed",
     TrayClicked = "tray:clicked",
+    WebviewSidebarMounted = "webview:sidebar-mounted",
     WebviewMounted = "webview:mounted",
     WebviewLoaded = "webview:loaded",
     WebviewUnmounted = "webview:unmounted",
@@ -48,6 +49,7 @@ export enum PluginServerEvents {
     TrayClose = "tray:close",
     WebviewUpdated = "webview:updated",
     WebviewIframe = "webview:iframe",
+    WebviewSidebar = "webview:sidebar",
     WebviewSyncState = "webview:sync-state",
     WebviewClose = "webview:close",
     WebviewShow = "webview:show",
@@ -157,6 +159,20 @@ export function usePluginSendTrayClickedEvent() {
 
     return {
         sendTrayClickedEvent,
+    }
+}
+
+export type Plugin_Client_WebviewSidebarMountedEventPayload = {}
+
+export function usePluginSendWebviewSidebarMountedEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendWebviewSidebarMountedEvent = useCallback((payload: Plugin_Client_WebviewSidebarMountedEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.WebviewSidebarMounted, payload, extensionID)
+    }, [])
+
+    return {
+        sendWebviewSidebarMountedEvent,
     }
 }
 
@@ -742,6 +758,21 @@ export function usePluginListenWebviewIframeEvent(cb: (payload: Plugin_Server_We
     return useWebsocketPluginMessageListener<Plugin_Server_WebviewIframeEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.WebviewIframe,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_WebviewSidebarEventPayload = {
+    label: string
+    icon: string
+}
+
+export function usePluginListenWebviewSidebarEvent(cb: (payload: Plugin_Server_WebviewSidebarEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_WebviewSidebarEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.WebviewSidebar,
         onMessage: cb,
     })
 }

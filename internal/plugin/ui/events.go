@@ -23,6 +23,7 @@ const (
 	ClientTrayOpenedEvent                              ClientEventType = "tray:opened"     // When the tray is opened
 	ClientTrayClosedEvent                              ClientEventType = "tray:closed"     // When the tray is closed
 	ClientTrayClickedEvent                             ClientEventType = "tray:clicked"    // When the tray is clicked
+	ClientWebviewSidebarMountedEvent                   ClientEventType = "webview:sidebar-mounted"
 	ClientWebviewMountedEvent                          ClientEventType = "webview:mounted"
 	ClientWebviewLoadedEvent                           ClientEventType = "webview:loaded"
 	ClientWebviewUnmountedEvent                        ClientEventType = "webview:unmounted"
@@ -61,6 +62,7 @@ type ClientListTrayIconsEventPayload struct{}
 type ClientTrayOpenedEventPayload struct{}
 type ClientTrayClosedEventPayload struct{}
 type ClientTrayClickedEventPayload struct{}
+type ClientWebviewSidebarMountedEventPayload struct{}
 type ClientWebviewMountedEventPayload struct {
 	Slot string `json:"slot"`
 }
@@ -184,6 +186,7 @@ const (
 
 	ServerWebviewUpdatedEvent   ServerEventType = "webview:updated"    // When the webviews are updated
 	ServerWebviewIframeEvent    ServerEventType = "webview:iframe"     // When the webviews are updated
+	ServerWebviewSidebarEvent   ServerEventType = "webview:sidebar"    // Returns the webview sidebar data
 	ServerWebviewSyncStateEvent ServerEventType = "webview:sync-state" // When a state is synced to the webview
 	ServerWebviewCloseEvent     ServerEventType = "webview:close"      // When a webview should be closed
 	ServerWebviewShowEvent      ServerEventType = "webview:show"       // When a webview should be shown
@@ -264,6 +267,11 @@ type ServerWebviewIframeEventPayload struct {
 	Content string      `json:"content"`
 	ID      string      `json:"id"`
 	Options interface{} `json:"options,omitempty"`
+}
+
+type ServerWebviewSidebarEventPayload struct {
+	Label string `json:"label"`
+	Icon  string `json:"icon"`
 }
 
 type ServerWebviewCloseEventPayload struct {

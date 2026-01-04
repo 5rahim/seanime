@@ -71773,6 +71773,7 @@
         "\"tray:opened\"",
         "\"tray:closed\"",
         "\"tray:clicked\"",
+        "\"webview:sidebar-mounted\"",
         "\"webview:mounted\"",
         "\"webview:loaded\"",
         "\"webview:unmounted\"",
@@ -71889,6 +71890,15 @@
     "filename": "events.go",
     "name": "ClientTrayClickedEventPayload",
     "formattedName": "PluginUI_ClientTrayClickedEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientWebviewSidebarMountedEventPayload",
+    "formattedName": "PluginUI_ClientWebviewSidebarMountedEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -72477,6 +72487,7 @@
         "\"tray:close\"",
         "\"webview:updated\"",
         "\"webview:iframe\"",
+        "\"webview:sidebar\"",
         "\"webview:sync-state\"",
         "\"webview:close\"",
         "\"webview:show\"",
@@ -72836,6 +72847,34 @@
         "goType": "",
         "typescriptType": "any",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerWebviewSidebarEventPayload",
+    "formattedName": "PluginUI_ServerWebviewSidebarEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Icon",
+        "jsonName": "icon",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }

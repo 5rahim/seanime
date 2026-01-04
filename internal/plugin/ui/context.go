@@ -1027,7 +1027,7 @@ func (c *Context) jsEventHandler(call goja.FunctionCall) goja.Value {
 func (c *Context) jsfieldRef(call goja.FunctionCall) goja.Value {
 	fieldRefObj := c.vm.NewObject()
 
-	if c.fieldRefCount >= MAX_FIELD_REFS {
+	if c.fieldRefCount >= MaxFieldRefs {
 		c.handleTypeError("Too many field refs registered")
 		return goja.Undefined()
 	}

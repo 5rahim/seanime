@@ -131,6 +131,23 @@ func (t *WebviewManager) renderWebviewIframeScheduled(slot WebviewSlot) {
 	})
 }
 
+func (t *WebviewManager) renderWebviewSidebar() {
+	t.webviews.Range(func(_ WebviewSlot, webview *Webview) bool {
+		if !webview.options.hasSidebar() {
+			return true
+		}
+		if containsDangerousHTML(webview.options.Sidebar.Icon) {
+			t.ctx.logger.Warn().Msg("plugin: Sidebar icon contains dangerous HTML, it will not be rendered")
+			return true
+		}
+		t.ctx.SendEventToClient(ServerWebviewSidebarEvent, ServerWebviewSidebarEventPayload{
+			Label: webview.options.Sidebar.Label,
+			Icon:  webview.options.Sidebar.Icon,
+		})
+		return true
+	})
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Webview
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,6 +203,10 @@ type WebviewWindowOptions struct {
 type WebviewSidebarOptions struct {
 	Label string `json:"label,omitempty"`
 	Icon  string `json:"icon,omitempty"`
+}
+
+func (o *WebviewOptions) hasSidebar() bool {
+	return o.Sidebar.Label != "" || o.Sidebar.Icon != ""
 }
 
 // jsNewWebview
@@ -273,6 +294,17 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 			}
 		}
 
+		if propsObj["sidebar"] != nil {
+			if sidebarObj, ok := propsObj["sidebar"].(map[string]interface{}); ok {
+				if sidebarObj["label"] != nil {
+					webview.options.Sidebar.Label, _ = sidebarObj["label"].(string)
+				}
+				if sidebarObj["icon"] != nil {
+					webview.options.Sidebar.Icon, _ = sidebarObj["icon"].(string)
+				}
+			}
+		}
+
 		// Parse responsiveness options
 		if propsObj["autoHeight"] != nil {
 			webview.options.AutoHeight, _ = propsObj["autoHeight"].(bool)
@@ -351,6 +383,23 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 			t.ctx.scheduler.ScheduleAsync(func() error {
 				// Return the webview object to the client
 				t.renderWebviewIframeScheduled(webview.Slot)
+				return nil
+			})
+		}
+	})
+	sidebarListener := t.ctx.RegisterEventListener(ClientWebviewSidebarMountedEvent)
+	t.ctx.registerOnCleanup(func() {
+		t.ctx.UnregisterEventListenerE(sidebarListener)
+	})
+	sidebarListener.SetCallback(func(event *ClientPluginEvent) {
+		if !webview.options.hasSidebar() {
+			return
+		}
+		var payload ClientWebviewSidebarMountedEventPayload
+		if event.ParsePayloadAs(ClientWebviewSidebarMountedEvent, &payload) {
+			t.ctx.scheduler.ScheduleAsync(func() error {
+				// Return the sidebar object to the client
+				t.renderWebviewSidebar()
 				return nil
 			})
 		}
@@ -452,27 +501,26 @@ func (w *Webview) jsSetOptions(call goja.FunctionCall) goja.Value {
 			w.options.ZIndex = int(zIdx)
 		}
 	}
-	if propsObj["draggable"] != nil {
-		w.options.Window.Draggable, _ = propsObj["draggable"].(bool)
-	}
-	//if propsObj["resizable"] != nil {
-	//	w.options.Resizable, _ = propsObj["resizable"].(bool)
-	//}
-	//if propsObj["closable"] != nil {
-	//	w.options.Closable, _ = propsObj["closable"].(bool)
-	//}
-	if propsObj["defaultX"] != nil {
-		if x, ok := propsObj["defaultX"].(int64); ok {
-			w.options.Window.DefaultX = int(x)
-		} else if x, ok := propsObj["defaultX"].(float64); ok {
-			w.options.Window.DefaultX = int(x)
-		}
-	}
-	if propsObj["defaultY"] != nil {
-		if y, ok := propsObj["defaultY"].(int64); ok {
-			w.options.Window.DefaultY = int(y)
-		} else if y, ok := propsObj["defaultY"].(float64); ok {
-			w.options.Window.DefaultY = int(y)
+	if propsObj["window"] != nil {
+		if windowObj, ok := propsObj["window"].(map[string]interface{}); ok {
+			// Parse window management options
+			if windowObj["draggable"] != nil {
+				w.options.Window.Draggable, _ = windowObj["draggable"].(bool)
+			}
+			if windowObj["defaultX"] != nil {
+				if x, ok := windowObj["defaultX"].(int64); ok {
+					w.options.Window.DefaultX = int(x)
+				} else if x, ok := windowObj["defaultX"].(float64); ok {
+					w.options.Window.DefaultX = int(x)
+				}
+			}
+			if windowObj["defaultY"] != nil {
+				if y, ok := windowObj["defaultY"].(int64); ok {
+					w.options.Window.DefaultY = int(y)
+				} else if y, ok := windowObj["defaultY"].(float64); ok {
+					w.options.Window.DefaultY = int(y)
+				}
+			}
 		}
 	}
 	if propsObj["autoHeight"] != nil {

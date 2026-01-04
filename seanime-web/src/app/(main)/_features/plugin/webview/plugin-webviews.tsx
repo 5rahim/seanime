@@ -19,6 +19,7 @@ import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
 import { Portal } from "@radix-ui/react-portal"
 import { useMap } from "@uidotdev/usehooks"
+import { usePathname, useSearchParams } from "next/navigation"
 import React from "react"
 import { useMount, useUnmount } from "react-use"
 
@@ -160,6 +161,8 @@ export const processUserHtml = (userHtml: string, token: string, parentOrigin: s
 
 // renders webviews at the given slot
 export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
 
     const { sendWebviewMountedEvent } = usePluginSendWebviewMountedEvent()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
@@ -351,6 +354,10 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
     usePluginListenWebviewIframeEvent((payload, extensionId) => {
         if (!isMainTabRef) return
         if (payload.slot !== slot) return
+        if (payload.slot === "screen") {
+            if (pathname !== "/webview") return
+            if (extensionId !== searchParams.get("id")) return
+        }
         setupIframeWebview(extensionId, payload)
     }, "")
 
@@ -534,11 +541,22 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
         const handleMouseMove = (e: MouseEvent) => {
             const deltaX = e.clientX - dragStartPos.current.x
             const deltaY = e.clientY - dragStartPos.current.y
-            onUpdatePosition(
-                webview.webviewId,
-                dragStartPos.current.elemX + deltaX,
-                dragStartPos.current.elemY + deltaY,
-            )
+
+            let newX = dragStartPos.current.elemX + deltaX
+            let newY = dragStartPos.current.elemY + deltaY
+
+            // Get iframe dimensions
+            const iframe = iframeRef.current
+            if (iframe) {
+                const width = iframe.offsetWidth
+                const height = iframe.offsetHeight
+
+                // Constrain to viewport bounds
+                newX = Math.max(0, Math.min(newX, window.innerWidth - width))
+                newY = Math.max(0, Math.min(newY, window.innerHeight - height))
+            }
+
+            onUpdatePosition(webview.webviewId, newX, newY)
         }
 
         const handleMouseUp = () => setIsDragging(false)
@@ -550,7 +568,7 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
             document.removeEventListener("mousemove", handleMouseMove)
             document.removeEventListener("mouseup", handleMouseUp)
         }
-    }, [isDragging, onUpdatePosition])
+    }, [isDragging, onUpdatePosition, webview.webviewId])
 
     // // Resizing logic
     // const handleResizeMouseDown = React.useCallback((e: React.MouseEvent) => {

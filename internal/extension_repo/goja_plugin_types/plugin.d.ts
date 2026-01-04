@@ -305,6 +305,9 @@ declare namespace $ui {
         /** Registers the render function for the tray content */
         render(fn: () => void): void
 
+        /** Registers the render function for the tray content */
+        htm(fn: () => string): void
+
         /** Schedules a re-render of the tray content */
         update(): void
 
@@ -319,7 +322,7 @@ declare namespace $ui {
     }
 
     interface WebviewOptions {
-        slot: "fixed" | "after-home-screen-toolbar"
+        slot: "fixed" | "screen" | "after-home-screen-toolbar"
 
         // Styling options
         className?: string
@@ -347,6 +350,11 @@ declare namespace $ui {
          * Whether the width of the webview should be automatically adjusted to fit its container.
          */
         fullWidth?: boolean
+
+        sidebar?: {
+            label: string,
+            icon: string,
+        }
     }
 
     interface WebviewChannel {
@@ -448,7 +456,7 @@ declare namespace $ui {
         setContent(fn: () => string): void
 
         /** Update webview options dynamically */
-        setOptions(options: Partial<WebviewOptions>): void
+        setOptions(options: Partial<Omit<WebviewOptions, "sidebar">>): void
 
         /** Removes the webview from the DOM (not reversible) */
         close(): void
