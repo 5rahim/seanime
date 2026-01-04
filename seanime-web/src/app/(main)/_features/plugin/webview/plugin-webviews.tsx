@@ -285,9 +285,9 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
                     iframeWebviews.delete(webviewId)
                 }
             })
-            setTimeout(() => {
-                sendWebviewMountedEvent({ slot: slot })
-            }, 0)
+            // setTimeout(() => {
+            //     sendWebviewMountedEvent({ slot: slot })
+            // }, 0)
         },
     })
 
@@ -307,7 +307,7 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
     }, [iframeWebviews])
 
     const setupIframeWebview = React.useCallback((extensionId: string, payload: Plugin_Server_WebviewIframeEventPayload) => {
-        log.info("Setting up iframe webview", { extensionId, content: payload.content.slice(0, 100) + "..." })
+        log.info("Setting up iframe webview", { extensionId })
         if (!isMainTabRef) return
 
         const webviewId = getWebviewId(extensionId, slot)

@@ -103,32 +103,39 @@ func (t *WebviewManager) renderWebviewScheduled(slots ...WebviewSlot) {
 }
 
 // renderWebviewIframeScheduled
-func (t *WebviewManager) renderWebviewIframeScheduled(slot WebviewSlot) {
+func (t *WebviewManager) renderWebviewIframeScheduled(slots ...WebviewSlot) {
 	t.updateMutex.Lock()
 	defer t.updateMutex.Unlock()
 
-	webview, ok := t.webviews.Get(slot)
-	if !ok {
-		return
+	// renderWebviewScheduled can be called without slots (when states are updated)
+	if len(slots) == 0 {
+		slots = WebviewSlots
 	}
 
-	if webview.contentFunc == nil {
-		return
-	}
+	for _, slot := range slots {
+		webview, ok := t.webviews.Get(slot)
+		if !ok {
+			return
+		}
 
-	webview.lastUpdatedAt = time.Now()
+		if webview.contentFunc == nil {
+			return
+		}
 
-	t.ctx.scheduler.ScheduleAsync(func() error {
-		str := t.componentManager.executeContentFunc(webview.contentFunc)
+		webview.lastUpdatedAt = time.Now()
 
-		t.ctx.SendEventToClient(ServerWebviewIframeEvent, ServerWebviewIframeEventPayload{
-			Slot:    string(slot),
-			Content: str,
-			ID:      webview.id,
-			Options: webview.options,
+		t.ctx.scheduler.ScheduleAsync(func() error {
+			str := t.componentManager.executeContentFunc(webview.contentFunc)
+
+			t.ctx.SendEventToClient(ServerWebviewIframeEvent, ServerWebviewIframeEventPayload{
+				Slot:    string(slot),
+				Content: str,
+				ID:      webview.id,
+				Options: webview.options,
+			})
+			return nil
 		})
-		return nil
-	})
+	}
 }
 
 func (t *WebviewManager) renderWebviewSidebar() {
@@ -380,6 +387,7 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientWebviewMountedEventPayload
 		if event.ParsePayloadAs(ClientWebviewMountedEvent, &payload) && payload.Slot == string(webview.Slot) {
+			webview.mounted.Store(true)
 			t.ctx.scheduler.ScheduleAsync(func() error {
 				// Return the webview object to the client
 				t.renderWebviewIframeScheduled(webview.Slot)
@@ -387,6 +395,18 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 			})
 		}
 	})
+	// Listen to mount events in order to return the webview object
+	unmountListener := t.ctx.RegisterEventListener(ClientWebviewUnmountedEvent)
+	t.ctx.registerOnCleanup(func() {
+		t.ctx.UnregisterEventListenerE(unmountListener)
+	})
+	unmountListener.SetCallback(func(event *ClientPluginEvent) {
+		var payload ClientWebviewUnmountedEventPayload
+		if event.ParsePayloadAs(ClientWebviewUnmountedEvent, &payload) && payload.Slot == string(webview.Slot) {
+			webview.mounted.Store(false)
+		}
+	})
+
 	sidebarListener := t.ctx.RegisterEventListener(ClientWebviewSidebarMountedEvent)
 	t.ctx.registerOnCleanup(func() {
 		t.ctx.UnregisterEventListenerE(sidebarListener)
@@ -458,6 +478,7 @@ func (w *Webview) jsUpdate(_ goja.FunctionCall) goja.Value {
 	w.webviewManager.ctx.uiUpdateMu.Unlock()
 
 	w.webviewManager.renderWebviewScheduled(w.Slot)
+	w.webviewManager.renderWebviewIframeScheduled(w.Slot)
 	return goja.Undefined()
 }
 

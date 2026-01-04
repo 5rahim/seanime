@@ -68,8 +68,7 @@ export function usePluginSidebarItems(): VerticalMenuItem[] {
     useWebsocketMessageListener({
         type: WSEvents.PLUGIN_UNLOADED,
         onMessage: (extensionId) => {
-            if (!isMainTabRef) return
-            items.forEach((webview, extensionId) => {
+            items.forEach((webview) => {
                 if (webview.extensionId === extensionId) {
                     items.delete(extensionId)
                 }
@@ -77,16 +76,19 @@ export function usePluginSidebarItems(): VerticalMenuItem[] {
         },
     })
 
-    return Array.from(items.values()).map((item) => {
+    const sortedItems = useMemo(() => {
+        return Array.from(items.values()).sort((a, b) => a.extensionId.localeCompare(b.extensionId))
+    }, [items.values()])
+
+    return sortedItems.map((item) => {
         // handle cases where the string includes the data URI prefix
         const cleanBase64 = item.icon?.replace(/^data:image\/svg\+xml;base64,/, "")
         // decode the base64 to raw svg xml
         const svgContent = atob(cleanBase64)
         return {
-            key: item.extensionId,
             name: item.label,
             href: `/webview?id=${item.extensionId}`,
-            current: pathname === `/webview` && searchParams.get("id") === item.extensionId,
+            isCurrent: pathname === `/webview` && searchParams.get("id") === item.extensionId,
             iconType: (props: React.HTMLAttributes<HTMLSpanElement>) => (
                 <span
                     {...props}
@@ -98,24 +100,4 @@ export function usePluginSidebarItems(): VerticalMenuItem[] {
             ),
         } as VerticalMenuItem
     })
-}
-
-export const useBase64Svg = (base64: string): React.ElementType => {
-    return useMemo(() => {
-        // handle cases where the string includes the data URI prefix
-        const cleanBase64 = base64.replace(/^data:image\/svg\+xml;base64,/, "")
-
-        // decode the base64 to raw svg xml
-        const svgContent = atob(cleanBase64)
-
-        return (props: React.HTMLAttributes<HTMLSpanElement>) => (
-            <span
-                {...props}
-                // display contents removes the span from the layout box tree
-                // allowing the svg to act as a direct child of the parent
-                style={{ display: "contents", ...props.style }}
-                dangerouslySetInnerHTML={{ __html: svgContent }}
-            />
-        )
-    }, [base64])
 }
