@@ -201,10 +201,10 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     // If the sources don't have the stored server, set it to the first one
     React.useLayoutEffect(() => {
-        if (!!episodeSource?.videoSources?.length && server && !servers.includes(server)) {
+        if (!!servers?.length && (!server || !servers.includes(server))) {
             setServer(servers[0])
         }
-    }, [episodeSource?.videoSources, server])
+    }, [servers, server])
 
     // get the video source from the episode source
     // devnote: use videoSources instead of episodeSource.videoSources
