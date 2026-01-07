@@ -2680,55 +2680,6 @@
     }
   },
   {
-    "name": "HandleDirectstreamFetchAndConvertToASS",
-    "trimmedName": "DirectstreamFetchAndConvertToASS",
-    "comments": [
-      "HandleDirectstreamFetchAndConvertToASS",
-      "",
-      "\t@summary converts subtitles to ASS.",
-      "\t@desc Subtitles will be fetched and converted to ASS.",
-      "\t@returns string",
-      "\t@route /api/v1/directstream/subs/convert-to-ass [POST]",
-      ""
-    ],
-    "filepath": "internal/handlers/directstream.go",
-    "filename": "directstream.go",
-    "api": {
-      "summary": "converts subtitles to ASS.",
-      "descriptions": [
-        "Subtitles will be fetched and converted to ASS."
-      ],
-      "endpoint": "/api/v1/directstream/subs/convert-to-ass",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "Url",
-          "jsonName": "url",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "Content",
-          "jsonName": "content",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "string",
-      "returnGoType": "string",
-      "returnTypescriptType": "string"
-    }
-  },
-  {
     "name": "HandleDirectstreamConvertSubs",
     "trimmedName": "DirectstreamConvertSubs",
     "comments": [
@@ -2775,6 +2726,15 @@
           "usedStructType": "",
           "typescriptType": "string",
           "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Translate",
+          "jsonName": "translate",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": false,
           "descriptions": []
         }
       ],
@@ -9274,6 +9234,43 @@
           "usedStructType": "",
           "typescriptType": "boolean",
           "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSaveMediaPlayerSettings",
+    "trimmedName": "SaveMediaPlayerSettings",
+    "comments": [
+      "HandleSaveMediaPlayerSettings",
+      "",
+      "\t@summary updates the media player settings.",
+      "\t@route /api/v1/settings/media-player [PATCH]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/settings.go",
+    "filename": "settings.go",
+    "api": {
+      "summary": "updates the media player settings.",
+      "descriptions": [],
+      "endpoint": "/api/v1/settings/media-player",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaPlayer",
+          "jsonName": "mediaPlayer",
+          "goType": "models.MediaPlayerSettings",
+          "usedStructType": "models.MediaPlayerSettings",
+          "typescriptType": "Models_MediaPlayerSettings",
+          "required": false,
           "descriptions": []
         }
       ],

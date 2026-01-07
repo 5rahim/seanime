@@ -39,43 +39,6 @@ func (h *Handler) HandleDirectstreamPlayLocalFile(c echo.Context) error {
 	})
 }
 
-// HandleDirectstreamFetchAndConvertToASS
-//
-//	@summary converts subtitles to ASS.
-//	@desc Subtitles will be fetched and converted to ASS.
-//	@returns string
-//	@route /api/v1/directstream/subs/convert-to-ass [POST]
-func (h *Handler) HandleDirectstreamFetchAndConvertToASS(c echo.Context) error {
-	type body struct {
-		Url     string `json:"url"`
-		Content string `json:"content"`
-	}
-
-	var b body
-	if err := c.Bind(&b); err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	if b.Url == "" && b.Content == "" {
-		return h.RespondWithError(c, fmt.Errorf("url or content is required"))
-	}
-
-	if len(b.Content) > 0 {
-		ret, err := h.App.VideoCore.ConvertToASS(b.Content)
-		if err != nil {
-			return h.RespondWithError(c, err)
-		}
-		return h.RespondWithData(c, ret)
-	}
-
-	ret, err := h.App.VideoCore.FetchAndConvertToASS(b.Url)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	return h.RespondWithData(c, ret)
-}
-
 // HandleDirectstreamConvertSubs
 //
 //	@summary converts subtitles from one format to another.
@@ -110,6 +73,7 @@ func (h *Handler) HandleDirectstreamConvertSubs(c echo.Context) error {
 	}
 
 	if len(b.Content) > 0 {
+		// Convert from content
 		ret, err := h.App.VideoCore.ConvertSubsTo(b.Content, mkvparser.SubtitleTypeUnknown, to)
 		if err != nil {
 			return h.RespondWithError(c, err)
@@ -117,6 +81,7 @@ func (h *Handler) HandleDirectstreamConvertSubs(c echo.Context) error {
 		return h.RespondWithData(c, ret)
 	}
 
+	// Convert from url
 	ret, err := h.App.VideoCore.FetchAndConvertSubsTo(b.Url, to)
 	if err != nil {
 		return h.RespondWithError(c, err)

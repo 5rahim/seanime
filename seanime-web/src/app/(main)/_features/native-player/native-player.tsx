@@ -82,7 +82,7 @@ export function NativePlayer() {
                 // 3. Subtitle event (MKV)
                 // We receive the subtitle events after the server received the loaded-metadata event
                 case "subtitle-event":
-                    subtitleManager?.onSubtitleEvent(payload as MKVParser_SubtitleEvent)
+                    subtitleManager?.onSubtitleEvent(payload as MKVParser_SubtitleEvent)?.then()
                     break
                 case "error":
                     log.error("Error event received", payload)

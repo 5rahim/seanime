@@ -10,6 +10,7 @@ import {
     usePluginSendEventHandlerTriggeredEvent,
     usePluginSendWebviewLoadedEvent,
     usePluginSendWebviewMountedEvent,
+    usePluginSendWebviewUnmountedEvent,
 } from "@/app/(main)/_features/plugin/generated/plugin-events"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useIsMainTab, useIsMainTabRef } from "@/app/websocket-provider"
@@ -165,6 +166,7 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
     const searchParams = useSearchParams()
 
     const { sendWebviewMountedEvent } = usePluginSendWebviewMountedEvent()
+    const { sendWebviewUnmountedEvent } = usePluginSendWebviewUnmountedEvent()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const isMainTab = useIsMainTab()
     const isMainTabRef = useIsMainTabRef()
@@ -182,6 +184,12 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         log.info("Mounting webview slot", slot)
         sendWebviewMountedEvent({ slot: slot })
         mountedRef.current = true
+    })
+    useUnmount(() => {
+        if (!isMainTabRef) return
+        log.info("Unmounting webview slot", slot)
+        sendWebviewUnmountedEvent({ slot: slot })
+        mountedRef.current = false
     })
 
     // remount the webviews when the main tab changes
@@ -375,7 +383,7 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         }
 
         // get the iframe element
-        const iframeElement = document.getElementById(`webview-${payload.webviewId}`) as HTMLIFrameElement | null
+        const iframeElement = getWebviewIframeElement(webview.webviewId)
         if (!iframeElement || !iframeElement.contentWindow) {
             log.warn("Cannot find iframe element for webview", payload.webviewId)
             return
@@ -656,7 +664,7 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
                 ref={iframeRef}
                 id={`webview-${webview.webviewId}`}
                 srcDoc={webview.src}
-                sandbox="allow-scripts"
+                sandbox="allow-scripts allow-forms"
                 style={buildStyles()}
                 onLoad={handleIframeLoaded}
                 className={cn(

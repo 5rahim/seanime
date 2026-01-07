@@ -19,6 +19,22 @@ type SeaQuery<D> = {
     password?: string
 }
 
+export function useSeaQuery() {
+    const password = useAtomValue(serverAuthTokenAtom)
+
+    return {
+        seaFetch: <T, D extends any = any>(endpoint: string, method: "POST" | "GET" | "PATCH" | "DELETE" | "PUT", data?: D, params?: D) => {
+            return buildSeaQuery<T, D>({
+                endpoint,
+                method,
+                data,
+                params,
+                password,
+            })
+        },
+    }
+}
+
 /**
  * Create axios query to the server
  * - First generic: Return type

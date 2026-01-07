@@ -81,10 +81,17 @@ export function usePluginSidebarItems(): VerticalMenuItem[] {
     }, [items.values()])
 
     return sortedItems.map((item) => {
-        // handle cases where the string includes the data URI prefix
-        const cleanBase64 = item.icon?.replace(/^data:image\/svg\+xml;base64,/, "")
-        // decode the base64 to raw svg xml
-        const svgContent = atob(cleanBase64)
+        let svgContent = item.icon.trim()
+        if (!svgContent.startsWith("<svg")) {
+            // handle cases where the string includes the data URI prefix
+            const cleanBase64 = item.icon?.replace(/^data:image\/svg\+xml;base64,/, "")
+            // decode the base64 to raw svg xml
+            try {
+                svgContent = atob(cleanBase64)
+            }
+            catch (e) {
+            }
+        }
         return {
             name: item.label,
             href: `/webview?id=${item.extensionId}`,

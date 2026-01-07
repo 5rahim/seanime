@@ -3714,6 +3714,10 @@ export type Models_MediaPlayerSettings = {
     iinaSocket: string
     iinaPath: string
     iinaArgs: string
+    vcTranslate: boolean
+    vcTranslateTargetLanguage: string
+    vcTranslateProvider: string
+    vcTranslateApiKey: string
 }
 
 /**
@@ -4868,7 +4872,9 @@ export type VideoCore_ClientEventType = "video-loaded" |
     "video-playback-state" |
     "subtitle-file-uploaded" |
     "video-playlist" |
-    "video-text-tracks"
+    "video-text-tracks" |
+    "translate-text" |
+    "translate-subtitle-file-track"
 
 /**
  * - Filepath: internal/videocore/types.go
@@ -4935,6 +4941,8 @@ export type VideoCore_ServerEvent = "pause" |
     "play-playlist-episode" |
     "get-text-tracks" |
     "request-play-episode" |
+    "translated-text" |
+    "translated-subtitle-track" |
     "get-fullscreen" |
     "get-pip" |
     "get-anime-4k" |

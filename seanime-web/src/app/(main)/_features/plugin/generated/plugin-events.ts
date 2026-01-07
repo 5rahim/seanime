@@ -474,7 +474,7 @@ export function usePluginSendScreenChangedEvent() {
 
 export type Plugin_Client_EventHandlerTriggeredEventPayload = {
     handlerName: string
-    event: Record<string, any>
+    event: any
 }
 
 export function usePluginSendEventHandlerTriggeredEvent() {

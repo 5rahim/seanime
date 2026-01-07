@@ -638,17 +638,6 @@
 //     })
 // }
 
-// export function useDirectstreamFetchAndConvertToASS() {
-//     return useServerMutation<string, DirectstreamFetchAndConvertToASS_Variables>({
-//         endpoint: API_ENDPOINTS.DIRECTSTREAM.DirectstreamFetchAndConvertToASS.endpoint,
-//         method: API_ENDPOINTS.DIRECTSTREAM.DirectstreamFetchAndConvertToASS.methods[0],
-//         mutationKey: [API_ENDPOINTS.DIRECTSTREAM.DirectstreamFetchAndConvertToASS.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
 // export function useDirectstreamConvertSubs() {
 //     return useServerMutation<string, DirectstreamConvertSubs_Variables>({
 //         endpoint: API_ENDPOINTS.DIRECTSTREAM.DirectstreamConvertSubs.endpoint,
@@ -2316,6 +2305,17 @@
 //         endpoint: API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.endpoint,
 //         method: API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.methods[0],
 //         mutationKey: [API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useSaveMediaPlayerSettings() {
+//     return useServerMutation<boolean, SaveMediaPlayerSettings_Variables>({
+//         endpoint: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.endpoint,
+//         method: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.methods[0],
+//         mutationKey: [API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.key],
 //         onSuccess: async () => {
 // 
 //         },

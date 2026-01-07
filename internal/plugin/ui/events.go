@@ -92,8 +92,8 @@ type ClientActionClickedEventPayload struct {
 }
 
 type ClientEventHandlerTriggeredEventPayload struct {
-	HandlerName string                 `json:"handlerName"`
-	Event       map[string]interface{} `json:"event"`
+	HandlerName string      `json:"handlerName"`
+	Event       interface{} `json:"event"`
 }
 
 type ClientFormSubmittedEventPayload struct {

@@ -608,18 +608,6 @@ export type DirectstreamPlayLocalFile_Variables = {
 /**
  * - Filepath: internal/handlers/directstream.go
  * - Filename: directstream.go
- * - Endpoint: /api/v1/directstream/subs/convert-to-ass
- * @description
- * Route converts subtitles to ASS.
- */
-export type DirectstreamFetchAndConvertToASS_Variables = {
-    url: string
-    content: string
-}
-
-/**
- * - Filepath: internal/handlers/directstream.go
- * - Filename: directstream.go
  * - Endpoint: /api/v1/directstream/subs/convert-subs
  * @description
  * Route converts subtitles from one format to another.
@@ -628,6 +616,7 @@ export type DirectstreamConvertSubs_Variables = {
     url: string
     content: string
     to: string
+    translate?: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1768,6 +1757,17 @@ export type SaveAutoDownloaderSettings_Variables = {
     enableEnhancedQueries: boolean
     enableSeasonCheck: boolean
     useDebrid: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/settings.go
+ * - Filename: settings.go
+ * - Endpoint: /api/v1/settings/media-player
+ * @description
+ * Route updates the media player settings.
+ */
+export type SaveMediaPlayerSettings_Variables = {
+    mediaPlayer?: Models_MediaPlayerSettings
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

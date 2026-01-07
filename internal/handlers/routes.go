@@ -149,6 +149,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.PATCH("/settings", h.HandleSaveSettings)
 	v1.POST("/start", h.HandleGettingStarted)
 	v1.PATCH("/settings/auto-downloader", h.HandleSaveAutoDownloaderSettings)
+	v1.PATCH("/settings/media-player", h.HandleSaveMediaPlayerSettings)
 
 	// Auto Downloader
 	v1.POST("/auto-downloader/run", h.HandleRunAutoDownloader)
@@ -425,7 +426,6 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.GET("/directstream/stream", echo.WrapHandler(h.HandleDirectstreamGetStream()))
 	v1.HEAD("/directstream/stream", echo.WrapHandler(h.HandleDirectstreamGetStream()))
 	v1.GET("/directstream/att/*", h.HandleDirectstreamGetAttachments)
-	v1.POST("/directstream/subs/convert-to-ass", h.HandleDirectstreamFetchAndConvertToASS)
 	v1.POST("/directstream/subs/convert-subs", h.HandleDirectstreamConvertSubs)
 
 	//

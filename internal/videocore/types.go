@@ -10,27 +10,29 @@ import (
 type ClientEventType string
 
 const (
-	PlayerEventVideoLoaded          ClientEventType = "video-loaded"
-	PlayerEventVideoLoadedMetadata  ClientEventType = "video-loaded-metadata"
-	PlayerEventVideoCanPlay         ClientEventType = "video-can-play"
-	PlayerEventVideoPaused          ClientEventType = "video-paused"
-	PlayerEventVideoResumed         ClientEventType = "video-resumed"
-	PlayerEventVideoStatus          ClientEventType = "video-status"
-	PlayerEventVideoCompleted       ClientEventType = "video-completed"
-	PlayerEventVideoFullscreen      ClientEventType = "video-fullscreen"
-	PlayerEventVideoPip             ClientEventType = "video-pip"
-	PlayerEventVideoSubtitleTrack   ClientEventType = "video-subtitle-track"
-	PlayerEventMediaCaptionTrack    ClientEventType = "video-media-caption-track"
-	PlayerEventAnime4K              ClientEventType = "video-anime-4k"
-	PlayerEventVideoAudioTrack      ClientEventType = "video-audio-track"
-	PlayerEventVideoEnded           ClientEventType = "video-ended"
-	PlayerEventVideoSeeked          ClientEventType = "video-seeked"
-	PlayerEventVideoError           ClientEventType = "video-error"
-	PlayerEventVideoTerminated      ClientEventType = "video-terminated"
-	PlayerEventVideoPlaybackState   ClientEventType = "video-playback-state"
-	PlayerEventSubtitleFileUploaded ClientEventType = "subtitle-file-uploaded"
-	PlayerEventVideoPlaylist        ClientEventType = "video-playlist"
-	PlayerEventVideoTextTracks      ClientEventType = "video-text-tracks"
+	PlayerEventVideoLoaded                ClientEventType = "video-loaded"
+	PlayerEventVideoLoadedMetadata        ClientEventType = "video-loaded-metadata"
+	PlayerEventVideoCanPlay               ClientEventType = "video-can-play"
+	PlayerEventVideoPaused                ClientEventType = "video-paused"
+	PlayerEventVideoResumed               ClientEventType = "video-resumed"
+	PlayerEventVideoStatus                ClientEventType = "video-status"
+	PlayerEventVideoCompleted             ClientEventType = "video-completed"
+	PlayerEventVideoFullscreen            ClientEventType = "video-fullscreen"
+	PlayerEventVideoPip                   ClientEventType = "video-pip"
+	PlayerEventVideoSubtitleTrack         ClientEventType = "video-subtitle-track"
+	PlayerEventMediaCaptionTrack          ClientEventType = "video-media-caption-track"
+	PlayerEventAnime4K                    ClientEventType = "video-anime-4k"
+	PlayerEventVideoAudioTrack            ClientEventType = "video-audio-track"
+	PlayerEventVideoEnded                 ClientEventType = "video-ended"
+	PlayerEventVideoSeeked                ClientEventType = "video-seeked"
+	PlayerEventVideoError                 ClientEventType = "video-error"
+	PlayerEventVideoTerminated            ClientEventType = "video-terminated"
+	PlayerEventVideoPlaybackState         ClientEventType = "video-playback-state"
+	PlayerEventSubtitleFileUploaded       ClientEventType = "subtitle-file-uploaded"
+	PlayerEventVideoPlaylist              ClientEventType = "video-playlist"
+	PlayerEventVideoTextTracks            ClientEventType = "video-text-tracks"
+	PlayerEventTranslateText              ClientEventType = "translate-text"
+	PlayerEventTranslateSubtitleFileTrack ClientEventType = "translate-subtitle-file-track"
 )
 
 type PlayerType string
@@ -194,6 +196,9 @@ type (
 	}
 	clientVideoTextTracksPayload struct {
 		TextTracks []*VideoTextTrack `json:"textTracks"`
+	}
+	clientTranslateTextPayload struct {
+		Text string `json:"text"`
 	}
 )
 
@@ -386,6 +391,7 @@ const (
 	ServerEventPlayPlaylistEpisode         ServerEvent = "play-playlist-episode"
 	ServerEventGetTextTracks               ServerEvent = "get-text-tracks"
 	ServerEventRequestPlayEpisode          ServerEvent = "request-play-episode"
+	ServerEventTranslatedText              ServerEvent = "translated-text"
 	// State requests
 	ServerEventGetFullscreen        ServerEvent = "get-fullscreen"
 	ServerEventGetPip               ServerEvent = "get-pip"

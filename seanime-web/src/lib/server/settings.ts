@@ -111,6 +111,10 @@ export const settingsSchema = z.object({
     disableCacheLayer: z.boolean().optional().default(false),
     autoSelectTorrentProvider: z.string().optional().default(""),
     useFallbackMetadataProvider: z.boolean().optional().default(false),
+    vcTranslate: z.boolean().optional().default(false),
+    vcTranslateApiKey: z.string().optional().default(""),
+    vcTranslateProvider: z.string().optional().default(""),
+    vcTranslateTargetLanguage: z.string().optional().default(""),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
@@ -173,6 +177,10 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         iinaSocket: data.iinaSocket || "",
         iinaPath: data.iinaPath || "",
         iinaArgs: "",
+        vcTranslate: false,
+        vcTranslateApiKey: "",
+        vcTranslateProvider: "",
+        vcTranslateTargetLanguage: "",
     },
     discord: {
         enableRichPresence: data.enableRichPresence,

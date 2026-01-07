@@ -29709,6 +29709,42 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "VcTranslate",
+        "jsonName": "vcTranslate",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VcTranslateTargetLanguage",
+        "jsonName": "vcTranslateTargetLanguage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VcTranslateProvider",
+        "jsonName": "vcTranslateProvider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VcTranslateApiKey",
+        "jsonName": "vcTranslateApiKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -72097,9 +72133,9 @@
       {
         "name": "Event",
         "jsonName": "event",
-        "goType": "map[string]",
-        "typescriptType": "Record\u003cstring, any\u003e",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -85633,6 +85669,201 @@
     "comments": []
   },
   {
+    "filepath": "../internal/videocore/translator.go",
+    "filename": "translator.go",
+    "name": "TranslatorService",
+    "formattedName": "VideoCore_TranslatorService",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "cache",
+        "jsonName": "cache",
+        "goType": "sync.Map",
+        "typescriptType": "Map",
+        "usedTypescriptType": "Map",
+        "usedStructName": "sync.Map",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "translator",
+        "jsonName": "translator",
+        "goType": "Translator",
+        "typescriptType": "VideoCore_Translator",
+        "usedTypescriptType": "VideoCore_Translator",
+        "usedStructName": "videocore.Translator",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "targetLang",
+        "jsonName": "targetLang",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vc",
+        "jsonName": "vc",
+        "goType": "VideoCore",
+        "typescriptType": "VideoCore_VideoCore",
+        "usedTypescriptType": "VideoCore_VideoCore",
+        "usedStructName": "videocore.VideoCore",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logSampler",
+        "jsonName": "logSampler",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "queue",
+        "jsonName": "queue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "close",
+        "jsonName": "close",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeOnce",
+        "jsonName": "closeOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/videocore/translator.go",
+    "filename": "translator.go",
+    "name": "DeepLTranslator",
+    "formattedName": "VideoCore_DeepLTranslator",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "Token",
+        "jsonName": "Token",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/videocore/translator.go",
+    "filename": "translator.go",
+    "name": "OpenAITranslator",
+    "formattedName": "VideoCore_OpenAITranslator",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "Token",
+        "jsonName": "Token",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/videocore/translator.go",
+    "filename": "translator.go",
+    "name": "FreeGoogleTranslator",
+    "formattedName": "VideoCore_FreeGoogleTranslator",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "limiter",
+        "jsonName": "limiter",
+        "goType": "rate.Limiter",
+        "typescriptType": "Limiter",
+        "usedTypescriptType": "Limiter",
+        "usedStructName": "rate.Limiter",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedTypescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/videocore/types.go",
     "filename": "types.go",
     "name": "ClientEventType",
@@ -85663,7 +85894,9 @@
         "\"video-playback-state\"",
         "\"subtitle-file-uploaded\"",
         "\"video-playlist\"",
-        "\"video-text-tracks\""
+        "\"video-text-tracks\"",
+        "\"translate-text\"",
+        "\"translate-subtitle-file-track\""
       ]
     },
     "comments": []
@@ -87102,6 +87335,8 @@
         "\"play-playlist-episode\"",
         "\"get-text-tracks\"",
         "\"request-play-episode\"",
+        "\"translated-text\"",
+        "\"translated-subtitle-track\"",
         "\"get-fullscreen\"",
         "\"get-pip\"",
         "\"get-anime-4k\"",
@@ -87139,6 +87374,17 @@
         "typescriptType": "Events_ClientEventSubscriber",
         "usedTypescriptType": "Events_ClientEventSubscriber",
         "usedStructName": "events.ClientEventSubscriber",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "translatorService",
+        "jsonName": "translatorService",
+        "goType": "TranslatorService",
+        "typescriptType": "VideoCore_TranslatorService",
+        "usedTypescriptType": "VideoCore_TranslatorService",
+        "usedStructName": "videocore.TranslatorService",
         "required": false,
         "public": false,
         "comments": []

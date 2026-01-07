@@ -735,6 +735,19 @@ func (c *WebviewChannel) jsSync(call goja.FunctionCall) goja.Value {
 		}
 	}()
 
+	eventListener := c.webview.webviewManager.ctx.RegisterEventListener(ClientWebviewLoadedEvent)
+	payload := ClientWebviewLoadedEventPayload{}
+
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		if event.ParsePayloadAs(ClientWebviewLoadedEvent, &payload) && payload.Slot == string(c.webview.Slot) {
+			state, ok := c.webview.webviewManager.ctx.states.Get(stateID)
+			if !ok {
+				c.webview.webviewManager.ctx.handleTypeError("sync: state not found")
+			}
+			c.sendStateToWebview(key, state.Value.Export())
+		}
+	})
+
 	return goja.Undefined()
 }
 

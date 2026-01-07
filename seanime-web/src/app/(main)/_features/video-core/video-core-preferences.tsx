@@ -1,3 +1,4 @@
+import { useSaveMediaPlayerSettings } from "@/api/hooks/settings.hooks"
 import {
     vc_audioManager,
     vc_containerElement,
@@ -23,19 +24,47 @@ import {
     vc_useLibassRendererAtom,
     VideoCoreKeybindings,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { AlphaBadge } from "@/components/shared/beta-badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
 import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { logger } from "@/lib/helpers/debug"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
+import { UseFormReturn } from "react-hook-form"
+import { toast } from "sonner"
+import { useServerStatus } from "../../_hooks/use-server-status"
 import { useVideoCoreScreenshot } from "./video-core-screenshot"
 
 export const videoCorePreferencesModalAtom = atom(false)
+
+const tabsRootClass = cn("w-full contents space-y-4")
+
+const tabsTriggerClass = cn(
+    "text-base px-6 rounded-[--radius-md] w-fit border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
+    "h-10 lg:justify-center px-3 flex-1",
+)
+
+const tabsListClass = cn(
+    "w-full flex flex-row lg:flex-row flex-wrap h-fit !mt-4",
+)
+
+const tabContentClass = cn(
+    "space-y-4 animate-in fade-in-0 duration-300",
+)
+
+const translationSettingsSchema = defineSchema(({ z, presets }) => z.object({
+    vcTranslate: z.boolean().default(false),
+    vcTranslateProvider: z.string().default("google"),
+    vcTranslateTargetLanguage: z.string().default("en"),
+    vcTranslateApiKey: z.string().default(""),
+}))
 
 const KeybindingValueInput = ({
     actionKey,
@@ -130,6 +159,11 @@ export function VideoCorePreferencesModal() {
 
     const [recordingKey, setRecordingKey] = useState<string | null>(null)
 
+    const [tab, setTab] = useState("keybinds")
+    const { mutate: saveMediaPlayerSettings } = useSaveMediaPlayerSettings()
+    const serverStatus = useServerStatus()
+    const translationFormRef = useRef<UseFormReturn<any>>(null)
+
     const [settings, setSettings] = useAtom(vc_settings)
     const [editedSubLanguage, setEditedSubLanguage] = useState(settings.preferredSubtitleLanguage)
     const [editedAudioLanguage, setEditedAudioLanguage] = useState(settings.preferredAudioLanguage)
@@ -139,6 +173,7 @@ export function VideoCorePreferencesModal() {
     //     settings.subtitleCustomization || vc_initialSettings.subtitleCustomization
     // )
     const subtitleManager = useAtomValue(vc_subtitleManager)
+    const mediaCaptionsManager = useAtomValue(vc_mediaCaptionsManager)
 
     // Reset edited keybindings and language preferences when modal opens
     useEffect(() => {
@@ -190,6 +225,7 @@ export function VideoCorePreferencesModal() {
         setUseLibassRenderer(editedUseLibassRenderer)
         // Update subtitle manager with new settings
         subtitleManager?.updateSettings(newSettings)
+        mediaCaptionsManager?.updateSettings(newSettings)
         setOpen(false)
     }
 
@@ -226,321 +262,515 @@ export function VideoCorePreferencesModal() {
             overlayClass="z-[150] bg-black/50"
             portalContainer={isFullscreen ? containerElement || undefined : undefined}
         >
-            <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-white">Language</h3>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted-foreground">
-                            Preferred Subtitle Language
-                        </label>
-                        <TextInput
-                            value={editedSubLanguage}
-                            onValueChange={setEditedSubLanguage}
-                            placeholder="eng,jpn,spa"
-                            onKeyDown={(e) => e.stopPropagation()}
-                            onInput={(e) => e.stopPropagation()}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted-foreground">
-                            Preferred Audio Language
-                        </label>
-                        <TextInput
-                            value={editedAudioLanguage}
-                            onValueChange={setEditedAudioLanguage}
-                            placeholder="jpn,eng,kor"
-                            onKeyDown={(e) => e.stopPropagation()}
-                            onInput={(e) => e.stopPropagation()}
-                        />
-                    </div>
-                </div>
-            </div>
 
-            <div className="space-y-3 hidden lg:block">
-                <h3 className="text-lg font-semibold text-white mb-4">Keyboard Shortcuts</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <div>
-                        {/* <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3> */}
-                        <div className="space-y-3">
-                            <KeybindingRow
-                                action="Seek Forward (Fine)"
-                                description="Seek forward (fine)"
-                                actionKey="seekForwardFine"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="Seconds"
-                            />
-                            <KeybindingRow
-                                action="Seek Backward (Fine)"
-                                description="Seek backward (fine)"
-                                actionKey="seekBackwardFine"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="Seconds"
-                            />
-                            <KeybindingRow
-                                action="Seek Forward"
-                                description="Seek forward"
-                                actionKey="seekForward"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="Seconds"
-                            />
-                            <KeybindingRow
-                                action="Seek Backward"
-                                description="Seek backward"
-                                actionKey="seekBackward"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="Seconds"
-                            />
-                            <KeybindingRow
-                                action="Increase Speed"
-                                description="Increase playback speed"
-                                actionKey="increaseSpeed"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="increment"
-                            />
-                            <KeybindingRow
-                                action="Decrease Speed"
-                                description="Decrease playback speed"
-                                actionKey="decreaseSpeed"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="increment"
+            <Tabs
+                value={tab}
+                onValueChange={setTab}
+                className={tabsRootClass}
+                triggerClass={tabsTriggerClass}
+                listClass={tabsListClass}
+            >
+                <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
+                    <TabsTrigger value="keybinds">Keyboard Shortcuts</TabsTrigger>
+                    <TabsTrigger value="subtitles">Subtitles</TabsTrigger>
+                    <TabsTrigger value="translation">Translation <AlphaBadge /></TabsTrigger>
+                    {/*<TabsTrigger value="browser-client">Rendering</TabsTrigger>*/}
+                </TabsList>
+
+                <TabsContent value="keybinds" className={tabContentClass}>
+                    <div className="space-y-3 hidden lg:block">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div>
+                                {/* <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3> */}
+                                <div className="space-y-3">
+                                    <KeybindingRow
+                                        action="Seek Forward (Fine)"
+                                        description="Seek forward (fine)"
+                                        actionKey="seekForwardFine"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                        hasValue={true}
+                                        valueLabel="Seconds"
+                                    />
+                                    <KeybindingRow
+                                        action="Seek Backward (Fine)"
+                                        description="Seek backward (fine)"
+                                        actionKey="seekBackwardFine"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                        hasValue={true}
+                                        valueLabel="Seconds"
+                                    />
+                                    <KeybindingRow
+                                        action="Seek Forward"
+                                        description="Seek forward"
+                                        actionKey="seekForward"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                        hasValue={true}
+                                        valueLabel="Seconds"
+                                    />
+                                    <KeybindingRow
+                                        action="Seek Backward"
+                                        description="Seek backward"
+                                        actionKey="seekBackward"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                        hasValue={true}
+                                        valueLabel="Seconds"
+                                    />
+                                    <KeybindingRow
+                                        action="Increase Speed"
+                                        description="Increase playback speed"
+                                        actionKey="increaseSpeed"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                        hasValue={true}
+                                        valueLabel="increment"
+                                    />
+                                    <KeybindingRow
+                                        action="Decrease Speed"
+                                        description="Decrease playback speed"
+                                        actionKey="decreaseSpeed"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                        hasValue={true}
+                                        valueLabel="increment"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                {/* <h3 className="text-lg font-semibold mb-4 text-white">Navigation</h3> */}
+                                <div className="space-y-3">
+                                    <KeybindingRow
+                                        action="Next Chapter"
+                                        description="Skip to next chapter"
+                                        actionKey="nextChapter"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Previous Chapter"
+                                        description="Skip to previous chapter"
+                                        actionKey="previousChapter"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Next Episode"
+                                        description="Play next episode"
+                                        actionKey="nextEpisode"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Previous Episode"
+                                        description="Play previous episode"
+                                        actionKey="previousEpisode"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Cycle Subtitles"
+                                        description="Cycle through subtitle tracks"
+                                        actionKey="cycleSubtitles"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Fullscreen"
+                                        description="Toggle fullscreen"
+                                        actionKey="fullscreen"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Picture in Picture"
+                                        description="Toggle picture in picture"
+                                        actionKey="pictureInPicture"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Take Screenshot"
+                                        description="Take screenshot"
+                                        actionKey="takeScreenshot"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                {/* <h3 className="text-lg font-semibold mb-4 text-white">Audio</h3> */}
+                                <div className="space-y-3">
+                                    <KeybindingRow
+                                        action="Volume Up"
+                                        description="Increase volume"
+                                        actionKey="volumeUp"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                        hasValue={true}
+                                        valueLabel="Percent"
+                                    />
+                                    <KeybindingRow
+                                        action="Volume Down"
+                                        description="Decrease volume"
+                                        actionKey="volumeDown"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                        hasValue={true}
+                                        valueLabel="Percent"
+                                    />
+                                    <KeybindingRow
+                                        action="Mute"
+                                        description="Toggle mute"
+                                        actionKey="mute"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Cycle Audio"
+                                        description="Cycle through audio tracks"
+                                        actionKey="cycleAudio"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-6">
+                            <Button
+                                intent="gray-outline"
+                                onClick={handleReset}
+                            >
+                                Reset all
+                            </Button>
+                            <div className="flex gap-2">
+                                <Button
+                                    intent="gray-outline"
+                                    onClick={() => setOpen(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    intent="primary"
+                                    onClick={handleSave}
+                                >
+                                    Save
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </TabsContent>
+                <TabsContent value="subtitles" className={tabContentClass}>
+                    <div className="space-y-3">
+                        <h3 className="text-lg font-semibold text-white">Defaults</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-muted-foreground">
+                                    Preferred Subtitle Language
+                                </label>
+                                <TextInput
+                                    value={editedSubLanguage}
+                                    onValueChange={setEditedSubLanguage}
+                                    placeholder="eng,jpn,spa"
+                                    onKeyDown={(e) => e.stopPropagation()}
+                                    onInput={(e) => e.stopPropagation()}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-muted-foreground">
+                                    Preferred Audio Language
+                                </label>
+                                <TextInput
+                                    value={editedAudioLanguage}
+                                    onValueChange={setEditedAudioLanguage}
+                                    placeholder="jpn,eng,kor"
+                                    onKeyDown={(e) => e.stopPropagation()}
+                                    onInput={(e) => e.stopPropagation()}
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">
+                                Ignored Subtitle Names
+                            </label>
+                            <TextInput
+                                value={editedSubsBlacklist}
+                                onValueChange={setEditedSubsBlacklist}
+                                placeholder="e.g., sign & songs"
+                                onKeyDown={(e) => e.stopPropagation()}
+                                onInput={(e) => e.stopPropagation()}
+                                help="Subtitle tracks that will not be selected by default if they match the preferred lanauges. Separate multiple names with commas."
                             />
                         </div>
                     </div>
 
-                    <div>
-                        {/* <h3 className="text-lg font-semibold mb-4 text-white">Navigation</h3> */}
-                        <div className="space-y-3">
-                            <KeybindingRow
-                                action="Next Chapter"
-                                description="Skip to next chapter"
-                                actionKey="nextChapter"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
+                    <div className="space-y-3">
+                        <h3 className="text-lg font-semibold text-white">Rendering</h3>
+                        <div className="space-y-2">
+                            <Switch
+                                side="right"
+                                label="Convert Soft Subs to ASS"
+                                value={editedUseLibassRenderer}
+                                onValueChange={setEditedUseLibassRenderer}
+                                help="The player will convert other subtitle formats (SRT, VTT, ...) to ASS. In case your language is not supported, you can add a new font or disable this feature. Reloading the player is required after changing this setting."
                             />
-                            <KeybindingRow
-                                action="Previous Chapter"
-                                description="Skip to previous chapter"
-                                actionKey="previousChapter"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                            />
-                            <KeybindingRow
-                                action="Next Episode"
-                                description="Play next episode"
-                                actionKey="nextEpisode"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                            />
-                            <KeybindingRow
-                                action="Previous Episode"
-                                description="Play previous episode"
-                                actionKey="previousEpisode"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                            />
-                            <KeybindingRow
-                                action="Cycle Subtitles"
-                                description="Cycle through subtitle tracks"
-                                actionKey="cycleSubtitles"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                            />
-                            <KeybindingRow
-                                action="Fullscreen"
-                                description="Toggle fullscreen"
-                                actionKey="fullscreen"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                            />
-                            <KeybindingRow
-                                action="Picture in Picture"
-                                description="Toggle picture in picture"
-                                actionKey="pictureInPicture"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                            />
-                            <KeybindingRow
-                                action="Take Screenshot"
-                                description="Take screenshot"
-                                actionKey="takeScreenshot"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                            />
+
+                            {/*<div className="space-y-2">*/}
+                            {/*    <label className="text-sm font-medium text-muted-foreground">*/}
+                            {/*        Subtitle Delay (seconds)*/}
+                            {/*    </label>*/}
+                            {/*    <NumberInput*/}
+                            {/*        value={editedSubtitleDelay}*/}
+                            {/*        onValueChange={setEditedSubtitleDelay}*/}
+                            {/*        fieldClass="w-32"*/}
+                            {/*        step={0.1}*/}
+                            {/*        hideControls={true}*/}
+                            {/*        onKeyDown={(e) => e.stopPropagation()}*/}
+                            {/*        onInput={(e) => e.stopPropagation()}*/}
+                            {/*    />*/}
+                            {/*</div>*/}
                         </div>
                     </div>
 
-                    <div>
-                        {/* <h3 className="text-lg font-semibold mb-4 text-white">Audio</h3> */}
-                        <div className="space-y-3">
-                            <KeybindingRow
-                                action="Volume Up"
-                                description="Increase volume"
-                                actionKey="volumeUp"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="Percent"
-                            />
-                            <KeybindingRow
-                                action="Volume Down"
-                                description="Decrease volume"
-                                actionKey="volumeDown"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="Percent"
-                            />
-                            <KeybindingRow
-                                action="Mute"
-                                description="Toggle mute"
-                                actionKey="mute"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                            />
-                            <KeybindingRow
-                                action="Cycle Audio"
-                                description="Cycle through audio tracks"
-                                actionKey="cycleAudio"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                            />
+                    <div className="flex items-center justify-between pt-6">
+                        <Button
+                            intent="gray-outline"
+                            onClick={handleReset}
+                        >
+                            Reset all
+                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                intent="gray-outline"
+                                onClick={() => setOpen(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                intent="primary"
+                                onClick={handleSave}
+                            >
+                                Save
+                            </Button>
                         </div>
                     </div>
-                </div>
-            </div>
+                </TabsContent>
+                <TabsContent value="translation" className={tabContentClass}>
+                    <Form
+                        schema={translationSettingsSchema}
+                        onSubmit={data => {
+                            const currentMediaPlayer = serverStatus?.settings?.mediaPlayer!
 
-            <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-white">Subtitles/Captions</h3>
-                <div>
-                    <p className="text-sm text-[--muted] ">
-                    </p>
-                </div>
-                <div className="space-y-2">
-                    <Switch
-                        side="right"
-                        label="Convert Soft Subs to ASS"
-                        value={editedUseLibassRenderer}
-                        onValueChange={setEditedUseLibassRenderer}
-                        help="The player will convert other subtitle formats (SRT, VTT, ...) to ASS. In case your language is not supported, you can add a new font or disable this feature. Reloading the player is required after changing this setting."
-                    />
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted-foreground">
-                            Ignored Subtitle Names
-                        </label>
-                        <TextInput
-                            value={editedSubsBlacklist}
-                            onValueChange={setEditedSubsBlacklist}
-                            placeholder="e.g., sign & songs"
-                            onKeyDown={(e) => e.stopPropagation()}
-                            onInput={(e) => e.stopPropagation()}
-                            help="Subtitle tracks that will not be selected by default if they match the preferred lanauges. Separate multiple names with commas."
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted-foreground">
-                            Subtitle Delay (seconds)
-                        </label>
-                        <NumberInput
-                            value={editedSubtitleDelay}
-                            onValueChange={setEditedSubtitleDelay}
-                            fieldClass="w-32"
-                            step={0.1}
-                            hideControls={true}
-                            onKeyDown={(e) => e.stopPropagation()}
-                            onInput={(e) => e.stopPropagation()}
-                        />
-                    </div>
-                </div>
-            </div>
+                            saveMediaPlayerSettings({
+                                mediaPlayer: {
+                                    ...currentMediaPlayer,
+                                    vcTranslate: data.vcTranslate,
+                                    vcTranslateTargetLanguage: data.vcTranslateTargetLanguage.toLowerCase(),
+                                    vcTranslateProvider: data.vcTranslateProvider,
+                                    vcTranslateApiKey: data.vcTranslateApiKey,
+                                },
+                            }, {
+                                onSuccess: () => {
+                                    toast.success("Translation settings saved")
+                                    translationFormRef.current?.reset(translationFormRef.current.getValues())
 
-            <div className="flex items-center justify-between pt-6">
-                <Button
-                    intent="gray-outline"
-                    onClick={handleReset}
-                >
-                    Reset all
-                </Button>
-                <div className="flex gap-2">
-                    <Button
-                        intent="gray-outline"
-                        onClick={() => setOpen(false)}
+                                    subtitleManager?.updateShouldTranslate(data.vcTranslate ? data.vcTranslateTargetLanguage : null)
+                                    mediaCaptionsManager?.updateShouldTranslate(data.vcTranslate ? data.vcTranslateTargetLanguage : null)
+                                },
+                            })
+                        }}
+                        defaultValues={{
+                            vcTranslate: serverStatus?.settings?.mediaPlayer?.vcTranslate ?? false,
+                            vcTranslateProvider: serverStatus?.settings?.mediaPlayer?.vcTranslateProvider || "deepl",
+                            vcTranslateTargetLanguage: serverStatus?.settings?.mediaPlayer?.vcTranslateTargetLanguage?.toLowerCase() || "en",
+                            vcTranslateApiKey: serverStatus?.settings?.mediaPlayer?.vcTranslateApiKey || "",
+                        }}
+                        stackClass="space-y-4 relative"
+                        mRef={translationFormRef}
                     >
-                        Cancel
-                    </Button>
-                    <Button
-                        intent="primary"
-                        onClick={handleSave}
-                    >
-                        Save
-                    </Button>
-                </div>
-            </div>
+                        {(f) => (
+                            <div className="space-y-4">
+                                <div className="space-y-4">
+                                    <Field.Switch
+                                        name="vcTranslate"
+                                        side="right"
+                                        label="Enable Translation"
+                                        help="Automatically translate subtitle tracks to your selected language"
+                                    />
+                                    <div className="space-y-2">
+                                        <Field.Select
+                                            label="Provider"
+                                            name="vcTranslateProvider"
+                                            options={[
+                                                { value: "deepl", label: "DeepL" },
+                                                { value: "openai", label: "OpenAI" },
+                                            ]}
+                                            contentClass="z-[999]"
+                                        />
+                                    </div>
+
+                                    {f.watch("vcTranslateProvider") === "deepl" && (
+                                        <p>
+                                            Note: DeepL does not support all target languages.
+                                        </p>
+                                    )}
+
+                                    <div className="space-y-2">
+                                        <Field.Select
+                                            label="Target Language"
+                                            name="vcTranslateTargetLanguage"
+                                            options={[
+                                                { value: "en", label: "English" },
+                                                { value: "es", label: "Spanish" },
+                                                { value: "fr", label: "French" },
+                                                { value: "de", label: "German" },
+                                                { value: "it", label: "Italian" },
+                                                { value: "pt", label: "Portuguese" },
+                                                { value: "ru", label: "Russian" },
+                                                { value: "ja", label: "Japanese" },
+                                                { value: "ko", label: "Korean" },
+                                                { value: "zh", label: "Chinese" },
+                                                { value: "ar", label: "Arabic" },
+                                                { value: "hi", label: "Hindi" },
+                                                { value: "tr", label: "Turkish" },
+                                                { value: "pl", label: "Polish" },
+                                                { value: "nl", label: "Dutch" },
+                                                { value: "sv", label: "Swedish" },
+                                                { value: "no", label: "Norwegian" },
+                                                { value: "da", label: "Danish" },
+                                                { value: "fi", label: "Finnish" },
+                                                { value: "el", label: "Greek" },
+                                                { value: "cs", label: "Czech" },
+                                                { value: "hu", label: "Hungarian" },
+                                                { value: "ro", label: "Romanian" },
+                                                { value: "th", label: "Thai" },
+                                                { value: "vi", label: "Vietnamese" },
+                                                { value: "id", label: "Indonesian" },
+                                                { value: "ms", label: "Malay" },
+                                                { value: "uk", label: "Ukrainian" },
+                                                { value: "bg", label: "Bulgarian" },
+                                                { value: "hr", label: "Croatian" },
+                                                { value: "sr", label: "Serbian" },
+                                                { value: "sk", label: "Slovak" },
+                                                { value: "sl", label: "Slovenian" },
+                                                { value: "et", label: "Estonian" },
+                                                { value: "lv", label: "Latvian" },
+                                                { value: "lt", label: "Lithuanian" },
+                                                { value: "he", label: "Hebrew" },
+                                                { value: "fa", label: "Persian" },
+                                                { value: "bn", label: "Bengali" },
+                                                { value: "ur", label: "Urdu" },
+                                                { value: "ta", label: "Tamil" },
+                                                { value: "te", label: "Telugu" },
+                                                { value: "mr", label: "Marathi" },
+                                                { value: "kn", label: "Kannada" },
+                                                { value: "ml", label: "Malayalam" },
+                                                { value: "pa", label: "Punjabi" },
+                                                { value: "sw", label: "Swahili" },
+                                                { value: "af", label: "Afrikaans" },
+                                            ]}
+                                            contentClass="z-[999]"
+                                            help="Select the language you want subtitles to be translated to"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Field.Text
+                                            label="API Key"
+                                            name="vcTranslateApiKey"
+                                            placeholder="Enter your API key"
+                                            onKeyDown={(e) => e.stopPropagation()}
+                                            onInput={(e) => e.stopPropagation()}
+                                        />
+                                    </div>
+                                </div>
+
+                                <p className="text-[--muted]">
+                                    Reloading the player is required only when switching languages or API Key.
+                                </p>
+
+                                <div className="flex items-center justify-end pt-6">
+                                    <div className="flex gap-2">
+                                        <Button
+                                            type="button"
+                                            intent="gray-outline"
+                                            onClick={() => setOpen(false)}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            intent="primary"
+                                        >
+                                            Save
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </Form>
+                </TabsContent>
+            </Tabs>
+
         </Modal>
     )
 }

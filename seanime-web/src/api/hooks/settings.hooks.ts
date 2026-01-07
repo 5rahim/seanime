@@ -1,5 +1,10 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
-import { GettingStarted_Variables, SaveAutoDownloaderSettings_Variables, SaveSettings_Variables } from "@/api/generated/endpoint.types"
+import {
+    GettingStarted_Variables,
+    SaveAutoDownloaderSettings_Variables,
+    SaveMediaPlayerSettings_Variables,
+    SaveSettings_Variables,
+} from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Models_Settings, Status } from "@/api/generated/types"
 import { isLoginModalOpenAtom } from "@/app/(main)/_atoms/server-status.atoms"
@@ -62,3 +67,13 @@ export function useSaveAutoDownloaderSettings() {
     })
 }
 
+export function useSaveMediaPlayerSettings() {
+    return useServerMutation<boolean, SaveMediaPlayerSettings_Variables>({
+        endpoint: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.endpoint,
+        method: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.methods[0],
+        mutationKey: [API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.key],
+        onSuccess: async () => {
+
+        },
+    })
+}

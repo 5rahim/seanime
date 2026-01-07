@@ -301,3 +301,41 @@ func (h *Handler) HandleSaveAutoDownloaderSettings(c echo.Context) error {
 
 	return h.RespondWithData(c, true)
 }
+
+// HandleSaveMediaPlayerSettings
+//
+//	@summary updates the media player settings.
+//	@route /api/v1/settings/media-player [PATCH]
+//	@returns bool
+func (h *Handler) HandleSaveMediaPlayerSettings(c echo.Context) error {
+
+	type body struct {
+		MediaPlayer *models.MediaPlayerSettings `json:"mediaPlayer"`
+	}
+
+	var b body
+
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	currSettings, err := h.App.Database.GetSettings()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	currSettings.MediaPlayer = b.MediaPlayer
+	currSettings.BaseModel = models.BaseModel{
+		ID:        1,
+		UpdatedAt: time.Now(),
+	}
+
+	_, err = h.App.Database.UpsertSettings(currSettings)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	h.App.InitOrRefreshModules()
+
+	return h.RespondWithData(c, true)
+}

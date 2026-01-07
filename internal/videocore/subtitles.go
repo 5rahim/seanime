@@ -11,66 +11,6 @@ import (
 	"github.com/imroc/req/v3"
 )
 
-func (vc *VideoCore) FetchAndConvertToASS(url string) (string, error) {
-	client := req.C()
-	client.SetTimeout(30 * time.Second)
-	resp := client.Get(url).Do()
-
-	if resp.IsErrorState() {
-		return "", errors.New("failed to fetch subtitle file")
-	}
-
-	payload := resp.String()
-
-	from := mkvparser.SubtitleTypeUnknown
-
-	ext := util.FileExt(url)
-
-	switch ext {
-	case ".ass":
-		from = mkvparser.SubtitleTypeASS
-	case ".ssa":
-		from = mkvparser.SubtitleTypeSSA
-	case ".srt":
-		from = mkvparser.SubtitleTypeSRT
-	case ".vtt":
-		from = mkvparser.SubtitleTypeWEBVTT
-	case ".ttml":
-		from = mkvparser.SubtitleTypeTTML
-	case ".stl":
-		from = mkvparser.SubtitleTypeSTL
-	case ".txt":
-		from = mkvparser.SubtitleTypeUnknown
-	default:
-		from = mkvparser.DetectSubtitleType(payload)
-	}
-
-	if from == mkvparser.SubtitleTypeUnknown {
-		return "", errors.New("failed to detect subtitle format from content")
-	}
-
-	if from == mkvparser.SubtitleTypeASS {
-		return payload, nil
-	}
-
-	return vc.ConvertToASS(payload)
-}
-
-func (vc *VideoCore) ConvertToASS(content string) (string, error) {
-	from := mkvparser.DetectSubtitleType(content)
-
-	if from == mkvparser.SubtitleTypeUnknown {
-		return "", errors.New("failed to detect subtitle format from content")
-	}
-
-	ret, err := mkvparser.ConvertToASS(content, from)
-	if err != nil {
-		return "", fmt.Errorf("failed to convert subtitle file: %w", err)
-	}
-
-	return ret, nil
-}
-
 func (vc *VideoCore) FetchAndConvertSubsTo(url string, to int) (string, error) {
 	client := req.C()
 	client.SetTimeout(30 * time.Second)
@@ -124,22 +64,25 @@ func (vc *VideoCore) ConvertSubsTo(content string, from int, to int) (ret string
 		}
 	}
 
+	if from == to {
+		return content, nil
+	}
+
 	switch to {
 	case mkvparser.SubtitleTypeASS:
 		ret, err = mkvparser.ConvertToASS(content, from)
 		if err != nil {
 			return "", fmt.Errorf("failed to convert subtitle file: %w", err)
 		}
-		return ret, nil
 	case mkvparser.SubtitleTypeWEBVTT:
 		ret, err = mkvparser.ConvertToVTT(content, from)
 		if err != nil {
 			return "", fmt.Errorf("failed to convert subtitle file: %w", err)
 		}
-		return ret, nil
 	default:
 		return "", errors.New("unsupported subtitle format for conversion")
 	}
+	return
 }
 
 type (

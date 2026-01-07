@@ -596,16 +596,6 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/directstream/play/localfile",
         },
-        /**
-         *  @description
-         *  Route converts subtitles to ASS.
-         *  Subtitles will be fetched and converted to ASS.
-         */
-        DirectstreamFetchAndConvertToASS: {
-            key: "DIRECTSTREAM-directstream-fetch-and-convert-to-a-s-s",
-            methods: ["POST"],
-            endpoint: "/api/v1/directstream/subs/convert-to-ass",
-        },
         DirectstreamConvertSubs: {
             key: "DIRECTSTREAM-directstream-convert-subs",
             methods: ["POST"],
@@ -1884,6 +1874,11 @@ export const API_ENDPOINTS = {
             key: "SETTINGS-save-auto-downloader-settings",
             methods: ["PATCH"],
             endpoint: "/api/v1/settings/auto-downloader",
+        },
+        SaveMediaPlayerSettings: {
+            key: "SETTINGS-save-media-player-settings",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/settings/media-player",
         },
     },
     STATUS: {
