@@ -64,11 +64,14 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
         return userMedia ?? []
     }, [userMedia])
 
+    const [showReleasingOnly, setShowReleasingOnly] = React.useState(true)
+
     const notFinishedMedia = React.useMemo(() => {
-        // return allMedia.filter(media => media.status !== "FINISHED")
-        // Note: return all
+        if (showReleasingOnly) {
+            return allMedia.filter(media => media.status !== "FINISHED")
+        }
         return allMedia
-    }, [allMedia])
+    }, [allMedia, showReleasingOnly])
 
     const { mutate: createRule, isPending: creatingRule } = useCreateAutoDownloaderRule()
 
@@ -130,16 +133,37 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                     toast.error("An error occurred, verify the fields.")
                 }}
             >
-                {(f) => <RuleFormFields
-                    form={f}
-                    allMedia={allMedia}
-                    mediaId={mediaId}
-                    type={type}
-                    isPending={isPending}
-                    notFinishedMedia={notFinishedMedia}
-                    libraryCollection={libraryCollection}
-                    rule={rule}
-                />}
+                {(f) => (
+                    <div className="space-y-4">
+                        {(!mediaId) && (
+                            <div className="flex items-center gap-2">
+                                <div className="flex-1"></div>
+                                <div className="flex items-center gap-2 text-sm">
+                                    <label htmlFor="show-releasing-only" className="cursor-pointer">
+                                        Hide finished
+                                    </label>
+                                    <input
+                                        type="checkbox"
+                                        id="show-releasing-only"
+                                        className="size-4"
+                                        checked={showReleasingOnly}
+                                        onChange={e => setShowReleasingOnly(e.target.checked)}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        <RuleFormFields
+                            form={f}
+                            allMedia={allMedia}
+                            mediaId={mediaId}
+                            type={type}
+                            isPending={isPending}
+                            notFinishedMedia={notFinishedMedia}
+                            libraryCollection={libraryCollection}
+                            rule={rule}
+                        />
+                    </div>
+                )}
             </Form>
             {type === "edit" && <DangerZone
                 actionText="Delete this rule"
@@ -242,22 +266,22 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                         name="mediaId"
                         label="Library Entry"
                         options={notFinishedMedia.map(media => ({
-                                label: <div className="flex items-center gap-2">
-                                    <div className="size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none">
-                                        <Image
-                                            src={media.coverImage?.medium ?? "/no-cover.png"}
-                                            alt="cover"
-                                            sizes="2rem"
-                                            fill
-                                            className="object-cover object-center"
-                                        />
-                                    </div>
-                                    <p>{media.title?.userPreferred || "N/A"}</p>
-                                    <p className="text-[--muted] text-sm">{capitalize(media.status)?.replaceAll("_", " ")}</p>
-                                </div>,
-                                value: String(media.id),
-                                textValue: media.title?.userPreferred || "N/A",
-                            }))
+                            label: <div className="flex items-center gap-2">
+                                <div className="size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none">
+                                    <Image
+                                        src={media.coverImage?.medium ?? "/no-cover.png"}
+                                        alt="cover"
+                                        sizes="2rem"
+                                        fill
+                                        className="object-cover object-center"
+                                    />
+                                </div>
+                                <p>{media.title?.userPreferred || "N/A"}</p>
+                                <p className="text-[--muted] text-sm">{capitalize(media.status)?.replaceAll("_", " ")}</p>
+                            </div>,
+                            value: String(media.id),
+                            textValue: media.title?.userPreferred || "N/A",
+                        }))
                             .toSorted((a, b) => a.textValue.localeCompare(b.textValue))}
                         value={[String(form_mediaId)]}
                         onValueChange={(v) => form.setValue("mediaId", v[0] ? parseInt(v[0]) : notFinishedMedia[0]?.id)}
@@ -292,7 +316,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                                 label: <div className="w-full">
                                     <p className="mb-1 flex items-center"><MdVerified className="text-lg inline-block mr-2" />Most likely</p>
                                     <p className="font-normal text-sm text-[--muted]">The torrent name will be parsed and analyzed using a comparison
-                                                                                      algorithm</p>
+                                        algorithm</p>
                                 </div>,
                                 value: "likely",
                             },
@@ -300,7 +324,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                                 label: <div className="w-full">
                                     <p className="mb-1 flex items-center"><LuTextCursorInput className="text-lg inline-block mr-2" />Exact match</p>
                                     <p className="font-normal text-sm text-[--muted]">The torrent name must contain the comparison title you set (case
-                                                                                      insensitive)</p>
+                                        insensitive)</p>
                                 </div>,
                                 value: "contains",
                             },
@@ -381,7 +405,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                         <AccordionContent className="pt-0">
                             <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
                                 <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Additional
-                                                                                                                                         terms
+                                    terms
                                 </div>
                                 <div>
                                     {/*<p className="text-sm">*/}
@@ -389,14 +413,14 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                                     {/*</p>*/}
                                     <p className="text-sm -top-2 relative"><span className="text-red-100">
                                         All options must be included for the torrent to be accepted.</span> Within each option, you can
-                                                                                                            include variations separated by
-                                                                                                            commas. For example, adding
-                                                                                                            "H265,H.265, H 265,x265" and
-                                                                                                            "10bit,10-bit,10 bit" will match
+                                        include variations separated by
+                                        commas. For example, adding
+                                        "H265,H.265, H 265,x265" and
+                                        "10bit,10-bit,10 bit" will match
                                         <code className="text-gray-400"> [Group] Torrent name [HEVC 10bit
-                                                                         x265]</code> but not <code className="text-gray-400">[Group] Torrent name
-                                                                                                                              [H265]</code>. Case
-                                                                                                            insensitive.</p>
+                                            x265]</code> but not <code className="text-gray-400">[Group] Torrent name
+                                                [H265]</code>. Case
+                                        insensitive.</p>
                                 </div>
 
                                 <TextArrayField
