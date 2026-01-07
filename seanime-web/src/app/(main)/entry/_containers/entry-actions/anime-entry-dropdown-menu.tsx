@@ -29,6 +29,7 @@ import { BiDotsVerticalRounded, BiFolder, BiRightArrowAlt } from "react-icons/bi
 import { FiArrowUpRight, FiDownload, FiTrash } from "react-icons/fi"
 import { LuCopy, LuFolderTree, LuGlobe, LuImage } from "react-icons/lu"
 import { MdOutlineRemoveDone } from "react-icons/md"
+import { SiMyanimelist } from "react-icons/si"
 
 export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
 
@@ -87,6 +88,14 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                     className="flex justify-between items-center"
                 >
                     <span className="flex items-center gap-2"><LuGlobe className="text-lg" /> Open on AniDB</span>
+                    <FiArrowUpRight className="text-[--muted] text-sm" />
+                </DropdownMenuItem>}
+
+                {!!entry.media?.idMal && <DropdownMenuItem
+                    onClick={() => openTab(`https://myanimelist.net/anime/${entry.media?.idMal}`)}
+                    className="flex justify-between items-center"
+                >
+                    <span className="flex items-center gap-2"><SiMyanimelist className="text-lg" /> Open on MAL</span>
                     <FiArrowUpRight className="text-[--muted] text-sm" />
                 </DropdownMenuItem>}
 
