@@ -3696,6 +3696,20 @@ export type Models_MangaSettings = {
  * - Filename: models.go
  * - Package: models
  */
+export type Models_MediaMetadataParent = {
+    mediaId: number
+    parentId: number
+    specialOffset: number
+    id: number
+    createdAt?: string
+    updatedAt?: string
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
 export type Models_MediaPlayerSettings = {
     /**
      * "vlc" or "mpc-hc"
@@ -4942,7 +4956,6 @@ export type VideoCore_ServerEvent = "pause" |
     "get-text-tracks" |
     "request-play-episode" |
     "translated-text" |
-    "translated-subtitle-track" |
     "get-fullscreen" |
     "get-pip" |
     "get-anime-4k" |

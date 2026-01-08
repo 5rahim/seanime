@@ -5,6 +5,7 @@ import (
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"sort"
@@ -34,10 +35,11 @@ type (
 	}
 
 	NewSimpleAnimeEntryOptions struct {
-		MediaId         int
-		LocalFiles      []*LocalFile // All local files
-		AnimeCollection *anilist.AnimeCollection
-		PlatformRef     *util.Ref[platform.Platform]
+		MediaId             int
+		LocalFiles          []*LocalFile // All local files
+		AnimeCollection     *anilist.AnimeCollection
+		PlatformRef         *util.Ref[platform.Platform]
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 	}
 )
 
@@ -108,8 +110,10 @@ func NewSimpleEntry(ctx context.Context, opts *NewSimpleAnimeEntryOptions) (*Sim
 	// |       Episodes      |
 	// +---------------------+
 
+	amw := opts.MetadataProviderRef.Get().GetAnimeMetadataWrapper(anilistEntry.Media, nil)
+
 	// Create episode entities
-	entry.hydrateEntryEpisodeData()
+	entry.hydrateEntryEpisodeData(amw)
 
 	return entry, nil
 
@@ -119,7 +123,7 @@ func NewSimpleEntry(ctx context.Context, opts *NewSimpleAnimeEntryOptions) (*Sim
 
 // hydrateEntryEpisodeData
 // Metadata, Media and LocalFiles should be defined
-func (e *SimpleEntry) hydrateEntryEpisodeData() {
+func (e *SimpleEntry) hydrateEntryEpisodeData(amw metadata_provider.AnimeMetadataWrapper) {
 
 	// +---------------------+
 	// |       Episodes      |
@@ -130,9 +134,10 @@ func (e *SimpleEntry) hydrateEntryEpisodeData() {
 		lf := lf
 		p.Go(func() *Episode {
 			return NewSimpleEpisode(&NewSimpleEpisodeOptions{
-				LocalFile:    lf,
-				Media:        e.Media,
-				IsDownloaded: true,
+				LocalFile:       lf,
+				Media:           e.Media,
+				IsDownloaded:    true,
+				MetadataWrapper: amw,
 			})
 		})
 	}

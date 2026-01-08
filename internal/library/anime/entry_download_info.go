@@ -192,6 +192,8 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 
 	// DEVNOTE: The EntryEpisode generated has inaccurate progress numbers since not local files are passed in
 
+	mediaWrapper := opts.MetadataProviderRef.Get().GetAnimeMetadataWrapper(opts.Media, opts.AnimeMetadata)
+
 	progressOffset := 0
 	if discrepancy == DiscrepancyAniListCountsEpisodeZero {
 		progressOffset = 1
@@ -206,6 +208,7 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 			// Create a new episode with a placeholder local file
 			// We pass that placeholder local file so that all episodes are hydrated as main episodes for consistency
 			str.Episode = NewEpisode(&NewEpisodeOptions{
+				MetadataWrapper: mediaWrapper,
 				LocalFile: &LocalFile{
 					ParsedData:       &LocalFileParsedData{},
 					ParsedFolderData: []*LocalFileParsedData{},

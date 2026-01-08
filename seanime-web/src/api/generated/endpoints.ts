@@ -1403,6 +1403,36 @@ export const API_ENDPOINTS = {
             methods: ["DELETE"],
             endpoint: "/api/v1/metadata-provider/filler",
         },
+        /**
+         *  @description
+         *  Route retrieves media metadata parent by media ID.
+         *  Returns the media metadata parent information for the given media ID.
+         */
+        GetMediaMetadataParent: {
+            key: "METADATA-get-media-metadata-parent",
+            methods: ["GET"],
+            endpoint: "/api/v1/metadata/parent/{id}",
+        },
+        /**
+         *  @description
+         *  Route saves or updates media metadata parent.
+         *  Creates or updates the media metadata parent information.
+         */
+        SaveMediaMetadataParent: {
+            key: "METADATA-save-media-metadata-parent",
+            methods: ["POST"],
+            endpoint: "/api/v1/metadata/parent",
+        },
+        /**
+         *  @description
+         *  Route deletes media metadata parent.
+         *  Removes the media metadata parent information for the given media ID.
+         */
+        DeleteMediaMetadataParent: {
+            key: "METADATA-delete-media-metadata-parent",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/metadata/parent",
+        },
     },
     NAKAMA: {
         /**

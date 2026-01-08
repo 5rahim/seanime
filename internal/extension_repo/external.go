@@ -803,6 +803,21 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded external extension")
 }
 
+func (r *Repository) invalidateExtension(id string, reason string) {
+	ext, ok := r.gojaExtensions.Get(id)
+	if !ok {
+		return
+	}
+	r.invalidExtensions.Set(id, &extension.InvalidExtension{
+		ID:        id,
+		Reason:    reason,
+		Path:      "",
+		Code:      extension.InvalidExtensionPayloadError,
+		Extension: *ext.GetExtension(),
+	})
+	r.logger.Error().Msg("extensions: Invalidated extension")
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Reload specific extension
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

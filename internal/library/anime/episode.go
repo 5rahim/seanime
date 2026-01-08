@@ -40,6 +40,7 @@ type (
 		Overview string `json:"overview,omitempty"`
 		IsFiller bool   `json:"isFiller,omitempty"`
 		HasImage bool   `json:"hasImage,omitempty"` // Indicates if the episode has a real image
+		Title    string `json:"title,omitempty"`
 	}
 )
 
@@ -49,6 +50,7 @@ type (
 		LocalFile            *LocalFile
 		AnimeMetadata        *metadata.AnimeMetadata // optional
 		Media                *anilist.BaseAnime
+		MetadataWrapper      metadata_provider.AnimeMetadataWrapper
 		OptionalAniDBEpisode string
 		// ProgressOffset will offset the ProgressNumber for a specific MAIN file
 		// This is used when there is a discrepancy between AniList and AniDB
@@ -61,9 +63,10 @@ type (
 	// NewSimpleEpisodeOptions hold data used to create a new Episode.
 	// Unlike NewEpisodeOptions, this struct does not require Animap data. It is used to list episodes without AniDB metadata.
 	NewSimpleEpisodeOptions struct {
-		LocalFile    *LocalFile
-		Media        *anilist.BaseAnime
-		IsDownloaded bool
+		LocalFile       *LocalFile
+		Media           *anilist.BaseAnime
+		IsDownloaded    bool
+		MetadataWrapper metadata_provider.AnimeMetadataWrapper
 	}
 )
 
@@ -84,7 +87,6 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 
 	// LocalFile exists
 	if opts.LocalFile != nil {
-
 		aniDBEp := opts.LocalFile.Metadata.AniDBEpisode
 
 		// ProgressOffset is -1, meaning the hydrator mistakenly set AniDB episode to "S1" (due to torrent name) because the episode number is 0
@@ -184,7 +186,10 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 		}
 
 		// Set episode metadata
-		entryEp.EpisodeMetadata = NewEpisodeMetadata(opts.AnimeMetadata, episodeMetadata, opts.Media, opts.MetadataProvider)
+		entryEp.EpisodeMetadata = NewEpisodeMetadata(opts.MetadataWrapper, episodeMetadata, aniDBEp, opts.Media)
+		if entryEp.EpisodeTitle == "" {
+			entryEp.EpisodeTitle = entryEp.EpisodeMetadata.Title
+		}
 
 	} else if len(opts.OptionalAniDBEpisode) > 0 && opts.AnimeMetadata != nil {
 		// No LocalFile, but AniDB episode is provided
@@ -227,7 +232,10 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 			}
 
 			// Set episode metadata
-			entryEp.EpisodeMetadata = NewEpisodeMetadata(opts.AnimeMetadata, episodeMetadata, opts.Media, opts.MetadataProvider)
+			entryEp.EpisodeMetadata = NewEpisodeMetadata(opts.MetadataWrapper, episodeMetadata, opts.OptionalAniDBEpisode, opts.Media)
+			if entryEp.EpisodeTitle == "" {
+				entryEp.EpisodeTitle = entryEp.EpisodeMetadata.Title
+			}
 		} else {
 			// No Local file, no Animap data
 			// DEVNOTE: Non-downloaded, without any AniDB data. Don't handle this case.
@@ -252,21 +260,17 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 // NewEpisodeMetadata creates a new EpisodeMetadata from an Animap episode and AniList media.
 // If the Animap episode is nil, it will just set the image from the media.
 func NewEpisodeMetadata(
-	animeMetadata *metadata.AnimeMetadata,
+	aw metadata_provider.AnimeMetadataWrapper,
 	episode *metadata.EpisodeMetadata,
+	aniDbEpisode string,
 	media *anilist.BaseAnime,
-	metadataProvider metadata_provider.Provider,
 ) *EpisodeMetadata {
 	md := new(EpisodeMetadata)
-
-	// No Animap data
-	if episode == nil {
-		md.Image = media.GetCoverImageSafe()
-		return md
+	if episode != nil {
+		aniDbEpisode = episode.Episode
 	}
 
-	aw := metadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
-	epMetadata := aw.GetEpisodeMetadata(episode.Episode)
+	epMetadata := aw.GetEpisodeMetadata(aniDbEpisode)
 	md.AnidbId = epMetadata.AnidbId
 	md.Image = epMetadata.Image
 	md.AirDate = epMetadata.AirDate
@@ -274,6 +278,7 @@ func NewEpisodeMetadata(
 	md.Summary = epMetadata.Summary
 	md.Overview = epMetadata.Overview
 	md.HasImage = epMetadata.HasImage
+	md.Title = epMetadata.Title
 	md.IsFiller = false // Default to false
 
 	return md
@@ -340,6 +345,19 @@ func NewSimpleEpisode(opts *NewSimpleEpisodeOptions) *Episode {
 
 		entryEp.EpisodeMetadata.Image = opts.Media.GetCoverImageSafe()
 
+	}
+
+	epMetadata := opts.MetadataWrapper.GetEpisodeMetadata(strconv.Itoa(entryEp.EpisodeNumber))
+	entryEp.EpisodeMetadata = &EpisodeMetadata{
+		AnidbId:  epMetadata.AnidbId,
+		Image:    epMetadata.Image,
+		AirDate:  epMetadata.AirDate,
+		Length:   epMetadata.Length,
+		Summary:  epMetadata.Summary,
+		Overview: epMetadata.Overview,
+		IsFiller: false,
+		HasImage: epMetadata.HasImage,
+		Title:    epMetadata.Title,
 	}
 
 	if !hydrated {

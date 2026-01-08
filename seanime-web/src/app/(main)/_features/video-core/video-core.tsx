@@ -1464,6 +1464,7 @@ export function VideoCore(props: VideoCoreProps) {
 
             // Otherwise, create chapters from AniSkip data if available
             if (!!aniSkipData?.op?.interval && duration > 0) {
+                log.info("Creating chapter cues from AniSkip data", aniSkipData)
                 const chapters = vc_createChaptersFromAniSkip(aniSkipData, duration, state?.playbackInfo?.media?.format)
                 const cues = vc_createChapterCues(chapters, duration)
                 log.info("Chapter cues from AniSkip", cues)

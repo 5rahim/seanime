@@ -344,6 +344,9 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1.POST("/metadata-provider/filler", h.HandlePopulateFillerData)
 	v1.DELETE("/metadata-provider/filler", h.HandleRemoveFillerData)
+	v1.GET("/metadata/parent/:id", h.HandleGetMediaMetadataParent)
+	v1.POST("/metadata/parent", h.HandleSaveMediaMetadataParent)
+	v1.DELETE("/metadata/parent", h.HandleDeleteMediaMetadataParent)
 
 	//
 	// Manga

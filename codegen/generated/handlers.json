@@ -2727,15 +2727,6 @@
           "typescriptType": "string",
           "required": true,
           "descriptions": []
-        },
-        {
-          "name": "Translate",
-          "jsonName": "translate",
-          "goType": "bool",
-          "usedStructType": "",
-          "typescriptType": "boolean",
-          "required": false,
-          "descriptions": []
         }
       ],
       "returns": "string",
@@ -6806,6 +6797,147 @@
         "This will remove the filler data cache for the given media."
       ],
       "endpoint": "/api/v1/metadata-provider/filler",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGetMediaMetadataParent",
+    "trimmedName": "GetMediaMetadataParent",
+    "comments": [
+      "HandleGetMediaMetadataParent",
+      "",
+      "\t@summary retrieves media metadata parent by media ID.",
+      "\t@desc Returns the media metadata parent information for the given media ID.",
+      "\t@route /api/v1/metadata/parent/{id} [GET]",
+      "\t@param id - int - true - \"The media ID\"",
+      "\t@returns models.MediaMetadataParent",
+      ""
+    ],
+    "filepath": "internal/handlers/metadata.go",
+    "filename": "metadata.go",
+    "api": {
+      "summary": "retrieves media metadata parent by media ID.",
+      "descriptions": [
+        "Returns the media metadata parent information for the given media ID."
+      ],
+      "endpoint": "/api/v1/metadata/parent/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "The media ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "models.MediaMetadataParent",
+      "returnGoType": "models.MediaMetadataParent",
+      "returnTypescriptType": "Models_MediaMetadataParent"
+    }
+  },
+  {
+    "name": "HandleSaveMediaMetadataParent",
+    "trimmedName": "SaveMediaMetadataParent",
+    "comments": [
+      "HandleSaveMediaMetadataParent",
+      "",
+      "\t@summary saves or updates media metadata parent.",
+      "\t@desc Creates or updates the media metadata parent information.",
+      "\t@route /api/v1/metadata/parent [POST]",
+      "\t@returns models.MediaMetadataParent",
+      ""
+    ],
+    "filepath": "internal/handlers/metadata.go",
+    "filename": "metadata.go",
+    "api": {
+      "summary": "saves or updates media metadata parent.",
+      "descriptions": [
+        "Creates or updates the media metadata parent information."
+      ],
+      "endpoint": "/api/v1/metadata/parent",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ParentId",
+          "jsonName": "parentId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "SpecialOffset",
+          "jsonName": "specialOffset",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "models.MediaMetadataParent",
+      "returnGoType": "models.MediaMetadataParent",
+      "returnTypescriptType": "Models_MediaMetadataParent"
+    }
+  },
+  {
+    "name": "HandleDeleteMediaMetadataParent",
+    "trimmedName": "DeleteMediaMetadataParent",
+    "comments": [
+      "HandleDeleteMediaMetadataParent",
+      "",
+      "\t@summary deletes media metadata parent.",
+      "\t@desc Removes the media metadata parent information for the given media ID.",
+      "\t@route /api/v1/metadata/parent [DELETE]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/metadata.go",
+    "filename": "metadata.go",
+    "api": {
+      "summary": "deletes media metadata parent.",
+      "descriptions": [
+        "Removes the media metadata parent information for the given media ID."
+      ],
+      "endpoint": "/api/v1/metadata/parent",
       "methods": [
         "DELETE"
       ],

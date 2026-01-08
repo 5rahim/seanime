@@ -182,10 +182,11 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 
 		// If Animap data is not found, we will still create the Entry without it
 		simpleAnimeEntry, err := NewSimpleEntry(ctx, &NewSimpleAnimeEntryOptions{
-			MediaId:         opts.MediaId,
-			LocalFiles:      opts.LocalFiles,
-			AnimeCollection: opts.AnimeCollection,
-			PlatformRef:     opts.PlatformRef,
+			MediaId:             opts.MediaId,
+			LocalFiles:          opts.LocalFiles,
+			AnimeCollection:     opts.AnimeCollection,
+			PlatformRef:         opts.PlatformRef,
+			MetadataProviderRef: opts.MetadataProviderRef,
 		})
 		if err != nil {
 			return nil, err
@@ -273,6 +274,8 @@ func (e *Entry) hydrateEntryEpisodeData(
 		}
 	}
 
+	amw := metadataProviderRef.Get().GetAnimeMetadataWrapper(anilistEntry.Media, animeMetadata)
+
 	// +---------------------+
 	// |       Episodes      |
 	// +---------------------+
@@ -282,6 +285,7 @@ func (e *Entry) hydrateEntryEpisodeData(
 		p.Go(func() *Episode {
 			return NewEpisode(&NewEpisodeOptions{
 				LocalFile:            lf,
+				MetadataWrapper:      amw,
 				OptionalAniDBEpisode: "",
 				AnimeMetadata:        animeMetadata,
 				Media:                e.Media,

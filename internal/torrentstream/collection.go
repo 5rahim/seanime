@@ -60,7 +60,13 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 					Entries:      make([]*anilist.AnimeCollection_MediaListCollection_Lists_Entries, 0),
 				}
 			}
-			currentlyWatching.Entries = append(currentlyWatching.Entries, list.Entries...)
+			//currentlyWatching.Entries = append(currentlyWatching.Entries, list.Entries...)
+			for _, entry := range list.Entries {
+				if entry == nil || entry.GetMedia() == nil {
+					continue
+				}
+				currentlyWatching.Entries = append(currentlyWatching.Entries, entry)
+			}
 			continue
 		}
 		//if *list.Status == anilist.MediaListStatusPaused {
@@ -111,6 +117,10 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 		go func(entry *anilist.AnimeListEntry) {
 			defer wg.Done()
 
+			if entry == nil || entry.GetMedia() == nil {
+				return
+			}
+
 			mu.Lock()
 			if _, found := visitedMediaIds[entry.GetMedia().GetID()]; found {
 				mu.Unlock()
@@ -134,7 +144,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 				}
 			}
 
-			if *entry.GetMedia().GetStatus() == anilist.MediaStatusNotYetReleased {
+			if entry.GetMedia().GetStatus() == nil || *entry.GetMedia().GetStatus() == anilist.MediaStatusNotYetReleased {
 				return
 			}
 
@@ -159,6 +169,8 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 				}
 			}
 
+			mediaWrapper := opts.MetadataProviderRef.Get().GetAnimeMetadataWrapper(entry.Media, animeMetadata)
+
 			// Add the anime & episode
 			episode := anime.NewEpisode(&anime.NewEpisodeOptions{
 				LocalFile:            nil,
@@ -168,6 +180,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 				ProgressOffset:       progressOffset,
 				IsDownloaded:         false,
 				MetadataProvider:     r.metadataProviderRef.Get(),
+				MetadataWrapper:      mediaWrapper,
 			})
 			if !found {
 				episode.EpisodeTitle = entry.GetMedia().GetPreferredTitle()

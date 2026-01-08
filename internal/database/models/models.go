@@ -524,7 +524,7 @@ type PluginData struct {
 }
 
 // +---------------------+
-// |   Custom Source    |
+// |    Custom Source    |
 // +---------------------+
 
 // CustomSourceCollection is parallel to the AniList collection, it stores custom source media.
@@ -539,6 +539,17 @@ type CustomSourceIdentifier struct {
 	BaseModel
 	ExtensionId string `gorm:"column:extension_id;index" json:"extensionId"`
 	Value       int    `gorm:"column:value;index" json:"value"`
+}
+
+// +---------------------+
+// |      Metadata       |
+// +---------------------+
+
+type MediaMetadataParent struct {
+	BaseModel
+	MediaId       int `gorm:"column:media_id;index" json:"mediaId"`
+	ParentId      int `gorm:"column:parent_id;index" json:"parentId"`
+	SpecialOffset int `gorm:"column:special_offset" json:"specialOffset"`
 }
 
 ///////////////////////////////////////////////////////////////////////////

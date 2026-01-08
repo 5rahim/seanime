@@ -30,7 +30,9 @@ import (
 func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 	defer util.HandlePanicInModuleWithError("extension_repo/loadPluginExtension", &err)
 
-	_, gojaExt, err := NewGojaPlugin(ext, ext.Language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
+	_, gojaExt, err := NewGojaPlugin(ext, ext.Language, r.logger, r.gojaRuntimeManager, r.wsEventManager, func(reason string) {
+		r.invalidateExtension(ext.ID, reason)
+	})
 	if err != nil {
 		return err
 	}
@@ -118,6 +120,7 @@ func NewGojaPlugin(
 	mLogger *zerolog.Logger,
 	runtimeManager *goja_runtime.Manager,
 	wsEventManager events.WSEventManagerInterface,
+	onCrash func(reason string),
 ) (*GojaPlugin, GojaExtension, error) {
 	logger := lo.ToPtr(mLogger.With().Str("id", ext.ID).Logger())
 	defer util.HandlePanicInModuleThen("extension_repo/NewGojaPlugin", func() {
@@ -190,6 +193,7 @@ func NewGojaPlugin(
 		VM:        uiVM,
 		WSManager: wsEventManager,
 		Scheduler: p.scheduler,
+		OnCrash:   onCrash,
 	})
 
 	go func() {

@@ -575,10 +575,11 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 			}
 			// Get the simple entry (made without metadata)
 			simpleEntry, err := anime.NewSimpleEntry(context.Background(), &anime.NewSimpleAnimeEntryOptions{
-				MediaId:         entry.Media.ID,
-				LocalFiles:      lfs,
-				AnimeCollection: animeCollection,
-				PlatformRef:     q.manager.anilistPlatformRef,
+				MediaId:             entry.Media.ID,
+				LocalFiles:          lfs,
+				AnimeCollection:     animeCollection,
+				PlatformRef:         q.manager.anilistPlatformRef,
+				MetadataProviderRef: q.manager.metadataProviderRef,
 			})
 			if err != nil {
 				q.sendAnimeToFailedQueue(entry)

@@ -177,7 +177,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                             size="md"
                         />
                     </>}
-                    <AnimeEntryDropdownMenu entry={entry} />
+                    <AnimeEntryDropdownMenu entry={entry} details={details} />
 
 
                     {(

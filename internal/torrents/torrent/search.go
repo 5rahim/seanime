@@ -384,6 +384,8 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 		animeMetadata := opts.animeMetadata.MustGet()
 		_, foundEp := animeMetadata.FindEpisode(strconv.Itoa(opts.searchOpts.EpisodeNumber))
 
+		amw := r.metadataProviderRef.Get().GetAnimeMetadataWrapper(opts.media, animeMetadata)
+
 		if foundEp {
 			var episode *anime.Episode
 
@@ -398,6 +400,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 					ProgressOffset:       0,
 					IsDownloaded:         false,
 					MetadataProvider:     r.metadataProviderRef.Get(),
+					MetadataWrapper:      amw,
 				})
 				episode.IsInvalid = false
 
@@ -431,7 +434,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 				AbsoluteEpisodeNumber: 0,
 				LocalFile:             nil,
 				IsDownloaded:          false,
-				EpisodeMetadata:       anime.NewEpisodeMetadata(opts.animeMetadata.MustGet(), nil, opts.media, r.metadataProviderRef.Get()),
+				EpisodeMetadata:       anime.NewEpisodeMetadata(amw, nil, strconv.Itoa(opts.searchOpts.EpisodeNumber), opts.media),
 				FileMetadata:          nil,
 				IsInvalid:             false,
 				MetadataIssue:         "",

@@ -4,10 +4,12 @@ import (
 	"regexp"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/database/db"
 	"seanime/internal/hook"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"strconv"
+	"strings"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
@@ -16,9 +18,15 @@ import (
 type (
 	AnimeWrapperImpl struct {
 		metadata   mo.Option[*metadata.AnimeMetadata]
+		db         *db.Database
 		baseAnime  *anilist.BaseAnime
 		fileCacher *filecache.Cacher
 		logger     *zerolog.Logger
+
+		provider *ProviderImpl
+
+		parentEntry         *metadata.AnimeMetadata
+		parentSpecialOffset int
 	}
 )
 
@@ -28,6 +36,15 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(ep string) (ret metadata.EpisodeM
 	}
 
 	epNumber, _ := ExtractEpisodeInteger(ep)
+
+	if aw.parentEntry != nil {
+		epAsSpecial := ep
+		if !strings.HasPrefix(ep, "S") {
+			epAsSpecial = "S" + ep
+		}
+		epAsSpecial = OffsetAnidbEpisode(epAsSpecial, aw.parentSpecialOffset)
+		ep = epAsSpecial
+	}
 
 	ret = metadata.EpisodeMetadata{
 		AnidbId:               0,
@@ -132,6 +149,9 @@ func ExtractEpisodeInteger(s string) (int, bool) {
 }
 
 func OffsetAnidbEpisode(s string, offset int) string {
+	if offset == 0 {
+		return s
+	}
 	pattern := "([0-9]+)"
 	regex := regexp.MustCompile(pattern)
 

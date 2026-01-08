@@ -31537,6 +31537,46 @@
   {
     "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
+    "name": "MediaMetadataParent",
+    "formattedName": "Models_MediaMetadataParent",
+    "package": "models",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ParentId",
+        "jsonName": "parentId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SpecialOffset",
+        "jsonName": "specialOffset",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
     "name": "StringSlice",
     "formattedName": "Models_StringSlice",
     "package": "models",
@@ -85678,10 +85718,8 @@
       {
         "name": "cache",
         "jsonName": "cache",
-        "goType": "sync.Map",
-        "typescriptType": "Map",
-        "usedTypescriptType": "Map",
-        "usedStructName": "sync.Map",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": false,
         "comments": []
@@ -87336,7 +87374,6 @@
         "\"get-text-tracks\"",
         "\"request-play-episode\"",
         "\"translated-text\"",
-        "\"translated-subtitle-track\"",
         "\"get-fullscreen\"",
         "\"get-pip\"",
         "\"get-anime-4k\"",

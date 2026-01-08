@@ -1110,10 +1110,13 @@ export function getDefaultSubtitleTrackNumber(
             const defaultIndex = foundTracks.findIndex(t => t.forced)
             return foundTracks[defaultIndex >= 0 ? defaultIndex : 0].number
         }
-        // if the preffered lang is more than 4 character, compare it to label
+        // if the preferred lang is more than 4 characters, compare it to label
         // this will find a language with label 'English - 1080p' if the preferred lang is 'english'
         if (preferredLang.length > 4) {
             foundTracks = tracks?.filter?.(t => t.label?.toLowerCase().includes(preferredLang.toLowerCase()))
+            if (foundTracks?.length) {
+                return foundTracks[0].number
+            }
         }
         if (preferredLang === "none") {
             return NO_TRACK_NUMBER

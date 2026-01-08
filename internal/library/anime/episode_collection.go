@@ -130,10 +130,10 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 	// causing NewEntryDownloadInfo to return a valid list of episodes to download
 	if info == nil || info.EpisodesToDownload == nil {
 		opts.Logger.Debug().Msg("torrentstream: no episodes found from AniDB, using AniList")
+		mediaWrapper := opts.MetadataProviderRef.Get().GetAnimeMetadataWrapper(opts.Media, nil)
 		for epIdx := range opts.Media.GetCurrentEpisodeCount() {
 			episodeNumber := epIdx + 1
 
-			mediaWrapper := opts.MetadataProviderRef.Get().GetAnimeMetadataWrapper(opts.Media, nil)
 			episodeMetadata := mediaWrapper.GetEpisodeMetadata(strconv.Itoa(episodeNumber))
 
 			episode := &Episode{
