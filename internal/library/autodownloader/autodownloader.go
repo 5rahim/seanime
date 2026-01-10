@@ -330,7 +330,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	// Get existing torrents
 	existingTorrents := make([]*torrent_client.Torrent, 0)
 	if ad.torrentClientRepository != nil {
-		existingTorrents, err = ad.torrentClientRepository.GetList()
+		existingTorrents, err = ad.torrentClientRepository.GetList(&torrent_client.GetListOptions{})
 		if err != nil {
 			existingTorrents = make([]*torrent_client.Torrent, 0)
 		}

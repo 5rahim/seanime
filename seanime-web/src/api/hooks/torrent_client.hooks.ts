@@ -8,13 +8,21 @@ import {
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { HibikeTorrent_AnimeTorrent, Nullish, TorrentClient_Torrent } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
+import React from "react"
 import { toast } from "sonner"
 
-export function useGetActiveTorrentList(enabled: boolean) {
+export function useGetActiveTorrentList(enabled: boolean, category: string, sort: string) {
+    const query = React.useMemo(() => {
+        if (!category && !sort) return ""
+        let q = "?"
+        if (category) q += `category=${category}&`
+        if (sort) q += `sort=${sort}`
+        return q
+    }, [category, sort])
     return useServerQuery<Array<TorrentClient_Torrent>>({
-        endpoint: API_ENDPOINTS.TORRENT_CLIENT.GetActiveTorrentList.endpoint,
+        endpoint: API_ENDPOINTS.TORRENT_CLIENT.GetActiveTorrentList.endpoint + query,
         method: API_ENDPOINTS.TORRENT_CLIENT.GetActiveTorrentList.methods[0],
-        queryKey: [API_ENDPOINTS.TORRENT_CLIENT.GetActiveTorrentList.key],
+        queryKey: [API_ENDPOINTS.TORRENT_CLIENT.GetActiveTorrentList.key, category, sort],
         refetchInterval: 1500,
         gcTime: 0,
         enabled: enabled,

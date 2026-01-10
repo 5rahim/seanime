@@ -10,6 +10,7 @@ import { PageWrapper } from "@/components/shared/page-wrapper"
 import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -145,13 +146,15 @@ function Content() {
                         </ul>
                     </div>
 
-                    {data?.filter(Boolean)?.map(torrent => {
-                        return <TorrentItem
-                            key={torrent.id}
-                            torrent={torrent}
-                        />
-                    })}
-                    {(!isLoading && !data?.length) && <LuffyError title="Nothing to see">No active torrents</LuffyError>}
+                    <Card className="p-0 overflow-hidden">
+                        {data?.filter(Boolean)?.map(torrent => {
+                            return <TorrentItem
+                                key={torrent.id}
+                                torrent={torrent}
+                            />
+                        })}
+                        {(!isLoading && !data?.length) && <LuffyError title="Nothing to see">No active torrents</LuffyError>}
+                    </Card>
                 </AppLayoutStack>
             </div>
         </>
@@ -217,25 +220,16 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending }: Torr
     }
 
     return (
-        <div className="p-4 border rounded-[--radius-md]  overflow-hidden relative flex gap-2">
-            <div className="absolute top-0 w-full h-1 z-[1] bg-gray-700 left-0">
-                <div
-                    className={cn(
-                        "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                        {
-                            "bg-green-300": torrent.status === "downloading",
-                            "bg-gray-500": torrent.status === "paused",
-                            "bg-blue-500": torrent.status === "seeding",
-                            "bg-gray-600": torrent.status === "completed",
-                            "bg-orange-800": torrent.status === "other",
-                        },
-                    )}
-                    style={{ width: `${String(Math.floor(torrent.completionPercentage))}%` }}
-                ></div>
-            </div>
+        <div
+            data-torrent-item-container className={cn(
+            "hover:bg-gray-900 hover:bg-opacity-70 px-4 py-3 relative flex gap-4 group/torrent-item",
+            torrent.status === "paused" && "bg-gray-900 hover:bg-gray-900",
+            torrent.status === "downloading" && "bg-green-900 bg-opacity-20 hover:hover:bg-opacity-30 hover:bg-green-900",
+        )}
+        >
             <div className="w-full">
                 <div
-                    className={cn({
+                    className={cn("group-hover/torrent-item:text-white", {
                         "opacity-50": torrent.status === "paused",
                     })}
                 >{torrent.name}</div>
@@ -250,31 +244,44 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending }: Torr
                         {torrent.eta}
                     </>}
                     {` - `}
-                    <span className="text-[--foreground]">
+                    <span className="text-[--muted]">
                         {formatDate(torrent.added, "yyyy-MM-dd HH:mm")}
                     </span>
                     {` - `}
                     <strong
                         className={cn(
+                            "text-sm",
                             torrent.status === "seeding" && "text-blue-300",
                             torrent.status === "completed" && "text-green-300",
                         )}
                     >{(torrent.status === "other" || !torrent.isReady) ? "" : capitalize(torrent.status)}</strong>
                 </div>
+                {torrent.status !== "seeding" && torrent.status !== "completed" &&
+                    <div data-torrent-item-progress-bar className="w-full h-1 mr-4 mt-2 relative z-[1] bg-gray-700 left-0 overflow-hidden rounded-xl">
+                        <div
+                            className={cn(
+                                "h-full absolute z-[2] left-0 bg-gray-200 transition-all",
+                                {
+                                    "bg-green-300": torrent.status === "downloading",
+                                    "bg-gray-500": torrent.status === "paused",
+                                    "bg-orange-800": torrent.status === "other",
+                                },
+                            )}
+                            style={{ width: `${String(torrent.completionPercentage)}%` }}
+                        ></div>
+                    </div>}
             </div>
             <div className="flex-none flex gap-2 items-center">
-                {(torrent.isReady && !progress) && <Button
-                    leftIcon={<FiDownload />}
+                {(torrent.isReady && !progress) && <IconButton
+                    icon={<FiDownload />}
                     size="sm"
-                    intent="white-subtle"
+                    intent="gray-subtle"
                     className="flex-none"
                     disabled={isDeleting || isCancelling}
                     onClick={() => {
                         setSelectedTorrentItem(torrent)
                     }}
-                >
-                    Download
-                </Button>}
+                />}
                 {(!!progress && progress.itemID === torrent.id) && <div className="flex gap-2 items-center">
                     <Tooltip
                         trigger={<p>

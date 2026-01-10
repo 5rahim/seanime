@@ -6,6 +6,7 @@ import (
 	"seanime/internal/goja/goja_bindings"
 	"seanime/internal/library/anime"
 	"seanime/internal/onlinestream"
+	"seanime/internal/torrent_clients/torrent_client"
 	gojautil "seanime/internal/util/goja"
 	"strconv"
 
@@ -41,7 +42,7 @@ func (a *AppContextImpl) BindTorrentClientToContextObj(vm *goja.Runtime, obj *go
 		}
 
 		go func() {
-			torrents, err := torrentClient.GetList()
+			torrents, err := torrentClient.GetList(&torrent_client.GetListOptions{})
 			scheduler.ScheduleAsync(func() error {
 				if err != nil {
 					reject(goja_bindings.NewErrorString(vm, "error getting torrents: "+err.Error()))
@@ -64,7 +65,7 @@ func (a *AppContextImpl) BindTorrentClientToContextObj(vm *goja.Runtime, obj *go
 		}
 
 		go func() {
-			activeTorrents, err := torrentClient.GetActiveTorrents()
+			activeTorrents, err := torrentClient.GetActiveTorrents(&torrent_client.GetListOptions{})
 			scheduler.ScheduleAsync(func() error {
 				if err != nil {
 					reject(goja_bindings.NewErrorString(vm, "error getting active torrents: "+err.Error()))

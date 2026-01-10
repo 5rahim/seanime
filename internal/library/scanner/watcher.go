@@ -84,7 +84,7 @@ func (w *Watcher) StartWatching(
 				}
 				//if event.Op&fsnotify.Write == fsnotify.Write {
 				//}
-				if strings.Contains(event.Name, ".part") || strings.Contains(event.Name, ".tmp") {
+				if strings.Contains(event.Name, ".part") || strings.Contains(event.Name, ".tmp") || strings.Contains(event.Name, ".DS_Store") {
 					continue
 				}
 				if event.Op&fsnotify.Create == fsnotify.Create {
