@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"path/filepath"
+	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"strconv"
@@ -179,6 +180,28 @@ func (h *Handler) HandleDeleteAutoDownloaderRule(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return h.RespondWithError(c, errors.New("invalid id"))
+	}
+
+	// -1 deletes all no longer airing
+	if id == -1 {
+		animeCollection, err := h.App.GetAnimeCollection(false)
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
+		rules, err := db_bridge.GetAutoDownloaderRules(h.App.Database)
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
+		for _, rule := range rules {
+			media, ok := animeCollection.FindAnime(rule.MediaId)
+			if !ok {
+				continue
+			}
+			if media.Status != nil && *media.Status == anilist.MediaStatusFinished {
+				_ = db_bridge.DeleteAutoDownloaderRule(h.App.Database, rule.DbID)
+			}
+		}
+		return h.RespondWithData(c, true)
 	}
 
 	if err := db_bridge.DeleteAutoDownloaderRule(h.App.Database, uint(id)); err != nil {

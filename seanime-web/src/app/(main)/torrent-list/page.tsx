@@ -232,7 +232,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
             <div data-torrent-item-title-container className="w-full">
                 <div
                     className={cn(
-                        "text-sm tracking-wide line-clamp-1 cursor-pointer hover:underline underline-offset-2",
+                        "text-sm tracking-wide line-clamp-1 cursor-pointer hover:underline underline-offset-2 break-all",
                         "group-hover/torrent-item:text-white",
                         { "opacity-50": torrent.status === "paused" })}
                     onClick={() => {

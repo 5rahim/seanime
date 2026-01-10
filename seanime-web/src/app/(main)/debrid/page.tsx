@@ -229,7 +229,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending }: Torr
         >
             <div className="w-full">
                 <div
-                    className={cn("group-hover/torrent-item:text-white", {
+                    className={cn("group-hover/torrent-item:text-white break-all", {
                         "opacity-50": torrent.status === "paused",
                     })}
                 >{torrent.name}</div>
