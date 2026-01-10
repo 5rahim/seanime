@@ -49,29 +49,41 @@ export function RecentReleases() {
                             <MediaEntryCard
                                 key={item.id}
                                 media={item?.media!}
-                                showLibraryBadge={false}
+                                showLibraryBadge
                                 containerClassName="basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0"
+                                hideReleasingBadge
                                 showTrailer
                                 type="anime"
-                                // overlay={<div className="flex flex-col w-fit bg-gray-950 pt-1 pb-2 px-2 !bg-opacity-80 rounded-br-lg">
+                                // overlay={<div className="flex flex-col w-fit">
                                 //     <div
-                                //         className="font-semibold text-white z-[1] w-fit text-center !bg-opacity-90 text-sm lg:text-base
-                                // rounded-none rounded-br-lg" >{item?.media?.format === "MOVIE" ? "Complete Movie" : <span>Episode
-                                // {item.episode}{item.media?.episodes && <span
-                                // className="text-[--muted]">/{item.media?.episodes}</span>}</span>}</div> <div className="text-xs font-semibold
-                                // opacity-70 z-[1] w-fit h-fit pt-1 text-center rounded-none rounded-br-lg"> {item.airingAt ?
-                                // formatDistanceToNow(addSeconds(new Date(), item.timeUntilAiring), { addSuffix: true }) ?.replace("about ", "") :
-                                // undefined} </div> </div>}
-                                overlay={<div className="flex flex-col w-fit">
+                                //         className="font-semibold text-white bg-gray-950 z-[1] px-2 w-full py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-br-lg"
+                                //     >{item?.media?.format === "MOVIE" ? "Movie" :
+                                //         <span className="tracking-wider">Ep<span className='opacity-60'>.</span> {item.episode}{item.media?.episodes &&
+                                //             <span className="text-[--muted] tracking-wider">/{item.media?.episodes}</span>}</span>}</div>
+                                //     <div className="text-xs font-semibold z-[-1] w-fit h-fit px-2 py-1 mr-2 text-center bg-gray-700 !bg-opacity-70 rounded-none rounded-br-lg">
+                                //         {item.airingAt
+                                //             ? formatDistanceToNow(addSeconds(new Date(), item.timeUntilAiring), { addSuffix: true, })
+                                //                 ?.replace("about ", "")?.replace(" minutes", "m")?.replace(" minute", "m")?.replace(" hours", "h")?.replace(" hour", "h")?.replace(" days", "d")
+                                //
+                                //             : undefined}
+                                //     </div>
+                                // </div>}
+                                overlay={<div className="flex flex-col w-fit absolute right-0 items-end">
                                     <div
-                                        className="font-semibold text-white bg-gray-950 z-[1] w-fit px-3 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-br-lg"
-                                    >{item?.media?.format === "MOVIE" ? "Complete Movie" :
-                                        <span>Episode {item.episode}{item.media?.episodes &&
-                                            <span className="text-[--muted]">/{item.media?.episodes}</span>}</span>}</div>
-                                    <div className="text-xs font-semibold z-[-1] w-fit h-fit px-2 py-1 text-center bg-gray-700 !bg-opacity-70 rounded-none rounded-br-lg">
+                                        className="font-semibold text-white bg-gray-950 z-[1] px-3 w-full py-1.5 text-center !tracking-wider !bg-opacity-80 rounded-none rounded-bl-lg"
+                                    >{item?.media?.format === "MOVIE" ? "Movie" :
+                                        <span className="tracking-wider"><span className="!text-lg">{item.episode}</span><span className="text-[--muted] tracking-wider !text-md">/{item.media?.episodes ?? "-"}</span></span>}</div>
+                                    <div className="text-xs font-semibold z-[-1] w-fit h-fit px-2 py-1 ml-2 text-center bg-gray-700 !bg-opacity-70 rounded-none rounded-bl-lg">
                                         {item.airingAt
                                             ? formatDistanceToNow(addSeconds(new Date(), item.timeUntilAiring), { addSuffix: true })
                                                 ?.replace("about ", "")
+                                                ?.replace(" minutes", "m")
+                                                ?.replace(" minute", "m")
+                                                ?.replace(" hours", "h")
+                                                ?.replace(" hour", "h")
+                                                ?.replace(" days", "d")
+                                                ?.replace("less than am ago", "now")
+
                                             : undefined}
                                     </div>
                                 </div>}

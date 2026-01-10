@@ -2,10 +2,11 @@ package debrid_client
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func PrintPathStructure(path string, indent string) error {
@@ -36,7 +37,7 @@ func TestCreateTempDir(t *testing.T) {
 		"/12345/Anime/Ep2.mkv",
 	}
 
-	root := "./root"
+	root := t.TempDir()
 	for _, file := range files {
 		path := filepath.Join(root, file)
 		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
@@ -155,12 +156,21 @@ func TestMoveContentsTo(t *testing.T) {
 			expected:  "./dest/[SubsPlease] Bocchi the Rock! - 01 (1080p) [E04F4EFB].mkv",
 			expectErr: false,
 		},
+		{
+			name: "Case 12",
+			files: []string{
+				"/tmp/.tmp-123456/[EMBER] Tsue to Tsurugi no Wistoria - 01.mkv",
+			},
+			dest:      "./dest",
+			expected:  "./dest/[EMBER] Tsue to Tsurugi no Wistoria - 01.mkv",
+			expectErr: false,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create the source directory structure
-			root := "./root"
+			root := t.TempDir()
 			for _, file := range tt.files {
 				path := filepath.Join(root, file)
 				if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
@@ -170,30 +180,27 @@ func TestMoveContentsTo(t *testing.T) {
 					t.Fatalf("failed to create file %s: %v", path, err)
 				}
 			}
-			defer os.RemoveAll(root) // Cleanup temp dir after test
 
 			PrintPathStructure(root, "")
 			println("-----------------------------")
 
 			// Create the destination directory
-			if err := os.MkdirAll(tt.dest, 0755); err != nil {
-				t.Fatalf("failed to create dest directory: %v", err)
-			}
-			defer os.RemoveAll(tt.dest) // Cleanup dest after test
+			dest := t.TempDir()
 
 			// Move the contents
-			err := moveContentsTo(root, tt.dest)
+			err := moveContentsTo(root, dest)
 
 			if (err != nil) != tt.expectErr {
 				t.Errorf("unexpected error: %v", err)
 			}
 
 			if !tt.expectErr {
-				if _, err := os.Stat(tt.expected); os.IsNotExist(err) {
-					t.Errorf("expected directory or file does not exist: %s", tt.expected)
+				expected := filepath.Join(dest, filepath.Base(tt.expected))
+				if _, err := os.Stat(expected); os.IsNotExist(err) {
+					t.Errorf("expected directory or file does not exist: %s", expected)
 				}
 
-				PrintPathStructure(tt.dest, "")
+				PrintPathStructure(dest, "")
 			}
 		})
 	}
