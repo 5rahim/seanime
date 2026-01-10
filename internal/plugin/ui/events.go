@@ -27,6 +27,7 @@ const (
 	ClientWebviewMountedEvent                          ClientEventType = "webview:mounted"
 	ClientWebviewLoadedEvent                           ClientEventType = "webview:loaded"
 	ClientWebviewUnmountedEvent                        ClientEventType = "webview:unmounted"
+	ClientWebviewPostMessageEvent                      ClientEventType = "webview:post-message"
 	ClientListCommandPalettesEvent                     ClientEventType = "command-palette:list"                          // When the client wants to list all command palettes
 	ClientCommandPaletteOpenedEvent                    ClientEventType = "command-palette:opened"                        // When the client opens the command palette
 	ClientCommandPaletteClosedEvent                    ClientEventType = "command-palette:closed"                        // When the client closes the command palette
@@ -71,6 +72,11 @@ type ClientWebviewLoadedEventPayload struct {
 }
 type ClientWebviewUnmountedEventPayload struct {
 	Slot string `json:"slot"`
+}
+type ClientWebviewPostMessageEventPayload struct {
+	Slot      string      `json:"slot"`
+	EventName string      `json:"eventName"`
+	Event     interface{} `json:"event"`
 }
 type ClientActionRenderAnimePageButtonsEventPayload struct{}
 type ClientActionRenderAnimePageDropdownItemsEventPayload struct{}

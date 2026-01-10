@@ -240,7 +240,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	}
 
 	ad.mu.Lock()
-	if ad.torrentRepository == nil || !ad.settings.Enabled || ad.settings.Provider == "" || ad.settings.Provider == torrent.ProviderNone {
+	if ad.torrentRepository == nil || !ad.settings.Enabled || ad.settings.Provider == torrent.ProviderNone {
 		ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. AutoDownloader is not enabled or provider is not set.")
 		ad.mu.Unlock()
 		return

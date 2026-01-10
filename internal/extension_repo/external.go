@@ -815,7 +815,7 @@ func (r *Repository) invalidateExtension(id string, reason string) {
 		Code:      extension.InvalidExtensionPayloadError,
 		Extension: *ext.GetExtension(),
 	})
-	r.logger.Error().Msg("extensions: Invalidated extension")
+	r.logger.Warn().Str("id", id).Msg("extensions: Invalidated extension")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

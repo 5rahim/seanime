@@ -2,6 +2,7 @@
 import { useGetMangaEntry, useGetMangaEntryDetails } from "@/api/hooks/manga.hooks"
 import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
+import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
 import { MetaSection } from "@/app/(main)/manga/_components/meta-section"
 import { ChapterList } from "@/app/(main)/manga/_containers/chapter-list/chapter-list"
@@ -90,7 +91,11 @@ export default function Page() {
                         </div>
                     </div>
 
+                    <PluginWebviewSlot slot="after-manga-entry-chapter-list" />
+
                     <MangaRecommendations entry={mangaEntry} details={mangaDetails} />
+
+                    <PluginWebviewSlot slot="manga-entry-screen-bottom" />
 
                 </PageWrapper>
             </div>

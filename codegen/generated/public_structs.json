@@ -26459,6 +26459,17 @@
         "comments": []
       },
       {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "baseAnime",
         "jsonName": "baseAnime",
         "goType": "anilist.BaseAnime",
@@ -26488,6 +26499,37 @@
         "usedTypescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "provider",
+        "jsonName": "provider",
+        "goType": "ProviderImpl",
+        "typescriptType": "ProviderImpl",
+        "usedTypescriptType": "ProviderImpl",
+        "usedStructName": "metadata_provider.ProviderImpl",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "parentEntry",
+        "jsonName": "parentEntry",
+        "goType": "metadata.AnimeMetadata",
+        "typescriptType": "Metadata_AnimeMetadata",
+        "usedTypescriptType": "Metadata_AnimeMetadata",
+        "usedStructName": "metadata.AnimeMetadata",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "parentSpecialOffset",
+        "jsonName": "parentSpecialOffset",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": false,
         "comments": []
       }
@@ -44965,6 +45007,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "MetadataProviderRef",
+        "jsonName": "MetadataProviderRef",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -45222,6 +45273,15 @@
         "comments": [
           " Indicates if the episode has a real image"
         ]
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -45264,6 +45324,17 @@
         "typescriptType": "AL_BaseAnime",
         "usedTypescriptType": "AL_BaseAnime",
         "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataWrapper",
+        "jsonName": "MetadataWrapper",
+        "goType": "metadata_provider.AnimeMetadataWrapper",
+        "typescriptType": "AnimeMetadataWrapper",
+        "usedTypescriptType": "AnimeMetadataWrapper",
+        "usedStructName": "metadata_provider.AnimeMetadataWrapper",
         "required": false,
         "public": true,
         "comments": []
@@ -45346,6 +45417,17 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataWrapper",
+        "jsonName": "MetadataWrapper",
+        "goType": "metadata_provider.AnimeMetadataWrapper",
+        "typescriptType": "AnimeMetadataWrapper",
+        "usedTypescriptType": "AnimeMetadataWrapper",
+        "usedStructName": "metadata_provider.AnimeMetadataWrapper",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -71529,6 +71611,17 @@
         "comments": []
       },
       {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "closeOnce",
         "jsonName": "closeOnce",
         "goType": "sync.Once",
@@ -71853,6 +71946,7 @@
         "\"webview:mounted\"",
         "\"webview:loaded\"",
         "\"webview:unmounted\"",
+        "\"webview:post-message\"",
         "\"command-palette:list\"",
         "\"command-palette:opened\"",
         "\"command-palette:closed\"",
@@ -72029,6 +72123,43 @@
         "jsonName": "slot",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientWebviewPostMessageEventPayload",
+    "formattedName": "PluginUI_ClientWebviewPostMessageEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Slot",
+        "jsonName": "slot",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EventName",
+        "jsonName": "eventName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Event",
+        "jsonName": "event",
+        "goType": "",
+        "typescriptType": "any",
         "required": true,
         "public": true,
         "comments": []
@@ -74356,6 +74487,15 @@
         "comments": []
       },
       {
+        "name": "onCrash",
+        "jsonName": "onCrash",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "lastException",
         "jsonName": "lastException",
         "goType": "string",
@@ -74459,6 +74599,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "OnCrash",
+        "jsonName": "OnCrash",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -74498,7 +74647,19 @@
       "declaredValues": [
         "\"screen\"",
         "\"fixed\"",
-        "\"after-home-screen-toolbar\""
+        "\"after-home-screen-toolbar\"",
+        "\"home-screen-bottom\"",
+        "\"schedule-screen-top\"",
+        "\"schedule-screen-bottom\"",
+        "\"anime-screen-bottom\"",
+        "\"after-anime-entry-episode-list\"",
+        "\"before-anime-entry-episode-list\"",
+        "\"manga-screen-bottom\"",
+        "\"manga-entry-screen-bottom\"",
+        "\"after-manga-entry-chapter-list\"",
+        "\"after-discover-screen-header\"",
+        "\"after-media-entry-details\"",
+        "\"after-media-entry-form\""
       ]
     },
     "comments": []

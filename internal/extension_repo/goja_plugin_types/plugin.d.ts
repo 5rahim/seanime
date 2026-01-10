@@ -322,7 +322,22 @@ declare namespace $ui {
     }
 
     interface WebviewOptions {
-        slot: "fixed" | "screen" | "after-home-screen-toolbar"
+        slot: "screen" |
+            "fixed" |
+            "after-home-screen-toolbar" |
+            "home-screen-bottom" |
+            "schedule-screen-top" |
+            "schedule-screen-bottom" |
+            "anime-screen-bottom" |
+            "after-anime-entry-episode-list" |
+            "after-anime-episode-list" |
+            "before-anime-entry-episode-list" |
+            "manga-screen-bottom" |
+            "manga-entry-screen-bottom" |
+            "after-manga-entry-chapter-list" |
+            "after-discover-screen-header" |
+            "after-media-entry-details" |
+            "after-media-entry-form"
 
         // Styling options
         className?: string
@@ -375,6 +390,7 @@ declare namespace $ui {
          * @param state
          */
         sync(eventName: string, state: State<any> | ReadOnlyState<any>): void
+
         /**
          * Registers an event listener for messages from the webview.
          * @example
@@ -385,6 +401,7 @@ declare namespace $ui {
          * @param cb
          */
         on(eventName: string, cb: (payload: any) => void): void
+
         /**
          * Sends a message to the webview.
          * @example

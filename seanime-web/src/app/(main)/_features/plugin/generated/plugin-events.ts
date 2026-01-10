@@ -12,6 +12,7 @@ export enum PluginClientEvents {
     WebviewMounted = "webview:mounted",
     WebviewLoaded = "webview:loaded",
     WebviewUnmounted = "webview:unmounted",
+    WebviewPostMessage = "webview:post-message",
     ListCommandPalettes = "command-palette:list",
     CommandPaletteOpened = "command-palette:opened",
     CommandPaletteClosed = "command-palette:closed",
@@ -221,6 +222,24 @@ export function usePluginSendWebviewUnmountedEvent() {
 
     return {
         sendWebviewUnmountedEvent,
+    }
+}
+
+export type Plugin_Client_WebviewPostMessageEventPayload = {
+    slot: string
+    eventName: string
+    event: any
+}
+
+export function usePluginSendWebviewPostMessageEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendWebviewPostMessageEvent = useCallback((payload: Plugin_Client_WebviewPostMessageEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.WebviewPostMessage, payload, extensionID)
+    }, [])
+
+    return {
+        sendWebviewPostMessageEvent,
     }
 }
 

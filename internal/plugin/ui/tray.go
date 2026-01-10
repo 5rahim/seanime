@@ -203,6 +203,7 @@ func (t *Tray) jsRender(call goja.FunctionCall) goja.Value {
 	funcRes, ok := call.Argument(0).Export().(func(goja.FunctionCall) goja.Value)
 	if !ok {
 		t.trayManager.ctx.handleTypeError("render requires a function")
+		return goja.Undefined()
 	}
 
 	// Set the render function
@@ -220,6 +221,7 @@ func (t *Tray) jsHtm(call goja.FunctionCall) goja.Value {
 	funcRes, ok := call.Argument(0).Export().(func(goja.FunctionCall) goja.Value)
 	if !ok {
 		t.trayManager.ctx.handleTypeError("htm requires a function")
+		return goja.Undefined()
 	}
 
 	// Create a wrapper function that parses the HTM string and returns components
@@ -295,11 +297,13 @@ func (t *Tray) jsUpdateBadge(call goja.FunctionCall) goja.Value {
 	propsObj, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
 		t.trayManager.ctx.handleTypeError("updateBadge requires a callback function")
+		return goja.Undefined()
 	}
 
 	number, ok := propsObj["number"].(int64)
 	if !ok {
 		t.trayManager.ctx.handleTypeError("updateBadge: number must be an integer")
+		return goja.Undefined()
 	}
 
 	intent, ok := propsObj["intent"].(string)
@@ -331,6 +335,7 @@ func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
 		t.trayManager.ctx.handleTypeError("onOpen requires a callback function")
+		return goja.Undefined()
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayOpenedEvent)
@@ -365,6 +370,7 @@ func (t *Tray) jsOnClick(call goja.FunctionCall) goja.Value {
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
 		t.trayManager.ctx.handleTypeError("onClick requires a callback function")
+		return goja.Undefined()
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayClickedEvent)
@@ -399,6 +405,7 @@ func (t *Tray) jsOnClose(call goja.FunctionCall) goja.Value {
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
 		t.trayManager.ctx.handleTypeError("onClose requires a callback function")
+		return goja.Undefined()
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayClosedEvent)

@@ -7,9 +7,9 @@ import {
     usePluginListenWebviewIframeEvent,
     usePluginListenWebviewShowEvent,
     usePluginListenWebviewSyncStateEvent,
-    usePluginSendEventHandlerTriggeredEvent,
     usePluginSendWebviewLoadedEvent,
     usePluginSendWebviewMountedEvent,
+    usePluginSendWebviewPostMessageEvent,
     usePluginSendWebviewUnmountedEvent,
 } from "@/app/(main)/_features/plugin/generated/plugin-events"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -167,7 +167,7 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
 
     const { sendWebviewMountedEvent } = usePluginSendWebviewMountedEvent()
     const { sendWebviewUnmountedEvent } = usePluginSendWebviewUnmountedEvent()
-    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
+    const { sendWebviewPostMessageEvent } = usePluginSendWebviewPostMessageEvent()
     const isMainTab = useIsMainTab()
     const isMainTabRef = useIsMainTabRef()
     const previousMainTab = React.useRef(isMainTabRef.current)
@@ -270,15 +270,16 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
                 event: data.event,
             })
 
-            sendEventHandlerTriggeredEvent({
-                handlerName: data.event,
+            sendWebviewPostMessageEvent({
+                slot: webview.slot,
+                eventName: data.event,
                 event: data.payload || {},
             }, webview.extensionId)
         }
 
         window.addEventListener("message", handleMessage)
         return () => window.removeEventListener("message", handleMessage)
-    }, [slot, sendEventHandlerTriggeredEvent])
+    }, [slot])
 
     useUnmount(() => {
         iframeWebviews.clear()
@@ -295,7 +296,7 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
             })
             // setTimeout(() => {
             //     sendWebviewMountedEvent({ slot: slot })
-            // }, 0)
+            // }, 500)
         },
     })
 
@@ -631,6 +632,7 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
     return (
         <div
             className={options.className}
+            data-webview-container={webview.webviewId}
             style={{
                 ...(webview.slot === "fixed" ? {
                     position: "fixed",
@@ -638,7 +640,8 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
                     top: position.y,
                     zIndex: options.zIndex || (webview.slot === "fixed" ? 100 : 5),
                 } : {
-                    display: "contents",
+                    display: "block",
+                    width: "100%",
                 }),
             }}
         >

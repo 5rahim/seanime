@@ -3,6 +3,7 @@ import { useRefetchMangaChapterContainers } from "@/api/hooks/manga.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
+import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { SeaCommandInjectableItem, useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { seaCommand_compareMediaTitles } from "@/app/(main)/_features/sea-command/utils"
 import { __mangaLibraryHeaderImageAtom, __mangaLibraryHeaderMangaAtom } from "@/app/(main)/manga/_components/library-header"
@@ -17,7 +18,7 @@ import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { useDebounce } from "@/hooks/use-debounce"
 import { getMangaCollectionTitle } from "@/lib/server/utils"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { useSetAtom } from "jotai/index"
+import { useSetAtom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import { AnimatePresence } from "motion/react"
 import Link from "next/link"
@@ -104,6 +105,8 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
                         />
                     }
                 </AnimatePresence>
+
+                <PluginWebviewSlot slot="manga-screen-bottom" />
             </PageWrapper>
         </>
     )

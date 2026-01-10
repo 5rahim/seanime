@@ -193,7 +193,7 @@ func (u *UI) Register(callback string) error {
 	u.context.actionManager.renderEpisodeGridItemMenuItems()
 	u.context.commandPaletteManager.renderCommandPaletteScheduled()
 	u.context.commandPaletteManager.sendInfoToClient()
-	u.context.webviewManager.renderWebviewScheduled()
+	//u.context.webviewManager.renderWebviewScheduled()
 	u.context.webviewManager.renderWebviewIframeScheduled()
 	u.context.webviewManager.renderWebviewSidebar()
 

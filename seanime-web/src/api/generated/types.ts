@@ -1505,6 +1505,7 @@ export type Anime_EpisodeMetadata = {
      * Indicates if the episode has a real image
      */
     hasImage?: boolean
+    title?: string
 }
 
 /**
@@ -4319,7 +4320,21 @@ export type PluginUI_WebviewSidebarOptions = {
  * - Filename: webview.go
  * - Package: plugin_ui
  */
-export type PluginUI_WebviewSlot = "screen" | "fixed" | "after-home-screen-toolbar"
+export type PluginUI_WebviewSlot = "screen" |
+    "fixed" |
+    "after-home-screen-toolbar" |
+    "home-screen-bottom" |
+    "schedule-screen-top" |
+    "schedule-screen-bottom" |
+    "anime-screen-bottom" |
+    "after-anime-entry-episode-list" |
+    "before-anime-entry-episode-list" |
+    "manga-screen-bottom" |
+    "manga-entry-screen-bottom" |
+    "after-manga-entry-chapter-list" |
+    "after-discover-screen-header" |
+    "after-media-entry-details" |
+    "after-media-entry-form"
 
 /**
  * - Filepath: internal/plugin/ui/webview.go

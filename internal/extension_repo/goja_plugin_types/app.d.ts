@@ -3098,6 +3098,7 @@ declare namespace $app {
          * Indicates if the episode has a real image
          */
         hasImage?: boolean;
+        title?: string;
     }
 
     /**

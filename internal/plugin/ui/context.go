@@ -94,6 +94,7 @@ type Context struct {
 
 type StateSubscriber struct {
 	Chan      chan *State
+	closed    atomic.Bool
 	closeOnce sync.Once
 }
 
@@ -1120,6 +1121,7 @@ func (c *Context) jsfieldRef(call goja.FunctionCall) goja.Value {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (s *StateSubscriber) Close() {
+	s.closed.Store(true)
 	s.closeOnce.Do(func() {
 		close(s.Chan)
 	})
@@ -1143,6 +1145,9 @@ func (c *Context) publishStateUpdate(id string) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	c.stateSubscribers.Range(func(_ string, sub *StateSubscriber) bool {
+		if sub.closed.Load() {
+			return true
+		}
 		select {
 		case sub.Chan <- state:
 		default:
@@ -1298,8 +1303,9 @@ func (c *Context) Stop() {
 
 	// Stop all state subscribers
 	c.logger.Trace().Msg("plugin: Stopping state subscribers")
-	c.stateSubscribers.Range(func(_ string, sub *StateSubscriber) bool {
+	c.stateSubscribers.Range(func(id string, sub *StateSubscriber) bool {
 		sub.Close()
+		c.stateSubscribers.Delete(id)
 		return true
 	})
 

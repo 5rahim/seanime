@@ -18,10 +18,26 @@ const (
 	// The webview is rendered above all elements
 	FixedSlot WebviewSlot = "fixed"
 	// The webview is rendered after the home screen toolbar
-	AfterHomeScreenToolbar WebviewSlot = "after-home-screen-toolbar"
+	AfterHomeScreenToolbarSlot      WebviewSlot = "after-home-screen-toolbar"
+	HomeScreenBottomSlot            WebviewSlot = "home-screen-bottom"
+	ScheduleScreenTopSlot           WebviewSlot = "schedule-screen-top"
+	ScheduleScreenBottomSlot        WebviewSlot = "schedule-screen-bottom"
+	AnimeEntryScreenBottomSlot      WebviewSlot = "anime-screen-bottom"
+	AfterAnimeEntryEpisodeListSlot  WebviewSlot = "after-anime-entry-episode-list"
+	BeforeAnimeEntryEpisodeListSlot WebviewSlot = "before-anime-entry-episode-list"
+	MangaScreenBottomSlot           WebviewSlot = "manga-screen-bottom"
+	MangaEntryScreenBottomSlot      WebviewSlot = "manga-entry-screen-bottom"
+	AfterMangaEntryChapterListSlot  WebviewSlot = "after-manga-entry-chapter-list"
+	AfterDiscoverScreenHeaderSlot   WebviewSlot = "after-discover-screen-header"
+	AfterMediaEntryDetailsSlot      WebviewSlot = "after-media-entry-details"
+	AfterMediaEntryFormSlot         WebviewSlot = "after-media-entry-form"
 )
 
-var WebviewSlots = []WebviewSlot{ScreenSlot, FixedSlot, AfterHomeScreenToolbar}
+var WebviewSlots = []WebviewSlot{
+	ScreenSlot, FixedSlot, AfterHomeScreenToolbarSlot, HomeScreenBottomSlot, ScheduleScreenTopSlot, ScheduleScreenBottomSlot,
+	AnimeEntryScreenBottomSlot, AfterAnimeEntryEpisodeListSlot, BeforeAnimeEntryEpisodeListSlot, MangaScreenBottomSlot,
+	MangaEntryScreenBottomSlot, AfterMangaEntryChapterListSlot, AfterDiscoverScreenHeaderSlot, AfterMediaEntryDetailsSlot, AfterMediaEntryFormSlot,
+}
 
 type WebviewManager struct {
 	ctx         *Context
@@ -63,11 +79,11 @@ func (t *WebviewManager) renderWebviewScheduled(slots ...WebviewSlot) {
 	for _, slot := range slots {
 		webview, ok := t.webviews.Get(slot)
 		if !ok {
-			return
+			continue
 		}
 
 		if webview.renderFunc == nil {
-			return
+			continue
 		}
 
 		// Make sure it's mounted
@@ -78,7 +94,7 @@ func (t *WebviewManager) renderWebviewScheduled(slots ...WebviewSlot) {
 		// Ignore if it's not mounted
 		// renderWebviewScheduled can be called without slots, in this case it will render already mounted webviews
 		if !webview.mounted.Load() {
-			return
+			continue
 		}
 
 		webview.lastUpdatedAt = time.Now()
@@ -115,11 +131,11 @@ func (t *WebviewManager) renderWebviewIframeScheduled(slots ...WebviewSlot) {
 	for _, slot := range slots {
 		webview, ok := t.webviews.Get(slot)
 		if !ok {
-			return
+			continue
 		}
 
 		if webview.contentFunc == nil {
-			return
+			continue
 		}
 
 		webview.lastUpdatedAt = time.Now()
@@ -440,6 +456,7 @@ func (w *Webview) jsSetContent(call goja.FunctionCall) goja.Value {
 	funcRes, ok := call.Argument(0).Export().(func(goja.FunctionCall) goja.Value)
 	if !ok {
 		w.webviewManager.ctx.handleTypeError("render requires a function")
+		return goja.Undefined()
 	}
 
 	// Set the render function
@@ -458,6 +475,7 @@ func (w *Webview) jsRender(call goja.FunctionCall) goja.Value {
 	funcRes, ok := call.Argument(0).Export().(func(goja.FunctionCall) goja.Value)
 	if !ok {
 		w.webviewManager.ctx.handleTypeError("render requires a function")
+		return goja.Undefined()
 	}
 
 	// Set the render function
@@ -494,6 +512,7 @@ func (w *Webview) jsSetOptions(call goja.FunctionCall) goja.Value {
 	propsObj, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
 		w.webviewManager.ctx.handleTypeError("setOptions requires an options object")
+		return goja.Undefined()
 	}
 
 	// Update options
@@ -598,6 +617,7 @@ func (w *Webview) jsOnMount(call goja.FunctionCall) goja.Value {
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
 		w.webviewManager.ctx.handleTypeError("onMount requires a callback function")
+		return goja.Undefined()
 	}
 
 	eventListener := w.webviewManager.ctx.RegisterEventListener(ClientWebviewMountedEvent)
@@ -627,6 +647,7 @@ func (w *Webview) jsOnLoad(call goja.FunctionCall) goja.Value {
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
 		w.webviewManager.ctx.handleTypeError("onLoad requires a callback function")
+		return goja.Undefined()
 	}
 
 	eventListener := w.webviewManager.ctx.RegisterEventListener(ClientWebviewLoadedEvent)
@@ -656,6 +677,7 @@ func (w *Webview) jsOnUnmount(call goja.FunctionCall) goja.Value {
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
 		w.webviewManager.ctx.handleTypeError("onUnmount requires a callback function")
+		return goja.Undefined()
 	}
 
 	eventListener := w.webviewManager.ctx.RegisterEventListener(ClientWebviewUnmountedEvent)
@@ -697,16 +719,19 @@ func (c *WebviewChannel) jsSync(call goja.FunctionCall) goja.Value {
 	key, ok := call.Argument(0).Export().(string)
 	if !ok {
 		c.webview.webviewManager.ctx.handleTypeError("sync: first argument must be a string key")
+		return goja.Undefined()
 	}
 
 	stateObj := call.Argument(1).ToObject(c.webview.webviewManager.ctx.vm)
 	if stateObj == nil {
 		c.webview.webviewManager.ctx.handleTypeError("sync: second argument must be a state object")
+		return goja.Undefined()
 	}
 
 	stateIDVal := stateObj.Get("__stateId")
 	if stateIDVal == nil {
 		c.webview.webviewManager.ctx.handleTypeError("sync: state object must have an id")
+		return goja.Undefined()
 	}
 
 	stateID := stateIDVal.String()
@@ -718,6 +743,7 @@ func (c *WebviewChannel) jsSync(call goja.FunctionCall) goja.Value {
 	state, ok := c.webview.webviewManager.ctx.states.Get(stateID)
 	if !ok {
 		c.webview.webviewManager.ctx.handleTypeError("sync: state not found")
+		return goja.Undefined()
 	}
 
 	// Send initial value
@@ -743,8 +769,19 @@ func (c *WebviewChannel) jsSync(call goja.FunctionCall) goja.Value {
 			state, ok := c.webview.webviewManager.ctx.states.Get(stateID)
 			if !ok {
 				c.webview.webviewManager.ctx.handleTypeError("sync: state not found")
+				return
 			}
 			c.sendStateToWebview(key, state.Value.Export())
+			// send the value again just in case
+			go func() {
+				state, ok := c.webview.webviewManager.ctx.states.Get(stateID)
+				if !ok {
+					c.webview.webviewManager.ctx.handleTypeError("sync: state not found")
+					return
+				}
+				time.Sleep(1000 * time.Millisecond)
+				c.sendStateToWebview(key, state.Value.Export())
+			}()
 		}
 	})
 
@@ -766,20 +803,22 @@ func (c *WebviewChannel) jsOn(call goja.FunctionCall) goja.Value {
 	eventName, ok := call.Argument(0).Export().(string)
 	if !ok {
 		c.webview.webviewManager.ctx.handleTypeError("on: first argument must be a string event name")
+		return goja.Undefined()
 	}
 
 	callback, ok := goja.AssertFunction(call.Argument(1))
 	if !ok {
 		c.webview.webviewManager.ctx.handleTypeError("on: second argument must be a callback function")
+		return goja.Undefined()
 	}
 
 	// Register event handler to listen for messages from the webview
-	eventListener := c.webview.webviewManager.ctx.RegisterEventListener(ClientEventHandlerTriggeredEvent)
+	eventListener := c.webview.webviewManager.ctx.RegisterEventListener(ClientWebviewPostMessageEvent)
 
 	eventListener.SetCallback(func(event *ClientPluginEvent) {
 		// Parse the payload
-		var payload ClientEventHandlerTriggeredEventPayload
-		if event.ParsePayloadAs(ClientEventHandlerTriggeredEvent, &payload) && payload.HandlerName == eventName {
+		var payload ClientWebviewPostMessageEventPayload
+		if event.ParsePayloadAs(ClientWebviewPostMessageEvent, &payload) && payload.Slot == string(c.webview.Slot) && payload.EventName == eventName {
 			c.webview.webviewManager.ctx.scheduler.ScheduleAsync(func() error {
 				_, err := callback(goja.Undefined(), c.webview.webviewManager.ctx.vm.ToValue(payload.Event))
 				if err != nil {
@@ -806,6 +845,7 @@ func (c *WebviewChannel) jsSend(call goja.FunctionCall) goja.Value {
 	key, ok := call.Argument(0).Export().(string)
 	if !ok {
 		c.webview.webviewManager.ctx.handleTypeError("send: first argument must be a string key")
+		return goja.Undefined()
 	}
 
 	value := call.Argument(1).Export()
