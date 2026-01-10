@@ -106,7 +106,6 @@ export function DiscoverTrending() {
             <CarouselContent className="px-6">
                 {!isLoading ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
-
                         <MediaEntryCard
                             key={media.id}
                             media={media}
