@@ -11,6 +11,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextArrayField } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CloseButton, IconButton } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Combobox } from "@/components/ui/combobox"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
@@ -58,10 +59,14 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
         return userMedia ?? []
     }, [userMedia])
 
+    const [showReleasingOnly, setShowReleasingOnly] = React.useState(true)
+
     const notFinishedMedia = React.useMemo(() => {
-        // return allMedia.filter(media => media.status !== "FINISHED")
+        if (showReleasingOnly) {
+            return allMedia.filter(media => media.status !== "FINISHED")
+        }
         return allMedia
-    }, [allMedia])
+    }, [allMedia, showReleasingOnly])
 
     const { mutate: createRule, isPending: creatingRule } = useCreateAutoDownloaderRule()
 
@@ -105,13 +110,19 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
                     titleComparisonType: "likely",
                 }}
             >
-                {(f) => <RuleFormFields
-                    form={f}
-                    allMedia={allMedia}
-                    isPending={isPending}
-                    notFinishedMedia={notFinishedMedia}
-                    libraryCollection={libraryCollection}
-                />}
+                {(f) => (
+                    <div className="space-y-4">
+                        <RuleFormFields
+                            form={f}
+                            allMedia={allMedia}
+                            isPending={isPending}
+                            notFinishedMedia={notFinishedMedia}
+                            libraryCollection={libraryCollection}
+                            hideFinished={showReleasingOnly}
+                            toggleHideFinished={() => setShowReleasingOnly((prev) => !prev)}
+                        />
+                    </div>
+                )}
             </Form>
         </div>
     )
@@ -123,6 +134,8 @@ type RuleFormFieldsProps = {
     isPending: boolean
     notFinishedMedia: AL_BaseAnime[]
     libraryCollection?: Anime_LibraryCollection | undefined
+    hideFinished: boolean
+    toggleHideFinished: () => void
 }
 
 function RuleFormFields(props: RuleFormFieldsProps) {
@@ -133,6 +146,8 @@ function RuleFormFields(props: RuleFormFieldsProps) {
         isPending,
         notFinishedMedia,
         libraryCollection,
+        hideFinished,
+        toggleHideFinished,
         ...rest
     } = props
 
@@ -140,7 +155,19 @@ function RuleFormFields(props: RuleFormFieldsProps) {
 
     return (
         <>
-            <Field.Switch name="enabled" label="Enabled" />
+            <div className="flex flex-col gap-2 md:flex-row justify-between items-center">
+                <Field.Switch name="enabled" label="Enabled" />
+                <div className="flex items-center gap-2">
+                    <label htmlFor="show-releasing-only-batch" className="cursor-pointer text-sm">
+                        Hide finished
+                    </label>
+                    <Checkbox
+                        id="show-releasing-only-batch"
+                        value={hideFinished}
+                        onValueChange={() => toggleHideFinished()}
+                    />
+                </div>
+            </div>
             <Separator />
             <div
                 className={cn(
@@ -169,7 +196,7 @@ function RuleFormFields(props: RuleFormFieldsProps) {
                                 label: <div className="w-full">
                                     <p className="mb-1 flex items-center"><MdVerified className="text-lg inline-block mr-2" />Most likely</p>
                                     <p className="font-normal text-sm text-[--muted]">The torrent name will be parsed and analyzed using a comparison
-                                                                                      algorithm</p>
+                                        algorithm</p>
                                 </div>,
                                 value: "likely",
                             },
@@ -177,7 +204,7 @@ function RuleFormFields(props: RuleFormFieldsProps) {
                                 label: <div className="w-full">
                                     <p className="mb-1 flex items-center"><LuTextCursorInput className="text-lg inline-block mr-2" />Exact match</p>
                                     <p className="font-normal text-sm text-[--muted]">The torrent name must contain the comparison title you set (case
-                                                                                      insensitive)</p>
+                                        insensitive)</p>
                                 </div>,
                                 value: "contains",
                             },
@@ -223,19 +250,19 @@ function RuleFormFields(props: RuleFormFieldsProps) {
                         <AccordionContent className="pt-0">
                             <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
                                 <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Additional
-                                                                                                                                         terms
+                                    terms
                                 </div>
                                 <div>
                                     <p className="text-sm -top-2 relative"><span className="text-red-100">
                                         All options must be included for the torrent to be accepted.</span> Within each option, you can
-                                                                                                            include variations separated by
-                                                                                                            commas. For example, adding
-                                                                                                            "H265,H.265, H 265,x265" and
-                                                                                                            "10bit,10-bit,10 bit" will match
+                                        include variations separated by
+                                        commas. For example, adding
+                                        "H265,H.265, H 265,x265" and
+                                        "10bit,10-bit,10 bit" will match
                                         <code className="text-gray-400"> [Group] Torrent name [HEVC 10bit
-                                                                         x265]</code> but not <code className="text-gray-400">[Group] Torrent name
-                                                                                                                              [H265]</code>. Case
-                                                                                                            insensitive.</p>
+                                            x265]</code> but not <code className="text-gray-400">[Group] Torrent name
+                                                [H265]</code>. Case
+                                        insensitive.</p>
                                 </div>
 
                                 <TextArrayField
@@ -345,22 +372,22 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                                     <Combobox
                                         label="Library Entry"
                                         options={props.allMedia.map(media => ({
-                                                label: <div className="flex items-center gap-2">
-                                                    <div className="size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none">
-                                                        <Image
-                                                            src={media.coverImage?.medium ?? "/no-cover.png"}
-                                                            alt="cover"
-                                                            sizes="2rem"
-                                                            fill
-                                                            className="object-cover object-center"
-                                                        />
-                                                    </div>
-                                                    <p>{media.title?.userPreferred || "N/A"}</p>
-                                                    <p className="text-[--muted] text-sm">{capitalize(media.status)?.replaceAll("_", " ")}</p>
-                                                </div>,
-                                                value: String(media.id),
-                                                textValue: media.title?.userPreferred || "N/A",
-                                            }))
+                                            label: <div className="flex items-center gap-2">
+                                                <div className="size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none">
+                                                    <Image
+                                                        src={media.coverImage?.medium ?? "/no-cover.png"}
+                                                        alt="cover"
+                                                        sizes="2rem"
+                                                        fill
+                                                        className="object-cover object-center"
+                                                    />
+                                                </div>
+                                                <p>{media.title?.userPreferred || "N/A"}</p>
+                                                <p className="text-[--muted] text-sm">{capitalize(media.status)?.replaceAll("_", " ")}</p>
+                                            </div>,
+                                            value: String(media.id),
+                                            textValue: media.title?.userPreferred || "N/A",
+                                        }))
                                             .toSorted((a, b) => a.textValue.localeCompare(b.textValue))}
                                         value={[String(field.mediaId)]}
                                         onValueChange={(v) => handleFieldChange(index,

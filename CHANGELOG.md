@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.2.5
+
+- 🦺 Online Streaming: Fixed default server not being selected
+
 ## v3.2.4
 
 - ⚡️ Plugins: Enhanced API stability across tabs
