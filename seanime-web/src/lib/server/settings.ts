@@ -22,6 +22,7 @@ export const enum TORRENT_PROVIDER {
 export const enum DEBRID_SERVICE {
     TORBOX = "torbox",
     REALDEBRID = "realdebrid",
+    ALLDEBRID = "alldebrid",
 }
 
 export const _gettingStartedSchema = z.object({

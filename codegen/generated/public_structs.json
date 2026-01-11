@@ -31513,6 +31513,383 @@
     "comments": null
   },
   {
+    "filepath": "../internal/debrid/alldebrid/alldebrid.go",
+    "filename": "alldebrid.go",
+    "name": "AllDebrid",
+    "formattedName": "AllDebrid",
+    "package": "alldebrid",
+    "fields": [
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "apiKey",
+        "jsonName": "apiKey",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedTypescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/alldebrid/alldebrid.go",
+    "filename": "alldebrid.go",
+    "name": "Response",
+    "formattedName": "Response",
+    "package": "alldebrid",
+    "fields": [
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "__STRUCT__",
+        "typescriptType": "{ code: string; message: string; }",
+        "usedTypescriptType": "{ code: string; message: string; }",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/alldebrid/alldebrid.go",
+    "filename": "alldebrid.go",
+    "name": "AddMagnetResponse",
+    "formattedName": "AddMagnetResponse",
+    "package": "alldebrid",
+    "fields": [
+      {
+        "name": "Magnets",
+        "jsonName": "magnets",
+        "goType": "[]__STRUCT__",
+        "inlineStructType": "[]struct{\nMagnet string `json:\"magnet\"`\nHash string `json:\"hash\"`\nName string `json:\"name\"`\nSize int64 `json:\"size\"`\nReady bool `json:\"ready\"`\nID int64 `json:\"id\"`\nError __STRUCT__ `json:\"error,omitempty\"`}",
+        "typescriptType": "Array\u003c{ magnet: string; hash: string; name: string; size: number; ready: boolean; id: number; error: { code: string; message: string; }; }\u003e",
+        "usedTypescriptType": "{ magnet: string; hash: string; name: string; size: number; ready: boolean; id: number; error: { code: string; message: string; }; }",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/alldebrid/alldebrid.go",
+    "filename": "alldebrid.go",
+    "name": "AddTorrentFileResponse",
+    "formattedName": "AddTorrentFileResponse",
+    "package": "alldebrid",
+    "fields": [
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]__STRUCT__",
+        "inlineStructType": "[]struct{\nFile string `json:\"file\"`\nName string `json:\"name\"`\nSize int64 `json:\"size\"`\nHash string `json:\"hash\"`\nReady bool `json:\"ready\"`\nID int64 `json:\"id\"`\nError __STRUCT__ `json:\"error,omitempty\"`}",
+        "typescriptType": "Array\u003c{ file: string; name: string; size: number; hash: string; ready: boolean; id: number; error: { code: string; message: string; }; }\u003e",
+        "usedTypescriptType": "{ file: string; name: string; size: number; hash: string; ready: boolean; id: number; error: { code: string; message: string; }; }",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/alldebrid/alldebrid.go",
+    "filename": "alldebrid.go",
+    "name": "GetTorrentsResponse",
+    "formattedName": "GetTorrentsResponse",
+    "package": "alldebrid",
+    "fields": [
+      {
+        "name": "Magnets",
+        "jsonName": "magnets",
+        "goType": "[]Torrent",
+        "typescriptType": "Array\u003cTorrent\u003e",
+        "usedTypescriptType": "Torrent",
+        "usedStructName": "alldebrid.Torrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/alldebrid/alldebrid.go",
+    "filename": "alldebrid.go",
+    "name": "GetTorrentFilesResponse",
+    "formattedName": "GetTorrentFilesResponse",
+    "package": "alldebrid",
+    "fields": [
+      {
+        "name": "Magnets",
+        "jsonName": "magnets",
+        "goType": "[]__STRUCT__",
+        "inlineStructType": "[]struct{\nID string `json:\"id\"`\nFiles []__STRUCT__ `json:\"files,omitempty\"`\nError __STRUCT__ `json:\"error,omitempty\"`}",
+        "typescriptType": "Array\u003c{ id: string; files: Array\u003c{ n: string; s: number; l: string; }\u003e; error: { code: string; message: string; }; }\u003e",
+        "usedTypescriptType": "{ id: string; files: Array\u003c{ n: string; s: number; l: string; }\u003e; error: { code: string; message: string; }; }",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/alldebrid/alldebrid.go",
+    "filename": "alldebrid.go",
+    "name": "Torrent",
+    "formattedName": "Torrent",
+    "package": "alldebrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"Ready\", \"Downloading\", \"Error\""
+        ]
+      },
+      {
+        "name": "StatusCode",
+        "jsonName": "statusCode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Downloaded",
+        "jsonName": "downloaded",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Uploaded",
+        "jsonName": "uploaded",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadSpeed",
+        "jsonName": "downloadSpeed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UploadSpeed",
+        "jsonName": "uploadSpeed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UploadDate",
+        "jsonName": "uploadDate",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/alldebrid/alldebrid.go",
+    "filename": "alldebrid.go",
+    "name": "GetTorrentResponse",
+    "formattedName": "GetTorrentResponse",
+    "package": "alldebrid",
+    "fields": [
+      {
+        "name": "Magnets",
+        "jsonName": "magnets",
+        "goType": "Torrent",
+        "typescriptType": "Torrent",
+        "usedTypescriptType": "Torrent",
+        "usedStructName": "alldebrid.Torrent",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/alldebrid/alldebrid.go",
+    "filename": "alldebrid.go",
+    "name": "UnrestrictLinkResponse",
+    "formattedName": "UnrestrictLinkResponse",
+    "package": "alldebrid",
+    "fields": [
+      {
+        "name": "Link",
+        "jsonName": "link",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Host",
+        "jsonName": "host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Streaming",
+        "jsonName": "streaming",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filesize",
+        "jsonName": "filesize",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/debrid/client/hook_events.go",
     "filename": "hook_events.go",
     "name": "DebridAutoSelectTorrentsFetchedEvent",
@@ -40396,6 +40773,17 @@
         "typescriptType": "CancelFunc",
         "usedTypescriptType": "CancelFunc",
         "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "loadOnlyType",
+        "jsonName": "loadOnlyType",
+        "goType": "atomic.Value",
+        "typescriptType": "Value",
+        "usedTypescriptType": "Value",
+        "usedStructName": "atomic.Value",
         "required": false,
         "public": false,
         "comments": []

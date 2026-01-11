@@ -61,7 +61,7 @@ export function DebridSettings(props: DebridSettingsProps) {
                                 provider: data.provider === "-" ? "" : data.provider,
                                 streamPreferredResolution: data.streamPreferredResolution === "-" ? "" : data.streamPreferredResolution,
                             },
-                            },
+                        },
                             {
                                 onSuccess: () => {
                                     formRef.current?.reset(formRef.current.getValues())
@@ -96,9 +96,9 @@ export function DebridSettings(props: DebridSettingsProps) {
                                     title="Auto Downloader not using Debrid"
                                     description={<p>
                                         Auto Downloader is enabled but not using Debrid. Change the <SeaLink
-                                        href="/auto-downloader"
-                                        className="underline"
-                                    >Auto Downloader settings</SeaLink> to use your Debrid service.
+                                            href="/auto-downloader"
+                                            className="underline"
+                                        >Auto Downloader settings</SeaLink> to use your Debrid service.
                                     </p>}
                                 />
                             )}
@@ -111,6 +111,7 @@ export function DebridSettings(props: DebridSettingsProps) {
                                     { label: "None", value: "-" },
                                     { label: "TorBox", value: "torbox" },
                                     { label: "Real-Debrid", value: "realdebrid" },
+                                    { label: "AllDebrid", value: "alldebrid" },
                                 ]}
                                 name="provider"
                                 label="Provider"

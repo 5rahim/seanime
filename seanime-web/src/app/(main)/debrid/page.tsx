@@ -34,6 +34,8 @@ function getServiceName(provider: string) {
             return "Real-Debrid"
         case "torbox":
             return "TorBox"
+        case "alldebrid":
+            return "AllDebrid"
         default:
             return provider
     }
@@ -45,6 +47,8 @@ function getDashboardLink(provider: string) {
             return "https://torbox.app/dashboard"
         case "realdebrid":
             return "https://real-debrid.com/torrents"
+        case "alldebrid":
+            return "https://alldebrid.com/magnets/"
         default:
             return ""
     }
@@ -97,8 +101,8 @@ function Content() {
             <p className="max-w-md">Failed to connect to the Debrid service, verify your settings.</p>
             <Button
                 intent="primary-subtle" onClick={() => {
-                setEnabled(true)
-            }}
+                    setEnabled(true)
+                }}
             >Retry</Button>
         </div>
     </LuffyError>

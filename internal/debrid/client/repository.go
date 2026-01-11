@@ -8,6 +8,7 @@ import (
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
+	"seanime/internal/debrid/alldebrid"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/debrid/realdebrid"
 	"seanime/internal/debrid/torbox"
@@ -117,6 +118,8 @@ func (r *Repository) InitializeProvider(settings *models.DebridSettings) error {
 		r.provider = mo.Some(torbox.NewTorBox(r.logger))
 	case "realdebrid":
 		r.provider = mo.Some(realdebrid.NewRealDebrid(r.logger))
+	case "alldebrid":
+		r.provider = mo.Some(alldebrid.NewAllDebrid(r.logger))
 	default:
 		r.provider = mo.None[debrid.Provider]()
 	}
