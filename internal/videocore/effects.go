@@ -70,17 +70,17 @@ func (vc *VideoCore) setupSharedEffects() {
 						vc.logger.Error().Err(err).Msg("videocore: Cannot update progress, failed to get anime collection")
 						continue
 					}
+
 					mediaId := state.PlaybackInfo.Media.GetID()
-					listEntry, ok := collection.GetListEntryFromAnimeId(mediaId)
-					if !ok {
-						vc.logger.Error().Msg("videocore: Cannot update progress, failed to get list entry for media")
-						continue
-					}
 					progress := state.PlaybackInfo.Episode.GetProgressNumber()
-					if listEntry.Progress != nil && progress <= *listEntry.Progress {
-						continue
-					}
 					totalEpisodes := state.PlaybackInfo.Media.Episodes
+
+					if listEntry, hasEntry := collection.GetListEntryFromAnimeId(mediaId); hasEntry {
+						if listEntry.Progress != nil && progress <= *listEntry.Progress {
+							continue
+						}
+					}
+
 					err = vc.platformRef.Get().UpdateEntryProgress(context.Background(), mediaId, progress, totalEpisodes)
 					if err != nil {
 						vc.logger.Error().Err(err).Msgf("videocore: Failed to update progress for media %d", mediaId)
