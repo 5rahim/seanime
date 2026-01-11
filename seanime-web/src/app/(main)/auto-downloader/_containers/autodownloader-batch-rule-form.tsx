@@ -7,22 +7,23 @@ import {
 import { useCreateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
+import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { TextArrayField } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
+import {
+    AutoDownloaderMediaCombobox,
+    TextArrayField,
+    useAutoDownloaderMediaList,
+} from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CloseButton, IconButton } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Combobox } from "@/components/ui/combobox"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { upath } from "@/lib/helpers/upath"
 import { uniq } from "lodash"
-import capitalize from "lodash/capitalize"
-import Image from "next/image"
 import React from "react"
-import { useFieldArray, UseFormReturn } from "react-hook-form"
+import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form"
 import { BiPlus } from "react-icons/bi"
 import { FcFolder } from "react-icons/fc"
 import { LuTextCursorInput } from "react-icons/lu"
@@ -59,14 +60,7 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
         return userMedia ?? []
     }, [userMedia])
 
-    const [showReleasingOnly, setShowReleasingOnly] = React.useState(true)
-
-    const notFinishedMedia = React.useMemo(() => {
-        if (showReleasingOnly) {
-            return allMedia.filter(media => media.status !== "FINISHED")
-        }
-        return allMedia
-    }, [allMedia, showReleasingOnly])
+    const mediaList = useAutoDownloaderMediaList(allMedia)
 
     const { mutate: createRule, isPending: creatingRule } = useCreateAutoDownloaderRule()
 
@@ -116,10 +110,8 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
                             form={f}
                             allMedia={allMedia}
                             isPending={isPending}
-                            notFinishedMedia={notFinishedMedia}
+                            mediaList={mediaList}
                             libraryCollection={libraryCollection}
-                            hideFinished={showReleasingOnly}
-                            toggleHideFinished={() => setShowReleasingOnly((prev) => !prev)}
                         />
                     </div>
                 )}
@@ -132,10 +124,8 @@ type RuleFormFieldsProps = {
     form: UseFormReturn<InferType<typeof schema>>
     allMedia: AL_BaseAnime[]
     isPending: boolean
-    notFinishedMedia: AL_BaseAnime[]
+    mediaList: AL_BaseAnime[]
     libraryCollection?: Anime_LibraryCollection | undefined
-    hideFinished: boolean
-    toggleHideFinished: () => void
 }
 
 function RuleFormFields(props: RuleFormFieldsProps) {
@@ -144,10 +134,8 @@ function RuleFormFields(props: RuleFormFieldsProps) {
         form,
         allMedia,
         isPending,
-        notFinishedMedia,
+        mediaList,
         libraryCollection,
-        hideFinished,
-        toggleHideFinished,
         ...rest
     } = props
 
@@ -157,16 +145,6 @@ function RuleFormFields(props: RuleFormFieldsProps) {
         <>
             <div className="flex flex-col gap-2 md:flex-row justify-between items-center">
                 <Field.Switch name="enabled" label="Enabled" />
-                <div className="flex items-center gap-2">
-                    <label htmlFor="show-releasing-only-batch" className="cursor-pointer text-sm">
-                        Hide finished
-                    </label>
-                    <Checkbox
-                        id="show-releasing-only-batch"
-                        value={hideFinished}
-                        onValueChange={() => toggleHideFinished()}
-                    />
-                </div>
             </div>
             <Separator />
             <div
@@ -177,7 +155,7 @@ function RuleFormFields(props: RuleFormFieldsProps) {
             >
 
                 <MediaArrayField
-                    allMedia={notFinishedMedia}
+                    allMedia={mediaList}
                     libraryPath={serverStatus?.settings?.library?.libraryPath || ""}
                     name="entries"
                     control={form.control}
@@ -321,9 +299,6 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                 ...field,
                 ...updatedValues,
                 destination: upath.join(props.libraryPath, sanitizedTitle),
-                // destination: field.destination === props.libraryPath
-                //     ? upath.join(props.libraryPath, sanitizedTitle)
-                //     : field.destination,
                 comparisonTitle: sanitizedTitle,
             })
         } else {
@@ -339,90 +314,17 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                 </div>
             )}
             {fields.map((field, index) => (
-                <div key={field.id}>
-                    <div className="flex gap-4 items-center w-full">
-                        <div className="flex flex-col gap-2 w-full">
-                            <div className="border rounded-[--radius] p-4 relative  space-y-3">
-                                <div className="flex gap-4 items-center">
-                                    {/*<div*/}
-                                    {/*    className="size-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"*/}
-                                    {/*>*/}
-                                    {/*    {!!props.allMedia.find(m => m.id === field?.mediaId)?.coverImage?.large && <SeaImage*/}
-                                    {/*        src={props.allMedia.find(m => m.id === field?.mediaId)!.coverImage!.large!}*/}
-                                    {/*        alt="banner"*/}
-                                    {/*        fill*/}
-                                    {/*        quality={80}*/}
-                                    {/*        priority*/}
-                                    {/*        sizes="20rem"*/}
-                                    {/*        className="object-cover object-center"*/}
-                                    {/*    />}*/}
-                                    {/*</div>*/}
-                                    {/*<Select*/}
-                                    {/*    label="Library Entry"*/}
-                                    {/*    options={props.allMedia*/}
-                                    {/*        .map(media => ({*/}
-                                    {/*            label: media.title?.userPreferred || "N/A",*/}
-                                    {/*            value: String(media.id),*/}
-                                    {/*        }))*/}
-                                    {/*        .toSorted((a, b) => a.label.localeCompare(b.label))*/}
-                                    {/*    }*/}
-                                    {/*    value={String(field.mediaId)}*/}
-                                    {/*    onValueChange={(v) => handleFieldChange(index, { mediaId: parseInt(v) }, field)}*/}
-                                    {/*/>*/}
-                                    <Combobox
-                                        label="Library Entry"
-                                        options={props.allMedia.map(media => ({
-                                            label: <div className="flex items-center gap-2">
-                                                <div className="size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none">
-                                                    <Image
-                                                        src={media.coverImage?.medium ?? "/no-cover.png"}
-                                                        alt="cover"
-                                                        sizes="2rem"
-                                                        fill
-                                                        className="object-cover object-center"
-                                                    />
-                                                </div>
-                                                <p>{media.title?.userPreferred || "N/A"}</p>
-                                                <p className="text-[--muted] text-sm">{capitalize(media.status)?.replaceAll("_", " ")}</p>
-                                            </div>,
-                                            value: String(media.id),
-                                            textValue: media.title?.userPreferred || "N/A",
-                                        }))
-                                            .toSorted((a, b) => a.textValue.localeCompare(b.textValue))}
-                                        value={[String(field.mediaId)]}
-                                        onValueChange={(v) => handleFieldChange(index,
-                                            { mediaId: v[0] ? parseInt(v[0]) : props.allMedia[0]?.id },
-                                            field)}
-                                        multiple={false}
-                                        emptyMessage="No media found"
-                                    />
-                                </div>
-                                <Field.DirectorySelector
-                                    name={`entries.${index}.destination`}
-                                    label="Destination"
-                                    help="Folder in your local library where the files will be saved"
-                                    leftIcon={<FcFolder />}
-                                    shouldExist={false}
-                                    value={field.destination}
-                                    defaultValue={props.libraryPath}
-                                />
-                                <TextInput
-                                    // name="comparisonTitle"
-                                    label="Comparison title"
-                                    help="Used for comparison purposes. When using 'Exact match', use a title most likely to be used in a torrent name."
-                                    {...props.form.register(`entries.${index}.comparisonTitle`)} />
-                            </div>
-                        </div>
-                        <CloseButton
-                            size="sm"
-                            intent="alert-subtle"
-                            onClick={() => remove(index)}
-                        />
-                    </div>
-                    {(!!props.separatorText && index < fields.length - 1) && (
-                        <p className="text-center text-[--muted] my-4">{props.separatorText}</p>
-                    )}
-                </div>
+                <MediaFieldItem
+                    key={field.id}
+                    field={field}
+                    index={index}
+                    allMedia={props.allMedia}
+                    libraryPath={props.libraryPath}
+                    form={props.form}
+                    onFieldChange={handleFieldChange}
+                    onRemove={() => remove(index)}
+                    separatorText={index < fields.length - 1 ? props.separatorText : undefined}
+                />
             ))}
             <IconButton
                 intent="success"
@@ -434,6 +336,90 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                 })}
                 icon={<BiPlus />}
             />
+        </div>
+    )
+}
+
+type MediaFieldItemProps = {
+    field: MediaEntry & { id: string }
+    index: number
+    allMedia: AL_BaseAnime[]
+    libraryPath: string
+    form: UseFormReturn<InferType<typeof schema>>
+    onFieldChange: (index: number, updatedValues: Partial<MediaEntry>, field: MediaEntry) => void
+    onRemove: () => void
+    separatorText?: string
+}
+
+function MediaFieldItem(props: MediaFieldItemProps) {
+    const {
+        field,
+        index,
+        allMedia,
+        libraryPath,
+        form,
+        onFieldChange,
+        onRemove,
+        separatorText,
+    } = props
+
+    const selectedMedia = React.useMemo(() => {
+        return allMedia.find(m => m.id === field.mediaId)
+    }, [allMedia, field.mediaId])
+
+    const animeFolderName = React.useMemo(() => {
+        return sanitizeDirectoryName(selectedMedia?.title?.romaji || selectedMedia?.title?.english || "")
+    }, [selectedMedia])
+
+    const destination = useWatch({ name: `entries.${index}.destination` }) as string
+
+    const libraryPathSelectionProps = useLibraryPathSelection({
+        destination,
+        setDestination: path => onFieldChange(index, { destination: path }, field),
+        animeFolderName,
+    })
+
+    return (
+        <div>
+            <div className="flex gap-4 items-center w-full">
+                <div className="flex flex-col gap-2 w-full">
+                    <div className="border rounded-[--radius] p-4 relative space-y-3">
+                        <div className="flex gap-4 items-center">
+                            <AutoDownloaderMediaCombobox
+                                mediaList={allMedia}
+                                value={field.mediaId}
+                                onValueChange={(v) => onFieldChange(index,
+                                    { mediaId: v[0] ? parseInt(v[0]) : allMedia[0]?.id },
+                                    field)}
+                                type={"create"}
+                            />
+                        </div>
+                        <Field.DirectorySelector
+                            name={`entries.${index}.destination`}
+                            label="Destination"
+                            help="Folder in your local library where the files will be saved"
+                            leftIcon={<FcFolder />}
+                            shouldExist={false}
+                            value={field.destination}
+                            defaultValue={libraryPath}
+                            libraryPathSelectionProps={libraryPathSelectionProps}
+                        />
+                        <TextInput
+                            label="Comparison title"
+                            help="Used for comparison purposes. When using 'Exact match', use a title most likely to be used in a torrent name."
+                            {...form.register(`entries.${index}.comparisonTitle`)}
+                        />
+                    </div>
+                </div>
+                <CloseButton
+                    size="sm"
+                    intent="alert-subtle"
+                    onClick={onRemove}
+                />
+            </div>
+            {!!separatorText && (
+                <p className="text-center text-[--muted] my-4">{separatorText}</p>
+            )}
         </div>
     )
 }

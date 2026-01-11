@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { NoInfer } from "@tanstack/react-query"
 import * as React from "react"
-import { FormProvider, SubmitErrorHandler, useForm, UseFormProps, UseFormReturn, WatchObserver } from "react-hook-form"
+import { FieldErrors, FieldValues, FormProvider, useForm, UseFormProps, UseFormReturn, WatchObserver } from "react-hook-form"
 import { z } from "zod"
 import { cn } from "../core/styling"
 import { isEmpty } from "../core/utils"
@@ -26,6 +26,7 @@ export const useFormSchema = (): { shape: z.ZodRawShape, schema: z.ZodObject<z.Z
 }
 
 export type SubmitHandler<T> = (data: T, event?: React.BaseSyntheticEvent) => any
+export type SubmitErrorHandler<TFieldValues extends FieldValues> = (errors: FieldErrors<TFieldValues>, event?: React.BaseSyntheticEvent) => any
 
 /* -------------------------------------------------------------------------------------------------
  * Form
@@ -49,7 +50,7 @@ export type FormProps<Schema extends z.ZodObject<z.ZodRawShape> = z.ZodObject<z.
     /**
      * Callback invoked when there are validation errors.
      */
-    onError?: SubmitErrorHandler<NoInfer<z.infer<Schema>>>
+    onError?: SubmitErrorHandler<any>
     /**
      * Ref to the form element.
      */

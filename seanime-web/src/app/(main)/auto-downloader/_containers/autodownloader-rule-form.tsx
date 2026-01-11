@@ -8,25 +8,28 @@ import {
 import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
+import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { CloseButton, IconButton } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Button, CloseButton, IconButton } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { upath } from "@/lib/helpers/upath"
+import { useAtom, useAtomValue } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import { uniq } from "lodash"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
-import React from "react"
+import React, { useMemo, useRef } from "react"
 import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form"
 import { BiPlus } from "react-icons/bi"
 import { FcFolder } from "react-icons/fc"
 import { LuTextCursorInput } from "react-icons/lu"
-import { MdVerified } from "react-icons/md"
+import { MdFilterAlt, MdVerified } from "react-icons/md"
+import { useMount } from "react-use"
 import { toast } from "sonner"
 
 type AutoDownloaderRuleFormProps = {
@@ -49,6 +52,25 @@ const schema = defineSchema(({ z }) => z.object({
     destination: z.string().min(1),
 }))
 
+export const _autoDownloader_listActiveMediaOnlyAtom = atomWithStorage<"airing" | "airing-upcoming" | "all">(
+    "sea-auto-downloader-list-active-media-only",
+    "airing-upcoming")
+const listActiveMediaOptions: ("airing" | "airing-upcoming" | "all")[] = ["airing", "airing-upcoming", "all"]
+
+export function useAutoDownloaderMediaList(allMedia: AL_BaseAnime[]) {
+    const showReleasingOnly = useAtomValue(_autoDownloader_listActiveMediaOnlyAtom)
+
+    return React.useMemo(() => {
+        if (showReleasingOnly === "airing") {
+            return allMedia.filter(media => media.status === "RELEASING")
+        }
+        if (showReleasingOnly === "airing-upcoming") {
+            return allMedia.filter(media => media.status !== "FINISHED")
+        }
+        return allMedia
+    }, [allMedia, showReleasingOnly])
+}
+
 export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
 
     const {
@@ -65,14 +87,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
         return userMedia ?? []
     }, [userMedia])
 
-    const [showReleasingOnly, setShowReleasingOnly] = React.useState(true)
-
-    const notFinishedMedia = React.useMemo(() => {
-        if (showReleasingOnly) {
-            return allMedia.filter(media => media.status !== "FINISHED")
-        }
-        return allMedia
-    }, [allMedia, showReleasingOnly])
+    const mediaList = useAutoDownloaderMediaList(allMedia)
 
     const { mutate: createRule, isPending: creatingRule } = useCreateAutoDownloaderRule()
 
@@ -120,7 +135,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                 onSubmit={handleSave}
                 defaultValues={{
                     enabled: rule?.enabled ?? true,
-                    mediaId: mediaId ?? rule?.mediaId ?? notFinishedMedia[0]?.id,
+                    mediaId: mediaId ?? rule?.mediaId ?? mediaList[0]?.id,
                     releaseGroups: rule?.releaseGroups ?? [],
                     resolutions: rule?.resolutions ?? [],
                     comparisonTitle: rule?.comparisonTitle ?? "",
@@ -142,11 +157,9 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                             mediaId={mediaId}
                             type={type}
                             isPending={isPending}
-                            notFinishedMedia={notFinishedMedia}
+                            mediaList={mediaList}
                             libraryCollection={libraryCollection}
                             rule={rule}
-                            hideFinished={showReleasingOnly}
-                            toggleHideFinished={() => setShowReleasingOnly((prev) => !prev)}
                         />
                     </div>
                 )}
@@ -169,12 +182,61 @@ type RuleFormFieldsProps = {
     mediaId?: number
     type: "create" | "edit"
     isPending: boolean
-    notFinishedMedia: AL_BaseAnime[]
+    mediaList: AL_BaseAnime[]
     libraryCollection?: Anime_LibraryCollection | undefined
 
-    hideFinished?: boolean
-    toggleHideFinished?: () => void
     rule?: Anime_AutoDownloaderRule
+}
+
+export function AutoDownloaderMediaCombobox(props: {
+    mediaList: AL_BaseAnime[],
+    value: number,
+    onValueChange: (v: string[]) => void,
+    type: "create" | "edit",
+    mediaId?: number | undefined
+}) {
+    const [showReleasingOnly, setShowReleasingOnly] = useAtom(_autoDownloader_listActiveMediaOnlyAtom)
+
+    return <Combobox
+        name="mediaId"
+        label={<div className="flex items-center gap-2">
+            <p className="text-lg font-semibold">Media</p>
+            {props.type !== "edit" && <Button
+                leftIcon={<MdFilterAlt />} intent="gray-link" className="!text-[--muted] cursor-pointer hover:underline underline-offset-2 py-0 px-2"
+                onClick={() => setShowReleasingOnly(prev => {
+                    const currentIndex = listActiveMediaOptions.indexOf(prev)
+                    const nextIndex = (currentIndex + 1) % listActiveMediaOptions.length
+                    return listActiveMediaOptions[nextIndex]
+                })}
+            >
+                {showReleasingOnly === "airing" && "Showing airing only"}
+                {showReleasingOnly === "airing-upcoming" && "Showing upcoming only"}
+                {showReleasingOnly === "all" && "Showing all"}
+            </Button>}
+        </div>}
+        options={props.mediaList.map(media => ({
+            label: <div className="flex items-center gap-2">
+                <div className="size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none">
+                    <Image
+                        src={media.coverImage?.medium ?? "/no-cover.png"}
+                        alt="cover"
+                        sizes="2rem"
+                        fill
+                        className="object-cover object-center"
+                    />
+                </div>
+                <p>{media.title?.userPreferred || "N/A"}</p>
+                <p className="text-[--muted] text-sm">{capitalize(media.status)?.replaceAll("_", " ")}</p>
+            </div>,
+            value: String(media.id),
+            textValue: media.title?.userPreferred || "N/A",
+        })).toSorted((a, b) => a.textValue.localeCompare(b.textValue))}
+        value={[String(props.value)]}
+        onValueChange={props.onValueChange}
+        disabled={props.type === "edit" || !!props.mediaId}
+        multiple={false}
+        emptyMessage="No media found"
+    />
 }
 
 export function RuleFormFields(props: RuleFormFieldsProps) {
@@ -185,20 +247,42 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
         mediaId,
         type,
         isPending,
-        notFinishedMedia,
+        mediaList,
         libraryCollection,
         rule,
-        hideFinished,
-        toggleHideFinished,
         ...rest
     } = props
 
     const serverStatus = useServerStatus()
 
+    // Fallback to showing all media if editing so the current media is visible
+    const [showReleasingOnly, setShowReleasingOnly] = useAtom(_autoDownloader_listActiveMediaOnlyAtom)
+    const previousShowReleasingOnly = useRef(showReleasingOnly)
+    React.useEffect(() => {
+        if (type === "edit") {
+            previousShowReleasingOnly.current = showReleasingOnly
+            setShowReleasingOnly("all")
+        }
+    }, [type])
+    useMount(() => {
+        setShowReleasingOnly(previousShowReleasingOnly.current)
+    })
+
     const form_mediaId = useWatch({ name: "mediaId" }) as number
     const form_episodeType = useWatch({ name: "episodeType" }) as Anime_AutoDownloaderRuleEpisodeType
+    const destination = useWatch({ name: "destination" }) as string
 
     const selectedMedia = allMedia.find(media => media.id === Number(form_mediaId))
+
+    const animeFolderName = useMemo(() => {
+        return sanitizeDirectoryName(selectedMedia?.title?.romaji || selectedMedia?.title?.english || "")
+    }, [selectedMedia])
+
+    const libraryPathSelectionProps = useLibraryPathSelection({
+        destination,
+        setDestination: path => form.setValue("destination", path),
+        animeFolderName,
+    })
 
     React.useEffect(() => {
         const id = Number(form_mediaId)
@@ -215,84 +299,34 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                 form.setValue("destination", destination)
             } else if (type === "create") {
                 // form.setValue("destination", "")
-                const newDestination = upath.join(upath.normalizeSafe(serverStatus?.settings?.library?.libraryPath || ""),
-                    sanitizeDirectoryName(selectedMedia?.title?.romaji || selectedMedia?.title?.english || ""))
+                const newDestination = upath.join(upath.normalizeSafe(serverStatus?.settings?.library?.libraryPath || ""), animeFolderName)
                 form.setValue("destination", newDestination)
             }
         }
-    }, [form_mediaId, selectedMedia, libraryCollection, rule])
+    }, [form_mediaId, selectedMedia, libraryCollection, rule, animeFolderName])
 
     if (!selectedMedia) {
         return <div className="p-4 text-[--muted] text-center">Media is not in your library</div>
     }
-    // if (type === "create" && selectedMedia?.status != "RELEASING") {
-    //     return <div className="p-4 text-[--muted] text-center">You can only create rules for airing anime</div>
-    // }
 
     return (
         <>
             <div className="flex flex-col gap-2 md:flex-row justify-between items-center">
                 <Field.Switch name="enabled" label="Enabled" />
-                {((toggleHideFinished !== undefined && hideFinished !== undefined) && !mediaId) && (
-                    <div className="flex items-center gap-2">
-                        <label htmlFor="show-releasing-only" className="cursor-pointer text-sm">
-                            Hide finished
-                        </label>
-                        <Checkbox
-                            id="show-releasing-only"
-                            value={hideFinished}
-                            onValueChange={() => toggleHideFinished()}
-                        />
-                    </div>
-                )}
             </div>
             <Separator />
             <div
                 className={cn(
                     "space-y-3",
-                    // !form.watch("enabled") && "opacity-50 pointer-events-none",
                 )}
             >
                 {!mediaId && <div className="flex gap-4 items-end">
-                    {/*<div*/}
-                    {/*    className="w-[6rem] h-[6rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"*/}
-                    {/*>*/}
-                    {/*    {!!selectedMedia?.coverImage?.large && <SeaImage*/}
-                    {/*        src={selectedMedia.coverImage.large}*/}
-                    {/*        alt="banner"*/}
-                    {/*        fill*/}
-                    {/*        quality={80}*/}
-                    {/*        priority*/}
-                    {/*        sizes="20rem"*/}
-                    {/*        className="object-cover object-center"*/}
-                    {/*    />}*/}
-                    {/*</div>*/}
-                    <Combobox
-                        name="mediaId"
-                        label="Library Entry"
-                        options={notFinishedMedia.map(media => ({
-                            label: <div className="flex items-center gap-2">
-                                <div className="size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none">
-                                    <Image
-                                        src={media.coverImage?.medium ?? "/no-cover.png"}
-                                        alt="cover"
-                                        sizes="2rem"
-                                        fill
-                                        className="object-cover object-center"
-                                    />
-                                </div>
-                                <p>{media.title?.userPreferred || "N/A"}</p>
-                                <p className="text-[--muted] text-sm">{capitalize(media.status)?.replaceAll("_", " ")}</p>
-                            </div>,
-                            value: String(media.id),
-                            textValue: media.title?.userPreferred || "N/A",
-                        }))
-                            .toSorted((a, b) => a.textValue.localeCompare(b.textValue))}
-                        value={[String(form_mediaId)]}
-                        onValueChange={(v) => form.setValue("mediaId", v[0] ? parseInt(v[0]) : notFinishedMedia[0]?.id)}
-                        disabled={type === "edit" || !!mediaId}
-                        multiple={false}
-                        emptyMessage="No media found"
+                    <AutoDownloaderMediaCombobox
+                        mediaList={mediaList}
+                        value={form_mediaId}
+                        onValueChange={(v) => form.setValue("mediaId", v[0] ? parseInt(v[0]) : mediaList[0]?.id)}
+                        type={type}
+                        mediaId={mediaId}
                     />
                 </div>}
 
@@ -304,6 +338,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     help="Folder in your local library where the files will be saved"
                     leftIcon={<FcFolder />}
                     shouldExist={false}
+                    libraryPathSelectionProps={libraryPathSelectionProps}
                 />
 
                 <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
