@@ -1,7 +1,10 @@
 import { useDirectorySelector } from "@/api/hooks/directory_selector.hooks"
-import { IconButton } from "@/components/ui/button"
+import { LibraryPathSelectionProps } from "@/app/(main)/_hooks/use-library-path-selection"
+import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
+import { Popover } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select } from "@/components/ui/select"
 import { TextInput, TextInputProps } from "@/components/ui/text-input"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { upath } from "@/lib/helpers/upath"
@@ -9,6 +12,7 @@ import React from "react"
 import { BiCheck, BiFolderOpen, BiFolderPlus, BiX } from "react-icons/bi"
 import { FaFolder } from "react-icons/fa"
 import { FiChevronLeft, FiFolder } from "react-icons/fi"
+import { HiMiniChevronUpDown } from "react-icons/hi2"
 import { useUpdateEffect } from "react-use"
 import { useDebounce } from "use-debounce"
 
@@ -17,6 +21,7 @@ export type DirectorySelectorProps = {
     onSelect: (path: string) => void
     shouldExist?: boolean
     value: string
+    libraryPathSelectionProps?: LibraryPathSelectionProps
 } & Omit<TextInputProps, "onSelect" | "value">
 
 export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, DirectorySelectorProps>(function (props: DirectorySelectorProps, ref) {
@@ -26,6 +31,8 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
         onSelect,
         value,
         shouldExist,
+        libraryPathSelectionProps: libraryProps,
+        label,
         ...rest
     } = props
 
@@ -89,6 +96,8 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
         }
     }, [isLoading, data, input, shouldExist, prevState.current])
 
+    const [librarySelectionOpen, setLibrarySelectionOpen] = React.useState(false)
+
     return (
         <>
             <div className="space-y-1">
@@ -96,6 +105,29 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                     <TextInput
                         leftIcon={<FaFolder />}
                         {...rest}
+                        label={<div className="flex items-center gap-1">
+                            {label}
+                            {libraryProps?.showLibrarySelector && (
+                                <Popover
+                                    open={librarySelectionOpen}
+                                    onOpenChange={setLibrarySelectionOpen}
+                                    className="w-[400px] p-2 ml-[30px]"
+                                    sideOffset={-4}
+                                    trigger={<Button size="sm" intent="gray-link" leftIcon={<HiMiniChevronUpDown />} className="!text-[--muted]">
+                                        Change library
+                                    </Button>}
+                                >
+                                    <Select
+                                        value={libraryProps.selectedLibrary}
+                                        options={libraryProps.libraryOptions}
+                                        onValueChange={v => {
+                                            libraryProps.handleLibraryPathSelect(v)
+                                            setLibrarySelectionOpen(false)
+                                        }}
+                                    />
+                                </Popover>
+                            )}
+                        </div>}
                         value={input}
                         rightIcon={<div className="flex">
                             {isLoading ? null : (data?.exists ?
@@ -108,10 +140,13 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                         ref={ref}
                         onBlur={checkDirectoryExists}
                     />
-                    <BiFolderOpen
-                        className="text-2xl cursor-pointer absolute z-[1] top-0 right-0"
-                        onClick={selectorState.on}
-                    />
+
+                    <div className="absolute z-[1] top-0 right-0 flex items-center">
+                        <BiFolderOpen
+                            className="text-2xl cursor-pointer"
+                            onClick={selectorState.on}
+                        />
+                    </div>
                 </div>
             </div>
             <Modal

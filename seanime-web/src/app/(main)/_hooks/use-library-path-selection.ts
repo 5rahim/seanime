@@ -10,12 +10,12 @@ type UseLibraryPathSelectorOptions = {
     animeFolderName?: string
 }
 
-export function useLibraryPathSelector(options: UseLibraryPathSelectorOptions) {
+export function useLibraryPathSelection(options: UseLibraryPathSelectorOptions) {
     const { destination, setDestination, animeFolderName } = options
 
     const serverStatus = useServerStatus()
-    const libraryPath = serverStatus?.settings?.library?.libraryPath
-    const additionalLibraryPaths = serverStatus?.settings?.library?.libraryPaths
+    const libraryPath = React.useMemo(() => serverStatus?.settings?.library?.libraryPath, [serverStatus])
+    const additionalLibraryPaths = React.useMemo(() => serverStatus?.settings?.library?.libraryPaths, [serverStatus])
 
     const allLibraryPaths = React.useMemo(() => {
         const paths: string[] = []
@@ -33,25 +33,17 @@ export function useLibraryPathSelector(options: UseLibraryPathSelectorOptions) {
     }, [allLibraryPaths, destination])
 
     const libraryOptions = React.useMemo(() => {
-        const options = allLibraryPaths.map(p => ({
-            label: p,
-            value: p,
-        }))
-        options.push({
-            label: "Custom",
-            value: CUSTOM_VALUE,
-        })
-        return options
+        return [
+            ...allLibraryPaths.map(p => ({
+                label: p,
+                value: p,
+            })),
+        ]
     }, [allLibraryPaths])
 
     const handleLibraryPathSelect = React.useCallback((value: string) => {
         if (value === CUSTOM_VALUE) return
-
-        if (animeFolderName) {
-            setDestination(upath.join(value, animeFolderName))
-        } else {
-            setDestination(value)
-        }
+        setDestination(!!animeFolderName ? upath.join(value, animeFolderName) : value)
     }, [animeFolderName, setDestination])
 
     return {
@@ -63,3 +55,5 @@ export function useLibraryPathSelector(options: UseLibraryPathSelectorOptions) {
         showLibrarySelector: allLibraryPaths.length > 1,
     }
 }
+
+export type LibraryPathSelectionProps = ReturnType<typeof useLibraryPathSelection>

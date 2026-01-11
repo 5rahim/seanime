@@ -2,7 +2,7 @@ import { AL_BaseAnime, Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/gen
 import { useDebridAddTorrents } from "@/api/hooks/debrid.hooks"
 import { useDownloadTorrentFile } from "@/api/hooks/download.hooks"
 import { useTorrentClientDownload } from "@/api/hooks/torrent_client.hooks"
-import { useLibraryPathSelector } from "@/app/(main)/_hooks/use-library-path-selector"
+import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
     __torrentDownload_fileSelectionAtom,
@@ -15,7 +15,6 @@ import { DirectorySelector } from "@/components/shared/directory-selector"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tooltip } from "@/components/ui/tooltip"
 import { Vaul, VaulContent } from "@/components/vaul"
@@ -54,12 +53,7 @@ export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
 
     const [destination, setDestination] = useState(defaultPath)
 
-    const {
-        selectedLibrary,
-        libraryOptions,
-        handleLibraryPathSelect,
-        showLibrarySelector,
-    } = useLibraryPathSelector({
+    const libraryPathSelectionProps = useLibraryPathSelection({
         destination,
         setDestination,
         animeFolderName,
@@ -189,15 +183,6 @@ export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
                         />
                     )}
 
-                    {showLibrarySelector && (
-                        <Select
-                            label="Library"
-                            value={selectedLibrary}
-                            options={libraryOptions}
-                            onValueChange={handleLibraryPathSelect}
-                        />
-                    )}
-
                     <DirectorySelector
                         name="destination"
                         label="Destination"
@@ -206,6 +191,7 @@ export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
                         defaultValue={destination}
                         onSelect={setDestination}
                         shouldExist={false}
+                        libraryPathSelectionProps={libraryPathSelectionProps}
                     />
 
                     {selectedTorrents.map(torrent => (

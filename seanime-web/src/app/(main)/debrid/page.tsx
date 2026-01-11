@@ -3,7 +3,7 @@ import { Debrid_TorrentItem } from "@/api/generated/types"
 import { useDebridCancelDownload, useDebridDeleteTorrent, useDebridDownloadTorrent, useDebridGetTorrents } from "@/api/hooks/debrid.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
-import { useLibraryPathSelector } from "@/app/(main)/_hooks/use-library-path-selector"
+import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { DirectorySelector } from "@/components/shared/directory-selector"
@@ -16,7 +16,6 @@ import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
-import { Select } from "@/components/ui/select"
 import { Tooltip } from "@/components/ui/tooltip"
 import { WSEvents } from "@/lib/server/ws-events"
 import { formatDate } from "date-fns"
@@ -339,22 +338,16 @@ function TorrentItemModal(props: TorrentItemModalProps) {
 
     const [destination, setDestination] = React.useState("")
 
-    const {
-        libraryPath,
-        selectedLibrary,
-        libraryOptions,
-        handleLibraryPathSelect,
-        showLibrarySelector,
-    } = useLibraryPathSelector({
+    const libraryPathSelectionProps = useLibraryPathSelection({
         destination,
         setDestination,
     })
 
     React.useEffect(() => {
-        if (selectedTorrentItem && libraryPath) {
-            setDestination(libraryPath)
+        if (selectedTorrentItem && libraryPathSelectionProps.libraryPath) {
+            setDestination(libraryPathSelectionProps.libraryPath)
         }
-    }, [selectedTorrentItem, libraryPath])
+    }, [selectedTorrentItem, libraryPathSelectionProps.libraryPath])
 
     const handleDownload = () => {
         if (!selectedTorrentItem || !destination) return
@@ -382,15 +375,6 @@ function TorrentItemModal(props: TorrentItemModalProps) {
             </p>
 
             <div className="space-y-4 mt-4">
-                {showLibrarySelector && (
-                    <Select
-                        label="Library"
-                        value={selectedLibrary}
-                        options={libraryOptions}
-                        onValueChange={handleLibraryPathSelect}
-                    />
-                )}
-
                 <DirectorySelector
                     name="destination"
                     label="Destination"
@@ -400,6 +384,7 @@ function TorrentItemModal(props: TorrentItemModalProps) {
                     onSelect={setDestination}
                     shouldExist={false}
                     help="Where to save the torrent"
+                    libraryPathSelectionProps={libraryPathSelectionProps}
                 />
 
                 <div className="flex justify-end">

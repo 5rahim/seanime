@@ -1,6 +1,6 @@
 import { Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useTorrentClientDownload, useTorrentClientGetFiles } from "@/api/hooks/torrent_client.hooks"
-import { useLibraryPathSelector } from "@/app/(main)/_hooks/use-library-path-selector"
+import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { __torrentSearch_selectionAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
@@ -10,7 +10,6 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Select } from "@/components/ui/select"
 import { Vaul, VaulContent } from "@/components/vaul"
 import { logger } from "@/lib/helpers/debug"
 import { upath } from "@/lib/helpers/upath"
@@ -74,12 +73,7 @@ export function TorrentDownloadFileSelection({ entry }: { entry: Anime_Entry }) 
         }
     }, [fileSelection, setFileSelection])
 
-    const {
-        selectedLibrary,
-        libraryOptions,
-        handleLibraryPathSelect: baseHandleLibraryPathSelect,
-        showLibrarySelector,
-    } = useLibraryPathSelector({
+    const libraryPathSelectionProps = useLibraryPathSelection({
         destination,
         setDestination: handleDestinationChange,
         animeFolderName,
@@ -87,9 +81,9 @@ export function TorrentDownloadFileSelection({ entry }: { entry: Anime_Entry }) 
 
     const handleLibraryPathSelect = React.useCallback((selectedLibraryPath: string) => {
         if (fileSelection) {
-            baseHandleLibraryPathSelect(selectedLibraryPath)
+            libraryPathSelectionProps.handleLibraryPathSelect(selectedLibraryPath)
         }
-    }, [fileSelection, baseHandleLibraryPathSelect])
+    }, [fileSelection, libraryPathSelectionProps.handleLibraryPathSelect])
 
     const { data: filepaths, isLoading } = useTorrentClientGetFiles({ torrent: selectedTorrent, provider: selectedTorrent?.provider })
 
@@ -165,15 +159,6 @@ export function TorrentDownloadFileSelection({ entry }: { entry: Anime_Entry }) 
                         Select files to download
                     </h4>
 
-                    {showLibrarySelector && (
-                        <Select
-                            label="Library"
-                            value={selectedLibrary}
-                            options={libraryOptions}
-                            onValueChange={handleLibraryPathSelect}
-                        />
-                    )}
-
                     <DirectorySelector
                         name="destination"
                         label="Destination"
@@ -182,6 +167,7 @@ export function TorrentDownloadFileSelection({ entry }: { entry: Anime_Entry }) 
                         defaultValue={destination}
                         onSelect={handleDestinationChange}
                         shouldExist={false}
+                        libraryPathSelectionProps={{ ...libraryPathSelectionProps, handleLibraryPathSelect }}
                     />
 
                     {isLoading ? <LoadingSpinner /> : (
