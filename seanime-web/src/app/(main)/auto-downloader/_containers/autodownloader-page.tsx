@@ -114,7 +114,7 @@ export function AutoDownloaderPage() {
                                         <DropdownMenu
                                             trigger={<Button
                                                 className=""
-                                                intent="success-subtle"
+                                                intent="white-subtle"
                                                 leftIcon={<LuListPlus className="text-lg" />}
 
                                             >
@@ -131,7 +131,7 @@ export function AutoDownloaderPage() {
                                         <div className="flex flex-1"></div>
                                         <Button
                                             className=""
-                                            intent="primary-subtle"
+                                            intent="gray-basic"
                                             leftIcon={<FaSquareRss />}
                                             onClick={() => {
                                                 runAutoDownloader()
