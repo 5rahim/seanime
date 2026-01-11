@@ -174,6 +174,7 @@ type RuleFormFieldsProps = {
 
     hideFinished?: boolean
     toggleHideFinished?: () => void
+    rule?: Anime_AutoDownloaderRule
 }
 
 export function RuleFormFields(props: RuleFormFieldsProps) {
