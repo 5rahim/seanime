@@ -3,8 +3,10 @@ import { Debrid_TorrentItem } from "@/api/generated/types"
 import { useDebridCancelDownload, useDebridDeleteTorrent, useDebridDownloadTorrent, useDebridGetTorrents } from "@/api/hooks/debrid.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { useLibraryPathSelector } from "@/app/(main)/_hooks/use-library-path-selector"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
+import { DirectorySelector } from "@/components/shared/directory-selector"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -12,9 +14,9 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
-import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { Select } from "@/components/ui/select"
 import { Tooltip } from "@/components/ui/tooltip"
 import { WSEvents } from "@/lib/server/ws-events"
 import { formatDate } from "date-fns"
@@ -23,6 +25,7 @@ import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import React from "react"
 import { BiDownArrow, BiLinkExternal, BiRefresh, BiTime, BiTrash, BiX } from "react-icons/bi"
+import { FcFolder } from "react-icons/fc"
 import { FiDownload } from "react-icons/fi"
 import { HiFolderDownload } from "react-icons/hi"
 import { toast } from "sonner"
@@ -329,19 +332,41 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending }: Torr
 
 type TorrentItemModalProps = {}
 
-const downloadSchema = defineSchema(({ z }) => z.object({
-    destination: z.string().min(2),
-}))
-
 function TorrentItemModal(props: TorrentItemModalProps) {
 
-    const {
-        ...rest
-    } = props
-
-    const serverStatus = useServerStatus()
     const [selectedTorrentItem, setSelectedTorrentItem] = useAtom(selectedTorrentItemAtom)
     const { mutate: downloadTorrent, isPending: isDownloading } = useDebridDownloadTorrent()
+
+    const [destination, setDestination] = React.useState("")
+
+    const {
+        libraryPath,
+        selectedLibrary,
+        libraryOptions,
+        handleLibraryPathSelect,
+        showLibrarySelector,
+    } = useLibraryPathSelector({
+        destination,
+        setDestination,
+    })
+
+    React.useEffect(() => {
+        if (selectedTorrentItem && libraryPath) {
+            setDestination(libraryPath)
+        }
+    }, [selectedTorrentItem, libraryPath])
+
+    const handleDownload = () => {
+        if (!selectedTorrentItem || !destination) return
+        downloadTorrent({
+            torrentItem: selectedTorrentItem,
+            destination: destination,
+        }, {
+            onSuccess: () => {
+                setSelectedTorrentItem(null)
+            },
+        })
+    }
 
     return (
         <Modal
@@ -356,38 +381,39 @@ function TorrentItemModal(props: TorrentItemModalProps) {
                 {selectedTorrentItem?.name}
             </p>
 
-            <Form
-                schema={downloadSchema}
-                onSubmit={data => {
-                    downloadTorrent({
-                        torrentItem: selectedTorrentItem!,
-                        destination: data.destination,
-                    }, {
-                        onSuccess: () => {
-                            setSelectedTorrentItem(null)
-                        },
-                    })
-                }}
-                defaultValues={{
-                    destination: serverStatus?.settings?.library?.libraryPath ?? "",
-                }}
-            >
-                <Field.DirectorySelector
+            <div className="space-y-4 mt-4">
+                {showLibrarySelector && (
+                    <Select
+                        label="Library"
+                        value={selectedLibrary}
+                        options={libraryOptions}
+                        onValueChange={handleLibraryPathSelect}
+                    />
+                )}
+
+                <DirectorySelector
                     name="destination"
                     label="Destination"
+                    leftIcon={<FcFolder />}
+                    value={destination}
+                    defaultValue={destination}
+                    onSelect={setDestination}
                     shouldExist={false}
                     help="Where to save the torrent"
                 />
+
                 <div className="flex justify-end">
-                    <Field.Submit
+                    <Button
                         intent="white"
                         leftIcon={<FiDownload className="text-xl" />}
                         loading={isDownloading}
+                        disabled={!destination || destination.length < 2}
+                        onClick={handleDownload}
                     >
                         Download
-                    </Field.Submit>
+                    </Button>
                 </div>
-            </Form>
+            </div>
         </Modal>
     )
 }
