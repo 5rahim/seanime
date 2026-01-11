@@ -11,6 +11,7 @@ import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collecti
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CloseButton, IconButton } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Combobox } from "@/components/ui/combobox"
 import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
@@ -135,23 +136,6 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
             >
                 {(f) => (
                     <div className="space-y-4">
-                        {(!mediaId) && (
-                            <div className="flex items-center gap-2">
-                                <div className="flex-1"></div>
-                                <div className="flex items-center gap-2 text-sm">
-                                    <label htmlFor="show-releasing-only" className="cursor-pointer">
-                                        Hide finished
-                                    </label>
-                                    <input
-                                        type="checkbox"
-                                        id="show-releasing-only"
-                                        className="size-4"
-                                        checked={showReleasingOnly}
-                                        onChange={e => setShowReleasingOnly(e.target.checked)}
-                                    />
-                                </div>
-                            </div>
-                        )}
                         <RuleFormFields
                             form={f}
                             allMedia={allMedia}
@@ -161,6 +145,8 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                             notFinishedMedia={notFinishedMedia}
                             libraryCollection={libraryCollection}
                             rule={rule}
+                            hideFinished={showReleasingOnly}
+                            toggleHideFinished={() => setShowReleasingOnly((prev) => !prev)}
                         />
                     </div>
                 )}
@@ -185,7 +171,9 @@ type RuleFormFieldsProps = {
     isPending: boolean
     notFinishedMedia: AL_BaseAnime[]
     libraryCollection?: Anime_LibraryCollection | undefined
-    rule?: Anime_AutoDownloaderRule
+
+    hideFinished?: boolean
+    toggleHideFinished?: () => void
 }
 
 export function RuleFormFields(props: RuleFormFieldsProps) {
@@ -199,6 +187,8 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
         notFinishedMedia,
         libraryCollection,
         rule,
+        hideFinished,
+        toggleHideFinished,
         ...rest
     } = props
 
@@ -240,7 +230,21 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
 
     return (
         <>
-            <Field.Switch name="enabled" label="Enabled" />
+            <div className="flex flex-col gap-2 md:flex-row justify-between items-center">
+                <Field.Switch name="enabled" label="Enabled" />
+                {((toggleHideFinished !== undefined && hideFinished !== undefined) && !mediaId) && (
+                    <div className="flex items-center gap-2">
+                        <label htmlFor="show-releasing-only" className="cursor-pointer text-sm">
+                            Hide finished
+                        </label>
+                        <Checkbox
+                            id="show-releasing-only"
+                            value={hideFinished}
+                            onValueChange={() => toggleHideFinished()}
+                        />
+                    </div>
+                )}
+            </div>
             <Separator />
             <div
                 className={cn(

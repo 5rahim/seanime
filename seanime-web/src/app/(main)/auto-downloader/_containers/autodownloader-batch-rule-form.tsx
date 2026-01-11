@@ -11,6 +11,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextArrayField } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CloseButton, IconButton } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Combobox } from "@/components/ui/combobox"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
@@ -111,27 +112,14 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
             >
                 {(f) => (
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            <div className="flex-1"></div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <label htmlFor="show-releasing-only-batch" className="cursor-pointer">
-                                    Hide finished
-                                </label>
-                                <input
-                                    type="checkbox"
-                                    id="show-releasing-only-batch"
-                                    className="size-4"
-                                    checked={showReleasingOnly}
-                                    onChange={e => setShowReleasingOnly(e.target.checked)}
-                                />
-                            </div>
-                        </div>
                         <RuleFormFields
                             form={f}
                             allMedia={allMedia}
                             isPending={isPending}
                             notFinishedMedia={notFinishedMedia}
                             libraryCollection={libraryCollection}
+                            hideFinished={showReleasingOnly}
+                            toggleHideFinished={() => setShowReleasingOnly((prev) => !prev)}
                         />
                     </div>
                 )}
@@ -146,6 +134,8 @@ type RuleFormFieldsProps = {
     isPending: boolean
     notFinishedMedia: AL_BaseAnime[]
     libraryCollection?: Anime_LibraryCollection | undefined
+    hideFinished: boolean
+    toggleHideFinished: () => void
 }
 
 function RuleFormFields(props: RuleFormFieldsProps) {
@@ -156,6 +146,8 @@ function RuleFormFields(props: RuleFormFieldsProps) {
         isPending,
         notFinishedMedia,
         libraryCollection,
+        hideFinished,
+        toggleHideFinished,
         ...rest
     } = props
 
@@ -163,7 +155,19 @@ function RuleFormFields(props: RuleFormFieldsProps) {
 
     return (
         <>
-            <Field.Switch name="enabled" label="Enabled" />
+            <div className="flex flex-col gap-2 md:flex-row justify-between items-center">
+                <Field.Switch name="enabled" label="Enabled" />
+                <div className="flex items-center gap-2">
+                    <label htmlFor="show-releasing-only-batch" className="cursor-pointer text-sm">
+                        Hide finished
+                    </label>
+                    <Checkbox
+                        id="show-releasing-only-batch"
+                        value={hideFinished}
+                        onValueChange={() => toggleHideFinished()}
+                    />
+                </div>
+            </div>
             <Separator />
             <div
                 className={cn(
