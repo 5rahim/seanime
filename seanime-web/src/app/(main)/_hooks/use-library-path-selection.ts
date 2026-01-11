@@ -14,17 +14,17 @@ export function useLibraryPathSelection(options: UseLibraryPathSelectorOptions) 
     const { destination, setDestination, animeFolderName } = options
 
     const serverStatus = useServerStatus()
-    const libraryPath = React.useMemo(() => serverStatus?.settings?.library?.libraryPath, [serverStatus])
-    const additionalLibraryPaths = React.useMemo(() => serverStatus?.settings?.library?.libraryPaths, [serverStatus])
 
     const allLibraryPaths = React.useMemo(() => {
+        const libraryPath = serverStatus?.settings?.library?.libraryPath
+        const additionalLibraryPaths = serverStatus?.settings?.library?.libraryPaths
         const paths: string[] = []
         if (libraryPath) paths.push(libraryPath)
         if (additionalLibraryPaths?.length) {
             paths.push(...additionalLibraryPaths.filter(p => p && p !== libraryPath))
         }
         return paths
-    }, [libraryPath, additionalLibraryPaths])
+    }, [serverStatus?.settings?.library])
 
     const selectedLibrary = React.useMemo(() => {
         const sortedPaths = [...allLibraryPaths].sort((a, b) => b.length - a.length)
@@ -33,12 +33,10 @@ export function useLibraryPathSelection(options: UseLibraryPathSelectorOptions) 
     }, [allLibraryPaths, destination])
 
     const libraryOptions = React.useMemo(() => {
-        return [
-            ...allLibraryPaths.map(p => ({
-                label: p,
-                value: p,
-            })),
-        ]
+        return allLibraryPaths.map(p => ({
+            label: p,
+            value: p,
+        }))
     }, [allLibraryPaths])
 
     const handleLibraryPathSelect = React.useCallback((value: string) => {
@@ -48,7 +46,6 @@ export function useLibraryPathSelection(options: UseLibraryPathSelectorOptions) 
 
     return {
         allLibraryPaths,
-        libraryPath,
         selectedLibrary,
         libraryOptions,
         handleLibraryPathSelect,
