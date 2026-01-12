@@ -20,6 +20,7 @@ import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
+import { getPreferredTitle, parsePreferredTitleLanguage, TitleLanguage } from "@/lib/helpers/title-preference"
 import { upath } from "@/lib/helpers/upath"
 import { uniq } from "lodash"
 import React from "react"
@@ -141,6 +142,10 @@ function RuleFormFields(props: RuleFormFieldsProps) {
 
     const serverStatus = useServerStatus()
 
+    const titlePreference = React.useMemo(() => {
+        return parsePreferredTitleLanguage(serverStatus?.settings?.library?.preferredTitleLanguage)
+    }, [serverStatus?.settings?.library?.preferredTitleLanguage])
+
     return (
         <>
             <div className="flex flex-col gap-2 md:flex-row justify-between items-center">
@@ -162,6 +167,7 @@ function RuleFormFields(props: RuleFormFieldsProps) {
                     label="Library entries"
                     separatorText="AND"
                     form={form}
+                    titlePreference={titlePreference}
                 />
 
                 <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
@@ -271,6 +277,7 @@ type MediaArrayFieldProps = {
     label?: string
     separatorText?: string
     form: UseFormReturn<InferType<typeof schema>>
+    titlePreference: TitleLanguage[]
 }
 
 interface MediaEntry {
@@ -292,8 +299,9 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
     const handleFieldChange = (index: number, updatedValues: Partial<MediaEntry>, field: MediaEntry) => {
         if ("mediaId" in updatedValues) {
             const mediaId = updatedValues.mediaId!
-            const romaji = props.allMedia.find(m => m.id === mediaId)?.title?.romaji || ""
-            const sanitizedTitle = sanitizeDirectoryName(romaji)
+            const media = props.allMedia.find(m => m.id === mediaId)
+            const preferredTitle = getPreferredTitle(media?.title, props.titlePreference)
+            const sanitizedTitle = sanitizeDirectoryName(preferredTitle)
 
             update(index, {
                 ...field,

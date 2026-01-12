@@ -105,7 +105,7 @@ func (vc *VideoCore) SetSettings(settings *models.Settings) {
 		vc.translatorService.Shutdown()
 	}
 	vc.translatorService = nil
-	if settings.MediaPlayer.VcTranslate {
+	if settings.MediaPlayer != nil && settings.MediaPlayer.VcTranslate {
 		vc.logger.Trace().Msgf("videocore: Setting up translator service %s", settings.MediaPlayer.VcTranslateProvider)
 		vc.translatorService = NewTranslatorService(vc, settings.MediaPlayer.VcTranslateApiKey, settings.MediaPlayer.VcTranslateProvider, settings.MediaPlayer.VcTranslateTargetLanguage)
 	}

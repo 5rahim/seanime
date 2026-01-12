@@ -90,6 +90,9 @@ type LibrarySettings struct {
 	AutoSaveCurrentMediaOffline bool `gorm:"column:auto_save_current_media_offline" json:"autoSaveCurrentMediaOffline"`
 	// v3+
 	UseFallbackMetadataProvider bool `gorm:"column:use_fallback_metadata_provider" json:"useFallbackMetadataProvider"`
+	// PreferredTitleLanguage stores the preferred order of title languages for download folder naming.
+	// Comma-separated values: "romaji,english,native" (default) or any permutation.
+	PreferredTitleLanguage string `gorm:"column:preferred_title_language" json:"preferredTitleLanguage"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {

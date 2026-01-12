@@ -14,17 +14,17 @@ export function useLibraryPathSelection(options: UseLibraryPathSelectorOptions) 
     const { destination, setDestination, animeFolderName } = options
 
     const serverStatus = useServerStatus()
+    const libraryPath = serverStatus?.settings?.library?.libraryPath
+    const additionalLibraryPaths = serverStatus?.settings?.library?.libraryPaths
 
     const allLibraryPaths = React.useMemo(() => {
-        const libraryPath = serverStatus?.settings?.library?.libraryPath
-        const additionalLibraryPaths = serverStatus?.settings?.library?.libraryPaths
         const paths: string[] = []
         if (libraryPath) paths.push(libraryPath)
         if (additionalLibraryPaths?.length) {
             paths.push(...additionalLibraryPaths.filter(p => p && p !== libraryPath))
         }
         return paths
-    }, [serverStatus?.settings?.library])
+    }, [libraryPath, additionalLibraryPaths])
 
     const selectedLibrary = React.useMemo(() => {
         const sortedPaths = [...allLibraryPaths].sort((a, b) => b.length - a.length)

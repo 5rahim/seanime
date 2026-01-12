@@ -9,6 +9,7 @@ import {
     getDefaultDestination,
     sanitizeDirectoryName,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-download-file-selection"
+import { getPreferredTitle, parsePreferredTitleLanguage } from "@/lib/helpers/title-preference"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { DirectorySelector } from "@/components/shared/directory-selector"
@@ -43,13 +44,17 @@ export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
 
     const setFileSelection = useSetAtom(__torrentDownload_fileSelectionAtom)
 
+    const titlePreference = useMemo(() => {
+        return parsePreferredTitleLanguage(serverStatus?.settings?.library?.preferredTitleLanguage)
+    }, [serverStatus?.settings?.library?.preferredTitleLanguage])
+
     const animeFolderName = useMemo(() => {
-        return sanitizeDirectoryName(entry.media?.title?.romaji || "")
-    }, [entry.media?.title?.romaji])
+        return sanitizeDirectoryName(getPreferredTitle(entry.media?.title, titlePreference))
+    }, [entry.media?.title, titlePreference])
 
     const defaultPath = useMemo(() => {
-        return getDefaultDestination(entry, libraryPath)
-    }, [entry, libraryPath])
+        return getDefaultDestination(entry, libraryPath, titlePreference)
+    }, [entry, libraryPath, titlePreference])
 
     const [destination, setDestination] = useState(defaultPath)
 

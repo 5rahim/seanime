@@ -29446,6 +29446,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "PreferredTitleLanguage",
+        "jsonName": "preferredTitleLanguage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -80261,6 +80270,38 @@
         "required": true,
         "public": true,
         "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/torrent_client/repository.go",
+    "filename": "repository.go",
+    "name": "GetListOptions",
+    "formattedName": "TorrentClient_GetListOptions",
+    "package": "torrent_client",
+    "fields": [
+      {
+        "name": "Category",
+        "jsonName": "Category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " qbittorrent only"
+        ]
+      },
+      {
+        "name": "Sort",
+        "jsonName": "Sort",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " name, name-desc, newest, oldest"
+        ]
       }
     ],
     "comments": []

@@ -344,10 +344,10 @@ function TorrentItemModal(props: TorrentItemModalProps) {
     })
 
     React.useEffect(() => {
-        if (selectedTorrentItem && libraryPathSelectionProps.libraryPath) {
-            setDestination(libraryPathSelectionProps.libraryPath)
+        if (selectedTorrentItem && libraryPathSelectionProps.allLibraryPaths[0]) {
+            setDestination(libraryPathSelectionProps.allLibraryPaths[0])
         }
-    }, [selectedTorrentItem, libraryPathSelectionProps.libraryPath])
+    }, [selectedTorrentItem, libraryPathSelectionProps.allLibraryPaths])
 
     const handleDownload = () => {
         if (!selectedTorrentItem || !destination) return

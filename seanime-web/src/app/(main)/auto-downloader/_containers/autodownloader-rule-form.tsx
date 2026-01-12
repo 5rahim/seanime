@@ -17,6 +17,7 @@ import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
+import { getPreferredTitle, parsePreferredTitleLanguage } from "@/lib/helpers/title-preference"
 import { upath } from "@/lib/helpers/upath"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
@@ -274,9 +275,13 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
 
     const selectedMedia = allMedia.find(media => media.id === Number(form_mediaId))
 
+    const titlePreference = React.useMemo(() => {
+        return parsePreferredTitleLanguage(serverStatus?.settings?.library?.preferredTitleLanguage)
+    }, [serverStatus?.settings?.library?.preferredTitleLanguage])
+
     const animeFolderName = useMemo(() => {
-        return sanitizeDirectoryName(selectedMedia?.title?.romaji || selectedMedia?.title?.english || "")
-    }, [selectedMedia])
+        return sanitizeDirectoryName(getPreferredTitle(selectedMedia?.title, titlePreference))
+    }, [selectedMedia?.title, titlePreference])
 
     const libraryPathSelectionProps = useLibraryPathSelection({
         destination,
@@ -298,7 +303,6 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
             if (destination) {
                 form.setValue("destination", destination)
             } else if (type === "create") {
-                // form.setValue("destination", "")
                 const newDestination = upath.join(upath.normalizeSafe(serverStatus?.settings?.library?.libraryPath || ""), animeFolderName)
                 form.setValue("destination", newDestination)
             }

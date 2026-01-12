@@ -54,6 +54,10 @@ func (m *BaseManga) GetPreferredTitle() string {
 	return m.GetTitleSafe()
 }
 
+func (m *BaseManga) GetTitleByPreference(preferences []string) string {
+	return GetTitleByPreferenceFromAccessor(m.GetTitle(), preferences, m.GetTitleSafe())
+}
+
 func (m *BaseManga) GetCoverImageSafe() string {
 	if m.GetCoverImage().GetExtraLarge() != nil {
 		return *m.GetCoverImage().GetExtraLarge()

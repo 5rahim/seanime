@@ -6,6 +6,32 @@ import (
 	"github.com/samber/lo"
 )
 
+type TitleAccessor interface {
+	GetEnglish() *string
+	GetRomaji() *string
+	GetNative() *string
+}
+
+func GetTitleByPreferenceFromAccessor(title TitleAccessor, preferences []string, fallback string) string {
+	for _, pref := range preferences {
+		switch pref {
+		case "english":
+			if title.GetEnglish() != nil && *title.GetEnglish() != "" {
+				return *title.GetEnglish()
+			}
+		case "romaji":
+			if title.GetRomaji() != nil && *title.GetRomaji() != "" {
+				return *title.GetRomaji()
+			}
+		case "native":
+			if title.GetNative() != nil && *title.GetNative() != "" {
+				return *title.GetNative()
+			}
+		}
+	}
+	return fallback
+}
+
 func (m *BaseAnime) GetTitleSafe() string {
 	if m.GetTitle().GetEnglish() != nil {
 		return *m.GetTitle().GetEnglish()
@@ -38,6 +64,10 @@ func (m *BaseAnime) GetPreferredTitle() string {
 		return *m.GetTitle().GetUserPreferred()
 	}
 	return m.GetTitleSafe()
+}
+
+func (m *BaseAnime) GetTitleByPreference(preferences []string) string {
+	return GetTitleByPreferenceFromAccessor(m.GetTitle(), preferences, m.GetTitleSafe())
 }
 
 func (m *BaseAnime) GetCoverImageSafe() string {
@@ -258,6 +288,10 @@ func (m *CompleteAnime) GetPreferredTitle() string {
 		return *m.GetTitle().GetUserPreferred()
 	}
 	return m.GetTitleSafe()
+}
+
+func (m *CompleteAnime) GetTitleByPreference(preferences []string) string {
+	return GetTitleByPreferenceFromAccessor(m.GetTitle(), preferences, m.GetTitleSafe())
 }
 
 func (m *CompleteAnime) GetCoverImageSafe() string {

@@ -3669,6 +3669,7 @@ export type Models_LibrarySettings = {
     autoSyncToLocalAccount: boolean
     autoSaveCurrentMediaOffline: boolean
     useFallbackMetadataProvider: boolean
+    preferredTitleLanguage: string
 }
 
 /**

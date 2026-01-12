@@ -12,6 +12,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Vaul, VaulContent } from "@/components/vaul"
 import { logger } from "@/lib/helpers/debug"
+import { getPreferredTitle, parsePreferredTitleLanguage, TitleLanguage } from "@/lib/helpers/title-preference"
 import { upath } from "@/lib/helpers/upath"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
@@ -29,9 +30,11 @@ export type TorrentDownloadFileSelection = {
 
 export const __torrentDownload_fileSelectionAtom = atom<TorrentDownloadFileSelection | undefined>(undefined)
 
-export function getDefaultDestination(entry: Anime_Entry, libraryPath?: string): string {
+export function getDefaultDestination(entry: Anime_Entry, libraryPath?: string, titlePreference?: TitleLanguage[]): string {
     const fPath = entry.localFiles?.findLast(n => n)?.path // file path
-    const newPath = libraryPath ? upath.join(libraryPath, sanitizeDirectoryName(entry.media?.title?.romaji || "")) : ""
+    const prefs = titlePreference ?? parsePreferredTitleLanguage(undefined)
+    const preferredTitle = getPreferredTitle(entry.media?.title, prefs)
+    const newPath = libraryPath ? upath.join(libraryPath, sanitizeDirectoryName(preferredTitle)) : ""
     return fPath ? upath.normalize(upath.dirname(fPath)) : newPath
 }
 
@@ -50,6 +53,10 @@ export function TorrentDownloadFileSelection({ entry }: { entry: Anime_Entry }) 
     const serverStatus = useServerStatus()
     const libraryPath = serverStatus?.settings?.library?.libraryPath
 
+    const titlePreference = React.useMemo(() => {
+        return parsePreferredTitleLanguage(serverStatus?.settings?.library?.preferredTitleLanguage)
+    }, [serverStatus?.settings?.library?.preferredTitleLanguage])
+
     const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_selectionAtom)
 
     const [fileSelection, setFileSelection] = useAtom(__torrentDownload_fileSelectionAtom)
@@ -62,7 +69,7 @@ export function TorrentDownloadFileSelection({ entry }: { entry: Anime_Entry }) 
     }, [entry.media?.title?.romaji])
 
     const selectedTorrent = fileSelection?.torrent
-    const destination = fileSelection?.destination ?? getDefaultDestination(entry, libraryPath)
+    const destination = fileSelection?.destination ?? getDefaultDestination(entry, libraryPath, titlePreference)
 
     const handleDestinationChange = React.useCallback((newDestination: string) => {
         if (fileSelection) {

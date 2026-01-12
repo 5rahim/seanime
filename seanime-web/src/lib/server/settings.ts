@@ -115,6 +115,7 @@ export const settingsSchema = z.object({
     vcTranslateApiKey: z.string().optional().default(""),
     vcTranslateProvider: z.string().optional().default(""),
     vcTranslateTargetLanguage: z.string().optional().default(""),
+    preferredTitleLanguage: z.string().optional().default("romaji,english,native"),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
@@ -144,6 +145,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         autoSyncToLocalAccount: false,
         autoSaveCurrentMediaOffline: false,
         useFallbackMetadataProvider: false,
+        preferredTitleLanguage: "romaji,english,native",
     },
     nakama: {
         enabled: false,

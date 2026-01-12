@@ -1,6 +1,6 @@
 // This file is auto-generated. Do not edit.
-import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
-import { useCallback } from "react"
+	import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+	import { useCallback } from "react"
 
 export enum PluginClientEvents {
     RenderTray = "tray:render",
@@ -163,7 +163,8 @@ export function usePluginSendTrayClickedEvent() {
     }
 }
 
-export type Plugin_Client_WebviewSidebarMountedEventPayload = {}
+export type Plugin_Client_WebviewSidebarMountedEventPayload = {
+}
 
 export function usePluginSendWebviewSidebarMountedEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -661,7 +662,8 @@ export function usePluginSendDOMReadyEvent() {
     }
 }
 
-export type Plugin_Client_DOMMainTabReadyEventPayload = {}
+export type Plugin_Client_DOMMainTabReadyEventPayload = {
+}
 
 export function usePluginSendDOMMainTabReadyEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -754,9 +756,7 @@ export type Plugin_Server_WebviewUpdatedEventPayload = {
     components: any
 }
 
-export function usePluginListenWebviewUpdatedEvent(cb: (payload: Plugin_Server_WebviewUpdatedEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenWebviewUpdatedEvent(cb: (payload: Plugin_Server_WebviewUpdatedEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_WebviewUpdatedEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.WebviewUpdated,
@@ -771,9 +771,7 @@ export type Plugin_Server_WebviewIframeEventPayload = {
     options: any
 }
 
-export function usePluginListenWebviewIframeEvent(cb: (payload: Plugin_Server_WebviewIframeEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenWebviewIframeEvent(cb: (payload: Plugin_Server_WebviewIframeEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_WebviewIframeEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.WebviewIframe,
@@ -786,9 +784,7 @@ export type Plugin_Server_WebviewSidebarEventPayload = {
     icon: string
 }
 
-export function usePluginListenWebviewSidebarEvent(cb: (payload: Plugin_Server_WebviewSidebarEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenWebviewSidebarEvent(cb: (payload: Plugin_Server_WebviewSidebarEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_WebviewSidebarEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.WebviewSidebar,
@@ -803,9 +799,7 @@ export type Plugin_Server_WebviewSyncStateEventPayload = {
     token: string
 }
 
-export function usePluginListenWebviewSyncStateEvent(cb: (payload: Plugin_Server_WebviewSyncStateEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenWebviewSyncStateEvent(cb: (payload: Plugin_Server_WebviewSyncStateEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_WebviewSyncStateEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.WebviewSyncState,
@@ -817,9 +811,7 @@ export type Plugin_Server_WebviewCloseEventPayload = {
     webviewId: string
 }
 
-export function usePluginListenWebviewCloseEvent(cb: (payload: Plugin_Server_WebviewCloseEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenWebviewCloseEvent(cb: (payload: Plugin_Server_WebviewCloseEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_WebviewCloseEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.WebviewClose,
@@ -831,9 +823,7 @@ export type Plugin_Server_WebviewShowEventPayload = {
     webviewId: string
 }
 
-export function usePluginListenWebviewShowEvent(cb: (payload: Plugin_Server_WebviewShowEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenWebviewShowEvent(cb: (payload: Plugin_Server_WebviewShowEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_WebviewShowEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.WebviewShow,
@@ -845,9 +835,7 @@ export type Plugin_Server_WebviewHideEventPayload = {
     webviewId: string
 }
 
-export function usePluginListenWebviewHideEvent(cb: (payload: Plugin_Server_WebviewHideEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenWebviewHideEvent(cb: (payload: Plugin_Server_WebviewHideEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_WebviewHideEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.WebviewHide,
