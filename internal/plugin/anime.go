@@ -40,6 +40,7 @@ func (a *AppContextImpl) BindAnimeToContextObj(vm *goja.Runtime, obj *goja.Objec
 		metadataProviderRef, ok := a.metadataProviderRef.Get()
 		if ok {
 			metadataProviderRef.Get().ClearCache()
+			anime.ClearEpisodeCollectionCache()
 		}
 		return goja.Undefined()
 	})
