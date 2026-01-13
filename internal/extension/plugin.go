@@ -358,7 +358,7 @@ func (p *PluginPermissions) GetDescription() string {
 
 	// Add unsafe DOM API warning if enabled
 	if len(p.Allow.UnsafeFlags) > 0 {
-		desc.WriteString("⚠️  Unsafe flags:\n")
+		desc.WriteString("* Unsafe flags:\n")
 		for _, flag := range p.Allow.UnsafeFlags {
 			desc.WriteString("• " + string(flag.Flag) + ": " + flag.GetDescription())
 			if flag.Reason != "" {
@@ -412,9 +412,9 @@ func (p *PluginPermissions) HasNetworkAccess() bool {
 func (p *PluginUnsafe) GetDescription() string {
 	switch p.Flag {
 	case UnsafeDOMScriptManipulation:
-		return "Can execute arbitrary JavaScript code in the app's DOM. This is unsafe because some malicious code can be injected"
+		return "Can execute arbitrary JavaScript code in the app's DOM."
 	case UnsafeDOMLinkManipulation:
-		return "Can insert arbitrary links into the app's DOM. This is unsafe because some malicious code can be injected"
+		return "Can insert arbitrary links into the app's DOM."
 	default:
 		return ""
 	}
