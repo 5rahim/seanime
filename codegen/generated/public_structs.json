@@ -31784,6 +31784,62 @@
   {
     "filepath": "../internal/debrid/alldebrid/alldebrid.go",
     "filename": "alldebrid.go",
+    "name": "FileNode",
+    "formattedName": "FileNode",
+    "package": "alldebrid",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "n",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Name of file or folder"
+        ]
+      },
+      {
+        "name": "Size",
+        "jsonName": "s",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Size (only for files)"
+        ]
+      },
+      {
+        "name": "Link",
+        "jsonName": "l",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Download link (only for files)"
+        ]
+      },
+      {
+        "name": "Entries",
+        "jsonName": "e",
+        "goType": "[]FileNode",
+        "typescriptType": "Array\u003cFileNode\u003e",
+        "usedTypescriptType": "FileNode",
+        "usedStructName": "alldebrid.FileNode",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Child entries (only for folders)"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/alldebrid/alldebrid.go",
+    "filename": "alldebrid.go",
     "name": "GetTorrentFilesResponse",
     "formattedName": "GetTorrentFilesResponse",
     "package": "alldebrid",
@@ -31792,9 +31848,9 @@
         "name": "Magnets",
         "jsonName": "magnets",
         "goType": "[]__STRUCT__",
-        "inlineStructType": "[]struct{\nID string `json:\"id\"`\nFiles []__STRUCT__ `json:\"files,omitempty\"`\nError __STRUCT__ `json:\"error,omitempty\"`}",
-        "typescriptType": "Array\u003c{ id: string; files: Array\u003c{ n: string; s: number; l: string; }\u003e; error: { code: string; message: string; }; }\u003e",
-        "usedTypescriptType": "{ id: string; files: Array\u003c{ n: string; s: number; l: string; }\u003e; error: { code: string; message: string; }; }",
+        "inlineStructType": "[]struct{\nID string `json:\"id\"`\nFiles []FileNode `json:\"files,omitempty\"`\nError __STRUCT__ `json:\"error,omitempty\"`}",
+        "typescriptType": "Array\u003c{ id: string; files: Array\u003cFileNode\u003e; error: { code: string; message: string; }; }\u003e",
+        "usedTypescriptType": "{ id: string; files: Array\u003cFileNode\u003e; error: { code: string; message: string; }; }",
         "required": false,
         "public": true,
         "comments": []
@@ -31853,7 +31909,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " \"Ready\", \"Downloading\", \"Error\""
+          " \"Ready\", \"Downloading\", \"No peer after 30 minutes\", etc."
         ]
       },
       {
@@ -31870,7 +31926,7 @@
         "jsonName": "downloaded",
         "goType": "int64",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -31879,7 +31935,7 @@
         "jsonName": "uploaded",
         "goType": "int64",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -31888,7 +31944,7 @@
         "jsonName": "seeders",
         "goType": "int",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -31897,7 +31953,7 @@
         "jsonName": "downloadSpeed",
         "goType": "int64",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -31906,7 +31962,7 @@
         "jsonName": "uploadSpeed",
         "goType": "int64",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -31916,6 +31972,51 @@
         "goType": "int64",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompletionDate",
+        "jsonName": "completionDate",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Notified",
+        "jsonName": "notified",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NbLinks",
+        "jsonName": "nbLinks",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -80638,6 +80739,38 @@
         "required": true,
         "public": true,
         "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/torrent_client/repository.go",
+    "filename": "repository.go",
+    "name": "GetListOptions",
+    "formattedName": "TorrentClient_GetListOptions",
+    "package": "torrent_client",
+    "fields": [
+      {
+        "name": "Category",
+        "jsonName": "Category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " qbittorrent only"
+        ]
+      },
+      {
+        "name": "Sort",
+        "jsonName": "Sort",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " name, name-desc, newest, oldest"
+        ]
       }
     ],
     "comments": []
