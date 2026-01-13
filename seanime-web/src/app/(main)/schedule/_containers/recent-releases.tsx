@@ -1,21 +1,13 @@
 "use client"
 import { useAnilistListRecentAiringAnime } from "@/api/hooks/anilist.hooks"
-import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
-import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
-import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { AppLayoutStack } from "@/components/ui/app-layout"
-import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
-import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
-import { cn } from "@/components/ui/core/styling"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { addSeconds, formatDistanceToNow, subDays } from "date-fns"
-import { useRouter } from "next/navigation"
 import React from "react"
-import { LuEye } from "react-icons/lu"
 
 export function RecentReleases() {
-
-    const router = useRouter()
 
     const { data, isLoading } = useAnilistListRecentAiringAnime({
         page: 1,
@@ -24,15 +16,13 @@ export function RecentReleases() {
         airingAt_greater: Math.floor(subDays(new Date(), 14).getTime() / 1000),
     })
 
-    const media = data?.Page?.airingSchedules?.filter(item => item?.media?.isAdult === false
+    const aired = data?.Page?.airingSchedules?.filter(item => item?.media?.isAdult === false
         && item?.media?.type === "ANIME"
         && item?.media?.countryOfOrigin === "JP"
         && item?.media?.format !== "TV_SHORT",
     ).filter(Boolean)
 
-    const { setPreviewModalMediaId } = useMediaPreviewModal()
-
-    if (!media?.length && !isLoading) return null
+    if (!aired?.length && !isLoading) return null
 
     return (
         <AppLayoutStack className="pb-6">
@@ -47,61 +37,39 @@ export function RecentReleases() {
                 autoScroll
             >
                 <CarouselDotButtons />
-                <CarouselContent>
-                    {isLoading && ([1, 2, 3, 4, 5, 6, 7, 8])?.map((_, idx) => {
-                        return <CarouselItem
-                            key={idx}
-                            className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5 relative h-[220px] px-2"
-                        ><Skeleton
-                            key={idx} className={cn(
-                            "w-full h-full absolute",
-                        )}
-                        /></CarouselItem>
-                    })}
-                    {media?.map(item => {
+                <CarouselContent className="px-6">
+                    {!isLoading ? aired?.map(item => {
                         return (
-                            <CarouselItem
+                            <MediaEntryCard
                                 key={item.id}
-                                className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
-                            >
-                                <SeaContextMenu
-                                    content={<ContextMenuGroup>
-                                        <ContextMenuLabel className="text-[--muted] line-clamp-2 py-0 my-2">
-                                            {item.media?.title?.userPreferred}
-                                        </ContextMenuLabel>
-                                        <ContextMenuItem
-                                            onClick={() => {
-                                                setPreviewModalMediaId(item.media?.id || 0, "anime")
-                                            }}
-                                        >
-                                            <LuEye /> Preview
-                                        </ContextMenuItem>
-                                    </ContextMenuGroup>}
-                                >
-                                    <ContextMenuTrigger>
-                                        <EpisodeCard
-                                            key={item.id}
-                                            title={`Episode ${item.episode}`}
-                                            image={item.media?.bannerImage || item.media?.coverImage?.large}
-                                            topTitle={item.media?.title?.userPreferred}
-                                            progressTotal={item.media?.episodes}
-                                            meta={item.airingAt
-                                                ? formatDistanceToNow(addSeconds(new Date(), item.timeUntilAiring), { addSuffix: true })
-                                                : undefined}
-                                            onClick={() => router.push(`/entry?id=${item.media?.id}`)}
-                                            actionIcon={null}
-                                            anime={{
-                                                id: item.media?.id,
-                                                image: item.media?.coverImage?.medium,
-                                                title: item.media?.title?.userPreferred,
-                                            }}
-                                        />
-                                    </ContextMenuTrigger>
-                                </SeaContextMenu>
+                                media={item?.media!}
+                                showLibraryBadge
+                                containerClassName="basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0"
+                                hideReleasingBadge
+                                showTrailer
+                                type="anime"
+                                overlay={<div className="flex flex-col w-fit absolute right-0 items-end">
+                                    <div
+                                        className="font-semibold text-white bg-gray-950 z-[1] pl-3 pr-[0.2rem] w-full py-1.5 text-center !tracking-wider !bg-opacity-80 rounded-none rounded-bl-lg"
+                                    >{item?.media?.format === "MOVIE" ? "Movie" :
+                                        <span className="tracking-wider"><span className="!text-lg">{item.episode}</span><span className="text-[--muted] tracking-wider !text-md">/{item.media?.episodes ?? "-"}</span></span>}</div>
+                                    <div className="text-xs font-semibold z-[-1] w-fit h-fit pl-2 pr-[0.3rem] py-1 ml-2 text-center bg-gray-700 !bg-opacity-70 rounded-none rounded-bl-lg">
+                                        {item.airingAt
+                                            ? formatDistanceToNow(addSeconds(new Date(), item.timeUntilAiring), { addSuffix: true })
+                                                ?.replace("less than a", "1")
+                                                ?.replace("about ", "")
+                                                ?.replace(" minutes", "m")
+                                                ?.replace(" minute", "m")
+                                                ?.replace(" hours", "h")
+                                                ?.replace(" hour", "h")
+                                                ?.replace(" days", "d")
 
-                            </CarouselItem>
+                                            : undefined}
+                                    </div>
+                                </div>}
+                            />
                         )
-                    })}
+                    }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
                 </CarouselContent>
             </Carousel>
         </AppLayoutStack>

@@ -1,7 +1,7 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
-import { useDirectstreamConvertSubs, useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
+import { useDirectstreamConvertSubs } from "@/api/hooks/directstream.hooks"
 import { useCancelDiscordActivity } from "@/api/hooks/discord.hooks"
 import { useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { nativePlayer_initialState, nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
@@ -70,6 +70,7 @@ import {
     vc_storedVolumeAtom,
     VideoCore_VideoPlaybackInfo,
     VideoCore_VideoSource,
+    VideoCore_VideoSubtitleTrack,
     VideoCoreLifecycleState,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
 import {
@@ -79,6 +80,7 @@ import {
     vc_formatTime,
     vc_logGeneralInfo,
 } from "@/app/(main)/_features/video-core/video-core.utils"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import {
     __torrentSearch_selectionAtom,
@@ -682,7 +684,7 @@ export function VideoCore(props: VideoCoreProps) {
         onChangePlaybackType,
         mRef,
     } = props
-
+    const serverStatus = useServerStatus()
     const [streamType, setStreamType] = useState<VideoCore_VideoPlaybackInfo["streamType"]>(state.playbackInfo?.streamType ?? "unknown")
 
     const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -694,6 +696,8 @@ export function VideoCore(props: VideoCoreProps) {
         dispatchVideoCompletedEvent,
         dispatchVideoErrorEvent,
         dispatchCanPlayEvent,
+        dispatchTranslateTextEvent,
+        dispatchTranslateSubtitleTrackEvent,
     } = useVideoCoreSetupEvents(props.id, state, videoRef, onTerminateStream)
 
     const { width: windowWidth } = useWindowSize()
@@ -749,12 +753,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     const { mutate: cancelDiscordActivity } = useCancelDiscordActivity()
 
-    const { mutate: fetchAndConvertToASS } = useDirectstreamFetchAndConvertToASS({
-        onSuccess: (data) => {},
-    })
-    const { mutate: convertSubs } = useDirectstreamConvertSubs({
-        onSuccess: (data) => {},
-    })
+    const { mutate: convertSubs } = useDirectstreamConvertSubs()
 
     const isFirstError = React.useRef(true)
     const shouldDispatchTerminatedOnUnmount = React.useRef(false)
@@ -989,6 +988,9 @@ export function VideoCore(props: VideoCoreProps) {
                 return new MediaCaptionsManager({
                     videoElement: v!,
                     tracks: nonLibassSubtitleTracks,
+                    translateTargetLang: serverStatus?.settings?.mediaPlayer?.vcTranslate
+                        ? serverStatus?.settings?.mediaPlayer?.vcTranslateTargetLanguage
+                        : null,
                     settings: settings,
                     fetchAndConvertToVTT: (url?: string, content?: string) => {
                         return new Promise((resolve, reject) => {
@@ -997,6 +999,14 @@ export function VideoCore(props: VideoCoreProps) {
                                 onError: (error) => reject(error),
                             })
                         })
+                    },
+                    sendTranslateRequest: (text?: string, track?: VideoCore_VideoSubtitleTrack) => {
+                        if (text) {
+                            dispatchTranslateTextEvent(text)
+                        }
+                        if (track) {
+                            dispatchTranslateSubtitleTrackEvent(track)
+                        }
                     },
                 })
             })
@@ -1007,14 +1017,25 @@ export function VideoCore(props: VideoCoreProps) {
                     videoElement: v!,
                     playbackInfo: state.playbackInfo!,
                     jassubOffscreenRender: true,
+                    translateTargetLang: serverStatus?.settings?.mediaPlayer?.vcTranslate
+                        ? serverStatus?.settings?.mediaPlayer?.vcTranslateTargetLanguage
+                        : null,
                     settings: settings,
                     fetchAndConvertToASS: (url?: string, content?: string) => {
                         return new Promise((resolve, reject) => {
-                            fetchAndConvertToASS({ url: url ?? "", content: content ?? "" }, {
+                            convertSubs({ url: url ?? "", content: content ?? "", to: "ass" }, {
                                 onSuccess: (data) => resolve(data),
                                 onError: (error) => reject(error),
                             })
                         })
+                    },
+                    sendTranslateRequest: (text?: string, track?: VideoCore_VideoSubtitleTrack) => {
+                        if (text) {
+                            dispatchTranslateTextEvent(text)
+                        }
+                        if (track) {
+                            dispatchTranslateSubtitleTrackEvent(track)
+                        }
                     },
                 })
             })
@@ -1443,6 +1464,7 @@ export function VideoCore(props: VideoCoreProps) {
 
             // Otherwise, create chapters from AniSkip data if available
             if (!!aniSkipData?.op?.interval && duration > 0) {
+                log.info("Creating chapter cues from AniSkip data", aniSkipData)
                 const chapters = vc_createChaptersFromAniSkip(aniSkipData, duration, state?.playbackInfo?.media?.format)
                 const cues = vc_createChapterCues(chapters, duration)
                 log.info("Chapter cues from AniSkip", cues)

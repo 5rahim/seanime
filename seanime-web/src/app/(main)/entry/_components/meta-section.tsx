@@ -15,6 +15,7 @@ import {
     MediaPageHeaderEntryDetails,
 } from "@/app/(main)/_features/media/_components/media-page-header-components"
 import { MediaSyncTrackButton } from "@/app/(main)/_features/media/_containers/media-sync-track-button"
+import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { useHasDebridService, useHasTorrentProvider, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { NextAiringEpisode } from "@/app/(main)/entry/_components/next-airing-episode"
 import { EntrySectionTabs, useAnimeEntryPageView } from "@/app/(main)/entry/_containers/anime-entry-page"
@@ -121,9 +122,11 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                         >
                             <AnimeEntryRankings rankings={details?.rankings} />
                         </div>
+
                     </div>
                 </MediaPageHeaderEntryDetails>
 
+                <PluginWebviewSlot slot="after-media-entry-details" />
 
                 <div
                     data-anime-meta-section-buttons-container
@@ -177,7 +180,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                             size="md"
                         />
                     </>}
-                    <AnimeEntryDropdownMenu entry={entry} />
+                    <AnimeEntryDropdownMenu entry={entry} details={details} />
 
 
                     {(

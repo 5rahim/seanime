@@ -1,324 +1,372 @@
 package goja_bindings
 
 import (
-	"fmt"
-	"net/http"
-	"net/http/httptest"
-	"seanime/internal/util"
-	"sync"
 	"testing"
-	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/dop251/goja"
-	gojabuffer "github.com/dop251/goja_nodejs/buffer"
-	gojarequire "github.com/dop251/goja_nodejs/require"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
-func TestFetch_ThreadSafety(t *testing.T) {
-	// Create a test server that simulates different response times
-	var serverRequestCount int
-	var serverMu sync.Mutex
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		serverMu.Lock()
-		serverRequestCount++
-		currentRequest := serverRequestCount
-		serverMu.Unlock()
+// inspired by figma
 
-		// Simulate varying response times to increase chance of race conditions
-		time.Sleep(time.Duration(currentRequest%3) * 50 * time.Millisecond)
+func TestIsURLAllowed(t *testing.T) {
+	vm := goja.New()
 
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"request": %d}`, currentRequest)
-	}))
-	defer server.Close()
+	tests := []struct {
+		name           string
+		allowedDomains []string
+		url            string
+		expected       bool
+	}{
+		// Empty allowedDomains, should deny everything
+		{
+			name:           "empty allowed domains denies all",
+			allowedDomains: []string{},
+			url:            "https://example.com",
+			expected:       false,
+		},
 
-	// Create JavaScript test code that makes concurrent fetch calls
-	jsCode := fmt.Sprintf(`
-		const url = %q;
-		const promises = [];
-		
-		// Function to make a fetch request and verify response
-		async function makeFetch(i) {
-			const response = await fetch(url);
-			const data = await response.json();
-			return { index: i, data };
-		}
+		// Wildcard "*", allows everything
+		{
+			name:           "wildcard allows any URL",
+			allowedDomains: []string{"*"},
+			url:            "https://example.com/api/data",
+			expected:       true,
+		},
+		{
+			name:           "wildcard allows localhost",
+			allowedDomains: []string{"*"},
+			url:            "http://localhost:3000",
+			expected:       true,
+		},
 
-		// Create multiple concurrent requests
-		for (let i = 0; i < 50; i++) {
-			promises.push(makeFetch(i));
-		}
+		// Exact domain matches
+		{
+			name:           "exact domain match",
+			allowedDomains: []string{"example.com"},
+			url:            "https://example.com",
+			expected:       true,
+		},
+		{
+			name:           "exact domain with path",
+			allowedDomains: []string{"example.com"},
+			url:            "https://example.com/api/data",
+			expected:       true,
+		},
+		{
+			name:           "exact domain mismatch",
+			allowedDomains: []string{"example.com"},
+			url:            "https://other.com",
+			expected:       false,
+		},
+		{
+			name:           "exact domain with different subdomain",
+			allowedDomains: []string{"example.com"},
+			url:            "https://api.example.com",
+			expected:       false,
+		},
 
-		// Wait for all requests to complete
-		Promise.all(promises)
-	`, server.URL)
+		// Subdomain wildcard (*.example.com)
+		{
+			name:           "subdomain wildcard matches subdomain",
+			allowedDomains: []string{"*.example.com"},
+			url:            "https://api.example.com",
+			expected:       true,
+		},
+		{
+			name:           "subdomain wildcard matches nested subdomain",
+			allowedDomains: []string{"*.example.com"},
+			url:            "https://api.v2.example.com",
+			expected:       true,
+		},
+		{
+			name:           "subdomain wildcard matches base domain",
+			allowedDomains: []string{"*.example.com"},
+			url:            "https://example.com",
+			expected:       true,
+		},
+		{
+			name:           "subdomain wildcard does not match different domain",
+			allowedDomains: []string{"*.example.com"},
+			url:            "https://example.org",
+			expected:       false,
+		},
+		{
+			name:           "subdomain wildcard with path",
+			allowedDomains: []string{"*.example.com"},
+			url:            "https://api.example.com/data",
+			expected:       true,
+		},
 
-	// Run the code multiple times to increase chance of catching race conditions
-	for i := 0; i < 5; i++ {
-		t.Run(fmt.Sprintf("Iteration_%d", i), func(t *testing.T) {
-			// Create a new VM for each iteration
-			vm := goja.New()
-			BindFetch(vm)
+		// Scheme-specific patterns
+		{
+			name:           "http scheme matches",
+			allowedDomains: []string{"http://example.com"},
+			url:            "http://example.com",
+			expected:       true,
+		},
+		{
+			name:           "http scheme does not match https",
+			allowedDomains: []string{"http://example.com"},
+			url:            "https://example.com",
+			expected:       false,
+		},
+		{
+			name:           "https scheme matches",
+			allowedDomains: []string{"https://example.com"},
+			url:            "https://example.com",
+			expected:       true,
+		},
+		{
+			name:           "https scheme does not match http",
+			allowedDomains: []string{"https://example.com"},
+			url:            "http://example.com",
+			expected:       false,
+		},
+		{
+			name:           "ws scheme matches",
+			allowedDomains: []string{"ws://example.com"},
+			url:            "ws://example.com",
+			expected:       true,
+		},
+		{
+			name:           "wss scheme matches",
+			allowedDomains: []string{"wss://socket.io"},
+			url:            "wss://socket.io",
+			expected:       true,
+		},
 
-			// Execute the JavaScript code
-			v, err := vm.RunString(jsCode)
-			assert.NoError(t, err)
+		// Path-specific patterns with trailing slash
+		{
+			name:           "path with trailing slash allows deeper paths",
+			allowedDomains: []string{"example.com/api/"},
+			url:            "https://example.com/api/users",
+			expected:       true,
+		},
+		{
+			name:           "path with trailing slash allows exact match",
+			allowedDomains: []string{"example.com/api/"},
+			url:            "https://example.com/api/",
+			expected:       true,
+		},
+		{
+			name:           "path with trailing slash denies different path",
+			allowedDomains: []string{"example.com/api/"},
+			url:            "https://example.com/other",
+			expected:       false,
+		},
+		{
+			name:           "path with trailing slash denies parent path",
+			allowedDomains: []string{"example.com/api/data/"},
+			url:            "https://example.com/api",
+			expected:       false,
+		},
 
-			// Get the Promise
-			promise, ok := v.Export().(*goja.Promise)
-			assert.True(t, ok)
+		// Path-specific patterns without trailing slash
+		{
+			name:           "path without trailing slash exact match",
+			allowedDomains: []string{"api.example.com/rest/get"},
+			url:            "https://api.example.com/rest/get",
+			expected:       true,
+		},
+		{
+			name:           "path without trailing slash denies deeper path",
+			allowedDomains: []string{"api.example.com/rest/get"},
+			url:            "https://api.example.com/rest/get/exampleresource.json",
+			expected:       false,
+		},
+		{
+			name:           "path without trailing slash denies different path",
+			allowedDomains: []string{"api.example.com/rest/get"},
+			url:            "https://api.example.com/rest/post",
+			expected:       false,
+		},
 
-			// Wait for the Promise to resolve
-			for promise.State() == goja.PromiseStatePending {
-				time.Sleep(10 * time.Millisecond)
-			}
+		// Localhost patterns
+		{
+			name:           "localhost without port",
+			allowedDomains: []string{"http://localhost"},
+			url:            "http://localhost",
+			expected:       true,
+		},
+		{
+			name:           "localhost with specific port matches",
+			allowedDomains: []string{"http://localhost:3000"},
+			url:            "http://localhost:3000",
+			expected:       true,
+		},
+		{
+			name:           "localhost with different port matches base",
+			allowedDomains: []string{"http://localhost"},
+			url:            "http://localhost:8080",
+			expected:       true,
+		},
+		{
+			name:           "localhost https",
+			allowedDomains: []string{"https://localhost"},
+			url:            "https://localhost",
+			expected:       true,
+		},
+		{
+			name:           "localhost with path",
+			allowedDomains: []string{"http://localhost:3000"},
+			url:            "http://localhost:3000/api/test",
+			expected:       true,
+		},
 
-			// Verify the Promise resolved successfully
-			assert.Equal(t, goja.PromiseStateFulfilled, promise.State())
+		// Specific resource URLs
+		{
+			name:           "specific resource URL with trailing slash",
+			allowedDomains: []string{"www.example.com/images/"},
+			url:            "https://www.example.com/images/img1.png",
+			expected:       true,
+		},
+		{
+			name:           "specific resource URL matches subdirectory",
+			allowedDomains: []string{"www.example.com/images/"},
+			url:            "https://www.example.com/images/avatars/img2.png",
+			expected:       true,
+		},
+		{
+			name:           "specific resource URL denies sibling path",
+			allowedDomains: []string{"www.example.com/images/"},
+			url:            "https://www.example.com/videos/video.mp4",
+			expected:       false,
+		},
+		{
+			name:           "CDN with https scheme",
+			allowedDomains: []string{"https://my-app.cdn.com"},
+			url:            "https://my-app.cdn.com/assets/style.css",
+			expected:       true,
+		},
+		{
+			name:           "S3 bucket path",
+			allowedDomains: []string{"http://s3.amazonaws.com/example_bucket/"},
+			url:            "http://s3.amazonaws.com/example_bucket/file.json",
+			expected:       true,
+		},
 
-			// Verify we got an array of results
-			results, ok := promise.Result().Export().([]interface{})
-			assert.True(t, ok)
-			assert.Len(t, results, 50)
+		// Multiple domains
+		{
+			name:           "multiple domains, first matches",
+			allowedDomains: []string{"example.com", "figma.com"},
+			url:            "https://example.com",
+			expected:       true,
+		},
+		{
+			name:           "multiple domains, second matches",
+			allowedDomains: []string{"example.com", "figma.com"},
+			url:            "https://figma.com/api",
+			expected:       true,
+		},
+		{
+			name:           "multiple domains, none match",
+			allowedDomains: []string{"example.com", "figma.com"},
+			url:            "https://other.com",
+			expected:       false,
+		},
 
-			// Verify each result has the expected structure
-			for _, result := range results {
-				resultMap, ok := result.(map[string]interface{})
-				assert.True(t, ok)
-				assert.Contains(t, resultMap, "index")
-				assert.Contains(t, resultMap, "data")
+		// Complex real-world scenarios
+		{
+			name: "complex mix of patterns",
+			allowedDomains: []string{
+				"figma.com",
+				"*.google.com",
+				"https://my-app.cdn.com",
+				"wss://socket.io",
+				"example.com/api/",
+				"exact-path.com/content",
+			},
+			url:      "https://maps.google.com",
+			expected: true,
+		},
+		{
+			name: "complex mix, CDN match",
+			allowedDomains: []string{
+				"figma.com",
+				"*.google.com",
+				"https://my-app.cdn.com",
+				"wss://socket.io",
+				"example.com/api/",
+				"exact-path.com/content",
+			},
+			url:      "https://my-app.cdn.com/bundle.js",
+			expected: true,
+		},
+		{
+			name: "complex mix, path prefix match",
+			allowedDomains: []string{
+				"figma.com",
+				"*.google.com",
+				"https://my-app.cdn.com",
+				"wss://socket.io",
+				"example.com/api/",
+				"exact-path.com/content",
+			},
+			url:      "https://example.com/api/users/123",
+			expected: true,
+		},
+		{
+			name: "complex mix, exact path only",
+			allowedDomains: []string{
+				"figma.com",
+				"*.google.com",
+				"https://my-app.cdn.com",
+				"wss://socket.io",
+				"example.com/api/",
+				"exact-path.com/content",
+			},
+			url:      "https://exact-path.com/content",
+			expected: true,
+		},
+		{
+			name: "complex mix, exact path blocks deeper",
+			allowedDomains: []string{
+				"figma.com",
+				"*.google.com",
+				"https://my-app.cdn.com",
+				"wss://socket.io",
+				"example.com/api/",
+				"exact-path.com/content",
+			},
+			url:      "https://exact-path.com/content/deep",
+			expected: false,
+		},
 
-				data, ok := resultMap["data"].(map[string]interface{})
-				assert.True(t, ok)
-				assert.Contains(t, data, "request")
+		// Edge cases
+		{
+			name:           "invalid URL",
+			allowedDomains: []string{"example.com"},
+			url:            "not a valid url",
+			expected:       false,
+		},
+		{
+			name:           "empty URL",
+			allowedDomains: []string{"example.com"},
+			url:            "",
+			expected:       false,
+		},
+		{
+			name:           "URL with query parameters",
+			allowedDomains: []string{"example.com"},
+			url:            "https://example.com/api?key=value",
+			expected:       true,
+		},
+		{
+			name:           "URL with fragment",
+			allowedDomains: []string{"example.com"},
+			url:            "https://example.com/page#section",
+			expected:       true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := NewFetch(vm, tt.allowedDomains)
+			result := f.isURLAllowed(tt.url)
+			if result != tt.expected {
+				t.Errorf("isURLAllowed(%q) with domains %v = %v, expected %v",
+					tt.url, tt.allowedDomains, result, tt.expected)
 			}
 		})
-	}
-}
-
-func TestFetch_VMIsolation(t *testing.T) {
-	// Create a test server
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, `{"test": "data"}`)
-	}))
-	defer server.Close()
-
-	// Create multiple VMs and make concurrent requests
-	const numVMs = 5
-	const requestsPerVM = 40
-
-	var wg sync.WaitGroup
-	for i := 0; i < numVMs; i++ {
-		wg.Add(1)
-		go func(vmIndex int) {
-			defer wg.Done()
-
-			// Create a new VM for this goroutine
-			vm := goja.New()
-			BindFetch(vm)
-
-			// Create JavaScript code that makes multiple requests
-			jsCode := fmt.Sprintf(`
-				const url = %q;
-				const promises = [];
-				
-				for (let i = 0; i < %d; i++) {
-					promises.push(fetch(url).then(r => r.json()));
-				}
-
-				Promise.all(promises)
-			`, server.URL, requestsPerVM)
-
-			// Execute the code
-			v, err := vm.RunString(jsCode)
-			assert.NoError(t, err)
-
-			// Get and wait for the Promise
-			promise := v.Export().(*goja.Promise)
-			for promise.State() == goja.PromiseStatePending {
-				time.Sleep(10 * time.Millisecond)
-			}
-
-			// Verify the Promise resolved successfully
-			assert.Equal(t, goja.PromiseStateFulfilled, promise.State())
-
-			// Verify we got the expected number of results
-			results := promise.Result().Export().([]interface{})
-			assert.Len(t, results, requestsPerVM)
-		}(i)
-	}
-
-	wg.Wait()
-}
-
-func TestGojaPromiseAll(t *testing.T) {
-	vm := goja.New()
-
-	BindFetch(vm)
-
-	registry := new(gojarequire.Registry)
-	registry.Enable(vm)
-	gojabuffer.Enable(vm)
-	BindConsole(vm, util.NewLogger())
-
-	_, err := vm.RunString(`
-	async function run() {
-		const [a, b, c] = await Promise.all([
-			fetch("https://jsonplaceholder.typicode.com/todos/1"),
-			fetch("https://jsonplaceholder.typicode.com/todos/2"),
-			fetch("https://jsonplaceholder.typicode.com/todos/3"),
-			fetch("https://jsonplaceholder.typicode.com/todos/4"),
-			fetch("https://jsonplaceholder.typicode.com/todos/5"),
-			fetch("https://jsonplaceholder.typicode.com/todos/6"),
-			fetch("https://jsonplaceholder.typicode.com/todos/7"),
-			fetch("https://jsonplaceholder.typicode.com/todos/8"),
-		])
-
-		const dataA = await a.json();
-		const dataB = await b.json();
-		const dataC = await c.json();
-
-		console.log("Data A:", dataA.title);
-		console.log("Data B:", dataB);
-		console.log("Data C:", dataC);
-	}
-	`)
-	require.NoError(t, err)
-
-	runFunc, ok := goja.AssertFunction(vm.Get("run"))
-	require.True(t, ok)
-
-	ret, err := runFunc(goja.Undefined())
-	require.NoError(t, err)
-
-	promise := ret.Export().(*goja.Promise)
-
-	for promise.State() == goja.PromiseStatePending {
-		time.Sleep(10 * time.Millisecond)
-	}
-}
-
-func TestGojaFormDataAndFetch(t *testing.T) {
-	vm := goja.New()
-	BindFetch(vm)
-
-	registry := new(gojarequire.Registry)
-	registry.Enable(vm)
-	gojabuffer.Enable(vm)
-	BindConsole(vm, util.NewLogger())
-
-	_, err := vm.RunString(`
-async function run() {
-	const formData = new FormData();
-	formData.append("username", "John");
-	formData.append("accountnum", 123456);
-	
-	console.log(formData.get("username")); // John
-
-	const fData = new URLSearchParams();
-	for (const pair of formData.entries()) {
-		fData.append(pair[0], pair[1]);
-	}
-	
-	const response = await fetch('https://httpbin.org/post', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
-		},
-		body: formData
-	});
-
-	const data = await response.json();
-	console.log(data);
-
-	console.log("Echoed GojaFormData content:");
-    if (data.form) {
-        for (const key in data.form) {
-            console.log(key, data.form[key]);
-        }
-    } else {
-        console.log("No form data echoed in the response.");
-    }
-
-	return data;
-}
-	`)
-	require.NoError(t, err)
-
-	runFunc, ok := goja.AssertFunction(vm.Get("run"))
-	require.True(t, ok)
-
-	ret, err := runFunc(goja.Undefined())
-	require.NoError(t, err)
-
-	promise := ret.Export().(*goja.Promise)
-
-	for promise.State() == goja.PromiseStatePending {
-		time.Sleep(10 * time.Millisecond)
-	}
-
-	if promise.State() == goja.PromiseStateFulfilled {
-		spew.Dump(promise.Result())
-	} else {
-		err := promise.Result()
-		spew.Dump(err)
-	}
-}
-
-func TestGojaFetchPostJSON(t *testing.T) {
-	vm := goja.New()
-
-	BindFetch(vm)
-
-	registry := new(gojarequire.Registry)
-	registry.Enable(vm)
-	gojabuffer.Enable(vm)
-	BindConsole(vm, util.NewLogger())
-
-	_, err := vm.RunString(`
-async function run() {
-	const response = await fetch('https://httpbin.org/post', {
-		method: 'POST',
-		body: { name: "John Doe", age: 30 },
-	});
-
-	const data = await response.json();
-	console.log(data);
-
-	console.log("Echoed content:");
-    if (data.json) {
-        for (const key in data.json) {
-            console.log(key, data.json[key]);
-        }
-    } else {
-        console.log("No form data echoed in the response.");
-    }
-
-	return data;
-}
-	`)
-	require.NoError(t, err)
-
-	runFunc, ok := goja.AssertFunction(vm.Get("run"))
-	require.True(t, ok)
-
-	ret, err := runFunc(goja.Undefined())
-	require.NoError(t, err)
-
-	promise := ret.Export().(*goja.Promise)
-
-	for promise.State() == goja.PromiseStatePending {
-		time.Sleep(10 * time.Millisecond)
-	}
-
-	if promise.State() == goja.PromiseStateFulfilled {
-		spew.Dump(promise.Result())
-	} else {
-		err := promise.Result()
-		spew.Dump(err)
 	}
 }

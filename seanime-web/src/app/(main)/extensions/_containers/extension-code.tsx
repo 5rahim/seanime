@@ -6,15 +6,17 @@ import { Modal } from "@/components/ui/modal"
 import { javascript } from "@codemirror/lang-javascript"
 import { StreamLanguage } from "@codemirror/language"
 import { go } from "@codemirror/legacy-modes/mode/go"
+import { unifiedMergeView } from "@codemirror/merge"
 import { vscodeDark } from "@uiw/codemirror-theme-vscode"
-import CodeMirror from "@uiw/react-codemirror"
-import React from "react"
+import CodeMirror, { EditorView } from "@uiw/react-codemirror"
+import React, { useMemo } from "react"
 
 
 type ExtensionCodeModalProps = {
     children?: React.ReactElement
     extension: Extension_Extension
     readOnly?: boolean
+    diff?: string
 }
 
 export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
@@ -40,6 +42,7 @@ function Content(props: ExtensionCodeModalProps) {
     const {
         extension,
         readOnly,
+        diff,
     } = props
 
     const [code, setCode] = React.useState("")
@@ -84,7 +87,7 @@ function Content(props: ExtensionCodeModalProps) {
                 <p>
                     {extension.name}
                 </p>
-                {readOnly && <div className="text-sm text-[--muted]">
+                {!readOnly && !diff && <div className="text-sm text-[--muted]">
                     You can edit the code of the extension here.
                 </div>}
             </div>
@@ -94,11 +97,12 @@ function Content(props: ExtensionCodeModalProps) {
                 </Button>
                 <div className="flex flex-1"></div>
             </div>}
-            <ExtensionCodeEditor
+            {!diff ? <ExtensionCodeEditor
                 code={code}
                 setCode={setCode}
                 language={extension.language}
-            />
+                readOnly={readOnly}
+            /> : <UnifiedDiff oldCode={diff} currentCode={code} />}
         </>
     )
 }
@@ -108,7 +112,8 @@ function ExtensionCodeEditor({
     code,
     setCode,
     language,
-}: { code: string, language: string, setCode: any }) {
+    readOnly,
+}: { code: string, language: string, setCode: any, readOnly?: boolean }) {
 
     return (
         <div className="overflow-hidden rounded-[--radius-md]">
@@ -118,6 +123,46 @@ function ExtensionCodeEditor({
                 theme={vscodeDark}
                 extensions={[javascript({ typescript: language === "typescript" }), StreamLanguage.define(go)]}
                 onChange={setCode}
+                readOnly={readOnly}
+            />
+        </div>
+    )
+}
+
+interface Props {
+    oldCode: string;
+    currentCode: string;
+}
+
+export const UnifiedDiff = ({ oldCode, currentCode }: Props) => {
+    const extensions = useMemo(() => [
+        javascript({ typescript: true }),
+        unifiedMergeView({
+            original: oldCode,
+            highlightChanges: true,
+            gutter: true,
+            mergeControls: false,
+            // allowInlineDiffs: true,
+        }),
+    ], [oldCode])
+
+    const hideDiffStyles = EditorView.theme({
+        ".cm-changedText": {
+            background: "rgba(100, 160, 128, .1) !important",
+        },
+        ".cm-changedLine": {
+            background: "rgba(100, 160, 128, .06) !important",
+        },
+    })
+
+    return (
+        <div className="overflow-hidden rounded-[--radius-md]">
+            <CodeMirror
+                value={currentCode}
+                height="75vh"
+                theme={vscodeDark}
+                extensions={[hideDiffStyles, ...extensions]}
+                readOnly
             />
         </div>
     )

@@ -150,6 +150,7 @@ func (t *TrayManager) jsNewTray(call goja.FunctionCall) goja.Value {
 	// Create a new tray object
 	trayObj := t.ctx.vm.NewObject()
 	_ = trayObj.Set("render", tray.jsRender)
+	_ = trayObj.Set("htm", tray.jsHtm)
 	_ = trayObj.Set("update", tray.jsUpdate)
 	_ = trayObj.Set("onOpen", tray.jsOnOpen)
 	_ = trayObj.Set("onClose", tray.jsOnClose)
@@ -170,6 +171,24 @@ func (t *TrayManager) jsNewTray(call goja.FunctionCall) goja.Value {
 	_ = trayObj.Set("switch", t.componentManager.jsSwitch)
 	_ = trayObj.Set("checkbox", t.componentManager.jsCheckbox)
 	_ = trayObj.Set("select", t.componentManager.jsSelect)
+	_ = trayObj.Set("css", t.componentManager.jsCSS)
+	_ = trayObj.Set("tooltip", t.componentManager.jsTooltip)
+	_ = trayObj.Set("modal", t.componentManager.jsModal)
+	_ = trayObj.Set("dropdownMenu", t.componentManager.jsDropdownMenu)
+	_ = trayObj.Set("dropdownMenuItem", t.componentManager.jsDropdownMenuItem)
+	_ = trayObj.Set("dropdownMenuSeparator", t.componentManager.jsDropdownMenuSeparator)
+	_ = trayObj.Set("dropdownMenuLabel", t.componentManager.jsDropdownMenuLabel)
+	_ = trayObj.Set("popover", t.componentManager.jsPopover)
+	_ = trayObj.Set("a", t.componentManager.jsA)
+	_ = trayObj.Set("p", t.componentManager.jsP)
+	_ = trayObj.Set("alert", t.componentManager.jsAlert)
+	_ = trayObj.Set("tabs", t.componentManager.jsTabs)
+	_ = trayObj.Set("tabsList", t.componentManager.jsTabsList)
+	_ = trayObj.Set("tabsTrigger", t.componentManager.jsTabsTrigger)
+	_ = trayObj.Set("tabsContent", t.componentManager.jsTabsContent)
+	_ = trayObj.Set("badge", t.componentManager.jsBadge)
+	_ = trayObj.Set("span", t.componentManager.jsSpan)
+	_ = trayObj.Set("img", t.componentManager.jsImg)
 
 	return trayObj
 }
@@ -185,10 +204,48 @@ func (t *Tray) jsRender(call goja.FunctionCall) goja.Value {
 	funcRes, ok := call.Argument(0).Export().(func(goja.FunctionCall) goja.Value)
 	if !ok {
 		t.trayManager.ctx.handleTypeError("render requires a function")
+		return goja.Undefined()
 	}
 
 	// Set the render function
 	t.renderFunc = funcRes
+
+	return goja.Undefined()
+}
+
+// jsHtm registers a function that returns an HTM string to be parsed and rendered
+//
+//	Example:
+//	tray.htm(() => `<stack><text text="Hello" /></stack>`)
+func (t *Tray) jsHtm(call goja.FunctionCall) goja.Value {
+
+	funcRes, ok := call.Argument(0).Export().(func(goja.FunctionCall) goja.Value)
+	if !ok {
+		t.trayManager.ctx.handleTypeError("htm requires a function")
+		return goja.Undefined()
+	}
+
+	// Create a wrapper function that parses the HTM string and returns components
+	t.renderFunc = func(call goja.FunctionCall) goja.Value {
+		// return htm string
+		htmValue := funcRes(goja.FunctionCall{})
+		htmString, ok := htmValue.Export().(string)
+		if !ok {
+			t.trayManager.ctx.handleTypeError("htm function must return a string")
+			return goja.Undefined()
+		}
+		htmString = cleanHTMLString(htmString)
+
+		// Parse the HTM string into components
+		components, err := t.trayManager.componentManager.parseHTM(htmString)
+		if err != nil {
+			t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Failed to parse HTM string")
+			return goja.Undefined()
+		}
+
+		// Convert back to goja.Value
+		return t.trayManager.ctx.vm.ToValue(components)
+	}
 
 	return goja.Undefined()
 }
@@ -241,11 +298,13 @@ func (t *Tray) jsUpdateBadge(call goja.FunctionCall) goja.Value {
 	propsObj, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
 		t.trayManager.ctx.handleTypeError("updateBadge requires a callback function")
+		return goja.Undefined()
 	}
 
 	number, ok := propsObj["number"].(int64)
 	if !ok {
 		t.trayManager.ctx.handleTypeError("updateBadge: number must be an integer")
+		return goja.Undefined()
 	}
 
 	intent, ok := propsObj["intent"].(string)
@@ -277,6 +336,7 @@ func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
 		t.trayManager.ctx.handleTypeError("onOpen requires a callback function")
+		return goja.Undefined()
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayOpenedEvent)
@@ -311,6 +371,7 @@ func (t *Tray) jsOnClick(call goja.FunctionCall) goja.Value {
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
 		t.trayManager.ctx.handleTypeError("onClick requires a callback function")
+		return goja.Undefined()
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayClickedEvent)
@@ -345,6 +406,7 @@ func (t *Tray) jsOnClose(call goja.FunctionCall) goja.Value {
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
 		t.trayManager.ctx.handleTypeError("onClose requires a callback function")
+		return goja.Undefined()
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayClosedEvent)

@@ -1505,6 +1505,7 @@ export type Anime_EpisodeMetadata = {
      * Indicates if the episode has a real image
      */
     hasImage?: boolean
+    title?: string
 }
 
 /**
@@ -2195,6 +2196,8 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  *  The user must acknowledge these permissions before the plugin can be loaded.
  */
 export type Extension_PluginAllowlist = {
+    networkAccess: Extension_PluginNetworkAcess
+    unsafeFlags?: Array<Extension_PluginUnsafe>
     readPaths?: Array<string>
     writePaths?: Array<string>
     commandScopes?: Array<Extension_CommandScope>
@@ -2211,6 +2214,16 @@ export type Extension_PluginManifest = {
 }
 
 /**
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
+ * - Package: extension
+ */
+export type Extension_PluginNetworkAcess = {
+    allowedDomains?: Array<string>
+    reasoning?: string
+}
+
+/**
  * - Filepath: internal/extension/extension.go
  * - Filename: extension.go
  * - Package: extension
@@ -2224,8 +2237,25 @@ export type Extension_PluginPermissionScope = string
  */
 export type Extension_PluginPermissions = {
     scopes?: Array<Extension_PluginPermissionScope>
-    allow?: Extension_PluginAllowlist
+    allow: Extension_PluginAllowlist
 }
+
+/**
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
+ * - Package: extension
+ */
+export type Extension_PluginUnsafe = {
+    flag: Extension_PluginUnsafeFlag
+    reason: string
+}
+
+/**
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
+ * - Package: extension
+ */
+export type Extension_PluginUnsafeFlag = "dom-script-manipulation" | "dom-link-manipulation"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -2296,6 +2326,7 @@ export type ExtensionRepo_AllExtensions = {
     invalidExtensions?: Array<Extension_InvalidExtension>
     invalidUserConfigExtensions?: Array<Extension_InvalidExtension>
     hasUpdate?: Array<ExtensionRepo_UpdateData>
+    unsafeExtensions?: Record<string, boolean>
 }
 
 /**
@@ -2411,6 +2442,7 @@ export type ExtensionRepo_UpdateData = {
     extensionID: string
     manifestURI: string
     version: string
+    payload: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3665,6 +3697,20 @@ export type Models_MangaSettings = {
  * - Filename: models.go
  * - Package: models
  */
+export type Models_MediaMetadataParent = {
+    mediaId: number
+    parentId: number
+    specialOffset: number
+    id: number
+    createdAt?: string
+    updatedAt?: string
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
 export type Models_MediaPlayerSettings = {
     /**
      * "vlc" or "mpc-hc"
@@ -3683,6 +3729,10 @@ export type Models_MediaPlayerSettings = {
     iinaSocket: string
     iinaPath: string
     iinaArgs: string
+    vcTranslate: boolean
+    vcTranslateTargetLanguage: string
+    vcTranslateProvider: string
+    vcTranslateApiKey: string
 }
 
 /**
@@ -4196,7 +4246,6 @@ export type Onlinestream_EpisodeListResponse = {
 export type Onlinestream_EpisodeSource = {
     number: number
     videoSources?: Array<Onlinestream_VideoSource>
-    subtitles?: Array<Onlinestream_Subtitle>
 }
 
 /**
@@ -4230,6 +4279,72 @@ export type Onlinestream_VideoSource = {
     label?: string
     quality: string
     type?: HibikeOnlinestream_VideoSourceType
+    subtitles?: Array<Onlinestream_Subtitle>
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PluginUi
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/plugin/ui/webview.go
+ * - Filename: webview.go
+ * - Package: plugin_ui
+ */
+export type PluginUI_WebviewOptions = {
+    className?: string
+    style?: string
+    width?: string
+    height?: string
+    maxWidth?: string
+    maxHeight?: string
+    zIndex?: number
+    window?: PluginUI_WebviewWindowOptions
+    autoHeight?: boolean
+    fullWidth?: boolean
+    sidebar?: PluginUI_WebviewSidebarOptions
+}
+
+/**
+ * - Filepath: internal/plugin/ui/webview.go
+ * - Filename: webview.go
+ * - Package: plugin_ui
+ */
+export type PluginUI_WebviewSidebarOptions = {
+    label?: string
+    icon?: string
+}
+
+/**
+ * - Filepath: internal/plugin/ui/webview.go
+ * - Filename: webview.go
+ * - Package: plugin_ui
+ */
+export type PluginUI_WebviewSlot = "screen" |
+    "fixed" |
+    "after-home-screen-toolbar" |
+    "home-screen-bottom" |
+    "schedule-screen-top" |
+    "schedule-screen-bottom" |
+    "anime-screen-bottom" |
+    "after-anime-entry-episode-list" |
+    "before-anime-entry-episode-list" |
+    "manga-screen-bottom" |
+    "manga-entry-screen-bottom" |
+    "after-manga-entry-chapter-list" |
+    "after-discover-screen-header" |
+    "after-media-entry-details" |
+    "after-media-entry-form"
+
+/**
+ * - Filepath: internal/plugin/ui/webview.go
+ * - Filename: webview.go
+ * - Package: plugin_ui
+ */
+export type PluginUI_WebviewWindowOptions = {
+    draggable?: boolean
+    defaultX?: number
+    defaultY?: number
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4786,7 +4901,9 @@ export type VideoCore_ClientEventType = "video-loaded" |
     "video-playback-state" |
     "subtitle-file-uploaded" |
     "video-playlist" |
-    "video-text-tracks"
+    "video-text-tracks" |
+    "translate-text" |
+    "translate-subtitle-file-track"
 
 /**
  * - Filepath: internal/videocore/types.go
@@ -4853,6 +4970,7 @@ export type VideoCore_ServerEvent = "pause" |
     "play-playlist-episode" |
     "get-text-tracks" |
     "request-play-episode" |
+    "translated-text" |
     "get-fullscreen" |
     "get-pip" |
     "get-anime-4k" |

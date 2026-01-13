@@ -1,7 +1,7 @@
 import { useGetLibraryExplorerFileTree, useRefreshLibraryExplorerFileTree } from "@/api/generated/library_explorer.hooks"
 import { AL_BaseAnime, Anime_LocalFile, Anime_LocalFileType, LibraryExplorer_FileTreeNodeJSON } from "@/api/generated/types"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
-import { useUpdateLocalFileData, useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
+import { useDeleteLocalFiles, useUpdateLocalFileData, useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { __unknownMedia_drawerIsOpen, UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { __unmatchedFileManagerIsOpen, UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
@@ -12,13 +12,14 @@ import {
     libraryExplorer_collectLocalFileNodes,
     libraryExplorer_getCheckboxState,
 } from "@/app/(main)/_features/library-explorer/library-explorer.utils"
+import { FilepathSelector } from "@/app/(main)/_features/media/_components/filepath-selector"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { SeaImage } from "@/components/shared/sea-image"
 import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ContextMenuItem, ContextMenuLabel, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu"
+import { ContextMenuItem, ContextMenuLabel, ContextMenuSeparator, ContextMenuSub, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -46,6 +47,7 @@ import {
     LuFilterX,
     LuFolderSync,
     LuPlus,
+    LuTrash2,
 } from "react-icons/lu"
 import { MdOutlineAdd, MdOutlineRemoveDone, MdVideoFile } from "react-icons/md"
 import { RiFolderOpenFill } from "react-icons/ri"
@@ -652,6 +654,7 @@ export function LibraryExplorerBulkActions(props: LibraryExplorerBulkActionsProp
 
     const [isSelectingPaths] = useAtom(libraryExplorer_isSelectingPathsAtom)
     const [selectedPaths] = useAtom(libraryExplorer_selectedPathsAtom)
+    const [deleteModalOpen, setDeleteModalOpen] = React.useState(false)
 
     const selectedPathFileNodes = fileNodes?.filter(n => selectedPaths.has(n.path))
     const shouldShowUnmatchFiles = selectedPathFileNodes?.some(n => n.kind === "file" && !!n.localFile && !!n.localFile?.mediaId)
@@ -698,8 +701,22 @@ export function LibraryExplorerBulkActions(props: LibraryExplorerBulkActionsProp
                         ? "s"
                         : ""}
                     </Button>}
+                    <Button
+                        leftIcon={<LuTrash2 className="text-xl" />}
+                        size="sm"
+                        intent="alert-subtle"
+                        onClick={() => setDeleteModalOpen(true)}
+                    >
+                        Delete {selectedPathFileNodes.length} file{selectedPathFileNodes.length != 1 ? "s" : ""}
+                    </Button>
                 </>
             )}
+            <LibraryExplorerBulkDeleteModal
+                open={deleteModalOpen}
+                onOpenChange={setDeleteModalOpen}
+                selectedPaths={Array.from(selectedPaths)}
+                fileNodes={selectedPathFileNodes}
+            />
         </>
     )
 }
@@ -895,6 +912,16 @@ const VirtualizedTreeNode = memo(({
         onUnignoreFiles([node.path])
     }
 
+    const [deleteModalOpen, setDeleteModalOpen] = React.useState(false)
+
+    const handleDeleteDirectory = () => {
+        setDeleteModalOpen(true)
+    }
+
+    const handleDeleteSingleFile = () => {
+        setDeleteModalOpen(true)
+    }
+
     const handleResolveMedia = () => {
         const id = media?.id ?? node.mediaIds?.[0] ?? 0
         if (!id || !localFiles) {
@@ -1039,9 +1066,26 @@ const VirtualizedTreeNode = memo(({
                             </ContextMenuItem>}
                         </>}
                         <ContextMenuSeparator className="!my-2" />
-                        <ContextMenuItem onClick={handleOpenInExplorerClick}>
-                            <BiFolder /> Open in explorer
-                        </ContextMenuItem>
+                        <ContextMenuSub
+                            triggerContent="More"
+                        >
+                            {isDirectory && !!fileCount && <ContextMenuItem
+                                onClick={handleDeleteDirectory}
+                                className={cn("text-[--red]")}
+                            >
+                                <LuTrash2 className="text-lg" /> Delete files
+                            </ContextMenuItem>}
+                            {(!isDirectory && isScannedFile) && <ContextMenuItem
+                                onClick={handleDeleteSingleFile}
+                                className={cn("text-[--red]")}
+                            >
+                                <LuTrash2 className="text-lg" /> Delete file
+                            </ContextMenuItem>}
+                            <ContextMenuItem onClick={handleOpenInExplorerClick}>
+                                <BiFolder /> Open in explorer
+                            </ContextMenuItem>
+                        </ContextMenuSub>
+
                     </ContextMenuGroup>
                 }
             >
@@ -1255,6 +1299,13 @@ const VirtualizedTreeNode = memo(({
                     </div>
                 </Form>
             </Modal>}
+
+            <LibraryExplorerDeleteFileModal
+                open={deleteModalOpen}
+                onOpenChange={setDeleteModalOpen}
+                selectedPaths={isDirectory ? libraryExplorer_collectFilePaths(node) : [node.path]}
+                isDirectory={isDirectory}
+            />
         </div>
     )
 })
@@ -1416,3 +1467,202 @@ function formatFileSize(bytes: number): string {
 
     return `${size.toFixed(1)} ${units[unitIndex]}`
 }
+
+type LibraryExplorerDeleteFileModalProps = {
+    open: boolean
+    onOpenChange: (open: boolean) => void
+    selectedPaths: string[]
+    isDirectory: boolean
+}
+
+function LibraryExplorerDeleteFileModal(props: LibraryExplorerDeleteFileModalProps) {
+    const { open, onOpenChange, selectedPaths, isDirectory } = props
+
+    const [filepaths, setFilepaths] = React.useState<string[]>([])
+
+    React.useEffect(() => {
+        if (open) {
+            setFilepaths(selectedPaths)
+        }
+    }, [open, selectedPaths])
+
+    const { mutate: deleteFiles, isPending: isDeleting } = useDeleteLocalFiles()
+
+    const refreshMutation = useRefreshLibraryExplorerFileTree()
+
+    const confirmDelete = useConfirmationDialog({
+        title: "Delete file",
+        description: "This action cannot be undone.",
+        actionIntent: "alert",
+        actionText: "Delete",
+        onConfirm: () => {
+            if (filepaths.length === 0) return
+
+            deleteFiles({ paths: filepaths }, {
+                onSuccess: () => {
+                    onOpenChange(false)
+                    refreshMutation.mutate()
+                },
+            })
+        },
+    })
+
+    return (
+        <>
+            <Modal
+                open={open}
+                onOpenChange={onOpenChange}
+                contentClass="max-w-2xl"
+                title={<span>Delete file</span>}
+                titleClass="text-center"
+            >
+                <div className="space-y-2 mt-2">
+                    {isDirectory ? (
+                        <FilepathSelector
+                            className="max-h-96"
+                            filepaths={filepaths}
+                            allFilepaths={selectedPaths}
+                            onFilepathSelected={setFilepaths}
+                            showFullPath
+                        />
+                    ) : (
+                        <div className="p-4 bg-gray-900 rounded-md">
+                            <p className="text-sm text-gray-300 break-all">{selectedPaths[0]}</p>
+                        </div>
+                    )}
+
+                    <div className="flex justify-end gap-2 mt-2">
+                        <Button
+                            intent="alert"
+                            onClick={() => confirmDelete.open()}
+                            loading={isDeleting}
+                        >
+                            Delete
+                        </Button>
+                        <Button
+                            intent="white"
+                            onClick={() => onOpenChange(false)}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+            <ConfirmationDialog {...confirmDelete} />
+        </>
+    )
+}
+
+type LibraryExplorerBulkDeleteModalProps = {
+    open: boolean
+    onOpenChange: (open: boolean) => void
+    selectedPaths: string[]
+    fileNodes: LibraryExplorer_FileTreeNodeJSON[]
+}
+
+function LibraryExplorerBulkDeleteModal(props: LibraryExplorerBulkDeleteModalProps) {
+    const { open, onOpenChange, selectedPaths, fileNodes } = props
+
+    const [filepaths, setFilepaths] = React.useState<string[]>([])
+    const hasDirectories = fileNodes?.some(n => n.kind === "directory")
+
+    React.useEffect(() => {
+        if (open) {
+            // Expand directories to their file paths
+            const expandedPaths: string[] = []
+            fileNodes?.forEach(node => {
+                if (node.kind === "directory") {
+                    expandedPaths.push(...libraryExplorer_collectFilePaths(node))
+                } else {
+                    expandedPaths.push(node.path)
+                }
+            })
+            setFilepaths(expandedPaths)
+        }
+    }, [open, fileNodes])
+
+    const { mutate: deleteFiles, isPending: isDeleting } = useDeleteLocalFiles()
+
+    const refreshMutation = useRefreshLibraryExplorerFileTree()
+
+    const confirmDelete = useConfirmationDialog({
+        title: "Delete files",
+        description: "This action cannot be undone.",
+        actionIntent: "alert",
+        actionText: "Delete",
+        onConfirm: () => {
+            if (filepaths.length === 0) return
+
+            deleteFiles({ paths: filepaths }, {
+                onSuccess: () => {
+                    onOpenChange(false)
+                    refreshMutation.mutate()
+                },
+            })
+        },
+    })
+
+    const allFilepaths = React.useMemo(() => {
+        const expandedPaths: string[] = []
+        fileNodes?.forEach(node => {
+            if (node.kind === "directory") {
+                expandedPaths.push(...libraryExplorer_collectFilePaths(node))
+            } else {
+                expandedPaths.push(node.path)
+            }
+        })
+        return expandedPaths
+    }, [fileNodes])
+
+    return (
+        <>
+            <Modal
+                open={open}
+                onOpenChange={onOpenChange}
+                contentClass="max-w-2xl"
+                title={<span>Select files to delete</span>}
+                titleClass="text-center"
+            >
+                <div className="space-y-2 mt-2">
+                    {hasDirectories ? (
+                        <FilepathSelector
+                            className="max-h-96"
+                            filepaths={filepaths}
+                            allFilepaths={allFilepaths}
+                            onFilepathSelected={setFilepaths}
+                            showFullPath
+                        />
+                    ) : (
+                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {selectedPaths.map(path => (
+                                <div key={path} className="p-2 bg-gray-900 rounded-md">
+                                    <p className="text-sm text-gray-300 break-all">{path}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="flex justify-end gap-2 mt-2">
+                        <Button
+                            intent="alert"
+                            onClick={() => confirmDelete.open()}
+                            loading={isDeleting}
+                        >
+                            Delete
+                        </Button>
+                        <Button
+                            intent="white"
+                            onClick={() => onOpenChange(false)}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+            <ConfirmationDialog {...confirmDelete} />
+        </>
+    )
+}
+

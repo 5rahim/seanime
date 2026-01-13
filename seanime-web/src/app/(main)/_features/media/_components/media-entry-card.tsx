@@ -69,6 +69,7 @@ type MediaEntryCardProps<T extends "anime" | "manga"> = {
     hideUnseenCountBadge?: boolean
     hideAnilistEntryEditButton?: boolean
     onClick?: () => void
+    hideReleasingBadge?: boolean
 } & MediaEntryCardBaseProps
 
 export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCardProps<T>) {
@@ -86,6 +87,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         hideUnseenCountBadge = false,
         hideAnilistEntryEditButton = false,
         onClick,
+        hideReleasingBadge = false,
     } = props
 
     const router = useRouter()
@@ -332,6 +334,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                 showLibraryBadge={showLibraryBadge}
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
                 onClick={onClick}
+                hideReleasingBadge={hideReleasingBadge}
             >
                 <div data-media-entry-card-body-progress-badge-container className="absolute z-[10] left-0 bottom-0 flex items-end">
                     <MediaEntryProgressBadge

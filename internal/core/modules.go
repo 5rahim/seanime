@@ -412,10 +412,6 @@ func (a *App) InitOrRefreshModules() {
 		}
 	}
 
-	if a.VideoCore != nil {
-		a.VideoCore.SetSettings(settings)
-	}
-
 	if settings.MediaPlayer != nil {
 		a.MediaPlayer.VLC = &vlc.VLC{
 			Host:     settings.MediaPlayer.Host,
@@ -462,6 +458,10 @@ func (a *App) InitOrRefreshModules() {
 		})
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize media player module, no settings found")
+	}
+
+	if a.VideoCore != nil {
+		a.VideoCore.SetSettings(settings)
 	}
 
 	// +---------------------+

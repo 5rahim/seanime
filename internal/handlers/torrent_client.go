@@ -22,9 +22,17 @@ import (
 //	@route /api/v1/torrent-client/list [GET]
 //	@returns []torrent_client.Torrent
 func (h *Handler) HandleGetActiveTorrentList(c echo.Context) error {
+	var category *string
+	if v := c.QueryParam("category"); v != "" {
+		category = &v
+	}
+	sort := c.QueryParam("sort")
 
 	// Get torrent list
-	res, err := h.App.TorrentClientRepository.GetActiveTorrents()
+	res, err := h.App.TorrentClientRepository.GetActiveTorrents(&torrent_client.GetListOptions{
+		Category: category,
+		Sort:     sort,
+	})
 	// If an error occurred, try to start the torrent client and get the list again
 	// DEVNOTE: We try to get the list first because this route is called repeatedly by the client.
 	if err != nil {
@@ -32,7 +40,10 @@ func (h *Handler) HandleGetActiveTorrentList(c echo.Context) error {
 		if !ok {
 			return h.RespondWithError(c, errors.New("could not start torrent client, verify your settings"))
 		}
-		res, err = h.App.TorrentClientRepository.GetActiveTorrents()
+		res, err = h.App.TorrentClientRepository.GetActiveTorrents(&torrent_client.GetListOptions{
+			Category: category,
+			Sort:     sort,
+		})
 	}
 
 	return h.RespondWithData(c, res)

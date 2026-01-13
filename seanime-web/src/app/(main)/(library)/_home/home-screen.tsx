@@ -19,6 +19,7 @@ import { DetailedLibraryView } from "@/app/(main)/(library)/_screens/detailed-li
 import { LibraryView } from "@/app/(main)/(library)/_screens/library-view"
 import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { AnilistAnimeEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
+import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { DiscoverMissedSequelsSection } from "@/app/(main)/discover/_containers/discover-missed-sequels"
 import { useHandleUserAnilistLists } from "@/app/(main)/lists/_lib/handle-user-anilist-lists"
 import { MangaLibraryHeader } from "@/app/(main)/manga/_components/library-header"
@@ -328,6 +329,9 @@ export function HomeScreen() {
                     ts.hideTopNavbar && "py-28",
                 )}
             ></div>}
+
+            <PluginWebviewSlot slot="after-home-screen-toolbar" />
+
             {(
                 hasEntries &&
                 ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom
@@ -388,6 +392,8 @@ export function HomeScreen() {
                     })}
 
                     <div data-home-screen-item-divider className="h-8" />
+
+                    <PluginWebviewSlot slot="home-screen-bottom" />
                 </PageWrapper>}
 
                 {view === "detailed" && <PageWrapper

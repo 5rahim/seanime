@@ -2,6 +2,7 @@
 
 import { useGetMissingEpisodes } from "@/api/hooks/anime_entries.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { MissingEpisodes } from "@/app/(main)/schedule/_components/missing-episodes"
 import { ComingUpNext } from "@/app/(main)/schedule/_containers/coming-up-next"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -24,6 +25,7 @@ export default function Page() {
             <PageWrapper
                 className="p-4 sm:p-8 space-y-10 pb-10"
             >
+                <PluginWebviewSlot slot="schedule-screen-top" />
                 <MissingEpisodes data={data} isLoading={isLoading} />
                 <AppLayoutStack>
 
@@ -35,6 +37,7 @@ export default function Page() {
                     <ScheduleCalendar />
                 </AppLayoutStack>
                 <ComingUpNext />
+                <PluginWebviewSlot slot="schedule-screen-bottom" />
             </PageWrapper>
         </>
     )

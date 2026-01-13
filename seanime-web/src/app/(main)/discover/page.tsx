@@ -1,5 +1,6 @@
 "use client"
 import { useListCustomSourceExtensions } from "@/api/hooks/extensions.hooks"
+import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
 import { DiscoverAiringSchedule } from "@/app/(main)/discover/_containers/discover-airing-schedule"
@@ -51,6 +52,7 @@ export default function Page() {
                 className="p-4 sm:p-8 space-y-10 pb-10 relative z-[4]"
                 data-discover-page-container
             >
+
                 <div
                     className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center justify-center flex-wrap"
                     data-discover-page-header-tabs-container
@@ -95,6 +97,9 @@ export default function Page() {
                         </Button>
                     </div>
                 </div>
+
+                <PluginWebviewSlot slot="after-discover-screen-header" />
+
                 <AnimatePresence mode="wait" initial={false}>
                     {pageType === "anime" && <PageWrapper
                         key="anime"

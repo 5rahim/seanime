@@ -1,4 +1,9 @@
-import { useGetAutoDownloaderItems, useGetAutoDownloaderRules, useRunAutoDownloader } from "@/api/hooks/auto_downloader.hooks"
+import {
+    useDeleteAutoDownloaderRule,
+    useGetAutoDownloaderItems,
+    useGetAutoDownloaderRules,
+    useRunAutoDownloader,
+} from "@/api/hooks/auto_downloader.hooks"
 import { useSaveAutoDownloaderSettings } from "@/api/hooks/settings.hooks"
 import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -7,12 +12,14 @@ import { AutoDownloaderBatchRuleForm } from "@/app/(main)/auto-downloader/_conta
 import { AutoDownloaderItemList } from "@/app/(main)/auto-downloader/_containers/autodownloader-item-list"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
@@ -20,8 +27,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { useAtomValue } from "jotai/react"
 import React from "react"
-import { BiPlus } from "react-icons/bi"
+import { BiDotsVerticalRounded } from "react-icons/bi"
 import { FaSquareRss } from "react-icons/fa6"
+import { LuTrash } from "react-icons/lu"
+import { MdOutlineAdd } from "react-icons/md"
 import { toast } from "sonner"
 
 const tabContentClass = cn(
@@ -58,8 +67,19 @@ export function AutoDownloaderPage() {
 
     const { data: items, isLoading: itemsLoading } = useGetAutoDownloaderItems()
 
+    const { mutate: deleteNoLongerAiring, isPending: deletingRule } = useDeleteAutoDownloaderRule(-1)
+
+    const confirmDeleteNoLongerAiring = useConfirmationDialog({
+        title: "Remove no longer airing media",
+        description: "This action will remove all rules that no longer have media airing (finished). Are you sure you want to continue?",
+        onConfirm: () => {
+            deleteNoLongerAiring()
+        },
+    })
+
     return (
         <div className="space-y-4">
+            <ConfirmationDialog {...confirmDeleteNoLongerAiring} />
 
             <Tabs
                 defaultValue="rules"
@@ -83,48 +103,61 @@ export function AutoDownloaderPage() {
                         {isLoading && <LoadingSpinner />}
                         {!isLoading && (
                             <div className="space-y-4">
-                                <div className="w-full flex items-center gap-2">
-                                    <Button
-                                        className="rounded-full"
-                                        intent="primary-subtle"
-                                        leftIcon={<FaSquareRss />}
-                                        onClick={() => {
-                                            runAutoDownloader()
-                                        }}
-                                        loading={isRunning}
-                                        disabled={!serverStatus?.settings?.autoDownloader?.enabled}
-                                    >
-                                        Check RSS feed
-                                    </Button>
-                                    <div className="flex flex-1"></div>
-                                    <Button
-                                        className="rounded-full"
-                                        intent="success-subtle"
-                                        leftIcon={<BiPlus />}
-                                        onClick={() => {
-                                            createRuleModal.on()
-                                        }}
-                                    >
-                                        New Rule
-                                    </Button>
-                                    <Button
-                                        className="rounded-full"
-                                        intent="gray-subtle"
-                                        leftIcon={<BiPlus />}
-                                        onClick={() => {
-                                            createBatchRuleModal.on()
-                                        }}
-                                    >
-                                        New Rules
-                                    </Button>
-                                </div>
 
-                                <Card className="p-4 space-y-2">
+                                <Card className="p-4 space-y-4">
                                     <ul className="text-base text-[--muted]">
                                         <li><em className="font-semibold">Rules</em> allow you to programmatically download new episodes based on the
                                                                                      parameters you set.
                                         </li>
                                     </ul>
+
+                                    <div className="w-full flex items-center gap-2">
+                                        <DropdownMenu
+                                            trigger={<Button
+                                                className="rounded-full"
+                                                intent="white-subtle"
+                                                leftIcon={<MdOutlineAdd className="text-lg" />}
+
+                                            >
+                                                New Rule
+                                            </Button>}
+                                        >
+                                            <DropdownMenuItem onClick={createRuleModal.on}>
+                                                Single rule
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={createBatchRuleModal.on}>
+                                                Multiple rules
+                                            </DropdownMenuItem>
+                                        </DropdownMenu>
+                                        <div className="flex flex-1"></div>
+                                        <Button
+                                            className=""
+                                            intent="gray-basic"
+                                            leftIcon={<FaSquareRss />}
+                                            onClick={() => {
+                                                runAutoDownloader()
+                                            }}
+                                            loading={isRunning}
+                                            disabled={!serverStatus?.settings?.autoDownloader?.enabled}
+                                        >
+                                            Check RSS feed
+                                        </Button>
+                                        <DropdownMenu
+                                            trigger={<IconButton
+                                                className=""
+                                                intent="gray-basic"
+                                                icon={<BiDotsVerticalRounded className="text-lg" />}
+                                            />}
+                                        >
+                                            <DropdownMenuItem
+                                                onClick={confirmDeleteNoLongerAiring.open}
+                                                className="text-[--red]"
+                                                disabled={deletingRule}
+                                            >
+                                                <LuTrash /> Remove no longer airing media
+                                            </DropdownMenuItem>
+                                        </DropdownMenu>
+                                    </div>
 
                                     {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}
                                     {(!!data?.length) && <div className="space-y-2">
@@ -241,7 +274,7 @@ export function AutoDownloaderPage() {
                 open={createRuleModal.active}
                 onOpenChange={createRuleModal.off}
                 title="Create a new rule"
-                contentClass="max-w-3xl"
+                contentClass="max-w-4xl"
             >
                 <AutoDownloaderRuleForm type="create" onRuleCreatedOrDeleted={() => createRuleModal.off()} />
             </Modal>

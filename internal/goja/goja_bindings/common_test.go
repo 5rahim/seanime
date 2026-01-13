@@ -7,6 +7,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
+	"seanime/internal/goja/goja_bindings"
 	"seanime/internal/util"
 	"testing"
 	"time"
@@ -23,6 +24,7 @@ func setupTestVM(t *testing.T) *goja.Runtime {
 	logger := util.NewLogger()
 	ext := &extension.Extension{}
 	extension_repo.ShareBinds(vm, util.NewLogger(), ext, events.NewMockWSEventManager(logger))
+	goja_bindings.BindFetch(vm)
 	fm := extension_repo.FieldMapper{}
 	vm.SetFieldNameMapper(fm)
 	return vm
@@ -98,6 +100,7 @@ func TestUserConfig(t *testing.T) {
 		},
 	}
 	extension_repo.ShareBinds(vm, util.NewLogger(), ext, events.NewMockWSEventManager(logger))
+	goja_bindings.BindFetch(vm)
 	extension_repo.BindUserConfig(vm, ext, util.NewLogger())
 
 	vm.RunString(`
@@ -122,6 +125,7 @@ func TestByteSliceToUint8Array(t *testing.T) {
 
 	ext := &extension.Extension{}
 	extension_repo.ShareBinds(vm, util.NewLogger(), ext, events.NewMockWSEventManager(logger))
+	goja_bindings.BindFetch(vm)
 
 	// JavaScript code to verify the type and contents of 'data'
 	jsCode := `

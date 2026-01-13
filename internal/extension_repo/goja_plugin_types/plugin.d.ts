@@ -144,8 +144,8 @@ declare namespace $ui {
 
         /**
          * Registers a field reference for field components.
-         * @param fieldName - The name of the field
          * @returns A field reference object
+         * @param defaultValue
          */
         fieldRef<T extends any = string>(defaultValue?: T): FieldRef<T>
 
@@ -155,6 +155,13 @@ declare namespace $ui {
          * @returns A tray icon object.
          */
         newTray(options: TrayOptions): Tray
+
+        /**
+         * Creates a new webview.
+         * @param options - The options for the webview.
+         * @returns A webview object.
+         */
+        newWebview(options: WebviewOptions): Webview
 
         /**
          * Creates a new command palette.
@@ -186,6 +193,8 @@ declare namespace $ui {
         /** Sets a new value */
         set(value: T | ((prev: T) => T)): void
     }
+
+    type ReadOnlyState<T> = Omit<State<T>, "set">
 
     interface FetchOptions {
         /** HTTP method, defaults to GET */
@@ -266,6 +275,24 @@ declare namespace $ui {
         checkbox: CheckboxComponentFunction
         radioGroup: RadioGroupComponentFunction
         switch: SwitchComponentFunction
+        css: CSSComponentFunction
+        tooltip: TooltipComponentFunction
+        modal: ModalComponentFunction
+        dropdownMenu: DropdownMenuComponentFunction
+        dropdownMenuItem: DropdownMenuItemComponentFunction
+        dropdownMenuSeparator: DropdownMenuSeparatorComponentFunction
+        dropdownMenuLabel: DropdownMenuLabelComponentFunction
+        popover: PopoverComponentFunction
+        a: AComponentFunction
+        p: PComponentFunction
+        alert: AlertComponentFunction
+        tabs: TabsComponentFunction
+        tabsList: TabsListComponentFunction
+        tabsTrigger: TabsTriggerComponentFunction
+        tabsContent: TabsContentComponentFunction
+        badge: BadgeComponentFunction
+        span: SpanComponentFunction
+        img: ImgComponentFunction
 
         /** Invoked when the tray icon is clicked */
         onClick(cb: () => void): void
@@ -279,6 +306,9 @@ declare namespace $ui {
         /** Registers the render function for the tray content */
         render(fn: () => void): void
 
+        /** Registers the render function for the tray content */
+        htm(fn: () => string): void
+
         /** Schedules a re-render of the tray content */
         update(): void
 
@@ -290,6 +320,177 @@ declare namespace $ui {
 
         /** Updates the badge number of the tray icon. 0 = no badge. Default intent is "info". */
         updateBadge(options: { number: number, intent?: "success" | "error" | "warning" | "info" }): void
+    }
+
+    interface WebviewOptions {
+        slot: "screen" |
+            "fixed" |
+            "after-home-screen-toolbar" |
+            "home-screen-bottom" |
+            "schedule-screen-top" |
+            "schedule-screen-bottom" |
+            "anime-screen-bottom" |
+            "after-anime-entry-episode-list" |
+            "after-anime-episode-list" |
+            "before-anime-entry-episode-list" |
+            "manga-screen-bottom" |
+            "manga-entry-screen-bottom" |
+            "after-manga-entry-chapter-list" |
+            "after-discover-screen-header" |
+            "after-media-entry-details" |
+            "after-media-entry-form"
+
+        // Styling options
+        className?: string
+        style?: string
+        width?: string
+        height?: string
+        maxWidth?: string
+        maxHeight?: string
+        zIndex?: number
+
+        /**
+         * Only applies if slot is "fixed"
+         */
+        window?: {
+            draggable?: boolean
+            resizable?: boolean
+            defaultX?: number
+            defaultY?: number
+        }
+        /**
+         * Whether the height of the webview should be automatically adjusted to fit its content.
+         */
+        autoHeight?: boolean
+        /**
+         * Whether the width of the webview should be automatically adjusted to fit its container.
+         */
+        fullWidth?: boolean
+
+        sidebar?: {
+            label: string,
+            icon: string,
+        }
+    }
+
+    interface WebviewChannel {
+        /**
+         * Automatically syncs a state with the webview.
+         * @example
+         * // Plugin context:
+         * const count = ctx.state(0)
+         * myWebview.channel.sync("count", count)
+         * //...
+         * count.set(count.get() + 1)
+         *
+         * // Webview code:
+         * webview.channel.on("count", (count) => {
+         *     console.log("Received from plugin context: " + count)
+         * })
+         * @param eventName
+         * @param state
+         */
+        sync(eventName: string, state: State<any> | ReadOnlyState<any>): void
+
+        /**
+         * Registers an event listener for messages from the webview.
+         * @example
+         * myWebview.channel.on("eventName", (payload) => {
+         *     // Handle message here
+         * })
+         * @param eventName
+         * @param cb
+         */
+        on(eventName: string, cb: (payload: any) => void): void
+
+        /**
+         * Sends a message to the webview.
+         * @example
+         * // Plugin context:
+         * myWebview.channel.send("eventName", payload)
+         *
+         * // Webview code:
+         * webview.channel.on("eventName", (payload) => {
+         *     // Handle message here
+         * })
+         * @param eventName The name of the event to send.
+         * @param payload The payload to send.
+         */
+        send(eventName: string, payload: any): void
+    }
+
+    interface Webview {
+        /** UI components for building webviews */
+        div: DivComponentFunction
+        flex: FlexComponentFunction
+        stack: StackComponentFunction
+        text: TextComponentFunction
+        button: ButtonComponentFunction
+        anchor: AnchorComponentFunction
+        input: InputComponentFunction
+        select: SelectComponentFunction
+        checkbox: CheckboxComponentFunction
+        radioGroup: RadioGroupComponentFunction
+        switch: SwitchComponentFunction
+        css: CSSComponentFunction
+        tooltip: TooltipComponentFunction
+        modal: ModalComponentFunction
+        dropdownMenu: DropdownMenuComponentFunction
+        dropdownMenuItem: DropdownMenuItemComponentFunction
+        dropdownMenuSeparator: DropdownMenuSeparatorComponentFunction
+        dropdownMenuLabel: DropdownMenuLabelComponentFunction
+        popover: PopoverComponentFunction
+        a: AComponentFunction
+        p: PComponentFunction
+        alert: AlertComponentFunction
+        tabs: TabsComponentFunction
+        tabsList: TabsListComponentFunction
+        tabsTrigger: TabsTriggerComponentFunction
+        tabsContent: TabsContentComponentFunction
+        badge: BadgeComponentFunction
+        span: SpanComponentFunction
+        img: ImgComponentFunction
+        /**
+         * Communication channel between the webview and the Plugin context.
+         */
+        channel: WebviewChannel
+
+        /** Invoked when the webview is mounted, before it's loaded */
+        onMount(cb: () => void): void
+
+        /** Invoked when the webview is loaded, after it's mounted */
+        onLoad(cb: () => void): void
+
+        /** Invoked after the webview is unmounted */
+        onUnmount(cb: () => void): void
+
+        /**
+         * Updates the webview's content.
+         *
+         * This is useful if the webview's content depends on the state of the Plugin context.
+         */
+        update(): void
+
+        /** Set webview's iframe content */
+        setContent(fn: () => string): void
+
+        /** Update webview options dynamically */
+        setOptions(options: Partial<Omit<WebviewOptions, "sidebar">>): void
+
+        /** Removes the webview from the DOM (not reversible) */
+        close(): void
+
+        /** Show the webview (reverses hide) */
+        show(): void
+
+        /** Hide the webview without closing it */
+        hide(): void
+
+        /**
+         * Returns the path of the webview's screen
+         * @example /webview?id=my-plugin
+         */
+        getScreenPath(): string
     }
 
     interface Playback {
@@ -610,6 +811,29 @@ declare namespace $ui {
         text: TextComponentFunction
         button: ButtonComponentFunction
         anchor: AnchorComponentFunction
+        input: InputComponentFunction
+        select: SelectComponentFunction
+        checkbox: CheckboxComponentFunction
+        radioGroup: RadioGroupComponentFunction
+        switch: SwitchComponentFunction
+        css: CSSComponentFunction
+        tooltip: TooltipComponentFunction
+        modal: ModalComponentFunction
+        dropdownMenu: DropdownMenuComponentFunction
+        dropdownMenuItem: DropdownMenuItemComponentFunction
+        dropdownMenuSeparator: DropdownMenuSeparatorComponentFunction
+        dropdownMenuLabel: DropdownMenuLabelComponentFunction
+        popover: PopoverComponentFunction
+        a: AComponentFunction
+        p: PComponentFunction
+        alert: AlertComponentFunction
+        tabs: TabsComponentFunction
+        tabsList: TabsListComponentFunction
+        tabsTrigger: TabsTriggerComponentFunction
+        tabsContent: TabsContentComponentFunction
+        badge: BadgeComponentFunction
+        span: SpanComponentFunction
+        img: ImgComponentFunction
 
         /** Sets the items in the command palette */
         setItems(items: CommandPaletteItem[]): void
@@ -669,6 +893,9 @@ declare namespace $ui {
 
         /** Called when navigation occurs */
         onNavigate(cb: (event: { pathname: string, searchParams: Record<string, string> }) => void): void
+
+        /** Returns a state object containing the current screen data */
+        state(): ReadOnlyState<{ pathname: string, searchParams: Record<string, string> }>
     }
 
     interface Toast {
@@ -703,6 +930,10 @@ declare namespace $ui {
         (props: { items: any[] } & ComponentProps): void
         (items: any[], props?: ComponentProps): void
     }
+    type CSSComponentFunction = {
+        (props: { css: string }): void
+        (css: string): void
+    }
     type FlexComponentFunction = {
         (props: { items: any[], gap?: number, direction?: "row" | "column" } & ComponentProps): void
         (items: any[], props?: { gap?: number, direction?: "row" | "column" } & ComponentProps): void
@@ -714,6 +945,10 @@ declare namespace $ui {
     type TextComponentFunction = {
         (props: { text: string } & ComponentProps): void
         (text: string, props?: ComponentProps): void
+    }
+    type TooltipComponentFunction = {
+        (props: { text: string, items: any[] }): void
+        (item: any, props: { text: string }): void
     }
 
     /**
@@ -781,6 +1016,134 @@ declare namespace $ui {
     type SwitchComponentFunction = {
         (props: { label: string, side?: "left" | "right" } & FieldComponentProps<boolean>): void
         (label: string, props?: { side?: "left" | "right" } & FieldComponentProps<boolean>): void
+    }
+
+    type ModalComponentFunction = {
+        (props: {
+            trigger: any,
+            title?: string,
+            description?: string,
+            items?: any[],
+            footer?: any[],
+            open?: boolean,
+            onOpenChange?: string
+        } & ComponentProps): void
+    }
+
+    type DropdownMenuComponentFunction = {
+        (props: {
+            trigger: any,
+            items: any[]
+        } & ComponentProps): void
+    }
+
+    type DropdownMenuItemComponentFunction = {
+        (props: {
+            item: any,
+            onClick?: string,
+            disabled?: boolean
+        } & ComponentProps): void
+        (item: any, props?: { onClick?: string, disabled?: boolean } & ComponentProps): void
+    }
+
+    type DropdownMenuSeparatorComponentFunction = {
+        (props?: ComponentProps): void
+    }
+
+    type DropdownMenuLabelComponentFunction = {
+        (props: { label: string } & ComponentProps): void
+        (label: string, props?: ComponentProps): void
+    }
+
+    type PopoverComponentFunction = {
+        (props: {
+            trigger: any,
+            items: any[]
+        } & ComponentProps): void
+    }
+
+    /**
+     * @default target="_blank"
+     */
+    type AComponentFunction = {
+        (props: {
+            href: string,
+            items: any[],
+            target?: string,
+            onClick?: string
+        } & ComponentProps): void
+        (items: any[], props: { href: string, target?: string, onClick?: string } & ComponentProps): void
+    }
+
+    type PComponentFunction = {
+        (props: { items: any[] } & ComponentProps): void
+        (items: any[], props?: ComponentProps): void
+    }
+
+    /**
+     * @default intent="info"
+     */
+    type AlertComponentFunction = {
+        (props: {
+            title?: string,
+            description?: string,
+            intent?: "info" | "success" | "warning" | "alert"
+        } & ComponentProps): void
+    }
+
+    type TabsComponentFunction = {
+        (props: {
+            defaultValue?: string,
+            items: any[]
+        } & ComponentProps): void
+        (items: any[], props?: { defaultValue?: string } & ComponentProps): void
+    }
+
+    type TabsListComponentFunction = {
+        (props: { items: any[] } & ComponentProps): void
+        (items: any[], props?: ComponentProps): void
+    }
+
+    type TabsTriggerComponentFunction = {
+        (item: any, props: { value: string }): void
+        (props: {
+            item: any,
+            value: string
+        }): void
+    }
+
+    type TabsContentComponentFunction = {
+        (props: {
+            value: string,
+            items: any[]
+        } & ComponentProps): void
+        (items: any[], props: { value: string } & ComponentProps): void
+    }
+
+    /**
+     * @default intent="gray"
+     * @default size="md"
+     */
+    type BadgeComponentFunction = {
+        (props: {
+            text: string,
+            intent?: "gray" | "primary" | "success" | "warning" | "alert" | "info" | "blue",
+            size?: "sm" | "md" | "lg" | "xl"
+        } & ComponentProps): void
+        (text: string, props?: {
+            intent?: "gray" | "primary" | "success" | "warning" | "alert" | "info" | "blue",
+            size?: "sm" | "md" | "lg" | "xl"
+        } & ComponentProps): void
+    }
+
+    type SpanComponentFunction = {
+        (props: { text: string, items?: any[] } & ComponentProps): void
+        (text: string, props?: { items?: any[] } & ComponentProps): void
+    }
+
+    type ImgComponentFunction = {
+        (props: { src: string, alt?: string, width?: string, height?: string } & ComponentProps): void
+        (src: string, props?: { alt?: string, width?: string, height?: string } & ComponentProps): void
     }
 
     // DOM Element interface

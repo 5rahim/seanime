@@ -6,6 +6,7 @@ import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extensio
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { SeaImage } from "@/components/shared/sea-image"
+import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -163,6 +164,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
 type UnauthorizedExtensionPluginCardProps = {
     extension: Extension_InvalidExtension
     isInstalled: boolean
+    isUnsafe?: boolean
 }
 
 const shouldGrantPluginPermissionsAtom = atom<string[]>([])
@@ -172,6 +174,7 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
     const {
         extension,
         isInstalled,
+        isUnsafe = false,
         ...rest
     } = props
 
@@ -221,9 +224,32 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                         The plugin <span className="font-bold">{extension.extension?.name}</span> is requesting the following permissions:
                     </p>
 
-                    <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-md leading-relaxed text-left bg-[--subtle] p-2 rounded-md">
-                        {extension.pluginPermissionDescription}
+                    <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-md leading-relaxed text-left bg-[--subtle] p-3 rounded-xl">
+                        {extension.pluginPermissionDescription?.split("\n").map((line, index) => {
+                            line = line.trimEnd()
+                            if (line.startsWith("•") && !line.startsWith("*")) {
+                                return <span key={index} className="pl-4 mb-1 block">
+                                    <span className="font-bold bg-gray-950 border px-2 py-[0.1rem] rounded-lg inline-block">{line.replace("•", "")
+                                        .split(":")[0].trim()}</span>: {line.split(":")[1]}<br />
+                                </span>
+                            }
+                            if (line.startsWith("*")) {
+                                return <p key={index} className="mb-1 block text-[--orange]">
+                                    <span className="font-bold inline-block">{line.replace("* ", "")?.trim()}</span>
+                                </p>
+                            }
+                            return <p key={index} className="py-1 w-full">
+                                {line}<br />
+                            </p>
+                        })}
                     </p>
+
+                    {isUnsafe && <Alert
+                        intent="warning"
+                        className="!text-[--muted] !bg-gray-800"
+                        description="Due to the use of unsafe flags, Seanime cannot guarantee that this plugin is safe. For security reasons, it will not be updated when using 'Update all'."
+                        // className="mb-4"
+                    />}
 
                     <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-sm text-center text-[--muted]">
                         {extension.path}

@@ -1,6 +1,6 @@
 {
   "name": "seanime-denshi",
-  "version": "3.2.5",
+  "version": "3.3.0",
   "description": "Electron-based Desktop client for Seanime",
   "main": "src/main.js",
   "author": "5rahim <talkwithrahim@gmail.com>",
@@ -20,13 +20,13 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "electron": "36.2.1",
+    "electron": "39.2.7",
     "electron-builder": "^24.13.3"
   },
   "build": {
     "electronDownload": {
       "mirror": "https://seanime.app/assets/electron/",
-      "customDir": "v36.2.1"
+      "customDir": "v39.2.7"
     },
     "appId": "app.seanime.denshi",
     "productName": "Seanime Denshi",

@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Popover } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import { useAtom } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import React, { useState } from "react"
 import { LiaMicrophoneSolid } from "react-icons/lia"
 import { PiChatCircleDotsDuotone } from "react-icons/pi"
@@ -218,10 +220,13 @@ export function filterItems<T extends TorrentLike | PreviewLike>(
     })
 }
 
+const sortAtom = atomWithStorage<SortField>("sea-torrent-list-sort", "seeders", undefined, { getOnInit: true })
+const sortDirectionAtom = atomWithStorage<SortDirection>("sea-torrent-list-sort-direction", "desc", undefined, { getOnInit: true })
+
 // Hook for managing sorting state
 export function useTorrentSorting() {
-    const [sortField, setSortField] = useState<SortField>("seeders")
-    const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+    const [sortField, setSortField] = useAtom(sortAtom)
+    const [sortDirection, setSortDirection] = useAtom(sortDirectionAtom)
 
     const handleSortChange = (field: SortField) => {
         handleSort(field, sortField, sortDirection, setSortField, setSortDirection)

@@ -169,20 +169,24 @@ type MangaSettings struct {
 }
 
 type MediaPlayerSettings struct {
-	Default     string `gorm:"column:default_player" json:"defaultPlayer"` // "vlc" or "mpc-hc"
-	Host        string `gorm:"column:player_host" json:"host"`
-	VlcUsername string `gorm:"column:vlc_username" json:"vlcUsername"`
-	VlcPassword string `gorm:"column:vlc_password" json:"vlcPassword"`
-	VlcPort     int    `gorm:"column:vlc_port" json:"vlcPort"`
-	VlcPath     string `gorm:"column:vlc_path" json:"vlcPath"`
-	MpcPort     int    `gorm:"column:mpc_port" json:"mpcPort"`
-	MpcPath     string `gorm:"column:mpc_path" json:"mpcPath"`
-	MpvSocket   string `gorm:"column:mpv_socket" json:"mpvSocket"`
-	MpvPath     string `gorm:"column:mpv_path" json:"mpvPath"`
-	MpvArgs     string `gorm:"column:mpv_args" json:"mpvArgs"`
-	IinaSocket  string `gorm:"column:iina_socket" json:"iinaSocket"`
-	IinaPath    string `gorm:"column:iina_path" json:"iinaPath"`
-	IinaArgs    string `gorm:"column:iina_args" json:"iinaArgs"`
+	Default                   string `gorm:"column:default_player" json:"defaultPlayer"` // "vlc" or "mpc-hc"
+	Host                      string `gorm:"column:player_host" json:"host"`
+	VlcUsername               string `gorm:"column:vlc_username" json:"vlcUsername"`
+	VlcPassword               string `gorm:"column:vlc_password" json:"vlcPassword"`
+	VlcPort                   int    `gorm:"column:vlc_port" json:"vlcPort"`
+	VlcPath                   string `gorm:"column:vlc_path" json:"vlcPath"`
+	MpcPort                   int    `gorm:"column:mpc_port" json:"mpcPort"`
+	MpcPath                   string `gorm:"column:mpc_path" json:"mpcPath"`
+	MpvSocket                 string `gorm:"column:mpv_socket" json:"mpvSocket"`
+	MpvPath                   string `gorm:"column:mpv_path" json:"mpvPath"`
+	MpvArgs                   string `gorm:"column:mpv_args" json:"mpvArgs"`
+	IinaSocket                string `gorm:"column:iina_socket" json:"iinaSocket"`
+	IinaPath                  string `gorm:"column:iina_path" json:"iinaPath"`
+	IinaArgs                  string `gorm:"column:iina_args" json:"iinaArgs"`
+	VcTranslate               bool   `gorm:"column:vc_translate" json:"vcTranslate"`
+	VcTranslateTargetLanguage string `gorm:"column:vc_translate_target_language" json:"vcTranslateTargetLanguage"`
+	VcTranslateProvider       string `gorm:"column:vc_translate_provider" json:"vcTranslateProvider"`
+	VcTranslateApiKey         string `gorm:"column:vc_translate_api_key" json:"vcTranslateApiKey"`
 }
 
 type TorrentSettings struct {
@@ -520,7 +524,7 @@ type PluginData struct {
 }
 
 // +---------------------+
-// |   Custom Source    |
+// |    Custom Source    |
 // +---------------------+
 
 // CustomSourceCollection is parallel to the AniList collection, it stores custom source media.
@@ -535,6 +539,17 @@ type CustomSourceIdentifier struct {
 	BaseModel
 	ExtensionId string `gorm:"column:extension_id;index" json:"extensionId"`
 	Value       int    `gorm:"column:value;index" json:"value"`
+}
+
+// +---------------------+
+// |      Metadata       |
+// +---------------------+
+
+type MediaMetadataParent struct {
+	BaseModel
+	MediaId       int `gorm:"column:media_id;index" json:"mediaId"`
+	ParentId      int `gorm:"column:parent_id;index" json:"parentId"`
+	SpecialOffset int `gorm:"column:special_offset" json:"specialOffset"`
 }
 
 ///////////////////////////////////////////////////////////////////////////

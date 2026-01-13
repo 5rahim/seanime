@@ -1,8 +1,9 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { NoInfer } from "@tanstack/react-query"
 import * as React from "react"
-import { FormProvider, SubmitErrorHandler, SubmitHandler, useForm, UseFormProps, UseFormReturn, WatchObserver } from "react-hook-form"
+import { FieldErrors, FieldValues, FormProvider, useForm, UseFormProps, UseFormReturn, WatchObserver } from "react-hook-form"
 import { z } from "zod"
 import { cn } from "../core/styling"
 import { isEmpty } from "../core/utils"
@@ -24,12 +25,15 @@ export const useFormSchema = (): { shape: z.ZodRawShape, schema: z.ZodObject<z.Z
     return React.useContext(__FormSchemaContext)!
 }
 
+export type SubmitHandler<T> = (data: T, event?: React.BaseSyntheticEvent) => any
+export type SubmitErrorHandler<TFieldValues extends FieldValues> = (errors: FieldErrors<TFieldValues>, event?: React.BaseSyntheticEvent) => any
+
 /* -------------------------------------------------------------------------------------------------
  * Form
  * -----------------------------------------------------------------------------------------------*/
 
 export type FormProps<Schema extends z.ZodObject<z.ZodRawShape> = z.ZodObject<z.ZodRawShape>> =
-    UseFormProps<z.infer<Schema>> &
+    UseFormProps<NoInfer<z.infer<Schema>>> &
     Omit<React.ComponentPropsWithRef<"form">, "children" | "onChange" | "onSubmit" | "onError" | "ref"> & {
     /**
      * The schema of the form.
@@ -38,21 +42,21 @@ export type FormProps<Schema extends z.ZodObject<z.ZodRawShape> = z.ZodObject<z.
     /**
      * Callback invoked when the form is submitted.
      */
-    onSubmit: SubmitHandler<z.infer<Schema>>
+    onSubmit: SubmitHandler<NoInfer<z.infer<Schema>>>
     /**
      * Callback invoked when any of the field change.
      */
-    onChange?: WatchObserver<z.infer<Schema>>
+    onChange?: WatchObserver<NoInfer<z.infer<Schema>>>
     /**
      * Callback invoked when there are validation errors.
      */
-    onError?: SubmitErrorHandler<z.infer<Schema>>
+    onError?: SubmitErrorHandler<any>
     /**
      * Ref to the form element.
      */
     formRef?: React.RefObject<HTMLFormElement>
 
-    children?: MaybeRenderProp<UseFormReturn<z.infer<Schema>>>
+    children?: MaybeRenderProp<UseFormReturn<NoInfer<z.infer<Schema>>>>
     /**
      * @default w-full space-y-3
      */
@@ -60,7 +64,7 @@ export type FormProps<Schema extends z.ZodObject<z.ZodRawShape> = z.ZodObject<z.
     /**
      * Ref to the form methods.
      */
-    mRef?: React.Ref<UseFormReturn<z.infer<Schema>>>
+    mRef?: React.Ref<UseFormReturn<NoInfer<z.infer<Schema>>>>
 }
 
 export const Form = <Schema extends z.ZodObject<z.ZodRawShape>>(props: FormProps<Schema>) => {

@@ -2,6 +2,7 @@ package plugin_ui
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"seanime/internal/events"
@@ -48,7 +49,7 @@ type Context struct {
 
 	vm               *goja.Runtime
 	states           *result.Map[string, *State]
-	stateSubscribers []chan *State
+	stateSubscribers *result.Map[string, *StateSubscriber]
 	scheduler        *gojautil.Scheduler // Schedule VM executions concurrently and execute them in order.
 	wsSubscriber     *events.ClientEventSubscriber
 	eventBus         *result.Map[ClientEventType, *result.Map[string, *EventListener]] // map[string]map[string]*EventListener (event -> listenerID -> listener)
@@ -74,9 +75,9 @@ type Context struct {
 	lastUIUpdateAt time.Time
 	uiUpdateMu     sync.Mutex
 
-	webviewManager        *WebviewManager        // UNUSED
 	screenManager         *ScreenManager         // Listen for screen events, send screen actions
 	trayManager           *TrayManager           // Register and manage tray
+	webviewManager        *WebviewManager        // Register and manage webviews
 	actionManager         *ActionManager         // Register and manage actions
 	formManager           *FormManager           // Register and manage forms
 	toastManager          *ToastManager          // Register and manage toasts
@@ -89,6 +90,12 @@ type Context struct {
 	cron                 mo.Option[*plugin.Cron]
 
 	registeredInlineEventHandlers *result.Map[string, *EventListener]
+}
+
+type StateSubscriber struct {
+	Chan      chan *State
+	closed    atomic.Bool
+	closeOnce sync.Once
 }
 
 type State struct {
@@ -114,7 +121,7 @@ func NewContext(ui *UI) *Context {
 		vm:                            ui.vm,
 		states:                        result.NewMap[string, *State](),
 		fetchSem:                      make(chan struct{}, MaxConcurrentFetchRequests),
-		stateSubscribers:              make([]chan *State, 0),
+		stateSubscribers:              result.NewMap[string, *StateSubscriber](),
 		eventBus:                      result.NewMap[ClientEventType, *result.Map[string, *EventListener]](),
 		wsEventManager:                ui.wsEventManager,
 		effectStack:                   make(map[string]bool),
@@ -134,6 +141,7 @@ func NewContext(ui *UI) *Context {
 	ret.updateBatchTimer.Stop() // Start in stopped state
 
 	ret.trayManager = NewTrayManager(ret)
+	ret.webviewManager = NewWebviewManager(ret)
 	ret.actionManager = NewActionManager(ret)
 	ret.webviewManager = NewWebviewManager(ret)
 	ret.screenManager = NewScreenManager(ret)
@@ -156,11 +164,13 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	obj := vm.NewObject()
 
 	_ = obj.Set("newTray", c.trayManager.jsNewTray)
+	_ = obj.Set("newWebview", c.webviewManager.jsNewWebview)
 	_ = obj.Set("newForm", c.formManager.jsNewForm)
 
 	_ = obj.Set("newCommandPalette", c.commandPaletteManager.jsNewCommandPalette)
 
 	_ = obj.Set("state", c.jsState)
+	_ = obj.Set("computed", c.jsComputed)
 	_ = obj.Set("setTimeout", c.jsSetTimeout)
 	_ = obj.Set("setInterval", c.jsSetInterval)
 	_ = obj.Set("effect", c.jsEffect)
@@ -168,7 +178,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	_ = obj.Set("eventHandler", c.jsEventHandler)
 	_ = obj.Set("fieldRef", c.jsfieldRef)
 
-	c.bindFetch(obj)
+	c.bindFetch(obj, c.ext.Plugin.Permissions.GetNetworkAccessAllowedDomains())
 	c.bindChromeDP(obj)
 	// Bind screen manager
 	c.screenManager.bind(obj)
@@ -403,7 +413,7 @@ func (c *Context) GetContextObj() (*goja.Object, bool) {
 // handleTypeError interrupts the UI the first time we encounter a type error.
 // Interrupting early is better to catch wrong usage of the API.
 func (c *Context) handleTypeError(msg string) {
-	c.logger.Error().Err(fmt.Errorf(msg)).Msg("plugin: Type error")
+	c.logger.Error().Err(errors.New(msg)).Msg("plugin: Type error")
 	// c.fatalError(fmt.Errorf(msg))
 	panic(c.vm.NewTypeError(msg))
 }
@@ -444,6 +454,162 @@ func (c *Context) registerOnCleanup(fn func()) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// subscribeToDependencies sets up a subscription to watch for changes in dependencies
+// and executes the callback when any dependency changes
+// Returns the cancel function
+func (c *Context) subscribeToDependencies(depsObj *goja.Object, callback func(updatedStateID string)) context.CancelFunc {
+	lengthVal := depsObj.Get("length")
+	depsLen := int(lengthVal.ToInteger())
+
+	if depsLen == 0 {
+		return func() {}
+	}
+
+	deps := make([]*goja.Object, depsLen)
+	oldValues := make([]goja.Value, depsLen)
+	dropIDs := make([]string, depsLen)
+
+	for i := 0; i < depsLen; i++ {
+		depVal := depsObj.Get(fmt.Sprintf("%d", i))
+		depObj, ok := depVal.(*goja.Object)
+		if !ok {
+			c.handleTypeError("dependency is not an object")
+		}
+		deps[i] = depObj
+		oldValues[i] = depObj.Get("value")
+
+		idVal := depObj.Get("__stateId")
+		exported := idVal.Export()
+		idStr, ok := exported.(string)
+		if !ok {
+			idStr = fmt.Sprintf("%v", exported)
+		}
+		dropIDs[i] = idStr
+	}
+
+	// Subscribe to state updates
+	subChan := c.subscribeStateUpdates()
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case updatedState, ok := <-subChan:
+				if !ok {
+					return
+				}
+				if updatedState != nil {
+					// Check if the updated state is one of our dependencies
+					for i, depID := range dropIDs {
+						if depID == updatedState.ID {
+							newVal := deps[i].Get("value")
+							if !reflect.DeepEqual(oldValues[i].Export(), newVal.Export()) {
+								oldValues[i] = newVal
+								callback(updatedState.ID)
+							}
+							break
+						}
+					}
+				}
+			}
+		}
+	}()
+
+	c.registerOnCleanup(cancel)
+	return cancel
+}
+
+// createStateObject creates a JavaScript state object with getter and optional setter
+// Returns the dynamic state object with get(), set() (if setter provided), value property, and length property
+func (c *Context) createStateObject(id string, getter func(goja.FunctionCall) goja.Value, setter func(goja.FunctionCall) goja.Value) goja.Value {
+	stateObj := c.vm.NewObject()
+	jsGetStateVal := c.vm.ToValue(getter)
+
+	var jsDynamicDefFuncValue goja.Value
+	var err error
+
+	if setter != nil {
+		// Create state object with both getter and setter (mutable state)
+		jsSetStateVal := c.vm.ToValue(setter)
+		jsDynamicDefFuncValue, err = c.vm.RunString(`(function(obj, getter, setter) {
+	Object.defineProperty(obj, 'value', {
+		get: getter,
+		set: setter,
+		enumerable: true,
+		configurable: true
+	});
+	obj.get = function() { return this.value; };
+	obj.set = function(val) { this.value = val; return val; };
+	Object.defineProperty(obj, 'length', {
+		get: function() {
+			var val = this.value;
+			return (typeof val === 'string' ? val.length : undefined);
+		},
+		enumerable: true,
+		configurable: true
+	});
+	return obj;
+})`)
+		if err != nil {
+			c.handleTypeError(err.Error())
+		}
+		jsDynamicDefFunc, ok := goja.AssertFunction(jsDynamicDefFuncValue)
+		if !ok {
+			c.handleTypeError("dynamic definition is not a function")
+		}
+
+		jsDynamicState, err := jsDynamicDefFunc(goja.Undefined(), stateObj, jsGetStateVal, jsSetStateVal)
+		if err != nil {
+			c.handleTypeError(err.Error())
+		}
+
+		if obj, ok := jsDynamicState.(*goja.Object); ok {
+			_ = obj.Set("__stateId", id)
+		}
+
+		return jsDynamicState
+	} else {
+		// Create read-only state object (computed state)
+		jsDynamicDefFuncValue, err = c.vm.RunString(`(function(obj, getter) {
+	Object.defineProperty(obj, 'value', {
+		get: getter,
+		enumerable: true,
+		configurable: true
+	});
+	obj.get = function() { return this.value; };
+	Object.defineProperty(obj, 'length', {
+		get: function() {
+			var val = this.value;
+			return (typeof val === 'string' ? val.length : undefined);
+		},
+		enumerable: true,
+		configurable: true
+	});
+	return obj;
+})`)
+		if err != nil {
+			c.handleTypeError(err.Error())
+		}
+		jsDynamicDefFunc, ok := goja.AssertFunction(jsDynamicDefFuncValue)
+		if !ok {
+			c.handleTypeError("dynamic definition is not a function")
+		}
+
+		jsDynamicState, err := jsDynamicDefFunc(goja.Undefined(), stateObj, jsGetStateVal)
+		if err != nil {
+			c.handleTypeError(err.Error())
+		}
+
+		if obj, ok := jsDynamicState.(*goja.Object); ok {
+			_ = obj.Set("__stateId", id)
+		}
+
+		return jsDynamicState
+	}
+}
+
 // jsState is used to create a new state object
 //
 //	Example:
@@ -468,9 +634,6 @@ func (c *Context) jsState(call goja.FunctionCall) goja.Value {
 
 	// Store the initial state
 	c.states.Set(id, state)
-
-	// Create a new JS object to represent the state
-	stateObj := c.vm.NewObject()
 
 	// Define getter and setter functions that interact with the Go-managed state
 	jsGetState := func(call goja.FunctionCall) goja.Value {
@@ -502,48 +665,7 @@ func (c *Context) jsState(call goja.FunctionCall) goja.Value {
 		return goja.Undefined()
 	}
 
-	jsGetStateVal := c.vm.ToValue(jsGetState)
-	jsSetStateVal := c.vm.ToValue(jsSetState)
-
-	// Define a dynamic state object that includes a 'value' property, get(), set(), and length
-	jsDynamicDefFuncValue, err := c.vm.RunString(`(function(obj, getter, setter) {
-	Object.defineProperty(obj, 'value', {
-		get: getter,
-		set: setter,
-		enumerable: true,
-		configurable: true
-	});
-	obj.get = function() { return this.value; };
-	obj.set = function(val) { this.value = val; return val; };
-	Object.defineProperty(obj, 'length', {
-		get: function() {
-			var val = this.value;
-			return (typeof val === 'string' ? val.length : undefined);
-		},
-		enumerable: true,
-		configurable: true
-	});
-	return obj;
-})`)
-	if err != nil {
-		c.handleTypeError(err.Error())
-	}
-	jsDynamicDefFunc, ok := goja.AssertFunction(jsDynamicDefFuncValue)
-	if !ok {
-		c.handleTypeError("dynamic definition is not a function")
-	}
-
-	jsDynamicState, err := jsDynamicDefFunc(goja.Undefined(), stateObj, jsGetStateVal, jsSetStateVal)
-	if err != nil {
-		c.handleTypeError(err.Error())
-	}
-
-	// Attach hidden state ID for subscription
-	if obj, ok := jsDynamicState.(*goja.Object); ok {
-		_ = obj.Set("__stateId", id)
-	}
-
-	return jsDynamicState
+	return c.createStateObject(id, jsGetState, jsSetState)
 }
 
 // jsSetTimeout
@@ -649,6 +771,71 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 	return c.vm.ToValue(cancelFunc)
 }
 
+// jsComputed
+//
+//	Example:
+//	const text = ctx.computed(() => "Hello " + name.get() + "!", [name])
+func (c *Context) jsComputed(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 2 {
+		c.handleTypeError("computed requires a compute function and an array of dependencies")
+	}
+
+	computeFn, ok := goja.AssertFunction(call.Argument(0))
+	if !ok {
+		c.handleTypeError("first argument to computed must be a function")
+	}
+
+	depsObj, ok := call.Argument(1).(*goja.Object)
+	if !ok {
+		c.handleTypeError("second argument to computed must be an array of dependencies")
+	}
+
+	// Generate unique ID for this computed value
+	id := uuid.New().String()
+
+	// Compute initial value
+	initialVal, err := computeFn(goja.Undefined())
+	if err != nil {
+		c.handleException(err)
+		initialVal = goja.Undefined()
+	}
+
+	// Store the computed state
+	state := &State{
+		ID:    id,
+		Value: initialVal,
+	}
+	c.states.Set(id, state)
+
+	// Define getter function that interacts with the Go-managed state
+	jsGetState := func(call goja.FunctionCall) goja.Value {
+		res, _ := c.states.Get(id)
+		return res.Value
+	}
+
+	// Create read-only state object (no setter)
+	stateObj := c.createStateObject(id, jsGetState, nil)
+
+	// Set up subscription to recompute when dependencies change
+	c.subscribeToDependencies(depsObj, func(updatedStateID string) {
+		// Recompute the value
+		c.scheduler.ScheduleAsync(func() error {
+			computedVal, err := computeFn(goja.Undefined())
+			if err != nil {
+				return err
+			}
+			c.states.Set(id, &State{
+				ID:    id,
+				Value: computedVal,
+			})
+			c.queueStateUpdate(id)
+			return nil
+		})
+	})
+
+	return stateObj
+}
+
 // jsEffect
 //
 //	Example:
@@ -698,82 +885,40 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 		})
 	}
 
-	deps := make([]*goja.Object, depsLen)
-	oldValues := make([]goja.Value, depsLen)
-	dropIDs := make([]string, depsLen) // to store state IDs of dependencies
-	for i := 0; i < depsLen; i++ {
-		depVal := depsObj.Get(fmt.Sprintf("%d", i))
-		depObj, ok := depVal.(*goja.Object)
-		if !ok {
-			c.handleTypeError("dependency is not an object")
-		}
-		deps[i] = depObj
-		oldValues[i] = depObj.Get("value")
-
-		idVal := depObj.Get("__stateId")
-		exported := idVal.Export()
-		idStr, ok := exported.(string)
-		if !ok {
-			idStr = fmt.Sprintf("%v", exported)
-		}
-		dropIDs[i] = idStr
-	}
-
 	globalObj := c.vm.GlobalObject()
 
-	// Subscribe to state updates
-	subChan := c.subscribeStateUpdates()
-	ctxEffect, cancel := context.WithCancel(context.Background())
-	go func(effectFn *goja.Callable, globalObj goja.Value) {
-		for {
-			select {
-			case <-ctxEffect.Done():
-				return
-			case updatedState := <-subChan:
-				if effectFn != nil && updatedState != nil {
-					// Check if the updated state is one of our dependencies by matching __stateId
-					for i, depID := range dropIDs {
-						if depID == updatedState.ID {
-							newVal := deps[i].Get("value")
-							if !reflect.DeepEqual(oldValues[i].Export(), newVal.Export()) {
-								oldValues[i] = newVal
-
-								// Check for infinite loops
-								c.mu.Lock()
-								if c.effectStack[effectID] {
-									c.logger.Warn().Msgf("Detected potential infinite loop in effect %s, skipping execution", effectID)
-									c.mu.Unlock()
-									continue
-								}
-
-								// Clean up old calls and check rate
-								c.cleanupOldEffectCalls(effectID)
-								callsInWindow := len(c.effectCalls[effectID])
-								if callsInWindow >= MaxEffectCallsPerWindow {
-									c.mu.Unlock()
-									c.fatalError(fmt.Errorf("effect %s exceeded rate limit with %d calls in %dms window", effectID, callsInWindow, EffectTimeWindow))
-									return
-								}
-
-								// Track this call
-								c.effectStack[effectID] = true
-								c.effectCalls[effectID] = append(c.effectCalls[effectID], time.Now())
-								c.mu.Unlock()
-
-								c.scheduler.ScheduleAsync(func() error {
-									_, err := (*effectFn)(globalObj)
-									c.mu.Lock()
-									c.effectStack[effectID] = false
-									c.mu.Unlock()
-									return err
-								})
-							}
-						}
-					}
-				}
-			}
+	// Subscribe to dependencies and execute effect when they change
+	cancel := c.subscribeToDependencies(depsObj, func(updatedStateID string) {
+		// Check for infinite loops
+		c.mu.Lock()
+		if c.effectStack[effectID] {
+			c.logger.Warn().Msgf("Detected potential infinite loop in effect %s, skipping execution", effectID)
+			c.mu.Unlock()
+			return
 		}
-	}(&effectFn, globalObj)
+
+		// Clean up old calls and check rate
+		c.cleanupOldEffectCalls(effectID)
+		callsInWindow := len(c.effectCalls[effectID])
+		if callsInWindow >= MaxEffectCallsPerWindow {
+			c.mu.Unlock()
+			c.fatalError(fmt.Errorf("effect %s exceeded rate limit with %d calls in %dms window", effectID, callsInWindow, EffectTimeWindow))
+			return
+		}
+
+		// Track this call
+		c.effectStack[effectID] = true
+		c.effectCalls[effectID] = append(c.effectCalls[effectID], time.Now())
+		c.mu.Unlock()
+
+		c.scheduler.ScheduleAsync(func() error {
+			_, err := effectFn(globalObj)
+			c.mu.Lock()
+			c.effectStack[effectID] = false
+			c.mu.Unlock()
+			return err
+		})
+	})
 
 	cancelFunc := func(call goja.FunctionCall) goja.Value {
 		cancel()
@@ -783,10 +928,6 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 		c.mu.Unlock()
 		return goja.Undefined()
 	}
-
-	c.registerOnCleanup(func() {
-		cancel()
-	})
 
 	return c.vm.ToValue(cancelFunc)
 }
@@ -887,7 +1028,7 @@ func (c *Context) jsEventHandler(call goja.FunctionCall) goja.Value {
 func (c *Context) jsfieldRef(call goja.FunctionCall) goja.Value {
 	fieldRefObj := c.vm.NewObject()
 
-	if c.fieldRefCount >= MAX_FIELD_REFS {
+	if c.fieldRefCount >= MaxFieldRefs {
 		c.handleTypeError("Too many field refs registered")
 		return goja.Undefined()
 	}
@@ -979,12 +1120,21 @@ func (c *Context) jsfieldRef(call goja.FunctionCall) goja.Value {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func (s *StateSubscriber) Close() {
+	s.closed.Store(true)
+	s.closeOnce.Do(func() {
+		close(s.Chan)
+	})
+}
+
 func (c *Context) subscribeStateUpdates() chan *State {
-	ch := make(chan *State, 10)
-	c.mu.Lock()
-	c.stateSubscribers = append(c.stateSubscribers, ch)
-	c.mu.Unlock()
-	return ch
+	id := uuid.NewString()
+	// add a subscriber
+	sub := &StateSubscriber{
+		Chan: make(chan *State, 10),
+	}
+	c.stateSubscribers.Set(id, sub)
+	return sub.Chan
 }
 
 func (c *Context) publishStateUpdate(id string) {
@@ -994,12 +1144,16 @@ func (c *Context) publishStateUpdate(id string) {
 	}
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	for _, sub := range c.stateSubscribers {
+	c.stateSubscribers.Range(func(_ string, sub *StateSubscriber) bool {
+		if sub.closed.Load() {
+			return true
+		}
 		select {
-		case sub <- state:
+		case sub.Chan <- state:
 		default:
 		}
-	}
+		return true
+	})
 }
 
 func (c *Context) cleanupOldEffectCalls(effectID string) {
@@ -1076,6 +1230,10 @@ func (c *Context) triggerUIUpdate() {
 	if c.trayManager != nil {
 		c.trayManager.renderTrayScheduled()
 	}
+	// Trigger tray update if available
+	if c.webviewManager != nil {
+		c.webviewManager.renderWebviewScheduled()
+	}
 }
 
 // Cleanup is called when the UI is being unloaded
@@ -1145,16 +1303,11 @@ func (c *Context) Stop() {
 
 	// Stop all state subscribers
 	c.logger.Trace().Msg("plugin: Stopping state subscribers")
-	for _, sub := range c.stateSubscribers {
-		go func(sub chan *State) {
-			defer func() {
-				if r := recover(); r != nil {
-					c.logger.Error().Err(fmt.Errorf("%v", r)).Msg("plugin: Error stopping state subscriber")
-				}
-			}()
-			close(sub)
-		}(sub)
-	}
+	c.stateSubscribers.Range(func(id string, sub *StateSubscriber) bool {
+		sub.Close()
+		c.stateSubscribers.Delete(id)
+		return true
+	})
 
 	// Run all cleanup functions
 	c.onCleanupFns.Range(func(key int64, fn func()) bool {

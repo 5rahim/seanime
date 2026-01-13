@@ -49,6 +49,19 @@ func (c *ComponentManager) getComponentsData(renderFunc func(goja.FunctionCall) 
 	return ret
 }
 
+// executeContentFunc calls the render function and returns the current state of the script
+func (c *ComponentManager) executeContentFunc(contentFunc func(goja.FunctionCall) goja.Value) string {
+	// Call the render function
+	value := contentFunc(goja.FunctionCall{})
+
+	str, ok := value.Export().(string)
+	if !ok {
+		return ""
+	}
+
+	return str
+}
+
 ////
 
 type ComponentProp struct {
@@ -100,6 +113,9 @@ func defineComponent(vm *goja.Runtime, call goja.FunctionCall, t string, propDef
 					propsList[shorthandProp.Name] = call.Argument(0).Export().([]interface{})
 					hasShorthand = true
 				}
+			case "any":
+				propsList[shorthandProp.Name] = call.Argument(0).Export()
+				hasShorthand = true
 			}
 			if hasShorthand {
 				// Get the rest of the props from the second argument
@@ -170,6 +186,8 @@ func validateType(expectedType string) func(interface{}) error {
 			return fmt.Errorf("expected %s, got nil", expectedType)
 		}
 		switch expectedType {
+		case "any":
+			return nil
 		case "string":
 			_, ok := value.(string)
 			if !ok {

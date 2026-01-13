@@ -80,7 +80,7 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 
 	subtitleCh, errCh, _ := subtitleStream.parser.ExtractSubtitles(ctx, newReader, offset, backoffBytes)
 
-	firstEventSentCh := make(chan struct{})
+	firstEventSentCh := make(chan struct{}) // no-op
 	closeFirstEventSentOnce := sync.Once{}
 
 	onFirstEventSent := func() {
@@ -161,6 +161,7 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 				}
 				if subtitle != nil {
 					onFirstEventSent()
+					// Send the event to the player
 					s.manager.nativePlayer.SubtitleEvent(stream.ClientId(), subtitle)
 					lastSubtitleEventRWMutex.Lock()
 					lastSubtitleEvent = subtitle

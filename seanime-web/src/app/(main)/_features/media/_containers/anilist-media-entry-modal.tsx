@@ -2,6 +2,7 @@
 import { AL_BaseAnime, AL_BaseManga, AL_MediaListStatus, Anime_EntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { useDeleteAnilistListEntry, useEditAnilistListEntry } from "@/api/hooks/anilist.hooks"
 import { useUpdateAnimeEntryRepeat } from "@/api/hooks/anime_entries.hooks"
+import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { useCurrentUser } from "@/app/(main)/_hooks/use-server-status"
 import { SeaImage } from "@/components/shared/sea-image"
 import { Button, IconButton } from "@/components/ui/button"
@@ -318,6 +319,8 @@ export const AnilistMediaEntryModal = (props: AnilistMediaEntryModalProps) => {
                             Save
                         </Field.Submit>
                     </div>
+
+                    <PluginWebviewSlot slot="after-media-entry-form" />
                 </Form>}
 
             </IsomorphicPopover>}

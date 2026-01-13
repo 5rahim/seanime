@@ -271,10 +271,21 @@ func (p *ProviderImpl) GetAnimeMetadataWrapper(media *anilist.BaseAnime, m *meta
 		baseAnime:  media,
 		fileCacher: p.fileCacher,
 		logger:     p.logger,
+		db:         p.db,
 	}
-
+	aw.provider = p
 	if m != nil {
 		aw.metadata = mo.Some(m)
+	}
+
+	parent, err := aw.db.GetMediaMetadataParent(aw.baseAnime.GetID())
+	if err == nil {
+		aw.parentEntry, err = p.GetAnimeMetadata(metadata.AnilistPlatform, parent.ParentId)
+		if err == nil {
+			p.logger.Debug().Msgf("metadata provoder: Media %d is child of %d", aw.baseAnime.GetID(), parent.ParentId)
+			aw.parentSpecialOffset = parent.SpecialOffset
+		}
+		aw.metadata = mo.Some(aw.parentEntry)
 	}
 
 	return aw

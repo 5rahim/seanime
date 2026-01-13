@@ -2,10 +2,12 @@ import { AL_BaseAnime, Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/gen
 import { useDebridAddTorrents } from "@/api/hooks/debrid.hooks"
 import { useDownloadTorrentFile } from "@/api/hooks/download.hooks"
 import { useTorrentClientDownload } from "@/api/hooks/torrent_client.hooks"
+import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
     __torrentDownload_fileSelectionAtom,
     getDefaultDestination,
+    sanitizeDirectoryName,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-download-file-selection"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
@@ -17,7 +19,6 @@ import { Switch } from "@/components/ui/switch"
 import { Tooltip } from "@/components/ui/tooltip"
 import { Vaul, VaulContent } from "@/components/vaul"
 import { openTab } from "@/lib/helpers/browser"
-import { upath } from "@/lib/helpers/upath"
 import { TORRENT_CLIENT } from "@/lib/server/settings"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
@@ -42,14 +43,21 @@ export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
 
     const setFileSelection = useSetAtom(__torrentDownload_fileSelectionAtom)
 
-    /**
-     * Default path for the destination folder
-     */
+    const animeFolderName = useMemo(() => {
+        return sanitizeDirectoryName(entry.media?.title?.romaji || "")
+    }, [entry.media?.title?.romaji])
+
     const defaultPath = useMemo(() => {
         return getDefaultDestination(entry, libraryPath)
     }, [entry, libraryPath])
 
     const [destination, setDestination] = useState(defaultPath)
+
+    const libraryPathSelectionProps = useLibraryPathSelection({
+        destination,
+        setDestination,
+        animeFolderName,
+    })
 
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useAtom(confirmationModalOpenAtom)
     const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_selectionAtom)
@@ -183,6 +191,7 @@ export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
                         defaultValue={destination}
                         onSelect={setDestination}
                         shouldExist={false}
+                        libraryPathSelectionProps={libraryPathSelectionProps}
                     />
 
                     {selectedTorrents.map(torrent => (
@@ -339,14 +348,4 @@ export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: 
         </Button>
     )
 
-}
-
-function sanitizeDirectoryName(input: string): string {
-    const disallowedChars = /[<>:"/\\|?*\x00-\x1F]/g // Pattern for disallowed characters
-    // Replace disallowed characters with an underscore
-    const sanitized = input.replace(disallowedChars, " ")
-    // Remove leading/trailing spaces and dots (periods) which are not allowed
-    const trimmed = sanitized.trim().replace(/^\.+|\.+$/g, "").replace(/\s+/g, " ")
-    // Ensure the directory name is not empty after sanitization
-    return trimmed || "Untitled"
 }

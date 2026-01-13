@@ -71,12 +71,15 @@ type (
 		// List of extension IDs that have an update available
 		// This is only populated when the user clicks on "Check for updates"
 		HasUpdate []UpdateData `json:"hasUpdate"`
+		// Extensions that use unsafe flags
+		UnsafeExtensions map[string]bool `json:"unsafeExtensions"`
 	}
 
 	UpdateData struct {
 		ExtensionID string `json:"extensionID"`
 		ManifestURI string `json:"manifestURI"`
 		Version     string `json:"version"`
+		Payload     string `json:"payload"`
 	}
 
 	MangaProviderExtensionItem struct {
@@ -192,6 +195,18 @@ func (r *Repository) GetAllExtensions(withUpdates bool) (ret *AllExtensions) {
 		Extensions:                  r.ListExtensionData(),
 		InvalidExtensions:           fatalInvalidExtensions,
 		InvalidUserConfigExtensions: userConfigInvalidExtensions,
+		UnsafeExtensions:            make(map[string]bool),
+	}
+
+	for _, ext := range ret.Extensions {
+		if ext.Plugin != nil && ext.Plugin.IsUnsafe() {
+			ret.UnsafeExtensions[ext.ID] = true
+		}
+	}
+	for _, ext := range ret.InvalidExtensions {
+		if ext.Extension.Plugin != nil && ext.Extension.Plugin.IsUnsafe() {
+			ret.UnsafeExtensions[ext.ID] = true
+		}
 	}
 
 	// Send the update data to the frontend if there are any updates

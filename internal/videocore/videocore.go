@@ -1,6 +1,7 @@
 package videocore
 
 import (
+	"context"
 	"encoding/json"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
@@ -12,11 +13,13 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/imroc/req/v3"
 	"github.com/rs/zerolog"
 )
 
@@ -26,6 +29,8 @@ type (
 	VideoCore struct {
 		wsEventManager              events.WSEventManagerInterface
 		clientPlayerEventSubscriber *events.ClientEventSubscriber
+
+		translatorService *TranslatorService
 
 		continuityManager          *continuity.Manager
 		metadataProviderRef        *util.Ref[metadata_provider.Provider]
@@ -91,9 +96,22 @@ func New(opts NewVideoCoreOptions) *VideoCore {
 }
 
 func (vc *VideoCore) SetSettings(settings *models.Settings) {
+	if settings == nil {
+		return
+	}
+	vc.logger.Trace().Msgf("videocore: Setting settings")
 	vc.settingsMu.Lock()
 	vc.settings = settings
 	vc.settingsMu.Unlock()
+
+	if vc.translatorService != nil {
+		vc.translatorService.Shutdown()
+	}
+	vc.translatorService = nil
+	if settings.GetMediaPlayer().VcTranslate {
+		vc.logger.Trace().Msgf("videocore: Setting up translator service %s", settings.GetMediaPlayer().VcTranslateProvider)
+		vc.translatorService = NewTranslatorService(vc, settings.GetMediaPlayer().VcTranslateApiKey, settings.GetMediaPlayer().VcTranslateProvider, settings.GetMediaPlayer().VcTranslateTargetLanguage)
+	}
 }
 
 func (vc *VideoCore) Start() {
@@ -168,7 +186,9 @@ func (vc *VideoCore) sendPlayerEventTo(clientId string, t string, payload interf
 	}
 	vc.playbackStatusMu.RUnlock()
 
-	vc.logger.Trace().Msgf("videocore: Sending event %s to client %s", t, clientId)
+	if len(noLog) == 0 || !noLog[0] {
+		vc.logger.Trace().Msgf("videocore: Sending event %s to client %s", t, clientId)
+	}
 
 	if clientId != "" {
 		vc.wsEventManager.SendEventTo(clientId, string(events.VideoCoreEventType), struct {
@@ -673,7 +693,7 @@ func (vc *VideoCore) PullStatus() (ret VideoStatusEvent, ok bool) {
 		defer cancel()
 		<-time.After(5 * time.Second)
 	}(cancel)
-	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetStatus), nil)
+	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetStatus), nil, true)
 	<-done
 	return ret, true
 }
@@ -898,6 +918,71 @@ func (vc *VideoCore) listenToClientEvents() {
 							vc.PushEvent(&VideoTextTracksEvent{
 								TextTracks: payload.TextTracks,
 							})
+						}
+					case PlayerEventTranslateText:
+						payload := &clientTranslateTextPayload{}
+						if err := playerEvent.UnmarshalAs(payload); err == nil {
+							// Translate in a goroutine
+							go func() {
+								state, ok := vc.GetPlaybackState()
+								if !ok {
+									return
+								}
+								translated := vc.TranslateText(context.Background(), payload.Text)
+								// Send the result
+								vc.sendPlayerEventTo(state.ClientId, string(ServerEventTranslatedText), struct {
+									Original   string `json:"original"`
+									Translated string `json:"translated"`
+								}{
+									Original:   payload.Text,
+									Translated: translated,
+								}, true)
+							}()
+						}
+					case PlayerEventTranslateSubtitleFileTrack:
+						payload := &VideoSubtitleTrack{}
+						if err := playerEvent.UnmarshalAs(payload); err == nil {
+							// Translate in a goroutine
+							go func() {
+								vc.logger.Trace().Msgf("videocore: Received subtitle track translation request")
+								state, ok := vc.GetPlaybackState()
+								if !ok {
+									return
+								}
+								var translated string
+								if payload.Src != nil && len(*payload.Src) > 0 {
+									client := req.C()
+									client.SetTimeout(30 * time.Second)
+									resp := client.Get(*payload.Src).Do()
+
+									if resp.IsErrorState() {
+										vc.logger.Error().Err(resp.Err).Msgf("videocore: Failed to download subtitle file %s", *payload.Src)
+										return
+									}
+
+									content := resp.String()
+
+									from := mkvparser.DetectSubtitleType(content)
+									translated = vc.TranslateContent(context.Background(), content, from)
+
+								} else if payload.Content != nil && len(*payload.Content) > 0 {
+									content := *payload.Content
+									from := mkvparser.DetectSubtitleType(content)
+									translated = vc.TranslateContent(context.Background(), content, from)
+								}
+								if translated != "" {
+									// Modify the payload but keep the same index
+									payload.Content = &translated
+									payload.Src = nil
+									payload.Label = payload.Label + " (translated)"
+									payload.Language = strings.ToLower(vc.GetTranslationTargetLanguage())
+									// Send the result
+									vc.logger.Debug().Str("clientId", state.ClientId).Int("length", len(*payload.Content)).Msgf("videocore: Sending translated subtitle track")
+									vc.sendPlayerEventTo(state.ClientId, string(ServerEventAddExternalSubtitleTrack), payload, true)
+								} else {
+									vc.logger.Error().Msgf("videocore: Failed to translate subtitle track")
+								}
+							}()
 						}
 					}
 				}

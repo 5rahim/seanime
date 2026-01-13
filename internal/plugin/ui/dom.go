@@ -1,8 +1,12 @@
 package plugin_ui
 
 import (
+	"seanime/internal/events"
+	"seanime/internal/extension"
 	"seanime/internal/util/result"
+	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/dop251/goja"
 	"github.com/google/uuid"
@@ -10,9 +14,11 @@ import (
 
 // DOMManager handles DOM manipulation requests from plugins
 type DOMManager struct {
-	ctx              *Context
-	elementObservers *result.Map[string, *ElementObserver]
-	eventListeners   *result.Map[string, *DOMEventListener]
+	ctx                      *Context
+	elementObservers         *result.Map[string, *ElementObserver]
+	eventListeners           *result.Map[string, *DOMEventListener]
+	unsafeScriptManipulation bool
+	unsafeLinkManipulation   bool
 }
 
 type ElementObserver struct {
@@ -30,12 +36,27 @@ type DOMEventListener struct {
 
 // NewDOMManager creates a new DOM manager
 func NewDOMManager(ctx *Context) *DOMManager {
-	return &DOMManager{
+	ret := &DOMManager{
 		ctx:              ctx,
 		elementObservers: result.NewMap[string, *ElementObserver](),
 		eventListeners:   result.NewMap[string, *DOMEventListener](),
 	}
+
+	unsafeFlags := ctx.ext.Plugin.Permissions.GetUnsafeFlags()
+	if _, ok := unsafeFlags[extension.UnsafeDOMScriptManipulation]; ok {
+		ret.unsafeScriptManipulation = true
+	}
+	if _, ok := unsafeFlags[extension.UnsafeDOMLinkManipulation]; ok {
+		ret.unsafeLinkManipulation = true
+	}
+
+	return ret
 }
+
+const (
+	ScriptManipulationError = "Script manipulation is not allowed due to security reasons. Please use the 'dom-script-manipulation' flag to enable this feature."
+	LinkManipulationError   = "Link manipulation is not allowed due to security reasons. Please use the 'dom-link-manipulation' flag to enable this feature."
+)
 
 // BindToObj binds DOM manipulation methods to a context object
 func (d *DOMManager) BindToObj(vm *goja.Runtime, obj *goja.Object) {
@@ -464,6 +485,16 @@ func (d *DOMManager) jsObserveInView(call goja.FunctionCall) goja.Value {
 	return d.ctx.vm.ToValue([]interface{}{cancelFn, refetchFn})
 }
 
+func (d *DOMManager) throwAndUnload(str string) {
+	go func() {
+		<-time.After(500 * time.Millisecond)
+		d.ctx.wsEventManager.SendEvent(events.ErrorToast, d.ctx.ext.ID+": "+str)
+	}()
+	d.ctx.ui.UnloadFromInside(true)
+	d.ctx.ui.onCrash(str)
+	panic(d.ctx.vm.NewTypeError(str))
+}
+
 // jsCreateElement creates a new DOM element
 func (d *DOMManager) jsCreateElement(call goja.FunctionCall) goja.Value {
 	tagName := call.Argument(0).String()
@@ -489,6 +520,15 @@ func (d *DOMManager) jsCreateElement(call goja.FunctionCall) goja.Value {
 			d.ctx.UnregisterEventListener(listener.ID)
 		}
 	})
+
+	tagNameLower := strings.ToLower(tagName)
+	if tagNameLower == "script" && !d.unsafeScriptManipulation {
+		d.throwAndUnload(ScriptManipulationError)
+	}
+
+	if tagNameLower == "link" && !d.unsafeLinkManipulation {
+		d.throwAndUnload(LinkManipulationError)
+	}
 
 	// Send the create request to the client
 	d.ctx.SendEventToClient(ServerDOMCreateEvent, &ServerDOMCreateEventPayload{
@@ -614,11 +654,19 @@ func (d *DOMManager) assignDOMElementMethods(elementObj *goja.Object, elementId 
 		d.setElementText(elementId, text)
 	})
 
+	// Check for dangerous content in innerHTML (scripts and event handlers)
 	_ = elementObj.Set("setInnerHTML", func(innerHTML string) {
+		if !d.unsafeScriptManipulation && containsDangerousHTML(innerHTML) {
+			d.throwAndUnload(ScriptManipulationError)
+		}
 		d.setElementInnerHTML(elementId, innerHTML)
 	})
 
+	// Check for dangerous content in outerHTML (scripts and event handlers)
 	_ = elementObj.Set("setOuterHTML", func(outerHTML string) {
+		if !d.unsafeScriptManipulation && containsDangerousHTML(outerHTML) {
+			d.throwAndUnload(ScriptManipulationError)
+		}
 		d.setElementOuterHTML(elementId, outerHTML)
 	})
 
@@ -631,6 +679,15 @@ func (d *DOMManager) assignDOMElementMethods(elementObj *goja.Object, elementId 
 	})
 
 	_ = elementObj.Set("setAttribute", func(name, value string) {
+		if isDangerousAttribute(name) && !d.unsafeScriptManipulation {
+			d.throwAndUnload(ScriptManipulationError)
+		}
+
+		// Check for dangerous content in attribute value
+		if isDangerousAttributeValue(name, value) && !d.unsafeScriptManipulation {
+			d.throwAndUnload(ScriptManipulationError)
+		}
+
 		d.setElementAttribute(elementId, name, value)
 	})
 
@@ -647,6 +704,20 @@ func (d *DOMManager) assignDOMElementMethods(elementObj *goja.Object, elementId 
 	})
 
 	_ = elementObj.Set("setProperty", func(name string, value interface{}) {
+		if isDangerousProperty(name) && !d.unsafeScriptManipulation {
+			panic(d.ctx.vm.NewTypeError(ScriptManipulationError))
+		}
+
+		// If setting innerHTML or outerHTML, check the value for dangerous content
+		nameLower := strings.ToLower(name)
+		if (nameLower == "innerhtml" || nameLower == "outerhtml") && !d.unsafeScriptManipulation {
+			if strValue, ok := value.(string); ok {
+				if containsDangerousHTML(strValue) {
+					d.throwAndUnload(ScriptManipulationError)
+				}
+			}
+		}
+
 		d.setElementProperty(elementId, name, value)
 	})
 
@@ -675,10 +746,16 @@ func (d *DOMManager) assignDOMElementMethods(elementObj *goja.Object, elementId 
 	})
 
 	_ = elementObj.Set("setStyle", func(property, value string) {
+		if !d.unsafeScriptManipulation && containsDangerousCSS(value) {
+			d.throwAndUnload(ScriptManipulationError)
+		}
 		d.setElementStyle(elementId, property, value)
 	})
 
 	_ = elementObj.Set("setCssText", func(cssText string) {
+		if !d.unsafeScriptManipulation && containsDangerousCSS(cssText) {
+			d.throwAndUnload(ScriptManipulationError)
+		}
 		d.setElementCssText(elementId, cssText)
 	})
 
@@ -734,6 +811,10 @@ func (d *DOMManager) assignDOMElementMethods(elementObj *goja.Object, elementId 
 	})
 
 	_ = elementObj.Set("setDataAttribute", func(key, value string) {
+		// Check if the value contains dangerous content
+		if !d.unsafeScriptManipulation && containsDangerousHTML(value) {
+			d.throwAndUnload(ScriptManipulationError)
+		}
 		d.setElementDataAttribute(elementId, key, value)
 	})
 

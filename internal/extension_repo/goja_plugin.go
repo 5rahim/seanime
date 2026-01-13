@@ -30,7 +30,9 @@ import (
 func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 	defer util.HandlePanicInModuleWithError("extension_repo/loadPluginExtension", &err)
 
-	_, gojaExt, err := NewGojaPlugin(ext, ext.Language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
+	_, gojaExt, err := NewGojaPlugin(ext, ext.Language, r.logger, r.gojaRuntimeManager, r.wsEventManager, func(reason string) {
+		r.invalidateExtension(ext.ID, reason)
+	})
 	if err != nil {
 		return err
 	}
@@ -118,6 +120,7 @@ func NewGojaPlugin(
 	mLogger *zerolog.Logger,
 	runtimeManager *goja_runtime.Manager,
 	wsEventManager events.WSEventManagerInterface,
+	onCrash func(reason string),
 ) (*GojaPlugin, GojaExtension, error) {
 	logger := lo.ToPtr(mLogger.With().Str("id", ext.ID).Logger())
 	defer util.HandlePanicInModuleThen("extension_repo/NewGojaPlugin", func() {
@@ -162,6 +165,7 @@ func NewGojaPlugin(
 	p.pool, err = runtimeManager.GetOrCreatePrivatePool(ext.ID, func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger, ext, wsEventManager)
+		goja_bindings.BindFetch(runtime, ext.Plugin.Permissions.GetNetworkAccessAllowedDomains())
 		BindUserConfig(runtime, ext, logger)
 		p.BindPluginAPIs(runtime, logger)
 		return runtime
@@ -178,6 +182,7 @@ func NewGojaPlugin(
 	uiVM.SetParserOptions(parser.WithDisableSourceMaps)
 	// Bind shared APIs
 	ShareBinds(uiVM, logger, ext, wsEventManager)
+	goja_bindings.BindFetch(uiVM, ext.Plugin.Permissions.GetNetworkAccessAllowedDomains())
 	BindUserConfig(uiVM, ext, logger)
 	// Bind the store to the UI VM
 	p.BindPluginAPIs(uiVM, logger)
@@ -188,6 +193,7 @@ func NewGojaPlugin(
 		VM:        uiVM,
 		WSManager: wsEventManager,
 		Scheduler: p.scheduler,
+		OnCrash:   onCrash,
 	})
 
 	go func() {

@@ -1,7 +1,10 @@
 import { useDirectorySelector } from "@/api/hooks/directory_selector.hooks"
-import { IconButton } from "@/components/ui/button"
+import { LibraryPathSelectionProps } from "@/app/(main)/_hooks/use-library-path-selection"
+import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
+import { Popover } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select } from "@/components/ui/select"
 import { TextInput, TextInputProps } from "@/components/ui/text-input"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { upath } from "@/lib/helpers/upath"
@@ -9,6 +12,7 @@ import React from "react"
 import { BiCheck, BiFolderOpen, BiFolderPlus, BiX } from "react-icons/bi"
 import { FaFolder } from "react-icons/fa"
 import { FiChevronLeft, FiFolder } from "react-icons/fi"
+import { HiMiniChevronUpDown } from "react-icons/hi2"
 import { useUpdateEffect } from "react-use"
 import { useDebounce } from "use-debounce"
 
@@ -17,6 +21,7 @@ export type DirectorySelectorProps = {
     onSelect: (path: string) => void
     shouldExist?: boolean
     value: string
+    libraryPathSelectionProps?: LibraryPathSelectionProps
 } & Omit<TextInputProps, "onSelect" | "value">
 
 export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, DirectorySelectorProps>(function (props: DirectorySelectorProps, ref) {
@@ -26,16 +31,27 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
         onSelect,
         value,
         shouldExist,
+        libraryPathSelectionProps: libraryProps,
+        label,
         ...rest
     } = props
 
     const firstRender = React.useRef(true)
 
-    const [input, setInput] = React.useState(defaultValue ? upath.normalizeSafe(defaultValue) : "")
+    const sanitizePath = React.useCallback((path: string) => {
+        if (!path) return ""
+        return upath.normalizeSafe(path.replace(/[<>"]/g, ""))
+    }, [])
+
+    const [input, setInputRaw] = React.useState(defaultValue ? sanitizePath(defaultValue) : "")
     const [debouncedInput] = useDebounce(input, 300)
     const selectorState = useBoolean(false)
     const prevState = React.useRef<string>(input)
     const currentState = React.useRef<string>(input)
+
+    const setInput = React.useCallback((newInput: string) => {
+        setInputRaw(sanitizePath(newInput))
+    }, [sanitizePath])
 
     const { data, isLoading, error } = useDirectorySelector(debouncedInput)
 
@@ -58,13 +74,14 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
     React.useEffect(() => {
         currentState.current = input
         if (input === ".") {
-            setInput("")
+            setInputRaw("")
         }
     }, [input])
 
     useUpdateEffect(() => {
-        onSelect(debouncedInput)
-        prevState.current = debouncedInput
+        const trimmedValue = debouncedInput.trim()
+        onSelect(trimmedValue)
+        prevState.current = trimmedValue
 
         // if (!isLoading && data && shouldExist && !data.exists && input.length > 0) {
         //     onSelect("")
@@ -74,16 +91,12 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
     const checkDirectoryExists = React.useCallback(() => {
         if (!isLoading && data && shouldExist && !data.exists && input.length > 0) {
             React.startTransition(() => {
-                setInput("")
+                setInputRaw("")
             })
         }
     }, [isLoading, data, input, shouldExist, prevState.current])
 
-    function sanitizeInput(input: string) {
-        // cross-platform sanitization
-        input = input.replace(/[<>"]/g, '');
-        return upath.normalizeSafe(input.trim())
-    }
+    const [librarySelectionOpen, setLibrarySelectionOpen] = React.useState(false)
 
     return (
         <>
@@ -92,6 +105,29 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                     <TextInput
                         leftIcon={<FaFolder />}
                         {...rest}
+                        label={<div className="flex items-center gap-1">
+                            {label}
+                            {libraryProps?.showLibrarySelector && (
+                                <Popover
+                                    open={librarySelectionOpen}
+                                    onOpenChange={setLibrarySelectionOpen}
+                                    className="w-[400px] p-2 ml-[30px]"
+                                    sideOffset={-4}
+                                    trigger={<Button size="sm" intent="gray-link" leftIcon={<HiMiniChevronUpDown />} className="!text-[--muted]">
+                                        Change library
+                                    </Button>}
+                                >
+                                    <Select
+                                        value={libraryProps.selectedLibrary}
+                                        options={libraryProps.libraryOptions}
+                                        onValueChange={v => {
+                                            libraryProps.handleLibraryPathSelect(v)
+                                            setLibrarySelectionOpen(false)
+                                        }}
+                                    />
+                                </Popover>
+                            )}
+                        </div>}
                         value={input}
                         rightIcon={<div className="flex">
                             {isLoading ? null : (data?.exists ?
@@ -99,15 +135,18 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                                     input.length > 0 ? <BiX className="text-red-500" /> : null : <BiFolderPlus />)}
                         </div>}
                         onChange={e => {
-                            setInput(sanitizeInput(e.target.value ?? ""))
+                            setInput(e.target.value ?? "")
                         }}
                         ref={ref}
                         onBlur={checkDirectoryExists}
                     />
-                    <BiFolderOpen
-                        className="text-2xl cursor-pointer absolute z-[1] top-0 right-0"
-                        onClick={selectorState.on}
-                    />
+
+                    <div className="absolute z-[1] top-0 right-0 flex items-center">
+                        <BiFolderOpen
+                            className="text-2xl cursor-pointer"
+                            onClick={selectorState.on}
+                        />
+                    </div>
                 </div>
             </div>
             <Modal
@@ -137,7 +176,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                             <BiCheck className="text-green-500" /> : shouldExist ?
                                 <BiX className="text-red-500" /> : <BiFolderPlus />)}
                         onChange={e => {
-                            setInput(upath.normalizeSafe(e.target.value ?? ""))
+                            setInput(e.target.value ?? "")
                         }}
                         onClick={() => {
                             if (shouldExist) selectorState.on()
@@ -155,7 +194,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                             <div
                                 key={folder.fullPath}
                                 className="py-1 flex items-center gap-2 text-sm px-3 rounded-[--radius-md] border flex-none cursor-pointer bg-gray-900 hover:bg-gray-800"
-                                onClick={() => setInput(upath.normalizeSafe(folder.fullPath))}
+                                onClick={() => setInput(folder.fullPath)}
                             >
                                 <FiFolder className="w-4 h-4 text-[--brand]" />
                                 <span className="break-normal">{folder.folderName}</span>
@@ -172,7 +211,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                             <div
                                 key={folder.fullPath}
                                 className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-gray-800"
-                                onClick={() => setInput(upath.normalizeSafe(folder.fullPath))}
+                                onClick={() => setInput(folder.fullPath)}
                             >
                                 <FiFolder className="w-4 h-4 text-[--brand]" />
                                 <span className="break-normal">{folder.folderName}</span>

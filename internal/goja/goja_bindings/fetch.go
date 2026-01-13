@@ -2,13 +2,16 @@ package goja_bindings
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+	"net/url"
 	"strings"
 	"time"
 
 	"github.com/dop251/goja"
 	"github.com/imroc/req/v3"
 	"github.com/rs/zerolog/log"
+	"github.com/samber/lo"
 )
 
 const (
@@ -32,16 +35,101 @@ var (
 )
 
 type Fetch struct {
-	vm           *goja.Runtime
-	fetchSem     chan struct{}
-	vmResponseCh chan func()
+	vm             *goja.Runtime
+	fetchSem       chan struct{}
+	vmResponseCh   chan func()
+	allowedDomains []string // empty = allow all domains
+	rules          []accessRule
 }
 
-func NewFetch(vm *goja.Runtime) *Fetch {
-	return &Fetch{
-		vm:           vm,
-		fetchSem:     make(chan struct{}, maxConcurrentRequests),
-		vmResponseCh: make(chan func(), maxConcurrentRequests),
+// accessRule represents a pre-parsed allowed domain pattern
+type accessRule struct {
+	scheme     string
+	host       string
+	path       string
+	wildcard   bool // matches *
+	subdomain  bool // matches *.example.com
+	pathPrefix bool // matches /path/* instead of exact /path
+	port       string
+}
+
+var whitelistedDomains = []string{
+	"api.github.com",
+	"raw.githubusercontent.com",
+	"shikimori.one",
+	"anilist.co",
+	"graphql.anilist.co",
+	"myanimelist.net",
+	"*.myanimelist.net",
+	"seanime.app",
+	"trakt.tv",
+	"*.trakt.tv",
+	"kitsu.io",
+	"api.simkl.com",
+	"simkl.com",
+	"*.gstatic.com",
+	"*.googleapis.com",
+}
+
+func NewFetch(vm *goja.Runtime, allowedDomains []string) *Fetch {
+	f := &Fetch{
+		vm:             vm,
+		fetchSem:       make(chan struct{}, maxConcurrentRequests),
+		vmResponseCh:   make(chan func(), maxConcurrentRequests),
+		allowedDomains: allowedDomains,
+	}
+	f.allowedDomains = lo.Uniq(append(f.allowedDomains, whitelistedDomains...))
+	f.compileRules()
+
+	return f
+}
+
+// CompileRules parses allowedDomains into efficient accessRules.
+// Call this once when initializing Fetch or updating configuration.
+func (f *Fetch) compileRules() {
+	f.rules = make([]accessRule, 0, len(f.allowedDomains))
+
+	for _, pattern := range f.allowedDomains {
+		if pattern == "*" {
+			f.rules = append(f.rules, accessRule{wildcard: true})
+			continue
+		}
+
+		// Ensure we can parse it by adding a scheme if missing
+		parseStr := pattern
+		if !strings.Contains(pattern, "://") {
+			parseStr = "https://" + pattern
+		}
+
+		u, err := url.Parse(parseStr)
+		if err != nil {
+			continue
+		}
+
+		rule := accessRule{
+			host: u.Hostname(),
+			path: u.Path,
+			port: u.Port(),
+		}
+
+		// If the original pattern had a scheme, enforce it
+		if strings.Contains(pattern, "://") {
+			rule.scheme = u.Scheme
+		}
+
+		// Check for subdomain wildcard (*.example.com)
+		// We check the original string because url.Parse might mess up the asterisk
+		if strings.HasPrefix(pattern, "*.") || strings.HasPrefix(u.Hostname(), "*.") {
+			rule.subdomain = true
+			rule.host = strings.TrimPrefix(rule.host, "*.")
+		}
+
+		// Trailing slash indicates a prefix match for paths
+		if strings.HasSuffix(pattern, "/") {
+			rule.pathPrefix = true
+		}
+
+		f.rules = append(f.rules, rule)
 	}
 }
 
@@ -73,9 +161,15 @@ type fetchResult struct {
 }
 
 // BindFetch binds the fetch function to the VM
-func BindFetch(vm *goja.Runtime) *Fetch {
+func BindFetch(vm *goja.Runtime, allowedDomains ...[]string) *Fetch {
+
+	ad := []string{"*"}
+	if len(allowedDomains) > 0 {
+		ad = allowedDomains[0]
+	}
+
 	// Create a new Fetch instance
-	f := NewFetch(vm)
+	f := NewFetch(vm, ad)
 	_ = vm.Set("fetch", f.Fetch)
 
 	go func() {
@@ -90,6 +184,79 @@ func BindFetch(vm *goja.Runtime) *Fetch {
 	}()
 
 	return f
+}
+
+func (f *Fetch) isURLAllowed(urlStr string) bool {
+	if len(f.rules) == 0 {
+		return false
+	}
+
+	u, err := url.Parse(urlStr)
+	if err != nil {
+		return false
+	}
+
+	targetHost := u.Hostname()
+	targetPort := u.Port()
+
+	for _, rule := range f.rules {
+		if rule.wildcard {
+			return true
+		}
+
+		// 1. Scheme Check (only if rule specifies one)
+		if rule.scheme != "" && rule.scheme != u.Scheme {
+			continue
+		}
+
+		// 2. Host Check
+		hostMatches := false
+		if rule.subdomain {
+			// Matches domain.com or sub.domain.com
+			if targetHost == rule.host || strings.HasSuffix(targetHost, "."+rule.host) {
+				hostMatches = true
+			}
+		} else {
+			// Exact match or localhost special handling
+			if targetHost == rule.host {
+				hostMatches = true
+			} else if rule.host == "localhost" && (targetHost == "127.0.0.1" || targetHost == "::1") {
+				// simple localhost alias handling
+				hostMatches = true
+			}
+		}
+
+		if !hostMatches {
+			continue
+		}
+
+		// 3. Port Check (only if rule specifies one)
+		if rule.port != "" && rule.port != targetPort {
+			continue
+		}
+
+		// 4. Path Check
+		if rule.path != "" && rule.path != "/" {
+			if rule.pathPrefix {
+				// /api/ allows /api/v1
+				if !strings.HasPrefix(u.Path, rule.path) {
+					continue
+				}
+			} else {
+				// /api allows /api but not /api/v1
+				// handle trailing slash ambiguity for exact matches
+				cleanRule := strings.TrimSuffix(rule.path, "/")
+				cleanTarget := strings.TrimSuffix(u.Path, "/")
+				if cleanRule != cleanTarget {
+					continue
+				}
+			}
+		}
+
+		return true
+	}
+
+	return false
 }
 
 func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
@@ -156,6 +323,12 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 				}
 			}
 		}
+	}
+
+	// Check if URL is allowed based on domain restrictions
+	if !f.isURLAllowed(url) {
+		reject(NewError(f.vm, fmt.Errorf("network access denied: URL '%s' does not match any allowed domain patterns", url)))
+		return f.vm.ToValue(promise)
 	}
 
 	if options.Body != nil && !goja.IsUndefined(options.Body) {

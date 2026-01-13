@@ -188,6 +188,8 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 	_ = os.MkdirAll(destination, os.ModePerm)
 
 	// Download the files to a temporary folder
+	//	/path/to/destination
+	//		/.tmp-123456789
 	tmpDirPath, err := os.MkdirTemp(destination, ".tmp-")
 	if err != nil {
 		r.logger.Err(err).Str("destination", destination).Msg("debrid: Failed to create temp folder")
@@ -212,17 +214,21 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 	}
 	defer resp.Body.Close()
 
-	// e.g. "my-torrent.zip", "downloaded_torrent"
+	// e.g. "Torrent Name.zip", "downloaded_torrent"
+	// defaults to downloaded_torrent.{ext} if we can't guess the name
 	filename := "downloaded_torrent"
 	ext := ""
 
 	// Try to get the file name from the Content-Disposition header
+	// Probably doesn't work for any provider
 	hFilename, err := getFilenameFromHeaders(downloadUrl)
 	if err == nil {
 		r.logger.Warn().Str("newFilename", hFilename).Str("defaultFilename", filename).Msg("debrid: Filename found in headers, overriding default")
 		filename = hFilename
 	}
 
+	// The case for TorBox(?)
+	// RD will return application/force-download so ext will still be empty
 	if ct := resp.Header.Get("Content-Type"); ct != "" {
 		mediaType, _, err := mime.ParseMediaType(ct)
 		if err == nil {
@@ -237,23 +243,26 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 		}
 	}
 
+	// add the file extension to downloaded_torrent if we couldn't guess the name from headers
 	if filename == "downloaded_torrent" && ext != "" {
 		filename = fmt.Sprintf("%s%s", filename, ext)
 	}
 
 	// Check if the download URL has the extension
+	// This works for RD, by that point we should have "Torrent Name.zip" or "Episode.mkv"
 	urlExt := filepath.Ext(downloadUrl)
 	if filename == "downloaded_torrent" && urlExt != "" {
 		filename = filepath.Base(downloadUrl)
 		filename, _ = url.PathUnescape(filename)
 		ext = urlExt
-		r.logger.Warn().Str("urlExt", urlExt).Str("filename", filename).Str("downloadUrl", downloadUrl).Msg("debrid: Extension found in URL, using it as file extension and file name")
+		r.logger.Debug().Str("urlExt", urlExt).Str("filename", filename).Str("downloadUrl", downloadUrl).Msg("debrid: Extension found in URL, using it as file extension and file name")
 	}
 
 	r.logger.Debug().Str("filename", filename).Str("ext", ext).Msg("debrid: Starting download")
 
 	// Create a file in the temporary folder to store the download
-	// e.g. "/tmp/torrent-123456789/my-torrent.zip"
+	//	/path/to/destination/.tmp-123456789/
+	//		Torrent Name.zip | downloaded_torrent.zip | Episode.mkv
 	tmpDownloadedFilePath := filepath.Join(tmpDirPath, filename)
 	file, err := os.Create(tmpDownloadedFilePath)
 	if err != nil {
@@ -355,15 +364,18 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 	var extractedDir string
 	switch ext {
 	case ".zip":
+		//	/path/to/destination/.tmp-123456789/downlooaded_torrent.zip -> /path/to/destination/.tmp-123456789/extracted-1234/...
 		extractedDir, err = unzipFile(tmpDownloadedFilePath, tmpDirPath)
+		//	/path/to/destination/.tmp-123456789/downlooaded_torrent.rar -> /path/to/destination/.tmp-123456789/extracted-1234/...
 		r.logger.Debug().Str("extractedDir", extractedDir).Msg("debrid: Extracted zip file")
 	case ".rar":
 		extractedDir, err = unrarFile(tmpDownloadedFilePath, tmpDirPath)
 		r.logger.Debug().Str("extractedDir", extractedDir).Msg("debrid: Extracted rar file")
 	default:
+		// No extraction needed which means we downloaded a file
+		//	/path/to/destination/.tmp-123456789/Episode.mkv -> /path/to/destination/Episode.mkv
 		r.logger.Debug().Str("tmpDownloadedFilePath", tmpDownloadedFilePath).Str("destination", destination).Msg("debrid: No extraction needed, moving file directly")
-		// Move the file directly to the destination
-		err = moveFolderOrFileTo(tmpDownloadedFilePath, destination)
+		err = moveContentsTo(filepath.Dir(tmpDownloadedFilePath), destination)
 		if err != nil {
 			r.logger.Err(err).Str("tmpDownloadedFilePath", tmpDownloadedFilePath).Str("destination", destination).Msg("debrid: Failed to move downloaded file")
 			r.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("debrid: Failed to move downloaded file: %v", err))
@@ -381,7 +393,7 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 
 	r.logger.Debug().Msg("debrid: Extraction completed, deleting temporary files")
 
-	// Delete the downloaded file
+	// Delete the downloaded file (/path/to/destination/.tmp-123456789/downlooaded_torrent.zip)
 	err = os.Remove(tmpDownloadedFilePath)
 	if err != nil {
 		r.logger.Err(err).Str("tmpDownloadedFilePath", tmpDownloadedFilePath).Msg("debrid: Failed to delete downloaded file")
@@ -391,6 +403,7 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 	r.logger.Debug().Str("extractedDir", extractedDir).Str("destination", destination).Msg("debrid: Moving extracted files to destination")
 
 	// Move the extracted files to the destination
+	// /path/to/destination/.tmp-123456789/extracted-1234/{files} -> /path/to/destination/{files}
 	err = moveContentsTo(extractedDir, destination)
 	if err != nil {
 		r.logger.Err(err).Str("extractedDir", extractedDir).Str("destination", destination).Msg("debrid: Failed to move downloaded files")

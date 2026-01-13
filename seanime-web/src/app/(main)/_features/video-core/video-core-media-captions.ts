@@ -1,7 +1,8 @@
 import { vc_getCaptionStyle } from "@/app/(main)/_features/video-core/video-core-settings-menu"
 import { getDefaultSubtitleTrackNumber } from "@/app/(main)/_features/video-core/video-core-subtitles"
-import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCore_VideoSubtitleTrack, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
+import { detectTrackLanguage } from "@/lib/helpers/language"
 import { CaptionsRenderer, ParsedCaptionsResult, parseText, VTTCue, VTTRegion } from "media-captions"
 import "media-captions/styles/captions.css"
 import "media-captions/styles/regions.css"
@@ -31,6 +32,8 @@ export type MediaCaptionsManagerOptions = {
     tracks: MediaCaptionsTrackInfo[]
     settings: VideoCoreSettings
     fetchAndConvertToVTT: FetchAndConvertToVTT
+    sendTranslateRequest: (text?: string, track?: VideoCore_VideoSubtitleTrack) => void
+    translateTargetLang: string | null
 }
 
 type LoadedTrack = {
@@ -110,6 +113,13 @@ export class MediaCaptionsManager extends EventTarget {
     private _onSelectedTrackChanged?: (track: number | null) => void
     private _onTracksLoaded?: (tracks: MediaCaptionsTrack[]) => void
 
+    // Translation is active
+    private shouldTranslate: string | null = null
+    // Sends translate request to the server
+    private readonly sendTranslateRequest: (text?: string, track?: VideoCore_VideoSubtitleTrack) => void
+    // Remember the translated file tracks to avoid re-fetching them
+    private translatedTracks = new Map<number, { translating: boolean }>()
+
     constructor(options: MediaCaptionsManagerOptions) {
         super()
         this.videoElement = options.videoElement
@@ -118,6 +128,8 @@ export class MediaCaptionsManager extends EventTarget {
         this.captionCustomization = options.settings.captionCustomization
         this.subtitleDelay = options.settings.subtitleDelay ?? 0
         this.fetchAndConvertToVTT = options.fetchAndConvertToVTT
+        this.sendTranslateRequest = options.sendTranslateRequest
+        this.shouldTranslate = options.translateTargetLang
 
         this.init()
     }
@@ -171,6 +183,18 @@ export class MediaCaptionsManager extends EventTarget {
 
         const event: MediaCaptionsSettingsUpdatedEvent = new CustomEvent("settingsupdated", { detail: { settings } })
         this.dispatchEvent(event)
+    }
+
+    updateShouldTranslate(shouldTranslate: string | null) {
+        log.info("Updating shouldTranslate setting", shouldTranslate)
+        // If translation settings changed, we need to refresh the current track
+        const translationChanged = this.shouldTranslate !== shouldTranslate
+        this.shouldTranslate = shouldTranslate
+
+        if (translationChanged && this.shouldTranslate && this.currentTrackIndex !== NO_TRACK_IDX) {
+            log.info("Translation settings changed, translating current track")
+            this._translateFileTrack(this.currentTrackIndex)
+        }
     }
 
     setTracksLoadedEventListener(callback: (tracks: MediaCaptionsTrack[]) => void) {
@@ -232,6 +256,56 @@ export class MediaCaptionsManager extends EventTarget {
 
         const event: MediaCaptionsTrackSelectedEvent = new CustomEvent("trackselected", { detail: { trackIndex: index } })
         this.dispatchEvent(event)
+
+        if (this.shouldTranslate) {
+            this._translateFileTrack(index)
+        }
+    }
+
+    // This is used for adding subtitles from the server
+    public addCaptionTrack(track: MediaCaptionsTrackInfo & { index: number }) {
+        // Check if the added track is a translation
+        const translatingTrack = this.translatedTracks.get(track.index)
+        let isTranslated = false
+        if (translatingTrack) {
+            log.info("Caption file track is a translation", translatingTrack)
+            // already translated, don't add it
+            if (!translatingTrack.translating) return
+            translatingTrack.translating = false
+            isTranslated = true
+        }
+
+        this.tracks.push(track)
+        const index = this.tracks.length - 1
+        this.loadedTracks.push({
+            index: index,
+            metadata: track,
+            cues: [],
+            regions: [],
+            loaded: false,
+            loadFn: async () => {
+                // short circuit for vtt content
+                if (track.content && track.type === "vtt") return await parseText(track.content)
+                const vttContent = await this.fetchAndConvertToVTT(track.src, track.content)
+                if (!vttContent) return null
+                return await parseText(vttContent)
+            },
+        })
+
+        // Signal to listeners that tracks have been loaded
+        this._onTracksLoaded?.(this.getTracks())
+        const event: MediaCaptionsTracksLoadedEvent = new CustomEvent("tracksloaded", { detail: { tracks: this.getTracks() } })
+        this.dispatchEvent(event)
+
+        // Flag this new track as translated
+        if (isTranslated) {
+            log.info("Added track is translated", track)
+            this.translatedTracks.set(index, { translating: false })
+        }
+
+        // Select the new track
+        this.selectTrack(index)
+        this.applyCaptionStyles()
     }
 
     public setNoTrack() {
@@ -432,33 +506,49 @@ export class MediaCaptionsManager extends EventTarget {
     }
 
     // Adds a new subtitle track and selects it AFTER initialization
-    // This is used for adding subtitles from the server
-    public addCaptionTrack(track: MediaCaptionsTrackInfo) {
-        this.tracks.push(track)
-        const index = this.tracks.length - 1
-        this.loadedTracks.push({
-            index: index,
-            metadata: track,
-            cues: [],
-            regions: [],
-            loaded: false,
-            loadFn: async () => {
-                // short circuit for vtt content
-                if (track.content && track.type === "vtt") return await parseText(track.content)
-                const vttContent = await this.fetchAndConvertToVTT(track.src, track.content)
-                if (!vttContent) return null
-                return await parseText(vttContent)
-            },
-        })
 
-        // Signal to listeners that tracks have been loaded
-        this._onTracksLoaded?.(this.getTracks())
-        const event: MediaCaptionsTracksLoadedEvent = new CustomEvent("tracksloaded", { detail: { tracks: this.getTracks() } })
-        this.dispatchEvent(event)
+    // Called after selecting a non-translated file and shouldTranslate is true.
+    private _translateFileTrack(trackNumber: number) {
+        if (!this.shouldTranslate) return
 
-        // Select the new track
-        this.selectTrack(index)
-        this.applyCaptionStyles()
+        log.info("Translating file track if needed", trackNumber)
+
+        const trackToTranslate = this.tracks[trackNumber]
+        if (!trackToTranslate) {
+            log.warn("No track found to translate", trackNumber)
+            return
+        }
+
+        // Stop other files from translating
+        for (const [tn, translatingTrack] of this.translatedTracks.entries()) {
+            if (translatingTrack.translating && tn !== trackNumber) {
+                translatingTrack.translating = false
+            }
+        }
+
+        // If already added, stop
+        if (this.translatedTracks.has(trackNumber)) {
+            log.info("Track already translated", trackNumber)
+            return
+        }
+
+        // Check if it's not the same as target language
+        const t = this.tracks.findIndex(track => detectTrackLanguage(track) === this.shouldTranslate)
+        if (t !== -1 && t !== trackNumber) {
+            log.info(`Track ${t} is already in target language`, trackNumber, ", selecting it instead")
+            if (!this.translatedTracks.has(t)) {
+                this.selectTrack(t)
+            }
+            this.translatedTracks.set(trackNumber, { translating: false })
+            this.translatedTracks.set(t, { translating: false })
+            return
+        }
+
+        // Add it, then send translate request
+        this.translatedTracks.set(trackNumber, { translating: true })
+        // Send server translate request
+        this.sendTranslateRequest(undefined, { index: trackNumber, ...trackToTranslate })
+        log.info("Sent translate request for track", trackNumber, this.shouldTranslate)
     }
 
     public destroy() {

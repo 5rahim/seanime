@@ -100,3 +100,7 @@ func (m *AnimeTorrentProviderExtensionImpl) GetPayloadURI() string {
 func (m *AnimeTorrentProviderExtensionImpl) GetIsDevelopment() bool {
 	return m.ext.IsDevelopment
 }
+
+func (m *AnimeTorrentProviderExtensionImpl) GetPluginManifest() *PluginManifest {
+	return m.ext.Plugin
+}

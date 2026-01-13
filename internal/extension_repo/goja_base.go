@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"seanime/internal/events"
 	"seanime/internal/extension"
+	"seanime/internal/goja/goja_bindings"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/plugin"
 	gojautil "seanime/internal/util/goja"
@@ -74,6 +75,7 @@ func initializeProviderBase(
 		providerBase.store.Bind(vm, providerBase.scheduler)
 		// Bind the shared bindings
 		ShareBinds(vm, logger, ext, wsEventManager)
+		goja_bindings.BindFetch(vm)
 		gojautil.BindMutable(vm)
 		BindUserConfig(vm, ext, logger)
 		return vm

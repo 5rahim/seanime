@@ -1,5 +1,5 @@
 "use client"
-import { Anime_Entry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_Entry } from "@/api/generated/types"
 import { useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
 import { useStartDefaultMediaPlayer } from "@/api/hooks/mediaplayer.hooks"
 import { useLibraryExplorer } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
@@ -29,8 +29,9 @@ import { BiDotsVerticalRounded, BiFolder, BiRightArrowAlt } from "react-icons/bi
 import { FiArrowUpRight, FiDownload, FiTrash } from "react-icons/fi"
 import { LuCopy, LuFolderTree, LuGlobe, LuImage } from "react-icons/lu"
 import { MdOutlineRemoveDone } from "react-icons/md"
+import { SiMyanimelist } from "react-icons/si"
 
-export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
+export function AnimeEntryDropdownMenu({ entry, details }: { entry: Anime_Entry, details?: AL_AnimeDetailsById_Media }) {
 
     const serverStatus = useServerStatus()
     const setIsMetadataManagerOpen = useSetAtom(__metadataManager_isOpenAtom)
@@ -90,6 +91,14 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                     <FiArrowUpRight className="text-[--muted] text-sm" />
                 </DropdownMenuItem>}
 
+                {!!entry.media?.idMal && <DropdownMenuItem
+                    onClick={() => openTab(`https://myanimelist.net/anime/${entry.media?.idMal}`)}
+                    className="flex justify-between items-center"
+                >
+                    <span className="flex items-center gap-2"><SiMyanimelist className="text-lg" /> Open on MAL</span>
+                    <FiArrowUpRight className="text-[--muted] text-sm" />
+                </DropdownMenuItem>}
+
                 {isCustomSource(entry.mediaId) && <DropdownMenuItem
                     onClick={() => copyToClipboard(entry.mediaId.toString())}
                 >
@@ -131,7 +140,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
             </DropdownMenu>
 
             <AnimeEntryDownloadFilesModal entry={entry} />
-            <AnimeEntryMetadataManager entry={entry} />
+            <AnimeEntryMetadataManager entry={entry} details={details} />
             <AnimeEntryBulkDeleteFilesModal entry={entry} />
             <AnimeEntryUnmatchFilesModal entry={entry} />
 

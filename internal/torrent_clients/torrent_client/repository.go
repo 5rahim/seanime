@@ -10,7 +10,9 @@ import (
 	"seanime/internal/torrent_clients/transmission"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
+	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hekmon/transmissionrpc/v3"
@@ -130,23 +132,96 @@ func (r *Repository) TorrentExists(hash string) bool {
 	}
 }
 
+type GetListOptions struct {
+	Category *string // qbittorrent only
+	Sort     string  // name, name-desc, newest, oldest
+}
+
+var transmissionTorrentFields = []string{
+	"name", "hashString", "peersSendingToUs", "rateUpload", "rateDownload",
+	"percentDone", "totalSize", "eta", "status", "downloadDir", "addedDate", "isFinished",
+}
+
 // GetList will return all torrents from the torrent client.
-func (r *Repository) GetList() ([]*Torrent, error) {
+func (r *Repository) GetList(opts *GetListOptions) ([]*Torrent, error) {
+	// Normalize sort options
+	sortBy := "added_on"
+	reverse := true
+
+	if opts.Sort != "" {
+		switch opts.Sort {
+		case "name":
+			sortBy = "name"
+			reverse = false
+		case "name-desc":
+			sortBy = "name"
+			reverse = true
+		case "newest":
+			sortBy = "added_on"
+			reverse = true
+		case "oldest":
+			sortBy = "added_on"
+			reverse = false
+		default:
+		}
+	}
+
 	switch r.provider {
 	case QbittorrentClient:
-		torrents, err := r.qBittorrentClient.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{Filter: "all"})
+		torrents, err := r.qBittorrentClient.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{
+			Filter:   "all",
+			Category: opts.Category,
+			Sort:     sortBy,
+			Reverse:  reverse,
+		})
 		if err != nil {
 			r.logger.Err(err).Msg("torrent client: Error while getting torrent list (qBittorrent)")
 			return nil, err
 		}
 		return r.FromQbitTorrents(torrents), nil
+
 	case TransmissionClient:
-		torrents, err := r.transmission.Client.TorrentGetAll(context.Background())
+		torrents, err := r.transmission.Client.TorrentGet(context.Background(), transmissionTorrentFields, nil)
 		if err != nil {
 			r.logger.Err(err).Msg("torrent client: Error while getting torrent list (Transmission)")
 			return nil, err
 		}
+
+		// Transmission does not sort server-side
+		sort.Slice(torrents, func(i, j int) bool {
+			t1, t2 := torrents[i], torrents[j]
+
+			switch sortBy {
+			case "added_on":
+				// Handle nil dates safely
+				var d1, d2 time.Time
+				if t1.AddedDate != nil {
+					d1 = *t1.AddedDate
+				}
+				if t2.AddedDate != nil {
+					d2 = *t2.AddedDate
+				}
+				if reverse {
+					return d1.After(d2) // Newest first
+				}
+				return d1.Before(d2) // Oldest first
+			default: // "name"
+				var n1, n2 string
+				if t1.Name != nil {
+					n1 = strings.ToLower(*t1.Name)
+				}
+				if t2.Name != nil {
+					n2 = strings.ToLower(*t2.Name)
+				}
+				if reverse {
+					return n1 > n2
+				}
+				return n1 < n2
+			}
+		})
+
 		return r.FromTransmissionTorrents(torrents), nil
+
 	default:
 		return nil, errors.New("torrent client: No torrent client provider found")
 	}
@@ -203,8 +278,8 @@ func (r *Repository) GetActiveCount(ret *ActiveCount) {
 }
 
 // GetActiveTorrents will return all torrents that are currently downloading, paused or seeding.
-func (r *Repository) GetActiveTorrents() ([]*Torrent, error) {
-	torrents, err := r.GetList()
+func (r *Repository) GetActiveTorrents(opts *GetListOptions) ([]*Torrent, error) {
+	torrents, err := r.GetList(opts)
 	if err != nil {
 		return nil, err
 	}

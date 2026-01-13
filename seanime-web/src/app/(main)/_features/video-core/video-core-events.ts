@@ -309,6 +309,18 @@ export function useVideoCoreSetupEvents(id: string,
         sendEvent("video-terminated")
     }
 
+    function dispatchTranslateTextEvent(text: string) {
+        if (!videoRef.current) return
+        sendEvent("translate-text", {
+            text: text,
+        })
+    }
+
+    function dispatchTranslateSubtitleTrackEvent(track: VideoCore_VideoSubtitleTrack) {
+        if (!videoRef.current) return
+        sendEvent("translate-subtitle-file-track", track)
+    }
+
     function dispatchCanPlayEvent() {
         if (!videoRef.current) return
         log.trace("Video can play")
@@ -594,7 +606,7 @@ export function useVideoCoreSetupEvents(id: string,
                     log.info("Add media caption track event received", payload)
                     const track = payload as MediaCaptionsTrackInfo
                     if (mediaCaptionsManager) {
-                        mediaCaptionsManager.addCaptionTrack(track)
+                        mediaCaptionsManager.addCaptionTrack({ index: -1, ...track })
                     }
                     break
                 case "set-audio-track":
@@ -692,6 +704,10 @@ export function useVideoCoreSetupEvents(id: string,
                     }
                     sendEvent("video-text-tracks", { textTracks })
                     break
+                case "translated-text":
+                    const p = payload as { original: string, translated: string }
+                    subtitleManager?.processEventTranslationQueue?.(p.original, p.translated)
+                    break
                 default:
                     log.warn("Unknown event received", type)
             }
@@ -704,6 +720,8 @@ export function useVideoCoreSetupEvents(id: string,
         dispatchVideoLoadedEvent,
         dispatchVideoErrorEvent,
         dispatchCanPlayEvent,
+        dispatchTranslateTextEvent,
+        dispatchTranslateSubtitleTrackEvent,
     }
 }
 

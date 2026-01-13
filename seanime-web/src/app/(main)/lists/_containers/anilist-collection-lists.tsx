@@ -348,7 +348,7 @@ export function SearchOptions({
                     label="Year" placeholder="Timeless"
                     className="w-full"
                     fieldClass="w-full"
-                    options={[...Array(70)].map((v, idx) => getYear(new Date()) - idx).map(year => ({
+                    options={[...Array(70)].map((v, idx) => getYear(new Date()) + 2 - idx).map(year => ({
                         value: String(year),
                         label: String(year),
                     }))}

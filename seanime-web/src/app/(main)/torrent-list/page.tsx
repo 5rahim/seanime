@@ -4,6 +4,7 @@ import { TorrentClient_Torrent } from "@/api/generated/types"
 import { useGetActiveTorrentList, useTorrentClientAction } from "@/api/hooks/torrent_client.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SortDirection } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-common-helpers"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -13,11 +14,15 @@ import { Button, IconButton } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Popover } from "@/components/ui/popover"
+import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
 import { upath } from "@/lib/helpers/upath"
 import capitalize from "lodash/capitalize"
 import React from "react"
-import { BiDownArrow, BiFolder, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiTrash, BiUpArrow } from "react-icons/bi"
+import { BiDownArrow, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiTrash, BiUpArrow } from "react-icons/bi"
+import { LuListCheck } from "react-icons/lu"
+import { TbSortAscending, TbSortDescending } from "react-icons/tb"
 
 export const dynamic = "force-static"
 
@@ -54,10 +59,20 @@ export default function Page() {
     )
 }
 
-function Content() {
-    const [enabled, setEnabled] = React.useState(true)
+const getSortIcon = (sortDirection: SortDirection) => {
+    return sortDirection === "asc" ?
+        <TbSortAscending className="text-[--muted] text-lg" /> :
+        <TbSortDescending className="text-[--muted] text-lg" />
+}
 
-    const { data, isLoading, status, refetch } = useGetActiveTorrentList(enabled)
+function Content() {
+    const serverStatus = useServerStatus()
+    const [enabled, setEnabled] = React.useState(true)
+    const [categoryInput, setCategoryInput] = React.useState("")
+    const [category, setCategory] = React.useState("")
+    const [sort, setSort] = React.useState<string>("newest") // newest, oldest, name, name-desc
+
+    const { data, isLoading, status, refetch } = useGetActiveTorrentList(enabled, category, sort)
 
     const { mutate, isPending } = useTorrentClientAction(() => {
         refetch()
@@ -107,7 +122,7 @@ function Content() {
         <AppLayoutStack className={""}>
 
             <div>
-                <ul className="text-[--muted] flex flex-wrap gap-4">
+                <ul className="text-[--muted] flex flex-wrap gap-4 items-center">
                     <li>Downloading: {data?.filter(t => t.status === "downloading" || t.status === "paused")?.length ?? 0}</li>
                     <li>Seeding: {data?.filter(t => t.status === "seeding")?.length ?? 0}</li>
                     {!!data?.filter(t => t.status === "seeding")?.length && <li>
@@ -117,10 +132,55 @@ function Content() {
                             onClick={() => confirmStopAllSeedingProps.open()}
                         >Stop seeding</Button>
                     </li>}
+                    <div className="flex flex-1"></div>
+                    {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <Popover
+                        trigger={<Button
+                            size="xs"
+                            intent="gray-basic"
+                            leftIcon={<LuListCheck className="text-[--muted] text-lg" />}
+                        >
+                            Category{!!category ? `: ${category}` : ""}
+                        </Button>}
+                    >
+                        <TextInput
+                            placeholder="Filter by category"
+                            value={categoryInput}
+                            onChange={e => setCategoryInput(e.target.value)}
+                        />
+                        <Button
+                            size="sm"
+                            className="mt-2"
+                            intent="gray-subtle"
+                            onClick={() => {
+                                setCategory(categoryInput)
+                                setCategoryInput(categoryInput)
+                            }}
+                        >
+                            Ok
+                        </Button>
+                    </Popover>}
+                    <Button
+                        size="xs"
+                        intent="gray-basic"
+                        leftIcon={<>
+                            {getSortIcon(sort === "newest" || sort === "name" ? "desc" : "asc")}
+                        </>}
+                        onClick={() => {
+                            setSort(prev => {
+                                if (prev === "newest") return "oldest"
+                                if (prev === "oldest") return "name"
+                                if (prev === "name") return "name-desc"
+                                if (prev === "name-desc") return "newest"
+                                return "newest"
+                            })
+                        }}
+                    >
+                        {sort === "newest" ? "Newest" : sort === "oldest" ? "Oldest" : sort === "name" ? "Name (A-Z)" : "Name (Z-A)"}
+                    </Button>
                 </ul>
             </div>
 
-            <Card className="p-4 space-y-2">
+            <Card className="p-0 overflow-hidden">
                 {data?.filter(Boolean)?.map(torrent => {
                     return <TorrentItem
                         key={torrent.hash}
@@ -162,26 +222,26 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
     })
 
     return (
-        <div data-torrent-item-container className="p-4 border rounded-xl overflow-hidden relative flex gap-2">
-            <div data-torrent-item-progress-bar className="absolute bottom-0 w-full h-1 z-[1] bg-gray-700 left-0">
-                <div
-                    className={cn(
-                        "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                        {
-                            "bg-green-300": torrent.status === "downloading",
-                            "bg-gray-500": torrent.status === "paused",
-                            "bg-blue-500": torrent.status === "seeding",
-                        },
-                    )}
-                    style={{ width: `${String(Math.floor(torrent.progress * 100))}%` }}
-                ></div>
-            </div>
+        <div
+            data-torrent-item-container className={cn(
+            "hover:bg-gray-900 hover:bg-opacity-70 px-4 py-3 relative flex gap-4 group/torrent-item",
+            torrent.status === "paused" && "bg-gray-900 hover:bg-gray-900",
+            torrent.status === "downloading" && "bg-green-900 bg-opacity-20 hover:hover:bg-opacity-30 hover:bg-green-900",
+        )}
+        >
             <div data-torrent-item-title-container className="w-full">
                 <div
-                    className={cn({
-                        "text-sm tracking-wide line-clamp-1": true,
-                        "opacity-50": torrent.status === "paused",
-                    })}
+                    className={cn(
+                        "text-sm tracking-wide line-clamp-1 cursor-pointer hover:underline underline-offset-2 break-all",
+                        "group-hover/torrent-item:text-white",
+                        { "opacity-50": torrent.status === "paused" })}
+                    onClick={() => {
+                        onTorrentAction({
+                            hash: torrent.hash,
+                            action: "open",
+                            dir: !upath.extname(torrent.contentPath) ? torrent.contentPath : upath.dirname(torrent.contentPath),
+                        })
+                    }}
                 >{torrent.name}</div>
                 <div data-torrent-item-info className="text-[--muted]">
                     <span className={cn({ "text-green-300": torrent.status === "downloading" })}>{progress}</span>
@@ -191,9 +251,11 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     {` `}
                     <BiUpArrow className="inline-block mx-2" />
                     {torrent.upSpeed}
-                    {` `}
-                    <BiTime className="inline-block mx-2 mb-0.5" />
-                    {torrent.eta}
+                    {torrent.status !== "seeding" && <>
+                        {` `}
+                        <BiTime className="inline-block mx-2 mb-0.5" />
+                        {torrent.eta}
+                    </>}
                     {` - `}
                     <span>{torrent.seeds} {torrent.seeds !== 1 ? "seeds" : "seed"}</span>
                     {/*{` - `}*/}
@@ -202,9 +264,22 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     <strong
                         className={cn({
                             "text-blue-300": torrent.status === "seeding",
-                        })}
+                        }, "text-sm")}
                     >{capitalize(torrent.status)}</strong>
                 </div>
+                {torrent.status !== "seeding" &&
+                    <div data-torrent-item-progress-bar className="w-full h-1 mr-4 mt-2 relative z-[1] bg-gray-700 left-0 overflow-hidden rounded-xl">
+                        <div
+                            className={cn(
+                                "h-full absolute z-[2] left-0 bg-gray-200 transition-all",
+                                {
+                                    "bg-green-300": torrent.status === "downloading",
+                                    "bg-gray-500": torrent.status === "paused",
+                                },
+                            )}
+                            style={{ width: `${String(Math.floor(torrent.progress * 100))}%` }}
+                        ></div>
+                    </div>}
             </div>
             <div data-torrent-item-actions className="flex-none flex gap-2 items-center">
                 {torrent.status !== "seeding" ? (
@@ -229,7 +304,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                             trigger={<IconButton
                                 icon={<BiPlay />}
                                 size="sm"
-                                intent="gray-subtle"
+                                intent="white"
                                 className="flex-none"
                                 onClick={async () => {
                                     onTorrentAction({
@@ -248,7 +323,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     trigger={<IconButton
                         icon={<BiStop />}
                         size="sm"
-                        intent="primary"
+                        intent="gray-subtle"
                         className="flex-none"
                         onClick={async () => {
                             onTorrentAction({
@@ -262,20 +337,20 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                 >End</Tooltip>}
 
                 <div data-torrent-item-actions-buttons className="flex-none flex gap-2 items-center">
-                    <IconButton
-                        icon={<BiFolder />}
-                        size="sm"
-                        intent="gray-subtle"
-                        className="flex-none"
-                        onClick={async () => {
-                            onTorrentAction({
-                                hash: torrent.hash,
-                                action: "open",
-                                dir: upath.dirname(torrent.contentPath),
-                            })
-                        }}
-                        disabled={isPending}
-                    />
+                    {/*<IconButton*/}
+                    {/*    icon={<BiFolder />}*/}
+                    {/*    size="sm"*/}
+                    {/*    intent="gray-subtle"*/}
+                    {/*    className="flex-none"*/}
+                    {/*    onClick={async () => {*/}
+                    {/*        onTorrentAction({*/}
+                    {/*            hash: torrent.hash,*/}
+                    {/*            action: "open",*/}
+                    {/*            dir: upath.dirname(torrent.contentPath),*/}
+                    {/*        })*/}
+                    {/*    }}*/}
+                    {/*    disabled={isPending}*/}
+                    {/*/>*/}
                     <IconButton
                         icon={<BiTrash />}
                         size="sm"

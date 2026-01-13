@@ -19,7 +19,6 @@ import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_h
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { clientIdAtom, websocketConnectedAtom } from "@/app/websocket-provider"
-import { BetaBadge, ExperimentalBadge } from "@/components/shared/beta-badge"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -318,7 +317,6 @@ export function NakamaManager() {
             title={<div className="flex items-center gap-2 w-full justify-center">
                 <MdOutlineConnectWithoutContact className="size-8" />
                 Nakama
-                <BetaBadge className="border-transparent" />
             </div>}
             contentClass="max-w-3xl bg-gray-950 bg-opacity-60 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
             overlayClass="bg-gray-950/70 backdrop-blur-sm"
@@ -451,7 +449,7 @@ export function NakamaManager() {
                                         <div className="flex items-center justify-between">
                                             <div className="space-y-1">
                                                 <p className="font-bold">
-                                                    Cloud Rooms <ExperimentalBadge title="Public Beta" />
+                                                    Cloud Room
                                                 </p>
                                                 <p className="text-sm text-[--muted] pr-4">
                                                     Cloud Rooms use Seanime's API to enable hosting watch parties without exposing your server to the

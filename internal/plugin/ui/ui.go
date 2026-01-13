@@ -40,6 +40,8 @@ type UI struct {
 	appContext     plugin.AppContext
 	scheduler      *gojautil.Scheduler
 
+	onCrash func(reason string)
+
 	lastException string
 
 	// Channel to signal the UI has been unloaded
@@ -55,6 +57,7 @@ type NewUIOptions struct {
 	Database  *db.Database
 	Scheduler *gojautil.Scheduler
 	Extension *extension.Extension
+	OnCrash   func(reason string)
 }
 
 func NewUI(options NewUIOptions) *UI {
@@ -66,6 +69,7 @@ func NewUI(options NewUIOptions) *UI {
 		appContext:     plugin.GlobalAppContext, // Get the app context from the global hook manager
 		scheduler:      options.Scheduler,
 		destroyedCh:    make(chan struct{}),
+		onCrash:        options.OnCrash,
 	}
 	ui.context = NewContext(ui)
 	ui.context.scheduler.SetOnException(func(err error) {
@@ -189,6 +193,9 @@ func (u *UI) Register(callback string) error {
 	u.context.actionManager.renderEpisodeGridItemMenuItems()
 	u.context.commandPaletteManager.renderCommandPaletteScheduled()
 	u.context.commandPaletteManager.sendInfoToClient()
+	//u.context.webviewManager.renderWebviewScheduled()
+	u.context.webviewManager.renderWebviewIframeScheduled()
+	u.context.webviewManager.renderWebviewSidebar()
 
 	u.wsEventManager.SendEvent(events.PluginLoaded, u.ext.ID)
 

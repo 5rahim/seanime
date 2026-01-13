@@ -362,11 +362,11 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                                 <Alert
                                     intent="info-basic"
                                     description={<p>For IINA to work correctly with Seanime, make sure <strong>Quit after all windows are
-                                                                                                               closed</strong> is <span
-                                        className="underline"
-                                    >checked</span> and <strong>Keep window open after playback
-                                                                finishes</strong> is <span className="underline">unchecked</span> in
-                                                    your IINA general settings.</p>}
+                                        closed</strong> is <span
+                                            className="underline"
+                                        >checked</span> and <strong>Keep window open after playback
+                                            finishes</strong> is <span className="underline">unchecked</span> in
+                                        your IINA general settings.</p>}
                                 />
                             </motion.div>
                         )}
@@ -545,6 +545,7 @@ function DebridStep({ form }: { form: any }) {
                             { label: "None", value: "none" },
                             { label: "TorBox", value: "torbox" },
                             { label: "Real-Debrid", value: "realdebrid" },
+                            { label: "AllDebrid", value: "alldebrid" },
                         ]}
                     />
 

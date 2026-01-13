@@ -4,6 +4,7 @@ import { VideoCorePgsRenderer } from "@/app/(main)/_features/video-core/video-co
 import { vc_getSubtitleStyle } from "@/app/(main)/_features/video-core/video-core-settings-menu"
 import { VideoCore_VideoPlaybackInfo, VideoCore_VideoSubtitleTrack, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
+import { detectTrackLanguage } from "@/lib/helpers/language"
 import { getAssetUrl, legacy_getAssetUrl } from "@/lib/server/assets"
 import JASSUB, { ASS_Event } from "jassub"
 import { toast } from "sonner"
@@ -57,6 +58,12 @@ interface VideoCoreSubtitleManagerEventMap {
     "settingsupdated": SubtitleManagerSettingsUpdatedEvent
 }
 
+type CachedEvent = {
+    event: MKVParser_SubtitleEvent
+    assEvent: ASS_Event
+    translatedAssEvent?: ASS_Event
+    isTranslating?: boolean
+}
 
 // Manages ASS and PGS subtitle streams.
 export class VideoCoreSubtitleManager extends EventTarget {
@@ -83,7 +90,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     // Event-based tracks
     private eventTracks: Record<string, {
         info: MKVParser_TrackInfo
-        events: Map<string, { event: MKVParser_SubtitleEvent, assEvent: ASS_Event }>
+        events: Map<string, CachedEvent>
         styles: Record<string, number>
     }> = {}
 
@@ -100,6 +107,9 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     }> = {}
 
     private readonly fetchAndConvertToASS?: (url?: string, content?: string) => Promise<string | undefined>
+    // Sends translate request to the server
+    private readonly sendTranslateRequest: (text?: string, track?: VideoCore_VideoSubtitleTrack) => void
+    private readonly translateFn?: (event: CachedEvent) => void
 
     private playbackInfo: VideoCore_VideoPlaybackInfo
     private currentTrackNumber: number = NO_TRACK_NUMBER
@@ -108,25 +118,47 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     private _onSelectedTrackChanged?: (track: number | null) => void
     private _onTracksLoaded?: (tracks: NormalizedTrackInfo[]) => void
 
+    // Translation is active
+    private translationTargetLang: string | null = null
+    private shouldTranslate: string | null = null
+    // Event translation queue. Once translated the event is removed
+    private eventTranslationQueue = new Map<string, CachedEvent>()
+    // Remember the translated file tracks to avoid re-fetching them
+    private translatedFileTracks = new Map<number, { translating: boolean }>()
+
     constructor({
         videoElement,
         jassubOffscreenRender,
         playbackInfo,
         settings,
         fetchAndConvertToASS,
+        sendTranslateRequest,
+        translateTargetLang,
     }: {
         videoElement: HTMLVideoElement
         jassubOffscreenRender: boolean
         playbackInfo: VideoCore_VideoPlaybackInfo
         settings: VideoCoreSettings
-        fetchAndConvertToASS?: (url?: string, content?: string) => Promise<string | undefined>
+        fetchAndConvertToASS: (url?: string, content?: string) => Promise<string | undefined>
+        sendTranslateRequest: (text?: string, track?: VideoCore_VideoSubtitleTrack) => void
+        translateTargetLang: string | null
     }) {
         super()
         this.videoElement = videoElement
         this.jassubOffscreenRender = jassubOffscreenRender
         this.playbackInfo = playbackInfo
         this.settings = settings
+        this.shouldTranslate = translateTargetLang
+        this.translationTargetLang = translateTargetLang
         this.fetchAndConvertToASS = fetchAndConvertToASS
+        this.sendTranslateRequest = sendTranslateRequest
+        this.translateFn = function (cached: CachedEvent) {
+            cached.isTranslating = true
+            // Send the request to the server
+            this.sendTranslateRequest?.(cached.event.text)
+            // Add it to the queue
+            this.eventTranslationQueue.set(cached.event.text, cached)
+        }
 
         /*
          * Event Tracks
@@ -146,7 +178,10 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             for (const track of this.playbackInfo.subtitleTracks) {
                 if (track.useLibassRenderer) {
                     this.fileTracks[trackNumber] = {
-                        info: track,
+                        info: {
+                            ...track,
+                            index: trackNumber,
+                        },
                         content: null,
                     }
                     trackNumber++
@@ -240,6 +275,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         subtitleLog.info("Track selection requested", trackNumber)
         this._init()
 
+        this.shouldTranslate = this.translationTargetLang
+
         // if (this.currentTrackNumber === trackNumber) {
         //     subtitleLog.info("Track already selected", trackNumber)
         //     return
@@ -301,6 +338,12 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             return
         }
 
+        // Don't tanslate if the event track language matches the target language
+        if (!!this.translationTargetLang && detectTrackLanguage(eventTrack.info) === this.translationTargetLang) {
+            subtitleLog.info("Translation target language matches event track language, not translating")
+            this.shouldTranslate = null
+        }
+
         // Handle event track
         const codecPrivate = eventTrack.info.codecPrivate?.slice?.(0, -1) || this.defaultSubtitleHeader
 
@@ -327,22 +370,10 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
             // Set the track
             this.libassRenderer?.setTrack(codecPrivate)
-
             // Apply customization to Default styles
             this._applySubtitleCustomization()
 
-            const trackEventMap = this.eventTracks[track.number]?.events
-            if (!trackEventMap) {
-                return
-            }
-            subtitleLog.info("Found", trackEventMap.size, "events for track", track.number)
-
-            // Add the cached events to the libass renderer
-            for (const { assEvent } of trackEventMap.values()) {
-                this.libassRenderer?.createEvent(assEvent)
-            }
-
-            this.libassRenderer?.resize?.()
+            this._populateEventTrack(trackNumber)
         }
 
         const selectedEvent: SubtitleManagerTrackSelectedEvent = new CustomEvent("trackselected", { detail: { trackNumber, kind: "event" } })
@@ -355,6 +386,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         this.libassRenderer = null
         this.pgsRenderer?.destroy()
         this.pgsRenderer = null
+        this.eventTranslationQueue.clear()
+        this.translatedFileTracks.clear()
         for (const trackNumber in this.eventTracks) {
             this.eventTracks[trackNumber].events.clear()
         }
@@ -399,28 +432,50 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         this.dispatchEvent(event)
     }
 
-    setSubtitleDelay(subtitleDelay: number) {
-        if (this.libassRenderer) (this.libassRenderer as any).timeOffset = (-subtitleDelay)
-        if (this.pgsRenderer) this.pgsRenderer.setTimeOffset(-subtitleDelay)
+    updateShouldTranslate(shouldTranslate: string | null) {
+        subtitleLog.info("Updating shouldTranslate setting", shouldTranslate)
+        // If translation settings changed, we need to refresh the current track
+        const translationChanged = this.shouldTranslate !== shouldTranslate
+        this.shouldTranslate = shouldTranslate
+
+        if (translationChanged && this.currentTrackNumber !== NO_TRACK_NUMBER) {
+            subtitleLog.info("Translation settings changed, reloading current track")
+            this._reloadCurrentTrack()
+        }
     }
 
     // This will record the events and add them to the libass renderer if they are new.
-    onSubtitleEvent(event: MKVParser_SubtitleEvent) {
+    async onSubtitleEvent(event: MKVParser_SubtitleEvent) {
         // Check if this is a PGS event
         if (isPGS(event.codecID)) {
             this._handlePgsEvent(event)
             return
         }
 
-        // Handle ASS events
-        const { isNew, assEvent } = this._recordSubtitleEvent(event)
+        // Record the event
+        const { isNew, cachedEntry } = this._recordSubtitleEvent(event)
+        if (!cachedEntry) return
 
-        if (!assEvent) return
-
-        // if the event is new and is from the selected track, add it to the libass renderer
-        if (this.libassRenderer && isNew && event.trackNumber === this.currentTrackNumber) {
-            this.libassRenderer.createEvent(assEvent)
+        // If the event belongs to the active track, render it
+        if (event.trackNumber === this.currentTrackNumber && this.libassRenderer && isNew) {
+            if (this.shouldTranslate) {
+                if (cachedEntry.translatedAssEvent) {
+                    // already translated, use it
+                    this.libassRenderer?.createEvent(cachedEntry.translatedAssEvent)
+                } else {
+                    // fetch the translation, it will be rendered once returned
+                    this._fetchEventTranslationIfNeeded(cachedEntry)
+                }
+            } else {
+                // normal flow
+                this.libassRenderer.createEvent(cachedEntry.assEvent)
+            }
         }
+    }
+
+    setSubtitleDelay(subtitleDelay: number) {
+        if (this.libassRenderer) (this.libassRenderer as any).timeOffset = (-subtitleDelay)
+        if (this.pgsRenderer) this.pgsRenderer.setTimeOffset(-subtitleDelay)
     }
 
     getFileTrack(trackNumber: number) {
@@ -511,6 +566,71 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     // +-----------------------+
     // |      Event Tracks     |
     // +-----------------------+
+
+    processEventTranslationQueue(original: string, translated: string) {
+        const cached = this.eventTranslationQueue.get(original)
+        if (!cached) return
+        this.eventTranslationQueue.delete(original)
+        cached.translatedAssEvent = {
+            ...cached.assEvent,
+            Text: translated,
+        }
+        cached.isTranslating = false
+        // If the track is still the active one, inject the new event immediately
+        if (this.currentTrackNumber === cached.event.trackNumber && this.libassRenderer) {
+            this.libassRenderer.createEvent(cached.translatedAssEvent)
+        }
+    }
+
+    // Adds a new track AFTER initialization and selects it
+    addFileTrack(track: VideoCore_VideoSubtitleTrack) {
+        subtitleLog.info("Subtitle file track added", track)
+
+        // Check if the added track is a translation
+        const translatingTrack = this.translatedFileTracks.get(track.index)
+        let isTranslated = false
+        if (translatingTrack) {
+            subtitleLog.info("Subtitle file track is a translation", translatingTrack)
+            // already translated, don't add it
+            if (!translatingTrack.translating) return
+            translatingTrack.translating = false
+            isTranslated = true
+        }
+
+        const lastFileTrackNumber = Object.keys(this.fileTracks).length
+            ? Number(Object.keys(this.fileTracks)[Object.keys(this.fileTracks).length - 1])
+            : 999
+        const number = lastFileTrackNumber + 1
+        this.fileTracks[number] = {
+            info: {
+                ...track,
+                index: number, // update the index (track number)
+            },
+            content: null,
+        }
+        // Select the track
+        this.selectTrack(number)
+        this._init()
+        this.libassRenderer?.resize?.()
+        this.pgsRenderer?.resize()
+
+        const tracks = this._getTracks()
+        const normalizedTrack = tracks.find(t => t.number === number)
+        if (normalizedTrack) {
+            const event: SubtitleManagerTrackAddedEvent = new CustomEvent("trackadded", { detail: { track: normalizedTrack } })
+            this.dispatchEvent(event)
+        }
+        const event: SubtitleManagerTracksLoadedEvent = new CustomEvent("tracksloaded", { detail: { tracks: tracks } })
+        this.dispatchEvent(event)
+
+        // Flag this nerw track as translated
+        if (isTranslated) {
+            subtitleLog.info("Added track is translated", track)
+            this.translatedFileTracks.set(number, { translating: false })
+        }
+
+        this._onTracksLoaded?.(tracks)
+    }
 
     addEventTrack(track: MKVParser_TrackInfo) {
         subtitleLog.info("Subtitle track added", track)
@@ -739,6 +859,52 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         }
     }
 
+    private _reloadCurrentTrack() {
+        const track = this.currentTrackNumber
+        // effectively flushes the renderer and re-adds events
+        // using the new settings logic
+        this.libassRenderer?.setTrack(this.eventTracks[track]?.info.codecPrivate?.slice(0, -1) || this.defaultSubtitleHeader)
+        this._applySubtitleCustomization()
+
+        // Re-run the selection logic to populate events
+        if (this.eventTracks[track]) {
+            this._populateEventTrack(track)
+        }
+
+        // Run translation logic if needed
+        if (this.fileTracks[track] && this.shouldTranslate) {
+            this._translateFileTrack(track)
+        }
+    }
+
+    /**
+     * Iterates all cached events and adds them to the renderer.
+     * Handles fetching translations for existing events in the background.
+     */
+    private _populateEventTrack(trackNumber: number) {
+        const trackEventMap = this.eventTracks[trackNumber]?.events
+        if (!trackEventMap) return
+
+        subtitleLog.info(`Populating ${trackEventMap.size} events for track ${trackNumber}`)
+
+        for (const cached of trackEventMap.values()) {
+            if (this.shouldTranslate) {
+                if (cached.translatedAssEvent) {
+                    // already translated, use it
+                    this.libassRenderer?.createEvent(cached.translatedAssEvent)
+                } else {
+                    // fetch the translation, it will be rendered by the callback
+                    this._fetchEventTranslationIfNeeded(cached)
+                }
+            } else {
+                // normal flow, just render the event
+                this.libassRenderer?.createEvent(cached.assEvent)
+            }
+        }
+
+        this.libassRenderer?.resize?.()
+    }
+
     private _createAssEvent(event: MKVParser_SubtitleEvent, index: number): ASS_Event {
         return {
             Start: event.startTime,
@@ -774,23 +940,12 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         }
     }
 
-    private _recordSubtitleEvent(event: MKVParser_SubtitleEvent): { isNew: boolean, assEvent: ASS_Event | null } {
-        const trackEventMap = this.eventTracks[event.trackNumber]?.events // get the map
-        if (!trackEventMap) {
-            return { isNew: false, assEvent: null }
-        }
+    private _fetchEventTranslationIfNeeded(cached: CachedEvent) {
+        if (!this.translateFn) return
+        if (cached.translatedAssEvent || cached.isTranslating) return
+        if (!cached.event.text) return
 
-        const eventKey = this.__eventMapKey(event)
-
-        // Check if the event is already in the record
-        // If it is, return false
-        if (trackEventMap.has(eventKey)) {
-            return { isNew: false, assEvent: trackEventMap.get(eventKey)?.assEvent! }
-        }
-        // record the event
-        const assEvent = this._createAssEvent(event, trackEventMap.size)
-        trackEventMap.set(eventKey, { event, assEvent })
-        return { isNew: true, assEvent }
+        this.translateFn(cached)
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -799,33 +954,65 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     // |      File Tracks      |
     // +-----------------------+
 
-    // // Adds a new track AFTER initialization and selects it
-    addFileTrack(track: VideoCore_VideoSubtitleTrack) {
-        subtitleLog.info("Subtitle file track added", track)
-        const lastFileTrackNumber = Object.keys(this.fileTracks).length
-            ? Number(Object.keys(this.fileTracks)[Object.keys(this.fileTracks).length - 1])
-            : 999
-        const number = lastFileTrackNumber + 1
-        this.fileTracks[number] = {
-            info: track,
-            content: null,
-        }
-        // Select the track
-        this.selectTrack(number)
-        this._init()
-        this.libassRenderer?.resize?.()
-        this.pgsRenderer?.resize()
+    private _recordSubtitleEvent(event: MKVParser_SubtitleEvent): { isNew: boolean, cachedEntry?: CachedEvent } {
+        // no track map
+        const trackEventMap = this.eventTracks[event.trackNumber]?.events
+        if (!trackEventMap) return { isNew: false, cachedEntry: undefined }
 
-        const tracks = this._getTracks()
-        const normalizedTrack = tracks.find(t => t.number === number)
-        if (normalizedTrack) {
-            const event: SubtitleManagerTrackAddedEvent = new CustomEvent("trackadded", { detail: { track: normalizedTrack } })
-            this.dispatchEvent(event)
+        const eventKey = this.__eventMapKey(event)
+
+        // return the cached entry if it exists
+        if (trackEventMap.has(eventKey)) {
+            return { isNew: false, cachedEntry: trackEventMap.get(eventKey) }
         }
-        const event: SubtitleManagerTracksLoadedEvent = new CustomEvent("tracksloaded", { detail: { tracks: tracks } })
-        this.dispatchEvent(event)
-        this._onTracksLoaded?.(tracks)
+
+        // create a new entry
+        const assEvent = this._createAssEvent(event, trackEventMap.size)
+        const cachedEntry: CachedEvent = {
+            event,
+            assEvent,
+        }
+        trackEventMap.set(eventKey, cachedEntry)
+        return { isNew: true, cachedEntry }
     }
+
+    // Called after selecting a non-translated file and shouldTranslate is true.
+    private _translateFileTrack(trackNumber: number) {
+        if (!this.shouldTranslate) return
+        const trackToTranslate = this.fileTracks[trackNumber]
+        if (!trackToTranslate) return
+
+        // Stop other files from translating
+        for (const [tn, translatingTrack] of this.translatedFileTracks.entries()) {
+            if (translatingTrack.translating && tn !== trackNumber) {
+                translatingTrack.translating = false
+            }
+        }
+
+        // If already added, stop
+        const translatingTrack = this.translatedFileTracks.get(trackNumber)
+        if (translatingTrack) {
+            return
+        }
+
+        // Check if it's not the same as target language
+        const t = Object.values(this.fileTracks).find(t => detectTrackLanguage(t.info) === this.shouldTranslate)
+        if (t && t.info.index !== trackNumber) {
+            subtitleLog.info(`Track ${t.info} is already in target language`, trackNumber, ", selecting it instead")
+            if (!this.translatedFileTracks.has(t.info.index)) {
+                this.selectTrack(t.info.index)
+            }
+            this.translatedFileTracks.set(trackNumber, { translating: false })
+            this.translatedFileTracks.set(t.info.index, { translating: false })
+            return
+        }
+
+        // Add it, then send translate request
+        this.translatedFileTracks.set(trackNumber, { translating: true })
+        // Send server translate request
+        this.sendTranslateRequest(undefined, trackToTranslate.info)
+    }
+
 
     // Fetches the track's content and converts it to ASS.
     // If the content is already fetched, it will load it.
@@ -851,8 +1038,10 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         if (fileTrack.info.type === "ass") {
             try {
                 if (fileTrack.info.src) subtitleLog.info("Fetching subtitle content", fileTrack.info.src)
+                // fetch subtitle file content
                 const content = fileTrack.info.src ? await fetch(fileTrack.info.src).then(res => res.text()) : (fileTrack.info.content || "")
-                this.libassRenderer?.setTrack(content)
+                this.fileTracks[trackNumber].content = content // cache it
+                this.libassRenderer?.setTrack(content) // load it
                 this._applySubtitleCustomization()
                 this.libassRenderer?.resize?.()
                 this.pgsRenderer?.resize()
@@ -871,13 +1060,10 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                     toast.error("Failed to convert subtitle track")
                     return
                 }
-
                 // Cache the converted content
                 this.fileTracks[trackNumber].content = assContent
-
-                // Load the converted content
                 subtitleLog.info("Loading converted ASS content")
-                this.libassRenderer?.setTrack(assContent)
+                this.libassRenderer?.setTrack(assContent) // load it
                 this._applySubtitleCustomization()
                 this.libassRenderer?.resize?.()
                 this.pgsRenderer?.resize()
@@ -890,6 +1076,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
         const selectedEvent: SubtitleManagerTrackSelectedEvent = new CustomEvent("trackselected", { detail: { trackNumber, kind: "file" } })
         this.dispatchEvent(selectedEvent)
+
+        this._translateFileTrack(trackNumber)
     }
 }
 
@@ -921,6 +1109,14 @@ export function getDefaultSubtitleTrackNumber(
             // Find default or forced track
             const defaultIndex = foundTracks.findIndex(t => t.forced)
             return foundTracks[defaultIndex >= 0 ? defaultIndex : 0].number
+        }
+        // if the preferred lang is more than 4 characters, compare it to label
+        // this will find a language with label 'English - 1080p' if the preferred lang is 'english'
+        if (preferredLang.length > 4) {
+            foundTracks = tracks?.filter?.(t => t.label?.toLowerCase().includes(preferredLang.toLowerCase()))
+            if (foundTracks?.length) {
+                return foundTracks[0].number
+            }
         }
         if (preferredLang === "none") {
             return NO_TRACK_NUMBER

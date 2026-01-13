@@ -34,10 +34,10 @@ import { useAtom } from "jotai/react"
 import React from "react"
 import { toast } from "sonner"
 
-const unauthorizedPluginCountAtom = atom(0)
+const pluginWithIssuesCountAtom = atom(0)
 
-export function useUnauthorizedPluginCount() {
-    const [count] = useAtom(unauthorizedPluginCountAtom)
+export function usePluginWithIssuesCount() {
+    const [count] = useAtom(pluginWithIssuesCountAtom)
     return count
 }
 
@@ -53,9 +53,9 @@ export function useGetAllExtensions(withUpdates: boolean) {
         enabled: true,
     })
 
-    const [, setCount] = useAtom(unauthorizedPluginCountAtom)
+    const [, setCount] = useAtom(pluginWithIssuesCountAtom)
     React.useEffect(() => {
-        setCount((data?.invalidExtensions ?? []).filter(n => n.code === "plugin_permissions_not_granted")?.length ?? 0)
+        setCount((data?.invalidExtensions ?? []).length + (data?.invalidUserConfigExtensions ?? []).length)
     }, [data])
 
     return { data, ...rest }
@@ -271,6 +271,7 @@ export function useGrantPluginPermissions() {
             if (data) {
                 toast.success("Plugin permissions granted successfully.")
                 queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
+                queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key] })
             }
         },
     })

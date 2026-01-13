@@ -2680,55 +2680,6 @@
     }
   },
   {
-    "name": "HandleDirectstreamFetchAndConvertToASS",
-    "trimmedName": "DirectstreamFetchAndConvertToASS",
-    "comments": [
-      "HandleDirectstreamFetchAndConvertToASS",
-      "",
-      "\t@summary converts subtitles to ASS.",
-      "\t@desc Subtitles will be fetched and converted to ASS.",
-      "\t@returns string",
-      "\t@route /api/v1/directstream/subs/convert-to-ass [POST]",
-      ""
-    ],
-    "filepath": "internal/handlers/directstream.go",
-    "filename": "directstream.go",
-    "api": {
-      "summary": "converts subtitles to ASS.",
-      "descriptions": [
-        "Subtitles will be fetched and converted to ASS."
-      ],
-      "endpoint": "/api/v1/directstream/subs/convert-to-ass",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "Url",
-          "jsonName": "url",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "Content",
-          "jsonName": "content",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "string",
-      "returnGoType": "string",
-      "returnTypescriptType": "string"
-    }
-  },
-  {
     "name": "HandleDirectstreamConvertSubs",
     "trimmedName": "DirectstreamConvertSubs",
     "comments": [
@@ -6867,6 +6818,147 @@
     }
   },
   {
+    "name": "HandleGetMediaMetadataParent",
+    "trimmedName": "GetMediaMetadataParent",
+    "comments": [
+      "HandleGetMediaMetadataParent",
+      "",
+      "\t@summary retrieves media metadata parent by media ID.",
+      "\t@desc Returns the media metadata parent information for the given media ID.",
+      "\t@route /api/v1/metadata/parent/{id} [GET]",
+      "\t@param id - int - true - \"The media ID\"",
+      "\t@returns models.MediaMetadataParent",
+      ""
+    ],
+    "filepath": "internal/handlers/metadata.go",
+    "filename": "metadata.go",
+    "api": {
+      "summary": "retrieves media metadata parent by media ID.",
+      "descriptions": [
+        "Returns the media metadata parent information for the given media ID."
+      ],
+      "endpoint": "/api/v1/metadata/parent/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "The media ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "models.MediaMetadataParent",
+      "returnGoType": "models.MediaMetadataParent",
+      "returnTypescriptType": "Models_MediaMetadataParent"
+    }
+  },
+  {
+    "name": "HandleSaveMediaMetadataParent",
+    "trimmedName": "SaveMediaMetadataParent",
+    "comments": [
+      "HandleSaveMediaMetadataParent",
+      "",
+      "\t@summary saves or updates media metadata parent.",
+      "\t@desc Creates or updates the media metadata parent information.",
+      "\t@route /api/v1/metadata/parent [POST]",
+      "\t@returns models.MediaMetadataParent",
+      ""
+    ],
+    "filepath": "internal/handlers/metadata.go",
+    "filename": "metadata.go",
+    "api": {
+      "summary": "saves or updates media metadata parent.",
+      "descriptions": [
+        "Creates or updates the media metadata parent information."
+      ],
+      "endpoint": "/api/v1/metadata/parent",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ParentId",
+          "jsonName": "parentId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "SpecialOffset",
+          "jsonName": "specialOffset",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "models.MediaMetadataParent",
+      "returnGoType": "models.MediaMetadataParent",
+      "returnTypescriptType": "Models_MediaMetadataParent"
+    }
+  },
+  {
+    "name": "HandleDeleteMediaMetadataParent",
+    "trimmedName": "DeleteMediaMetadataParent",
+    "comments": [
+      "HandleDeleteMediaMetadataParent",
+      "",
+      "\t@summary deletes media metadata parent.",
+      "\t@desc Removes the media metadata parent information for the given media ID.",
+      "\t@route /api/v1/metadata/parent [DELETE]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/metadata.go",
+    "filename": "metadata.go",
+    "api": {
+      "summary": "deletes media metadata parent.",
+      "descriptions": [
+        "Removes the media metadata parent information for the given media ID."
+      ],
+      "endpoint": "/api/v1/metadata/parent",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleNakamaWebSocket",
     "trimmedName": "NakamaWebSocket",
     "comments": [
@@ -9274,6 +9366,43 @@
           "usedStructType": "",
           "typescriptType": "boolean",
           "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSaveMediaPlayerSettings",
+    "trimmedName": "SaveMediaPlayerSettings",
+    "comments": [
+      "HandleSaveMediaPlayerSettings",
+      "",
+      "\t@summary updates the media player settings.",
+      "\t@route /api/v1/settings/media-player [PATCH]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/settings.go",
+    "filename": "settings.go",
+    "api": {
+      "summary": "updates the media player settings.",
+      "descriptions": [],
+      "endpoint": "/api/v1/settings/media-player",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaPlayer",
+          "jsonName": "mediaPlayer",
+          "goType": "models.MediaPlayerSettings",
+          "usedStructType": "models.MediaPlayerSettings",
+          "typescriptType": "Models_MediaPlayerSettings",
+          "required": false,
           "descriptions": []
         }
       ],

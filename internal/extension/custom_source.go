@@ -111,3 +111,7 @@ func (m *CustomSourceExtensionImpl) GetPayloadURI() string {
 func (m *CustomSourceExtensionImpl) GetIsDevelopment() bool {
 	return m.ext.IsDevelopment
 }
+
+func (m *CustomSourceExtensionImpl) GetPluginManifest() *PluginManifest {
+	return m.ext.Plugin
+}

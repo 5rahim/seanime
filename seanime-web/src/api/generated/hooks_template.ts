@@ -638,17 +638,6 @@
 //     })
 // }
 
-// export function useDirectstreamFetchAndConvertToASS() {
-//     return useServerMutation<string, DirectstreamFetchAndConvertToASS_Variables>({
-//         endpoint: API_ENDPOINTS.DIRECTSTREAM.DirectstreamFetchAndConvertToASS.endpoint,
-//         method: API_ENDPOINTS.DIRECTSTREAM.DirectstreamFetchAndConvertToASS.methods[0],
-//         mutationKey: [API_ENDPOINTS.DIRECTSTREAM.DirectstreamFetchAndConvertToASS.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
 // export function useDirectstreamConvertSubs() {
 //     return useServerMutation<string, DirectstreamConvertSubs_Variables>({
 //         endpoint: API_ENDPOINTS.DIRECTSTREAM.DirectstreamConvertSubs.endpoint,
@@ -1760,6 +1749,37 @@
 //     })
 // }
 
+// export function useGetMediaMetadataParent(id: number) {
+//     return useServerQuery<Models_MediaMetadataParent>({
+//         endpoint: API_ENDPOINTS.METADATA.GetMediaMetadataParent.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.METADATA.GetMediaMetadataParent.methods[0],
+//         queryKey: [API_ENDPOINTS.METADATA.GetMediaMetadataParent.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSaveMediaMetadataParent() {
+//     return useServerMutation<Models_MediaMetadataParent, SaveMediaMetadataParent_Variables>({
+//         endpoint: API_ENDPOINTS.METADATA.SaveMediaMetadataParent.endpoint,
+//         method: API_ENDPOINTS.METADATA.SaveMediaMetadataParent.methods[0],
+//         mutationKey: [API_ENDPOINTS.METADATA.SaveMediaMetadataParent.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDeleteMediaMetadataParent() {
+//     return useServerMutation<boolean, DeleteMediaMetadataParent_Variables>({
+//         endpoint: API_ENDPOINTS.METADATA.DeleteMediaMetadataParent.endpoint,
+//         method: API_ENDPOINTS.METADATA.DeleteMediaMetadataParent.methods[0],
+//         mutationKey: [API_ENDPOINTS.METADATA.DeleteMediaMetadataParent.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // nakama
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2316,6 +2336,17 @@
 //         endpoint: API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.endpoint,
 //         method: API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.methods[0],
 //         mutationKey: [API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useSaveMediaPlayerSettings() {
+//     return useServerMutation<boolean, SaveMediaPlayerSettings_Variables>({
+//         endpoint: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.endpoint,
+//         method: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.methods[0],
+//         mutationKey: [API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.key],
 //         onSuccess: async () => {
 // 
 //         },

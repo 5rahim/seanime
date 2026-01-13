@@ -3,6 +3,7 @@ import { useGetAnilistAnimeDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
+import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -256,6 +257,7 @@ export function AnimeEntryPage() {
                         },
                     }}
                 >
+                    <PluginWebviewSlot slot="before-anime-entry-episode-list" />
 
                     <AnimatePresence mode="wait" initial={false}>
 
@@ -277,6 +279,7 @@ export function AnimeEntryPage() {
                                 entry={animeEntry}
                                 details={animeDetails}
                                 bottomSection={<>
+                                    <PluginWebviewSlot slot="after-anime-entry-episode-list" />
                                     <MediaEntryCharactersSection details={animeDetails} />
                                     <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                                 </>}
@@ -287,6 +290,7 @@ export function AnimeEntryPage() {
                             <TorrentStreamPage
                                 entry={animeEntry}
                                 bottomSection={<>
+                                    <PluginWebviewSlot slot="after-anime-entry-episode-list" />
                                     <MediaEntryCharactersSection details={animeDetails} />
                                     <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                                 </>}
@@ -296,6 +300,7 @@ export function AnimeEntryPage() {
                             <DebridStreamPage
                                 entry={animeEntry}
                                 bottomSection={<>
+                                    <PluginWebviewSlot slot="after-anime-entry-episode-list" />
                                     <MediaEntryCharactersSection details={animeDetails} />
                                     <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                                 </>}
@@ -330,6 +335,7 @@ export function AnimeEntryPage() {
                                     animeEntryLoading={animeEntryLoading}
                                     hideBackButton
                                 />
+                                <PluginWebviewSlot slot="after-anime-entry-episode-list" />
                                 {/*<LegacyOnlinestreamPage*/}
                                 {/*    animeEntry={animeEntry}*/}
                                 {/*    animeEntryLoading={animeEntryLoading}*/}
@@ -341,6 +347,8 @@ export function AnimeEntryPage() {
                         </PageWrapper>}
 
                     </AnimatePresence>
+
+                    <PluginWebviewSlot slot="anime-screen-bottom" />
                 </PageWrapper>
             </div>
 

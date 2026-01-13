@@ -361,6 +361,10 @@ export default function Page() {
                                         iinaSocket: data.iinaSocket || "",
                                         iinaPath: data.iinaPath || "",
                                         iinaArgs: data.iinaArgs || "",
+                                        vcTranslate: data.vcTranslate ?? false,
+                                        vcTranslateApiKey: data.vcTranslateApiKey || "",
+                                        vcTranslateProvider: data.vcTranslateProvider || "",
+                                        vcTranslateTargetLanguage: data.vcTranslateTargetLanguage || "",
                                     },
                                     torrent: {
                                         defaultTorrentClient: data.defaultTorrentClient,
@@ -485,6 +489,10 @@ export default function Page() {
                                 nakamaHostUnsharedAnimeIds: status?.settings?.nakama?.hostUnsharedAnimeIds ?? [],
                                 autoSaveCurrentMediaOffline: status?.settings?.library?.autoSaveCurrentMediaOffline ?? false,
                                 useFallbackMetadataProvider: status?.settings?.library?.useFallbackMetadataProvider ?? false,
+                                vcTranslate: status?.settings?.mediaPlayer?.vcTranslate ?? false,
+                                vcTranslateApiKey: status?.settings?.mediaPlayer?.vcTranslateApiKey ?? "",
+                                vcTranslateProvider: status?.settings?.mediaPlayer?.vcTranslateProvider ?? "",
+                                vcTranslateTargetLanguage: status?.settings?.mediaPlayer?.vcTranslateTargetLanguage ?? "",
                             }}
                             stackClass="space-y-0 relative"
                         >

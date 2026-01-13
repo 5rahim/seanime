@@ -608,18 +608,6 @@ export type DirectstreamPlayLocalFile_Variables = {
 /**
  * - Filepath: internal/handlers/directstream.go
  * - Filename: directstream.go
- * - Endpoint: /api/v1/directstream/subs/convert-to-ass
- * @description
- * Route converts subtitles to ASS.
- */
-export type DirectstreamFetchAndConvertToASS_Variables = {
-    url: string
-    content: string
-}
-
-/**
- * - Filepath: internal/handlers/directstream.go
- * - Filename: directstream.go
  * - Endpoint: /api/v1/directstream/subs/convert-subs
  * @description
  * Route converts subtitles from one format to another.
@@ -1394,6 +1382,44 @@ export type RemoveFillerData_Variables = {
     mediaId: number
 }
 
+/**
+ * - Filepath: internal/handlers/metadata.go
+ * - Filename: metadata.go
+ * - Endpoint: /api/v1/metadata/parent/{id}
+ * @description
+ * Route retrieves media metadata parent by media ID.
+ */
+export type GetMediaMetadataParent_Variables = {
+    /**
+     *  The media ID
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/metadata.go
+ * - Filename: metadata.go
+ * - Endpoint: /api/v1/metadata/parent
+ * @description
+ * Route saves or updates media metadata parent.
+ */
+export type SaveMediaMetadataParent_Variables = {
+    mediaId: number
+    parentId: number
+    specialOffset: number
+}
+
+/**
+ * - Filepath: internal/handlers/metadata.go
+ * - Filename: metadata.go
+ * - Endpoint: /api/v1/metadata/parent
+ * @description
+ * Route deletes media metadata parent.
+ */
+export type DeleteMediaMetadataParent_Variables = {
+    mediaId: number
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // nakama
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1768,6 +1794,17 @@ export type SaveAutoDownloaderSettings_Variables = {
     enableEnhancedQueries: boolean
     enableSeasonCheck: boolean
     useDebrid: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/settings.go
+ * - Filename: settings.go
+ * - Endpoint: /api/v1/settings/media-player
+ * @description
+ * Route updates the media player settings.
+ */
+export type SaveMediaPlayerSettings_Variables = {
+    mediaPlayer?: Models_MediaPlayerSettings
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

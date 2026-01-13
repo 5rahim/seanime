@@ -307,6 +307,7 @@ type MediaEntryCardBodyProps = {
     children?: React.ReactNode
     blurAdultContent?: boolean
     onClick?: () => void
+    hideReleasingBadge?: boolean
 }
 
 export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
@@ -328,6 +329,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
         children,
         blurAdultContent,
         onClick,
+        hideReleasingBadge,
         ...rest
     } = props
 
@@ -379,7 +381,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                         </div>}
 
                     {/*RELEASING BADGE*/}
-                    {(status === "RELEASING" || status === "NOT_YET_RELEASED") &&
+                    {(status === "RELEASING" || status === "NOT_YET_RELEASED") && !hideReleasingBadge &&
                         <div data-media-entry-card-body-releasing-badge-container className="absolute z-[10] right-1 top-2">
                             <Badge intent={status === "RELEASING" ? "primary-solid" : "zinc-solid"} size="lg"><RiSignalTowerLine /></Badge>
                         </div>}

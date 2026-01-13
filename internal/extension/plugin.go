@@ -3,6 +3,7 @@ package extension
 import (
 	"crypto/sha256"
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -32,13 +33,16 @@ type PluginManifest struct {
 
 type PluginPermissions struct {
 	Scopes []PluginPermissionScope `json:"scopes,omitempty"`
-	Allow  PluginAllowlist         `json:"allow,omitempty"`
+	Allow  PluginAllowlist         `json:"allow,omitzero"`
 }
 
 // PluginAllowlist is a list of system permissions that the plugin is asking for.
 //
 // The user must acknowledge these permissions before the plugin can be loaded.
 type PluginAllowlist struct {
+	NetworkAccess PluginNetworkAcess `json:"networkAccess,omitzero"`
+	// UnsafeFlags The use of unsafe flags will disable auto-updates and display a warning in the UI.
+	UnsafeFlags []PluginUnsafe `json:"unsafeFlags,omitempty"`
 	// ReadPaths is a list of paths that the plugin is allowed to read from.
 	ReadPaths []string `json:"readPaths,omitempty"`
 	// WritePaths is a list of paths that the plugin is allowed to write to.
@@ -46,6 +50,36 @@ type PluginAllowlist struct {
 	// CommandScopes defines the commands that the plugin is allowed to execute.
 	// Each command scope has a unique identifier and configuration.
 	CommandScopes []CommandScope `json:"commandScopes,omitempty"`
+}
+
+type PluginUnsafeFlag string
+
+const (
+	// UnsafeDOMScriptManipulation allows the plugin to execute arbitrary JavaScript code in the app's DOM.
+	UnsafeDOMScriptManipulation PluginUnsafeFlag = "dom-script-manipulation"
+	UnsafeDOMLinkManipulation   PluginUnsafeFlag = "dom-link-manipulation"
+)
+
+type PluginUnsafe struct {
+	Flag   PluginUnsafeFlag `json:"flag"`
+	Reason string           `json:"reason"`
+}
+
+type PluginNetworkAcess struct {
+	// AllowedDomains is a list of domains that the plugin is allowed to access.
+	// If empty, network access using fetch will be disabled.
+	// Example: ["*"], ["http://*.example.com"], ["*.example.com"]
+	AllowedDomains []string `json:"allowedDomains,omitempty"`
+	// Reasoning is only mandatory if AllowedDomains contains "*"
+	Reasoning string `json:"reasoning,omitempty"`
+}
+
+func (p *PluginAllowlist) IsZero() bool {
+	return p.NetworkAccess.IsZero() && len(p.UnsafeFlags) == 0 && len(p.ReadPaths) == 0 && len(p.WritePaths) == 0 && len(p.CommandScopes) == 0
+}
+
+func (p PluginNetworkAcess) IsZero() bool {
+	return len(p.AllowedDomains) == 0 && p.Reasoning == ""
 }
 
 // CommandScope defines a specific command or set of commands that can be executed
@@ -71,6 +105,14 @@ type CommandArg struct {
 	// - "$ARGS" allows any arguments at this position
 	// - "$PATH" allows any valid file path
 	Validator string `json:"validator,omitempty"`
+}
+
+// IsUnsafe returns true if the plugin uses unsafe flags.
+func (p *PluginManifest) IsUnsafe() bool {
+	if p == nil {
+		return true
+	}
+	return len(p.Permissions.Allow.UnsafeFlags) > 0
 }
 
 // ReadAllowCommands returns a human-readable representation of the commands
@@ -121,6 +163,31 @@ func (p *PluginAllowlist) ReadAllowCommands() []string {
 	return result
 }
 
+// ReadNetworkAccessAllowedDomains returns a human-readable representation of the network domains
+// that the plugin is allowed to access.
+func (p *PluginAllowlist) ReadNetworkAccessAllowedDomains() []string {
+	if p == nil {
+		return []string{}
+	}
+
+	result := make([]string, 0)
+
+	if len(p.NetworkAccess.AllowedDomains) > 0 {
+		for _, domain := range p.NetworkAccess.AllowedDomains {
+			entry := domain
+
+			// Add reasoning for unrestricted access patterns
+			if (domain == "*" || strings.Contains(domain, "localhost")) && p.NetworkAccess.Reasoning != "" {
+				entry += " - " + p.NetworkAccess.Reasoning
+			}
+
+			result = append(result, entry)
+		}
+	}
+
+	return result
+}
+
 func (p *PluginPermissions) GetHash() string {
 	if p == nil {
 		return ""
@@ -129,7 +196,9 @@ func (p *PluginPermissions) GetHash() string {
 	if len(p.Scopes) == 0 &&
 		len(p.Allow.ReadPaths) == 0 &&
 		len(p.Allow.WritePaths) == 0 &&
-		len(p.Allow.CommandScopes) == 0 {
+		len(p.Allow.CommandScopes) == 0 &&
+		len(p.Allow.NetworkAccess.AllowedDomains) == 0 &&
+		len(p.Allow.UnsafeFlags) == 0 {
 		return ""
 	}
 
@@ -158,6 +227,19 @@ func (p *PluginPermissions) GetHash() string {
 		}
 	}
 
+	// Hash network access
+	for _, domain := range p.Allow.NetworkAccess.AllowedDomains {
+		h.Write([]byte("network:" + domain))
+	}
+	if p.Allow.NetworkAccess.Reasoning != "" {
+		h.Write([]byte("network-reasoning:" + p.Allow.NetworkAccess.Reasoning))
+	}
+
+	// Hash unsafe flags
+	for _, flag := range p.Allow.UnsafeFlags {
+		h.Write([]byte("unsafe:" + string(flag.Flag) + ":" + flag.Reason))
+	}
+
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
@@ -170,7 +252,9 @@ func (p *PluginPermissions) GetDescription() string {
 	if len(p.Scopes) == 0 &&
 		len(p.Allow.ReadPaths) == 0 &&
 		len(p.Allow.WritePaths) == 0 &&
-		len(p.Allow.CommandScopes) == 0 {
+		len(p.Allow.CommandScopes) == 0 &&
+		len(p.Allow.NetworkAccess.AllowedDomains) == 0 &&
+		len(p.Allow.UnsafeFlags) == 0 {
 		return "No permissions requested."
 	}
 
@@ -193,7 +277,7 @@ func (p *PluginPermissions) GetDescription() string {
 			case PluginPermissionAnilistToken:
 				desc.WriteString("AniList Token: View and use your AniList token\n")
 			case PluginPermissionSystem:
-				desc.WriteString("System: Access OS functions (accessing files, running commands, etc.)\n")
+				desc.WriteString("System: Access OS functions (detailed below)\n")
 			case PluginPermissionCron:
 				desc.WriteString("Cron: Schedule automated tasks\n")
 			case PluginPermissionNotification:
@@ -260,9 +344,80 @@ func (p *PluginPermissions) GetDescription() string {
 
 			desc.WriteString(cmdDesc + "\n")
 		}
+		desc.WriteString("\n")
+	}
+
+	// Add network access permissions if any exist
+	if len(p.Allow.NetworkAccess.AllowedDomains) > 0 {
+		desc.WriteString("Network Access:\n")
+		for _, domain := range p.Allow.ReadNetworkAccessAllowedDomains() {
+			desc.WriteString("• " + domain + "\n")
+		}
+		desc.WriteString("\n")
+	}
+
+	// Add unsafe DOM API warning if enabled
+	if len(p.Allow.UnsafeFlags) > 0 {
+		desc.WriteString("* Unsafe flags:\n")
+		for _, flag := range p.Allow.UnsafeFlags {
+			desc.WriteString("• " + string(flag.Flag) + ": " + flag.GetDescription())
+			if flag.Reason != "" {
+				desc.WriteString("\n")
+				desc.WriteString("\t  Reason: " + flag.Reason)
+			}
+			desc.WriteString("\n")
+		}
+		desc.WriteString("\n")
 	}
 
 	return strings.TrimSpace(desc.String())
+}
+
+// GetNetworkAccessAllowedDomains for fetch binding.
+// If an empty slice is returned, nothing will be allowed.
+func (p *PluginPermissions) GetNetworkAccessAllowedDomains() []string {
+	if p == nil || !p.HasNetworkAccess() {
+		return []string{}
+	}
+
+	return p.Allow.NetworkAccess.AllowedDomains
+}
+
+func (p *PluginPermissions) GetUnsafeFlags() map[PluginUnsafeFlag]struct{} {
+	if p == nil || len(p.Allow.UnsafeFlags) == 0 {
+		return map[PluginUnsafeFlag]struct{}{}
+	}
+
+	ret := make(map[PluginUnsafeFlag]struct{})
+	for _, flag := range p.Allow.UnsafeFlags {
+		ret[flag.Flag] = struct{}{}
+	}
+
+	return ret
+}
+
+func (p *PluginPermissions) HasNetworkAccess() bool {
+	if p == nil || len(p.Allow.NetworkAccess.AllowedDomains) == 0 {
+		return false
+	}
+
+	// Disallow "*" if reasoning is missing
+	if slices.Contains(p.Allow.NetworkAccess.AllowedDomains, "*") && p.Allow.NetworkAccess.Reasoning == "" {
+		return false
+	}
+
+	return true
+}
+
+func (p *PluginUnsafe) GetDescription() string {
+	switch p.Flag {
+	case UnsafeDOMScriptManipulation:
+		return "Can execute arbitrary JavaScript code in the app's DOM."
+	case UnsafeDOMLinkManipulation:
+		return "Can insert arbitrary links into the app's DOM."
+	default:
+		return ""
+	}
 }
 
 // explainPath adds human-readable descriptions to paths containing environment variables
@@ -316,6 +471,13 @@ func NewPluginExtension(ext *Extension) PluginExtension {
 	return &PluginExtensionImpl{
 		ext: ext,
 	}
+}
+
+func AsPluginExtension(ext BaseExtension) (PluginExtension, bool) {
+	if ext, ok := ext.(PluginExtension); ok {
+		return ext, true
+	}
+	return nil, false
 }
 
 func (m *PluginExtensionImpl) GetPermissionHash() string {
@@ -400,4 +562,8 @@ func (m *PluginExtensionImpl) GetPayloadURI() string {
 
 func (m *PluginExtensionImpl) GetIsDevelopment() bool {
 	return m.ext.IsDevelopment
+}
+
+func (m *PluginExtensionImpl) GetPluginManifest() *PluginManifest {
+	return m.ext.Plugin
 }

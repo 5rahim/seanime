@@ -8,7 +8,6 @@ import (
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
-	"strings"
 
 	"github.com/samber/mo"
 )
@@ -71,7 +70,7 @@ func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.An
 	// If the local file is not found, the path might be a filename (in the case of VLC)
 	if lf == nil {
 		for _, l := range lfs {
-			if strings.ToLower(l.Name) == path {
+			if util.NormalizePath(l.Name) == path {
 				pm.Logger.Debug().Msg("playback manager: Local file found by name")
 				lf = l
 				break
