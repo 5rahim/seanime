@@ -43,9 +43,7 @@ export function useVideoCoreIOSFullscreenSubtitles({
         }
     }, [subtitleManager, mediaCaptionsManager])
 
-    const { mutateAsync: convertSubs } = useDirectstreamConvertSubs({
-        onSuccess: (data) => {},
-    })
+    const { mutateAsync: convertSubs } = useDirectstreamConvertSubs()
 
     useEffect(() => {
         // Only run on iOS devices

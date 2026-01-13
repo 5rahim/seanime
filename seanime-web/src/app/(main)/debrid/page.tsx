@@ -332,11 +332,14 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending }: Torr
 type TorrentItemModalProps = {}
 
 function TorrentItemModal(props: TorrentItemModalProps) {
+    const serverStatus = useServerStatus()
 
     const [selectedTorrentItem, setSelectedTorrentItem] = useAtom(selectedTorrentItemAtom)
     const { mutate: downloadTorrent, isPending: isDownloading } = useDebridDownloadTorrent()
 
     const [destination, setDestination] = React.useState("")
+
+    const libraryPath = React.useMemo(() => serverStatus?.settings?.library?.libraryPath, [serverStatus])
 
     const libraryPathSelectionProps = useLibraryPathSelection({
         destination,
@@ -344,10 +347,10 @@ function TorrentItemModal(props: TorrentItemModalProps) {
     })
 
     React.useEffect(() => {
-        if (selectedTorrentItem && libraryPathSelectionProps.libraryPath) {
-            setDestination(libraryPathSelectionProps.libraryPath)
+        if (selectedTorrentItem && libraryPath) {
+            setDestination(libraryPath)
         }
-    }, [selectedTorrentItem, libraryPathSelectionProps.libraryPath])
+    }, [selectedTorrentItem, libraryPath])
 
     const handleDownload = () => {
         if (!selectedTorrentItem || !destination) return

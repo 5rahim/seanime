@@ -210,7 +210,7 @@ export function AutoDownloaderMediaCombobox(props: {
                 })}
             >
                 {showReleasingOnly === "airing" && "Showing airing only"}
-                {showReleasingOnly === "airing-upcoming" && "Showing upcoming only"}
+                {showReleasingOnly === "airing-upcoming" && "Showing airing & upcoming"}
                 {showReleasingOnly === "all" && "Showing all"}
             </Button>}
         </div>}
@@ -259,11 +259,12 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
     const [showReleasingOnly, setShowReleasingOnly] = useAtom(_autoDownloader_listActiveMediaOnlyAtom)
     const previousShowReleasingOnly = useRef(showReleasingOnly)
     React.useEffect(() => {
-        if (type === "edit") {
+        console.warn("RuleFormFields: type changed", type)
+        if (type === "edit" && showReleasingOnly !== "all") {
             previousShowReleasingOnly.current = showReleasingOnly
             setShowReleasingOnly("all")
         }
-    }, [type])
+    }, [type, showReleasingOnly])
     useMount(() => {
         setShowReleasingOnly(previousShowReleasingOnly.current)
     })

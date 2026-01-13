@@ -29,7 +29,8 @@ import { useAtomValue } from "jotai/react"
 import React from "react"
 import { BiDotsVerticalRounded } from "react-icons/bi"
 import { FaSquareRss } from "react-icons/fa6"
-import { LuListPlus, LuTrash } from "react-icons/lu"
+import { LuTrash } from "react-icons/lu"
+import { MdOutlineAdd } from "react-icons/md"
 import { toast } from "sonner"
 
 const tabContentClass = cn(
@@ -113,9 +114,9 @@ export function AutoDownloaderPage() {
                                     <div className="w-full flex items-center gap-2">
                                         <DropdownMenu
                                             trigger={<Button
-                                                className=""
+                                                className="rounded-full"
                                                 intent="white-subtle"
-                                                leftIcon={<LuListPlus className="text-lg" />}
+                                                leftIcon={<MdOutlineAdd className="text-lg" />}
 
                                             >
                                                 New Rule
@@ -273,7 +274,7 @@ export function AutoDownloaderPage() {
                 open={createRuleModal.active}
                 onOpenChange={createRuleModal.off}
                 title="Create a new rule"
-                contentClass="max-w-3xl"
+                contentClass="max-w-4xl"
             >
                 <AutoDownloaderRuleForm type="create" onRuleCreatedOrDeleted={() => createRuleModal.off()} />
             </Modal>
