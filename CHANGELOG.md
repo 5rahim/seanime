@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.3.0
+
+- ✨️ Plugins: New Webview API (Alpha)
+  - It is now possible to create new screens, widgets, in plugins
+- ✨️ Built-in Player: Subtitle Track Translation (Alpha)
+  - Supports DeepL and OpenAI for on-the-fly subtitle track translation
+- ⚡️ Metadata Parent: Link standalone Specials to a parent anime
+  - Allow standalone Special entries to inherit AniDB metadata from the parent anime #509
+- ⚡️ Plugins: New Tray components and UI context APIs
+- ⚡️ Library Explorer: Ability to delete files #561
+- ⚡️ Extensions: View code changes before updating extension
+- ⚡️ Library path selection for download destination - @Ari-03
+- ⚡️ Auto Downloader: Filter for media selection - @umag
+- ⚡️ Updated 'Aired Recently' layout #541
+- ⚡️ Torrent List: Added filter and sorting options
+- ⚡️ Auto Downloader: Ability to remove rules for no longer airing shows #528
+- 🔒 Plugins: Security changes
+  - New "unsafe flags" required for script and link manipulation in the DOM
+  - Domain whitelisting required for network access in plugins
+  - Plugins using unsafe flags can only be updated manually
+- 🦺 Built-in Player: Fixed progress update on first watch
+- 🦺 Real Debrid: Fixed non-zipped downloads appearing under '.tmp-' folders
+- 🦺 VLC: Fixed progress tracking on Linux #566
+- 🦺 Auto Downloader: Fixed default provider not being overridden when absent
+- 🦺 Fixed potential panic caused by 'include in library' feature #571
+- 🏗️ Nakama and Cloud Rooms are now stable
+- ⬆️ Updated dependencies
+
 ## v3.2.5
 
 - 🦺 Online Streaming: Fixed default server not being selected

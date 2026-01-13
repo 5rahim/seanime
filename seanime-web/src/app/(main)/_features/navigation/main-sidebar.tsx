@@ -1,7 +1,7 @@
 "use client"
 import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { useLogout } from "@/api/hooks/auth.hooks"
-import { useGetExtensionUpdateData as useGetExtensionUpdateData } from "@/api/hooks/extensions.hooks"
+import { useGetExtensionUpdateData as useGetExtensionUpdateData, usePluginWithIssuesCount } from "@/api/hooks/extensions.hooks"
 import { isLoginModalOpenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useSyncIsActive } from "@/app/(main)/_atoms/sync.atoms"
 import { ElectronUpdateModal } from "@/app/(main)/_electron/electron-update-modal"
@@ -121,6 +121,7 @@ export function MainSidebar() {
     const { syncIsActive } = useSyncIsActive()
 
     const { data: updateData } = useGetExtensionUpdateData()
+    const pluginWithIssuesCount = usePluginWithIssuesCount()
 
     const [loggingIn, setLoggingIn] = React.useState(false)
 
@@ -387,12 +388,12 @@ export function MainSidebar() {
                                     name: "Extensions",
                                     href: "/extensions",
                                     isCurrent: pathname.includes("/extensions"),
-                                    addon: !!updateData?.length
+                                    addon: (!!updateData?.length || !!pluginWithIssuesCount)
                                         ? <Badge
                                             className="absolute right-0 top-0 bg-red-500 animate-pulse" size="sm"
                                             intent="alert-solid"
                                         >
-                                            {updateData?.length || 1}
+                                            {updateData?.length || pluginWithIssuesCount || 1}
                                         </Badge>
                                         : undefined,
                                 },

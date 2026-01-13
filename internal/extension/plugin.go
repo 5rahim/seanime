@@ -231,13 +231,13 @@ func (p *PluginPermissions) GetHash() string {
 	for _, domain := range p.Allow.NetworkAccess.AllowedDomains {
 		h.Write([]byte("network:" + domain))
 	}
-	if p.Allow.NetworkAccess.Reasoning != "" {
-		h.Write([]byte("network-reasoning:" + p.Allow.NetworkAccess.Reasoning))
-	}
+	//if p.Allow.NetworkAccess.Reasoning != "" {
+	//	h.Write([]byte("network-reasoning:" + p.Allow.NetworkAccess.Reasoning))
+	//}
 
 	// Hash unsafe flags
 	for _, flag := range p.Allow.UnsafeFlags {
-		h.Write([]byte("unsafe:" + string(flag.Flag) + ":" + flag.Reason))
+		h.Write([]byte("unsafe:" + string(flag.Flag)))
 	}
 
 	return fmt.Sprintf("%x", h.Sum(nil))
