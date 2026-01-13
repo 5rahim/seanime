@@ -394,6 +394,7 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 	_ = webviewObj.Set("tabsContent", t.componentManager.jsTabsContent)
 	_ = webviewObj.Set("badge", t.componentManager.jsBadge)
 	_ = webviewObj.Set("span", t.componentManager.jsSpan)
+	_ = webviewObj.Set("img", t.componentManager.jsImg)
 
 	// Listen to mount events in order to return the webview object
 	listener := t.ctx.RegisterEventListener(ClientWebviewMountedEvent)

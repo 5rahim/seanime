@@ -188,6 +188,7 @@ func (t *TrayManager) jsNewTray(call goja.FunctionCall) goja.Value {
 	_ = trayObj.Set("tabsContent", t.componentManager.jsTabsContent)
 	_ = trayObj.Set("badge", t.componentManager.jsBadge)
 	_ = trayObj.Set("span", t.componentManager.jsSpan)
+	_ = trayObj.Set("img", t.componentManager.jsImg)
 
 	return trayObj
 }

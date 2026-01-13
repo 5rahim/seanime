@@ -292,6 +292,7 @@ declare namespace $ui {
         tabsContent: TabsContentComponentFunction
         badge: BadgeComponentFunction
         span: SpanComponentFunction
+        img: ImgComponentFunction
 
         /** Invoked when the tray icon is clicked */
         onClick(cb: () => void): void
@@ -448,6 +449,7 @@ declare namespace $ui {
         tabsContent: TabsContentComponentFunction
         badge: BadgeComponentFunction
         span: SpanComponentFunction
+        img: ImgComponentFunction
         /**
          * Communication channel between the webview and the Plugin context.
          */
@@ -831,6 +833,7 @@ declare namespace $ui {
         tabsContent: TabsContentComponentFunction
         badge: BadgeComponentFunction
         span: SpanComponentFunction
+        img: ImgComponentFunction
 
         /** Sets the items in the command palette */
         setItems(items: CommandPaletteItem[]): void
@@ -1136,6 +1139,11 @@ declare namespace $ui {
     type SpanComponentFunction = {
         (props: { text: string, items?: any[] } & ComponentProps): void
         (text: string, props?: { items?: any[] } & ComponentProps): void
+    }
+
+    type ImgComponentFunction = {
+        (props: { src: string, alt?: string, width?: string, height?: string } & ComponentProps): void
+        (src: string, props?: { alt?: string, width?: string, height?: string } & ComponentProps): void
     }
 
     // DOM Element interface

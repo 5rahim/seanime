@@ -979,6 +979,30 @@ export function PluginSpan(props: PluginSpanProps) {
     )
 }
 
+///////////////////
+
+interface PluginImgProps {
+    src?: string
+    alt?: string
+    width?: string
+    height?: string
+    style?: React.CSSProperties
+    className?: string
+}
+
+export function PluginImg(props: PluginImgProps) {
+    return (
+        <img
+            src={props.src}
+            alt={props.alt || ""}
+            width={props.width}
+            height={props.height}
+            style={props.style}
+            className={props.className}
+        />
+    )
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Form
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -96,6 +96,9 @@ func New(opts NewVideoCoreOptions) *VideoCore {
 }
 
 func (vc *VideoCore) SetSettings(settings *models.Settings) {
+	if settings == nil {
+		return
+	}
 	vc.logger.Trace().Msgf("videocore: Setting settings")
 	vc.settingsMu.Lock()
 	vc.settings = settings
@@ -105,9 +108,9 @@ func (vc *VideoCore) SetSettings(settings *models.Settings) {
 		vc.translatorService.Shutdown()
 	}
 	vc.translatorService = nil
-	if settings.MediaPlayer.VcTranslate {
-		vc.logger.Trace().Msgf("videocore: Setting up translator service %s", settings.MediaPlayer.VcTranslateProvider)
-		vc.translatorService = NewTranslatorService(vc, settings.MediaPlayer.VcTranslateApiKey, settings.MediaPlayer.VcTranslateProvider, settings.MediaPlayer.VcTranslateTargetLanguage)
+	if settings.GetMediaPlayer().VcTranslate {
+		vc.logger.Trace().Msgf("videocore: Setting up translator service %s", settings.GetMediaPlayer().VcTranslateProvider)
+		vc.translatorService = NewTranslatorService(vc, settings.GetMediaPlayer().VcTranslateApiKey, settings.GetMediaPlayer().VcTranslateProvider, settings.GetMediaPlayer().VcTranslateTargetLanguage)
 	}
 }
 

@@ -292,8 +292,7 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
     const handleFieldChange = (index: number, updatedValues: Partial<MediaEntry>, field: MediaEntry) => {
         if ("mediaId" in updatedValues) {
             const mediaId = updatedValues.mediaId!
-            const romaji = props.allMedia.find(m => m.id === mediaId)?.title?.romaji || ""
-            const sanitizedTitle = sanitizeDirectoryName(romaji)
+            const sanitizedTitle = sanitizeDirectoryName(props.allMedia.find(m => m.id === mediaId)?.title?.userPreferred || "")
 
             update(index, {
                 ...field,
@@ -368,7 +367,7 @@ function MediaFieldItem(props: MediaFieldItemProps) {
     }, [allMedia, field.mediaId])
 
     const animeFolderName = React.useMemo(() => {
-        return sanitizeDirectoryName(selectedMedia?.title?.romaji || selectedMedia?.title?.english || "")
+        return sanitizeDirectoryName(selectedMedia?.title?.userPreferred || "")
     }, [selectedMedia])
 
     const destination = useWatch({ name: `entries.${index}.destination` }) as string

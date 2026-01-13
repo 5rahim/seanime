@@ -276,7 +276,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
     const selectedMedia = allMedia.find(media => media.id === Number(form_mediaId))
 
     const animeFolderName = useMemo(() => {
-        return sanitizeDirectoryName(selectedMedia?.title?.romaji || selectedMedia?.title?.english || "")
+        return sanitizeDirectoryName(selectedMedia?.title?.userPreferred || "")
     }, [selectedMedia])
 
     const libraryPathSelectionProps = useLibraryPathSelection({

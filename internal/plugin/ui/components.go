@@ -629,3 +629,24 @@ var spanComponentProps = []ComponentProp{
 func (c *ComponentManager) jsSpan(call goja.FunctionCall) goja.Value {
 	return defineComponent(c.ctx.vm, call, "span", spanComponentProps)
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var imgComponentProps = []ComponentProp{
+	{Name: "src", Type: "string", Required: true, OptionalFirstArg: true, Validate: validateType("string")},
+	{Name: "alt", Type: "string", Required: false, Validate: validateType("string")},
+	{Name: "width", Type: "string", Required: false, Validate: validateType("string")},
+	{Name: "height", Type: "string", Required: false, Validate: validateType("string")},
+	{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+	{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+}
+
+// jsImg
+//
+//	Example:
+//	const img = tray.img("https://example.com/image.png")
+//	// or
+//	const img = tray.img({ src: "https://example.com/image.png", alt: "Description" })
+func (c *ComponentManager) jsImg(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "img", imgComponentProps)
+}

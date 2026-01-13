@@ -350,6 +350,7 @@ func (c *CommandPaletteManager) jsNewCommandPalette(options NewCommandPaletteOpt
 	_ = cmdObj.Set("tabsContent", c.componentManager.jsTabsContent)
 	_ = cmdObj.Set("badge", c.componentManager.jsBadge)
 	_ = cmdObj.Set("span", c.componentManager.jsSpan)
+	_ = cmdObj.Set("img", c.componentManager.jsImg)
 
 	return cmdObj
 }

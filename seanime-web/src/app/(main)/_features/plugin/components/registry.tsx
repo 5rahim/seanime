@@ -15,6 +15,7 @@ import {
     PluginDropdownMenuSeparator,
     PluginFlex,
     PluginForm,
+    PluginImg,
     PluginInput,
     PluginModal,
     PluginP,
@@ -65,6 +66,7 @@ export const registry: ComponentRegistry = new Map([
     ["tabs-content", PluginTabsContent],
     ["badge", PluginBadge],
     ["span", PluginSpan],
+    ["img", PluginImg],
 ] as any)
 
 
