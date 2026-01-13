@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Metadata Parent: Link standalone Specials to a parent anime
   - Allow standalone Special entries to inherit AniDB metadata from the parent anime #509
 - ⚡️ Plugins: New Tray components and UI context APIs
+- ⚡️ AllDebrid Support - @GabrielNunesIT
 - ⚡️ Library Explorer: Ability to delete files #561
 - ⚡️ Extensions: View code changes before updating extension
 - ⚡️ Library path selection for download destination - @Ari-03
