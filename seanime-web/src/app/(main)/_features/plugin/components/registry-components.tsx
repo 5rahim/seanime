@@ -42,12 +42,16 @@ type FieldRef<T> = {
 interface TooltipProps {
     item?: any
     text: string
+    side?: "top" | "bottom" | "left" | "right"
+    sideOffset?: number
 }
 
-export function PluginTooltip({ item, text }: TooltipProps) {
+export function PluginTooltip({ item, text, side, sideOffset }: TooltipProps) {
     if (!item) return
     return (
         <Tooltip
+            side={side}
+            sideOffset={sideOffset}
             trigger={<div className="w-fit"><RenderPluginComponents data={item} /></div>}
         >
             {text}

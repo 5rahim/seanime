@@ -6,8 +6,9 @@ import (
 	"github.com/dop251/goja"
 )
 
-func (c *Context) bindFetch(obj *goja.Object, allowedDomains []string) {
+func (c *Context) bindFetch(obj *goja.Object, allowedDomains []string, anilistToken string) {
 	f := goja_bindings.NewFetch(c.vm, allowedDomains)
+	f.SetAnilistToken(anilistToken)
 
 	_ = obj.Set("fetch", f.Fetch)
 
@@ -24,4 +25,8 @@ func (c *Context) bindFetch(obj *goja.Object, allowedDomains []string) {
 		c.logger.Debug().Msg("plugin: Terminating fetch")
 		f.Close()
 	})
+}
+
+func (c *Context) bindAbortContext() {
+	goja_bindings.BindAbortContext(c.vm, c.scheduler)
 }

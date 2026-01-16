@@ -355,6 +355,8 @@ func (c *ComponentManager) jsCSS(call goja.FunctionCall) goja.Value {
 var tooltipComponentProps = []ComponentProp{
 	{Name: "text", Type: "string", Required: true, Validate: validateType("string")},
 	{Name: "item", Type: "any", Required: true, OptionalFirstArg: true},
+	{Name: "side", Type: "string", Required: false, Validate: validateType("string")},
+	{Name: "sideOffset", Type: "number", Required: false, Validate: validateType("number")},
 }
 
 // jsTooltip

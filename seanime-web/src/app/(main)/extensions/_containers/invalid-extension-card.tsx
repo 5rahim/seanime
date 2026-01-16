@@ -247,7 +247,7 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                     {isUnsafe && <Alert
                         intent="warning"
                         className="!text-[--muted] !bg-gray-800"
-                        description="Due to the use of unsafe flags, Seanime cannot guarantee that this plugin is safe. For security reasons, it will not be updated when using 'Update all'."
+                        description="This plugin relies on unsafe flags to function. Seanime cannot guarantee that it is safe to use."
                         // className="mb-4"
                     />}
 

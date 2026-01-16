@@ -1,6 +1,7 @@
 package goja_bindings
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -40,6 +41,11 @@ type Fetch struct {
 	vmResponseCh   chan func()
 	allowedDomains []string // empty = allow all domains
 	rules          []accessRule
+	anilistToken   string
+}
+
+func (f *Fetch) SetAnilistToken(token string) {
+	f.anilistToken = token
 }
 
 // accessRule represents a pre-parsed allowed domain pattern
@@ -151,6 +157,7 @@ type fetchOptions struct {
 	Headers            map[string]string
 	Timeout            int // seconds
 	NoCloudFlareBypass bool
+	Signal             *goja.Object // AbortSignal
 }
 
 type fetchResult struct {
@@ -322,6 +329,12 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 					options.NoCloudFlareBypass = v
 				}
 			}
+
+			if o := rawOpts.Get("signal"); o != nil && !goja.IsUndefined(o) {
+				if signalObj := o.ToObject(f.vm); signalObj != nil {
+					options.Signal = signalObj
+				}
+			}
 		}
 	}
 
@@ -360,6 +373,22 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		f.fetchSem <- struct{}{}
 		defer func() { <-f.fetchSem }()
 
+		// Check if signal is already aborted
+		if options.Signal != nil {
+			abortedValue := options.Signal.Get("aborted")
+			if !goja.IsUndefined(abortedValue) && abortedValue.ToBoolean() {
+				f.vmResponseCh <- func() {
+					reason := options.Signal.Get("reason")
+					if !goja.IsUndefined(reason) && !goja.IsNull(reason) {
+						_ = reject(f.vm.ToValue(reason))
+					} else {
+						_ = reject(NewError(f.vm, fmt.Errorf("AbortError: The operation was aborted")))
+					}
+				}
+				return
+			}
+		}
+
 		log.Trace().Str("url", url).Str("method", options.Method).Msgf("extension: Network request")
 
 		var client *req.Client
@@ -386,6 +415,20 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		// Set body if present
 		if reqBody != nil {
 			request.SetBody(reqBody)
+		}
+
+		// Set context from AbortSignal if provided
+		if options.Signal != nil {
+			// Extract the context from the AbortSignal
+			getContextFunc := options.Signal.Get("_getContext")
+			if callable, ok := goja.AssertFunction(getContextFunc); ok {
+				ctxVal, err := callable(goja.Undefined())
+				if err == nil {
+					if ctx, ok := ctxVal.Export().(context.Context); ok {
+						request.SetContext(ctx)
+					}
+				}
+			}
 		}
 
 		var result fetchResult

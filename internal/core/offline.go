@@ -45,6 +45,7 @@ func (a *App) SetOfflineMode(enabled bool) {
 			Logger:           a.Logger,
 			FileCacher:       a.FileCacher,
 			ExtensionBankRef: a.ExtensionBankRef,
+			Database:         a.Database,
 		}))
 		a.InitOrRefreshAnilistData()
 	}

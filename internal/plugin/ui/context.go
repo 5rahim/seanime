@@ -90,6 +90,8 @@ type Context struct {
 	cron                 mo.Option[*plugin.Cron]
 
 	registeredInlineEventHandlers *result.Map[string, *EventListener]
+
+	anilistToken string
 }
 
 type StateSubscriber struct {
@@ -178,7 +180,14 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	_ = obj.Set("eventHandler", c.jsEventHandler)
 	_ = obj.Set("fieldRef", c.jsfieldRef)
 
-	c.bindFetch(obj, c.ext.Plugin.Permissions.GetNetworkAccessAllowedDomains())
+	anilistToken := ""
+	if db, ok := c.ui.appContext.Database().Get(); ok {
+		anilistToken = db.GetAnilistToken()
+	}
+	c.anilistToken = anilistToken
+
+	c.bindFetch(obj, c.ext.Plugin.Permissions.GetNetworkAccessAllowedDomains(), c.anilistToken)
+	c.bindAbortContext()
 	c.bindChromeDP(obj)
 	// Bind screen manager
 	c.screenManager.bind(obj)
@@ -1231,9 +1240,9 @@ func (c *Context) triggerUIUpdate() {
 		c.trayManager.renderTrayScheduled()
 	}
 	// Trigger tray update if available
-	if c.webviewManager != nil {
-		c.webviewManager.renderWebviewScheduled()
-	}
+	//if c.webviewManager != nil {
+	//	c.webviewManager.renderWebviewScheduled()
+	//}
 }
 
 // Cleanup is called when the UI is being unloaded

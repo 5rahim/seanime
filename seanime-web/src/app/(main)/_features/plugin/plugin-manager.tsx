@@ -1,14 +1,18 @@
 import { useListExtensionData } from "@/api/hooks/extensions.hooks"
 import { useIsMainTabRef } from "@/app/websocket-provider"
+import { useDebounce } from "@/hooks/use-debounce"
 import { WSEvents } from "@/lib/server/ws-events"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { startTransition, useEffect, useState } from "react"
+import { useWindowSize } from "react-use"
 import { useWebsocketMessageListener } from "../../_hooks/handle-websockets"
 import { PluginCommandPalettes } from "./command/plugin-command-palettes"
 import {
+    usePluginListenDOMGetViewportSizeEvent,
     usePluginListenScreenGetCurrentEvent,
     usePluginListenScreenNavigateToEvent,
     usePluginListenScreenReloadEvent,
+    usePluginSendDOMViewportSizeEvent,
     usePluginSendScreenChangedEvent,
 } from "./generated/plugin-events"
 import { PluginHandler } from "./plugin-handler"
@@ -69,9 +73,36 @@ export function PluginManager() {
 
     return <>
         {/* Render plugin handlers for each extension */}
+        <SizeEvents />
         {extensions?.filter(e => e.type === "plugin" && !unloadedExtensions.includes(e.id)).map(extension => (
             <PluginHandler key={extension.id} extensionId={extension.id} onUnloaded={() => setUnloadedExtensions(prev => [...prev, extension.id])} />
         ))}
         <PluginCommandPalettes />
     </>
+}
+
+function SizeEvents() {
+    const isMainTabRef = useIsMainTabRef()
+    const { sendDOMViewportSizeEvent } = usePluginSendDOMViewportSizeEvent()
+
+    const { width, height } = useWindowSize()
+    const debounceWindowSize = useDebounce({ width, height }, 400)
+
+    useEffect(() => {
+        if (!isMainTabRef.current) return
+        sendDOMViewportSizeEvent({
+            width: debounceWindowSize.width,
+            height: debounceWindowSize.height,
+        })
+    }, [debounceWindowSize])
+
+    usePluginListenDOMGetViewportSizeEvent((event, extensionId) => {
+        if (!isMainTabRef.current) return
+        sendDOMViewportSizeEvent({
+            width: debounceWindowSize.width,
+            height: debounceWindowSize.height,
+        }, extensionId)
+    }, "")
+
+    return null
 }
