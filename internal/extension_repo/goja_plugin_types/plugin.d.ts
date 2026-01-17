@@ -742,12 +742,16 @@ declare namespace $ui {
         id: number
     }
 
+    type AnimePageButtonAction = ActionObject<{ media: $app.AL_BaseAnime }> & { setTooltipText(text: string): void }
+
+    type MangaPageButtonAction = ActionObject<{ media: $app.AL_BaseManga }> & { setTooltipText(text: string): void }
+
     interface Action {
         /**
          * Creates a new button for the anime page
          * @param props - Button properties
          */
-        newAnimePageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseAnime }>
+        newAnimePageButton(props: { label: string, intent?: Intent, style?: Record<string, string>, tooltipText?: string }): AnimePageButtonAction
 
         /**
          * Creates a new dropdown menu item for the anime page
@@ -780,7 +784,7 @@ declare namespace $ui {
          * Creates a new button for the manga page
          * @param props - Button properties
          */
-        newMangaPageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseManga }>
+        newMangaPageButton(props: { label: string, intent?: Intent, style?: Record<string, string>, tooltipText?: string }): MangaPageButtonAction
 
         /**
          * Creates a new context menu item for the episode card

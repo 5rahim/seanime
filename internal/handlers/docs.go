@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"os"
-	"path/filepath"
+	"io"
+	"net/http"
 	"strings"
 
 	"github.com/goccy/go-json"
@@ -62,15 +62,21 @@ func (h *Handler) HandleGetDocs(c echo.Context) error {
 	}
 
 	// Read the file
-	wd, _ := os.Getwd()
-	buf, err := os.ReadFile(filepath.Join(wd, "codegen/generated/handlers.json"))
+	url := "https://raw.githubusercontent.com/5rahim/seanime/refs/heads/main/codegen/generated/handlers.json?t=1"
+	res, err := http.Get(url)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
 	var data []*RouteHandler
 	// Unmarshal the data
-	err = json.Unmarshal(buf, &data)
+	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

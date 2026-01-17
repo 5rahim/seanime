@@ -91,6 +91,11 @@ export function PluginTray(props: TrayPluginProps) {
     const [unpinnedTrayIconClicked, setUnpinnedTrayIconClicked] = useAtom(__plugin_unpinnedTrayIconClickedAtom)
     const [openedTrayPlugin, setOpenedTrayPlugin] = useAtom(__plugin_openedTrayPlugin)
 
+    React.useEffect(() => {
+        setBadgeNumber(props.trayIcon.badgeNumber)
+        setBadgeIntent(props.trayIcon.badgeIntent)
+    }, [])
+
     const firstRender = React.useRef(true)
     React.useEffect(() => {
         if (firstRender.current) {
@@ -108,6 +113,7 @@ export function PluginTray(props: TrayPluginProps) {
     const unpinnedTrayIconClickedOpenedRef = React.useRef(false)
     React.useEffect(() => {
         if (unpinnedTrayIconClicked?.extensionId === props.trayIcon.extensionId) {
+            sendTrayClickedEvent({}, props.trayIcon.extensionId)
             setOpenedTrayPlugin(props.trayIcon.extensionId)
             if (!unpinnedTrayIconClickedOpenedRef.current) {
                 const timeout = setTimeout(() => {

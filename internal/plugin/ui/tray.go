@@ -293,6 +293,7 @@ func (t *Tray) jsClose(call goja.FunctionCall) goja.Value {
 func (t *Tray) jsUpdateBadge(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
 		t.trayManager.ctx.handleTypeError("updateBadge requires a callback function")
+		return goja.Undefined()
 	}
 
 	propsObj, ok := call.Argument(0).Export().(map[string]interface{})

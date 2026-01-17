@@ -2,6 +2,7 @@ import { AL_BaseAnime, AL_BaseManga, Anime_Episode, Onlinestream_Episode } from 
 import { Button, ButtonProps, IconButton } from "@/components/ui/button"
 import { ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
+import { Tooltip } from "@/components/ui/tooltip"
 import React, { useEffect, useState } from "react"
 import { BiDotsHorizontal } from "react-icons/bi"
 import {
@@ -35,6 +36,7 @@ type PluginAnimePageButton = {
     loading?: boolean
     disabled?: boolean
     id: string
+    tooltipText?: string
 }
 
 export function PluginAnimePageButtons(props: { media: AL_BaseAnime }) {
@@ -69,15 +71,32 @@ export function PluginAnimePageButtons(props: { media: AL_BaseAnime }) {
     if (buttons.length === 0) return null
 
     return <>
-        {buttons.map(b => (
+        {buttons.map(b => !b.tooltipText ? (
             <Button
                 key={b.id}
-                intent={b.intent as ButtonProps["intent"] || "white-subtle"}
+                intent={b.intent as ButtonProps["intent"] || "gray-subtle"}
                 onClick={() => handleClick(b)}
                 style={b.style}
                 loading={b.loading}
                 disabled={b.disabled}
             >{b.label || "???"}</Button>
+        ) : (
+            <Tooltip
+                key={b.id} trigger={
+                <div>
+                    <Button
+                        key={b.id}
+                        intent={b.intent as ButtonProps["intent"] || "gray-subtle"}
+                        onClick={() => handleClick(b)}
+                        style={b.style}
+                        loading={b.loading}
+                        disabled={b.disabled}
+                    >{b.label || "???"}</Button>
+                </div>
+            }
+            >
+                {b.tooltipText || "???"}
+            </Tooltip>
         ))}
     </>
 }
@@ -94,6 +113,7 @@ type PluginMangaPageButton = {
     id: string
     loading?: boolean
     disabled?: boolean
+    tooltipText?: string
 }
 
 export function PluginMangaPageButtons(props: { media: AL_BaseManga }) {
@@ -128,15 +148,32 @@ export function PluginMangaPageButtons(props: { media: AL_BaseManga }) {
     if (buttons.length === 0) return null
 
     return <>
-        {buttons.map(b => (
+        {buttons.map(b => !b.tooltipText ? (
             <Button
                 key={b.id}
-                intent={b.intent as ButtonProps["intent"] || "white-subtle"}
+                intent={b.intent as ButtonProps["intent"] || "gray-subtle"}
                 onClick={() => handleClick(b)}
                 style={b.style}
                 loading={b.loading}
                 disabled={b.disabled}
             >{b.label || "???"}</Button>
+        ) : (
+            <Tooltip
+                key={b.id} trigger={
+                <div>
+                    <Button
+                        key={b.id}
+                        intent={b.intent as ButtonProps["intent"] || "gray-subtle"}
+                        onClick={() => handleClick(b)}
+                        style={b.style}
+                        loading={b.loading}
+                        disabled={b.disabled}
+                    >{b.label || "???"}</Button>
+                </div>
+            }
+            >
+                {b.tooltipText || "???"}
+            </Tooltip>
         ))}
     </>
 }

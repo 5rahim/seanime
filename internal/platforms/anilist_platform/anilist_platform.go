@@ -173,7 +173,7 @@ func (ap *AnilistPlatform) DeleteEntry(ctx context.Context, mediaID, entryId int
 }
 
 func (ap *AnilistPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.BaseAnime, error) {
-	ap.logger.Trace().Msg("anilist platform: Fetching anime")
+	ap.logger.Trace().Int("mediaId", mediaID).Msg("anilist platform: Fetching anime")
 
 	if cachedAnime, ok := ap.helper.GetCachedBaseAnime(mediaID); ok {
 		ap.logger.Trace().Msg("anilist platform: Returning anime from cache")

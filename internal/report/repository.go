@@ -1,7 +1,9 @@
 package report
 
 import (
+	"bytes"
 	"fmt"
+	"regexp"
 	"runtime"
 	"seanime/internal/constants"
 	"seanime/internal/database/models"
@@ -98,4 +100,41 @@ func (r *Repository) GetSavedIssueReport() (*IssueReport, bool) {
 	}
 
 	return r.savedIssueReport.MustGet(), true
+}
+
+type AnonymizeOptions struct {
+	Content        []byte `json:"content"`
+	Settings       *models.Settings
+	DebridSettings *models.DebridSettings
+}
+
+func (r *Repository) Anonymize(opts AnonymizeOptions) string {
+	userPathPattern := regexp.MustCompile(`(?i)(/home/|/Users/|C:\\Users\\)([^/\\]+)`)
+
+	urlSensitivePattern := regexp.MustCompile(`(?i)(\b(?:client_id|token|secret|password)=)([^&\s"']+)`)
+
+	var toRedact []string
+	if opts.Settings != nil {
+		toRedact = opts.Settings.GetSensitiveValues()
+	}
+	if opts.DebridSettings != nil {
+		toRedact = append(toRedact, opts.DebridSettings.GetSensitiveValues()...)
+	}
+
+	// Remove empty strings to avoid infinite replacements
+	toRedact = lo.Filter(toRedact, func(s string, _ int) bool {
+		return s != ""
+	})
+
+	content := opts.Content
+
+	content = userPathPattern.ReplaceAll(content, []byte("${1}[REDACTED]"))
+	content = urlSensitivePattern.ReplaceAll(content, []byte("${1}[REDACTED]"))
+
+	replacement := []byte("[REDACTED]")
+	for _, redact := range toRedact {
+		content = bytes.ReplaceAll(content, []byte(redact), replacement)
+	}
+
+	return string(content)
 }

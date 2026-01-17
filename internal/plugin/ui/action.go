@@ -97,7 +97,8 @@ func (a *ActionManager) UnmountAll() {
 
 type AnimePageButton struct {
 	BaseAction
-	Intent string `json:"intent,omitempty"`
+	Intent      string `json:"intent,omitempty"`
+	TooltipText string `json:"tooltipText,omitempty"`
 }
 
 func (a *AnimePageButton) CreateObject(actionManager *ActionManager) *goja.Object {
@@ -140,7 +141,8 @@ func (a *EpisodeGridItemMenuItem) CreateObject(actionManager *ActionManager) *go
 
 type MangaPageButton struct {
 	BaseAction
-	Intent string `json:"intent,omitempty"`
+	Intent      string `json:"intent,omitempty"`
+	TooltipText string `json:"tooltipText,omitempty"`
 }
 
 func (a *MangaPageButton) CreateObject(actionManager *ActionManager) *goja.Object {
@@ -695,6 +697,17 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		case *EpisodeGridItemMenuItem:
 			act.SetStyle(style)
 			a.renderEpisodeGridItemMenuItems()
+		}
+	})
+
+	_ = obj.Set("setTooltipText", func(text string) {
+		switch act := action.(type) {
+		case *AnimePageButton:
+			act.TooltipText = text
+			a.renderAnimePageButtons()
+		case *MangaPageButton:
+			act.TooltipText = text
+			a.renderMangaPageButtons()
 		}
 	})
 

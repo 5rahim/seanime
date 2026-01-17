@@ -16,13 +16,10 @@ func RefreshAnilistDataJob(c *JobCtx) {
 
 	// Refresh the Anilist Collection
 	animeCollection, _ := c.App.RefreshAnimeCollection()
-
-	if c.App.Settings.GetLibrary().EnableManga {
-		mangaCollection, _ := c.App.RefreshMangaCollection()
-		c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, mangaCollection)
-	}
-
 	c.App.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, animeCollection)
+
+	mangaCollection, _ := c.App.RefreshMangaCollection()
+	c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, mangaCollection)
 }
 
 func SyncLocalDataJob(c *JobCtx) {
