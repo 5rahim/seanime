@@ -105,6 +105,7 @@ export function useHandleMangaChapters(
             }
             return true
         })?.map(lang => ({ value: lang.value.language, label: lang.label })) || [], "value")
+            ?.filter(n => typeof n.label === "string" && typeof n.value === "string")
     }, [_languageOptions, selectedFilters])
 
     // Filter scanlator options based on language
@@ -118,6 +119,7 @@ export function useHandleMangaChapters(
             }
             return true
         })?.map(scanlator => ({ value: scanlator.value, label: scanlator.label })) || [], "value")
+            ?.filter(n => typeof n.label === "string" && typeof n.value === "string")
     }, [_scanlatorOptions, selectedFilters, _languageOptions])
 
     return {

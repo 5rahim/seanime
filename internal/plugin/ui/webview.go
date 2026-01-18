@@ -372,6 +372,7 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 	_ = webviewObj.Set("onUnmount", webview.jsOnUnmount)
 	_ = webviewObj.Set("getScreenPath", webview.jsGetScreenPath)
 	_ = webviewObj.Set("isHidden", webview.jsIsHidden)
+	//_ = webviewObj.Set("setPosition", webview.jsSetPosition)
 
 	// Create a new webview object
 	channelObj := t.ctx.vm.NewObject()
