@@ -10,7 +10,6 @@ import (
 	"seanime/internal/library/summary"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
-	"seanime/internal/util/comparison"
 	"seanime/internal/util/limiter"
 	"strconv"
 	"time"
@@ -174,7 +173,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		}
 
 		// NC metadata
-		if comparison.ValueContainsNC(lf.Name) {
+		if lf.IsProbablyNC() {
 			lf.Metadata.Episode = 0
 			lf.Metadata.AniDBEpisode = ""
 			lf.Metadata.Type = anime.LocalFileTypeNC
@@ -189,7 +188,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		}
 
 		// Special metadata
-		if comparison.ValueContainsSpecial(lf.Name) {
+		if lf.IsProbablySpecial() {
 			lf.Metadata.Type = anime.LocalFileTypeSpecial
 			if episode > -1 {
 				// ep14 (13 original) -> ep1 s1

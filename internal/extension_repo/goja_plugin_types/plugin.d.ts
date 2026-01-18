@@ -380,7 +380,6 @@ declare namespace $ui {
          */
         window?: {
             draggable?: boolean
-            resizable?: boolean
             defaultX?: number
             defaultY?: number
             defaultPosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right"

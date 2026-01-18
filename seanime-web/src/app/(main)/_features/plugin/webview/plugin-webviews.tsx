@@ -521,6 +521,8 @@ function WebviewIframe({ webview, onUpdatePosition, onClose }: WebviewIframeProp
             styles.borderColor = "var(--border)"
             styles.borderStyle = "solid"
             styles.borderWidth = "1px"
+            styles.backgroundColor = "var(--background)"
+            styles.boxShadow = "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)"
         }
 
         if (options.fullWidth) {
@@ -605,7 +607,6 @@ function WebviewIframe({ webview, onUpdatePosition, onClose }: WebviewIframeProp
 
     return (
         <div
-            className={options.className}
             data-webview-container={webview.webviewId}
             style={{
                 ...(webview.slot === "fixed" ? {
@@ -637,6 +638,7 @@ function WebviewIframe({ webview, onUpdatePosition, onClose }: WebviewIframeProp
                 className={cn(
                     // (isResizing) && "pointer-events-none",
                     (isDragging) && "pointer-events-none",
+                    options.className,
                 )}
             />
         </div>

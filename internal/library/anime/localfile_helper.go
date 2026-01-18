@@ -124,6 +124,26 @@ func (f *LocalFile) IsIncluded(lfs []*LocalFile) bool {
 	return false
 }
 
+// getRegexCompFilename returns a normalized filename without words that could mess up regex comparisons
+func (f *LocalFile) getRegexCompFilename() (ret string) {
+	ret = f.ParsedData.Original
+	if f.ParsedData.EpisodeTitle != "" {
+		ret = strings.Replace(ret, f.ParsedData.EpisodeTitle, "PLACEHOLDER", 1)
+	}
+	if f.ParsedData.ReleaseGroup != "" {
+		ret = strings.Replace(ret, f.ParsedData.ReleaseGroup, "PLACEHOLDER", 1)
+	}
+	return
+}
+
+func (f *LocalFile) IsProbablyNC() bool {
+	return comparison.ValueContainsNC(f.getRegexCompFilename())
+}
+
+func (f *LocalFile) IsProbablySpecial() bool {
+	return comparison.ValueContainsSpecial(f.getRegexCompFilename())
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 // buildTitle concatenates the given strings into a single string.
