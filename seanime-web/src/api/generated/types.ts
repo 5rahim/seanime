@@ -4303,6 +4303,7 @@ export type PluginUI_WebviewOptions = {
     autoHeight?: boolean
     fullWidth?: boolean
     sidebar?: PluginUI_WebviewSidebarOptions
+    hidden?: boolean
 }
 
 /**
@@ -4345,6 +4346,8 @@ export type PluginUI_WebviewWindowOptions = {
     draggable?: boolean
     defaultX?: number
     defaultY?: number
+    frameless?: boolean
+    defaultPosition?: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -12,10 +12,12 @@ import (
 	"seanime/internal/util/limiter"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestFileHydrator_HydrateMetadata(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -27,10 +29,10 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 	anilistClientRef := util.NewRef(anilistClient)
 	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
+	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
 	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations(t.Context())
-	if err != nil {
-		t.Fatal("expected result, got error:", err.Error())
-	}
+	require.NoError(t, err)
+	require.NotNil(t, animeCollection)
 
 	allMedia := animeCollection.GetAllAnime()
 
@@ -38,6 +40,7 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 		name            string
 		paths           []string
 		expectedMediaId int
+		expectedType    anime.LocalFileType
 	}{
 		{
 			name: "should be hydrated with id 131586",
@@ -45,9 +48,10 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 20v2 (1080p) [30072859].mkv",
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 21v2 (1080p) [4B1616A5].mkv",
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 22v2 (1080p) [58BF43B4].mkv",
-				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 23v2 (1080p) [D94B4894].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 23v2 - Never-Ending (1080p) [D94B4894].mkv",
 			},
 			expectedMediaId: 131586, // 86 - Eighty Six Part 2
+			expectedType:    anime.LocalFileTypeMain,
 		},
 	}
 
@@ -118,11 +122,11 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			fh.HydrateMetadata()
 
 			for _, lf := range fh.LocalFiles {
-				if lf.MediaId != tt.expectedMediaId {
-					t.Fatalf("expected media id %d, got %d", tt.expectedMediaId, lf.MediaId)
-				}
+				t.Logf("local file: %s,\nmedia id: %d, type: %s\n", lf.Name, lf.MediaId, lf.GetType())
+				assert.NotNil(t, lf.MediaId, "expected media id to be set")
+				assert.Equal(t, tt.expectedMediaId, lf.MediaId, "expected media id %d, got %d", tt.expectedMediaId, lf.MediaId)
+				assert.Equal(t, tt.expectedType, lf.GetType(), "expected file type %s, got %s", tt.expectedType, lf.GetType())
 
-				t.Logf("local file: %s,\nmedia id: %d\n", lf.Name, lf.MediaId)
 			}
 
 		})

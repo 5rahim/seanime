@@ -10,6 +10,7 @@ import (
 	"seanime/internal/constants"
 	"seanime/internal/core"
 	"seanime/internal/database/models"
+	"seanime/internal/report"
 	"seanime/internal/user"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
@@ -171,7 +172,13 @@ func (h *Handler) HandleGetLogContent(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	return h.RespondWithData(c, string(contentB))
+	content := h.App.ReportRepository.Anonymize(report.AnonymizeOptions{
+		Content:        contentB,
+		Settings:       h.App.Settings,
+		DebridSettings: h.App.SecondarySettings.Debrid,
+	})
+
+	return h.RespondWithData(c, content)
 }
 
 var newestLogFilename = ""
@@ -316,7 +323,13 @@ func (h *Handler) HandleGetLatestLogContent(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	return h.RespondWithData(c, string(contentB))
+	content := h.App.ReportRepository.Anonymize(report.AnonymizeOptions{
+		Content:        contentB,
+		Settings:       h.App.Settings,
+		DebridSettings: h.App.SecondarySettings.Debrid,
+	})
+
+	return h.RespondWithData(c, content)
 }
 
 // HandleGetAnnouncements

@@ -5,6 +5,7 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/util/result"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -69,6 +70,11 @@ func (d *DOMManager) BindToObj(vm *goja.Runtime, obj *goja.Object) {
 	_ = domObj.Set("asElement", d.jsAsElement)
 	_ = domObj.Set("onReady", d.jsOnReady)
 	_ = domObj.Set("onMainTabReady", d.jsOnMainTabReady)
+
+	viewportObj := vm.NewObject()
+	_ = viewportObj.Set("onResize", d.jsViewportOnResize)
+	_ = viewportObj.Set("getSize", d.jsViewportGetSize)
+	_ = domObj.Set("viewport", viewportObj)
 
 	_ = obj.Set("dom", domObj)
 }
@@ -1745,4 +1751,59 @@ func (d *DOMManager) setElementOuterHTML(elementId, outerHTML string) {
 		Action:    "setOuterHTML",
 		Params:    map[string]interface{}{"html": outerHTML},
 	})
+}
+
+/////////////////////////////////////////////
+
+func (d *DOMManager) jsViewportOnResize(call goja.FunctionCall) goja.Value {
+
+	callback, ok := goja.AssertFunction(call.Argument(0))
+	if !ok {
+		d.ctx.handleTypeError("onResize requires a callback function")
+	}
+
+	// Listen for changes from the client
+	listener := d.ctx.RegisterEventListener(ClientDOMViewportSizeEvent)
+
+	listener.SetCallback(func(event *ClientPluginEvent) {
+		payload := ClientDOMViewportSizeEventPayload{}
+		if event.ParsePayloadAs(ClientDOMViewportSizeEvent, &payload) {
+			d.ctx.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), d.ctx.vm.ToValue(payload))
+				return err
+			})
+		}
+	})
+
+	cancelFunc := func() {
+		d.ctx.UnregisterEventListener(listener.ID)
+	}
+
+	return d.ctx.vm.ToValue(cancelFunc)
+}
+
+func (d *DOMManager) jsViewportGetSize(_ goja.FunctionCall) goja.Value {
+	// Listen for changes from the client
+	done := make(chan struct{})
+	doneOnce := sync.Once{}
+	listener := d.ctx.RegisterEventListener(ClientDOMViewportSizeEvent)
+	cancel := func() {
+		d.ctx.UnregisterEventListener(listener.ID)
+		doneOnce.Do(func() { close(done) })
+	}
+
+	payload := ClientDOMViewportSizeEventPayload{}
+	listener.SetCallback(func(event *ClientPluginEvent) {
+		_ = event.ParsePayloadAs(ClientDOMViewportSizeEvent, &payload)
+		doneOnce.Do(func() { close(done) })
+	})
+
+	t := time.AfterFunc(2*time.Second, cancel)
+	defer t.Stop()
+
+	// Send event
+	d.ctx.SendEventToClient(ServerDOMGetViewportSizeEvent, nil)
+
+	<-done
+	return d.ctx.vm.ToValue(payload)
 }

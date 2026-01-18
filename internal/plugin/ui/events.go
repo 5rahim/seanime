@@ -56,6 +56,7 @@ const (
 	ClientDOMEventTriggeredEvent ClientEventType = "dom:event-triggered"  // When a DOM event is triggered
 	ClientDOMReadyEvent          ClientEventType = "dom:ready"            // When a DOM element is ready
 	ClientDOMMainTabReadyEvent   ClientEventType = "dom:main-tab-ready"   // When the main tab has changed
+	ClientDOMViewportSizeEvent   ClientEventType = "dom:viewport-size"
 )
 
 type ClientRenderTrayEventPayload struct{}
@@ -170,6 +171,11 @@ type ClientDOMReadyEventPayload struct {
 type ClientDOMMainTabReadyEventPayload struct {
 }
 
+type ClientDOMViewportSizeEventPayload struct {
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Server to client
 /////////////////////////////////////////////////////////////////////////////////////
@@ -195,8 +201,6 @@ const (
 	ServerWebviewSidebarEvent   ServerEventType = "webview:sidebar"    // Returns the webview sidebar data
 	ServerWebviewSyncStateEvent ServerEventType = "webview:sync-state" // When a state is synced to the webview
 	ServerWebviewCloseEvent     ServerEventType = "webview:close"      // When a webview should be closed
-	ServerWebviewShowEvent      ServerEventType = "webview:show"       // When a webview should be shown
-	ServerWebviewHideEvent      ServerEventType = "webview:hide"       // When a webview should be hidden
 
 	ServerCommandPaletteInfoEvent                      ServerEventType = "command-palette:info"                           // When the command palette sends its state to the client
 	ServerCommandPaletteUpdatedEvent                   ServerEventType = "command-palette:updated"                        // When the command palette is updated
@@ -219,13 +223,14 @@ const (
 	ServerScreenReloadEvent                            ServerEventType = "screen:reload"       // Reload the current screen
 	ServerScreenGetCurrentEvent                        ServerEventType = "screen:get-current"  // Get the current screen
 
-	ServerDOMQueryEvent         ServerEventType = "dom:query"        // When the server queries for DOM elements
-	ServerDOMQueryOneEvent      ServerEventType = "dom:query-one"    // When the server queries for a single DOM element
-	ServerDOMObserveEvent       ServerEventType = "dom:observe"      // When the server starts observing DOM elements
-	ServerDOMStopObserveEvent   ServerEventType = "dom:stop-observe" // When the server stops observing DOM elements
-	ServerDOMCreateEvent        ServerEventType = "dom:create"       // When the server creates a DOM element
-	ServerDOMManipulateEvent    ServerEventType = "dom:manipulate"   // When the server manipulates a DOM element
-	ServerDOMObserveInViewEvent ServerEventType = "dom:observe-in-view"
+	ServerDOMQueryEvent           ServerEventType = "dom:query"        // When the server queries for DOM elements
+	ServerDOMQueryOneEvent        ServerEventType = "dom:query-one"    // When the server queries for a single DOM element
+	ServerDOMObserveEvent         ServerEventType = "dom:observe"      // When the server starts observing DOM elements
+	ServerDOMStopObserveEvent     ServerEventType = "dom:stop-observe" // When the server stops observing DOM elements
+	ServerDOMCreateEvent          ServerEventType = "dom:create"       // When the server creates a DOM element
+	ServerDOMManipulateEvent      ServerEventType = "dom:manipulate"   // When the server manipulates a DOM element
+	ServerDOMObserveInViewEvent   ServerEventType = "dom:observe-in-view"
+	ServerDOMGetViewportSizeEvent ServerEventType = "dom:get-viewport-size"
 )
 
 type ServerTrayUpdatedEventPayload struct {
@@ -281,14 +286,6 @@ type ServerWebviewSidebarEventPayload struct {
 }
 
 type ServerWebviewCloseEventPayload struct {
-	WebviewID string `json:"webviewId"`
-}
-
-type ServerWebviewShowEventPayload struct {
-	WebviewID string `json:"webviewId"`
-}
-
-type ServerWebviewHideEventPayload struct {
 	WebviewID string `json:"webviewId"`
 }
 
@@ -464,4 +461,7 @@ type ServerDOMObserveInViewEventPayload struct {
 	WithOuterHTML    bool   `json:"withOuterHTML"`
 	IdentifyChildren bool   `json:"identifyChildren"`
 	Margin           string `json:"margin"`
+}
+
+type ServerDOMGetViewportSizePayload struct {
 }

@@ -39,9 +39,7 @@ func (h *Handler) HandleGetAnimeCollection(c echo.Context) error {
 	}
 
 	go func() {
-		if h.App.Settings != nil && h.App.Settings.GetLibrary().EnableManga {
-			_, _ = h.App.RefreshMangaCollection()
-		}
+		_, _ = h.App.RefreshMangaCollection()
 	}()
 
 	return h.RespondWithData(c, animeCollection)

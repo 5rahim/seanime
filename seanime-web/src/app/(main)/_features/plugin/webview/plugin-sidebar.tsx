@@ -23,7 +23,7 @@ type WebviewSidebarItem = {
     icon: string
 }
 
-export function usePluginSidebarItems(): VerticalMenuItem[] {
+export function usePluginSidebarItems(): (VerticalMenuItem & { id: string })[] {
     const { sendWebviewSidebarMountedEvent } = usePluginSendWebviewSidebarMountedEvent()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -93,6 +93,7 @@ export function usePluginSidebarItems(): VerticalMenuItem[] {
             }
         }
         return {
+            id: item.extensionId,
             name: item.label,
             href: `/webview?id=${item.extensionId}`,
             isCurrent: pathname === `/webview` && searchParams.get("id") === item.extensionId,
@@ -105,6 +106,6 @@ export function usePluginSidebarItems(): VerticalMenuItem[] {
                     dangerouslySetInnerHTML={{ __html: svgContent }}
                 />
             ),
-        } as VerticalMenuItem
+        } as VerticalMenuItem & { id: string }
     })
 }

@@ -109,7 +109,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	e.GET("/events", h.webSocketEventHandler)
 
-	v1 := e.Group("/api").Group("/v1") // Commented out for now, will be used later
+	v1 := e.Group("/api").Group("/v1")
 
 	//
 	// Auth middleware
@@ -119,6 +119,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	imageProxy := &util.ImageProxy{}
 	v1.GET("/image-proxy", imageProxy.ProxyImage)
+
+	v1.GET("/internal/docs", h.HandleGetDocs)
 
 	v1.GET("/proxy", h.VideoProxy)
 	v1.HEAD("/proxy", h.VideoProxy)

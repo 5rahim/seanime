@@ -1,7 +1,7 @@
 "use client"
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { HibikeManga_ChapterDetails, Manga_MediaDownloadData } from "@/api/generated/types"
-import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
+import { useServerHMACAuth, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
 import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
@@ -27,7 +27,7 @@ export function isChapterAfter(a: string, b: string): boolean {
 }
 
 export function useMangaReaderUtils() {
-
+    const serverStatus = useServerStatus()
     const { getHMACTokenQueryParam, password } = useServerHMACAuth()
     const [tokenQueryParam, setTokenQueryParam] = React.useState<string>("")
 
@@ -54,7 +54,7 @@ export function useMangaReaderUtils() {
     }, [tokenQueryParam])
 
     return {
-        isReady: !password || (!!password && !!tokenQueryParam),
+        isReady: (!serverStatus?.serverHasPassword) || (!!password && !!tokenQueryParam),
         getChapterPageUrl,
     }
 

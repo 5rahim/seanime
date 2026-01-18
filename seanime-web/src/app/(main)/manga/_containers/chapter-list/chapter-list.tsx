@@ -13,14 +13,15 @@ import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { monochromeCheckboxClasses } from "@/components/shared/classnames"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { Alert } from "@/components/ui/alert"
 import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { FaRedo } from "react-icons/fa"
 import { GiOpenBook } from "react-icons/gi"
 import { IoBookOutline, IoLibrary } from "react-icons/io5"
@@ -202,7 +203,7 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Set "showUnreadChapter" state if there are unread chapters
      */
-    useUpdateEffect(() => {
+    React.useLayoutEffect(() => {
         setShowUnreadChapter(!!unreadChapters.length)
     }, [unreadChapters?.length])
 
@@ -306,6 +307,8 @@ export function ChapterList(props: ChapterListProps) {
 
     const [downloadedChapterContainer] = useAtom(manga_downloadedChapterContainerAtom)
 
+    console.log({ scanlatorOptions, languageOptions, selectedFilters })
+
     if (providerExtensionsLoading) return <LoadingSpinner />
 
     return (
@@ -351,42 +354,50 @@ export function ChapterList(props: ChapterListProps) {
                 </MangaManualMappingModal>
             </div>
 
-            {(selectedExtension?.settings?.supportsMultiLanguage || selectedExtension?.settings?.supportsMultiScanlator) && (
-                <div data-chapter-list-header-filters-container className="flex gap-2 items-center">
-                    {selectedExtension?.settings?.supportsMultiScanlator && (
-                        <>
+            <ErrorBoundary
+                fallbackRender={({ error }) => <Alert
+                    intent="alert"
+                    title="Client side error"
+                    description={`Could not load chapter filters. Please contact the extension developer: "${error}"`}
+                />}
+            >
+                {(selectedExtension?.settings?.supportsMultiLanguage || selectedExtension?.settings?.supportsMultiScanlator) && (
+                    <div data-chapter-list-header-filters-container className="flex gap-2 items-center">
+                        {selectedExtension?.settings?.supportsMultiScanlator && (
+                            <>
+                                <Select
+                                    fieldClass="w-64"
+                                    options={scanlatorOptions}
+                                    placeholder="All"
+                                    value={selectedFilters.scanlators[0] || ""}
+                                    onValueChange={v => setSelectedScanlator({
+                                        mId: mediaId,
+                                        scanlators: [v],
+                                    })}
+                                    leftAddon="Scanlator"
+                                    // intent="filled"
+                                    // size="sm"
+                                />
+                            </>
+                        )}
+                        {selectedExtension?.settings?.supportsMultiLanguage && (
                             <Select
                                 fieldClass="w-64"
-                                options={scanlatorOptions}
+                                options={languageOptions}
                                 placeholder="All"
-                                value={selectedFilters.scanlators[0] || ""}
-                                onValueChange={v => setSelectedScanlator({
+                                value={selectedFilters.language}
+                                onValueChange={v => setSelectedLanguage({
                                     mId: mediaId,
-                                    scanlators: [v],
+                                    language: v,
                                 })}
-                                leftAddon="Scanlator"
+                                leftAddon="Language"
                                 // intent="filled"
                                 // size="sm"
                             />
-                        </>
-                    )}
-                    {selectedExtension?.settings?.supportsMultiLanguage && (
-                        <Select
-                            fieldClass="w-64"
-                            options={languageOptions}
-                            placeholder="All"
-                            value={selectedFilters.language}
-                            onValueChange={v => setSelectedLanguage({
-                                mId: mediaId,
-                                language: v,
-                            })}
-                            leftAddon="Language"
-                            // intent="filled"
-                            // size="sm"
-                        />
-                    )}
-                </div>
-            )}
+                        )}
+                    </div>
+                )}
+            </ErrorBoundary>
 
             {(chapterContainerLoading || isClearingMangaCache) ? <LoadingSpinner /> : (
                 chapterContainerError ? <LuffyError title="No chapters found">
@@ -475,7 +486,7 @@ export function ChapterList(props: ChapterListProps) {
                                         }}
                                         hideColumns={[
                                             {
-                                                below: 1000,
+                                                below: 800,
                                                 hide: ["number"],
                                             },
                                             {

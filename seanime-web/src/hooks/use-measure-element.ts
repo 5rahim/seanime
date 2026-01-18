@@ -12,7 +12,7 @@ export interface ElementMeasurements {
     y: number
 }
 
-export function useMeasureElement(ref: RefObject<HTMLElement>) {
+export function useMeasureElement(ref: RefObject<HTMLElement>, deps: any[] = []) {
     const [measurements, setMeasurements] = useState<ElementMeasurements>({
         width: 0,
         height: 0,
@@ -49,7 +49,7 @@ export function useMeasureElement(ref: RefObject<HTMLElement>) {
         return () => {
             resizeObserver.disconnect()
         }
-    }, [ref])
+    }, [ref, ...deps])
 
     return measurements
 }

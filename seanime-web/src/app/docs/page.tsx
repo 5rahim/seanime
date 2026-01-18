@@ -15,7 +15,7 @@ export default function Page() {
 
     return (
         <div className="space-y-4 container py-10">
-            {data?.toSorted((a, b) => a.filename?.localeCompare(b.filename))?.map((group, i) => (
+            {data?.toSorted?.((a, b) => a.filename?.localeCompare(b.filename))?.map((group, i) => (
                 <div key={group.filename + i} className="space-y-4">
                     <h4 className=""><span>{group.filename}</span> <span className="text-gray-300">/</span>
                         <span className="text-[--muted]"> {group.filename.replace(".go", "")}.hooks.ts</span></h4>

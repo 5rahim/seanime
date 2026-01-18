@@ -217,6 +217,8 @@ type MediaEntryCardHoverPopupTitleSectionProps = {
     year?: number
     format?: string
     onClick?: () => void
+    onHover?: () => void
+    onHoverLeave?: () => void
 }
 
 export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverPopupTitleSectionProps) {
@@ -228,12 +230,19 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
         year,
         format,
         onClick,
+        onHover,
+        onHoverLeave,
         ...rest
     } = props
 
     return (
         <>
-            <div data-media-entry-card-hover-popup-title className="select-none">
+            <div
+                data-media-entry-card-hover-popup-title
+                className="select-none"
+                onMouseEnter={onHover}
+                onMouseLeave={onHoverLeave}
+            >
                 <SeaLink
                     href={!onClick ? link : undefined}
                     className="text-center text-pretty font-medium text-sm lg:text-base px-4 leading-0 line-clamp-2 hover:text-brand-100"
@@ -344,7 +353,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                 <div
                     data-media-entry-card-body
                     className={cn(
-                        "media-entry-card__body aspect-[6/8] flex-none rounded-[--radius] object-cover object-center relative overflow-hidden select-none",
+                        "media-entry-card__body aspect-[6/8] flex-none rounded-[--radius] object-cover object-center relative overflow-hidden isolate select-none",
                     )}
                 >
 
@@ -500,11 +509,14 @@ export const MediaEntryCardHoverPopupBanner = memo(({
     }, [!!trailerId, !disableAnimeCardTrailers, showTrailer])
 
     return <SeaLink tabIndex={-1} href={!onClick ? link : undefined} onClick={onClick} data-media-entry-card-hover-popup-banner-link>
-        <div data-media-entry-card-hover-popup-banner-container className="aspect-[4/2] relative rounded-[--radius] mb-2 cursor-pointer">
+        <div
+            data-media-entry-card-hover-popup-banner-container
+            className="aspect-[4/2] relative rounded-[--radius] mb-2 cursor-pointer overflow-hidden isolate"
+        >
             {(showProgressBar && progress && listStatus && progressTotal && progress !== progressTotal) &&
                 <div
                     data-media-entry-card-hover-popup-banner-progress-bar-container
-                    className="absolute rounded-[--radius] overflow-hidden top-0 w-full h-1 z-[2] bg-gray-700 left-0"
+                    className="absolute overflow-hidden top-0 w-full h-1 z-[2] bg-gray-700 left-0"
                 >
                     <div
                         data-media-entry-card-hover-popup-banner-progress-bar
@@ -525,7 +537,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                     </Tooltip>
                 </div>}
 
-            {(!!bannerImage) ? <div className="absolute object-cover top-0 object-center w-full h-full rounded-[--radius] overflow-hidden"><SeaImage
+            {(!!bannerImage) ? <div className="absolute object-cover top-0 object-center w-full h-full overflow-hidden"><SeaImage
                 data-media-entry-card-hover-popup-banner-image
                 src={getImageUrl(bannerImage || "")}
                 alt={"banner"}
@@ -534,7 +546,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                 quality={100}
                 sizes="20rem"
                 className={cn(
-                    "object-cover top-0 object-center rounded-[--radius] transition scale-[1.04] duration-200",
+                    "object-cover top-0 object-center transition scale-[1.04] duration-200",
                     "group-hover/media-entry-card:scale-100",
                     trailerLoaded && "hidden",
                 )}
@@ -545,7 +557,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
 
             {(blurAdultContent && isAdult) && <div
                 data-media-entry-card-hover-popup-banner-blur-adult-content-overlay
-                className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-[--radius]"
+                className="absolute top-0 w-full h-full backdrop-blur-xl z-[3]"
             ></div>}
 
             <div data-media-entry-card-hover-popup-banner-progress-badge-container className="absolute z-[4] left-0 bottom-0">
@@ -589,7 +601,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                 data-media-entry-card-hover-popup-banner-gradient
                 className={cn(
                     "w-full absolute -bottom-1 h-[80%] from-10% bg-gradient-to-t from-[--media-card-popup-background] to-transparent z-[2]",
-                    ts.enableMediaCardBlurredBackground && "from-[--background] from-0% bottom-0 rounded-[--radius] opacity-60",
+                    ts.enableMediaCardBlurredBackground && "from-[--background] from-0% opacity-60",
                 )}
             />}
         </div>

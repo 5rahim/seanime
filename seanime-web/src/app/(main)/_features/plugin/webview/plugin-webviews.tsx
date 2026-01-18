@@ -3,9 +3,7 @@ import {
     Plugin_Server_WebviewIframeEventPayload,
     Plugin_Server_WebviewSyncStateEventPayload,
     usePluginListenWebviewCloseEvent,
-    usePluginListenWebviewHideEvent,
     usePluginListenWebviewIframeEvent,
-    usePluginListenWebviewShowEvent,
     usePluginListenWebviewSyncStateEvent,
     usePluginSendWebviewLoadedEvent,
     usePluginSendWebviewMountedEvent,
@@ -30,6 +28,8 @@ type PluginWebviewSlotProps = {
     slot: PluginUI_WebviewSlot
 }
 
+type Position = "top-left" | "top-right" | "bottom-left" | "bottom-right"
+
 type IframeWebview = {
     webviewId: string
     extensionId: string
@@ -37,9 +37,9 @@ type IframeWebview = {
     slot: PluginUI_WebviewSlot
     token: string // unique token for message verification
     options?: PluginUI_WebviewOptions
-    visible?: boolean
     position?: { x: number; y: number }
-    size?: { width: number; height: number }
+    defaultPosition?: Position
+    preservedSize?: { width: string; height: string }
 }
 
 type MessageFromWebview = {
@@ -305,9 +305,9 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         if (wv) iframeWebviews.set(id, { ...wv, position: { x, y } })
     }, [iframeWebviews])
 
-    const handleUpdateSize = React.useCallback((id: string, width: number, height: number) => {
+    const handleUpdateSize = React.useCallback((id: string, width: string, height: string) => {
         const wv = iframeWebviews.get(id)
-        if (wv) iframeWebviews.set(id, { ...wv, size: { width, height } })
+        if (wv) iframeWebviews.set(id, { ...wv, preservedSize: { width, height } })
     }, [iframeWebviews])
 
     const handleClose = React.useCallback((id: string) => {
@@ -324,7 +324,7 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         // If the iframe is already mounted, preserve position/size if draggable/resizable
         const existingWebview = iframeWebviews.get(webviewId) as IframeWebview | undefined
         const preservedPosition = existingWebview?.position
-        const preservedSize = existingWebview?.size
+        const preservedSize = existingWebview?.preservedSize
 
         // Remove old iframe
         if (iframeWebviews.has(webviewId)) {
@@ -350,11 +350,8 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
             src: srcDoc,
             token,
             options,
-            visible: true,
-            position: preservedPosition || (options?.window?.defaultX !== undefined && options?.window?.defaultY !== undefined
-                ? { x: options?.window?.defaultX, y: options?.window?.defaultY }
-                : undefined),
-            size: preservedSize,
+            position: preservedPosition,
+            preservedSize: preservedSize,
             slot,
         } satisfies IframeWebview)
     }, [iframeWebviews])
@@ -409,22 +406,6 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         }
     }, "")
 
-    usePluginListenWebviewShowEvent((payload, extensionId) => {
-        if (!isMainTabRef) return
-        const webview = iframeWebviews.get(payload.webviewId) as IframeWebview | undefined
-        if (webview) {
-            iframeWebviews.set(webview.webviewId, { ...webview, visible: true })
-        }
-    }, "")
-
-    usePluginListenWebviewHideEvent((payload, extensionId) => {
-        if (!isMainTabRef) return
-        const webview = iframeWebviews.get(payload.webviewId) as IframeWebview | undefined
-        if (webview) {
-            iframeWebviews.set(webview.webviewId, { ...webview, visible: false })
-        }
-    }, "")
-
     // Render the iframe
     if (slot === "fixed") {
         return (
@@ -435,7 +416,6 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
                             key={webview.webviewId}
                             webview={webview}
                             onUpdatePosition={handleUpdatePosition}
-                            onUpdateSize={handleUpdateSize}
                             onClose={handleClose}
                         />
                     ))}
@@ -449,7 +429,6 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
                 key={webview.webviewId}
                 webview={webview}
                 onUpdatePosition={handleUpdatePosition}
-                onUpdateSize={handleUpdateSize}
                 onClose={handleClose}
             />
         ))}
@@ -459,25 +438,76 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
 type WebviewIframeProps = {
     webview: IframeWebview
     onUpdatePosition: (id: string, x: number, y: number) => void
-    onUpdateSize: (id: string, width: number, height: number) => void
     onClose: (id: string) => void
 }
 
-function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: WebviewIframeProps) {
+function WebviewIframe({ webview, onUpdatePosition, onClose }: WebviewIframeProps) {
     const { sendWebviewLoadedEvent } = usePluginSendWebviewLoadedEvent()
+    const options = webview.options || {}
 
     const iframeRef = React.useRef<HTMLIFrameElement>(null)
     const [isDragging, setIsDragging] = React.useState(false)
-    // const [isResizing, setIsResizing] = React.useState(false)
     const dragStartPos = React.useRef({ x: 0, y: 0, elemX: 0, elemY: 0 })
-    // const resizeStartPos = React.useRef({ x: 0, y: 0, width: 0, height: 0 })
 
-    const options = webview.options || {}
-    const position = webview.position || { x: options?.window?.defaultX || 0, y: options?.window?.defaultY || 0 }
-    const size = webview.size
+    const viewportPaddingRef = React.useRef({ paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 80 })
+
+    function getXPosition(x: number) {
+        return Math.max(viewportPaddingRef.current.paddingLeft,
+            Math.min(x, window.innerWidth - (iframeRef.current?.offsetWidth || 0) - viewportPaddingRef.current.paddingRight))
+    }
+
+    function getYPosition(y: number) {
+        return Math.max(viewportPaddingRef.current.paddingTop,
+            Math.min(y, window.innerHeight - (iframeRef.current?.offsetHeight || 0) - viewportPaddingRef.current.paddingBottom))
+    }
+
+    const defaultPosition = React.useMemo(() => {
+        let defaultX = getXPosition(options?.window?.defaultX || 0)
+        let defaultY = getYPosition(options?.window?.defaultY || 0)
+        if (options?.window?.defaultPosition && window) {
+            const padding = 10
+            const vpWidth = window.innerWidth
+            const vpHeight = window.innerHeight
+            switch (options.window.defaultPosition) {
+                case "top-left":
+                    defaultX = padding
+                    defaultY = padding
+                    break
+                case "top-right":
+                    defaultX = vpWidth - (iframeRef.current?.offsetWidth || 0) - padding
+                    defaultY = padding
+                    break
+                case "bottom-left":
+                    defaultX = padding
+                    defaultY = vpHeight - (iframeRef.current?.offsetHeight || 0) - padding
+                    break
+                case "bottom-right":
+                    defaultX = vpWidth - (iframeRef.current?.offsetWidth || 0) - padding
+                    defaultY = vpHeight - (iframeRef.current?.offsetHeight || 0) - padding
+                    break
+            }
+        }
+        return { x: defaultX, y: defaultY }
+    }, [iframeRef.current])
+
+
+    const position = webview.position || defaultPosition
+    // const size = webview.preservedSize
+
+    const customStyle = React.useMemo(() => {
+        return options.style?.split(";")?.reduce((acc, rule) => {
+            const [key, value] = rule.split(":").map(s => s.trim())
+            if (key && value) {
+                // Convert kebab-case to camelCase
+                const camelKey = key.replace(/-([a-z])/g, g => g[1].toUpperCase())
+                ;(acc as any)[camelKey] = value
+            }
+            return acc
+        }, {} as React.CSSProperties)
+    }, [options.style])
 
     // Build inline styles
-    const buildStyles = (): React.CSSProperties => {
+    const buildStyles = React.useMemo((): React.CSSProperties => {
         const styles: React.CSSProperties = {
             position: webview.slot === "fixed" ? "fixed" : "relative",
             border: "none",
@@ -485,17 +515,23 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
             background: "transparent",
         }
 
+        if (webview.slot === "fixed" && !webview.options?.window?.frameless) {
+            styles.overflow = "hidden"
+            styles.borderRadius = "1rem"
+            styles.borderColor = "var(--border)"
+            styles.borderStyle = "solid"
+            styles.borderWidth = "1px"
+            styles.backgroundColor = "var(--background)"
+            styles.boxShadow = "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)"
+        }
+
         if (options.fullWidth) {
             styles.width = "100%"
-        } else if (size?.width) {
-            styles.width = `${size.width}px`
         } else if (options.width) {
             styles.width = options.width
         }
 
-        if (size?.height) {
-            styles.height = `${size.height}px`
-        } else if (options.height) {
+        if (options.height) {
             styles.height = options.height
         } else if (options.autoHeight) {
             styles.height = "auto"
@@ -515,21 +551,12 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
         }
 
         // Parse custom style string
-        if (options.style) {
-            const customStyles = options.style.split(";").reduce((acc, rule) => {
-                const [key, value] = rule.split(":").map(s => s.trim())
-                if (key && value) {
-                    // Convert kebab-case to camelCase
-                    const camelKey = key.replace(/-([a-z])/g, g => g[1].toUpperCase())
-                    ;(acc as any)[camelKey] = value
-                }
-                return acc
-            }, {} as React.CSSProperties)
-            Object.assign(styles, customStyles)
+        if (customStyle) {
+            Object.assign(styles, customStyle)
         }
 
         return styles
-    }
+    }, [webview.slot, options, position, customStyle])
 
     // Dragging logic
     const handleMouseDown = React.useCallback((e: React.MouseEvent) => {
@@ -551,19 +578,8 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
             const deltaX = e.clientX - dragStartPos.current.x
             const deltaY = e.clientY - dragStartPos.current.y
 
-            let newX = dragStartPos.current.elemX + deltaX
-            let newY = dragStartPos.current.elemY + deltaY
-
-            // Get iframe dimensions
-            const iframe = iframeRef.current
-            if (iframe) {
-                const width = iframe.offsetWidth
-                const height = iframe.offsetHeight
-
-                // Constrain to viewport bounds
-                newX = Math.max(0, Math.min(newX, window.innerWidth - width))
-                newY = Math.max(0, Math.min(newY, window.innerHeight - height))
-            }
+            let newX = getXPosition(dragStartPos.current.elemX + deltaX)
+            let newY = getYPosition(dragStartPos.current.elemY + deltaY)
 
             onUpdatePosition(webview.webviewId, newX, newY)
         }
@@ -579,59 +595,18 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
         }
     }, [isDragging, onUpdatePosition, webview.webviewId])
 
-    // // Resizing logic
-    // const handleResizeMouseDown = React.useCallback((e: React.MouseEvent) => {
-    //     if (!options.resizable) return
-    //     e.preventDefault()
-    //     e.stopPropagation()
-    //     setIsResizing(true)
-    //     const currentWidth = iframeRef.current?.offsetWidth || 400
-    //     const currentHeight = iframeRef.current?.offsetHeight || 300
-    //     resizeStartPos.current = {
-    //         x: e.clientX,
-    //         y: e.clientY,
-    //         width: currentWidth,
-    //         height: currentHeight,
-    //     }
-    // }, [options.resizable])
-
-    // React.useEffect(() => {
-    //     if (!isResizing) return
-    //
-    //     const handleMouseMove = (e: MouseEvent) => {
-    //         const deltaX = e.clientX - resizeStartPos.current.x
-    //         const deltaY = e.clientY - resizeStartPos.current.y
-    //         onUpdateSize(
-    //             Math.max(200, resizeStartPos.current.width + deltaX),
-    //             Math.max(100, resizeStartPos.current.height + deltaY),
-    //         )
-    //     }
-    //
-    //     const handleMouseUp = () => setIsResizing(false)
-    //
-    //     document.addEventListener("mousemove", handleMouseMove)
-    //     document.addEventListener("mouseup", handleMouseUp)
-    //
-    //     return () => {
-    //         document.removeEventListener("mousemove", handleMouseMove)
-    //         document.removeEventListener("mouseup", handleMouseUp)
-    //     }
-    // }, [isResizing, onUpdateSize])
-
     // Tell the plugin that the webview is loaded
     const handleIframeLoaded = () => {
         log.info("Loaded iframe webview", webview.webviewId)
         sendWebviewLoadedEvent({ slot: webview.slot }, webview.extensionId)
-        iframeRef?.current?.contentDocument?.body?.setAttribute("style", "background: transparent !important;")
     }
 
-    const { width: dragHandleWidth } = useMeasureElement(iframeRef)
+    const { width: iframeWidth } = useMeasureElement(iframeRef, [webview.options?.hidden])
 
-    if (!webview.visible) return null
+    if (webview.options?.hidden) return null
 
     return (
         <div
-            className={options.className}
             data-webview-container={webview.webviewId}
             style={{
                 ...(webview.slot === "fixed" ? {
@@ -649,44 +624,23 @@ function WebviewIframe({ webview, onUpdatePosition, onUpdateSize, onClose }: Web
             {!!options?.window?.draggable && webview.slot === "fixed" && <div
                 data-plugin-webview-el="drag-handle"
                 onMouseDown={handleMouseDown}
-                className="absolute top-0 left-0 right-0 h-8 cursor-move bg-gradient-to-b from-black/20 to-transparent z-[9999]"
-                style={{ pointerEvents: "auto", width: dragHandleWidth }}
+                className="absolute top-0 left-0 right-0 h-8 cursor-move z-[9999]" // bg-gradient-to-b from-black/20 to-transparent
+                style={{ pointerEvents: "auto", width: iframeWidth }}
             />}
-
-            {/*{options.closable && (*/}
-            {/*    <button*/}
-            {/*        onClick={onClose}*/}
-            {/*        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white z-[2] flex items-center justify-center text-xs"*/}
-            {/*        style={{ pointerEvents: "auto" }}*/}
-            {/*    >*/}
-            {/*        ✕*/}
-            {/*    </button>*/}
-            {/*)}*/}
 
             <iframe
                 ref={iframeRef}
                 id={`webview-${webview.webviewId}`}
                 srcDoc={webview.src}
                 sandbox="allow-scripts allow-forms"
-                style={buildStyles()}
+                style={buildStyles}
                 onLoad={handleIframeLoaded}
                 className={cn(
                     // (isResizing) && "pointer-events-none",
                     (isDragging) && "pointer-events-none",
+                    options.className,
                 )}
             />
-
-            {/*/!* Resize handle *!/*/}
-            {/*{options.resizable && (*/}
-            {/*    <div*/}
-            {/*        onMouseDown={handleResizeMouseDown}*/}
-            {/*        className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-[1]"*/}
-            {/*        style={{*/}
-            {/*            pointerEvents: "auto",*/}
-            {/*            background: "linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.3) 50%)",*/}
-            {/*        }}*/}
-            {/*    />*/}
-            {/*)}*/}
         </div>
     )
 }

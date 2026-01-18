@@ -38,7 +38,6 @@ import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { BiChevronRight, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
 import { FiLogIn, FiSearch } from "react-icons/fi"
-import { GrTest } from "react-icons/gr"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoHomeOutline } from "react-icons/io5"
 import { LuBookOpen, LuCalendar, LuCompass, LuRefreshCw, LuRss, LuSettings } from "react-icons/lu"
@@ -63,7 +62,6 @@ export function MainSidebar() {
 
     const [expandedSidebar, setExpandSidebar] = React.useState(false)
     const [dropdownOpen, setDropdownOpen] = React.useState(false)
-    // const isCollapsed = !ctx.isBelowBreakpoint && !expandedSidebar
     const isCollapsed = ts.expandSidebarOnHover ? (!ctx.isBelowBreakpoint && !expandedSidebar) : !ctx.isBelowBreakpoint
 
     const router = useRouter()
@@ -139,13 +137,13 @@ export function MainSidebar() {
             href: "/",
             isCurrent: pathname === "/",
         },
-        ...(process.env.NODE_ENV === "development" ? [{
-            id: "test",
-            iconType: GrTest,
-            name: "Test",
-            href: "/test",
-            isCurrent: pathname === "/test",
-        }] : []),
+        // ...(process.env.NODE_ENV === "development" ? [{
+        //     id: "test",
+        //     iconType: GrTest,
+        //     name: "Test",
+        //     href: "/test",
+        //     isCurrent: pathname === "/test",
+        // }] : []),
         {
             id: "schedule",
             iconType: LuCalendar,
@@ -232,31 +230,80 @@ export function MainSidebar() {
         },
     ]
 
-    const pinnedMenuItems = React.useMemo(() => {
+    const containerRef = React.useRef<HTMLDivElement>(null)
+    const [autoUnpinnedIds, setAutoUnpinnedIds] = React.useState<string[]>([])
+    const pluginWebviewItems = usePluginSidebarItems()
+
+    React.useLayoutEffect(() => {
+        const handleResize = () => setAutoUnpinnedIds([])
+        window.addEventListener("resize", handleResize)
+        return () => window.removeEventListener("resize", handleResize)
+    }, [])
+
+    const allPinnedItems = React.useMemo(() => {
         return items.filter(item => !ts.unpinnedMenuItems?.includes(item.id))
     }, [items, ts.unpinnedMenuItems])
 
+    const displayedPinnedItems = React.useMemo(() => {
+        return allPinnedItems.filter(item => !autoUnpinnedIds.includes(item.id))
+    }, [allPinnedItems, autoUnpinnedIds])
+
+    const displayedPluginItems = React.useMemo(() => {
+        return pluginWebviewItems.filter((item: any) => !autoUnpinnedIds.includes(item.id))
+    }, [pluginWebviewItems, autoUnpinnedIds])
+
+
+    React.useLayoutEffect(() => {
+        if (!containerRef.current) return
+
+        const { scrollHeight, clientHeight } = containerRef.current
+        if (scrollHeight > clientHeight + 2) {
+
+            if (displayedPluginItems.length > 0) {
+                const lastPlugin = displayedPluginItems[displayedPluginItems.length - 1] as any
+                if (lastPlugin?.id) {
+                    setAutoUnpinnedIds(prev => [...prev, lastPlugin.id])
+                    return
+                }
+            }
+
+            if (displayedPinnedItems.length > 1) {
+                const lastItem = displayedPinnedItems[displayedPinnedItems.length - 1]
+                setAutoUnpinnedIds(prev => [...prev, lastItem.id])
+            }
+        }
+    }, [displayedPinnedItems, displayedPluginItems, activeTorrentCount, updateData, pluginWithIssuesCount, pathname])
+
+
     const unpinnedMenuItems = React.useMemo(() => {
-        if (ts.unpinnedMenuItems?.length === 0 || items.length === 0) return []
+        const manuallyUnpinned = items.filter(item => ts.unpinnedMenuItems?.includes(item.id))
+        const forcedUnpinned = items.filter(item => autoUnpinnedIds.includes(item.id))
+        const forcedUnpinnedPlugins = pluginWebviewItems.filter(item => autoUnpinnedIds.includes(item.id))
+
+        const allHidden = [...manuallyUnpinned, ...forcedUnpinnedPlugins, ...forcedUnpinned]
+
+        if (allHidden.length === 0) return []
+
         return [
             {
                 iconType: BiChevronRight,
                 name: "More",
                 subContent: <VerticalMenu
-                    items={items.filter(item => ts.unpinnedMenuItems?.includes(item.id))}
+                    items={allHidden}
                     isSidebar
                 />,
             } as VerticalMenuItem,
         ]
-    }, [items, ts.unpinnedMenuItems, ts.hideTopNavbar])
-
-    const pluginWebviewItems = usePluginSidebarItems()
+    }, [items, ts.unpinnedMenuItems, ts.hideTopNavbar, autoUnpinnedIds, pluginWebviewItems])
 
     return (
         <>
             <AppSidebar
+                ref={containerRef}
                 className={cn(
                     "group/main-sidebar h-full flex flex-col justify-between transition-gpu w-full transition-[width] duration-300 overflow-x-hidden",
+                    // Enable scrolling but hide the scrollbar
+                    "overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']",
                     (!ctx.isBelowBreakpoint && expandedSidebar) && "w-[260px]",
                     (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency) && "bg-transparent",
                     (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency && ts.expandSidebarOnHover && expandedSidebar) && "bg-[--background] rounded-tr-xl rounded-br-xl border-[--border]",
@@ -291,8 +338,8 @@ export function MainSidebar() {
                         itemChevronClass="hidden"
                         itemIconClass="transition-transform group-data-[state=open]/verticalMenu_parentItem:rotate-90"
                         items={[
-                            ...pinnedMenuItems,
-                            ...pluginWebviewItems,
+                            ...displayedPinnedItems,
+                            ...displayedPluginItems,
                             ...unpinnedMenuItems,
                             {
                                 iconType: LuRefreshCw,
@@ -342,7 +389,7 @@ export function MainSidebar() {
                     <PluginSidebarTray place="sidebar" />
 
                 </div>
-                <div className="flex w-full gap-2 flex-col px-4">
+                <div className="flex w-full gap-2 flex-col px-4 shrink-0 pb-2">
                     {!__isDesktop__ ? <UpdateModal collapsed={isCollapsed} /> :
                         __isTauriDesktop__ ? <TauriUpdateModal collapsed={isCollapsed} /> :
                             __isElectronDesktop__ ? <ElectronUpdateModal collapsed={isCollapsed} /> :

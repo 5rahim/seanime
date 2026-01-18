@@ -40,6 +40,7 @@ export enum PluginClientEvents {
     DOMEventTriggered = "dom:event-triggered",
     DOMReady = "dom:ready",
     DOMMainTabReady = "dom:main-tab-ready",
+    DOMViewportSize = "dom:viewport-size",
 }
 
 export enum PluginServerEvents {
@@ -53,8 +54,6 @@ export enum PluginServerEvents {
     WebviewSidebar = "webview:sidebar",
     WebviewSyncState = "webview:sync-state",
     WebviewClose = "webview:close",
-    WebviewShow = "webview:show",
-    WebviewHide = "webview:hide",
     CommandPaletteInfo = "command-palette:info",
     CommandPaletteUpdated = "command-palette:updated",
     CommandPaletteOpen = "command-palette:open",
@@ -82,6 +81,7 @@ export enum PluginServerEvents {
     DOMCreate = "dom:create",
     DOMManipulate = "dom:manipulate",
     DOMObserveInView = "dom:observe-in-view",
+    DOMGetViewportSize = "dom:get-viewport-size",
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -675,6 +675,23 @@ export function usePluginSendDOMMainTabReadyEvent() {
     }
 }
 
+export type Plugin_Client_DOMViewportSizeEventPayload = {
+    width: number
+    height: number
+}
+
+export function usePluginSendDOMViewportSizeEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendDOMViewportSizeEvent = useCallback((payload: Plugin_Client_DOMViewportSizeEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.DOMViewportSize, payload, extensionID)
+    }, [])
+
+    return {
+        sendDOMViewportSizeEvent,
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Server to client
 /////////////////////////////////////////////////////////////////////////////////////
@@ -823,34 +840,6 @@ export function usePluginListenWebviewCloseEvent(cb: (payload: Plugin_Server_Web
     return useWebsocketPluginMessageListener<Plugin_Server_WebviewCloseEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.WebviewClose,
-        onMessage: cb,
-    })
-}
-
-export type Plugin_Server_WebviewShowEventPayload = {
-    webviewId: string
-}
-
-export function usePluginListenWebviewShowEvent(cb: (payload: Plugin_Server_WebviewShowEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
-    return useWebsocketPluginMessageListener<Plugin_Server_WebviewShowEventPayload>({
-        extensionId: extensionID,
-        type: PluginServerEvents.WebviewShow,
-        onMessage: cb,
-    })
-}
-
-export type Plugin_Server_WebviewHideEventPayload = {
-    webviewId: string
-}
-
-export function usePluginListenWebviewHideEvent(cb: (payload: Plugin_Server_WebviewHideEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
-    return useWebsocketPluginMessageListener<Plugin_Server_WebviewHideEventPayload>({
-        extensionId: extensionID,
-        type: PluginServerEvents.WebviewHide,
         onMessage: cb,
     })
 }
@@ -1196,6 +1185,18 @@ export function usePluginListenDOMObserveInViewEvent(cb: (payload: Plugin_Server
     return useWebsocketPluginMessageListener<Plugin_Server_DOMObserveInViewEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.DOMObserveInView,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_DOMGetViewportSizeEventPayload = {}
+
+export function usePluginListenDOMGetViewportSizeEvent(cb: (payload: Plugin_Server_DOMGetViewportSizeEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_DOMGetViewportSizeEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.DOMGetViewportSize,
         onMessage: cb,
     })
 }

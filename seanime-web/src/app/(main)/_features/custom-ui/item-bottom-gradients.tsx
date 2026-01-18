@@ -15,7 +15,7 @@ export function MediaCardBodyBottomGradient() {
         return (
             <div
                 data-media-card-body-bottom-gradient
-                className="z-[5] absolute inset-x-0 bottom-0 w-full h-[40%] opacity-80 bg-gradient-to-t from-[#0c0c0c] to-transparent"
+                className="z-[5] absolute inset-x-0 -bottom-1 w-full h-[40%] opacity-80 bg-gradient-to-t from-[#0c0c0c] to-transparent"
             />
         )
     }
@@ -23,7 +23,7 @@ export function MediaCardBodyBottomGradient() {
     return (
         <div
             data-media-card-body-bottom-gradient
-            className="z-[5] absolute inset-x-0 bottom-0 w-full opacity-90 to-40% h-[50%] bg-gradient-to-t from-[#0c0c0c] to-transparent"
+            className="z-[5] absolute inset-x-0 -bottom-1 w-full opacity-90 to-40% h-[50%] bg-gradient-to-t from-[#0c0c0c] to-transparent"
         />
     )
 }

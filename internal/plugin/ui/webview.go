@@ -2,11 +2,13 @@ package plugin_ui
 
 import (
 	"seanime/internal/util/result"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/dop251/goja"
+	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 )
 
@@ -60,66 +62,66 @@ func NewWebviewManager(ctx *Context) *WebviewManager {
 	}
 }
 
-// renderWebviewScheduled renders the new component tree of the webview at the given slot.
-// This function is unsafe because it is not thread-safe and should be scheduled.
-func (t *WebviewManager) renderWebviewScheduled(slots ...WebviewSlot) {
-	t.updateMutex.Lock()
-	defer t.updateMutex.Unlock()
+//// renderWebviewScheduled renders the new component tree of the webview at the given slot.
+//// This function is unsafe because it is not thread-safe and should be scheduled.
+//func (t *WebviewManager) renderWebviewScheduled(slots ...WebviewSlot) {
+//	t.updateMutex.Lock()
+//	defer t.updateMutex.Unlock()
+//
+//	shouldMount := false
+//
+//	// renderWebviewScheduled can be called without slots (when states are updated)
+//	if len(slots) == 0 {
+//		slots = WebviewSlots
+//	} else {
+//		// Set the webview as mounted if renderWebviewScheduled has been called WITH a slot
+//		shouldMount = true
+//	}
+//
+//	for _, slot := range slots {
+//		webview, ok := t.webviews.Get(slot)
+//		if !ok {
+//			continue
+//		}
+//
+//		if webview.renderFunc == nil {
+//			continue
+//		}
+//
+//		// Make sure it's mounted
+//		if shouldMount && !webview.mounted.Load() {
+//			webview.mounted.Store(true)
+//		}
+//
+//		// Ignore if it's not mounted
+//		// renderWebviewScheduled can be called without slots, in this case it will render already mounted webviews
+//		if !webview.mounted.Load() {
+//			continue
+//		}
+//
+//		webview.lastUpdatedAt = time.Now()
+//
+//		t.ctx.scheduler.ScheduleAsync(func() error {
+//			newComponents, err := t.componentManager.renderComponents(webview.renderFunc)
+//			if err != nil {
+//				t.ctx.logger.Error().Err(err).Msg("plugin: Failed to render webview")
+//				t.ctx.handleException(err)
+//				return nil
+//			}
+//
+//			// t.ctx.logger.Trace().Msg("plugin: Sending webview update to client")
+//			// Send the JSON value to the client
+//			t.ctx.SendEventToClient(ServerWebviewUpdatedEvent, ServerWebviewUpdatedEventPayload{
+//				Slot:       string(slot),
+//				Components: newComponents,
+//			})
+//			return nil
+//		})
+//	}
+//}
 
-	shouldMount := false
-
-	// renderWebviewScheduled can be called without slots (when states are updated)
-	if len(slots) == 0 {
-		slots = WebviewSlots
-	} else {
-		// Set the webview as mounted if renderWebviewScheduled has been called WITH a slot
-		shouldMount = true
-	}
-
-	for _, slot := range slots {
-		webview, ok := t.webviews.Get(slot)
-		if !ok {
-			continue
-		}
-
-		if webview.renderFunc == nil {
-			continue
-		}
-
-		// Make sure it's mounted
-		if shouldMount && !webview.mounted.Load() {
-			webview.mounted.Store(true)
-		}
-
-		// Ignore if it's not mounted
-		// renderWebviewScheduled can be called without slots, in this case it will render already mounted webviews
-		if !webview.mounted.Load() {
-			continue
-		}
-
-		webview.lastUpdatedAt = time.Now()
-
-		t.ctx.scheduler.ScheduleAsync(func() error {
-			newComponents, err := t.componentManager.renderComponents(webview.renderFunc)
-			if err != nil {
-				t.ctx.logger.Error().Err(err).Msg("plugin: Failed to render webview")
-				t.ctx.handleException(err)
-				return nil
-			}
-
-			// t.ctx.logger.Trace().Msg("plugin: Sending webview update to client")
-			// Send the JSON value to the client
-			t.ctx.SendEventToClient(ServerWebviewUpdatedEvent, ServerWebviewUpdatedEventPayload{
-				Slot:       string(slot),
-				Components: newComponents,
-			})
-			return nil
-		})
-	}
-}
-
-// renderWebviewIframeScheduled
-func (t *WebviewManager) renderWebviewIframeScheduled(slots ...WebviewSlot) {
+// renderWebviewIframe
+func (t *WebviewManager) renderWebviewIframe(slots ...WebviewSlot) {
 	t.updateMutex.Lock()
 	defer t.updateMutex.Unlock()
 
@@ -212,6 +214,8 @@ type WebviewOptions struct {
 	FullWidth  bool `json:"fullWidth,omitempty"`
 
 	Sidebar WebviewSidebarOptions `json:"sidebar,omitempty"`
+
+	Hidden bool `json:"hidden,omitempty"`
 }
 
 type WebviewWindowOptions struct {
@@ -219,8 +223,10 @@ type WebviewWindowOptions struct {
 	Draggable bool `json:"draggable,omitempty"`
 	//Resizable bool `json:"resizable,omitempty"`
 	//Closable  bool `json:"closable,omitempty"`
-	DefaultX int `json:"defaultX,omitempty"`
-	DefaultY int `json:"defaultY,omitempty"`
+	DefaultX        int    `json:"defaultX,omitempty"`
+	DefaultY        int    `json:"defaultY,omitempty"`
+	Frameless       bool   `json:"frameless,omitempty"`
+	DefaultPosition string `json:"defaultPosition,omitempty"`
 }
 
 type WebviewSidebarOptions struct {
@@ -294,6 +300,12 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 				if windowObj["draggable"] != nil {
 					webview.options.Window.Draggable, _ = windowObj["draggable"].(bool)
 				}
+				if windowObj["frameless"] != nil {
+					webview.options.Window.Frameless, _ = windowObj["frameless"].(bool)
+				}
+				if windowObj["defaultPosition"] != nil {
+					webview.options.Window.DefaultPosition, _ = windowObj["defaultPosition"].(string)
+				}
 				//if windowObj["resizable"] != nil {
 				//	webview.options.Resizable, _ = windowObj["resizable"].(bool)
 				//}
@@ -335,6 +347,9 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 		if propsObj["fullWidth"] != nil {
 			webview.options.FullWidth, _ = propsObj["fullWidth"].(bool)
 		}
+		if propsObj["hidden"] != nil {
+			webview.options.Hidden, _ = propsObj["hidden"].(bool)
+		}
 	}
 
 	if webview.Slot == "" {
@@ -356,6 +371,8 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 	_ = webviewObj.Set("onLoad", webview.jsOnLoad)
 	_ = webviewObj.Set("onUnmount", webview.jsOnUnmount)
 	_ = webviewObj.Set("getScreenPath", webview.jsGetScreenPath)
+	_ = webviewObj.Set("isHidden", webview.jsIsHidden)
+	//_ = webviewObj.Set("setPosition", webview.jsSetPosition)
 
 	// Create a new webview object
 	channelObj := t.ctx.vm.NewObject()
@@ -405,11 +422,7 @@ func (t *WebviewManager) jsNewWebview(call goja.FunctionCall) goja.Value {
 		var payload ClientWebviewMountedEventPayload
 		if event.ParsePayloadAs(ClientWebviewMountedEvent, &payload) && payload.Slot == string(webview.Slot) {
 			webview.mounted.Store(true)
-			t.ctx.scheduler.ScheduleAsync(func() error {
-				// Return the webview object to the client
-				t.renderWebviewIframeScheduled(webview.Slot)
-				return nil
-			})
+			t.renderWebviewIframe(webview.Slot)
 		}
 	})
 	// Listen to mount events in order to return the webview object
@@ -496,8 +509,8 @@ func (w *Webview) jsUpdate(_ goja.FunctionCall) goja.Value {
 	w.webviewManager.ctx.lastUIUpdateAt = time.Now()
 	w.webviewManager.ctx.uiUpdateMu.Unlock()
 
-	w.webviewManager.renderWebviewScheduled(w.Slot)
-	w.webviewManager.renderWebviewIframeScheduled(w.Slot)
+	//w.webviewManager.renderWebviewScheduled(w.Slot)
+	w.webviewManager.renderWebviewIframe(w.Slot)
 	return goja.Undefined()
 }
 
@@ -548,6 +561,12 @@ func (w *Webview) jsSetOptions(call goja.FunctionCall) goja.Value {
 			if windowObj["draggable"] != nil {
 				w.options.Window.Draggable, _ = windowObj["draggable"].(bool)
 			}
+			if windowObj["frameless"] != nil {
+				w.options.Window.Frameless, _ = windowObj["frameless"].(bool)
+			}
+			if windowObj["defaultPosition"] != nil {
+				w.options.Window.DefaultPosition, _ = windowObj["defaultPosition"].(string)
+			}
 			if windowObj["defaultX"] != nil {
 				if x, ok := windowObj["defaultX"].(int64); ok {
 					w.options.Window.DefaultX = int(x)
@@ -570,9 +589,12 @@ func (w *Webview) jsSetOptions(call goja.FunctionCall) goja.Value {
 	if propsObj["fullWidth"] != nil {
 		w.options.FullWidth, _ = propsObj["fullWidth"].(bool)
 	}
+	if propsObj["hidden"] != nil {
+		w.options.Hidden, _ = propsObj["hidden"].(bool)
+	}
 
 	// Send update to client
-	w.webviewManager.renderWebviewIframeScheduled(w.Slot)
+	w.webviewManager.renderWebviewIframe(w.Slot)
 	return goja.Undefined()
 }
 
@@ -592,9 +614,8 @@ func (w *Webview) jsClose(_ goja.FunctionCall) goja.Value {
 //	Example:
 //	webview.show()
 func (w *Webview) jsShow(_ goja.FunctionCall) goja.Value {
-	w.webviewManager.ctx.SendEventToClient(ServerWebviewShowEvent, ServerWebviewShowEventPayload{
-		WebviewID: w.GetID(),
-	})
+	w.options.Hidden = false
+	w.webviewManager.renderWebviewIframe(w.Slot)
 	return goja.Undefined()
 }
 
@@ -603,10 +624,17 @@ func (w *Webview) jsShow(_ goja.FunctionCall) goja.Value {
 //	Example:
 //	webview.hide()
 func (w *Webview) jsHide(_ goja.FunctionCall) goja.Value {
-	w.webviewManager.ctx.SendEventToClient(ServerWebviewHideEvent, ServerWebviewHideEventPayload{
-		WebviewID: w.GetID(),
-	})
+	w.options.Hidden = true
+	w.webviewManager.renderWebviewIframe(w.Slot)
 	return goja.Undefined()
+}
+
+// jsIsHidden returns whether the webview is hidden
+//
+//	Example:
+//	webview.isHidden()
+func (w *Webview) jsIsHidden(_ goja.FunctionCall) goja.Value {
+	return w.webviewManager.ctx.vm.ToValue(w.options.Hidden)
 }
 
 // jsOnMount is called when the webview is mounted and before it is loaded
@@ -859,6 +887,18 @@ func (c *WebviewChannel) jsSend(call goja.FunctionCall) goja.Value {
 // sendStateToWebview sends a state value to the webview iframe
 func (c *WebviewChannel) sendStateToWebview(key string, value interface{}) {
 	webviewId := c.webview.GetID()
+
+	// Security: Iframe won't receive anilist token
+	if str, ok := value.(string); ok {
+		strings.ReplaceAll(str, c.webview.webviewManager.ctx.anilistToken, "[TOKEN]")
+	} else {
+		encoded, err := json.Marshal(value)
+		if err == nil {
+			if strings.Contains(string(encoded), c.webview.webviewManager.ctx.anilistToken) {
+				return
+			}
+		}
+	}
 
 	// Get the token from the iframe (we'll need to update the iframe creation to store this)
 	// For now, we'll send it without token verification on the receive side

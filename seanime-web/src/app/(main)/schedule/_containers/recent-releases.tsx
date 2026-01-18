@@ -32,6 +32,7 @@ export function RecentReleases() {
                 gap="md"
                 opts={{
                     align: "start",
+                    dragFree: true,
                 }}
                 carouselButtonContainerClass="top-[-3.5rem]"
                 autoScroll

@@ -41752,6 +41752,15 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "anilistToken",
+        "jsonName": "anilistToken",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -72066,6 +72075,15 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "anilistToken",
+        "jsonName": "anilistToken",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -72451,7 +72469,8 @@
         "\"dom:element-updated\"",
         "\"dom:event-triggered\"",
         "\"dom:ready\"",
-        "\"dom:main-tab-ready\""
+        "\"dom:main-tab-ready\"",
+        "\"dom:viewport-size\""
       ]
     },
     "comments": []
@@ -73157,6 +73176,34 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
+    "name": "ClientDOMViewportSizeEventPayload",
+    "formattedName": "PluginUI_ClientDOMViewportSizeEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Width",
+        "jsonName": "width",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Height",
+        "jsonName": "height",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
     "name": "ServerEventType",
     "formattedName": "PluginUI_ServerEventType",
     "package": "plugin_ui",
@@ -73175,8 +73222,6 @@
         "\"webview:sidebar\"",
         "\"webview:sync-state\"",
         "\"webview:close\"",
-        "\"webview:show\"",
-        "\"webview:hide\"",
         "\"command-palette:info\"",
         "\"command-palette:updated\"",
         "\"command-palette:open\"",
@@ -73203,7 +73248,8 @@
         "\"dom:stop-observe\"",
         "\"dom:create\"",
         "\"dom:manipulate\"",
-        "\"dom:observe-in-view\""
+        "\"dom:observe-in-view\"",
+        "\"dom:get-viewport-size\""
       ]
     },
     "comments": []
@@ -73571,44 +73617,6 @@
     "filename": "events.go",
     "name": "ServerWebviewCloseEventPayload",
     "formattedName": "PluginUI_ServerWebviewCloseEventPayload",
-    "package": "plugin_ui",
-    "fields": [
-      {
-        "name": "WebviewID",
-        "jsonName": "webviewId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/events.go",
-    "filename": "events.go",
-    "name": "ServerWebviewShowEventPayload",
-    "formattedName": "PluginUI_ServerWebviewShowEventPayload",
-    "package": "plugin_ui",
-    "fields": [
-      {
-        "name": "WebviewID",
-        "jsonName": "webviewId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/events.go",
-    "filename": "events.go",
-    "name": "ServerWebviewHideEventPayload",
-    "formattedName": "PluginUI_ServerWebviewHideEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -74359,6 +74367,15 @@
         "comments": []
       }
     ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerDOMGetViewportSizePayload",
+    "formattedName": "PluginUI_ServerDOMGetViewportSizePayload",
+    "package": "plugin_ui",
+    "fields": [],
     "comments": []
   },
   {
@@ -75439,6 +75456,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Hidden",
+        "jsonName": "hidden",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -75473,6 +75499,24 @@
         "jsonName": "defaultY",
         "goType": "int",
         "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Frameless",
+        "jsonName": "frameless",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DefaultPosition",
+        "jsonName": "defaultPosition",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []

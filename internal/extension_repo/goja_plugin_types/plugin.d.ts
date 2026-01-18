@@ -207,6 +207,32 @@ declare namespace $ui {
         noCloudflareBypass?: boolean
         /** Timeout in seconds, defaults to 35 */
         timeout?: number
+        /** AbortSignal to cancel the request */
+        signal?: AbortSignal
+    }
+
+    /**
+     * AbortContext provides a way to abort certain tasks
+     */
+    class AbortContext {
+        /** The signal object associated with this context */
+        readonly signal: AbortSignal
+
+        /**
+         * Aborts the associated task
+         * @param reason - Optional reason for aborting
+         */
+        abort(reason?: string): void
+    }
+
+    /**
+     * AbortSignal represents a signal that can be used to abort requests
+     */
+    interface AbortSignal {
+        /** Whether the signal has been aborted */
+        readonly aborted: boolean
+        /** The reason for aborting, if any */
+        readonly reason: string
     }
 
     interface FetchResponse {
@@ -354,9 +380,10 @@ declare namespace $ui {
          */
         window?: {
             draggable?: boolean
-            resizable?: boolean
             defaultX?: number
             defaultY?: number
+            defaultPosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right"
+            frameless?: boolean
         }
         /**
          * Whether the height of the webview should be automatically adjusted to fit its content.
@@ -371,6 +398,8 @@ declare namespace $ui {
             label: string,
             icon: string,
         }
+
+        hidden?: boolean
     }
 
     interface WebviewChannel {
@@ -483,8 +512,10 @@ declare namespace $ui {
         /** Show the webview (reverses hide) */
         show(): void
 
-        /** Hide the webview without closing it */
+        /** Hide the webview */
         hide(): void
+
+        isHidden(): boolean
 
         /**
          * Returns the path of the webview's screen
@@ -710,12 +741,16 @@ declare namespace $ui {
         id: number
     }
 
+    type AnimePageButtonAction = ActionObject<{ media: $app.AL_BaseAnime }> & { setTooltipText(text: string): void }
+
+    type MangaPageButtonAction = ActionObject<{ media: $app.AL_BaseManga }> & { setTooltipText(text: string): void }
+
     interface Action {
         /**
          * Creates a new button for the anime page
          * @param props - Button properties
          */
-        newAnimePageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseAnime }>
+        newAnimePageButton(props: { label: string, intent?: Intent, style?: Record<string, string>, tooltipText?: string }): AnimePageButtonAction
 
         /**
          * Creates a new dropdown menu item for the anime page
@@ -748,7 +783,7 @@ declare namespace $ui {
          * Creates a new button for the manga page
          * @param props - Button properties
          */
-        newMangaPageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseManga }>
+        newMangaPageButton(props: { label: string, intent?: Intent, style?: Record<string, string>, tooltipText?: string }): MangaPageButtonAction
 
         /**
          * Creates a new context menu item for the episode card
@@ -947,8 +982,8 @@ declare namespace $ui {
         (text: string, props?: ComponentProps): void
     }
     type TooltipComponentFunction = {
-        (props: { text: string, items: any[] }): void
-        (item: any, props: { text: string }): void
+        (props: { text: string, item: any, side?: "top" | "right" | "bottom" | "left", sideOffset?: number }): void
+        (item: any, props: { text: string, side?: "top" | "right" | "bottom" | "left", sideOffset?: number }): void
     }
 
     /**
@@ -1454,6 +1489,19 @@ declare namespace $ui {
          * @param callback - The callback to call
          */
         onMainTabReady(callback: () => void): void
+
+        viewport: {
+            /** Returns the current viewport size synchronously (blocking) */
+            getSize(): { width: number, height: number }
+
+            /**
+             * Observes changes to the viewport size
+             * @param cb - The callback to call when the viewport size changes
+             * @returns A function to stop observing the viewport size
+             */
+            onResize(cb: (size: { width: number, height: number }) => void): () => void
+
+        }
     }
 
     interface Notification {

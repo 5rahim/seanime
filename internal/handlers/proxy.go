@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"crypto/tls"
 	"io"
 	"net/http"
 	url2 "net/url"
@@ -24,6 +25,7 @@ var videoProxyClient2 = &http.Client{
 		MaxIdleConnsPerHost: 10,
 		IdleConnTimeout:     90 * time.Second,
 		ForceAttemptHTTP2:   false, // Fixes issues on Linux
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 	},
 	Timeout: 60 * time.Second,
 }
