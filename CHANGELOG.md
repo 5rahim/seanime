@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.3.1
+
+- ⚡️ Logs retrived from the UI are now anonymized
+- ⚡️ UI: Prevent sidebar from overflowing by automatically unpinning menu items
+- ⚡️ Plugins: Updated APIs
+  - Added Viewport methods to DOM API
+  - Added tooltip option for Button Actions
+  - Updated and added new methods to Webview API
+  - Added AbortContext
+- 🦺 Offline: Fixed runtime error caused by disabling offline mode
+- 🦺 Plugins: Fixed Webview API (window, hide/close, dragging), Tray events
+- 🦺 Manga: Fixed pages not loading if server password is removed
+- 🦺 Scanner: Remove episode title from filename when detecting file type 
+- 🦺 Manga: Prevent malformed data returned by extension from crashing UI
+- 🦺 Fixed minor UI issues
+
 ## v3.3.0
 
 - ✨️ Plugins: New Webview API (Alpha)
