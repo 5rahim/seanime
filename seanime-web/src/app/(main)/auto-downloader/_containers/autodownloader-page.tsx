@@ -123,10 +123,10 @@ export function AutoDownloaderPage() {
                                             </Button>}
                                         >
                                             <DropdownMenuItem onClick={createRuleModal.on}>
-                                                Single rule
+                                                One series
                                             </DropdownMenuItem>
                                             <DropdownMenuItem onClick={createBatchRuleModal.on}>
-                                                Multiple rules
+                                                Multiple series at once
                                             </DropdownMenuItem>
                                         </DropdownMenu>
                                         <div className="flex flex-1"></div>
@@ -232,9 +232,9 @@ export function AutoDownloaderPage() {
                                     >
                                         <Field.Switch
                                             side="right"
-                                            label="Use enhanced queries"
+                                            label="Use smart search queries"
                                             name="enableEnhancedQueries"
-                                            help="Seanime will use multiple custom queries instead of a single one. Enable this if you notice some missing downloads."
+                                            help="Seanime will use smart search queries for more targeted results, if the extension allows it."
                                         />
                                         <Field.Switch
                                             side="right"
@@ -290,7 +290,7 @@ export function AutoDownloaderPage() {
                     Create multiple rules at once. Each rule will be created with the same parameters, except for the destination folder.
                     By default, the episode type will be "Recent releases".
                 </p>
-                <AutoDownloaderBatchRuleForm onRuleCreated={() => createBatchRuleModal.off()} />
+                <AutoDownloaderBatchRuleForm onRuleCreated={() => createBatchRuleModal.off()} rules={data ?? []} />
             </Drawer>
         </div>
     )

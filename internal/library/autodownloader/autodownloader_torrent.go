@@ -2,9 +2,12 @@ package autodownloader
 
 import (
 	"errors"
+	"seanime/internal/api/metadata"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
+	"seanime/internal/util/limiter"
 	"sync"
+	"time"
 
 	"github.com/5rahim/habari"
 	"github.com/samber/lo"
@@ -36,35 +39,131 @@ func (ad *AutoDownloader) getLatestTorrents(rules []*anime.AutoDownloaderRule) (
 		return nil, err
 	}
 
-	if ad.settings.EnableEnhancedQueries {
-		// Get unique release groups
-		uniqueReleaseGroups := GetUniqueReleaseGroups(rules)
-		// Filter the torrents
-		wg := sync.WaitGroup{}
-		mu := sync.Mutex{}
-		wg.Add(len(uniqueReleaseGroups))
+	mu := sync.Mutex{}
 
-		for _, releaseGroup := range uniqueReleaseGroups {
+	rateLimiter := limiter.NewLimiter(time.Second, 2)
+
+	// For enhanced queries we use smart search queries for each rule
+	// If a rule cannot be resolved, it is added to the rulesRest slice
+	if ad.settings.EnableEnhancedQueries {
+		settings := providerExtension.GetProvider().GetSettings()
+		if settings.CanSmartSearch {
+			wg := sync.WaitGroup{}
+			wg.Add(len(rules))
+			for _, rule := range rules {
+				go func() {
+					defer wg.Done()
+
+					rateLimiter.Wait()
+
+					ac, ok := ad.animeCollection.Get()
+					if !ok {
+						return
+					}
+
+					media, ok := ac.FindAnime(rule.MediaId)
+					if !ok || media.GetStatus() == nil {
+						return
+					}
+
+					mediaMetadata, err := ad.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, rule.MediaId)
+					if err != nil {
+						return
+					}
+
+					queryMedia := hibiketorrent.Media{
+						ID:                   media.GetID(),
+						IDMal:                media.GetIDMal(),
+						Status:               string(*media.GetStatus()),
+						Format:               string(*media.GetFormat()),
+						EnglishTitle:         media.GetTitle().GetEnglish(),
+						RomajiTitle:          media.GetRomajiTitleSafe(),
+						EpisodeCount:         media.GetTotalEpisodeCount(),
+						AbsoluteSeasonOffset: 0,
+						Synonyms:             media.GetSynonymsContainingSeason(),
+						IsAdult:              *media.GetIsAdult(),
+						StartDate: &hibiketorrent.FuzzyDate{
+							Year:  *media.GetStartDate().GetYear(),
+							Month: media.GetStartDate().GetMonth(),
+							Day:   media.GetStartDate().GetDay(),
+						},
+					}
+
+					resolution := ""
+					if len(rule.Resolutions) > 0 {
+						resolution = rule.Resolutions[0]
+					}
+
+					res, err := providerExtension.GetProvider().SmartSearch(hibiketorrent.AnimeSmartSearchOptions{
+						Media:      queryMedia,
+						Resolution: resolution,
+						AnidbAID:   mediaMetadata.GetMappings().AnidbId,
+					})
+					if err != nil {
+						return
+					}
+
+					mu.Lock()
+					torrents = append(torrents, res...)
+					mu.Unlock()
+				}()
+			}
+			wg.Wait()
+		}
+
+	}
+
+	releaseGroupToResolutions := GetReleaseGroupToResolutionsMap(rules) // e.g. Subsplease -> []{"1080p","720p"}
+
+	for releaseGroup, resolutions := range releaseGroupToResolutions {
+		wg := sync.WaitGroup{}
+		var resultForReleaseGroup []*hibiketorrent.AnimeTorrent
+		for i, resolution := range resolutions {
+			if i >= 2 { // Only search for the first 2 resolutions
+				break
+			}
+			wg.Add(1)
 			go func(releaseGroup string) {
 				defer wg.Done()
-				filteredTorrents, err := providerExtension.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
+
+				rateLimiter.Wait()
+
+				res, err := providerExtension.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
 					Media: hibiketorrent.Media{},
-					Query: releaseGroup,
+					Query: releaseGroup + " " + resolution,
 				})
 				if err != nil {
 					return
 				}
 				mu.Lock()
-				torrents = append(torrents, filteredTorrents...)
+				resultForReleaseGroup = append(resultForReleaseGroup, res...)
 				mu.Unlock()
 			}(releaseGroup)
 		}
 		wg.Wait()
-		// Remove duplicates
-		torrents = lo.UniqBy(torrents, func(t *hibiketorrent.AnimeTorrent) string {
-			return t.Name
-		})
+		// Launch a query without resolution if both failed to return anything
+		if len(resultForReleaseGroup) == 0 {
+			res, err := providerExtension.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
+				Media: hibiketorrent.Media{},
+				Query: releaseGroup,
+			})
+			if err != nil {
+				return
+			}
+			mu.Lock()
+			resultForReleaseGroup = append(resultForReleaseGroup, res...)
+			mu.Unlock()
+		}
+		// Add the results to the torrents
+		mu.Lock()
+		torrents = append(torrents, resultForReleaseGroup...)
+		mu.Unlock()
 	}
+
+	// Deduplicate
+	torrents = lo.UniqBy(torrents, func(t *hibiketorrent.AnimeTorrent) string {
+		return t.Name
+	})
 
 	// Normalize the torrents
 	ret = make([]*NormalizedTorrent, 0, len(torrents))

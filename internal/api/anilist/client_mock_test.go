@@ -2,12 +2,13 @@ package anilist
 
 import (
 	"context"
-	"github.com/goccy/go-json"
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"seanime/internal/test_utils"
 	"testing"
+
+	"github.com/goccy/go-json"
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 // USE CASE: Generate a boilerplate Anilist AnimeCollection for testing purposes and save it to 'test/data/BoilerplateAnimeCollection'.

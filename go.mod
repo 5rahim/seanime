@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	fyne.io/systray v1.12.0
 	github.com/5rahim/go-astisub v0.2.1
-	github.com/5rahim/habari v0.1.7
+	github.com/5rahim/habari v0.1.8
 	github.com/5rahim/hls-m3u8 v0.1.0
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/Microsoft/go-winio v0.6.2
@@ -58,7 +58,7 @@ require (
 	golang.org/x/term v0.39.0
 	golang.org/x/text v0.33.0
 	golang.org/x/time v0.14.0
-	gopkg.in/vansante/go-ffprobe.v2 v2.2.1
+	gopkg.in/vansante/go-ffprobe.v2 v2.3.0
 	gorm.io/gorm v1.31.1
 )
 

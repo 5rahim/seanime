@@ -10,13 +10,17 @@ import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-load
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Button, CloseButton, IconButton } from "@/components/ui/button"
+import {
+    AdditionalTermsField,
+    ReleaseGroupsField,
+    ResolutionsField,
+    TextArrayField,
+} from "@/app/(main)/auto-downloader/_containers/autodownloader-shared-fields"
+import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
-import { TextInput } from "@/components/ui/text-input"
 import { upath } from "@/lib/helpers/upath"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
@@ -24,8 +28,7 @@ import { uniq } from "lodash"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import React, { useMemo, useRef } from "react"
-import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form"
-import { BiPlus } from "react-icons/bi"
+import { UseFormReturn, useWatch } from "react-hook-form"
 import { FcFolder } from "react-icons/fc"
 import { LuTextCursorInput } from "react-icons/lu"
 import { MdFilterAlt, MdVerified } from "react-icons/md"
@@ -200,7 +203,7 @@ export function AutoDownloaderMediaCombobox(props: {
     return <Combobox
         name="mediaId"
         label={<div className="flex items-center gap-2">
-            <p className="text-lg font-semibold">Media</p>
+            <p className="text-lg font-semibold">Anime</p>
             {props.type !== "edit" && <Button
                 leftIcon={<MdFilterAlt />} intent="gray-link" className="!text-[--muted] cursor-pointer hover:underline underline-offset-2 py-0 px-2"
                 onClick={() => setShowReleasingOnly(prev => {
@@ -408,75 +411,11 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     />}
                 </div>
 
-                <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Release Groups</div>
-                    <p className="text-sm">
-                        List of release groups to look for. If empty, any release group will be accepted.
-                    </p>
+                <ReleaseGroupsField name="releaseGroups" control={form.control} />
 
-                    <TextArrayField
-                        name="releaseGroups"
-                        control={form.control}
-                        type="text"
-                        placeholder="e.g. SubsPlease"
-                        separatorText="OR"
-                    />
-                </div>
+                <ResolutionsField name="resolutions" control={form.control} />
 
-                <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Resolutions</div>
-                    <p className="text-sm">
-                        List of resolutions to look for. If empty, the highest resolution will be accepted.
-                    </p>
-
-                    <TextArrayField
-                        name="resolutions"
-                        control={form.control}
-                        type="text"
-                        placeholder="e.g. 1080p"
-                        separatorText="OR"
-                    />
-                </div>
-
-                <Accordion type="single" collapsible className="!my-4" defaultValue={!!rule?.additionalTerms?.length ? "more" : undefined}>
-                    <AccordionItem value="more">
-                        <AccordionTrigger className="border rounded-[--radius] bg-gray-900">
-                            More filters
-                        </AccordionTrigger>
-                        <AccordionContent className="pt-0">
-                            <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                                <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Additional
-                                    terms
-                                </div>
-                                <div>
-                                    {/*<p className="text-sm">*/}
-                                    {/*    List of video terms to look for. If any term is found in the torrent name, it will be accepted.*/}
-                                    {/*</p>*/}
-                                    <p className="text-sm -top-2 relative"><span className="text-red-100">
-                                        All options must be included for the torrent to be accepted.</span> Within each option, you can
-                                        include variations separated by
-                                        commas. For example, adding
-                                        "H265,H.265, H 265,x265" and
-                                        "10bit,10-bit,10 bit" will match
-                                        <code className="text-gray-400"> [Group] Torrent name [HEVC 10bit
-                                            x265]</code> but not <code className="text-gray-400">[Group] Torrent name
-                                                [H265]</code>. Case
-                                        insensitive.</p>
-                                </div>
-
-                                <TextArrayField
-                                    name="additionalTerms"
-                                    control={form.control}
-                                    // value={additionalTerms}
-                                    // onChange={(value) => form.setValue("additionalTerms", value)}
-                                    type="text"
-                                    placeholder="e.g. H265,H.265,H 265,x265"
-                                    separatorText="AND"
-                                />
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
+                <AdditionalTermsField name="additionalTerms" control={form.control} defaultOpen={!!rule?.additionalTerms?.length} />
 
             </div>
             {type === "create" &&
@@ -486,65 +425,6 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
     )
 }
 
-type TextArrayFieldProps<T extends string | number> = {
-    name: string
-    control: any
-    type?: "text" | "number"
-    label?: string
-    placeholder?: string
-    separatorText?: string
-}
-
-export function TextArrayField<T extends string | number>(props: TextArrayFieldProps<T>) {
-    const { fields, append, remove } = useFieldArray({
-        control: props.control,
-        name: props.name,
-    })
-
-    return (
-        <div className="space-y-2">
-            {props.label && <div className="flex items-center">
-                <div className="text-base font-semibold">{props.label}</div>
-            </div>}
-            {fields.map((field, index) => (
-                <React.Fragment key={field.id}>
-                    <div className="flex gap-2 items-center">
-                        {props.type === "text" && (
-                            <TextInput
-                                {...props.control.register(`${props.name}.${index}`)}
-                                placeholder={props.placeholder}
-                            />
-                        )}
-                        {props.type === "number" && (
-                            <TextInput
-                                type="number"
-                                {...props.control.register(`${props.name}.${index}`, {
-                                    valueAsNumber: true,
-                                    min: 1,
-                                    validate: (value: number) => !isNaN(value),
-                                })}
-                            />
-                        )}
-                        <CloseButton
-                            size="sm"
-                            intent="alert-subtle"
-                            onClick={() => remove(index)}
-                        />
-                    </div>
-                    {(!!props.separatorText && index < fields.length - 1) && (
-                        <p className="text-center text-[--muted]">{props.separatorText}</p>
-                    )}
-                </React.Fragment>
-            ))}
-            <IconButton
-                intent="success-glass"
-                className="rounded-full"
-                onClick={() => append(props.type === "number" ? 1 : "")}
-                icon={<BiPlus />}
-            />
-        </div>
-    )
-}
 
 
 function sanitizeDirectoryName(input: string): string {

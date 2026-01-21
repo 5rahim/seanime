@@ -299,14 +299,14 @@ func (p *PluginPermissions) GetDescription() string {
 		desc.WriteString("File System:\n")
 
 		if len(p.Allow.ReadPaths) > 0 {
-			desc.WriteString("• Read from:\n")
+			desc.WriteString("• Read files in:\n")
 			for _, path := range p.Allow.ReadPaths {
 				desc.WriteString("\t  - " + explainPath(path) + "\n")
 			}
 		}
 
 		if len(p.Allow.WritePaths) > 0 {
-			desc.WriteString("• Write to:\n")
+			desc.WriteString("• Modify/deletes files in:\n")
 			for _, path := range p.Allow.WritePaths {
 				desc.WriteString("\t  - " + explainPath(path) + "\n")
 			}

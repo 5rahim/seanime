@@ -33,6 +33,8 @@ export function useSuperUpdateLocalFiles() {
         mutationKey: [API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.key],
         onSuccess: async () => {
             queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key] })
         },
     })
 }
