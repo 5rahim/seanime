@@ -151,31 +151,40 @@ type AdditionalTermsFieldProps = {
 
 export function AdditionalTermsField(props: AdditionalTermsFieldProps) {
     const suggestions = [
-        { label: "HEVC/H.265", value: "H265,H.265,H 265,x265,HEVC" },
+        // Video
+        { label: "HEVC / H.265", value: "H265,H.265,x265,HEVC" },
+        { label: "AVC / H.264", value: "H264,H.264,x264,AVC" },
         { label: "10-bit", value: "10bit,10-bit,10 bit" },
-        { label: "Dual Audio", value: "Dual Audio,DUAL-AUDIO,Dual-Audio" },
-        { label: "Multi Audio", value: "Multi Audio,MULTI-AUDIO,Multi-Audio" },
+        { label: "HDR", value: "HDR,HDR10,HDR10+" },
+        { label: "Dolby Vision", value: "Dolby Vision,DolbyVision,DoVi" },
+        { label: "Remux", value: "Remux" },
+        // Audio
         { label: "FLAC", value: "FLAC" },
-        { label: "Hi10P", value: "Hi10P,Hi10,Hi10p" },
-        { label: "AVC/H.264", value: "H264,H.264,H 264,x264,AVC" },
+        { label: "Opus", value: "Opus" },
         { label: "AAC", value: "AAC,AAC2.0" },
         { label: "E-AC3", value: "E-AC3,EAC3,EAC-3,E-AC-3" },
-        { label: "Multi-Sub", value: "Multi-Sub,Multi Sub,Multisub" },
-        { label: "WEB-DL", value: "WEB-DL,WEBDL,WEB DL" },
-        { label: "BluRay", value: "BluRay,Blu-Ray,BLURAY,BDRip" },
-        { label: "Opus", value: "Opus" },
+        { label: "TrueHD", value: "TrueHD,True-HD" },
+        { label: "DTS", value: "DTS,DTS-HD,DTS-X" },
+        // Source
+        { label: "BluRay", value: "BluRay,Blu-Ray,BDRip" },
+        { label: "WEB-DL", value: "WEB-DL,WEBDL,WEB DL,WebRip,Web-Rip,WEB RIP" },
+        { label: "DVD", value: "DVD,DVD-Rip,DVDRip" },
+        // Anime
+        { label: "Dual Audio", value: "Dual Audio,Dual-Audio,DualAudio" },
+        { label: "Multi Audio", value: "Multi Audio,Multi-Audio,MultiAudio,Dual Audio,Dual-Audio,DualAudio" },
+        { label: "Multi-Sub", value: "Multi-Sub,Multi Sub,Multisub,Multisubs,Multi-subs,Multi subs" },
+        { label: "Dubbed", value: "Dubbed,Dub" },
     ]
 
     return (
         <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-            <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Additional
-                                                                                                                     terms
+            <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Video, Audio, Source, Subs
             </div>
             <div>
                 <p className="text-sm -top-2 relative"><span className="font-semibold">
                     All options must be included for the torrent to be accepted.</span> Within each option, you can
                                                                                         include variations separated by
-                                                                                        commas.</p>
+                                                                                        commas. (Case insensitive)</p>
             </div>
 
             <TextArrayField

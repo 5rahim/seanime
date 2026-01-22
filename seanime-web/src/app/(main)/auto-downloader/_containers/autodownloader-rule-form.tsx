@@ -275,6 +275,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
     const form_mediaId = useWatch({ name: "mediaId" }) as number
     const form_episodeType = useWatch({ name: "episodeType" }) as Anime_AutoDownloaderRuleEpisodeType
     const destination = useWatch({ name: "destination" }) as string
+    const titleComparisonType = useWatch({ name: "titleComparisonType" }) as string
 
     const selectedMedia = allMedia.find(media => media.id === Number(form_mediaId))
 
@@ -350,17 +351,17 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     <Field.Text
                         name="comparisonTitle"
                         label="Comparison title"
-                        help="Used for comparison purposes. When using 'Exact match', use a title most likely to be used in a torrent name."
                     />
                     <Field.RadioCards
                         label="Type of search"
                         name="titleComparisonType"
+                        itemContainerClass="w-full"
                         options={[
                             {
                                 label: <div className="w-full">
                                     <p className="mb-1 flex items-center"><MdVerified className="text-lg inline-block mr-2" />Most likely</p>
                                     <p className="font-normal text-sm text-[--muted]">The torrent name will be parsed and analyzed using a comparison
-                                        algorithm</p>
+                                                                                      algorithm</p>
                                 </div>,
                                 value: "likely",
                             },
@@ -368,12 +369,19 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                                 label: <div className="w-full">
                                     <p className="mb-1 flex items-center"><LuTextCursorInput className="text-lg inline-block mr-2" />Exact match</p>
                                     <p className="font-normal text-sm text-[--muted]">The torrent name must contain the comparison title you set (case
-                                        insensitive)</p>
+                                                                                      insensitive)</p>
                                 </div>,
                                 value: "contains",
                             },
                         ]}
                     />
+
+                    {titleComparisonType === "likely" && <div className="text-sm text-[--muted]">
+                        <p className="!text-[--foreground]">Will also use these titles:</p>
+                        {selectedMedia?.title?.english && <p className="font-medium">{selectedMedia?.title?.english}</p>}
+                        {selectedMedia?.title?.romaji && <p className="font-medium">{selectedMedia?.title?.romaji}</p>}
+                        {!!selectedMedia?.synonyms?.length && <p className="font-medium">{selectedMedia?.synonyms?.map(n => <p key={n}>{n}</p>)}</p>}
+                    </div>}
                 </div>
                 <div
                     className={cn(
@@ -385,6 +393,8 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     <Field.RadioCards
                         name="episodeType"
                         label="Episodes to look for"
+                        fieldClass="w-full"
+                        itemContainerClass="!w-full"
                         options={[
                             {
                                 label: <div className="w-full">
@@ -424,7 +434,6 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
         </>
     )
 }
-
 
 
 function sanitizeDirectoryName(input: string): string {

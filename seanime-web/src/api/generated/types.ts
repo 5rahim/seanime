@@ -1340,6 +1340,7 @@ export type Anime_AutoDownloaderRule = {
     episodeNumbers?: Array<number>
     destination: string
     additionalTerms?: Array<string>
+    provider?: string
 }
 
 /**

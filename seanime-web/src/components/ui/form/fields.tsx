@@ -314,7 +314,7 @@ const RadioGroupField = React.memo(withControlledInput(forwardRef<HTMLButtonElem
 
 
 const RadioCardsField = React.memo(withControlledInput(forwardRef<HTMLButtonElement, FieldComponent<RadioGroupProps>>(
-    ({ onChange, ...props }, ref) => {
+    ({ onChange, itemContainerClass, itemClass, ...props }, ref) => {
         return <RadioGroup
             // itemContainerClass={cn(
             //     "items-start cursor-pointer transition border-transparent rounded-[--radius] p-4 w-full",
@@ -335,11 +335,13 @@ const RadioCardsField = React.memo(withControlledInput(forwardRef<HTMLButtonElem
                 "data-[state=checked]:bg-brand-500/5 dark:data-[state=checked]:bg-gray-900",
                 "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-transparent transition",
                 "dark:border dark:data-[state=checked]:border-[--border] data-[state=checked]:ring-offset-0",
+                itemContainerClass,
             )}
             itemClass={cn(
                 "border-transparent absolute top-2 right-2 bg-transparent dark:bg-transparent dark:data-[state=unchecked]:bg-transparent",
                 "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
                 "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
+                itemClass,
             )}
             itemIndicatorClass="hidden"
             itemLabelClass="font-medium flex flex-col items-center data-[state=unchecked]:hover:text-[--foreground] data-[state=checked]:text-[--brand] text-[--muted] cursor-pointer"

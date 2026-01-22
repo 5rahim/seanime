@@ -62,7 +62,7 @@ func (ad *AutoDownloader) getLatestTorrents(rules []*anime.AutoDownloaderRule) (
 					}
 
 					media, ok := ac.FindAnime(rule.MediaId)
-					if !ok || media.GetStatus() == nil {
+					if !ok || media == nil || media.GetStatus() == nil || media.GetFormat() == nil {
 						return
 					}
 
@@ -82,11 +82,13 @@ func (ad *AutoDownloader) getLatestTorrents(rules []*anime.AutoDownloaderRule) (
 						AbsoluteSeasonOffset: 0,
 						Synonyms:             media.GetSynonymsContainingSeason(),
 						IsAdult:              *media.GetIsAdult(),
-						StartDate: &hibiketorrent.FuzzyDate{
-							Year:  *media.GetStartDate().GetYear(),
-							Month: media.GetStartDate().GetMonth(),
-							Day:   media.GetStartDate().GetDay(),
-						},
+						StartDate:            &hibiketorrent.FuzzyDate{},
+					}
+
+					if media.GetStartDate() != nil && media.GetStartDate().GetYear() != nil {
+						queryMedia.StartDate.Year = *media.GetStartDate().GetYear()
+						queryMedia.StartDate.Month = media.GetStartDate().GetMonth()
+						queryMedia.StartDate.Day = media.GetStartDate().GetDay()
 					}
 
 					resolution := ""
@@ -148,7 +150,7 @@ func (ad *AutoDownloader) getLatestTorrents(rules []*anime.AutoDownloaderRule) (
 				Query: releaseGroup,
 			})
 			if err != nil {
-				return
+				continue
 			}
 			mu.Lock()
 			resultForReleaseGroup = append(resultForReleaseGroup, res...)

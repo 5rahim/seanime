@@ -2953,6 +2953,7 @@ declare namespace $app {
         episodeNumbers?: Array<number>;
         destination: string;
         additionalTerms?: Array<string>;
+        provider?: string;
     }
 
     /**

@@ -41537,6 +41537,102 @@
     "comments": []
   },
   {
+    "filepath": "../internal/goja/goja_bindings/abort_context.go",
+    "filename": "abort_context.go",
+    "name": "AbortSignal",
+    "formattedName": "AbortSignal",
+    "package": "goja_bindings",
+    "fields": [
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "aborted",
+        "jsonName": "aborted",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "reason",
+        "jsonName": "reason",
+        "goType": "goja.Value",
+        "typescriptType": "Value",
+        "usedTypescriptType": "Value",
+        "usedStructName": "goja.Value",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedTypescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancel",
+        "jsonName": "cancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "listeners",
+        "jsonName": "listeners",
+        "goType": "[]goja.Callable",
+        "typescriptType": "Array\u003cCallable\u003e",
+        "usedTypescriptType": "Callable",
+        "usedStructName": "goja.Callable",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedTypescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "gojautil.Scheduler",
+        "typescriptType": "Scheduler",
+        "usedTypescriptType": "Scheduler",
+        "usedStructName": "gojautil.Scheduler",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/goja/goja_bindings/chromedp.go",
     "filename": "chromedp.go",
     "name": "ChromeDP",
@@ -44258,6 +44354,15 @@
         "jsonName": "additionalTerms",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
@@ -71129,6 +71234,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "TooltipText",
+        "jsonName": "tooltipText",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -71180,6 +71294,15 @@
       {
         "name": "Intent",
         "jsonName": "intent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TooltipText",
+        "jsonName": "tooltipText",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
@@ -76298,6 +76421,47 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/report/repository.go",
+    "filename": "repository.go",
+    "name": "AnonymizeOptions",
+    "formattedName": "Report_AnonymizeOptions",
+    "package": "report",
+    "fields": [
+      {
+        "name": "Content",
+        "jsonName": "content",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Settings",
+        "jsonName": "Settings",
+        "goType": "models.Settings",
+        "typescriptType": "Models_Settings",
+        "usedTypescriptType": "Models_Settings",
+        "usedStructName": "models.Settings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DebridSettings",
+        "jsonName": "DebridSettings",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedTypescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
+        "required": false,
         "public": true,
         "comments": []
       }

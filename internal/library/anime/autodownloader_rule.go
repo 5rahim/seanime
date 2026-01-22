@@ -31,5 +31,6 @@ type (
 		EpisodeNumbers      []int                                 `json:"episodeNumbers,omitempty"`
 		Destination         string                                `json:"destination"`
 		AdditionalTerms     []string                              `json:"additionalTerms"`
+		Provider            string                                `json:"provider,omitempty"`
 	}
 )
