@@ -165,6 +165,12 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.GET("/auto-downloader/items", h.HandleGetAutoDownloaderItems)
 	v1.DELETE("/auto-downloader/item", h.HandleDeleteAutoDownloaderItem)
 
+	v1.GET("/auto-downloader/profiles", h.HandleGetAutoDownloaderProfiles)
+	v1.GET("/auto-downloader/profile/:id", h.HandleGetAutoDownloaderProfile)
+	v1.POST("/auto-downloader/profile", h.HandleCreateAutoDownloaderProfile)
+	v1.PATCH("/auto-downloader/profile", h.HandleUpdateAutoDownloaderProfile)
+	v1.DELETE("/auto-downloader/profile/:id", h.HandleDeleteAutoDownloaderProfile)
+
 	// Other
 	v1.POST("/test-dump", h.HandleTestDump)
 

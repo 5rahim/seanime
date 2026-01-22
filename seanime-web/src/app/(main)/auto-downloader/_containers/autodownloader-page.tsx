@@ -88,6 +88,7 @@ export function AutoDownloaderPage() {
             >
                 <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
                     <TabsTrigger value="rules">Rules</TabsTrigger>
+                    <TabsTrigger value="profiles">Profiles (0)</TabsTrigger>
                     <TabsTrigger value="queue">
                         Queue
                         {!!items?.length && (

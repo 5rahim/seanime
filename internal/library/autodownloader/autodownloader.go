@@ -219,11 +219,11 @@ func (ad *AutoDownloader) start() {
 		case <-ad.startCh:
 			if ad.settings.Enabled {
 				ad.logger.Debug().Msg("autodownloader: Auto Downloader started")
-				ad.checkForNewEpisodes()
+				ad.checkForNewEpisodes(false)
 			}
 		case <-ticker.C:
 			if ad.settings.Enabled {
-				ad.checkForNewEpisodes()
+				ad.checkForNewEpisodes(false)
 			}
 		}
 		ticker.Stop()
@@ -231,7 +231,11 @@ func (ad *AutoDownloader) start() {
 
 }
 
-func (ad *AutoDownloader) checkForNewEpisodes() {
+// checkForNewEpisodes will check the RSS feeds for new episodes.
+// The primary preferred metric (Group, Size, or Seeders) is checked first.
+// High resolution is always preferred as a secondary check.
+// Healthy torrents (seeders) are used as the final tie-breaker.
+func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/checkForNewEpisodes", func() {})
 
 	if ad.isOfflineRef.Get() {
@@ -270,13 +274,9 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	}
 
 	// Filter out disabled rules
-	_filteredRules := make([]*anime.AutoDownloaderRule, 0)
-	for _, rule := range rules {
-		if rule.Enabled {
-			_filteredRules = append(_filteredRules, rule)
-		}
-	}
-	rules = _filteredRules
+	rules = lo.Filter(rules, func(r *anime.AutoDownloaderRule, _ int) bool {
+		return r.Enabled
+	})
 
 	// Event
 	event := &AutoDownloaderRunStartedEvent{
@@ -458,6 +458,30 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 				sort.Slice(torrents, func(i, j int) bool {
 					return torrents[i].torrent.Seeders > torrents[j].torrent.Seeders
 				})
+
+				// TODO: Implement below
+				//sort.Slice(torrents, func(i, j int) bool {
+				//	for _, criterion := range rule.PriorityRank {
+				//		switch criterion {
+				//		case anime.AutoDownloaderRulePriorityReleaseGroup:
+				//			pI := ad.getGroupPriority(torrents[i].torrent.ParsedData.ReleaseGroup, rule.ReleaseGroups)
+				//			pJ := ad.getGroupPriority(torrents[j].torrent.ParsedData.ReleaseGroup, rule.ReleaseGroups)
+				//			if pI != pJ { return pI < pJ }
+				//		case anime.AutoDownloaderRulePrioritySize:
+				//			// Only switch if the size difference is significant (e.g., > 5%)
+				//			if !isSizeNegligible(torrents[i].torrent.Size, torrents[j].torrent.Size) {
+				//				return torrents[i].torrent.Size > torrents[j].torrent.Size
+				//			}
+				//		case anime.AutoDownloaderRulePrioritySeeders:
+				//			if torrents[i].torrent.Seeders != torrents[j].torrent.Seeders {
+				//				return torrents[i].torrent.Seeders > torrents[j].torrent.Seeders
+				//			}
+				//		}
+				//	}
+				//	// Final fallback: Resolution
+				//	return comparison.ExtractResolutionInt(torrents[i].torrent.ParsedData.VideoResolution) >
+				//		comparison.ExtractResolutionInt(torrents[j].torrent.ParsedData.VideoResolution)
+				//})
 
 				ok := ad.downloadTorrent(torrents[0].torrent, rule, ep)
 				if ok {

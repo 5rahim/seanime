@@ -30171,6 +30171,28 @@
   {
     "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
+    "name": "AutoDownloaderProfile",
+    "formattedName": "Models_AutoDownloaderProfile",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
     "name": "AutoDownloaderItem",
     "formattedName": "Models_AutoDownloaderItem",
     "package": "models",
@@ -41828,6 +41850,17 @@
         "comments": []
       },
       {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "allowedDomains",
         "jsonName": "allowedDomains",
         "goType": "[]string",
@@ -44249,6 +44282,42 @@
   {
     "filepath": "../internal/library/anime/autodownloader_rule.go",
     "filename": "autodownloader_rule.go",
+    "name": "AutoDownloaderProfileRuleFormatAction",
+    "formattedName": "Anime_AutoDownloaderProfileRuleFormatAction",
+    "package": "anime",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"score\"",
+        "\"block\"",
+        "\"require\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autodownloader_rule.go",
+    "filename": "autodownloader_rule.go",
+    "name": "AutoDownloaderRulePriorityType",
+    "formattedName": "Anime_AutoDownloaderRulePriorityType",
+    "package": "anime",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"seeders\"",
+        "\"releaseGroup\"",
+        "\"size\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autodownloader_rule.go",
+    "filename": "autodownloader_rule.go",
     "name": "AutoDownloaderRule",
     "formattedName": "Anime_AutoDownloaderRule",
     "package": "anime",
@@ -44260,9 +44329,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Will be set when fetched from the database"
-        ]
+        "comments": []
       },
       {
         "name": "Enabled",
@@ -44283,6 +44350,24 @@
         "comments": []
       },
       {
+        "name": "Destination",
+        "jsonName": "destination",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ProfileID",
+        "jsonName": "profileId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ReleaseGroups",
         "jsonName": "releaseGroups",
         "goType": "[]string",
@@ -44297,6 +44382,26 @@
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumbers",
+        "jsonName": "episodeNumbers",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeType",
+        "jsonName": "episodeType",
+        "goType": "AutoDownloaderRuleEpisodeType",
+        "typescriptType": "Anime_AutoDownloaderRuleEpisodeType",
+        "usedTypescriptType": "Anime_AutoDownloaderRuleEpisodeType",
+        "usedStructName": "anime.AutoDownloaderRuleEpisodeType",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -44321,35 +44426,6 @@
         "comments": []
       },
       {
-        "name": "EpisodeType",
-        "jsonName": "episodeType",
-        "goType": "AutoDownloaderRuleEpisodeType",
-        "typescriptType": "Anime_AutoDownloaderRuleEpisodeType",
-        "usedTypescriptType": "Anime_AutoDownloaderRuleEpisodeType",
-        "usedStructName": "anime.AutoDownloaderRuleEpisodeType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumbers",
-        "jsonName": "episodeNumbers",
-        "goType": "[]int",
-        "typescriptType": "Array\u003cnumber\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Destination",
-        "jsonName": "destination",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "AdditionalTerms",
         "jsonName": "additionalTerms",
         "goType": "[]string",
@@ -44359,13 +44435,219 @@
         "comments": []
       },
       {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "ExcludeTerms",
+        "jsonName": "excludeTerms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "MinSeeders",
+        "jsonName": "minSeeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinSize",
+        "jsonName": "minSize",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxSize",
+        "jsonName": "maxSize",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CustomEpisodeNumberAbsoluteOffset",
+        "jsonName": "customEpisodeNumberAbsoluteOffset",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Providers",
+        "jsonName": "providers",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autodownloader_rule.go",
+    "filename": "autodownloader_rule.go",
+    "name": "AutoDownloaderProfile",
+    "formattedName": "Anime_AutoDownloaderProfile",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "DbID",
+        "jsonName": "dbId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Global",
+        "jsonName": "global",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Resolutions",
+        "jsonName": "resolutions",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Conditions",
+        "jsonName": "conditions",
+        "goType": "[]AutoDownloaderCondition",
+        "typescriptType": "Array\u003cAnime_AutoDownloaderCondition\u003e",
+        "usedTypescriptType": "Anime_AutoDownloaderCondition",
+        "usedStructName": "anime.AutoDownloaderCondition",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinimumScore",
+        "jsonName": "minimumScore",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinSeeders",
+        "jsonName": "minSeeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinSize",
+        "jsonName": "minSize",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxSize",
+        "jsonName": "maxSize",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Providers",
+        "jsonName": "providers",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autodownloader_rule.go",
+    "filename": "autodownloader_rule.go",
+    "name": "AutoDownloaderCondition",
+    "formattedName": "Anime_AutoDownloaderCondition",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "DbID",
+        "jsonName": "dbId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Term",
+        "jsonName": "term",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsRegex",
+        "jsonName": "isRegex",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Action",
+        "jsonName": "action",
+        "goType": "AutoDownloaderProfileRuleFormatAction",
+        "typescriptType": "Anime_AutoDownloaderProfileRuleFormatAction",
+        "usedTypescriptType": "Anime_AutoDownloaderProfileRuleFormatAction",
+        "usedStructName": "anime.AutoDownloaderProfileRuleFormatAction",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Only used if Action == \"score\""
+        ]
       }
     ],
     "comments": []

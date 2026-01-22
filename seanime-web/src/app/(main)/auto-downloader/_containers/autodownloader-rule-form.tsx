@@ -380,7 +380,8 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                         <p className="!text-[--foreground]">Will also use these titles:</p>
                         {selectedMedia?.title?.english && <p className="font-medium">{selectedMedia?.title?.english}</p>}
                         {selectedMedia?.title?.romaji && <p className="font-medium">{selectedMedia?.title?.romaji}</p>}
-                        {!!selectedMedia?.synonyms?.length && <p className="font-medium">{selectedMedia?.synonyms?.map(n => <p key={n}>{n}</p>)}</p>}
+                        {!!selectedMedia?.synonyms?.length &&
+                            <div className="font-medium">{selectedMedia?.synonyms?.map(n => <p key={n}>{n}</p>)}</div>}
                     </div>}
                 </div>
                 <div

@@ -700,7 +700,7 @@ func (a *AppContextImpl) resolvePattern(pattern string) []string {
 	patterns := []string{pattern}
 
 	// Replace special placeholders with their actual values
-	placeholders := []string{"$SEANIME_ANIME_LIBRARY", "$HOME", "$CACHE", "$TEMP", "$CONFIG"}
+	placeholders := []string{"$SEANIME_ANIME_LIBRARY", "$HOME", "$CACHE", "$TEMP", "$CONFIG", "$DOWNLOAD", "$DESKTOP", "$DOCUMENT"}
 
 	for _, placeholder := range placeholders {
 		// Extract the placeholder name without the $ prefix

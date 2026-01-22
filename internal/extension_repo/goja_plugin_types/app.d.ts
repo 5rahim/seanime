@@ -2939,21 +2939,24 @@ declare namespace $app {
      * - Filepath: internal/library/anime/autodownloader_rule.go
      */
     interface Anime_AutoDownloaderRule {
-        /**
-         * Will be set when fetched from the database
-         */
         dbId: number;
         enabled: boolean;
         mediaId: number;
+        destination: string;
+        profileId?: number;
         releaseGroups?: Array<string>;
         resolutions?: Array<string>;
+        episodeNumbers?: Array<number>;
+        episodeType: Anime_AutoDownloaderRuleEpisodeType;
         comparisonTitle: string;
         titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType;
-        episodeType: Anime_AutoDownloaderRuleEpisodeType;
-        episodeNumbers?: Array<number>;
-        destination: string;
         additionalTerms?: Array<string>;
-        provider?: string;
+        excludeTerms?: Array<string>;
+        minSeeders: number;
+        minSize: number;
+        maxSize: number;
+        customEpisodeNumberAbsoluteOffset?: number;
+        providers?: Array<string>;
     }
 
     /**

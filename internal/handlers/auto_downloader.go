@@ -213,6 +213,109 @@ func (h *Handler) HandleDeleteAutoDownloaderRule(c echo.Context) error {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// HandleGetAutoDownloaderProfiles
+//
+//	@summary returns all profiles.
+//	@route /api/v1/auto-downloader/profiles [GET]
+//	@returns []anime.AutoDownloaderProfile
+func (h *Handler) HandleGetAutoDownloaderProfiles(c echo.Context) error {
+	profiles, err := db_bridge.GetAutoDownloaderProfiles(h.App.Database)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, profiles)
+}
+
+// HandleGetAutoDownloaderProfile
+//
+//	@summary returns the profile with the given DB id.
+//	@route /api/v1/auto-downloader/profile/{id} [GET]
+//	@param id - int - true - "The DB id of the profile"
+//	@returns anime.AutoDownloaderProfile
+func (h *Handler) HandleGetAutoDownloaderProfile(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return h.RespondWithError(c, errors.New("invalid id"))
+	}
+
+	profile, err := db_bridge.GetAutoDownloaderProfile(h.App.Database, uint(id))
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, profile)
+}
+
+// HandleCreateAutoDownloaderProfile
+//
+//	@summary creates a new profile.
+//	@route /api/v1/auto-downloader/profile [POST]
+//	@returns anime.AutoDownloaderProfile
+func (h *Handler) HandleCreateAutoDownloaderProfile(c echo.Context) error {
+	var profile anime.AutoDownloaderProfile
+	if err := c.Bind(&profile); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if profile.Name == "" {
+		return h.RespondWithError(c, errors.New("profile name is required"))
+	}
+
+	if err := db_bridge.InsertAutoDownloaderProfile(h.App.Database, &profile); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, profile)
+}
+
+// HandleUpdateAutoDownloaderProfile
+//
+//	@summary updates a profile.
+//	@route /api/v1/auto-downloader/profile [PATCH]
+//	@returns anime.AutoDownloaderProfile
+func (h *Handler) HandleUpdateAutoDownloaderProfile(c echo.Context) error {
+	var profile anime.AutoDownloaderProfile
+	if err := c.Bind(&profile); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if profile.DbID == 0 {
+		return h.RespondWithError(c, errors.New("invalid profile id"))
+	}
+
+	if profile.Name == "" {
+		return h.RespondWithError(c, errors.New("profile name is required"))
+	}
+
+	if err := db_bridge.UpdateAutoDownloaderProfile(h.App.Database, profile.DbID, &profile); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, profile)
+}
+
+// HandleDeleteAutoDownloaderProfile
+//
+//	@summary deletes a profile.
+//	@route /api/v1/auto-downloader/profile/{id} [DELETE]
+//	@param id - int - true - "The DB id of the profile"
+//	@returns bool
+func (h *Handler) HandleDeleteAutoDownloaderProfile(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return h.RespondWithError(c, errors.New("invalid id"))
+	}
+
+	if err := db_bridge.DeleteAutoDownloaderProfile(h.App.Database, uint(id)); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, true)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // HandleGetAutoDownloaderItems
 //
 //	@summary returns all queued items.

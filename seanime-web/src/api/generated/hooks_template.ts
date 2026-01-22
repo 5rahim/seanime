@@ -408,6 +408,57 @@
 //     })
 // }
 
+// export function useGetAutoDownloaderProfiles() {
+//     return useServerQuery<Array<Anime_AutoDownloaderProfile>>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.endpoint,
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.methods[0],
+//         queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetAutoDownloaderProfile(id: number) {
+//     return useServerQuery<Anime_AutoDownloaderProfile>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfile.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfile.methods[0],
+//         queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfile.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useCreateAutoDownloaderProfile() {
+//     return useServerMutation<Anime_AutoDownloaderProfile>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.endpoint,
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.methods[0],
+//         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useUpdateAutoDownloaderProfile() {
+//     return useServerMutation<Anime_AutoDownloaderProfile>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.endpoint,
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.methods[0],
+//         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDeleteAutoDownloaderProfile(id: number) {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.methods[0],
+//         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useGetAutoDownloaderItems() {
 //     return useServerQuery<Array<Models_AutoDownloaderItem>>({
 //         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems.endpoint,

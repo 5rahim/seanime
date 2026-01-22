@@ -261,6 +261,11 @@ type AutoDownloaderRule struct {
 	Value []byte `gorm:"column:value" json:"value"`
 }
 
+type AutoDownloaderProfile struct {
+	BaseModel
+	Value []byte `gorm:"column:value" json:"value"`
+}
+
 type AutoDownloaderItem struct {
 	BaseModel
 	RuleID      uint   `gorm:"column:rule_id" json:"ruleId"`

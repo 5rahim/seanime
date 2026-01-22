@@ -388,6 +388,34 @@ export type DeleteAutoDownloaderRule_Variables = {
 /**
  * - Filepath: internal/handlers/auto_downloader.go
  * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/profile/{id}
+ * @description
+ * Route returns the profile with the given DB id.
+ */
+export type GetAutoDownloaderProfile_Variables = {
+    /**
+     *  The DB id of the profile
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/auto_downloader.go
+ * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/profile/{id}
+ * @description
+ * Route deletes a profile.
+ */
+export type DeleteAutoDownloaderProfile_Variables = {
+    /**
+     *  The DB id of the profile
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/auto_downloader.go
+ * - Filename: auto_downloader.go
  * - Endpoint: /api/v1/auto-downloader/item
  * @description
  * Route delete a queued item.

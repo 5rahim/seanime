@@ -1325,22 +1325,66 @@ export type AL_UserStudioStats_Studio = {
  * - Filename: autodownloader_rule.go
  * - Package: anime
  */
-export type Anime_AutoDownloaderRule = {
+export type Anime_AutoDownloaderCondition = {
+    dbId: number
+    term: string
+    isRegex: boolean
+    action: Anime_AutoDownloaderProfileRuleFormatAction
     /**
-     * Will be set when fetched from the database
+     * Only used if Action == "score"
      */
+    score: number
+}
+
+/**
+ * - Filepath: internal/library/anime/autodownloader_rule.go
+ * - Filename: autodownloader_rule.go
+ * - Package: anime
+ */
+export type Anime_AutoDownloaderProfile = {
+    dbId: number
+    name: string
+    global: boolean
+    resolutions?: Array<string>
+    conditions?: Array<Anime_AutoDownloaderCondition>
+    minimumScore: number
+    minSeeders?: number
+    minSize?: number
+    maxSize?: number
+    providers?: Array<string>
+}
+
+/**
+ * - Filepath: internal/library/anime/autodownloader_rule.go
+ * - Filename: autodownloader_rule.go
+ * - Package: anime
+ */
+export type Anime_AutoDownloaderProfileRuleFormatAction = "score" | "block" | "require"
+
+/**
+ * - Filepath: internal/library/anime/autodownloader_rule.go
+ * - Filename: autodownloader_rule.go
+ * - Package: anime
+ */
+export type Anime_AutoDownloaderRule = {
     dbId: number
     enabled: boolean
     mediaId: number
+    destination: string
+    profileId?: number
     releaseGroups?: Array<string>
     resolutions?: Array<string>
+    episodeNumbers?: Array<number>
+    episodeType: Anime_AutoDownloaderRuleEpisodeType
     comparisonTitle: string
     titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType
-    episodeType: Anime_AutoDownloaderRuleEpisodeType
-    episodeNumbers?: Array<number>
-    destination: string
     additionalTerms?: Array<string>
-    provider?: string
+    excludeTerms?: Array<string>
+    minSeeders: number
+    minSize: number
+    maxSize: number
+    customEpisodeNumberAbsoluteOffset?: number
+    providers?: Array<string>
 }
 
 /**
