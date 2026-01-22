@@ -12,7 +12,14 @@ import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collecti
 import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AutoDownloaderMediaCombobox, useAutoDownloaderMediaList } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
-import { AdditionalTermsField, ReleaseGroupsField, ResolutionsField } from "@/app/(main)/auto-downloader/_containers/autodownloader-shared-fields"
+import {
+    AdditionalTermsField,
+    ExcludeTermsField,
+    ProfileSelectField,
+    ProvidersField,
+    ReleaseGroupsField,
+    ResolutionsField,
+} from "@/app/(main)/auto-downloader/_containers/autodownloader-shared-fields"
 import { Button, CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
@@ -34,7 +41,7 @@ type AutoDownloaderBatchRuleFormProps = {
     rules: Anime_AutoDownloaderRule[]
 }
 
-const schema = defineSchema(({ z }) => z.object({
+const schema = defineSchema(({ z, presets }) => z.object({
     enabled: z.boolean(),
     entries: z.array(z.object({
         mediaId: z.number(),
@@ -44,7 +51,13 @@ const schema = defineSchema(({ z }) => z.object({
     releaseGroups: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     resolutions: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     additionalTerms: z.array(z.string()).optional().transform(value => !value?.length ? [] : uniq(value.filter(Boolean))),
+    excludeTerms: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     titleComparisonType: z.string(),
+    minSeeders: z.number().min(0),
+    minSize: z.string(),
+    maxSize: z.string(),
+    providers: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
+    profileId: presets.multiSelect,
 }))
 
 export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormProps) {
@@ -73,15 +86,24 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
                 continue
             }
             createRule({
-                titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
-                episodeType: "recent" as Anime_AutoDownloaderRuleEpisodeType,
-                enabled: data.enabled,
-                mediaId: entry.mediaId,
-                releaseGroups: data.releaseGroups,
-                resolutions: data.resolutions,
-                additionalTerms: data.additionalTerms,
-                comparisonTitle: entry.comparisonTitle,
-                destination: entry.destination,
+                rule: {
+                    dbId: 0,
+                    titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
+                    episodeType: "recent" as Anime_AutoDownloaderRuleEpisodeType,
+                    enabled: data.enabled,
+                    mediaId: entry.mediaId,
+                    releaseGroups: data.releaseGroups,
+                    resolutions: data.resolutions,
+                    additionalTerms: data.additionalTerms,
+                    excludeTerms: data.excludeTerms,
+                    comparisonTitle: entry.comparisonTitle,
+                    destination: entry.destination,
+                    minSeeders: data.minSeeders,
+                    minSize: data.minSize,
+                    maxSize: data.maxSize,
+                    providers: data.providers,
+                    profileId: !!data.profileId?.[0] ? Number(data.profileId[0]) : undefined,
+                },
             })
         }
         onRuleCreated?.()
@@ -103,6 +125,10 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
                 defaultValues={{
                     enabled: true,
                     titleComparisonType: "likely",
+                    minSeeders: 0,
+                    minSize: "0",
+                    maxSize: "0",
+                    profileId: [],
                 }}
             >
                 {(f) => (
@@ -196,11 +222,41 @@ function RuleFormFields(props: RuleFormFieldsProps) {
                     />
                 </div>
 
+                <ProfileSelectField name="profileId" />
+
                 <ReleaseGroupsField name="releaseGroups" control={form.control} />
 
                 <ResolutionsField name="resolutions" control={form.control} />
 
+                <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Constraints</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Field.Number
+                            name="minSeeders"
+                            label="Min Seeders"
+                            min={0}
+                            fieldClass="w-full"
+                        />
+                        <Field.Text
+                            name="minSize"
+                            label="Min Size"
+                            placeholder="e.g., 100MB"
+                            fieldClass="w-full"
+                        />
+                        <Field.Text
+                            name="maxSize"
+                            label="Max Size"
+                            placeholder="e.g., 2GB or 10GiB"
+                            fieldClass="w-full"
+                        />
+                    </div>
+                </div>
+
+                <ProvidersField name="providers" control={form.control} />
+
                 <AdditionalTermsField name="additionalTerms" control={form.control} />
+
+                <ExcludeTermsField name="excludeTerms" control={form.control} />
 
             </div>
             <div className="flex gap-2">

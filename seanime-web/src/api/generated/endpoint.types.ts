@@ -10,8 +10,6 @@ import type {
     AL_MediaSort,
     AL_MediaStatus,
     Anime_AutoDownloaderRule,
-    Anime_AutoDownloaderRuleEpisodeType,
-    Anime_AutoDownloaderRuleTitleComparisonType,
     Anime_LocalFileMetadata,
     Anime_PlaylistEpisode,
     ChapterDownloader_DownloadID,
@@ -348,16 +346,7 @@ export type GetAutoDownloaderRulesByAnime_Variables = {
  * Route creates a new rule.
  */
 export type CreateAutoDownloaderRule_Variables = {
-    enabled: boolean
-    mediaId: number
-    releaseGroups: Array<string>
-    resolutions: Array<string>
-    additionalTerms: Array<string>
-    comparisonTitle: string
-    titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType
-    episodeType: Anime_AutoDownloaderRuleEpisodeType
-    episodeNumbers?: Array<number>
-    destination: string
+    rule: Anime_AutoDownloaderRule
 }
 
 /**

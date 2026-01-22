@@ -12,6 +12,9 @@ import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-se
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
     AdditionalTermsField,
+    ExcludeTermsField,
+    ProfileSelectField,
+    ProvidersField,
     ReleaseGroupsField,
     ResolutionsField,
     TextArrayField,
@@ -42,17 +45,24 @@ type AutoDownloaderRuleFormProps = {
     onRuleCreatedOrDeleted?: () => void
 }
 
-const schema = defineSchema(({ z }) => z.object({
+const schema = defineSchema(({ z, presets }) => z.object({
     enabled: z.boolean(),
     mediaId: z.number().min(1),
     releaseGroups: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     resolutions: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     episodeNumbers: z.array(z.number()).transform(value => uniq(value.filter(Boolean))),
     additionalTerms: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
+    excludeTerms: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     comparisonTitle: z.string().min(1),
     titleComparisonType: z.string(),
     episodeType: z.string(),
     destination: z.string().min(1),
+    minSeeders: z.number().min(0),
+    minSize: z.string(),
+    maxSize: z.string(),
+    customEpisodeNumberAbsoluteOffset: z.number(),
+    providers: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
+    profileId: presets.multiSelect,
 }))
 
 export const _autoDownloader_listActiveMediaOnlyAtom = atomWithStorage<"airing" | "airing-upcoming" | "all">(
@@ -106,9 +116,13 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
         }
         if (type === "create") {
             createRule({
-                ...data,
-                titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
-                episodeType: data.episodeType as Anime_AutoDownloaderRuleEpisodeType,
+                rule: {
+                    ...data,
+                    dbId: 0,
+                    profileId: !!data.profileId?.[0] ? Number(data.profileId[0]) : undefined,
+                    titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
+                    episodeType: data.episodeType as Anime_AutoDownloaderRuleEpisodeType,
+                },
             }, {
                 onSuccess: () => onRuleCreatedOrDeleted?.(),
             })
@@ -117,6 +131,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
             updateRule({
                 rule: {
                     ...data,
+                    profileId: !!data.profileId?.[0] ? Number(data.profileId[0]) : undefined,
                     dbId: rule.dbId || 0,
                     titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
                     episodeType: data.episodeType as Anime_AutoDownloaderRuleEpisodeType,
@@ -147,6 +162,13 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                     episodeNumbers: rule?.episodeNumbers ?? [],
                     destination: rule?.destination ?? "",
                     additionalTerms: rule?.additionalTerms ?? [],
+                    excludeTerms: rule?.excludeTerms ?? [],
+                    minSeeders: rule?.minSeeders ?? 0,
+                    minSize: rule?.minSize,
+                    maxSize: rule?.maxSize,
+                    customEpisodeNumberAbsoluteOffset: rule?.customEpisodeNumberAbsoluteOffset ?? 0,
+                    providers: rule?.providers ?? [],
+                    profileId: rule?.profileId ? [String(rule.profileId)] : [],
                 }}
                 onError={() => {
                     toast.error("An error occurred, verify the fields.")
@@ -420,13 +442,51 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                         control={form.control}
                         type="number"
                     />}
+
+                    <Field.Number
+                        name="customEpisodeNumberAbsoluteOffset"
+                        label="Episode number absolute offset"
+                        help="For example, if the release group starts numbering at 13 instead of 1, set this to 12."
+                        className="w-32"
+                        hideControls
+                    />
                 </div>
+
+                <ProfileSelectField name="profileId" />
 
                 <ReleaseGroupsField name="releaseGroups" control={form.control} />
 
                 <ResolutionsField name="resolutions" control={form.control} />
 
+                <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Constraints</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Field.Number
+                            name="minSeeders"
+                            label="Min Seeders"
+                            min={0}
+                            fieldClass="w-full"
+                        />
+                        <Field.Text
+                            name="minSize"
+                            label="Min Size"
+                            placeholder="e.g., 100MB"
+                            fieldClass="w-full"
+                        />
+                        <Field.Text
+                            name="maxSize"
+                            label="Max Size"
+                            placeholder="e.g., 2GB or 10GiB"
+                            fieldClass="w-full"
+                        />
+                    </div>
+                </div>
+
+                <ProvidersField name="providers" control={form.control} />
+
                 <AdditionalTermsField name="additionalTerms" control={form.control} defaultOpen={!!rule?.additionalTerms?.length} />
+
+                <ExcludeTermsField name="excludeTerms" control={form.control} />
 
             </div>
             {type === "create" &&

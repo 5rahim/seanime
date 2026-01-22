@@ -1,6 +1,7 @@
 import {
     useDeleteAutoDownloaderRule,
     useGetAutoDownloaderItems,
+    useGetAutoDownloaderProfiles,
     useGetAutoDownloaderRules,
     useRunAutoDownloader,
 } from "@/api/hooks/auto_downloader.hooks"
@@ -10,6 +11,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AutoDownloaderRuleItem } from "@/app/(main)/auto-downloader/_components/autodownloader-rule-item"
 import { AutoDownloaderBatchRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-batch-rule-form"
 import { AutoDownloaderItemList } from "@/app/(main)/auto-downloader/_containers/autodownloader-item-list"
+import { AutoDownloaderProfiles } from "@/app/(main)/auto-downloader/_containers/autodownloader-profiles"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
@@ -66,6 +68,7 @@ export function AutoDownloaderPage() {
     const { data, isLoading } = useGetAutoDownloaderRules()
 
     const { data: items, isLoading: itemsLoading } = useGetAutoDownloaderItems()
+    const { data: profiles } = useGetAutoDownloaderProfiles()
 
     const { mutate: deleteNoLongerAiring, isPending: deletingRule } = useDeleteAutoDownloaderRule(-1)
 
@@ -88,7 +91,7 @@ export function AutoDownloaderPage() {
             >
                 <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
                     <TabsTrigger value="rules">Rules</TabsTrigger>
-                    <TabsTrigger value="profiles">Profiles (0)</TabsTrigger>
+                    <TabsTrigger value="profiles">Profiles</TabsTrigger>
                     <TabsTrigger value="queue">
                         Queue
                         {!!items?.length && (
@@ -167,6 +170,7 @@ export function AutoDownloaderPage() {
                                                 key={rule.dbId}
                                                 rule={rule}
                                                 userMedia={userMedia}
+                                                profiles={profiles ?? []}
                                             />
                                         ))}
                                     </div>}
@@ -176,6 +180,9 @@ export function AutoDownloaderPage() {
                     </div>
                 </TabsContent>
 
+                <TabsContent value="profiles" className={tabContentClass}>
+                    <AutoDownloaderProfiles />
+                </TabsContent>
 
                 <TabsContent value="queue" className={tabContentClass}>
 

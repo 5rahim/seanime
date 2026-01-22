@@ -1,4 +1,7 @@
+import { useGetAutoDownloaderProfiles } from "@/api/hooks/auto_downloader.hooks"
+import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { Button, CloseButton, IconButton } from "@/components/ui/button"
+import { Field } from "@/components/ui/form"
 import { TextInput } from "@/components/ui/text-input"
 import React from "react"
 import { useFieldArray } from "react-hook-form"
@@ -195,6 +198,103 @@ export function AdditionalTermsField(props: AdditionalTermsFieldProps) {
                 separatorText="AND"
                 suggestions={suggestions.map(s => s.value)}
                 suggestionLabels={suggestions.map(s => s.label)}
+            />
+        </div>
+    )
+}
+
+export function ExcludeTermsField(props: AdditionalTermsFieldProps) {
+    const suggestions = [
+        // Video
+        { label: "HEVC / H.265", value: "H265,H.265,x265,HEVC" },
+        { label: "AVC / H.264", value: "H264,H.264,x264,AVC" },
+        { label: "10-bit", value: "10bit,10-bit,10 bit" },
+        { label: "HDR", value: "HDR,HDR10,HDR10+" },
+        { label: "Dolby Vision", value: "Dolby Vision,DolbyVision,DoVi" },
+        { label: "Remux", value: "Remux" },
+        // Audio
+        { label: "FLAC", value: "FLAC" },
+        // Source
+        { label: "BluRay", value: "BluRay,Blu-Ray,BDRip" },
+        { label: "DVD", value: "DVD,DVD-Rip,DVDRip" },
+        { label: "Cam", value: "Cam,CamRip" },
+        // Anime
+        { label: "Dubbed", value: "Dubbed,Dub" },
+    ]
+
+    return (
+        <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
+            <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Exclude Terms</div>
+            <p className="text-sm">
+                Torrents containing any of these terms will be rejected. (Case insensitive)
+            </p>
+
+            <TextArrayField
+                name={props.name}
+                control={props.control}
+                type="text"
+                placeholder="e.g. H265,H.265,H 265,x265"
+                separatorText="AND"
+                suggestions={suggestions.map(s => s.value)}
+                suggestionLabels={suggestions.map(s => s.label)}
+            />
+        </div>
+    )
+}
+
+type ProvidersFieldProps = {
+    name: string
+    control: any
+}
+
+export function ProvidersField(props: ProvidersFieldProps) {
+    const { data: extensions } = useAnimeListTorrentProviderExtensions()
+
+    return (
+        <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
+            <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Providers</div>
+            <p className="text-sm">
+                Select specific providers to look for. If empty, the default provider will be used.
+            </p>
+            <Field.Combobox
+                name={props.name}
+                options={extensions?.map(ext => ({
+                    label: ext.name,
+                    textValue: ext.name,
+                    value: ext.id,
+                })) ?? []}
+                multiple
+                label="Select providers"
+                emptyMessage="No providers found"
+            />
+        </div>
+    )
+}
+
+type ProfileSelectFieldProps = {
+    name: string
+}
+
+export function ProfileSelectField(props: ProfileSelectFieldProps) {
+    const { data: profiles } = useGetAutoDownloaderProfiles()
+
+    return (
+        <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
+            <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Profile</div>
+            <p className="text-sm">
+                Select a profile to apply shared filters. Local filters will override profile filters.
+            </p>
+            <Field.Combobox
+                name={props.name}
+                options={[
+                    ...(profiles?.map(profile => ({
+                        label: profile.name,
+                        textValue: profile.name,
+                        value: String(profile.dbId),
+                    })) ?? []),
+                ]}
+                label="Select a profile"
+                emptyMessage="No profile found"
             />
         </div>
     )

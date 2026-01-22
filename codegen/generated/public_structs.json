@@ -44455,8 +44455,8 @@
       {
         "name": "MinSize",
         "jsonName": "minSize",
-        "goType": "int64",
-        "typescriptType": "number",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -44464,8 +44464,8 @@
       {
         "name": "MaxSize",
         "jsonName": "maxSize",
-        "goType": "int64",
-        "typescriptType": "number",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -44566,8 +44566,8 @@
       {
         "name": "MinSize",
         "jsonName": "minSize",
-        "goType": "int64",
-        "typescriptType": "number",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
@@ -44575,8 +44575,8 @@
       {
         "name": "MaxSize",
         "jsonName": "maxSize",
-        "goType": "int64",
-        "typescriptType": "number",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
@@ -44601,10 +44601,10 @@
     "package": "anime",
     "fields": [
       {
-        "name": "DbID",
-        "jsonName": "dbId",
-        "goType": "uint",
-        "typescriptType": "number",
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []

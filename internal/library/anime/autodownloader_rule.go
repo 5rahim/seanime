@@ -63,10 +63,10 @@ type (
 		ExcludeTerms    []string `json:"excludeTerms"`
 
 		// Constraints
-		MinSeeders                        int   `json:"minSeeders"`
-		MinSize                           int64 `json:"minSize"`
-		MaxSize                           int64 `json:"maxSize"`
-		CustomEpisodeNumberAbsoluteOffset int   `json:"customEpisodeNumberAbsoluteOffset,omitempty"`
+		MinSeeders                        int    `json:"minSeeders"`
+		MinSize                           string `json:"minSize"`
+		MaxSize                           string `json:"maxSize"`
+		CustomEpisodeNumberAbsoluteOffset int    `json:"customEpisodeNumberAbsoluteOffset,omitempty"`
 		// Providers (extension IDs) If set, only torrents from these providers are considered.
 		// Overrides default provider if set.
 		Providers []string `json:"providers"`
@@ -85,16 +85,16 @@ type (
 		Conditions []AutoDownloaderCondition `json:"conditions"`
 
 		// Thresholds
-		MinimumScore int   `json:"minimumScore"`
-		MinSeeders   int   `json:"minSeeders,omitempty"`
-		MinSize      int64 `json:"minSize,omitempty"`
-		MaxSize      int64 `json:"maxSize,omitempty"`
+		MinimumScore int    `json:"minimumScore"`
+		MinSeeders   int    `json:"minSeeders,omitempty"`
+		MinSize      string `json:"minSize,omitempty"`
+		MaxSize      string `json:"maxSize,omitempty"`
 		// Providers (extension IDs) If set, only torrents from these providers are considered.
 		Providers []string `json:"providers"`
 	}
 
 	AutoDownloaderCondition struct {
-		DbID    uint                                  `json:"dbId"`
+		ID      string                                `json:"id"`
 		Term    string                                `json:"term"`
 		IsRegex bool                                  `json:"isRegex"`
 		Action  AutoDownloaderProfileRuleFormatAction `json:"action"`

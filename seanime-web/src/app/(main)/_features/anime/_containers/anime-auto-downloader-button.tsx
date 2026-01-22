@@ -1,5 +1,5 @@
 import { Anime_AutoDownloaderRule, Anime_Entry } from "@/api/generated/types"
-import { useGetAutoDownloaderRulesByAnime } from "@/api/hooks/auto_downloader.hooks"
+import { useGetAutoDownloaderProfiles, useGetAutoDownloaderRulesByAnime } from "@/api/hooks/auto_downloader.hooks"
 import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AutoDownloaderRuleItem } from "@/app/(main)/auto-downloader/_components/autodownloader-rule-item"
@@ -73,6 +73,7 @@ export function Content(props: ContentProps) {
         ...rest
     } = props
 
+    const { data: profiles } = useGetAutoDownloaderProfiles()
     const userMedia = useAtomValue(__anilist_userAnimeMediaAtom)
     const createRuleModal = useBoolean(false)
 
@@ -116,6 +117,7 @@ export function Content(props: ContentProps) {
                     key={rule.dbId}
                     rule={rule}
                     userMedia={userMedia}
+                    profiles={profiles ?? []}
                 />
             ))}
 

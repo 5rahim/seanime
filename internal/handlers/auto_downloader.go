@@ -88,16 +88,7 @@ func (h *Handler) HandleGetAutoDownloaderRules(c echo.Context) error {
 //	@returns anime.AutoDownloaderRule
 func (h *Handler) HandleCreateAutoDownloaderRule(c echo.Context) error {
 	type body struct {
-		Enabled             bool                                        `json:"enabled"`
-		MediaId             int                                         `json:"mediaId"`
-		ReleaseGroups       []string                                    `json:"releaseGroups"`
-		Resolutions         []string                                    `json:"resolutions"`
-		AdditionalTerms     []string                                    `json:"additionalTerms"`
-		ComparisonTitle     string                                      `json:"comparisonTitle"`
-		TitleComparisonType anime.AutoDownloaderRuleTitleComparisonType `json:"titleComparisonType"`
-		EpisodeType         anime.AutoDownloaderRuleEpisodeType         `json:"episodeType"`
-		EpisodeNumbers      []int                                       `json:"episodeNumbers,omitempty"`
-		Destination         string                                      `json:"destination"`
+		Rule anime.AutoDownloaderRule `json:"rule"`
 	}
 
 	var b body
@@ -106,26 +97,19 @@ func (h *Handler) HandleCreateAutoDownloaderRule(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	if b.Destination == "" {
+	if b.Rule.Destination == "" {
 		return h.RespondWithError(c, errors.New("destination is required"))
 	}
+	if b.Rule.MediaId == 0 {
+		return h.RespondWithError(c, errors.New("media id is required"))
+	}
 
-	if !filepath.IsAbs(b.Destination) {
+	if !filepath.IsAbs(b.Rule.Destination) {
 		return h.RespondWithError(c, errors.New("destination must be an absolute path"))
 	}
 
-	rule := &anime.AutoDownloaderRule{
-		Enabled:             b.Enabled,
-		MediaId:             b.MediaId,
-		ReleaseGroups:       b.ReleaseGroups,
-		Resolutions:         b.Resolutions,
-		ComparisonTitle:     b.ComparisonTitle,
-		TitleComparisonType: b.TitleComparisonType,
-		EpisodeType:         b.EpisodeType,
-		EpisodeNumbers:      b.EpisodeNumbers,
-		Destination:         b.Destination,
-		AdditionalTerms:     b.AdditionalTerms,
-	}
+	b.Rule.DbID = 0
+	rule := &b.Rule
 
 	if err := db_bridge.InsertAutoDownloaderRule(h.App.Database, rule); err != nil {
 		return h.RespondWithError(c, err)

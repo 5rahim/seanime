@@ -2953,8 +2953,8 @@ declare namespace $app {
         additionalTerms?: Array<string>;
         excludeTerms?: Array<string>;
         minSeeders: number;
-        minSize: number;
-        maxSize: number;
+        minSize: string;
+        maxSize: string;
         customEpisodeNumberAbsoluteOffset?: number;
         providers?: Array<string>;
     }

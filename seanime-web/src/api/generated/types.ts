@@ -1326,7 +1326,7 @@ export type AL_UserStudioStats_Studio = {
  * - Package: anime
  */
 export type Anime_AutoDownloaderCondition = {
-    dbId: number
+    id: string
     term: string
     isRegex: boolean
     action: Anime_AutoDownloaderProfileRuleFormatAction
@@ -1349,8 +1349,8 @@ export type Anime_AutoDownloaderProfile = {
     conditions?: Array<Anime_AutoDownloaderCondition>
     minimumScore: number
     minSeeders?: number
-    minSize?: number
-    maxSize?: number
+    minSize?: string
+    maxSize?: string
     providers?: Array<string>
 }
 
@@ -1381,8 +1381,8 @@ export type Anime_AutoDownloaderRule = {
     additionalTerms?: Array<string>
     excludeTerms?: Array<string>
     minSeeders: number
-    minSize: number
-    maxSize: number
+    minSize: string
+    maxSize: string
     customEpisodeNumberAbsoluteOffset?: number
     providers?: Array<string>
 }

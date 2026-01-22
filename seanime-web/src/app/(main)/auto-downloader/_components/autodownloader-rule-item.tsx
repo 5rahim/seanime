@@ -1,4 +1,4 @@
-import { AL_BaseAnime, Anime_AutoDownloaderRule } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_AutoDownloaderProfile, Anime_AutoDownloaderRule } from "@/api/generated/types"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -11,6 +11,7 @@ import { FaSquareRss } from "react-icons/fa6"
 export type AutoDownloaderRuleItemProps = {
     rule: Anime_AutoDownloaderRule
     userMedia: AL_BaseAnime[] | undefined
+    profiles: Anime_AutoDownloaderProfile[]
 }
 
 export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
@@ -18,6 +19,7 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
     const {
         rule,
         userMedia,
+        profiles,
         ...rest
     } = props
 
@@ -46,6 +48,10 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                                     (!media) && "text-red-300",
                                 )}
                             />
+                            {!!(rule.profileId || profiles?.some(p => p.global)) &&
+                                <span className="text-blue-200 text-xs tracking-wide">{profiles.filter(p => p.dbId === rule.profileId || p.global)
+                                    ?.map(p => p.name)
+                                    ?.join(", ")}</span>}
                             {!!rule.releaseGroups?.length && <span>{rule.releaseGroups.join(", ")}</span>}
                             {!!rule.resolutions?.length && <span>{rule.resolutions.join(", ")}</span>}
                             {!!rule.episodeType && <span>{getEpisodeTypeName(rule.episodeType)}</span>}
