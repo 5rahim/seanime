@@ -332,15 +332,16 @@ func (d *DOMManager) jsObserve(call goja.FunctionCall) goja.Value {
 		})
 	}
 
+	// Flag on whether to listen to ClientDOMMainTabReadyEvent instead of ClientDOMReadyEvent
 	useMainTabEvents := atomic.Bool{}
 
 	// Listen for DOM ready events to re-observe elements after page reload
 	domReadyListener := d.ctx.RegisterEventListener(ClientDOMReadyEvent)
 	domReadyListener.SetCallback(func(event *ClientPluginEvent) {
-		if !useMainTabEvents.Load() {
-			refetchFn()
-			useMainTabEvents.Store(true)
-		}
+		// Reset the flag since this is a fresh page load
+		useMainTabEvents.Store(false)
+		refetchFn()
+		useMainTabEvents.Store(true)
 	})
 
 	// Listen for DOM Main Tab events to re-observe elements after the main tab changed
@@ -458,10 +459,10 @@ func (d *DOMManager) jsObserveInView(call goja.FunctionCall) goja.Value {
 	// Listen for DOM ready events to re-observe elements after page reload
 	domReadyListener := d.ctx.RegisterEventListener(ClientDOMReadyEvent)
 	domReadyListener.SetCallback(func(event *ClientPluginEvent) {
-		if !useMainTabEvents.Load() {
-			refetchFn()
-			useMainTabEvents.Store(true)
-		}
+		// Reset the flag since this is a fresh page load
+		useMainTabEvents.Store(false)
+		refetchFn()
+		useMainTabEvents.Store(true)
 	})
 
 	// Listen for DOM Main Tab events to re-observe elements after the main tab changed

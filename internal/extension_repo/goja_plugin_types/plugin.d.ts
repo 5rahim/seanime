@@ -1253,9 +1253,15 @@ declare namespace $ui {
 
         /**
          * Adds a class to the element
-         * @param className - The class to add
+         * @param classNames - The classes to add
          */
-        addClass(className: string): void
+        addClass(...classNames: string[]): void
+
+        /**
+         * Removes a class from the element
+         * @param classNames - The classes to add
+         */
+        removeClass(...classNames: string[]): void
 
         /**
          * Checks if the element has a class

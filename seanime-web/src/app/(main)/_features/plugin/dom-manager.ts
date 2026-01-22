@@ -877,15 +877,6 @@ export function useDOMManager(extensionId: string) {
         }
     }
 
-    // Dispatch event each time the main tab changed
-    const previousIsMainTabRef = useRef(isMainTabRef.current)
-    const onMainTabChangedEvent = () => {
-        if (isMainTabRef.current && previousIsMainTabRef.current !== isMainTabRef.current) {
-            sendDOMMainTabReadyEvent()
-        }
-        previousIsMainTabRef.current = isMainTabRef.current
-    }
-
     useEffect(() => {
         if (!isMainTab) return
 
@@ -905,8 +896,6 @@ export function useDOMManager(extensionId: string) {
             window.addEventListener("load", sendDOMReadyEvent)
         }
 
-        onMainTabChangedEvent()
-
         // Initialize mutation observer
         initMutationObserver()
 
@@ -919,6 +908,16 @@ export function useDOMManager(extensionId: string) {
             }
         }
     }, [extensionId, isMainTab])
+
+    // Track when tab becomes main tab and send event
+    const previousIsMainTabRef = useRef(isMainTab)
+    useEffect(() => {
+        // If the tab just became the main tab
+        if (isMainTab && !previousIsMainTabRef.current) {
+            sendDOMMainTabReadyEvent()
+        }
+        previousIsMainTabRef.current = isMainTab
+    }, [isMainTab])
 
     return {
         handleDOMQuery,

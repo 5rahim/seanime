@@ -228,9 +228,16 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                         {extension.pluginPermissionDescription?.split("\n").map((line, index) => {
                             line = line.trimEnd()
                             if (line.startsWith("•") && !line.startsWith("*")) {
+                                const l = line.replace("• ", "")
                                 return <span key={index} className="pl-4 mb-1 block">
-                                    <span className="font-bold bg-gray-950 border px-2 py-[0.1rem] rounded-lg inline-block">{line.replace("•", "")
-                                        .split(":")[0].trim()}</span>: {line.split(":")[1]}<br />
+                                    {l.startsWith("Domain:") ? <>
+                                            <span className="font-bold bg-gray-950 border px-2 py-[0.1rem] rounded-lg inline-block">{l
+                                                .split(":")[0].trim()}</span>: {l.substring(l.indexOf(":") + 1)}<br />
+                                        </> :
+                                        <>
+                                            <span className="font-bold bg-gray-950 border px-2 py-[0.1rem] rounded-lg inline-block">{l
+                                                .split(":")[0].trim()}</span>: {l.split(":")[1]}<br />
+                                        </>}
                                 </span>
                             }
                             if (line.startsWith("*")) {

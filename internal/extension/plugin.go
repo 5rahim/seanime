@@ -351,7 +351,7 @@ func (p *PluginPermissions) GetDescription() string {
 	if len(p.Allow.NetworkAccess.AllowedDomains) > 0 {
 		desc.WriteString("Network Access:\n")
 		for _, domain := range p.Allow.ReadNetworkAccessAllowedDomains() {
-			desc.WriteString("• " + domain + "\n")
+			desc.WriteString("• Domain: " + domain + "\n")
 		}
 		desc.WriteString("\n")
 	}
