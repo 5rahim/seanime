@@ -38,7 +38,7 @@ type EpisodeGridItemProps = {
     progressNumber?: number
 }
 
-export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPropsWithoutRef<"div">> = (props) => {
+export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.ComponentPropsWithoutRef<"div">) => {
 
     const {
         children,
@@ -215,4 +215,4 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
         </div>
     </>
 
-}
+})
