@@ -141,7 +141,6 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
                                     alt="banner image"
                                     fill
                                     quality={100}
-                                    priority
                                     sizes="100vw"
                                     className={cn(
                                         "object-cover object-center z-[1] opacity-100 transition-opacity duration-700",

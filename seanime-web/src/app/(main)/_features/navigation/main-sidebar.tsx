@@ -49,33 +49,18 @@ import { TbReportSearch } from "react-icons/tb"
 import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
-/**
- * @description
- * - Displays navigation items
- * - Button to logout
- * - Shows count of missing episodes and auto downloader queue
- */
 export function MainSidebar() {
 
     const ctx = useAppSidebarContext()
     const ts = useThemeSettings()
 
     const [expandedSidebar, setExpandSidebar] = React.useState(false)
-    const [dropdownOpen, setDropdownOpen] = React.useState(false)
     const isCollapsed = ts.expandSidebarOnHover ? (!ctx.isBelowBreakpoint && !expandedSidebar) : !ctx.isBelowBreakpoint
 
-    const router = useRouter()
-    const pathname = usePathname()
-    const serverStatus = useServerStatus()
-    const setServerStatus = useSetServerStatus()
-    const user = useCurrentUser()
-
-    const { setSeaCommandOpen } = useSeaCommand()
-
-    const missingEpisodeCount = useMissingEpisodeCount()
-    const autoDownloaderQueueCount = useAutoDownloaderQueueCount()
+    const containerRef = React.useRef<HTMLDivElement>(null)
 
     // Logout
+    const setServerStatus = useSetServerStatus()
     const { mutate: logout, data, isPending } = useLogout()
 
     React.useEffect(() => {
@@ -84,10 +69,6 @@ export function MainSidebar() {
         }
     }, [isPending, data])
 
-    const setGlobalSearchIsOpen = useSetAtom(__globalSearch_isOpenAtom)
-    const [loginModal, setLoginModal] = useAtom(isLoginModalOpenAtom)
-    const [nakamaModalOpen, setNakamaModalOpen] = useAtom(nakamaModalOpenAtom)
-    const nakamaStatus = useNakamaStatus()
 
     const handleExpandSidebar = () => {
         if (!ctx.isBelowBreakpoint && ts.expandSidebarOnHover) {
@@ -100,14 +81,61 @@ export function MainSidebar() {
         }
     }
 
-    const confirmSignOut = useConfirmationDialog({
-        title: "Sign out",
-        description: "Are you sure you want to sign out?",
-        onConfirm: () => {
-            logout()
-        },
-    })
+    return (
+        <>
+            <AppSidebar
+                ref={containerRef}
+                className={cn(
+                    "group/main-sidebar h-full flex flex-col justify-between transition-gpu w-full transition-[width] duration-300 overflow-x-hidden",
+                    // Enable scrolling but hide the scrollbar
+                    "overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']",
+                    (!ctx.isBelowBreakpoint && expandedSidebar) && "w-[260px]",
+                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency) && "bg-transparent",
+                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency && ts.expandSidebarOnHover && expandedSidebar) && "bg-[--background] rounded-tr-xl rounded-br-xl border-[--border]",
+                )}
+                onMouseEnter={handleExpandSidebar}
+                onMouseLeave={handleUnexpandedSidebar}
+            >
+                {(!ctx.isBelowBreakpoint && ts.expandSidebarOnHover && ts.disableSidebarTransparency) && <div
+                    className={cn(
+                        "fixed h-full translate-x-0 w-[50px] bg-gradient bg-gradient-to-r via-[--background] from-[--background] to-transparent",
+                        "group-hover/main-sidebar:translate-x-[250px] transition opacity-0 duration-300 group-hover/main-sidebar:opacity-100",
+                    )}
+                ></div>}
 
+                <SidebarNavigation
+                    isCollapsed={isCollapsed}
+                    containerRef={containerRef}
+                />
+
+                <div className="flex w-full gap-2 flex-col px-4 shrink-0 pb-2">
+                    <SidebarUpdates isCollapsed={isCollapsed} />
+                    <SidebarFooter isCollapsed={isCollapsed} onLogout={logout} />
+                    <SidebarUser expandedSidebar={expandedSidebar} onLogout={logout} isCollapsed={isCollapsed} />
+                </div>
+            </AppSidebar>
+        </>
+    )
+
+}
+
+
+function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean, containerRef: React.RefObject<HTMLDivElement> }) {
+    const ctx = useAppSidebarContext()
+    const ts = useThemeSettings()
+    const router = useRouter()
+    const pathname = usePathname()
+    const serverStatus = useServerStatus()
+
+    // Commands
+    const { setSeaCommandOpen } = useSeaCommand()
+    const setGlobalSearchIsOpen = useSetAtom(__globalSearch_isOpenAtom)
+
+    // Data
+    const missingEpisodeCount = useMissingEpisodeCount()
+    const autoDownloaderQueueCount = useAutoDownloaderQueueCount()
+
+    // Torrents
     const [activeTorrentCount, setActiveTorrentCount] = React.useState({ downloading: 0, paused: 0, seeding: 0 })
     useWebsocketMessageListener<{ downloading: number, paused: number, seeding: number }>({
         type: WSEvents.ACTIVE_TORRENT_COUNT_UPDATED,
@@ -116,20 +144,11 @@ export function MainSidebar() {
         },
     })
 
-    const { syncIsActive } = useSyncIsActive()
-
-    const { data: updateData } = useGetExtensionUpdateData()
-    const pluginWithIssuesCount = usePluginWithIssuesCount()
-
-    const [loggingIn, setLoggingIn] = React.useState(false)
-
-    /**
-     * @description
-     * - Asks the server to fetch an up-to-date version of the user's AniList collection.
-     */
+    // Refresh AniList
     const { mutate: refreshAC, isPending: isRefreshingAC } = useRefreshAnimeCollection()
 
-    const items = [
+    // Items
+    const items = React.useMemo(() => [
         {
             id: "home",
             iconType: IoHomeOutline,
@@ -228,13 +247,30 @@ export function MainSidebar() {
                 setGlobalSearchIsOpen(true)
             },
         },
-    ]
+    ], [
+        pathname,
+        missingEpisodeCount,
+        serverStatus?.settings?.library?.enableManga,
+        serverStatus?.settings?.library?.torrentProvider,
+        serverStatus?.settings?.torrent?.defaultTorrentClient,
+        serverStatus?.settings?.torrent?.showActiveTorrentCount,
+        serverStatus?.debridSettings?.enabled,
+        serverStatus?.debridSettings?.provider,
+        serverStatus?.settings?.library?.libraryPath,
+        activeTorrentCount.seeding,
+        activeTorrentCount.downloading,
+        activeTorrentCount.paused,
+        autoDownloaderQueueCount,
+    ])
 
-    const containerRef = React.useRef<HTMLDivElement>(null)
-    const [autoUnpinnedIds, setAutoUnpinnedIds] = React.useState<string[]>([])
+    // Plugins
     const pluginWebviewItems = usePluginSidebarItems()
 
-    React.useLayoutEffect(() => {
+    // Overflow logic
+    const [autoUnpinnedIds, setAutoUnpinnedIds] = React.useState<string[]>([])
+    const overflowCheckTimeoutRef = React.useRef<NodeJS.Timeout>()
+
+    React.useEffect(() => {
         const handleResize = () => setAutoUnpinnedIds([])
         window.addEventListener("resize", handleResize)
         return () => window.removeEventListener("resize", handleResize)
@@ -252,28 +288,54 @@ export function MainSidebar() {
         return pluginWebviewItems.filter((item: any) => !autoUnpinnedIds.includes(item.id))
     }, [pluginWebviewItems, autoUnpinnedIds])
 
-
-    React.useLayoutEffect(() => {
+    const checkOverflow = React.useCallback(() => {
         if (!containerRef.current) return
 
         const { scrollHeight, clientHeight } = containerRef.current
         if (scrollHeight > clientHeight + 2) {
-
             if (displayedPluginItems.length > 0) {
                 const lastPlugin = displayedPluginItems[displayedPluginItems.length - 1] as any
                 if (lastPlugin?.id) {
-                    setAutoUnpinnedIds(prev => [...prev, lastPlugin.id])
+                    setAutoUnpinnedIds(prev => {
+                        if (prev.includes(lastPlugin.id)) return prev
+                        return [...prev, lastPlugin.id]
+                    })
                     return
                 }
             }
 
             if (displayedPinnedItems.length > 1) {
                 const lastItem = displayedPinnedItems[displayedPinnedItems.length - 1]
-                setAutoUnpinnedIds(prev => [...prev, lastItem.id])
+                setAutoUnpinnedIds(prev => {
+                    if (prev.includes(lastItem.id)) return prev
+                    return [...prev, lastItem.id]
+                })
             }
         }
-    }, [displayedPinnedItems, displayedPluginItems, activeTorrentCount, updateData, pluginWithIssuesCount, pathname])
+    }, [displayedPinnedItems, displayedPluginItems])
 
+    React.useEffect(() => {
+        if (!containerRef.current) return
+
+        const observer = new ResizeObserver(() => {
+            if (overflowCheckTimeoutRef.current) {
+                clearTimeout(overflowCheckTimeoutRef.current)
+            }
+            overflowCheckTimeoutRef.current = setTimeout(() => {
+                checkOverflow()
+            }, 16)
+        })
+
+        observer.observe(containerRef.current)
+        checkOverflow()
+
+        return () => {
+            observer.disconnect()
+            if (overflowCheckTimeoutRef.current) {
+                clearTimeout(overflowCheckTimeoutRef.current)
+            }
+        }
+    }, [checkOverflow])
 
     const unpinnedMenuItems = React.useMemo(() => {
         const manuallyUnpinned = items.filter(item => ts.unpinnedMenuItems?.includes(item.id))
@@ -294,228 +356,264 @@ export function MainSidebar() {
                 />,
             } as VerticalMenuItem,
         ]
-    }, [items, ts.unpinnedMenuItems, ts.hideTopNavbar, autoUnpinnedIds, pluginWebviewItems])
+    }, [items, ts.unpinnedMenuItems, autoUnpinnedIds, pluginWebviewItems])
+
+    return (
+        <div>
+            <div
+                className={cn(
+                    "mb-4 p-4 pb-0 flex justify-center w-full",
+                    __isDesktop__ && "mt-2",
+                )}
+            >
+                <img
+                    src="/seanime-logo.png"
+                    alt="logo"
+                    className="w-15 h-10 transition-all duration-300"
+                />
+            </div>
+            <VerticalMenu
+                className="px-4"
+                collapsed={isCollapsed}
+                itemClass="relative"
+                itemChevronClass="hidden"
+                itemIconClass="transition-transform group-data-[state=open]/verticalMenu_parentItem:rotate-90"
+                items={[
+                    ...displayedPinnedItems,
+                    ...displayedPluginItems,
+                    ...unpinnedMenuItems,
+                    {
+                        iconType: LuRefreshCw,
+                        name: "Refresh AniList",
+                        onClick: () => {
+                            ctx.setOpen(false)
+                            if (isRefreshingAC) return
+                            refreshAC()
+                        },
+                    },
+                ]}
+                subContentClass={cn((ts.hideTopNavbar || __isDesktop__) && "border-transparent !border-b-0")}
+                onLinkItemClick={() => ctx.setOpen(false)}
+                isSidebar
+            />
+
+            <SidebarNavbar
+                isCollapsed={isCollapsed}
+                handleExpandSidebar={() => { }}
+                handleUnexpandedSidebar={() => { }}
+            />
+            {__isDesktop__ && <div className="w-full flex justify-center px-4">
+                <HoverCard
+                    side="right"
+                    sideOffset={-8}
+                    className="bg-transparent border-none"
+                    trigger={<IconButton
+                        intent="gray-basic"
+                        className="!text-[--muted] hover:!text-[--foreground]"
+                        icon={<PiArrowCircleLeftDuotone />}
+                        onClick={() => {
+                            router.back()
+                        }}
+                    />}
+                >
+                    <IconButton
+                        icon={<PiArrowCircleRightDuotone />}
+                        intent="gray-subtle"
+                        className="opacity-50 hover:opacity-100"
+                        onClick={() => {
+                            router.forward()
+                        }}
+                    />
+                </HoverCard>
+            </div>}
+
+            <PluginSidebarTray place="sidebar" />
+
+        </div>
+    )
+}
+
+function SidebarUpdates({ isCollapsed }: { isCollapsed: boolean }) {
+    return (
+        !__isDesktop__ ? <UpdateModal collapsed={isCollapsed} /> :
+            __isTauriDesktop__ ? <TauriUpdateModal collapsed={isCollapsed} /> :
+                __isElectronDesktop__ ? <ElectronUpdateModal collapsed={isCollapsed} /> :
+                    null
+    )
+}
+
+function SidebarFooter({ isCollapsed, onLogout }: { isCollapsed: boolean, onLogout: () => void }) {
+    const ctx = useAppSidebarContext()
+    const pathname = usePathname()
+    const serverStatus = useServerStatus()
+    const user = useCurrentUser()
+
+    // Extensions
+    const { data: updateData } = useGetExtensionUpdateData()
+    const pluginWithIssuesCount = usePluginWithIssuesCount()
+
+    // Sync
+    const { syncIsActive } = useSyncIsActive()
+
+    // Nakama
+    const [nakamaModalOpen, setNakamaModalOpen] = useAtom(nakamaModalOpenAtom)
+    const nakamaStatus = useNakamaStatus()
+
+    // Sign out
+    const confirmSignOut = useConfirmationDialog({
+        title: "Sign out",
+        description: "Are you sure you want to sign out?",
+        onConfirm: () => {
+            onLogout()
+        },
+    })
+    // Login
+    const [loginModal, setLoginModal] = useAtom(isLoginModalOpenAtom)
+
+
+    return (
+        <div>
+            <VerticalMenu
+                collapsed={isCollapsed}
+                itemClass="relative"
+                onMouseEnter={() => { }}
+                onMouseLeave={() => { }}
+                onLinkItemClick={() => ctx.setOpen(false)}
+                isSidebar
+                items={[
+                    // {
+                    //     iconType: RiSlashCommands2,
+                    //     name: "Command palette",
+                    //     onClick: () => {
+                    //         setSeaCommandOpen(true)
+                    //     }
+                    // },
+                    ...serverStatus?.settings?.nakama?.enabled ? [{
+                        iconType: MdOutlineConnectWithoutContact,
+                        iconClass: "size-6",
+                        name: "Nakama",
+                        isCurrent: nakamaModalOpen,
+                        onClick: () => {
+                            ctx.setOpen(false)
+                            setNakamaModalOpen(true)
+                        },
+                        addon: <>
+                            {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
+                                className="absolute right-0 top-0" size="sm"
+                                intent="info"
+                            >{nakamaStatus?.connectedPeers?.length}</Badge>}
+
+                            {nakamaStatus?.isConnectedToHost && <div
+                                className="absolute right-2 top-2 animate-pulse size-2 bg-green-500 rounded-full"
+                            ></div>}
+                        </>,
+                    }] : [],
+                    {
+                        iconType: BiExtension,
+                        name: "Extensions",
+                        href: "/extensions",
+                        isCurrent: pathname.includes("/extensions"),
+                        addon: (!!updateData?.length || !!pluginWithIssuesCount)
+                            ? <Badge
+                                className="absolute right-0 top-0 bg-red-500 animate-pulse" size="sm"
+                                intent="alert-solid"
+                            >
+                                {updateData?.length || pluginWithIssuesCount || 1}
+                            </Badge>
+                            : undefined,
+                    },
+                    {
+                        iconType: IoCloudOfflineOutline,
+                        name: "Offline",
+                        href: "/sync",
+                        isCurrent: pathname.includes("/sync"),
+                        addon: (syncIsActive)
+                            ? <Badge
+                                className="absolute right-0 top-0 bg-blue-500" size="sm"
+                                intent="alert-solid"
+                            >
+                                1
+                            </Badge>
+                            : undefined,
+                    },
+                    {
+                        iconType: LuSettings,
+                        name: "Settings",
+                        href: "/settings",
+                        isCurrent: pathname === ("/settings"),
+                    },
+                    ...(ctx.isBelowBreakpoint ? [
+                        {
+                            iconType: user?.isSimulated ? FiLogIn : BiLogOut,
+                            name: user?.isSimulated ? "Sign in" : "Sign out",
+                            onClick: user?.isSimulated ? () => setLoginModal(true) : confirmSignOut.open,
+                        },
+                    ] : []),
+                ]}
+            />
+            <ConfirmationDialog {...confirmSignOut} />
+        </div>
+    )
+}
+
+function SidebarUser({ isCollapsed, expandedSidebar, onLogout }: { isCollapsed: boolean, expandedSidebar: boolean, onLogout: () => void }) {
+    const ctx = useAppSidebarContext()
+    const user = useCurrentUser()
+    const router = useRouter()
+
+    const [dropdownOpen, setDropdownOpen] = React.useState(false)
+    const [loginModal, setLoginModal] = useAtom(isLoginModalOpenAtom)
+    const [loggingIn, setLoggingIn] = React.useState(false)
+
+    // Sign out
+    const confirmSignOut = useConfirmationDialog({
+        title: "Sign out",
+        description: "Are you sure you want to sign out?",
+        onConfirm: () => {
+            onLogout()
+        },
+    })
 
     return (
         <>
-            <AppSidebar
-                ref={containerRef}
-                className={cn(
-                    "group/main-sidebar h-full flex flex-col justify-between transition-gpu w-full transition-[width] duration-300 overflow-x-hidden",
-                    // Enable scrolling but hide the scrollbar
-                    "overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']",
-                    (!ctx.isBelowBreakpoint && expandedSidebar) && "w-[260px]",
-                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency) && "bg-transparent",
-                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency && ts.expandSidebarOnHover && expandedSidebar) && "bg-[--background] rounded-tr-xl rounded-br-xl border-[--border]",
-                )}
-                onMouseEnter={handleExpandSidebar}
-                onMouseLeave={handleUnexpandedSidebar}
-            >
-                {(!ctx.isBelowBreakpoint && ts.expandSidebarOnHover && ts.disableSidebarTransparency) && <div
-                    className={cn(
-                        "fixed h-full translate-x-0 w-[50px] bg-gradient bg-gradient-to-r via-[--background] from-[--background] to-transparent",
-                        "group-hover/main-sidebar:translate-x-[250px] transition opacity-0 duration-300 group-hover/main-sidebar:opacity-100",
-                    )}
-                ></div>}
-
+            {!user && (
                 <div>
-                    <div
-                        className={cn(
-                            "mb-4 p-4 pb-0 flex justify-center w-full",
-                            __isDesktop__ && "mt-2",
-                        )}
-                    >
-                        <img
-                            src="/seanime-logo.png"
-                            alt="logo"
-                            className="w-15 h-10 transition-all duration-300"
-                        />
-                    </div>
                     <VerticalMenu
-                        className="px-4"
                         collapsed={isCollapsed}
                         itemClass="relative"
-                        itemChevronClass="hidden"
-                        itemIconClass="transition-transform group-data-[state=open]/verticalMenu_parentItem:rotate-90"
-                        items={[
-                            ...displayedPinnedItems,
-                            ...displayedPluginItems,
-                            ...unpinnedMenuItems,
-                            {
-                                iconType: LuRefreshCw,
-                                name: "Refresh AniList",
-                                onClick: () => {
-                                    ctx.setOpen(false)
-                                    if (isRefreshingAC) return
-                                    refreshAC()
-                                },
-                            },
-                        ]}
-                        subContentClass={cn((ts.hideTopNavbar || __isDesktop__) && "border-transparent !border-b-0")}
                         onLinkItemClick={() => ctx.setOpen(false)}
                         isSidebar
+                        items={[
+                            {
+                                iconType: FiLogIn,
+                                name: "Login",
+                                onClick: () => openTab(ANILIST_OAUTH_URL),
+                            },
+                        ]}
                     />
-
-                    <SidebarNavbar
-                        isCollapsed={isCollapsed}
-                        handleExpandSidebar={() => { }}
-                        handleUnexpandedSidebar={() => { }}
-                    />
-                    {__isDesktop__ && <div className="w-full flex justify-center px-4">
-                        <HoverCard
-                            side="right"
-                            sideOffset={-8}
-                            className="bg-transparent border-none"
-                            trigger={<IconButton
-                                intent="gray-basic"
-                                className="!text-[--muted] hover:!text-[--foreground]"
-                                icon={<PiArrowCircleLeftDuotone />}
-                                onClick={() => {
-                                    router.back()
-                                }}
-                            />}
-                        >
-                            <IconButton
-                                icon={<PiArrowCircleRightDuotone />}
-                                intent="gray-subtle"
-                                className="opacity-50 hover:opacity-100"
-                                onClick={() => {
-                                    router.forward()
-                                }}
-                            />
-                        </HoverCard>
-                    </div>}
-
-                    <PluginSidebarTray place="sidebar" />
-
                 </div>
-                <div className="flex w-full gap-2 flex-col px-4 shrink-0 pb-2">
-                    {!__isDesktop__ ? <UpdateModal collapsed={isCollapsed} /> :
-                        __isTauriDesktop__ ? <TauriUpdateModal collapsed={isCollapsed} /> :
-                            __isElectronDesktop__ ? <ElectronUpdateModal collapsed={isCollapsed} /> :
-                                null}
-                    <div>
-                        <VerticalMenu
-                            collapsed={isCollapsed}
-                            itemClass="relative"
-                            onMouseEnter={() => { }}
-                            onMouseLeave={() => { }}
-                            onLinkItemClick={() => ctx.setOpen(false)}
-                            isSidebar
-                            items={[
-                                // {
-                                //     iconType: RiSlashCommands2,
-                                //     name: "Command palette",
-                                //     onClick: () => {
-                                //         setSeaCommandOpen(true)
-                                //     }
-                                // },
-                                ...serverStatus?.settings?.nakama?.enabled ? [{
-                                    iconType: MdOutlineConnectWithoutContact,
-                                    iconClass: "size-6",
-                                    name: "Nakama",
-                                    isCurrent: nakamaModalOpen,
-                                    onClick: () => {
-                                        ctx.setOpen(false)
-                                        setNakamaModalOpen(true)
-                                    },
-                                    addon: <>
-                                        {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
-                                            className="absolute right-0 top-0" size="sm"
-                                            intent="info"
-                                        >{nakamaStatus?.connectedPeers?.length}</Badge>}
-
-                                        {nakamaStatus?.isConnectedToHost && <div
-                                            className="absolute right-2 top-2 animate-pulse size-2 bg-green-500 rounded-full"
-                                        ></div>}
-                                    </>,
-                                }] : [],
-                                {
-                                    iconType: BiExtension,
-                                    name: "Extensions",
-                                    href: "/extensions",
-                                    isCurrent: pathname.includes("/extensions"),
-                                    addon: (!!updateData?.length || !!pluginWithIssuesCount)
-                                        ? <Badge
-                                            className="absolute right-0 top-0 bg-red-500 animate-pulse" size="sm"
-                                            intent="alert-solid"
-                                        >
-                                            {updateData?.length || pluginWithIssuesCount || 1}
-                                        </Badge>
-                                        : undefined,
-                                },
-                                {
-                                    iconType: IoCloudOfflineOutline,
-                                    name: "Offline",
-                                    href: "/sync",
-                                    isCurrent: pathname.includes("/sync"),
-                                    addon: (syncIsActive)
-                                        ? <Badge
-                                            className="absolute right-0 top-0 bg-blue-500" size="sm"
-                                            intent="alert-solid"
-                                        >
-                                            1
-                                        </Badge>
-                                        : undefined,
-                                },
-                                {
-                                    iconType: LuSettings,
-                                    name: "Settings",
-                                    href: "/settings",
-                                    isCurrent: pathname === ("/settings"),
-                                },
-                                ...(ctx.isBelowBreakpoint ? [
-                                    {
-                                        iconType: user?.isSimulated ? FiLogIn : BiLogOut,
-                                        name: user?.isSimulated ? "Sign in" : "Sign out",
-                                        onClick: user?.isSimulated ? () => setLoginModal(true) : confirmSignOut.open,
-                                    },
-                                ] : []),
-                            ]}
-                        />
-                    </div>
-                    {!user && (
-                        <div>
-                            <VerticalMenu
-                                collapsed={isCollapsed}
-                                itemClass="relative"
-                                onMouseEnter={handleExpandSidebar}
-                                onMouseLeave={handleUnexpandedSidebar}
-                                onLinkItemClick={() => ctx.setOpen(false)}
-                                isSidebar
-                                items={[
-                                    {
-                                        iconType: FiLogIn,
-                                        name: "Login",
-                                        onClick: () => openTab(ANILIST_OAUTH_URL),
-                                    },
-                                ]}
-                            />
-                        </div>
-                    )}
-                    {!!user && <div className="flex w-full gap-2 flex-col">
-                        <DropdownMenu
-                            trigger={<div
-                                className={cn(
-                                    "w-full flex p-2 pt-1 items-center space-x-3",
-                                    { "hidden": ctx.isBelowBreakpoint },
-                                )}
-                            >
-                                <Avatar size="sm" className="cursor-pointer" src={user?.viewer?.avatar?.medium || undefined} />
-                                {expandedSidebar && <p className="truncate text-sm text-[--muted]">{user?.viewer?.name}</p>}
-                            </div>}
-                            open={dropdownOpen}
-                            onOpenChange={setDropdownOpen}
-                        >
-                            {!user.isSimulated ? <DropdownMenuItem onClick={confirmSignOut.open}>
-                                <BiLogOut /> Sign out
-                            </DropdownMenuItem> : <DropdownMenuItem onClick={() => setLoginModal(true)}>
-                                <BiLogIn /> Log in with AniList
-                            </DropdownMenuItem>}
-                        </DropdownMenu>
+            )}
+            {!!user && <div className="flex w-full gap-2 flex-col">
+                <DropdownMenu
+                    trigger={<div
+                        className={cn(
+                            "w-full flex p-2 pt-1 items-center space-x-3",
+                            { "hidden": ctx.isBelowBreakpoint },
+                        )}
+                    >
+                        <Avatar size="sm" className="cursor-pointer" src={user?.viewer?.avatar?.medium || undefined} />
+                        {expandedSidebar && <p className="truncate text-sm text-[--muted]">{user?.viewer?.name}</p>}
                     </div>}
-                </div>
-            </AppSidebar>
+                    open={dropdownOpen}
+                    onOpenChange={setDropdownOpen}
+                >
+                    {!user.isSimulated ? <DropdownMenuItem onClick={confirmSignOut.open}>
+                        <BiLogOut /> Sign out
+                    </DropdownMenuItem> : <DropdownMenuItem onClick={() => setLoginModal(true)}>
+                        <BiLogIn /> Log in with AniList
+                    </DropdownMenuItem>}
+                </DropdownMenu>
+            </div>}
 
             <Modal
                 title="Log in with AniList"
@@ -570,5 +668,4 @@ export function MainSidebar() {
             <ConfirmationDialog {...confirmSignOut} />
         </>
     )
-
 }

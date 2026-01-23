@@ -1,6 +1,7 @@
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ContextMenuContent } from "@/components/ui/context-menu"
 import { ContextMenu } from "@radix-ui/react-context-menu"
+import React from "react"
 
 export type SeaContextMenuProps = {
     content: React.ReactNode
@@ -10,7 +11,7 @@ export type SeaContextMenuProps = {
     onOpenChange?: (open: boolean) => void
 }
 
-export function SeaContextMenu(props: SeaContextMenuProps) {
+export const SeaContextMenu = React.memo((props: SeaContextMenuProps) => {
 
     const {
         content,
@@ -33,4 +34,4 @@ export function SeaContextMenu(props: SeaContextMenuProps) {
                 </ContextMenuContent>}
         </ContextMenu>
     )
-}
+})

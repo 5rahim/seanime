@@ -193,6 +193,10 @@ const config: Config = {
             animationDuration: {
                 DEFAULT: "0.25s",
             },
+            transitionDuration: {
+                "15": "15ms",
+                "50": "50ms",
+            },
             keyframes: {
                 "accordion-down": {
                     from: { height: "0" },

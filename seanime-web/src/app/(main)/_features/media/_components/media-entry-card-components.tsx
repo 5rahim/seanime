@@ -2,7 +2,6 @@ import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } fr
 import { ElectronYoutubeEmbed, useElectronYoutubeEmbed } from "@/app/(main)/_electron/electron-embed"
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
-import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -23,7 +22,6 @@ import { RiSignalTowerLine } from "react-icons/ri"
 
 type MediaEntryCardContainerProps = {
     children?: React.ReactNode
-    mRef?: React.RefObject<HTMLDivElement>
 } & React.HTMLAttributes<HTMLDivElement>
 
 export function MediaEntryCardContainer(props: MediaEntryCardContainerProps) {
@@ -31,14 +29,12 @@ export function MediaEntryCardContainer(props: MediaEntryCardContainerProps) {
     const {
         children,
         className,
-        mRef,
         ...rest
     } = props
 
     return (
         <div
             data-media-entry-card-container
-            ref={mRef}
             className={cn(
                 "h-full col-span-1 group/media-entry-card relative flex flex-col place-content-stretch focus-visible:outline-0 flex-none",
                 className,
@@ -78,14 +74,16 @@ export function MediaEntryCardOverlay(props: MediaEntryCardOverlayProps) {
 type MediaEntryCardHoverPopupProps = {
     children?: React.ReactNode
     coverImage?: string
+    shouldRenderPopup?: boolean
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
+export const MediaEntryCardHoverPopup = React.memo((props: MediaEntryCardHoverPopupProps) => {
 
     const {
         children,
         className,
         coverImage,
+        shouldRenderPopup,
         ...rest
     } = props
 
@@ -96,7 +94,9 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
     return (
         <div
             data-media-entry-card-hover-popup
+            data-state={shouldRenderPopup ? "open" : "closed"}
             className={cn(
+                "group/media-entry-card-popup",
                 !ts.enableMediaCardBlurredBackground ? "bg-[--media-card-popup-background]" : "bg-gray-950/90 backdrop-blur-sm",
                 "absolute z-[15] opacity-0 scale-100 border border-[rgb(255_255_255_/_5%)] duration-150",
                 "group-hover/media-entry-card:opacity-100 group-hover/media-entry-card:scale-100",
@@ -109,15 +109,15 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
             )}
             {...rest}
         >
-            <GlowingEffect
-                spread={50}
-                glow={true}
-                disabled={false}
-                proximity={100}
-                inactiveZone={0.01}
-                // movementDuration={4}
-                className="opacity-15"
-            />
+            {/*<GlowingEffect*/}
+            {/*    spread={50}*/}
+            {/*    glow={true}*/}
+            {/*    disabled={false}*/}
+            {/*    proximity={100}*/}
+            {/*    inactiveZone={0.01}*/}
+            {/*    // movementDuration={4}*/}
+            {/*    className="opacity-15"*/}
+            {/*/>*/}
             {/*{(ts.enableMediaCardBlurredBackground && !!coverImage) &&*/}
             {/*    <div*/}
             {/*        data-media-entry-card-hover-popup-image-container*/}
@@ -140,17 +140,21 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
             {/*        ></div>*/}
             {/*    </div>}*/}
 
-            {ts.enableMediaCardBlurredBackground && <div
-                data-media-entry-card-hover-popup-image-blur-gradient
-                className="w-full absolute top-0 h-[50%] opacity-60 bg-gradient-to-b from-30% from-[--background] to-transparent z-[2] rounded-[--radius]"
-            />}
+            {shouldRenderPopup && (
+                <>
+                    {ts.enableMediaCardBlurredBackground && <div
+                        data-media-entry-card-hover-popup-image-blur-gradient
+                        className="w-full absolute top-0 h-[50%] opacity-60 bg-gradient-to-b from-30% from-[--background] to-transparent z-[2] rounded-[--radius]"
+                    />}
 
-            <div data-media-entry-card-hover-popup-content className="p-2 h-full w-full flex flex-col justify-between relative z-[2]">
-                {children}
-            </div>
+                    <div data-media-entry-card-hover-popup-content className="p-2 h-full w-full flex flex-col justify-between relative z-[2]">
+                        {children}
+                    </div>
+                </>
+            )}
         </div>
     )
-}
+})
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -20,6 +20,7 @@ import React, { Fragment } from "react"
 import { BiListPlus, BiPlus, BiStar, BiTrash } from "react-icons/bi"
 import { TbEdit } from "react-icons/tb"
 import { useToggle } from "react-use"
+import { z } from "zod"
 
 type AnilistMediaEntryModalProps = {
     children?: React.ReactNode
@@ -70,7 +71,6 @@ function IsomorphicPopover(props: PopoverProps & ModalProps & { media?: AL_BaseA
                 alt="banner"
                 fill
                 quality={80}
-                priority
                 sizes="20rem"
                 className="object-cover object-center opacity-5 z-[1]"
             />
@@ -86,23 +86,50 @@ function IsomorphicPopover(props: PopoverProps & ModalProps & { media?: AL_BaseA
 
 export const AnilistMediaEntryModal = (props: AnilistMediaEntryModalProps) => {
     const [open, toggle] = useToggle(false)
+    const [repeat, setRepeat] = React.useState(0)
 
     const { children, media, listData, hideButton, type = "anime", forceModal, ...rest } = props
 
     const user = useCurrentUser()
 
-    const { mutate, isPending: _isPending1, isSuccess } = useEditAnilistListEntry(media?.id, type)
+    const { mutate, isPending: isEditing, isSuccess, reset } = useEditAnilistListEntry(media?.id, type)
     const { mutate: mutateRepeat, isPending: _isPending2 } = useUpdateAnimeEntryRepeat(media?.id)
-    const isPending = _isPending1
     const { mutate: deleteEntry, isPending: isDeleting } = useDeleteAnilistListEntry(media?.id, type, () => {
         toggle(false)
     })
 
-    const [repeat, setRepeat] = React.useState(0)
-
     React.useEffect(() => {
         setRepeat(listData?.repeat || 0)
     }, [listData])
+
+    const handleSubmit = React.useCallback((data: z.infer<typeof mediaListDataSchema>) => {
+        if (repeat !== (listData?.repeat ?? 0)) {
+            mutateRepeat({
+                mediaId: media?.id || 0,
+                repeat: repeat,
+            })
+        }
+        mutate({
+            mediaId: media?.id || 0,
+            status: data.status || "PLANNING",
+            score: data.score ? data.score * 10 : 0, // should be 0-100
+            progress: data.progress || 0,
+            startedAt: data.startedAt ? {
+                // @ts-ignore
+                day: data.startedAt.getDate(),
+                month: data.startedAt.getMonth() + 1,
+                year: data.startedAt.getFullYear(),
+            } : undefined,
+            completedAt: data.completedAt ? {
+                // @ts-ignore
+                day: data.completedAt.getDate(),
+                month: data.completedAt.getMonth() + 1,
+                year: data.completedAt.getFullYear(),
+            } : undefined,
+            type: type,
+        })
+    }, [repeat, listData?.repeat, media?.id, type, mutate, mutateRepeat])
+
 
     if (!user) return null
 
@@ -116,7 +143,7 @@ export const AnilistMediaEntryModal = (props: AnilistMediaEntryModalProps) => {
                         icon={<BiPlus />}
                         rounded
                         size="sm"
-                        loading={isPending || isDeleting}
+                        loading={isEditing || isDeleting}
                         className={cn({ "hidden": isSuccess })} // Hide button when mutation is successful
                         onClick={() => mutate({
                             mediaId: media?.id || 0,
@@ -146,7 +173,7 @@ export const AnilistMediaEntryModal = (props: AnilistMediaEntryModalProps) => {
                             icon={<TbEdit />}
                             rounded
                             size="sm"
-                            loading={isPending || isDeleting}
+                            loading={isEditing || isDeleting}
                             onClick={toggle}
                         />}
                     </>}
@@ -154,177 +181,195 @@ export const AnilistMediaEntryModal = (props: AnilistMediaEntryModalProps) => {
                 media={media}
             >
 
-                {(!!listData) && <Form
-                    data-anilist-media-entry-modal-form
-                    schema={mediaListDataSchema}
-                    onSubmit={data => {
-                        if (repeat !== (listData?.repeat ?? 0)) {
-                            // Update repeat count
-                            mutateRepeat({
-                                mediaId: media?.id || 0,
-                                repeat: repeat,
-                            })
-                        }
-                        mutate({
-                            mediaId: media?.id || 0,
-                            status: data.status || "PLANNING",
-                            score: data.score ? data.score * 10 : 0, // should be 0-100
-                            progress: data.progress || 0,
-                            startedAt: data.startedAt ? {
-                                // @ts-ignore
-                                day: data.startedAt.getDate(),
-                                month: data.startedAt.getMonth() + 1,
-                                year: data.startedAt.getFullYear(),
-                            } : undefined,
-                            completedAt: data.completedAt ? {
-                                // @ts-ignore
-                                day: data.completedAt.getDate(),
-                                month: data.completedAt.getMonth() + 1,
-                                year: data.completedAt.getFullYear(),
-                            } : undefined,
-                            type: type,
-                        })
-                    }}
-                    className={cn(
-                        // {
-                        //     "mt-8": !!media?.bannerImage,
-                        // },
-                    )}
-                    onError={console.log}
-                    defaultValues={{
-                        status: listData?.status,
-                        score: listData?.score ? listData?.score / 10 : undefined, // Returned score is 0-100
-                        progress: listData?.progress,
-                        startedAt: listData?.startedAt ? (normalizeDate(listData?.startedAt)) : undefined,
-                        completedAt: listData?.completedAt ? (normalizeDate(listData?.completedAt)) : undefined,
-                    }}
-                >
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <Field.Select
-                            label="Status"
-                            name="status"
-                            options={[
-                                media?.status !== "NOT_YET_RELEASED" ? {
-                                    value: "CURRENT",
-                                    label: type === "anime" ? "Watching" : "Reading",
-                                } : undefined,
-                                { value: "PLANNING", label: "Planning" },
-                                media?.status !== "NOT_YET_RELEASED" ? {
-                                    value: "PAUSED",
-                                    label: "Paused",
-                                } : undefined,
-                                media?.status !== "NOT_YET_RELEASED" ? {
-                                    value: "COMPLETED",
-                                    label: "Completed",
-                                } : undefined,
-                                media?.status !== "NOT_YET_RELEASED" ? {
-                                    value: "DROPPED",
-                                    label: "Dropped",
-                                } : undefined,
-                                media?.status !== "NOT_YET_RELEASED" ? {
-                                    value: "REPEATING",
-                                    label: "Repeating",
-                                } : undefined,
-                            ].filter(Boolean)}
-                        />
-                        {media?.status !== "NOT_YET_RELEASED" && <>
-                            <Field.Number
-                                label="Score"
-                                name="score"
-                                min={0}
-                                max={10}
-                                formatOptions={{
-                                    maximumFractionDigits: 1,
-                                    minimumFractionDigits: 0,
-                                    useGrouping: false,
-                                }}
-                                rightIcon={<BiStar />}
-                            />
-                            <Field.Number
-                                label="Progress"
-                                name="progress"
-                                min={0}
-                                max={type === "anime" ? (!!(media as AL_BaseAnime)?.nextAiringEpisode?.episode
-                                    ? (media as AL_BaseAnime)?.nextAiringEpisode?.episode! - 1
-                                    : ((media as AL_BaseAnime)?.episodes
-                                        ? (media as AL_BaseAnime).episodes
-                                        : undefined)) : (media as AL_BaseManga)?.chapters}
-                                formatOptions={{
-                                    maximumFractionDigits: 0,
-                                    minimumFractionDigits: 0,
-                                    useGrouping: false,
-                                }}
-                                rightIcon={<BiListPlus />}
-                            />
-                        </>}
-                    </div>
-                    {media?.status !== "NOT_YET_RELEASED" && <div className="flex flex-col sm:flex-row gap-4">
-                        <Field.DatePicker
-                            label="Start date"
-                            name="startedAt"
-                            // defaultValue={(state.startedAt && state.startedAt.year) ? parseAbsoluteToLocal(new Date(state.startedAt.year,
-                            // (state.startedAt.month || 1)-1, state.startedAt.day || 1).toISOString()) : undefined}
-                        />
-                        <Field.DatePicker
-                            label="Completion date"
-                            name="completedAt"
-                            // defaultValue={(state.completedAt && state.completedAt.year) ? parseAbsoluteToLocal(new Date(state.completedAt.year,
-                            // (state.completedAt.month || 1)-1, state.completedAt.day || 1).toISOString()) : undefined}
-                        />
-
-                        <NumberInput
-                            name="repeat"
-                            label={type === "anime" ? "Total rewatches" : "Total rereads"}
-                            min={0}
-                            max={1000}
-                            value={repeat}
-                            onValueChange={setRepeat}
-                            formatOptions={{
-                                maximumFractionDigits: 0,
-                                minimumFractionDigits: 0,
-                                useGrouping: false,
-                            }}
-                        />
-                    </div>}
-
-                    <div className="flex w-full items-center justify-between mt-4">
-                        <div>
-                            <Disclosure type="multiple" defaultValue={["item-2"]}>
-                                <DisclosureItem value="item-1" className="flex items-center gap-1">
-                                    <DisclosureTrigger>
-                                        <IconButton
-                                            intent="alert-subtle"
-                                            icon={<BiTrash />}
-                                            rounded
-                                            size="md"
-                                        />
-                                    </DisclosureTrigger>
-                                    <DisclosureContent>
-                                        <Button
-                                            intent="alert-basic"
-                                            rounded
-                                            size="md"
-                                            loading={isDeleting}
-                                            onClick={() => deleteEntry({
-                                                mediaId: media?.id!,
-                                                type: type,
-                                            })}
-                                        >Confirm</Button>
-                                    </DisclosureContent>
-                                </DisclosureItem>
-                            </Disclosure>
-                        </div>
-
-                        <Field.Submit role="save" disableIfInvalid={true} loading={isPending} disabled={isDeleting}>
-                            Save
-                        </Field.Submit>
-                    </div>
-
-                    <PluginWebviewSlot slot="after-media-entry-form" />
-                </Form>}
+                {open && <Content
+                    open={open}
+                    onToggle={toggle}
+                    repeat={repeat}
+                    setRepeat={setRepeat}
+                    handleSubmit={handleSubmit}
+                    deleteEntry={deleteEntry}
+                    isEditing={isEditing}
+                    isDeleting={isDeleting}
+                    {...props}
+                />}
 
             </IsomorphicPopover>}
         </>
     )
 
+}
+
+function Content(props: AnilistMediaEntryModalProps & {
+    open: boolean
+    onToggle: (open: boolean) => void
+    repeat: number
+    setRepeat: (repeat: number) => void
+    handleSubmit: (data: z.infer<typeof mediaListDataSchema>) => void
+    deleteEntry: any
+    isEditing: boolean
+    isDeleting: boolean
+}) {
+    const {
+        children,
+        media,
+        listData,
+        hideButton,
+        type = "anime",
+        forceModal,
+        open,
+        onToggle,
+        repeat,
+        setRepeat,
+        handleSubmit,
+        deleteEntry,
+        isEditing,
+        isDeleting,
+        ...rest
+    } = props
+
+    return (
+        <>
+            {(!!listData) && <Form
+                data-anilist-media-entry-modal-form
+                schema={mediaListDataSchema}
+                onSubmit={handleSubmit}
+                className={cn(
+                    // {
+                    //     "mt-8": !!media?.bannerImage,
+                    // },
+                )}
+                onError={console.log}
+                defaultValues={{
+                    status: listData?.status,
+                    score: listData?.score ? listData?.score / 10 : undefined, // Returned score is 0-100
+                    progress: listData?.progress,
+                    startedAt: listData?.startedAt ? (normalizeDate(listData?.startedAt)) : undefined,
+                    completedAt: listData?.completedAt ? (normalizeDate(listData?.completedAt)) : undefined,
+                }}
+            >
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <Field.Select
+                        label="Status"
+                        name="status"
+                        options={[
+                            media?.status !== "NOT_YET_RELEASED" ? {
+                                value: "CURRENT",
+                                label: type === "anime" ? "Watching" : "Reading",
+                            } : undefined,
+                            { value: "PLANNING", label: "Planning" },
+                            media?.status !== "NOT_YET_RELEASED" ? {
+                                value: "PAUSED",
+                                label: "Paused",
+                            } : undefined,
+                            media?.status !== "NOT_YET_RELEASED" ? {
+                                value: "COMPLETED",
+                                label: "Completed",
+                            } : undefined,
+                            media?.status !== "NOT_YET_RELEASED" ? {
+                                value: "DROPPED",
+                                label: "Dropped",
+                            } : undefined,
+                            media?.status !== "NOT_YET_RELEASED" ? {
+                                value: "REPEATING",
+                                label: "Repeating",
+                            } : undefined,
+                        ].filter(Boolean)}
+                    />
+                    {media?.status !== "NOT_YET_RELEASED" && <>
+                        <Field.Number
+                            label="Score"
+                            name="score"
+                            min={0}
+                            max={10}
+                            formatOptions={{
+                                maximumFractionDigits: 1,
+                                minimumFractionDigits: 0,
+                                useGrouping: false,
+                            }}
+                            rightIcon={<BiStar />}
+                        />
+                        <Field.Number
+                            label="Progress"
+                            name="progress"
+                            min={0}
+                            max={type === "anime" ? (!!(media as AL_BaseAnime)?.nextAiringEpisode?.episode
+                                ? (media as AL_BaseAnime)?.nextAiringEpisode?.episode! - 1
+                                : ((media as AL_BaseAnime)?.episodes
+                                    ? (media as AL_BaseAnime).episodes
+                                    : undefined)) : (media as AL_BaseManga)?.chapters}
+                            formatOptions={{
+                                maximumFractionDigits: 0,
+                                minimumFractionDigits: 0,
+                                useGrouping: false,
+                            }}
+                            rightIcon={<BiListPlus />}
+                        />
+                    </>}
+                </div>
+                {media?.status !== "NOT_YET_RELEASED" && <div className="flex flex-col sm:flex-row gap-4">
+                    <Field.DatePicker
+                        label="Start date"
+                        name="startedAt"
+                        // defaultValue={(state.startedAt && state.startedAt.year) ? parseAbsoluteToLocal(new Date(state.startedAt.year,
+                        // (state.startedAt.month || 1)-1, state.startedAt.day || 1).toISOString()) : undefined}
+                    />
+                    <Field.DatePicker
+                        label="Completion date"
+                        name="completedAt"
+                        // defaultValue={(state.completedAt && state.completedAt.year) ? parseAbsoluteToLocal(new Date(state.completedAt.year,
+                        // (state.completedAt.month || 1)-1, state.completedAt.day || 1).toISOString()) : undefined}
+                    />
+
+                    <NumberInput
+                        name="repeat"
+                        label={type === "anime" ? "Total rewatches" : "Total rereads"}
+                        min={0}
+                        max={1000}
+                        value={repeat}
+                        onValueChange={setRepeat}
+                        formatOptions={{
+                            maximumFractionDigits: 0,
+                            minimumFractionDigits: 0,
+                            useGrouping: false,
+                        }}
+                    />
+                </div>}
+
+                <div className="flex w-full items-center justify-between mt-4">
+                    <div>
+                        <Disclosure type="multiple" defaultValue={["item-2"]}>
+                            <DisclosureItem value="item-1" className="flex items-center gap-1">
+                                <DisclosureTrigger>
+                                    <IconButton
+                                        intent="alert-subtle"
+                                        icon={<BiTrash />}
+                                        rounded
+                                        size="md"
+                                    />
+                                </DisclosureTrigger>
+                                <DisclosureContent>
+                                    <Button
+                                        intent="alert-basic"
+                                        rounded
+                                        size="md"
+                                        loading={isDeleting}
+                                        onClick={() => deleteEntry({
+                                            mediaId: media?.id!,
+                                            type: type,
+                                        })}
+                                    >Confirm</Button>
+                                </DisclosureContent>
+                            </DisclosureItem>
+                        </Disclosure>
+                    </div>
+
+                    <Field.Submit role="save" disableIfInvalid={true} loading={isEditing} disabled={isDeleting}>
+                        Save
+                    </Field.Submit>
+                </div>
+
+                <PluginWebviewSlot slot="after-media-entry-form" />
+            </Form>}
+        </>
+    )
 }

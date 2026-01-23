@@ -19,66 +19,82 @@ export const TooltipAnatomy = defineStyleAnatomy({
     ]),
 })
 
+const TooltipContent = React.memo(
+    React.forwardRef<
+        React.ElementRef<typeof TooltipPrimitive.Content>,
+        React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> & {
+        container?: HTMLElement
+    }
+    >(({ className, children, container, ...props }, ref) => {
+        return (
+            <TooltipPrimitive.Portal container={container}>
+                <TooltipPrimitive.Content
+                    ref={ref}
+                    className={cn(TooltipAnatomy.root(), className)}
+                    {...props}
+                >
+                    {children}
+                </TooltipPrimitive.Content>
+            </TooltipPrimitive.Portal>
+        )
+    }),
+)
+
+TooltipContent.displayName = "TooltipContent"
+
 /* -------------------------------------------------------------------------------------------------
  * Tooltip
  * -----------------------------------------------------------------------------------------------*/
 
 export type TooltipProps = React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> &
     React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root> & {
-    /**
-     * The trigger that toggles the tooltip.
-     * - Passed props: `data-state`	("closed" | "delayed-open" | "instant-open")
-     */
     trigger: React.ReactElement
-    /**
-     * Portal container for custom mounting (useful for fullscreen mode)
-     */
     portalContainer?: HTMLElement
 }
 
-export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>((props, ref) => {
+export const Tooltip = React.memo(
+    React.forwardRef<React.ElementRef<typeof TooltipPrimitive.Content>, TooltipProps>((props, ref) => {
+        const {
+            children,
+            className,
+            trigger,
+            // Root props
+            delayDuration = 50,
+            disableHoverableContent,
+            defaultOpen,
+            open,
+            onOpenChange,
+            // Portal prop
+            portalContainer,
+            ...contentProps
+        } = props
 
-    const {
-        children,
-        className,
-        trigger,
-        // Root
-        delayDuration = 50,
-        disableHoverableContent,
-        defaultOpen,
-        open,
-        onOpenChange,
-        // Portal
-        portalContainer,
-        ...rest
-    } = props
+        return (
+            <TooltipProvider delayDuration={delayDuration}>
+                <TooltipPrimitive.Root
+                    delayDuration={delayDuration}
+                    disableHoverableContent={disableHoverableContent}
+                    defaultOpen={defaultOpen}
+                    open={open}
+                    onOpenChange={onOpenChange}
+                >
+                    <TooltipPrimitive.Trigger asChild>
+                        {trigger}
+                    </TooltipPrimitive.Trigger>
 
-    return (
-        <TooltipProvider>
-            <TooltipPrimitive.Root
-                delayDuration={delayDuration}
-                disableHoverableContent={disableHoverableContent}
-                defaultOpen={defaultOpen}
-                open={open}
-                onOpenChange={onOpenChange}
-            >
-                <TooltipPrimitive.Trigger asChild>
-                    {trigger}
-                </TooltipPrimitive.Trigger>
-                <TooltipPrimitive.Portal container={portalContainer}>
-                    <TooltipPrimitive.Content
+                    <TooltipContent
                         ref={ref}
-                        className={cn(TooltipAnatomy.root(), className)}
-                        {...rest}
+                        container={portalContainer}
+                        className={className}
+                        {...contentProps}
                     >
                         {children}
-                    </TooltipPrimitive.Content>
-                </TooltipPrimitive.Portal>
-            </TooltipPrimitive.Root>
-        </TooltipProvider>
-    )
-
-})
+                    </TooltipContent>
+                </TooltipPrimitive.Root>
+            </TooltipProvider>
+        )
+    })
+)
 
 Tooltip.displayName = "Tooltip"
 
@@ -86,7 +102,4 @@ Tooltip.displayName = "Tooltip"
  * TooltipProvider
  * -----------------------------------------------------------------------------------------------*/
 
-/**
- * Wraps your app to provide global functionality to your tooltips.
- */
 export const TooltipProvider = TooltipPrimitive.Provider

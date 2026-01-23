@@ -31,8 +31,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { addDays } from "date-fns/addDays"
-import { useAtomValue } from "jotai"
-import { atom, useSetAtom } from "jotai/index"
+import { atom, useAtomValue, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { AnimatePresence, useInView } from "motion/react"
@@ -906,7 +905,18 @@ function AnimeCarousel(props: { libraryCollectionProps: HandleLibraryCollectionP
                                 type="anime"
                             />
                         )
-                    }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
+                    }) : <>
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                    </>}
                 </CarouselContent>
             </Carousel>}
             {(!isLoading && !!data?.Page && !data.Page?.media?.length && isInView) &&
@@ -1021,7 +1031,18 @@ function MangaCarousel(props: { libraryCollectionProps: HandleLibraryCollectionP
                                 type="manga"
                             />
                         )
-                    }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
+                    }) : <>
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                        <MediaEntryCardSkeleton />
+                    </>}
                 </CarouselContent>
             </Carousel>}
             {(!isLoading && !!data?.Page && !data.Page?.media?.length && isInView) &&
