@@ -818,7 +818,7 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	anilistClientRef := util.NewRef(anilistClient)
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, util.NewRef(extension.NewUnifiedBank()), logger, database)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), true)
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 	require.NoError(t, err)
 	continuityManager := continuity.NewManager(&continuity.NewManagerOptions{
 		FileCacher: filecacher,

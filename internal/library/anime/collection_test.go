@@ -22,7 +22,7 @@ func TestNewLibraryCollection(t *testing.T) {
 	database, err := db.NewDatabase(t.TempDir(), "test", logger)
 	assert.NoError(t, err)
 
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), util.NewRef(extension.NewUnifiedBank()), logger, database)

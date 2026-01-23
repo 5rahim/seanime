@@ -27,7 +27,7 @@ func TestScanner_Scan(t *testing.T) {
 	anilistClientRef := util.NewRef(anilistClient)
 	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 	wsEventManager := events.NewMockWSEventManager(util.NewLogger())
 	dir := "E:/Anime"
 

@@ -24,6 +24,12 @@ func TestIsConstraintsMatch(t *testing.T) {
 			expected: true,
 		},
 		{
+			name:     "Min seeders pass (no data)",
+			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Seeders: -1}},
+			rule:     &anime.AutoDownloaderRule{MinSeeders: 5},
+			expected: true,
+		},
+		{
 			name:     "Min seeders fail",
 			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Seeders: 2}},
 			rule:     &anime.AutoDownloaderRule{MinSeeders: 5},
@@ -32,6 +38,12 @@ func TestIsConstraintsMatch(t *testing.T) {
 		{
 			name:     "Min size pass",
 			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 2048}}, // 2KB
+			rule:     &anime.AutoDownloaderRule{MinSize: "1KB"},
+			expected: true,
+		},
+		{
+			name:     "Min size pass (no data)",
+			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 0}},
 			rule:     &anime.AutoDownloaderRule{MinSize: "1KB"},
 			expected: true,
 		},

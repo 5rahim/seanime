@@ -22,7 +22,7 @@ func TestNewEntryDownloadInfo(t *testing.T) {
 	logger := util.NewLogger()
 	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
 	require.NoError(t, err)
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	animeCollection, err := anilistClient.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
@@ -165,7 +165,7 @@ func TestNewEntryDownloadInfo2(t *testing.T) {
 	logger := util.NewLogger()
 	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
 	require.NoError(t, err)
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)

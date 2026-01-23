@@ -28,20 +28,12 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch("force-effective-connection-type", "4g")
 
     // Disable features that can interfere with playback
-    app.commandLine.appendSwitch("disable-features", ["Vulkan",
+    app.commandLine.appendSwitch("disable-features", [
         "WidgetLayering",
         "ColorProviderRedirection",
-        "WebContentsForceDarkMode", // 'ForcedColors'
+        "WebContentsForceDarkMode",
         "HardwareMediaKeyHandling"
     ].join(","))
-
-    // Color management and rendering optimizations
-    // app.commandLine.appendSwitch('force-color-profile', 'srgb');
-    // app.commandLine.appendSwitch('disable-color-correct-rendering');
-    // app.commandLine.appendSwitch('disable-web-contents-color-extraction');
-    // app.commandLine.appendSwitch('disable-color-management');
-    // app.commandLine.appendSwitch('force-color-profile-interpretation', 'all-images');
-    // app.commandLine.appendSwitch('force-raster-color-profile', 'srgb');
 
     // Hardware acceleration and GPU optimizations
     app.commandLine.appendSwitch("force-high-performance-gpu")
@@ -54,14 +46,13 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch("enable-accelerated-video-decode")
 
     // Enable advanced features
-    app.commandLine.appendSwitch("enable-features", ["ThrottleDisplayNoneAndVisibilityHiddenCrossOriginIframes",
-        "PlatformEncryptedDolbyVision",
+    app.commandLine.appendSwitch("enable-features", [
+        "WebAssemblyLazyCompilation",
+        "ThrottleDisplayNoneAndVisibilityHiddenCrossOriginIframes",
         "CanvasOopRasterization",
         "UseSkiaRenderer",
-        "WebAssemblyLazyCompilation",
-        "RawDraw", // "Vulkan",
-        // 'MediaFoundationHEVC',
-        "PlatformHEVCDecoderSupport",
+        "RawDraw",
+        "PlatformEncryptedDolbyVision",
     ].join(","))
 
     app.commandLine.appendSwitch("enable-unsafe-webgpu")
@@ -635,14 +626,16 @@ function createMainWindow() {
     logStartupEvent("Creating main window")
 
     const windowOptions = {
-        width: 800, height: 600, show: false, webPreferences: {
+        width: 800, height: 600, show: false,
+        backgroundColor: "#111111",
+        webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, "preload.js"),
             webSecurity: false,
             allowRunningInsecureContent: true,
             enableBlinkFeatures: "FontAccess, AudioVideoTracks",
-            backgroundThrottling: false,
+            backgroundThrottling: true,
             webviewTag: true,
         }
     }

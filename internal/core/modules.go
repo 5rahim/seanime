@@ -116,7 +116,7 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
-	// |  Torrent Repository |
+	// | Torrent Repository  |
 	// +---------------------+
 
 	a.TorrentRepository = torrent.NewRepository(&torrent.NewRepositoryOptions{

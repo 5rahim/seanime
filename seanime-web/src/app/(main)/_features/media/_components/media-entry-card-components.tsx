@@ -1,5 +1,5 @@
 import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
-import { ElectronYoutubeEmbed, useElectronYoutubeEmbed } from "@/app/(main)/_electron/electron-embed"
+import { ElectronYoutubeEmbed } from "@/app/(main)/_electron/electron-embed"
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { imageShimmer } from "@/components/shared/image-helpers"
@@ -506,8 +506,6 @@ export const MediaEntryCardHoverPopupBanner = memo(({
 
     const ts = useThemeSettings()
 
-    const { electronEmbedAddress } = useElectronYoutubeEmbed()
-
     React.useEffect(() => {
         setTrailerEnabled(!!trailerId && !disableAnimeCardTrailers && showTrailer)
     }, [!!trailerId, !disableAnimeCardTrailers, showTrailer])
@@ -550,8 +548,8 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                 quality={100}
                 sizes="20rem"
                 className={cn(
-                    "object-cover top-0 object-center transition scale-[1.04] duration-200",
-                    "group-hover/media-entry-card:scale-100",
+                    "object-cover top-0 object-center transition-transform duration-200",
+                    // "scale-[1.04] group-hover/media-entry-card-popup:scale-100 delay-500",
                     trailerLoaded && "hidden",
                 )}
             /></div> : <div

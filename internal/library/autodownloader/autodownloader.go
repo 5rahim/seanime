@@ -48,10 +48,22 @@ type (
 		metadataProviderRef     *util.Ref[metadata_provider.Provider]
 		settingsUpdatedCh       chan struct{}
 		stopCh                  chan struct{}
-		startCh                 chan struct{}
+		startCh                 chan bool
 		debugTrace              bool
 		mu                      sync.Mutex
 		isOfflineRef            *util.Ref[bool]
+		simulationResults       []*SimulationResult // Stores results when running in simulation mode
+	}
+
+	// SimulationResult represents a torrent that would be downloaded in simulation mode
+	SimulationResult struct {
+		RuleID      uint
+		MediaID     int
+		Episode     int
+		Link        string
+		Hash        string
+		TorrentName string
+		Score       int
 	}
 
 	NewAutoDownloaderOptions struct {
@@ -63,11 +75,6 @@ type (
 		MetadataProviderRef     *util.Ref[metadata_provider.Provider]
 		DebridClientRepository  *debrid_client.Repository
 		IsOfflineRef            *util.Ref[bool]
-	}
-
-	tmpTorrentToDownload struct {
-		torrent *NormalizedTorrent
-		episode int
 	}
 )
 
@@ -90,10 +97,11 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		},
 		settingsUpdatedCh: make(chan struct{}, 1),
 		stopCh:            make(chan struct{}, 1),
-		startCh:           make(chan struct{}, 1),
+		startCh:           make(chan bool, 1),
 		debugTrace:        true,
 		mu:                sync.Mutex{},
 		isOfflineRef:      opts.IsOfflineRef,
+		simulationResults: make([]*SimulationResult, 0),
 	}
 }
 
@@ -118,7 +126,7 @@ func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings) {
 		ad.settings = settings
 		ad.settingsUpdatedCh <- struct{}{} // Notify that the settings have been updated
 		if ad.settings.Enabled {
-			ad.startCh <- struct{}{} // Start the auto downloader
+			ad.startCh <- false // Start the auto downloader
 		} else if !ad.settings.Enabled {
 			ad.stopCh <- struct{}{} // Stop the auto downloader
 		}
@@ -136,6 +144,31 @@ func (ad *AutoDownloader) SetTorrentClientRepository(repo *torrent_client.Reposi
 		return
 	}
 	ad.torrentClientRepository = repo
+}
+
+// GetSimulationResults returns the simulation results from the last run
+func (ad *AutoDownloader) GetSimulationResults() []*SimulationResult {
+	ad.mu.Lock()
+	defer ad.mu.Unlock()
+	return ad.simulationResults
+}
+
+// ClearSimulationResults clears the simulation results
+func (ad *AutoDownloader) ClearSimulationResults() {
+	ad.mu.Lock()
+	defer ad.mu.Unlock()
+	ad.simulationResults = make([]*SimulationResult, 0)
+}
+
+// RunCheck runs the auto downloader synchronously for testing purposes
+// This directly calls checkForNewEpisodes without using goroutines
+func (ad *AutoDownloader) RunCheck(isSimulation bool) {
+	defer util.HandlePanicInModuleThen("autodownloader/RunCheck", func() {})
+
+	if ad == nil {
+		return
+	}
+	ad.checkForNewEpisodes(isSimulation)
 }
 
 // Start will start the auto downloader in a goroutine
@@ -162,7 +195,7 @@ func (ad *AutoDownloader) Start() {
 	}()
 }
 
-func (ad *AutoDownloader) Run() {
+func (ad *AutoDownloader) Run(isSimulation bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/Run", func() {})
 
 	if ad == nil {
@@ -171,7 +204,7 @@ func (ad *AutoDownloader) Run() {
 	go func() {
 		ad.mu.Lock()
 		defer ad.mu.Unlock()
-		ad.startCh <- struct{}{}
+		ad.startCh <- isSimulation
 		ad.logger.Trace().Msg("autodownloader: Received start signal")
 	}()
 }
@@ -211,10 +244,10 @@ func (ad *AutoDownloader) start() {
 			break // Restart the loop
 		case <-ad.stopCh:
 
-		case <-ad.startCh:
+		case isSumulation := <-ad.startCh:
 			if ad.settings.Enabled {
 				ad.logger.Debug().Msg("autodownloader: Auto Downloader started")
-				ad.checkForNewEpisodes(false)
+				ad.checkForNewEpisodes(isSumulation)
 			}
 		case <-ticker.C:
 			if ad.settings.Enabled {
@@ -243,11 +276,57 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 	}
 	ad.mu.Unlock()
 
+	// Fetch all necessary data
+	data, err := ad.fetchRunData()
+	if err != nil {
+		ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch check data")
+		return
+	}
+
+	// Event
+	event := &AutoDownloaderRunStartedEvent{
+		Rules:    data.rules,
+		Profiles: data.profiles,
+	}
+	_ = hook.GlobalHookManager.OnAutoDownloaderRunStarted().Trigger(event)
+	data.rules = event.Rules
+
+	// Default prevented, return
+	if event.DefaultPrevented {
+		return
+	}
+
+	// If there are no rules, return
+	if len(data.rules) == 0 {
+		ad.logger.Debug().Msg("autodownloader: No rules found")
+		return
+	}
+
+	// Group matched torrents by rule and episode
+	groupedCandidates := ad.groupTorrentCandidates(data)
+
+	// Select best candidates and download
+	downloaded := ad.selectAndDownloadBestCandidates(isSimulation, groupedCandidates, data.rules)
+
+	// Notify user
+	ad.notifyDownloadResults(downloaded)
+}
+
+// runData holds all data needed for checking new episodes
+type runData struct {
+	rules            []*anime.AutoDownloaderRule
+	profiles         []*anime.AutoDownloaderProfile
+	localFileWrapper *anime.LocalFileWrapper
+	torrents         []*NormalizedTorrent
+	existingTorrents []*torrent_client.Torrent
+}
+
+// fetchRunData fetches all data needed for checking new episodes
+func (ad *AutoDownloader) fetchRunData() (*runData, error) {
 	// Get rules from the database
 	rules, err := db_bridge.GetAutoDownloaderRules(ad.database)
 	if err != nil {
-		ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch rules from the database")
-		return
+		return nil, fmt.Errorf("failed to fetch rules: %w", err)
 	}
 
 	// Filter out disabled rules
@@ -258,49 +337,23 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 	// Get profiles from the database
 	profiles, err := db_bridge.GetAutoDownloaderProfiles(ad.database)
 	if err != nil {
-		ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch profiles from the database")
-		return
-	}
-
-	// Event
-	event := &AutoDownloaderRunStartedEvent{
-		Rules:    rules,
-		Profiles: profiles,
-	}
-	_ = hook.GlobalHookManager.OnAutoDownloaderRunStarted().Trigger(event)
-	rules = event.Rules
-
-	// Default prevented, return
-	if event.DefaultPrevented {
-		return
-	}
-
-	// If there are no rules, return
-	if len(rules) == 0 {
-		ad.logger.Debug().Msg("autodownloader: No rules found")
-		return
+		return nil, fmt.Errorf("failed to fetch profiles: %w", err)
 	}
 
 	// Get local files from the database
 	lfs, _, err := db_bridge.GetLocalFiles(ad.database)
 	if err != nil {
-		ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch local files from the database")
-		return
+		return nil, fmt.Errorf("failed to fetch local files: %w", err)
 	}
-	// Create a LocalFileWrapper
 	lfWrapper := anime.NewLocalFileWrapper(lfs)
 
-	//
-	// Retrieve torrents
-	//
 	// Identify distinct providers from rules and profiles
 	providerExtensions := ad.getProvidersForRules(rules, profiles)
 
 	// Fetch torrents from all identified providers
 	torrents, err := ad.getTorrentsFromProviders(providerExtensions, rules, profiles)
 	if err != nil {
-		ad.logger.Error().Err(err).Msg("autodownloader: Failed to get latest torrents")
-		return
+		return nil, fmt.Errorf("failed to get latest torrents: %w", err)
 	}
 
 	// Event
@@ -316,39 +369,33 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 		existingTorrents, _ = ad.torrentClientRepository.GetList(&torrent_client.GetListOptions{})
 	}
 
-	downloaded := 0
-	mu := sync.Mutex{}
+	return &runData{
+		rules:            rules,
+		profiles:         profiles,
+		localFileWrapper: lfWrapper,
+		torrents:         torrents,
+		existingTorrents: existingTorrents,
+	}, nil
+}
 
-	// Group matched torrents by rule ID and episode number
-	// Map: Rule ID -> EpisodeNumber -> List of torrents (candidates)
-	type Candidate struct {
-		Torrent *NormalizedTorrent
-		Score   int
-	}
+// Candidate represents a potential torrent to download with its score
+type Candidate struct {
+	Torrent *NormalizedTorrent
+	Score   int
+}
+
+// groupTorrentCandidates groups torrents by rule ID and episode number
+// Returns: Map: Rule ID -> Episode Number -> List of candidates
+func (ad *AutoDownloader) groupTorrentCandidates(data *runData) map[uint]map[int][]*Candidate {
 	groupedCandidates := make(map[uint]map[int][]*Candidate)
 
-	//
-	// Iterate over rules and apply logic
-	//
-	for _, rule := range rules {
-		// Check if the rule is valid
+	for _, rule := range data.rules {
 		if rule.MediaId == 0 {
 			continue
 		}
 
 		// Get the rule's profiles (global + specific)
-		ruleProfiles := make([]*anime.AutoDownloaderProfile, 0)
-		for _, profile := range profiles {
-			if profile.Global {
-				// Only add global profiles if it isn't assigned to the rule
-				if rule.ProfileID == nil || profile.DbID != *rule.ProfileID {
-					ruleProfiles = append(ruleProfiles, profile)
-				}
-			} else if rule.ProfileID != nil && profile.DbID == *rule.ProfileID {
-				// Add profile assigned to the rule
-				ruleProfiles = append(ruleProfiles, profile)
-			}
-		}
+		ruleProfiles := ad.getRuleProfiles(rule, data.profiles)
 
 		listEntry, ok := ad.getRuleListEntry(rule)
 		if !ok {
@@ -361,75 +408,114 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 		// Initialize map for this rule
 		groupedCandidates[rule.DbID] = make(map[int][]*Candidate)
 
-		// Iterate over torrents
-		for _, t := range torrents {
-			// Check if already downloaded (by hash)
-			isExisting := false
-			for _, et := range existingTorrents {
-				if et.Hash == t.InfoHash {
-					isExisting = true
-					break
-				}
-			}
-			if isExisting {
+		// Process each torrent
+		for _, t := range data.torrents {
+			// Skip if already exists
+			if ad.isTorrentAlreadyDownloaded(t, data.existingTorrents) {
 				continue
 			}
 
-			// Check if the torrent follows the rule
+			// Check if torrent matches rule
 			episode, follows := ad.torrentFollowsRule(t, rule, listEntry, ruleProfiles)
-			if follows && episode != -1 {
-
-				// Check if already in the library
-				le, found := lfWrapper.GetLocalEntryById(rule.MediaId)
-				if found {
-					if _, ok := le.FindLocalFileWithEpisodeNumber(episode); ok {
-						continue
-					}
-				}
-				// Check if already in the queue
-				for _, item := range queuedItems {
-					if item.Episode == episode {
-						continue // Skip, file already queued or downloaded
-					}
-				}
-
-				// Calculate score (sum of all profiles)
-				score := 0
-				// Track the highest minimum score required
-				// devnote: Don't sum minimum scores to avoid missing perfectly fine torrents
-				requiredMinScore := 0
-
-				for _, p := range ruleProfiles {
-					score += ad.calculateTorrentScore(t, p)
-
-					// If multiple profiles are active
-					// we enforce the strictest (highest) MinimumScore threshold.
-					if p.MinimumScore > requiredMinScore {
-						requiredMinScore = p.MinimumScore
-					}
-				}
-
-				// If the total score is lower than the required minimum, reject candidate
-				if score < requiredMinScore {
-					// ad.logger.Trace().Str("name", t.Name).Int("score", score).Int("min", requiredMinScore).Msg("autodownloader: Score threshold not met")
-					continue
-				}
-
-				// Add to candidates
-				if groupedCandidates[rule.DbID][episode] == nil {
-					groupedCandidates[rule.DbID][episode] = make([]*Candidate, 0)
-				}
-				groupedCandidates[rule.DbID][episode] = append(groupedCandidates[rule.DbID][episode], &Candidate{
-					Torrent: t,
-					Score:   score,
-				})
+			if !follows || episode == -1 {
+				continue
 			}
+
+			// Skip if already in library or queue
+			if ad.isEpisodeAlreadyHandled(episode, rule.MediaId, data.localFileWrapper, queuedItems) {
+				continue
+			}
+
+			// Calculate score
+			score, requiredMinScore := ad.calculateCandidateScore(t, ruleProfiles)
+
+			// Skip if score doesn't meet minimum
+			if score < requiredMinScore {
+				continue
+			}
+
+			// Add to candidates
+			if groupedCandidates[rule.DbID][episode] == nil {
+				groupedCandidates[rule.DbID][episode] = make([]*Candidate, 0)
+			}
+			groupedCandidates[rule.DbID][episode] = append(groupedCandidates[rule.DbID][episode], &Candidate{
+				Torrent: t,
+				Score:   score,
+			})
 		}
 	}
 
-	//
-	// Select best candidate for each episode
-	//
+	return groupedCandidates
+}
+
+// getRuleProfiles returns all profiles that apply to a rule (global + specific)
+func (ad *AutoDownloader) getRuleProfiles(rule *anime.AutoDownloaderRule, profiles []*anime.AutoDownloaderProfile) []*anime.AutoDownloaderProfile {
+	ruleProfiles := make([]*anime.AutoDownloaderProfile, 0)
+	for _, profile := range profiles {
+		if profile.Global {
+			ruleProfiles = append(ruleProfiles, profile)
+		} else if rule.ProfileID != nil && profile.DbID == *rule.ProfileID {
+			// Add profile assigned to the rule
+			ruleProfiles = append(ruleProfiles, profile)
+		}
+	}
+	return ruleProfiles
+}
+
+// isTorrentAlreadyDownloaded checks if a torrent already exists in the client
+func (ad *AutoDownloader) isTorrentAlreadyDownloaded(t *NormalizedTorrent, existingTorrents []*torrent_client.Torrent) bool {
+	for _, et := range existingTorrents {
+		if et.Hash == t.InfoHash {
+			return true
+		}
+	}
+	return false
+}
+
+// isEpisodeAlreadyHandled checks if an episode is already in the library or queue
+func (ad *AutoDownloader) isEpisodeAlreadyHandled(episode int, mediaId int, lfWrapper *anime.LocalFileWrapper, queuedItems []*models.AutoDownloaderItem) bool {
+	// Check if already in the library
+	le, found := lfWrapper.GetLocalEntryById(mediaId)
+	if found {
+		if _, ok := le.FindLocalFileWithEpisodeNumber(episode); ok {
+			return true
+		}
+	}
+
+	// Check if already in the queue
+	for _, item := range queuedItems {
+		if item.Episode == episode {
+			return true
+		}
+	}
+
+	return false
+}
+
+// calculateCandidateScore calculates the score for a torrent candidate based on profiles
+// Returns the total score and the required minimum score
+func (ad *AutoDownloader) calculateCandidateScore(t *NormalizedTorrent, ruleProfiles []*anime.AutoDownloaderProfile) (score int, requiredMinScore int) {
+	score = 0
+	requiredMinScore = 0
+
+	for _, p := range ruleProfiles {
+		score += ad.calculateTorrentScore(t, p)
+
+		// If multiple profiles are active, enforce the strictest threshold
+		if p.MinimumScore > requiredMinScore {
+			requiredMinScore = p.MinimumScore
+		}
+	}
+
+	return score, requiredMinScore
+}
+
+// selectAndDownloadBestCandidates selects the best candidate for each episode and downloads it
+// Returns the number of successfully downloaded episodes
+func (ad *AutoDownloader) selectAndDownloadBestCandidates(isSimulation bool, groupedCandidates map[uint]map[int][]*Candidate, rules []*anime.AutoDownloaderRule) int {
+	downloaded := 0
+	mu := sync.Mutex{}
+
 	for ruleID, episodes := range groupedCandidates {
 		rule, found := lo.Find(rules, func(r *anime.AutoDownloaderRule) bool {
 			return r.DbID == ruleID
@@ -443,19 +529,10 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 				continue
 			}
 
-			// Sort candidates by score (desc) -> seeders (desc)
-			// seeders are used as tie-breaker
-			sort.Slice(candidates, func(i, j int) bool {
-				if candidates[i].Score != candidates[j].Score {
-					return candidates[i].Score > candidates[j].Score
-				}
-				return candidates[i].Torrent.Seeders > candidates[j].Torrent.Seeders
-			})
+			// Select best candidate
+			bestCandidate := ad.selectBestCandidate(candidates)
 
-			// Pick the best one
-			bestCandidate := candidates[0]
-
-			// Download
+			// Log
 			ad.logger.Debug().
 				Str("releaseGroup", bestCandidate.Torrent.ParsedData.ReleaseGroup).
 				Str("resolution", bestCandidate.Torrent.ParsedData.VideoResolution).
@@ -466,7 +543,7 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 				Msg("autodownloader: Found best torrent")
 
 			// Download
-			ok := ad.downloadTorrent(bestCandidate.Torrent, rule, episode)
+			ok := ad.downloadTorrent(isSimulation, bestCandidate.Torrent, rule, episode, bestCandidate.Score)
 			if ok {
 				mu.Lock()
 				downloaded++
@@ -475,6 +552,24 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 		}
 	}
 
+	return downloaded
+}
+
+// selectBestCandidate selects the best candidate from a list based on score and seeders
+func (ad *AutoDownloader) selectBestCandidate(candidates []*Candidate) *Candidate {
+	// Sort candidates by score (desc) -> seeders (desc)
+	sort.Slice(candidates, func(i, j int) bool {
+		if candidates[i].Score != candidates[j].Score {
+			return candidates[i].Score > candidates[j].Score
+		}
+		return candidates[i].Torrent.Seeders > candidates[j].Torrent.Seeders
+	})
+
+	return candidates[0]
+}
+
+// notifyDownloadResults sends a notification about the download results
+func (ad *AutoDownloader) notifyDownloadResults(downloaded int) {
 	if downloaded > 0 {
 		if ad.settings.DownloadAutomatically {
 			notifier.GlobalNotifier.Notify(
@@ -507,13 +602,7 @@ func (ad *AutoDownloader) torrentFollowsRule(
 	}
 
 	// If rule has no resolutions, inherit from profiles
-	resolutions := rule.Resolutions
-	if len(resolutions) == 0 {
-		for _, p := range profiles {
-			resolutions = append(resolutions, p.Resolutions...)
-		}
-	}
-	resolutions = lo.Uniq(resolutions)
+	resolutions := ad.inheritResolutionsFromProfiles(rule, profiles)
 
 	if ok := ad.isResolutionMatch(t.ParsedData.VideoResolution, resolutions); !ok {
 		return -1, false
@@ -550,11 +639,38 @@ func (ad *AutoDownloader) torrentFollowsRule(
 	return episode, true
 }
 
-func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.AutoDownloaderRule, episode int) bool {
+func (ad *AutoDownloader) inheritResolutionsFromProfiles(rule *anime.AutoDownloaderRule, profiles []*anime.AutoDownloaderProfile) []string {
+	res := rule.Resolutions
+	if len(res) == 0 {
+		for _, p := range profiles {
+			res = append(res, p.Resolutions...)
+		}
+	}
+	res = lo.Uniq(res)
+	return res
+}
+
+func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorrent, rule *anime.AutoDownloaderRule, episode int, score int) bool {
 	defer util.HandlePanicInModuleThen("autodownloader/downloadTorrent", func() {})
 
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
+
+	ad.logger.Debug().Str("name", t.Name).Msg("autodownloader: Downloading torrent")
+
+	if isSimulation {
+		// Store in memory for simulation mode
+		ad.simulationResults = append(ad.simulationResults, &SimulationResult{
+			RuleID:      rule.DbID,
+			MediaID:     rule.MediaId,
+			Episode:     episode,
+			Link:        t.Link,
+			Hash:        t.InfoHash,
+			TorrentName: t.Name,
+			Score:       score,
+		})
+		return true
+	}
 
 	// Double check that the episode hasn't been added while we have the lock
 	items, err := ad.database.GetAutoDownloaderItemByMediaId(rule.MediaId)
@@ -582,9 +698,11 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 		return false
 	}
 
-	providerExtension, found := ad.torrentRepository.GetAnimeProviderExtensionOrDefault(ad.settings.Provider)
+	// Use the provider that found the torrent
+	providerExtension, found := ad.torrentRepository.GetAnimeProviderExtension(t.ExtensionID)
 	if !found {
-		ad.logger.Warn().Msg("autodownloader: Could not download torrent. Default provider not found")
+		// This shouldn't happen
+		ad.logger.Error().Str("extensionId", t.ExtensionID).Msg("autodownloader: Provider extension not found and no default provider available")
 		return false
 	}
 
@@ -603,6 +721,11 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 			return false
 		}
 		useDebrid = true
+
+		if ad.debridClientRepository == nil {
+			ad.logger.Error().Msg("autodownloader: debrid client not found")
+			return false
+		}
 	}
 
 	// Get torrent magnet

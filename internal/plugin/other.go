@@ -294,7 +294,7 @@ func (a *AppContextImpl) BindAutoDownloaderToContextObj(vm *goja.Runtime, obj *g
 		if !ok {
 			goja_bindings.PanicThrowErrorString(vm, "autoDownloader not set")
 		}
-		autoDownloader.Run()
+		autoDownloader.Run(false)
 		return goja.Undefined()
 	})
 	_ = obj.Set("autoDownloader", autoDownloaderObj)

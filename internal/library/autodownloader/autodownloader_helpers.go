@@ -29,7 +29,7 @@ func (ad *AutoDownloader) isExcludedTermsMatch(torrentName string, rule *anime.A
 }
 
 func (ad *AutoDownloader) isConstraintsMatch(t *NormalizedTorrent, rule *anime.AutoDownloaderRule) bool {
-	if rule.MinSeeders > 0 && t.Seeders < rule.MinSeeders {
+	if t.Seeders > -1 && rule.MinSeeders > 0 && t.Seeders < rule.MinSeeders {
 		return false
 	}
 	if t.Size > 0 && rule.MinSize != "" {

@@ -20,7 +20,7 @@ import (
 //	@returns bool
 func (h *Handler) HandleRunAutoDownloader(c echo.Context) error {
 
-	h.App.AutoDownloader.Run()
+	h.App.AutoDownloader.Run(false)
 
 	return h.RespondWithData(c, true)
 }

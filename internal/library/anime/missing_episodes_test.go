@@ -22,7 +22,7 @@ func TestNewMissingEpisodes(t *testing.T) {
 	logger := util.NewLogger()
 	database, _ := db.NewDatabase(t.TempDir(), "test", logger)
 
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)

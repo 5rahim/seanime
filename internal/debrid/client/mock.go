@@ -20,7 +20,7 @@ func GetMockRepository(t *testing.T, db *db.Database) *Repository {
 	anilistClientRef := util.NewRef(anilistClient)
 	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
 	platform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, db)
-	metadataProvider := metadata_provider.GetMockProvider(t, db)
+	metadataProvider := metadata_provider.GetFakeProvider(t, db)
 	platformRef := util.NewRef(platform)
 	metadataProviderRef := util.NewRef(metadataProvider)
 	playbackManager := playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{

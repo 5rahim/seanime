@@ -29,7 +29,7 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 
 	// Set the SQLite database path
 	var sqlitePath string
-	if os.Getenv("TEST_ENV") == "true" {
+	if os.Getenv("TEST_ENV") == "true" || appDataDir == "" {
 		sqlitePath = ":memory:"
 	} else {
 		sqlitePath = filepath.Join(appDataDir, dbName+".db")

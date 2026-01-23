@@ -19,9 +19,9 @@ import (
 
 func GetMockManager(t *testing.T, db *db.Database) Manager {
 	logger := util.NewLogger()
-	metadataProvider := metadata_provider.GetMockProvider(t, db)
+	metadataProvider := metadata_provider.GetFakeProvider(t, db)
 	metadataProviderRef := util.NewRef[metadata_provider.Provider](metadataProvider)
-	mangaRepository := manga.GetMockRepository(t, db)
+	mangaRepository := manga.GetFakeRepository(t, db)
 
 	wsEventManager := events.NewMockWSEventManager(logger)
 	anilistClient := anilist.NewMockAnilistClient()
