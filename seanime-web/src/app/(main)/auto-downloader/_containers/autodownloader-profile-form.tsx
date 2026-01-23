@@ -194,7 +194,7 @@ export function AutoDownloaderProfileForm(props: AutoDownloaderProfileFormProps)
                                 draft.minSize = e.target.value
                                 return
                             })}
-                            placeholder="e.g., 100MB"
+                            placeholder="e.g. 100MB"
                         />
                     </div>
                     <div className="space-y-2">
@@ -205,7 +205,7 @@ export function AutoDownloaderProfileForm(props: AutoDownloaderProfileFormProps)
                                 draft.maxSize = e.target.value
                                 return
                             })}
-                            placeholder="e.g., 2GB or 10GiB"
+                            placeholder="e.g. 2GB or 10GiB"
                         />
                     </div>
                 </div>
@@ -436,12 +436,12 @@ function ConditionItem(props: ConditionItemProps) {
                 <TextInput
                     value={field.term}
                     onChange={(e) => onUpdateField(field.id, "term", e.target.value)}
-                    placeholder="e.g., Blu-Ray, BluRay or \b(group)\bi"
+                    placeholder="e.g. Blu-Ray, BluRay or \b(group)\bi"
                     className="w-full"
                     help="Comma-separated case insensitive values or regex pattern"
                 />
                 <div className="space-y-2">
-                    <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-6 flex-wrap">
                         <Select
                             value={field.action}
                             onValueChange={(value) => onUpdateField(field.id, "action", value)}
@@ -450,9 +450,9 @@ function ConditionItem(props: ConditionItemProps) {
                                 { label: "Block", value: "block" },
                                 { label: "Require", value: "require" },
                             ]}
-                            label="Action"
+                            label="Action:"
                             fieldClass="!flex !items-center gap-2 w-fit"
-                            labelProps={{ className: "items-center" }}
+                            labelProps={{ className: "items-center text-sm font-semibold pt-1" }}
                             className="w-32"
                         />
                         {field.action === "score" && (
@@ -460,9 +460,9 @@ function ConditionItem(props: ConditionItemProps) {
                                 value={field.score}
                                 onValueChange={(v) => onUpdateField(field.id, "score", v || 0)}
                                 placeholder="Score"
-                                label="Score"
+                                label="Score:"
                                 fieldClass="!flex !items-center gap-2 w-fit"
-                                labelProps={{ className: "items-center" }}
+                                labelProps={{ className: "items-center text-sm font-semibold pt-1" }}
                                 className="w-32"
                                 formatOptions={{ useGrouping: false }}
                                 min={-999999}
@@ -505,7 +505,7 @@ function SortableItem({ id, children }: { id: string, children: React.ReactNode 
     }
 
     return (
-        <div ref={setNodeRef} style={style} className="flex items-start gap-2 bg-[--subtle] p-2 rounded-md">
+        <div ref={setNodeRef} style={style} className="flex items-start gap-2 bg-gray-900 p-2 rounded-lg">
             <div {...attributes} {...listeners} className="cursor-move text-[--muted] hover:text-[--foreground] mt-2">
                 <BiMenu className="text-xl" />
             </div>

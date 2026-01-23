@@ -178,6 +178,15 @@ func (r *Repository) GetAnimeProviderExtensionOrFirst(id string) (extension.Anim
 	return ext, true
 }
 
+// GetAnimeProviderExtensionOrDefault returns the extension with the given ID, or the default one
+func (r *Repository) GetAnimeProviderExtensionOrDefault(id string) (extension.AnimeTorrentProviderExtension, bool) {
+	ext, found := extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBankRef.Get(), id)
+	if !found {
+		return r.GetDefaultAnimeProviderExtension()
+	}
+	return ext, true
+}
+
 func (r *Repository) GetAllAnimeProviderExtensionIds() []string {
 	ids := make([]string, 0)
 	extension.RangeExtensions[extension.AnimeTorrentProviderExtension](r.extensionBankRef.Get(), func(id string, ext extension.AnimeTorrentProviderExtension) bool {

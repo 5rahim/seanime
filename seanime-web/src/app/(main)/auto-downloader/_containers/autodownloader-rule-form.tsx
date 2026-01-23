@@ -470,13 +470,13 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                         <Field.Text
                             name="minSize"
                             label="Min Size"
-                            placeholder="e.g., 100MB"
+                            placeholder="e.g. 100MB"
                             fieldClass="w-full"
                         />
                         <Field.Text
                             name="maxSize"
                             label="Max Size"
-                            placeholder="e.g., 2GB or 10GiB"
+                            placeholder="e.g. 2GB or 10GiB"
                             fieldClass="w-full"
                         />
                     </div>

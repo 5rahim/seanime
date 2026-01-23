@@ -24,7 +24,7 @@ export function AutoDownloaderProfiles() {
         <div className="pt-4">
             <Card className="p-4 space-y-3">
                 <p className="text-[--muted]">
-                    Profiles allow you to define a set of filters that can be applied to your auto-downloading rules.
+                    Profiles allow you to define a set of filters that can be applied to your rules.
                 </p>
                 <div className="flex items-center">
                     <Button
@@ -33,7 +33,7 @@ export function AutoDownloaderProfiles() {
                         leftIcon={<BiPlus className="text-xl" />}
                         onClick={() => setIsCreateOpen(true)}
                     >
-                        Create Profile
+                        New Profile
                     </Button>
                 </div>
 
@@ -97,7 +97,7 @@ function ProfileItem({ profile, onEdit }: { profile: Anime_AutoDownloaderProfile
 
     return (
         <>
-            <Card className="p-4 flex items-center justify-between gap-4">
+            <Card className="p-3 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-full bg-[--subtle] flex items-center justify-center">
                         <PiTargetBold
@@ -114,7 +114,8 @@ function ProfileItem({ profile, onEdit }: { profile: Anime_AutoDownloaderProfile
                         </h4>
                         <p className="text-sm text-[--muted] line-clamp-1">
                             {!!profile.resolutions?.length && <span>{profile.resolutions.join(", ")} • </span>}
-                            {profile.conditions?.length} condition{(profile.conditions?.length !== 1) ? "s" : ""} • {profile.minimumScore} min score
+                            <span>{profile.conditions?.length} condition{(profile.conditions?.length !== 1) ? "s" : ""} • {profile.minimumScore} min
+                                                               score</span>
 
                         </p>
                     </div>

@@ -34,7 +34,7 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
     if (isLoading) return <LoadingSpinner />
 
     return (
-        <Card className="p-4 space-y-4">
+        <Card className="p-4 space-y-2">
             <ul className="text-base text-[--muted]">
                 <li>
                     The queue shows items waiting to be downloaded or scanned.
@@ -52,8 +52,8 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
                 <div className="rounded-[--radius] p-3 bg-gray-900" key={item.id}>
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="text-base font-medium tracking-wide">{item.torrentName}</h3>
-                            <p className="text-base text-gray-400 flex gap-2 items-center">
+                            <h3 className="text-sm font-medium tracking-wide">{item.torrentName}</h3>
+                            <p className="text-sm text-gray-400 flex gap-2 items-center">
                                 {item.downloaded && <span className="text-green-200">File downloaded </span>}
                                 {!item.downloaded && <span className="text-brand-300 italic">Queued </span>}
                                 {item.createdAt && formatDateAndTimeShort(item.createdAt)}
@@ -101,14 +101,14 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
                             <Button
                                 leftIcon={<BiTrash />}
                                 size="sm"
-                                intent="alert"
+                                intent="alert-basic"
                                 onClick={() => {
                                     deleteItem({ id: item.id })
                                 }}
                                 disabled={isPending || isAdding}
                                 loading={isPending}
                             >
-                                Delete
+                                Remove
                             </Button>
                         </div>
                     </div>

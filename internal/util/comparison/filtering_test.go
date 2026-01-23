@@ -289,6 +289,33 @@ func TestValueContainsNC(t *testing.T) {
 	}
 }
 
+func TestNormalizeResolution(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{name: "1080p", input: "1080p", expected: "1080p"},
+		{name: "1080p case insensitive", input: "1080P", expected: "1080p"},
+		{name: "1080 in string", input: "1920x1080", expected: "1080p"},
+		{name: "4k", input: "4k", expected: "2160p"},
+		{name: "2160p", input: "2160p", expected: "2160p"},
+		{name: "720p", input: "720p", expected: "720p"},
+		{name: "540p", input: "540p", expected: "540p"},
+		{name: "480p", input: "480p", expected: "480p"},
+		{name: "No resolution", input: "Unknown", expected: "Unknown"},
+		{name: "1080 isolated", input: "1080", expected: "1080p"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NormalizeResolution(tt.input); got != tt.expected {
+				t.Errorf("NormalizeResolution() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
+
 //func TestLikelyNC(t *testing.T) {
 //	tests := []struct {
 //		name     string

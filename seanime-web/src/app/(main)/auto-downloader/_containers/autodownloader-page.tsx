@@ -5,6 +5,7 @@ import {
     useGetAutoDownloaderRules,
     useRunAutoDownloader,
 } from "@/api/hooks/auto_downloader.hooks"
+import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useSaveAutoDownloaderSettings } from "@/api/hooks/settings.hooks"
 import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -34,12 +35,14 @@ import { FaSquareRss } from "react-icons/fa6"
 import { LuTrash } from "react-icons/lu"
 import { MdOutlineAdd } from "react-icons/md"
 import { toast } from "sonner"
+import { z } from "zod"
 
 const tabContentClass = cn(
     "space-y-4 animate-in fade-in-0 duration-300",
 )
 
-const settingsSchema = defineSchema(({ z }) => z.object({
+const settingsSchema = defineSchema(({ z, presets }) => z.object({
+    provider: presets.multiSelect,
     interval: z.number().transform(n => {
         if (n < 15) {
             toast.info("Interval changed to be at least 15 minutes")
@@ -57,6 +60,7 @@ const settingsSchema = defineSchema(({ z }) => z.object({
 export function AutoDownloaderPage() {
     const serverStatus = useServerStatus()
     const userMedia = useAtomValue(__anilist_userAnimeMediaAtom)
+    const { data: extensions, isLoading: isLoadingExtensions } = useAnimeListTorrentProviderExtensions()
 
     const createRuleModal = useBoolean(false)
     const createBatchRuleModal = useBoolean(false)
@@ -80,6 +84,13 @@ export function AutoDownloaderPage() {
         },
     })
 
+    function handleSaveSettings(data: z.infer<typeof settingsSchema>) {
+        updateSettings({
+            ...data,
+            provider: !!data.provider?.length ? data.provider[0] : "",
+        })
+    }
+
     return (
         <div className="space-y-4">
             <ConfirmationDialog {...confirmDeleteNoLongerAiring} />
@@ -95,7 +106,7 @@ export function AutoDownloaderPage() {
                     <TabsTrigger value="queue">
                         Queue
                         {!!items?.length && (
-                            <Badge className="ml-1 font-bold" intent="alert">
+                            <Badge className="ml-2 font-bold" intent="alert" size="sm">
                                 {items.length}
                             </Badge>
                         )}
@@ -104,8 +115,8 @@ export function AutoDownloaderPage() {
                 </TabsList>
                 <TabsContent value="rules" className={tabContentClass}>
                     <div className="pt-4">
-                        {isLoading && <LoadingSpinner />}
-                        {!isLoading && (
+                        {(isLoading && isLoadingExtensions) && <LoadingSpinner />}
+                        {(!isLoading && !isLoadingExtensions) && (
                             <div className="space-y-4">
 
                                 <Card className="p-4 space-y-4">
@@ -171,6 +182,7 @@ export function AutoDownloaderPage() {
                                                 rule={rule}
                                                 userMedia={userMedia}
                                                 profiles={profiles ?? []}
+                                                extensions={extensions ?? []}
                                             />
                                         ))}
                                     </div>}
@@ -196,10 +208,9 @@ export function AutoDownloaderPage() {
                     <div className="pt-4">
                         <Form
                             schema={settingsSchema}
-                            onSubmit={data => {
-                                updateSettings(data)
-                            }}
+                            onSubmit={handleSaveSettings}
                             defaultValues={{
+                                provider: serverStatus?.settings?.autoDownloader?.provider ? [serverStatus.settings.autoDownloader.provider] : [],
                                 enabled: serverStatus?.settings?.autoDownloader?.enabled ?? false,
                                 interval: serverStatus?.settings?.autoDownloader?.interval || 15,
                                 downloadAutomatically: serverStatus?.settings?.autoDownloader?.downloadAutomatically ?? false,
@@ -231,6 +242,17 @@ export function AutoDownloaderPage() {
                                                 description="Debrid service is not enabled or configured. Please enable it in the settings."
                                             />
                                         )}
+
+                                        <Field.Combobox
+                                            name="provider"
+                                            options={extensions?.toSorted((a, b) => a.id.localeCompare(b.id))?.map(ext => ({
+                                                label: ext.name,
+                                                textValue: ext.name,
+                                                value: ext.id,
+                                            })) ?? []}
+                                            label="Default Provider"
+                                            emptyMessage="No extensions found"
+                                        />
                                     </SettingsCard>
 
                                     <SettingsCard
@@ -238,18 +260,12 @@ export function AutoDownloaderPage() {
                                             !f.watch("enabled") && "pointer-events-none opacity-50",
                                         )}
                                     >
-                                        <Field.Switch
-                                            side="right"
-                                            label="Use smart search queries"
-                                            name="enableEnhancedQueries"
-                                            help="Seanime will use smart search queries for more targeted results, if the extension allows it."
-                                        />
-                                        <Field.Switch
-                                            side="right"
-                                            label="Verify season"
-                                            name="enableSeasonCheck"
-                                            help="Seanime will perform an additional check to ensure the season number is correct. This is not needed in most cases."
-                                        />
+                                        {/*<Field.Switch*/}
+                                        {/*    side="right"*/}
+                                        {/*    label="Use smart search queries"*/}
+                                        {/*    name="enableEnhancedQueries"*/}
+                                        {/*    help="Seanime will use smart search queries for more targeted results, if the extension allows it."*/}
+                                        {/*/>*/}
                                         <Field.Switch
                                             side="right"
                                             label="Download episodes immediately"
@@ -265,6 +281,19 @@ export function AutoDownloaderPage() {
                                             size="sm"
                                             className="text-center w-20"
                                             min={15}
+                                        />
+                                    </SettingsCard>
+
+                                    <SettingsCard
+                                        className={cn(
+                                            !f.watch("enabled") && "pointer-events-none opacity-50",
+                                        )}
+                                    >
+                                        <Field.Switch
+                                            side="right"
+                                            label="Strict season check"
+                                            name="enableSeasonCheck"
+                                            help="If enabled, the torrents and media titles should contain the same season number. This can lead to false negatives."
                                         />
                                     </SettingsCard>
 

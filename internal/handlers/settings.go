@@ -251,12 +251,13 @@ func (h *Handler) HandleSaveSettings(c echo.Context) error {
 func (h *Handler) HandleSaveAutoDownloaderSettings(c echo.Context) error {
 
 	type body struct {
-		Interval              int  `json:"interval"`
-		Enabled               bool `json:"enabled"`
-		DownloadAutomatically bool `json:"downloadAutomatically"`
-		EnableEnhancedQueries bool `json:"enableEnhancedQueries"`
-		EnableSeasonCheck     bool `json:"enableSeasonCheck"`
-		UseDebrid             bool `json:"useDebrid"`
+		Provider              string `json:"provider"`
+		Interval              int    `json:"interval"`
+		Enabled               bool   `json:"enabled"`
+		DownloadAutomatically bool   `json:"downloadAutomatically"`
+		EnableEnhancedQueries bool   `json:"enableEnhancedQueries"`
+		EnableSeasonCheck     bool   `json:"enableSeasonCheck"`
+		UseDebrid             bool   `json:"useDebrid"`
 	}
 
 	var b body
@@ -276,7 +277,7 @@ func (h *Handler) HandleSaveAutoDownloaderSettings(c echo.Context) error {
 	}
 
 	autoDownloaderSettings := &models.AutoDownloaderSettings{
-		Provider:              currSettings.Library.TorrentProvider,
+		Provider:              b.Provider,
 		Interval:              b.Interval,
 		Enabled:               b.Enabled,
 		DownloadAutomatically: b.DownloadAutomatically,
@@ -296,8 +297,8 @@ func (h *Handler) HandleSaveAutoDownloaderSettings(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	// Update Auto Downloader - This runs in a goroutine
-	h.App.AutoDownloader.SetSettings(autoDownloaderSettings, currSettings.Library.TorrentProvider)
+	// Update Auto Downloader settings
+	h.App.AutoDownloader.SetSettings(autoDownloaderSettings)
 
 	return h.RespondWithData(c, true)
 }

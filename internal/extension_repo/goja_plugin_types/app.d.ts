@@ -423,6 +423,7 @@ declare namespace $app {
         preventDefault(): void;
 
         rules?: Array<Anime_AutoDownloaderRule>;
+        profiles?: Array<Anime_AutoDownloaderProfile>;
     }
 
     /**
@@ -2938,6 +2939,41 @@ declare namespace $app {
     /**
      * - Filepath: internal/library/anime/autodownloader_rule.go
      */
+    interface Anime_AutoDownloaderCondition {
+        id: string;
+        term: string;
+        isRegex: boolean;
+        action: Anime_AutoDownloaderProfileRuleFormatAction;
+        /**
+         * Only used if Action == "score"
+         */
+        score: number;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/autodownloader_rule.go
+     */
+    interface Anime_AutoDownloaderProfile {
+        dbId: number;
+        name: string;
+        global: boolean;
+        resolutions?: Array<string>;
+        conditions?: Array<Anime_AutoDownloaderCondition>;
+        minimumScore: number;
+        minSeeders?: number;
+        minSize?: string;
+        maxSize?: string;
+        providers?: Array<string>;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/autodownloader_rule.go
+     */
+    export type Anime_AutoDownloaderProfileRuleFormatAction = "score" | "block" | "require";
+
+    /**
+     * - Filepath: internal/library/anime/autodownloader_rule.go
+     */
     interface Anime_AutoDownloaderRule {
         dbId: number;
         enabled: boolean;
@@ -3362,6 +3398,7 @@ declare namespace $app {
          * Access using GetMagnet()
          */
         magnet: string;
+        ExtensionID: string;
         provider?: string;
         name: string;
         date: string;

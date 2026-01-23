@@ -11,7 +11,7 @@ import (
 	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
-	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/extension"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/notifier"
@@ -29,7 +29,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
-	"github.com/sourcegraph/conc/pool"
 )
 
 const (
@@ -101,7 +100,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 // SetSettings should be called after the settings are fetched and updated from the database.
 // If the AutoDownloader is not active, it will start it if the settings are enabled.
 // If the AutoDownloader is active, it will stop it if the settings are disabled.
-func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, provider string) {
+func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings) {
 	defer util.HandlePanicInModuleThen("autodownloader/SetSettings", func() {})
 
 	event := &AutoDownloaderSettingsUpdatedEvent{
@@ -117,10 +116,6 @@ func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, p
 		ad.mu.Lock()
 		defer ad.mu.Unlock()
 		ad.settings = settings
-		// Update the provider if it's provided
-		if provider != "" {
-			ad.settings.Provider = provider
-		}
 		ad.settingsUpdatedCh <- struct{}{} // Notify that the settings have been updated
 		if ad.settings.Enabled {
 			ad.startCh <- struct{}{} // Start the auto downloader
@@ -232,9 +227,6 @@ func (ad *AutoDownloader) start() {
 }
 
 // checkForNewEpisodes will check the RSS feeds for new episodes.
-// The primary preferred metric (Group, Size, or Seeders) is checked first.
-// High resolution is always preferred as a secondary check.
-// Healthy torrents (seeders) are used as the final tie-breaker.
 func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/checkForNewEpisodes", func() {})
 
@@ -249,22 +241,7 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 		ad.mu.Unlock()
 		return
 	}
-
-	// DEVNOTE: [checkForNewEpisodes] is called on startup, when the default anime provider extension has not yet been loaded.
-	providerExt, found := ad.torrentRepository.GetDefaultAnimeProviderExtension()
-	if !found {
-		//ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. Default provider not found.")
-		ad.mu.Unlock()
-		return
-	}
-	if providerExt.GetProvider().GetSettings().Type != hibiketorrent.AnimeProviderTypeMain {
-		ad.logger.Warn().Msgf("autodownloader: Could not check for new episodes. Provider '%s' cannot be used for auto downloading.", providerExt.GetName())
-		ad.mu.Unlock()
-		return
-	}
 	ad.mu.Unlock()
-
-	torrents := make([]*NormalizedTorrent, 0)
 
 	// Get rules from the database
 	rules, err := db_bridge.GetAutoDownloaderRules(ad.database)
@@ -278,9 +255,17 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 		return r.Enabled
 	})
 
+	// Get profiles from the database
+	profiles, err := db_bridge.GetAutoDownloaderProfiles(ad.database)
+	if err != nil {
+		ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch profiles from the database")
+		return
+	}
+
 	// Event
 	event := &AutoDownloaderRunStartedEvent{
-		Rules: rules,
+		Rules:    rules,
+		Profiles: profiles,
 	}
 	_ = hook.GlobalHookManager.OnAutoDownloaderRunStarted().Trigger(event)
 	rules = event.Rules
@@ -305,8 +290,14 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 	// Create a LocalFileWrapper
 	lfWrapper := anime.NewLocalFileWrapper(lfs)
 
-	// Get the latest torrents
-	torrents, err = ad.getLatestTorrents(rules)
+	//
+	// Retrieve torrents
+	//
+	// Identify distinct providers from rules and profiles
+	providerExtensions := ad.getProvidersForRules(rules, profiles)
+
+	// Fetch torrents from all identified providers
+	torrents, err := ad.getTorrentsFromProviders(providerExtensions, rules, profiles)
 	if err != nil {
 		ad.logger.Error().Err(err).Msg("autodownloader: Failed to get latest torrents")
 		return
@@ -319,180 +310,170 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 	_ = hook.GlobalHookManager.OnAutoDownloaderTorrentsFetched().Trigger(fetchedEvent)
 	torrents = fetchedEvent.Torrents
 
-	// // Try to start the torrent client if it's not running
-	// if ad.torrentClientRepository != nil {
-	// 	started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
-	// 	if !started {
-	// 		ad.logger.Warn().Msg("autodownloader: Failed to start torrent client. Make sure it's running.")
-	// 	}
-	// }
-
 	// Get existing torrents
-	existingTorrents := make([]*torrent_client.Torrent, 0)
+	var existingTorrents []*torrent_client.Torrent
 	if ad.torrentClientRepository != nil {
-		existingTorrents, err = ad.torrentClientRepository.GetList(&torrent_client.GetListOptions{})
-		if err != nil {
-			existingTorrents = make([]*torrent_client.Torrent, 0)
-		}
+		existingTorrents, _ = ad.torrentClientRepository.GetList(&torrent_client.GetListOptions{})
 	}
 
 	downloaded := 0
 	mu := sync.Mutex{}
 
-	// Going through each rule
-	p := pool.New()
+	// Group matched torrents by rule ID and episode number
+	// Map: Rule ID -> EpisodeNumber -> List of torrents (candidates)
+	type Candidate struct {
+		Torrent *NormalizedTorrent
+		Score   int
+	}
+	groupedCandidates := make(map[uint]map[int][]*Candidate)
+
+	//
+	// Iterate over rules and apply logic
+	//
 	for _, rule := range rules {
-		rule := rule
-		p.Go(func() {
-			if !rule.Enabled {
-				return // Skip rule
+		// Check if the rule is valid
+		if rule.MediaId == 0 {
+			continue
+		}
+
+		// Get the rule's profiles (global + specific)
+		ruleProfiles := make([]*anime.AutoDownloaderProfile, 0)
+		for _, profile := range profiles {
+			if profile.Global {
+				// Only add global profiles if it isn't assigned to the rule
+				if rule.ProfileID == nil || profile.DbID != *rule.ProfileID {
+					ruleProfiles = append(ruleProfiles, profile)
+				}
+			} else if rule.ProfileID != nil && profile.DbID == *rule.ProfileID {
+				// Add profile assigned to the rule
+				ruleProfiles = append(ruleProfiles, profile)
 			}
-			listEntry, found := ad.getRuleListEntry(rule)
-			// If the media is not found, skip the rule
-			if !found {
-				return // Skip rule
+		}
+
+		listEntry, ok := ad.getRuleListEntry(rule)
+		if !ok {
+			continue
+		}
+
+		// Get all queued items from this media
+		queuedItems, _ := ad.database.GetAutoDownloaderItemByMediaId(listEntry.GetMedia().GetID())
+
+		// Initialize map for this rule
+		groupedCandidates[rule.DbID] = make(map[int][]*Candidate)
+
+		// Iterate over torrents
+		for _, t := range torrents {
+			// Check if already downloaded (by hash)
+			isExisting := false
+			for _, et := range existingTorrents {
+				if et.Hash == t.InfoHash {
+					isExisting = true
+					break
+				}
+			}
+			if isExisting {
+				continue
 			}
 
-			// DEVNOTE: This is bad, do not skip anime that are not releasing because dubs are delayed
-			// If the media is not releasing AND has more than one episode, skip the rule
-			// This is to avoid skipping movies and single-episode OVAs
-			//if *listEntry.GetMedia().GetStatus() != anilist.MediaStatusReleasing && listEntry.GetMedia().GetCurrentEpisodeCount() > 1 {
-			//	return // Skip rule
-			//}
+			// Check if the torrent follows the rule
+			episode, follows := ad.torrentFollowsRule(t, rule, listEntry, ruleProfiles)
+			if follows && episode != -1 {
 
-			localEntry, _ := lfWrapper.GetLocalEntryById(listEntry.GetMedia().GetID())
-
-			// +---------------------+
-			// |    Existing Item    |
-			// +---------------------+
-			items, err := ad.database.GetAutoDownloaderItemByMediaId(listEntry.GetMedia().GetID())
-			if err != nil {
-				items = make([]*models.AutoDownloaderItem, 0)
-			}
-
-			// Get all torrents that follow the rule
-			torrentsToDownload := make([]*tmpTorrentToDownload, 0)
-		outer:
-			for _, t := range torrents {
-				// If the torrent is already added, skip it
-				for _, et := range existingTorrents {
-					if et.Hash == t.InfoHash {
-						continue outer // Skip the torrent
+				// Check if already in the library
+				le, found := lfWrapper.GetLocalEntryById(rule.MediaId)
+				if found {
+					if _, ok := le.FindLocalFileWithEpisodeNumber(episode); ok {
+						continue
+					}
+				}
+				// Check if already in the queue
+				for _, item := range queuedItems {
+					if item.Episode == episode {
+						continue // Skip, file already queued or downloaded
 					}
 				}
 
-				episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry, items)
-				event := &AutoDownloaderMatchVerifiedEvent{
-					Torrent:    t,
-					Rule:       rule,
-					ListEntry:  listEntry,
-					LocalEntry: localEntry,
-					Episode:    episode,
-					MatchFound: ok,
-				}
-				_ = hook.GlobalHookManager.OnAutoDownloaderMatchVerified().Trigger(event)
-				t = event.Torrent
-				rule = event.Rule
-				listEntry = event.ListEntry
-				localEntry = event.LocalEntry
-				episode = event.Episode
-				ok = event.MatchFound
+				// Calculate score (sum of all profiles)
+				score := 0
+				// Track the highest minimum score required
+				// devnote: Don't sum minimum scores to avoid missing perfectly fine torrents
+				requiredMinScore := 0
 
-				// Default prevented, skip the torrent
-				if event.DefaultPrevented {
-					continue outer // Skip the torrent
-				}
+				for _, p := range ruleProfiles {
+					score += ad.calculateTorrentScore(t, p)
 
-				if ok {
-					torrentsToDownload = append(torrentsToDownload, &tmpTorrentToDownload{
-						torrent: t,
-						episode: episode,
-					})
-				}
-			}
-
-			// Download the torrent if there's only one
-			if len(torrentsToDownload) == 1 {
-				t := torrentsToDownload[0]
-				ok := ad.downloadTorrent(t.torrent, rule, t.episode)
-				if ok {
-					downloaded++
-				}
-				return
-			}
-
-			// If there's more than one, we will group them by episode and sort them
-			// Make a map [episode]torrents
-			epMap := make(map[int][]*tmpTorrentToDownload)
-			for _, t := range torrentsToDownload {
-				if _, ok := epMap[t.episode]; !ok {
-					epMap[t.episode] = make([]*tmpTorrentToDownload, 0)
-					epMap[t.episode] = append(epMap[t.episode], t)
-				} else {
-					epMap[t.episode] = append(epMap[t.episode], t)
-				}
-			}
-
-			// Go through each episode group and download the best torrent (by resolution and seeders)
-			for ep, torrents := range epMap {
-
-				// If there's only one torrent for the episode, download it
-				if len(torrents) == 1 {
-					ok := ad.downloadTorrent(torrents[0].torrent, rule, ep)
-					if ok {
-						mu.Lock()
-						downloaded++
-						mu.Unlock()
+					// If multiple profiles are active
+					// we enforce the strictest (highest) MinimumScore threshold.
+					if p.MinimumScore > requiredMinScore {
+						requiredMinScore = p.MinimumScore
 					}
+				}
+
+				// If the total score is lower than the required minimum, reject candidate
+				if score < requiredMinScore {
+					// ad.logger.Trace().Str("name", t.Name).Int("score", score).Int("min", requiredMinScore).Msg("autodownloader: Score threshold not met")
 					continue
 				}
 
-				// If there are more than one
-				// Sort by resolution
-				sort.Slice(torrents, func(i, j int) bool {
-					qI := comparison.ExtractResolutionInt(torrents[i].torrent.ParsedData.VideoResolution)
-					qJ := comparison.ExtractResolutionInt(torrents[j].torrent.ParsedData.VideoResolution)
-					return qI > qJ
-				})
-				// Sort by seeds
-				sort.Slice(torrents, func(i, j int) bool {
-					return torrents[i].torrent.Seeders > torrents[j].torrent.Seeders
-				})
-
-				// TODO: Implement below
-				//sort.Slice(torrents, func(i, j int) bool {
-				//	for _, criterion := range rule.PriorityRank {
-				//		switch criterion {
-				//		case anime.AutoDownloaderRulePriorityReleaseGroup:
-				//			pI := ad.getGroupPriority(torrents[i].torrent.ParsedData.ReleaseGroup, rule.ReleaseGroups)
-				//			pJ := ad.getGroupPriority(torrents[j].torrent.ParsedData.ReleaseGroup, rule.ReleaseGroups)
-				//			if pI != pJ { return pI < pJ }
-				//		case anime.AutoDownloaderRulePrioritySize:
-				//			// Only switch if the size difference is significant (e.g., > 5%)
-				//			if !isSizeNegligible(torrents[i].torrent.Size, torrents[j].torrent.Size) {
-				//				return torrents[i].torrent.Size > torrents[j].torrent.Size
-				//			}
-				//		case anime.AutoDownloaderRulePrioritySeeders:
-				//			if torrents[i].torrent.Seeders != torrents[j].torrent.Seeders {
-				//				return torrents[i].torrent.Seeders > torrents[j].torrent.Seeders
-				//			}
-				//		}
-				//	}
-				//	// Final fallback: Resolution
-				//	return comparison.ExtractResolutionInt(torrents[i].torrent.ParsedData.VideoResolution) >
-				//		comparison.ExtractResolutionInt(torrents[j].torrent.ParsedData.VideoResolution)
-				//})
-
-				ok := ad.downloadTorrent(torrents[0].torrent, rule, ep)
-				if ok {
-					mu.Lock()
-					downloaded++
-					mu.Unlock()
+				// Add to candidates
+				if groupedCandidates[rule.DbID][episode] == nil {
+					groupedCandidates[rule.DbID][episode] = make([]*Candidate, 0)
 				}
+				groupedCandidates[rule.DbID][episode] = append(groupedCandidates[rule.DbID][episode], &Candidate{
+					Torrent: t,
+					Score:   score,
+				})
 			}
-		})
+		}
 	}
-	p.Wait()
+
+	//
+	// Select best candidate for each episode
+	//
+	for ruleID, episodes := range groupedCandidates {
+		rule, found := lo.Find(rules, func(r *anime.AutoDownloaderRule) bool {
+			return r.DbID == ruleID
+		})
+		if !found {
+			continue
+		}
+
+		for episode, candidates := range episodes {
+			if len(candidates) == 0 {
+				continue
+			}
+
+			// Sort candidates by score (desc) -> seeders (desc)
+			// seeders are used as tie-breaker
+			sort.Slice(candidates, func(i, j int) bool {
+				if candidates[i].Score != candidates[j].Score {
+					return candidates[i].Score > candidates[j].Score
+				}
+				return candidates[i].Torrent.Seeders > candidates[j].Torrent.Seeders
+			})
+
+			// Pick the best one
+			bestCandidate := candidates[0]
+
+			// Download
+			ad.logger.Debug().
+				Str("releaseGroup", bestCandidate.Torrent.ParsedData.ReleaseGroup).
+				Str("resolution", bestCandidate.Torrent.ParsedData.VideoResolution).
+				Int("seeders", bestCandidate.Torrent.Seeders).
+				Int("score", bestCandidate.Score).
+				Str("rule", rule.ComparisonTitle).
+				Int("episode", episode).
+				Msg("autodownloader: Found best torrent")
+
+			// Download
+			ok := ad.downloadTorrent(bestCandidate.Torrent, rule, episode)
+			if ok {
+				mu.Lock()
+				downloaded++
+				mu.Unlock()
+			}
+		}
+	}
 
 	if downloaded > 0 {
 		if ad.settings.DownloadAutomatically {
@@ -507,23 +488,34 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 			)
 		}
 	}
-
 }
 
 func (ad *AutoDownloader) torrentFollowsRule(
 	t *NormalizedTorrent,
 	rule *anime.AutoDownloaderRule,
 	listEntry *anilist.AnimeListEntry,
-	localEntry *anime.LocalFileWrapperEntry,
-	items []*models.AutoDownloaderItem,
+	profiles []*anime.AutoDownloaderProfile,
 ) (int, bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/torrentFollowsRule", func() {})
+
+	if ok := ad.isProviderMatch(t, rule); !ok {
+		return -1, false
+	}
 
 	if ok := ad.isReleaseGroupMatch(t.ParsedData.ReleaseGroup, rule); !ok {
 		return -1, false
 	}
 
-	if ok := ad.isResolutionMatch(t.ParsedData.VideoResolution, rule); !ok {
+	// If rule has no resolutions, inherit from profiles
+	resolutions := rule.Resolutions
+	if len(resolutions) == 0 {
+		for _, p := range profiles {
+			resolutions = append(resolutions, p.Resolutions...)
+		}
+	}
+	resolutions = lo.Uniq(resolutions)
+
+	if ok := ad.isResolutionMatch(t.ParsedData.VideoResolution, resolutions); !ok {
 		return -1, false
 	}
 
@@ -535,7 +527,22 @@ func (ad *AutoDownloader) torrentFollowsRule(
 		return -1, false
 	}
 
-	episode, ok := ad.isSeasonAndEpisodeMatch(t.ParsedData, rule, listEntry, localEntry, items)
+	if ok := ad.isExcludedTermsMatch(t.Name, rule); !ok {
+		return -1, false
+	}
+
+	if ok := ad.isConstraintsMatch(t, rule); !ok {
+		return -1, false
+	}
+
+	// Check if the torrent matches all profiles (global & specific)
+	for _, p := range profiles {
+		if !ad.isProfileValidChecks(t, p) {
+			return -1, false
+		}
+	}
+
+	episode, ok := ad.isSeasonAndEpisodeMatch(t.ParsedData, rule, listEntry)
 	if !ok {
 		return -1, false
 	}
@@ -575,7 +582,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 		return false
 	}
 
-	providerExtension, found := ad.torrentRepository.GetDefaultAnimeProviderExtension()
+	providerExtension, found := ad.torrentRepository.GetAnimeProviderExtensionOrDefault(ad.settings.Provider)
 	if !found {
 		ad.logger.Warn().Msg("autodownloader: Could not download torrent. Default provider not found")
 		return false
@@ -722,7 +729,7 @@ func (ad *AutoDownloader) isAdditionalTermsMatch(torrentName string, rule *anime
 				foundOption = true
 			}
 		}
-		// If the torrent name doesn't contain any of the options, return false
+		// If the torrent name doesn't contain any of the options
 		if !foundOption {
 			return false
 		}
@@ -741,32 +748,6 @@ func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, rule *anime.A
 	}
 	for _, rg := range rule.ReleaseGroups {
 		if strings.ToLower(rg) == strings.ToLower(releaseGroup) {
-			return true
-		}
-	}
-	return false
-}
-
-// isResolutionMatch
-// DEVOTE: Improve this
-func (ad *AutoDownloader) isResolutionMatch(quality string, rule *anime.AutoDownloaderRule) (ok bool) {
-	defer util.HandlePanicInModuleThen("autodownloader/isResolutionMatch", func() {
-		ok = false
-	})
-
-	if len(rule.Resolutions) == 0 {
-		return true
-	}
-	if quality == "" {
-		return false
-	}
-	for _, q := range rule.Resolutions {
-		qualityWithoutP := strings.TrimSuffix(quality, "p")
-		qWithoutP := strings.TrimSuffix(q, "p")
-		if quality == q || qualityWithoutP == qWithoutP {
-			return true
-		}
-		if strings.Contains(quality, qWithoutP) { // e.g. 1080 in 1920x1080
 			return true
 		}
 	}
@@ -885,8 +866,6 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 	parsedData *habari.Metadata,
 	rule *anime.AutoDownloaderRule,
 	listEntry *anilist.AnimeListEntry,
-	localEntry *anime.LocalFileWrapperEntry,
-	items []*models.AutoDownloaderItem,
 ) (a int, b bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isSeasonAndEpisodeMatch", func() {
 		b = false
@@ -920,20 +899,10 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 
 	// We can't parse the episode number
 	if !ok {
-		// Return true if the media (has only one episode or is a movie) AND (is not in the library)
+		// Return true if the media (has only one episode or is a movie)
 		if listEntry.GetMedia().GetCurrentEpisodeCount() == 1 || *listEntry.GetMedia().GetFormat() == anilist.MediaFormatMovie {
-			// Make sure it wasn't already added
-			for _, item := range items {
-				if item.Episode == 1 {
-					return -1, false // Skip, file already queued or downloaded
-				}
-			}
-			// Make sure it doesn't exist in the library
-			if localEntry != nil {
-				if _, found := localEntry.FindLocalFileWithEpisodeNumber(1); found {
-					return -1, false // Skip, file already exists
-				}
-			}
+			// Note: We used to check if items/locals exist here.
+			// But now moved to the main loop to group first.
 			return 1, true // Good to go
 		}
 		return -1, false
@@ -945,32 +914,26 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 
 	hasAbsoluteEpisode := false
 
-	// Handle ABSOLUTE episode numbers
-	if listEntry.GetMedia().GetCurrentEpisodeCount() != -1 && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
-		// Fetch the Animap media in order to normalize the episode number
-		ad.mu.Lock()
-		animeMetadata, err := ad.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, listEntry.GetMedia().GetID())
-		// If the media is found and the offset is greater than 0
-		if err == nil && animeMetadata.GetOffset() > 0 {
-			hasAbsoluteEpisode = true
-			episode = episode - animeMetadata.GetOffset()
+	// Add the absolute offset
+	if rule.CustomEpisodeNumberAbsoluteOffset > 0 {
+		episode = episode + rule.CustomEpisodeNumberAbsoluteOffset
+		hasAbsoluteEpisode = true
+	} else {
+		// Handle absolute episode numbers from metadata
+		if listEntry.GetMedia().GetCurrentEpisodeCount() != -1 && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
+			// Fetch the Animap media in order to normalize the episode number
+			ad.mu.Lock()
+			animeMetadata, err := ad.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, listEntry.GetMedia().GetID())
+			// If the media is found and the offset is greater than 0
+			if err == nil && animeMetadata.GetOffset() > 0 {
+				hasAbsoluteEpisode = true
+				episode = episode - animeMetadata.GetOffset()
+			}
+			ad.mu.Unlock()
 		}
-		ad.mu.Unlock()
 	}
 
-	// Return false if the episode is already downloaded
-	for _, item := range items {
-		if item.Episode == episode {
-			return -1, false // Skip, file already queued or downloaded
-		}
-	}
-
-	// Return false if the episode is already in the library
-	if localEntry != nil {
-		if _, found := localEntry.FindLocalFileWithEpisodeNumber(episode); found {
-			return -1, false
-		}
-	}
+	// Note: We used to check if items/locals exist here.
 
 	// If there's no absolute episode number, check that the episode number is not greater than the current episode count
 	if !hasAbsoluteEpisode && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
@@ -983,7 +946,6 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 		if !hasAbsoluteEpisode {
 			switch rule.TitleComparisonType {
 			case anime.AutoDownloaderRuleTitleComparisonLikely:
-				// If the title comparison type is "Likely", we will compare the season numbers
 				if len(parsedData.SeasonNumber) > 0 {
 					season, ok := util.StringToInt(parsedData.SeasonNumber[0])
 					if ok && season > 1 {
@@ -1036,4 +998,56 @@ func (ad *AutoDownloader) getRuleListEntry(rule *anime.AutoDownloaderRule) (*ani
 	}
 
 	return listEntry, true
+}
+
+// getProvidersForRules returns all providers that will be used
+func (ad *AutoDownloader) getProvidersForRules(rules []*anime.AutoDownloaderRule, profiles []*anime.AutoDownloaderProfile) []extension.AnimeTorrentProviderExtension {
+	providerIDs := make(map[string]struct{})
+
+	// Add default provider
+	defaultProv, found := ad.torrentRepository.GetAnimeProviderExtensionOrDefault(ad.settings.Provider)
+	if found {
+		providerIDs[defaultProv.GetID()] = struct{}{}
+	}
+
+	for _, rule := range rules {
+		for _, p := range rule.Providers {
+			providerIDs[p] = struct{}{}
+		}
+		if rule.ProfileID != nil {
+			profile, found := lo.Find(profiles, func(p *anime.AutoDownloaderProfile) bool {
+				return p.DbID == *rule.ProfileID
+			})
+			if found {
+				for _, p := range profile.Providers {
+					providerIDs[p] = struct{}{}
+				}
+			}
+		}
+	}
+
+	for _, profile := range profiles {
+		if profile.Global {
+			for _, p := range profile.Providers {
+				providerIDs[p] = struct{}{}
+			}
+		}
+	}
+
+	ret := make([]extension.AnimeTorrentProviderExtension, 0)
+	for id := range providerIDs {
+		ext, found := ad.torrentRepository.GetAnimeProviderExtension(id)
+		if found {
+			ret = append(ret, ext)
+		}
+	}
+
+	return ret
+}
+
+func (ad *AutoDownloader) isProviderMatch(t *NormalizedTorrent, rule *anime.AutoDownloaderRule) bool {
+	if len(rule.Providers) == 0 {
+		return true
+	}
+	return lo.Contains(rule.Providers, t.ExtensionID)
 }

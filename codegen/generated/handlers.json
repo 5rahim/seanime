@@ -9395,6 +9395,15 @@
       "params": [],
       "bodyFields": [
         {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "Interval",
           "jsonName": "interval",
           "goType": "int",

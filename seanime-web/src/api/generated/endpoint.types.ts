@@ -1805,6 +1805,7 @@ export type SaveSettings_Variables = {
  * Route updates the auto-downloader settings.
  */
 export type SaveAutoDownloaderSettings_Variables = {
+    provider: string
     interval: number
     enabled: boolean
     downloadAutomatically: boolean

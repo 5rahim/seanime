@@ -1,8 +1,14 @@
-import { AL_BaseAnime, Anime_AutoDownloaderProfile, Anime_AutoDownloaderRule } from "@/api/generated/types"
+import {
+    AL_BaseAnime,
+    Anime_AutoDownloaderProfile,
+    Anime_AutoDownloaderRule,
+    ExtensionRepo_AnimeTorrentProviderExtensionItem,
+} from "@/api/generated/types"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
+import { Tooltip } from "@/components/ui/tooltip"
 import { useBoolean } from "@/hooks/use-disclosure"
 import React from "react"
 import { BiChevronRight } from "react-icons/bi"
@@ -12,6 +18,7 @@ export type AutoDownloaderRuleItemProps = {
     rule: Anime_AutoDownloaderRule
     userMedia: AL_BaseAnime[] | undefined
     profiles: Anime_AutoDownloaderProfile[]
+    extensions: ExtensionRepo_AnimeTorrentProviderExtensionItem[]
 }
 
 export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
@@ -20,6 +27,7 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
         rule,
         userMedia,
         profiles,
+        extensions,
         ...rest
     } = props
 
@@ -40,7 +48,7 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                                 "font-medium text-base tracking-wide line-clamp-1",
                             )}
                         ><span className="text-gray-400 italic font-normal pr-1">Rule for</span> "{rule.comparisonTitle}"</p>
-                        <p className="text-sm text-gray-400 line-clamp-1 flex space-x-2 items-center divide-x divide-[--border] [&>span]:pl-2">
+                        <div className="text-sm text-gray-400 line-clamp-1 flex space-x-2 items-center divide-x divide-[--border] [&>span]:pl-2">
                             <FaSquareRss
                                 className={cn(
                                     "text-xl",
@@ -49,7 +57,18 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                                 )}
                             />
                             {!!(rule.profileId || profiles?.some(p => p.global)) &&
-                                <span className="text-blue-200 text-xs tracking-wide">{profiles.filter(p => p.dbId === rule.profileId || p.global)
+                                <Tooltip
+                                    side="bottom"
+                                    trigger={
+                                        <span className="text-blue-200 text-xs tracking-wide">{profiles.filter(p => p.dbId === rule.profileId || p.global)
+                                    ?.map(p => p.name)
+                                            ?.join(", ")}</span>}
+                                >
+                                    Profiles
+                                </Tooltip>}
+                            {!!(rule.providers?.length || profiles?.some(p => p.global && !!p.providers?.length)) &&
+                                <span className="text-sm tracking-wide font-semibold">{extensions?.filter(p => [...(rule.providers ?? []),
+                                        ...(profiles?.filter(p => p.global)?.flatMap(p => p.providers))].includes(p.id))
                                     ?.map(p => p.name)
                                     ?.join(", ")}</span>}
                             {!!rule.releaseGroups?.length && <span>{rule.releaseGroups.join(", ")}</span>}
@@ -63,7 +82,7 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                             ) : (
                                 <span className="text-red-300">This anime is not in your library</span>
                             )}
-                        </p>
+                        </div>
                     </div>
 
                     <div>

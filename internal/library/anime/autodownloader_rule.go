@@ -14,16 +14,6 @@ const (
 )
 
 const (
-	// AutoDownloaderRulePrioritySeeders if multiple torrents from different groups, prefer the one with the most seeders.
-	AutoDownloaderRulePrioritySeeders AutoDownloaderRulePriorityType = "seeders"
-	// AutoDownloaderRulePriorityReleaseGroup if multiple torrents from different groups, prefer the one from the top release group.
-	AutoDownloaderRulePriorityReleaseGroup AutoDownloaderRulePriorityType = "releaseGroup"
-	// AutoDownloaderRulePrioritySize if multiple torrents from different groups, prefer the one with the largest size.
-	// Is skipped if provider doesn't return accurate sizes.
-	AutoDownloaderRulePrioritySize AutoDownloaderRulePriorityType = "size"
-)
-
-const (
 	// FormatActionScore: Adds/Subtracts from the total score.
 	AutoDownloaderProfileRuleFormatActionScore AutoDownloaderProfileRuleFormatAction = "score"
 	// AutoDownloaderProfileRuleFormatActionBlock: Immediately rejects the torrent if found (Hard Filter).
@@ -36,7 +26,6 @@ type (
 	AutoDownloaderRuleTitleComparisonType string
 	AutoDownloaderRuleEpisodeType         string
 	AutoDownloaderProfileRuleFormatAction string
-	AutoDownloaderRulePriorityType        string
 
 	AutoDownloaderRule struct {
 		DbID        uint   `json:"dbId"`
@@ -100,20 +89,4 @@ type (
 		Action  AutoDownloaderProfileRuleFormatAction `json:"action"`
 		Score   int                                   `json:"score"` // Only used if Action == "score"
 	}
-
-	//// AutoDownloaderProfile is a template that can be quickly applied to a rule or can be applied globally.
-	//AutoDownloaderProfile struct {
-	//	DbID                uint                                  `json:"dbId"` // Will be set when fetched from the database
-	//	Name                string                                `json:"name"`
-	//	Global       bool                                  `json:"applyGlobally"`
-	//	ReleaseGroups       []string                              `json:"releaseGroups,omitempty"`
-	//	Resolutions         []string                              `json:"resolutions,omitempty"`
-	//	TitleComparisonType AutoDownloaderRuleTitleComparisonType `json:"titleComparisonType,omitempty"`
-	//	AdditionalTerms     []string                              `json:"additionalTerms,omitempty"`
-	//	ExcludeTerms        []string                              `json:"excludeTerms,omitempty"`
-	//	Providers           []string                              `json:"providers,omitempty"`
-	//	MinSeeders          int                                   `json:"minSeeders,omitempty"`
-	//	MinSize             int64                                 `json:"minSize,omitempty"`
-	//	MaxSize             int64                                 `json:"maxSize,omitempty"`
-	//}
 )

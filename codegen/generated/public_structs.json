@@ -44300,24 +44300,6 @@
   {
     "filepath": "../internal/library/anime/autodownloader_rule.go",
     "filename": "autodownloader_rule.go",
-    "name": "AutoDownloaderRulePriorityType",
-    "formattedName": "Anime_AutoDownloaderRulePriorityType",
-    "package": "anime",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"seeders\"",
-        "\"releaseGroup\"",
-        "\"size\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/autodownloader_rule.go",
-    "filename": "autodownloader_rule.go",
     "name": "AutoDownloaderRule",
     "formattedName": "Anime_AutoDownloaderRule",
     "package": "anime",
@@ -48211,6 +48193,15 @@
         "comments": [
           " Access using GetMagnet()"
         ]
+      },
+      {
+        "name": "ExtensionID",
+        "jsonName": "ExtensionID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -48232,6 +48223,17 @@
         "typescriptType": "Array\u003cAnime_AutoDownloaderRule\u003e",
         "usedTypescriptType": "Anime_AutoDownloaderRule",
         "usedStructName": "anime.AutoDownloaderRule",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Profiles",
+        "jsonName": "profiles",
+        "goType": "[]anime.AutoDownloaderProfile",
+        "typescriptType": "Array\u003cAnime_AutoDownloaderProfile\u003e",
+        "usedTypescriptType": "Anime_AutoDownloaderProfile",
+        "usedStructName": "anime.AutoDownloaderProfile",
         "required": false,
         "public": true,
         "comments": []

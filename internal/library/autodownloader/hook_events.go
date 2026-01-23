@@ -11,7 +11,8 @@ import (
 // Prevent default to abort the run.
 type AutoDownloaderRunStartedEvent struct {
 	hook_resolver.Event
-	Rules []*anime.AutoDownloaderRule `json:"rules"`
+	Rules    []*anime.AutoDownloaderRule    `json:"rules"`
+	Profiles []*anime.AutoDownloaderProfile `json:"profiles"`
 }
 
 // AutoDownloaderTorrentsFetchedEvent is triggered at the beginning of a run, when the autodownloader fetches torrents from the provider.

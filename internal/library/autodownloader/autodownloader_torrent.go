@@ -2,6 +2,7 @@ package autodownloader
 
 import (
 	"errors"
+	"seanime/internal/extension"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
 	"seanime/internal/util/limiter"
@@ -17,164 +18,160 @@ type (
 	// It is used to normalize the data from different providers so that it can be used by the AutoDownloader.
 	NormalizedTorrent struct {
 		hibiketorrent.AnimeTorrent
-		ParsedData *habari.Metadata `json:"parsedData"`
-		magnet     string           // Access using GetMagnet()
+		ParsedData  *habari.Metadata `json:"parsedData"`
+		magnet      string           // Access using GetMagnet()
+		ExtensionID string
 	}
 )
 
-func (ad *AutoDownloader) getLatestTorrents(rules []*anime.AutoDownloaderRule) (ret []*NormalizedTorrent, err error) {
+func (ad *AutoDownloader) getTorrentsFromProviders(
+	providers []extension.AnimeTorrentProviderExtension,
+	rules []*anime.AutoDownloaderRule,
+	profiles []*anime.AutoDownloaderProfile,
+) (ret []*NormalizedTorrent, err error) {
 	ad.logger.Debug().Msg("autodownloader: Checking for new episodes")
 
-	providerExtension, ok := ad.torrentRepository.GetDefaultAnimeProviderExtension()
-	if !ok {
-		ad.logger.Warn().Msg("autodownloader: No default torrent provider found")
-		return nil, errors.New("no default torrent provider found")
-	}
-
-	// Get the latest torrents
-	torrents, err := providerExtension.GetProvider().GetLatest()
-	if err != nil {
-		ad.logger.Error().Err(err).Msg("autodownloader: Failed to get latest torrents")
-		return nil, err
+	if len(providers) == 0 {
+		return nil, errors.New("no providers found")
 	}
 
 	mu := sync.Mutex{}
-
+	torrents := make([]*NormalizedTorrent, 0)
+	wg := sync.WaitGroup{}
 	rateLimiter := limiter.NewLimiter(time.Second, 2)
 
-	//// For enhanced queries we use smart search queries for each rule
-	//// If a rule cannot be resolved, it is added to the rulesRest slice
-	//if ad.settings.EnableEnhancedQueries {
-	//	settings := providerExtension.GetProvider().GetSettings()
-	//	if settings.CanSmartSearch {
-	//		wg := sync.WaitGroup{}
-	//		wg.Add(len(rules))
-	//		for _, rule := range rules {
-	//			go func() {
-	//				defer wg.Done()
-	//
-	//				rateLimiter.Wait()
-	//
-	//				ac, ok := ad.animeCollection.Get()
-	//				if !ok {
-	//					return
-	//				}
-	//
-	//				media, ok := ac.FindAnime(rule.MediaId)
-	//				if !ok || media == nil || media.GetStatus() == nil || media.GetFormat() == nil {
-	//					return
-	//				}
-	//
-	//				mediaMetadata, err := ad.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, rule.MediaId)
-	//				if err != nil {
-	//					return
-	//				}
-	//
-	//				queryMedia := hibiketorrent.Media{
-	//					ID:                   media.GetID(),
-	//					IDMal:                media.GetIDMal(),
-	//					Status:               string(*media.GetStatus()),
-	//					Format:               string(*media.GetFormat()),
-	//					EnglishTitle:         media.GetTitle().GetEnglish(),
-	//					RomajiTitle:          media.GetRomajiTitleSafe(),
-	//					EpisodeCount:         media.GetTotalEpisodeCount(),
-	//					AbsoluteSeasonOffset: 0,
-	//					Synonyms:             media.GetSynonymsContainingSeason(),
-	//					IsAdult:              *media.GetIsAdult(),
-	//					StartDate:            &hibiketorrent.FuzzyDate{},
-	//				}
-	//
-	//				if media.GetStartDate() != nil && media.GetStartDate().GetYear() != nil {
-	//					queryMedia.StartDate.Year = *media.GetStartDate().GetYear()
-	//					queryMedia.StartDate.Month = media.GetStartDate().GetMonth()
-	//					queryMedia.StartDate.Day = media.GetStartDate().GetDay()
-	//				}
-	//
-	//				resolution := ""
-	//				if len(rule.Resolutions) > 0 {
-	//					resolution = rule.Resolutions[0]
-	//				}
-	//
-	//				res, err := providerExtension.GetProvider().SmartSearch(hibiketorrent.AnimeSmartSearchOptions{
-	//					Media:      queryMedia,
-	//					Resolution: resolution,
-	//					AnidbAID:   mediaMetadata.GetMappings().AnidbId,
-	//				})
-	//				if err != nil {
-	//					return
-	//				}
-	//
-	//				mu.Lock()
-	//				torrents = append(torrents, res...)
-	//				mu.Unlock()
-	//			}()
-	//		}
-	//		wg.Wait()
-	//	}
-	//
-	//}
+	// Check if we should use the default provider for rules/profiles that don't specify one
+	defaultProv, hasDefault := ad.torrentRepository.GetDefaultAnimeProviderExtension()
 
-	releaseGroupToResolutions := GetReleaseGroupToResolutionsMap(rules) // e.g. Subsplease -> []{"1080p","720p"}
+	for _, providerExt := range providers {
+		wg.Add(1)
+		go func(pExt extension.AnimeTorrentProviderExtension) {
+			defer wg.Done()
 
-	for releaseGroup, resolutions := range releaseGroupToResolutions {
-		wg := sync.WaitGroup{}
-		var resultForReleaseGroup []*hibiketorrent.AnimeTorrent
-		for i, resolution := range resolutions {
-			if i >= 2 { // Only search for the first 2 resolutions
-				break
-			}
-			wg.Add(1)
-			go func(releaseGroup string) {
-				defer wg.Done()
-
-				rateLimiter.Wait()
-
-				res, err := providerExtension.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
-					Media: hibiketorrent.Media{},
-					Query: releaseGroup + " " + resolution,
-				})
-				if err != nil {
-					return
-				}
-				mu.Lock()
-				resultForReleaseGroup = append(resultForReleaseGroup, res...)
-				mu.Unlock()
-			}(releaseGroup)
-		}
-		wg.Wait()
-		// Launch a query without resolution if both failed to return anything
-		if len(resultForReleaseGroup) == 0 {
-			res, err := providerExtension.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
-				Media: hibiketorrent.Media{},
-				Query: releaseGroup,
-			})
+			// Get all latest torrents
+			latest, err := pExt.GetProvider().GetLatest()
 			if err != nil {
-				continue
+				ad.logger.Error().Err(err).Str("provider", pExt.GetName()).Msg("autodownloader: Failed to get latest torrents")
+			} else {
+				mu.Lock()
+				for _, t := range latest {
+					parsedData := habari.Parse(t.Name)
+					torrents = append(torrents, &NormalizedTorrent{
+						AnimeTorrent: *t,
+						ParsedData:   parsedData,
+						ExtensionID:  pExt.GetID(),
+					})
+				}
+				mu.Unlock()
 			}
-			mu.Lock()
-			resultForReleaseGroup = append(resultForReleaseGroup, res...)
-			mu.Unlock()
-		}
-		// Add the results to the torrents
-		mu.Lock()
-		torrents = append(torrents, resultForReleaseGroup...)
-		mu.Unlock()
+
+			// Release Groups + Resolutions
+			// Identify rules relevant to this provider
+			relevantRules := make([]*anime.AutoDownloaderRule, 0)
+			for _, rule := range rules {
+				isRelevant := false
+
+				// Check rule providers
+				if len(rule.Providers) > 0 {
+					if lo.Contains(rule.Providers, pExt.GetID()) {
+						isRelevant = true
+					}
+				} else {
+					// Check profile providers
+					hasProfileProviders := false
+					if rule.ProfileID != nil {
+						profile, found := lo.Find(profiles, func(p *anime.AutoDownloaderProfile) bool {
+							return p.DbID == *rule.ProfileID
+						})
+						if found && len(profile.Providers) > 0 {
+							hasProfileProviders = true
+							if lo.Contains(profile.Providers, pExt.GetID()) {
+								isRelevant = true
+							}
+						}
+					}
+
+					// If neither rule nor profile has providers, and this is the default provider, it's relevant
+					if !hasProfileProviders && hasDefault && defaultProv.GetID() == pExt.GetID() {
+						isRelevant = true
+					}
+				}
+
+				if isRelevant {
+					relevantRules = append(relevantRules, rule)
+				}
+			}
+
+			if len(relevantRules) == 0 {
+				return
+			}
+
+			// Get deduplicated map of "Release Group" -> ["Resolutions"], e.g. "SubsPlease" -> []string{"1080p", "720p"}
+			// We pass 'profiles' so resolutions can be inherited if missing from the rule
+			releaseGroupToResolutions := ad.getReleaseGroupToResolutionsMap(relevantRules, profiles)
+
+			for releaseGroup, resolutions := range releaseGroupToResolutions {
+				foundForGroup := false
+
+				// Search with resolution (limit 2)
+				for i, resolution := range resolutions {
+					if i >= 2 {
+						break
+					}
+					rateLimiter.Wait()
+					res, err := pExt.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
+						Media: hibiketorrent.Media{},
+						Query: releaseGroup + " " + resolution,
+					})
+					if err == nil {
+						if len(res) > 0 {
+							foundForGroup = true
+						}
+						mu.Lock()
+						for _, t := range res {
+							t := t // Capture loop variable
+							parsedData := habari.Parse(t.Name)
+							torrents = append(torrents, &NormalizedTorrent{
+								AnimeTorrent: *t,
+								ParsedData:   parsedData,
+								ExtensionID:  pExt.GetID(),
+							})
+						}
+						mu.Unlock()
+					}
+				}
+
+				// Search without resolution as a fallback if nothing found for specific resolutions
+				if !foundForGroup {
+					rateLimiter.Wait()
+					res, err := pExt.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
+						Media: hibiketorrent.Media{},
+						Query: releaseGroup,
+					})
+					if err == nil {
+						mu.Lock()
+						for _, t := range res {
+							t := t
+							parsedData := habari.Parse(t.Name)
+							torrents = append(torrents, &NormalizedTorrent{
+								AnimeTorrent: *t,
+								ParsedData:   parsedData,
+								ExtensionID:  pExt.GetID(),
+							})
+						}
+						mu.Unlock()
+					}
+				}
+			}
+
+		}(providerExt)
 	}
+	wg.Wait()
 
 	// Deduplicate
-	torrents = lo.UniqBy(torrents, func(t *hibiketorrent.AnimeTorrent) string {
+	ret = lo.UniqBy(torrents, func(t *NormalizedTorrent) string {
 		return t.Name
 	})
-
-	// Normalize the torrents
-	ret = make([]*NormalizedTorrent, 0, len(torrents))
-	for _, t := range torrents {
-		parsedData := habari.Parse(t.Name)
-		ret = append(ret, &NormalizedTorrent{
-			AnimeTorrent: *t,
-			ParsedData:   parsedData,
-		})
-	}
 
 	return ret, nil
 }

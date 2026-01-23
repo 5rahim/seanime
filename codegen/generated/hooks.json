@@ -2944,6 +2944,17 @@
           "comments": []
         },
         {
+          "name": "Profiles",
+          "jsonName": "profiles",
+          "goType": "[]anime.AutoDownloaderProfile",
+          "typescriptType": "Array\u003cAnime_AutoDownloaderProfile\u003e",
+          "usedTypescriptType": "Anime_AutoDownloaderProfile",
+          "usedStructName": "anime.AutoDownloaderProfile",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
           "name": "next",
           "jsonName": "next",
           "goType": "",
