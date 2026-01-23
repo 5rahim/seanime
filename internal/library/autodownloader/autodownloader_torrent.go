@@ -40,7 +40,7 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 	wg := sync.WaitGroup{}
 	rateLimiter := limiter.NewLimiter(time.Second, 2)
 
-	// Check if we should use the default provider for rules/profiles that don't specify one
+	//// Check if we should use the default provider for rules/profiles that don't specify one
 	defaultProv, hasDefault := ad.torrentRepository.GetDefaultAnimeProviderExtension()
 
 	for _, providerExt := range providers {
@@ -49,6 +49,7 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 			defer wg.Done()
 
 			// Get all latest torrents
+			ad.logger.Debug().Str("provider", pExt.GetName()).Msg("autodownloader: Getting latest torrents")
 			latest, err := pExt.GetProvider().GetLatest()
 			if err != nil {
 				ad.logger.Error().Err(err).Str("provider", pExt.GetName()).Msg("autodownloader: Failed to get latest torrents")
@@ -115,10 +116,11 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 
 				// Search with resolution (limit 2)
 				for i, resolution := range resolutions {
-					if i >= 2 {
+					if i >= 2 || resolution == "-" {
 						break
 					}
 					rateLimiter.Wait()
+					ad.logger.Debug().Str("releaseGroup", releaseGroup).Str("resolution", resolution).Msg("autodownloader: Searching for torrents")
 					res, err := pExt.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
 						Media: hibiketorrent.Media{},
 						Query: releaseGroup + " " + resolution,
@@ -144,6 +146,7 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 				// Search without resolution as a fallback if nothing found for specific resolutions
 				if !foundForGroup {
 					rateLimiter.Wait()
+					ad.logger.Debug().Str("releaseGroup", releaseGroup).Msg("autodownloader: Searching for torrents without resolution")
 					res, err := pExt.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
 						Media: hibiketorrent.Media{},
 						Query: releaseGroup,
@@ -172,6 +175,8 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 	ret = lo.UniqBy(torrents, func(t *NormalizedTorrent) string {
 		return t.Name
 	})
+
+	ad.logger.Debug().Int("torrents", len(ret)).Msg("autodownloader: Found torrents")
 
 	return ret, nil
 }

@@ -53,9 +53,9 @@ const schema = defineSchema(({ z, presets }) => z.object({
     additionalTerms: z.array(z.string()).optional().transform(value => !value?.length ? [] : uniq(value.filter(Boolean))),
     excludeTerms: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     titleComparisonType: z.string(),
-    minSeeders: z.number().min(0),
-    minSize: z.string(),
-    maxSize: z.string(),
+    minSeeders: z.number().min(0).optional().default(0),
+    minSize: z.string().optional().default(""),
+    maxSize: z.string().optional().default(""),
     providers: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     profileId: presets.multiSelect,
 }))

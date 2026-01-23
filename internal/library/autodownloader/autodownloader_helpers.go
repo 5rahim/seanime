@@ -248,6 +248,12 @@ func (ad *AutoDownloader) getReleaseGroupToResolutionsMap(rules []*anime.AutoDow
 		}
 		effectiveResolutions = lo.Uniq(effectiveResolutions)
 
+		if len(effectiveResolutions) == 0 {
+			// Returns "-" if no resolutions were found
+			// The rule will just fetch by release group only
+			effectiveResolutions = []string{"-"}
+		}
+
 		// Group by release groups
 		if len(rule.ReleaseGroups) > 0 {
 			for _, rg := range rule.ReleaseGroups {
