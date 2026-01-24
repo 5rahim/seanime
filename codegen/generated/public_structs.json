@@ -30287,6 +30287,26 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentData",
+        "jsonName": "",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Serialized NormalizedTorrent"
+        ]
       }
     ],
     "comments": [],
@@ -44265,8 +44285,8 @@
     ]
   },
   {
-    "filepath": "../internal/library/anime/autodownloader_rule.go",
-    "filename": "autodownloader_rule.go",
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
     "name": "AutoDownloaderRuleTitleComparisonType",
     "formattedName": "Anime_AutoDownloaderRuleTitleComparisonType",
     "package": "anime",
@@ -44282,8 +44302,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/anime/autodownloader_rule.go",
-    "filename": "autodownloader_rule.go",
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
     "name": "AutoDownloaderRuleEpisodeType",
     "formattedName": "Anime_AutoDownloaderRuleEpisodeType",
     "package": "anime",
@@ -44299,8 +44319,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/anime/autodownloader_rule.go",
-    "filename": "autodownloader_rule.go",
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
     "name": "AutoDownloaderProfileRuleFormatAction",
     "formattedName": "Anime_AutoDownloaderProfileRuleFormatAction",
     "package": "anime",
@@ -44317,8 +44337,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/anime/autodownloader_rule.go",
-    "filename": "autodownloader_rule.go",
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
     "name": "AutoDownloaderRule",
     "formattedName": "Anime_AutoDownloaderRule",
     "package": "anime",
@@ -44493,8 +44513,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/anime/autodownloader_rule.go",
-    "filename": "autodownloader_rule.go",
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
     "name": "AutoDownloaderProfile",
     "formattedName": "Anime_AutoDownloaderProfile",
     "package": "anime",
@@ -44523,6 +44543,15 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseGroups",
+        "jsonName": "releaseGroups",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -44613,8 +44642,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/anime/autodownloader_rule.go",
-    "filename": "autodownloader_rule.go",
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
     "name": "AutoDownloaderCondition",
     "formattedName": "Anime_AutoDownloaderCondition",
     "package": "anime",

@@ -1321,8 +1321,8 @@ export type AL_UserStudioStats_Studio = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/library/anime/autodownloader_rule.go
- * - Filename: autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
  * - Package: anime
  */
 export type Anime_AutoDownloaderCondition = {
@@ -1337,14 +1337,15 @@ export type Anime_AutoDownloaderCondition = {
 }
 
 /**
- * - Filepath: internal/library/anime/autodownloader_rule.go
- * - Filename: autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
  * - Package: anime
  */
 export type Anime_AutoDownloaderProfile = {
     dbId: number
     name: string
     global: boolean
+    releaseGroups?: Array<string>
     resolutions?: Array<string>
     conditions?: Array<Anime_AutoDownloaderCondition>
     minimumScore: number
@@ -1357,15 +1358,15 @@ export type Anime_AutoDownloaderProfile = {
 }
 
 /**
- * - Filepath: internal/library/anime/autodownloader_rule.go
- * - Filename: autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
  * - Package: anime
  */
 export type Anime_AutoDownloaderProfileRuleFormatAction = "score" | "block" | "require"
 
 /**
- * - Filepath: internal/library/anime/autodownloader_rule.go
- * - Filename: autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
  * - Package: anime
  */
 export type Anime_AutoDownloaderRule = {
@@ -1390,15 +1391,15 @@ export type Anime_AutoDownloaderRule = {
 }
 
 /**
- * - Filepath: internal/library/anime/autodownloader_rule.go
- * - Filename: autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
  * - Package: anime
  */
 export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected"
 
 /**
- * - Filepath: internal/library/anime/autodownloader_rule.go
- * - Filename: autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
  * - Package: anime
  */
 export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
@@ -3585,6 +3586,7 @@ export type Models_AutoDownloaderItem = {
     downloaded: boolean
     isDelayed: boolean
     delayUntil?: string
+    score: number
     id: number
     createdAt?: string
     updatedAt?: string

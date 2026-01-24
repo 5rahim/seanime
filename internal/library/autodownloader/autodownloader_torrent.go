@@ -41,7 +41,46 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 	rateLimiter := limiter.NewLimiter(time.Second, 2)
 
 	// Check if we should use the default provider for rules/profiles that don't specify one
-	defaultProv, hasDefault := ad.torrentRepository.GetDefaultAnimeProviderExtension()
+	var hasDefault bool
+	defaultProv, foundDefault := ad.torrentRepository.GetAnimeProviderExtension(ad.settings.Provider)
+	if !foundDefault {
+		ad.logger.Warn().Msg("autodownloader: Default provider not found, it might be uninstalled")
+		// Get the provider with the most rules?
+		providerByRules := make(map[string]int)
+		for _, rule := range rules {
+			// Check rule providers
+			if len(rule.Providers) > 0 {
+				for _, p := range rule.Providers {
+					providerByRules[p]++
+				}
+			} else {
+				// Check profile providers
+				if rule.ProfileID != nil {
+					profile, found := lo.Find(profiles, func(p *anime.AutoDownloaderProfile) bool {
+						return p.DbID == *rule.ProfileID
+					})
+					if found && len(profile.Providers) > 0 {
+						for _, p := range profile.Providers {
+							providerByRules[p]++
+						}
+					}
+				}
+			}
+		}
+		if len(providerByRules) > 0 {
+			mostRulesProvider := lo.MaxBy(lo.Keys(providerByRules), func(a, b string) bool {
+				return providerByRules[a] < providerByRules[b]
+			})
+			defaultProv, foundDefault = ad.torrentRepository.GetAnimeProviderExtension(mostRulesProvider)
+			if foundDefault {
+				hasDefault = true
+			}
+		}
+		if !hasDefault {
+			defaultProv, foundDefault = ad.torrentRepository.GetAnimeProviderExtensionOrDefault(ad.settings.Provider)
+		}
+	}
+	ad.logger.Debug().Str("extension", defaultProv.GetName()).Bool("hasDefault", hasDefault).Msg("autodownloader: Checked for default provider")
 
 	for _, providerExt := range providers {
 		wg.Add(1)
@@ -110,6 +149,7 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 			// Get deduplicated map of "Release Group" -> ["Resolutions"], e.g. "SubsPlease" -> []string{"1080p", "720p"}
 			// We pass 'profiles' so resolutions can be inherited if missing from the rule
 			releaseGroupToResolutions := ad.getReleaseGroupToResolutionsMap(relevantRules, profiles)
+			ad.logger.Debug().Interface("releaseGroups", releaseGroupToResolutions).Msg("autodownloader: Found release groups to search for")
 
 			for releaseGroup, resolutions := range releaseGroupToResolutions {
 				foundForGroup := false

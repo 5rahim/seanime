@@ -4,12 +4,14 @@ import {
     Anime_AutoDownloaderRule,
     ExtensionRepo_AnimeTorrentProviderExtensionItem,
 } from "@/api/generated/types"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { Tooltip } from "@/components/ui/tooltip"
 import { useBoolean } from "@/hooks/use-disclosure"
+import Image from "next/image"
 import React from "react"
 import { BiChevronRight } from "react-icons/bi"
 import { FaSquareRss } from "react-icons/fa6"
@@ -37,11 +39,29 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
         return userMedia?.find(media => media.id === rule.mediaId)
     }, [(userMedia?.length || 0), rule])
 
+    const { setPreviewModalMediaId } = useMediaPreviewModal()
+
     return (
         <>
             <div className="rounded-[--radius] bg-gray-900 hover:bg-gray-800/50 transition-colors">
                 <div className="flex justify-between p-3 gap-2 items-center cursor-pointer" onClick={() => modal.on()}>
 
+                    {media && <div
+                        onClick={e => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            setPreviewModalMediaId(media?.id, "anime")
+                        }}
+                        className="!mr-2 cursor-pointer size-10 rounded-full bg-gray-800 hidden lg:flex items-center justify-center relative overflow-hidden flex-none"
+                    >
+                        <Image
+                            src={media?.coverImage?.medium ?? "/no-cover.png"}
+                            alt="cover"
+                            sizes="2rem"
+                            fill
+                            className="object-cover object-center"
+                        />
+                    </div>}
                     <div className="space-y-1 w-full">
                         <p
                             className={cn(
@@ -56,16 +76,6 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                                     (!media) && "text-red-300",
                                 )}
                             />
-                            {!!(rule.profileId || profiles?.some(p => p.global)) &&
-                                <Tooltip
-                                    side="bottom"
-                                    trigger={
-                                        <span className="text-blue-200 text-xs tracking-wide">{profiles.filter(p => p.dbId === rule.profileId || p.global)
-                                    ?.map(p => p.name)
-                                            ?.join(", ")}</span>}
-                                >
-                                    Profiles
-                                </Tooltip>}
                             {!!(rule.providers?.length || profiles?.some(p => p.global && !!p.providers?.length)) &&
                                 <span className="text-sm tracking-wide font-semibold">{extensions?.filter(p => [...(rule.providers ?? []),
                                         ...(profiles?.filter(p => p.global)?.flatMap(p => p.providers))].includes(p.id))
@@ -74,6 +84,16 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                             {!!rule.releaseGroups?.length && <span>{rule.releaseGroups.join(", ")}</span>}
                             {!!rule.resolutions?.length && <span>{rule.resolutions.join(", ")}</span>}
                             {!!rule.episodeType && <span>{getEpisodeTypeName(rule.episodeType)}</span>}
+                            {!!(rule.profileId || profiles?.some(p => p.global)) &&
+                                <Tooltip
+                                    side="bottom"
+                                    trigger={
+                                        <span className="text-gray-500 text-xs tracking-wide">{profiles.filter(p => p.dbId === rule.profileId || p.global)
+                                            ?.map(p => p.name)
+                                            ?.join(", ")}</span>}
+                                >
+                                    Profiles
+                                </Tooltip>}
                             {!!media ? (
                                 <>
                                     {media.status === "FINISHED" &&

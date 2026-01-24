@@ -1,12 +1,14 @@
 import { Models_AutoDownloaderItem } from "@/api/generated/types"
 import { useDeleteAutoDownloaderItem } from "@/api/hooks/auto_downloader.hooks"
 import { useTorrentClientAddMagnetFromRule } from "@/api/hooks/torrent_client.hooks"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import Image from "next/image"
 import React from "react"
@@ -35,6 +37,8 @@ export function AutodownloaderQueue(props: AutoDownloaderQueueProps) {
 
     const { mutate: addMagnet, isPending: isAdding } = useTorrentClientAddMagnetFromRule()
 
+    const { setPreviewModalMediaId } = useMediaPreviewModal()
+
     if (isLoading) return <LoadingSpinner />
 
     return (
@@ -56,7 +60,10 @@ export function AutodownloaderQueue(props: AutoDownloaderQueueProps) {
                 const media = userMedia?.find(m => m.id === item.mediaId)
                 return <div className="rounded-[--radius] p-3 bg-gray-900" key={item.id}>
                     <div className="flex items-center gap-4">
-                        <div className="size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none">
+                        <div
+                            onClick={() => setPreviewModalMediaId(item.mediaId, "anime")}
+                            className="cursor-pointer size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none"
+                        >
                             <Image
                                 src={media?.coverImage?.medium ?? "/no-cover.png"}
                                 alt="cover"
@@ -66,7 +73,10 @@ export function AutodownloaderQueue(props: AutoDownloaderQueueProps) {
                             />
                         </div>
                         <div>
-                            <h3 className="text-sm font-medium tracking-wide">{item.torrentName}</h3>
+                            <h3
+                                className="text-sm font-medium tracking-wide cursor-pointer"
+                                onClick={() => openTab(item.link)}
+                            >{item.torrentName}</h3>
                             <p className="text-md text-gray-400 flex gap-2 items-center">
                                 {item.downloaded && <span className="text-green-200">File downloaded</span>}
                                 {!item.downloaded && !item.isDelayed && <span className="text-blue-300 italic">Manual action required</span>}

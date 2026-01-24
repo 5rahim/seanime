@@ -2937,7 +2937,7 @@ declare namespace $app {
     }
 
     /**
-     * - Filepath: internal/library/anime/autodownloader_rule.go
+     * - Filepath: internal/library/anime/autodownloader_types.go
      */
     interface Anime_AutoDownloaderCondition {
         id: string;
@@ -2951,12 +2951,13 @@ declare namespace $app {
     }
 
     /**
-     * - Filepath: internal/library/anime/autodownloader_rule.go
+     * - Filepath: internal/library/anime/autodownloader_types.go
      */
     interface Anime_AutoDownloaderProfile {
         dbId: number;
         name: string;
         global: boolean;
+        releaseGroups?: Array<string>;
         resolutions?: Array<string>;
         conditions?: Array<Anime_AutoDownloaderCondition>;
         minimumScore: number;
@@ -2969,12 +2970,12 @@ declare namespace $app {
     }
 
     /**
-     * - Filepath: internal/library/anime/autodownloader_rule.go
+     * - Filepath: internal/library/anime/autodownloader_types.go
      */
     export type Anime_AutoDownloaderProfileRuleFormatAction = "score" | "block" | "require";
 
     /**
-     * - Filepath: internal/library/anime/autodownloader_rule.go
+     * - Filepath: internal/library/anime/autodownloader_types.go
      */
     interface Anime_AutoDownloaderRule {
         dbId: number;
@@ -2998,12 +2999,12 @@ declare namespace $app {
     }
 
     /**
-     * - Filepath: internal/library/anime/autodownloader_rule.go
+     * - Filepath: internal/library/anime/autodownloader_types.go
      */
     export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected";
 
     /**
-     * - Filepath: internal/library/anime/autodownloader_rule.go
+     * - Filepath: internal/library/anime/autodownloader_types.go
      */
     export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely";
 
@@ -3704,6 +3705,7 @@ declare namespace $app {
         downloaded: boolean;
         isDelayed: boolean;
         delayUntil?: string;
+        score: number;
         id: number;
         createdAt?: string;
         updatedAt?: string;

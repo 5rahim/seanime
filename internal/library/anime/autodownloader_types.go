@@ -68,6 +68,7 @@ type (
 		// Global If true, this profile is applied to all rules.
 		Global bool `json:"global"`
 
+		ReleaseGroups []string `json:"releaseGroups,omitempty"`
 		// Ordered list (e.g., ["1080p", "720p"]).
 		Resolutions []string `json:"resolutions"`
 

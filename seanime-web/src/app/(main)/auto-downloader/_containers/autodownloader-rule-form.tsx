@@ -6,6 +6,7 @@ import {
     Anime_LibraryCollection,
 } from "@/api/generated/types"
 import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
@@ -221,11 +222,21 @@ export function AutoDownloaderMediaCombobox(props: {
     mediaId?: number | undefined
 }) {
     const [showReleasingOnly, setShowReleasingOnly] = useAtom(_autoDownloader_listActiveMediaOnlyAtom)
+    const { setPreviewModalMediaId } = useMediaPreviewModal()
 
     return <Combobox
         name="mediaId"
         label={<div className="flex items-center gap-2">
-            <p className="text-lg font-semibold">Anime</p>
+            <p
+                className={cn("text-lg font-semibold",
+                    // props.type === "edit" && "cursor-pointer"
+                )}
+                // onClick={() => {
+                //     if(props.mediaId) setPreviewModalMediaId(props.mediaId, "anime")
+                // }}
+            >
+                Anime
+            </p>
             {props.type !== "edit" && <Button
                 leftIcon={<MdFilterAlt />} intent="gray-link" className="!text-[--muted] cursor-pointer hover:underline underline-offset-2 py-0 px-2"
                 onClick={() => setShowReleasingOnly(prev => {

@@ -231,6 +231,7 @@ func (ad *AutoDownloader) isResolutionMatch(quality string, resolutions []string
 
 // getReleaseGroupToResolutionsMap groups rules by release group to optimize search queries.
 // It resolves resolutions from profiles if the rule doesn't have them explicitly set.
+// It also resolves release groups from profiles if the rule doesn't have them explicitly set.
 func (ad *AutoDownloader) getReleaseGroupToResolutionsMap(rules []*anime.AutoDownloaderRule, profiles []*anime.AutoDownloaderProfile) map[string][]string {
 	res := make(map[string][]string)
 
@@ -248,6 +249,19 @@ func (ad *AutoDownloader) getReleaseGroupToResolutionsMap(rules []*anime.AutoDow
 		}
 		effectiveResolutions = lo.Uniq(effectiveResolutions)
 
+		// Determine effective release groups for this rule
+		effectiveReleaseGroups := rule.ReleaseGroups
+		if len(effectiveReleaseGroups) == 0 {
+			// Fallback to profile release groups
+			for _, p := range profiles {
+				// Check global profile or specific assigned profile
+				if p.Global || (rule.ProfileID != nil && p.DbID == *rule.ProfileID) {
+					effectiveReleaseGroups = append(effectiveReleaseGroups, p.ReleaseGroups...)
+				}
+			}
+		}
+		effectiveReleaseGroups = lo.Uniq(effectiveReleaseGroups)
+
 		if len(effectiveResolutions) == 0 {
 			// Returns "-" if no resolutions were found
 			// The rule will just fetch by release group only
@@ -255,13 +269,11 @@ func (ad *AutoDownloader) getReleaseGroupToResolutionsMap(rules []*anime.AutoDow
 		}
 
 		// Group by release groups
-		if len(rule.ReleaseGroups) > 0 {
-			for _, rg := range rule.ReleaseGroups {
-				if _, ok := res[rg]; !ok {
-					res[rg] = make([]string, 0)
-				}
-				res[rg] = append(res[rg], effectiveResolutions...)
+		for _, rg := range effectiveReleaseGroups {
+			if _, ok := res[rg]; !ok {
+				res[rg] = make([]string, 0)
 			}
+			res[rg] = append(res[rg], effectiveResolutions...)
 		}
 	}
 

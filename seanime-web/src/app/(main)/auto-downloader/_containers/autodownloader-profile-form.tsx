@@ -31,9 +31,15 @@ type ResolutionType = {
     value: string
 }
 
+type ReleaseGroupType = {
+    id: string
+    value: string
+}
+
 type FormData = {
     name: string
     global: boolean
+    releaseGroups: ReleaseGroupType[]
     resolutions: ResolutionType[]
     conditions: ConditionType[]
     minimumScore: number
@@ -48,6 +54,7 @@ type FormData = {
 const formDataAtom = atomWithImmer<FormData>({
     name: "",
     global: false,
+    releaseGroups: [],
     resolutions: [],
     conditions: [],
     minimumScore: 0,
@@ -76,6 +83,10 @@ export function AutoDownloaderProfileForm(props: AutoDownloaderProfileFormProps)
         setFormData(draft => {
             draft.name = profile?.name ?? ""
             draft.global = profile?.global ?? false
+            draft.releaseGroups = profile?.releaseGroups?.map(rg => ({
+                id: `releaseGroup-${Date.now()}-${Math.random()}`,
+                value: rg,
+            })) ?? []
             draft.resolutions = profile?.resolutions?.map(res => ({
                 id: `resolution-${Date.now()}-${Math.random()}`,
                 value: res,
@@ -104,6 +115,7 @@ export function AutoDownloaderProfileForm(props: AutoDownloaderProfileFormProps)
 
         const data = {
             ...formData,
+            releaseGroups: formData.releaseGroups.map(rg => rg.value),
             resolutions: formData.resolutions.map(r => r.value),
             conditions: formData.conditions.map(c => ({
                 ...c,
@@ -158,6 +170,8 @@ export function AutoDownloaderProfileForm(props: AutoDownloaderProfileFormProps)
             </div>
 
             <Separator />
+
+            <ReleaseGroupsSortableField />
 
             <ResolutionsSortableField />
 
@@ -221,9 +235,9 @@ export function AutoDownloaderProfileForm(props: AutoDownloaderProfileFormProps)
 
             <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
                 <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Delay</div>
-                <p className="text-sm">
+                <p className="text-sm text-[--muted]">
                     Wait for better releases before downloading. The delay period will start once a first match is found.
-                    Global profile delays will be ignored if this profile is assigned to a rule.
+                    If a higher delay profile is assigned to a rule or applied globally, this one will be ignored.
                 </p>
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Delay</label>
@@ -268,6 +282,124 @@ export function AutoDownloaderProfileForm(props: AutoDownloaderProfileFormProps)
                 </Button>
             </div>
         </form>
+    )
+}
+
+function ReleaseGroupsSortableField() {
+    const [formData, setFormData] = useAtom(formDataAtom)
+    const releaseGroups = formData.releaseGroups
+
+    const onDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event
+        if (active.id !== over?.id) {
+            const oldIndex = releaseGroups.findIndex(item => item.id === active.id)
+            const newIndex = releaseGroups.findIndex(item => item.id === over?.id)
+
+            setFormData(draft => {
+                const [movedItem] = draft.releaseGroups.splice(oldIndex, 1)
+                draft.releaseGroups.splice(newIndex, 0, movedItem)
+                return
+            })
+        }
+    }
+
+    const handleAdd = (value: string) => {
+        setFormData(draft => {
+            draft.releaseGroups.push({
+                id: `releaseGroup-${Date.now()}-${Math.random()}`,
+                value,
+            })
+            return
+        })
+    }
+
+    const handleRemove = (id: string) => {
+        setFormData(draft => {
+            const index = draft.releaseGroups.findIndex(rg => rg.id === id)
+            if (index !== -1) {
+                draft.releaseGroups.splice(index, 1)
+            }
+            return
+        })
+    }
+
+    const handleUpdate = (id: string, value: string) => {
+        setFormData(draft => {
+            const index = draft.releaseGroups.findIndex(rg => rg.id === id)
+            if (index !== -1) {
+                draft.releaseGroups[index].value = value
+            }
+            return
+        })
+    }
+
+    const suggestions = [
+        "SubsPlease",
+        "Erai-raws",
+        "VARYG",
+        "EMBER",
+        "Judas",
+        "ASW",
+        "Tsundere-Raws",
+    ]
+
+    return (
+        <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
+            <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Release Groups</div>
+            <p className="text-sm text-[--muted]">
+                List of release groups to look for. If empty, any release group will be accepted.
+                Rules can override this.
+            </p>
+
+            <div className="flex flex-wrap gap-2 mb-2">
+                {suggestions.map((suggestion) => (
+                    <Button
+                        key={suggestion}
+                        intent="gray-subtle"
+                        size="sm"
+                        className="rounded-full"
+                        onClick={() => handleAdd(suggestion)}
+                        disabled={releaseGroups.some(rg => rg.value === suggestion)}
+                        type="button"
+                    >
+                        {suggestion}
+                    </Button>
+                ))}
+            </div>
+
+            <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+                <SortableContext strategy={verticalListSortingStrategy} items={releaseGroups.map(rg => rg.id)}>
+                    <div className="space-y-2">
+                        {releaseGroups.map((item) => (
+                            <SortableItem key={item.id} id={item.id}>
+                                <div className="flex gap-2 items-center w-full">
+                                    <TextInput
+                                        value={item.value}
+                                        onChange={(e) => handleUpdate(item.id, e.target.value)}
+                                        className="flex-1"
+                                    />
+                                    <IconButton
+                                        icon={<BiTrash />}
+                                        intent="alert-subtle"
+                                        onClick={() => handleRemove(item.id)}
+                                        type="button"
+                                    />
+                                </div>
+                            </SortableItem>
+                        ))}
+                    </div>
+                </SortableContext>
+            </DndContext>
+            <Button
+                intent="success-subtle"
+                leftIcon={<BiPlus />}
+                onClick={() => handleAdd("")}
+                size="sm"
+                type="button"
+            >
+                Add Release Group
+            </Button>
+        </div>
     )
 }
 
@@ -325,7 +457,7 @@ function ResolutionsSortableField() {
         <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
             <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Resolutions</div>
             <p className="text-sm text-[--muted]">
-                Drag and drop to reorder. The first matching resolution will be picked.
+                Drag and drop to reorder. The first matching resolution will be picked. Rules can override this.
             </p>
 
             <div className="flex flex-wrap gap-2 mb-2">
@@ -566,7 +698,7 @@ function ProvidersFieldControlled() {
     return (
         <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
             <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Providers</div>
-            <p className="text-sm">
+            <p className="text-sm text-[--muted]">
                 Select specific providers to look for. If empty, the default provider will be used.
             </p>
             <Combobox

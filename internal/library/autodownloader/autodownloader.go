@@ -546,8 +546,8 @@ type delaySettings struct {
 	skipDelayScore int
 }
 
-// getDelaySettings extracts delay configuration from profiles (only the specific one if defined)
-// Uses the rule with the highest delay minutes and its delay score
+// getDelaySettings extracts delay configuration from profiles
+// Uses the rule with the highest delay minutes and its delay score.
 func (ad *AutoDownloader) getDelaySettings(rule *anime.AutoDownloaderRule, ruleProfiles []*anime.AutoDownloaderProfile) delaySettings {
 	settings := delaySettings{
 		hasDelay:       false,
@@ -556,9 +556,6 @@ func (ad *AutoDownloader) getDelaySettings(rule *anime.AutoDownloaderRule, ruleP
 	}
 
 	for _, p := range ruleProfiles {
-		if rule.ProfileID != nil && p.DbID != *rule.ProfileID {
-			continue
-		}
 		if p.DelayMinutes > 0 {
 			settings.hasDelay = true
 			if p.DelayMinutes > settings.delayMinutes {
@@ -877,7 +874,10 @@ func (ad *AutoDownloader) torrentFollowsRule(
 		return -1, false
 	}
 
-	if ok := ad.isReleaseGroupMatch(t.ParsedData.ReleaseGroup, rule); !ok {
+	// Inherit release groups from profiles if rule has none
+	releaseGroups := ad.inheritReleaseGroupsFromProfiles(rule, profiles)
+
+	if ok := ad.isReleaseGroupMatch(t.ParsedData.ReleaseGroup, releaseGroups); !ok {
 		return -1, false
 	}
 
@@ -917,6 +917,17 @@ func (ad *AutoDownloader) torrentFollowsRule(
 	}
 
 	return episode, true
+}
+
+func (ad *AutoDownloader) inheritReleaseGroupsFromProfiles(rule *anime.AutoDownloaderRule, profiles []*anime.AutoDownloaderProfile) []string {
+	res := rule.ReleaseGroups
+	if len(res) == 0 {
+		for _, p := range profiles {
+			res = append(res, p.ReleaseGroups...)
+		}
+	}
+	res = lo.Uniq(res)
+	return res
 }
 
 func (ad *AutoDownloader) inheritResolutionsFromProfiles(rule *anime.AutoDownloaderRule, profiles []*anime.AutoDownloaderProfile) []string {
@@ -1182,15 +1193,15 @@ func (ad *AutoDownloader) isAdditionalTermsMatch(torrentName string, rule *anime
 	// If all options are found, return true
 	return true
 }
-func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, rule *anime.AutoDownloaderRule) (ok bool) {
+func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, releaseGroups []string) (ok bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isReleaseGroupMatch", func() {
 		ok = false
 	})
 
-	if len(rule.ReleaseGroups) == 0 {
+	if len(releaseGroups) == 0 {
 		return true
 	}
-	for _, rg := range rule.ReleaseGroups {
+	for _, rg := range releaseGroups {
 		if strings.ToLower(rg) == strings.ToLower(releaseGroup) {
 			return true
 		}
