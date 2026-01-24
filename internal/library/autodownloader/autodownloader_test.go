@@ -1,15 +1,215 @@
 package autodownloader
 
 import (
+	"context"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
+	"seanime/internal/test_utils"
 	"seanime/internal/torrent_clients/torrent_client"
+	"seanime/internal/util"
 	"testing"
+	"time"
 
+	"github.com/goccy/go-json"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestIsConstraintsMatch(t *testing.T) {
+	ad := &AutoDownloader{}
+
+	tests := []struct {
+		name     string
+		torrent  *NormalizedTorrent
+		rule     *anime.AutoDownloaderRule
+		expected bool
+	}{
+		{
+			name:     "Min seeders pass",
+			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Seeders: 10}},
+			rule:     &anime.AutoDownloaderRule{MinSeeders: 5},
+			expected: true,
+		},
+		{
+			name:     "Min seeders pass (no data)",
+			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Seeders: -1}},
+			rule:     &anime.AutoDownloaderRule{MinSeeders: 5},
+			expected: true,
+		},
+		{
+			name:     "Min seeders fail",
+			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Seeders: 2}},
+			rule:     &anime.AutoDownloaderRule{MinSeeders: 5},
+			expected: false,
+		},
+		{
+			name:     "Min size pass",
+			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 2048}}, // 2KB
+			rule:     &anime.AutoDownloaderRule{MinSize: "1KB"},
+			expected: true,
+		},
+		{
+			name:     "Min size pass (no data)",
+			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 0}},
+			rule:     &anime.AutoDownloaderRule{MinSize: "1KB"},
+			expected: true,
+		},
+		{
+			name:     "Min size fail",
+			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 512}}, // 0.5KB
+			rule:     &anime.AutoDownloaderRule{MinSize: "1KB"},
+			expected: false,
+		},
+		{
+			name:     "Max size pass",
+			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 1024}}, // 1KB
+			rule:     &anime.AutoDownloaderRule{MaxSize: "2KB"},
+			expected: true,
+		},
+		{
+			name:     "Max size fail",
+			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 3072}}, // 3KB
+			rule:     &anime.AutoDownloaderRule{MaxSize: "2KB"},
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ad.isConstraintsMatch(tt.torrent, tt.rule); got != tt.expected {
+				t.Errorf("isConstraintsMatch() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestIsExcludedTermsMatch(t *testing.T) {
+	ad := &AutoDownloader{}
+
+	tests := []struct {
+		name     string
+		torrent  string
+		rule     *anime.AutoDownloaderRule
+		expected bool
+	}{
+		{
+			name:     "No excluded terms",
+			torrent:  "One Piece - 1000",
+			rule:     &anime.AutoDownloaderRule{ExcludeTerms: []string{}},
+			expected: true,
+		},
+		{
+			name:     "Contains excluded term",
+			torrent:  "One Piece - 1000 - French",
+			rule:     &anime.AutoDownloaderRule{ExcludeTerms: []string{"French"}},
+			expected: false,
+		},
+		{
+			name:     "Does not contain excluded term",
+			torrent:  "One Piece - 1000 - English",
+			rule:     &anime.AutoDownloaderRule{ExcludeTerms: []string{"French"}},
+			expected: true,
+		},
+		{
+			name:     "Case insensitive check",
+			torrent:  "One Piece - 1000 - french",
+			rule:     &anime.AutoDownloaderRule{ExcludeTerms: []string{"French"}},
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ad.isExcludedTermsMatch(tt.torrent, tt.rule); got != tt.expected {
+				t.Errorf("isExcludedTermsMatch() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestStringToBytes(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+		hasError bool
+	}{
+		{"1GB", 1073741824, false},
+		{"1 GB", 1073741824, false},
+		{"1.5 GB", 1610612736, false},
+		{"1 GiB", 1073741824, false},
+		{"500MB", 524288000, false},
+		{"500 MiB", 524288000, false},
+		{"100KB", 102400, false},
+		{"1024 B", 1024, false},
+		{"", 0, false},
+		{"invalid", 0, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			val, err := stringToBytes(tt.input)
+			if tt.hasError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.expected, val)
+			}
+		})
+	}
+}
+
+func TestIsResolutionMatch(t *testing.T) {
+	ad := &AutoDownloader{}
+
+	tests := []struct {
+		name        string
+		quality     string
+		resolutions []string
+		expected    bool
+	}{
+		{
+			name:        "Match Exact",
+			quality:     "1080p",
+			resolutions: []string{"1080p"},
+			expected:    true,
+		},
+		{
+			name:        "Match List",
+			quality:     "720p",
+			resolutions: []string{"1080p", "720p"},
+			expected:    true,
+		},
+		{
+			name:        "No Match",
+			quality:     "480p",
+			resolutions: []string{"1080p", "720p"},
+			expected:    false,
+		},
+		{
+			name:        "Empty Resolutions (Match All)",
+			quality:     "480p",
+			resolutions: []string{},
+			expected:    true,
+		},
+		{
+			name:        "Mixed Case",
+			quality:     "1080P",
+			resolutions: []string{"1080p"},
+			expected:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ad.isResolutionMatch(tt.quality, tt.resolutions)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
 
 func TestGetRuleProfiles(t *testing.T) {
 	ad := &AutoDownloader{}
@@ -105,7 +305,7 @@ func TestIsTorrentAlreadyDownloaded(t *testing.T) {
 func TestIsEpisodeAlreadyHandled(t *testing.T) {
 	ad := &AutoDownloader{}
 
-	// Create mock local files
+	// Create fake local files
 	localFiles := []*anime.LocalFile{
 		{MediaId: 1, Metadata: &anime.LocalFileMetadata{Episode: 5, Type: anime.LocalFileTypeMain}},
 		{MediaId: 1, Metadata: &anime.LocalFileMetadata{Episode: 6, Type: anime.LocalFileTypeMain}},
@@ -113,46 +313,68 @@ func TestIsEpisodeAlreadyHandled(t *testing.T) {
 	}
 	lfWrapper := anime.NewLocalFileWrapper(localFiles)
 
+	// fake queued items
 	queuedItems := []*models.AutoDownloaderItem{
-		{MediaID: 1, Episode: 7},
-		{MediaID: 1, Episode: 8},
+		{RuleID: 1, MediaID: 1, Episode: 7},
+		{RuleID: 1, MediaID: 1, Episode: 8},
+		{RuleID: 2, MediaID: 1, Episode: 8},
+		{RuleID: 1, MediaID: 10, Episode: 42, IsDelayed: true},
 	}
 
 	tests := []struct {
 		name     string
 		episode  int
+		ruleID   uint
 		mediaId  int
 		expected bool
 	}{
 		{
 			name:     "episode in local files",
 			episode:  5,
+			ruleID:   1,
 			mediaId:  1,
 			expected: true,
 		},
 		{
-			name:     "episode in queue",
+			name:     "episode in queue for same rule",
 			episode:  7,
+			ruleID:   1,
 			mediaId:  1,
 			expected: true,
+		},
+		{
+			name:     "episode in queue but different rule",
+			episode:  8,
+			ruleID:   3,
+			mediaId:  1,
+			expected: false,
 		},
 		{
 			name:     "episode not handled",
 			episode:  10,
+			ruleID:   1,
 			mediaId:  1,
 			expected: false,
 		},
 		{
 			name:     "different media id",
 			episode:  5,
+			ruleID:   1,
 			mediaId:  99,
+			expected: false,
+		},
+		{
+			name:     "same episode but delayed",
+			episode:  42,
+			ruleID:   1,
+			mediaId:  10,
 			expected: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ad.isEpisodeAlreadyHandled(tt.episode, tt.mediaId, lfWrapper, queuedItems)
+			result := ad.isEpisodeAlreadyHandled(tt.episode, tt.ruleID, tt.mediaId, lfWrapper, queuedItems)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
@@ -405,123 +627,220 @@ func TestTorrentScoring(t *testing.T) {
 		shouldSucceed bool
 	}{
 		{
-			name: "should return 0 if no conditions match",
+			name: "preferred_fansub_match",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] One Piece - 1000 (1080p) [ABCD].mkv"},
+				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Shangri-La Frontier S02 - 14 (1080p).mkv"},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
 					Conditions: []anime.AutoDownloaderCondition{
-						{Term: "720p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
+						{Term: "SubsPlease, Erai-raws", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 50},
+						{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 20},
 					},
+					MinimumScore: 60,
 				},
 			},
-			expectedScore: 0,
+			expectedScore: 70,
 			shouldSucceed: true,
 		},
 		{
-			name: "should return 0 if no conditions match and no global profile",
+			name: "reject_batch_uploads",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[EMBER] One Piece - 1000 (1080p) [ABCD].mkv"},
+				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[ASW] Solo Leveling - S02E01 [1080p HEVC x265 10bit] (Batch)"},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
 					Conditions: []anime.AutoDownloaderCondition{
-						{Term: "720p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
-						{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 20},
+						{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 30},
+						{Term: "Batch, Dual-Audio, Dub", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: -100},
 					},
 					MinimumScore: 10,
-					Global:       true,
-				},
-				{
-					Conditions: []anime.AutoDownloaderCondition{
-						{Term: "(EMBER)", IsRegex: true, Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: -20},
-					},
-					MinimumScore: 0,
-					Global:       true,
 				},
 			},
-			expectedScore: 0,
+			expectedScore: -70,
 			shouldSucceed: false,
 		},
 		{
-			name: "multiple conditions accumulate positive scores",
+			name: "regex_media_source_detection",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Frieren - 12 (1080p) [x265] [10-bit].mkv"},
+				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[EMBER] Frieren - 01 [BDRip] [1080p] [HEVC]"},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
+					Conditions: []anime.AutoDownloaderCondition{
+						{Term: `(BD|Blu-?ray|BDRip)`, IsRegex: true, Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 100},
+						{Term: "HEVC, x265", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 20},
+					},
+					MinimumScore: 110,
+				},
+			},
+			expectedScore: 120,
+			shouldSucceed: true,
+		},
+		{
+			name: "cumulative_global_and_group_profiles",
+			torrent: &NormalizedTorrent{
+				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Nippon-Yasan] Monogatari Series - Off & Monster Season - 01 (1080p).mkv"},
+			},
+			profiles: []*anime.AutoDownloaderProfile{
+				{
+					Name: "Global Format",
 					Conditions: []anime.AutoDownloaderCondition{
 						{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 20},
-						{Term: "SubsPlease", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 15},
-						{Term: "x265", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
-						{Term: "10-bit", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 5},
-					},
-					MinimumScore: 30,
-					Global:       true,
-				},
-			},
-			expectedScore: 50,
-			shouldSucceed: true,
-		},
-		{
-			name: "regex patterns with mixed positive and negative scores",
-			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[HorribleSubs] Attack on Titan - 25 [720p].mkv"},
-			},
-			profiles: []*anime.AutoDownloaderProfile{
-				{
-					Conditions: []anime.AutoDownloaderCondition{
-						{Term: "\\[720p\\]", IsRegex: true, Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
-						{Term: "HorribleSubs", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 5},
-						{Term: "\\[1080p\\]", IsRegex: true, Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 20},
-					},
-					MinimumScore: 5,
-					Global:       true,
-				},
-			},
-			expectedScore: 15,
-			shouldSucceed: true,
-		},
-		{
-			name: "multiple profiles combine scores to meet threshold",
-			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Erai-raws] Demon Slayer - 05 [1080p][Multiple Subtitle].mkv"},
-			},
-			profiles: []*anime.AutoDownloaderProfile{
-				{
-					Conditions: []anime.AutoDownloaderCondition{
-						{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 15},
-						{Term: "Multiple Subtitle", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
 					},
 					MinimumScore: 0,
 					Global:       true,
 				},
 				{
+					Name: "Encoder Preference",
 					Conditions: []anime.AutoDownloaderCondition{
-						{Term: "Erai-raws", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 8},
+						{Term: "Nippon-Yasan, MTBB", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 40},
 					},
-					MinimumScore: 25,
-					Global:       true,
+					MinimumScore: 50,
 				},
 			},
-			expectedScore: 33,
+			expectedScore: 60,
+			shouldSucceed: true,
+		},
+		{
+			name: "version_revision_handling",
+			torrent: &NormalizedTorrent{
+				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Dandadan - 01v2 (1080p).mkv"},
+			},
+			profiles: []*anime.AutoDownloaderProfile{
+				{
+					Conditions: []anime.AutoDownloaderCondition{
+						{Term: `v[2-9]`, IsRegex: true, Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 15},
+						{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
+					},
+					MinimumScore: 20,
+				},
+			},
+			expectedScore: 25,
 			shouldSucceed: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			score := 0
-			minScore := 0
-			for _, profile := range tt.profiles {
-				score += ad.calculateTorrentScore(tt.torrent, profile)
-				if profile.MinimumScore > minScore {
-					minScore = profile.MinimumScore
-				}
-			}
+			score, minScore := ad.calculateCandidateScore(tt.torrent, tt.profiles)
 			assert.Equal(t, tt.expectedScore, score, "Expected %d, got %d", tt.expectedScore, score)
 			assert.Equal(t, tt.expectedScore >= minScore, tt.shouldSucceed, "Expected %v, got %v", tt.shouldSucceed, tt.expectedScore >= minScore)
+		})
+	}
+}
+
+func TestTorrentRanking(t *testing.T) {
+	ad := &AutoDownloader{}
+
+	tests := []struct {
+		name           string
+		scenarioDesc   string
+		candidates     []*NormalizedTorrent
+		profiles       []*anime.AutoDownloaderProfile
+		expectedWinner string
+	}{
+		{
+			name:         "high_fidelity_archive",
+			scenarioDesc: "Prefer BDRip with lossless audio over high-seed Web-DL",
+			candidates: []*NormalizedTorrent{
+				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Sousou no Frieren - 01 (1080p) [Web-DL].mkv", Seeders: 3500, Size: 1400000000}},
+				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Erai-raws] Sousou no Frieren - 01 [1080p].mkv", Seeders: 1200, Size: 1600000000}},
+				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[CoalGirls] Sousou no Frieren - 01 [BDRip 1920x1080 HEVC FLAC].mkv", Seeders: 85, Size: 5200000000}},
+			},
+			profiles: []*anime.AutoDownloaderProfile{
+				{
+					Name: "Archival Quality",
+					Conditions: []anime.AutoDownloaderCondition{
+						{Term: "FLAC", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 100},
+						{Term: "BDRip", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 50},
+						{Term: "WebDL, WEBRIP, WEB RIP, Web-DL", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: -20},
+					},
+					MinimumScore: 10,
+				},
+			},
+			expectedWinner: "[CoalGirls] Sousou no Frieren - 01 [BDRip 1920x1080 HEVC FLAC].mkv",
+		},
+		{
+			name:         "codec_compatibility",
+			scenarioDesc: "Filter out HEVC for legacy playback hardware",
+			candidates: []*NormalizedTorrent{
+				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Judas] Kaiju No. 8 - 01 [1080p][HEVC x265 10bit].mkv", Seeders: 2200}},
+				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Kaiju No. 8 - 01 (1080p).mkv", Seeders: 1800}},
+			},
+			profiles: []*anime.AutoDownloaderProfile{
+				{
+					Name: "H264 Only",
+					Conditions: []anime.AutoDownloaderCondition{
+						{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
+						{Term: "HEVC, x265, 10bit, 10-bit", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: -500},
+					},
+					MinimumScore: 0,
+				},
+			},
+			expectedWinner: "[SubsPlease] Kaiju No. 8 - 01 (1080p).mkv",
+		},
+		{
+			name:         "multi_audio_preference",
+			scenarioDesc: "Prioritize Dual Audio releases for local library",
+			candidates: []*NormalizedTorrent{
+				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Dungeon Meshi - 01 (1080p).mkv", Seeders: 2800}},
+				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[EMBER] Dungeon Meshi - 01 (1080p) [Dual Audio].mkv", Seeders: 210}},
+			},
+			profiles: []*anime.AutoDownloaderProfile{
+				{
+					Name: "English Dub",
+					Conditions: []anime.AutoDownloaderCondition{
+						{Term: "Dual Audio", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 150},
+						{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
+					},
+					MinimumScore: 50,
+				},
+			},
+			expectedWinner: "[EMBER] Dungeon Meshi - 01 (1080p) [Dual Audio].mkv",
+		},
+		{
+			name:         "release_revision_v2",
+			scenarioDesc: "Ensure v2/corrected releases are preferred over initial uploads",
+			candidates: []*NormalizedTorrent{
+				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Group] Metallic Rouge - 01 [1080p].mkv", Seeders: 900}},
+				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Group] Metallic Rouge - 01v2 [1080p].mkv", Seeders: 340}},
+			},
+			profiles: []*anime.AutoDownloaderProfile{
+				{
+					Name: "Latest Revision",
+					Conditions: []anime.AutoDownloaderCondition{
+						{Term: "v2", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 100},
+					},
+					MinimumScore: 0,
+				},
+			},
+			expectedWinner: "[Group] Metallic Rouge - 01v2 [1080p].mkv",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var candidates []*Candidate
+
+			for _, torrent := range tt.candidates {
+				score, reqMinScore := ad.calculateCandidateScore(torrent, tt.profiles)
+				if score >= reqMinScore {
+					candidates = append(candidates, &Candidate{
+						Torrent: torrent,
+						Score:   score,
+					})
+				}
+			}
+
+			if tt.expectedWinner == "" {
+				assert.Empty(t, candidates)
+			} else {
+				if assert.NotEmpty(t, candidates) {
+					winner := ad.selectBestCandidate(candidates)
+					assert.Equal(t, tt.expectedWinner, winner.Torrent.Name)
+				}
+			}
 		})
 	}
 }
@@ -529,294 +848,430 @@ func TestTorrentScoring(t *testing.T) {
 func TestIsProfileValidChecks(t *testing.T) {
 	ad := &AutoDownloader{}
 
-	torrent := &NormalizedTorrent{
-		AnimeTorrent: hibiketorrent.AnimeTorrent{
-			Name:    "[SubsPlease] One Piece - 1000 (1080p).mkv",
-			Seeders: 20,
-			Size:    1073741824, // 1GB
+	tests := []struct {
+		name    string
+		torrent *NormalizedTorrent
+		profile *anime.AutoDownloaderProfile
+		isValid bool
+	}{
+		{
+			name: "valid_standard_release",
+			torrent: &NormalizedTorrent{
+				AnimeTorrent: hibiketorrent.AnimeTorrent{
+					Name:    "[SubsPlease] One Piece - 1100 (1080p).mkv",
+					Seeders: 1500,
+					Size:    1400000000,
+				},
+			},
+			profile: &anime.AutoDownloaderProfile{
+				MinSeeders: 100,
+				MinSize:    "500MB",
+				Conditions: []anime.AutoDownloaderCondition{
+					{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionRequire},
+				},
+			},
+			isValid: true,
+		},
+		{
+			name: "fail_low_seeder_count",
+			torrent: &NormalizedTorrent{
+				AnimeTorrent: hibiketorrent.AnimeTorrent{
+					Name:    "[OldGroup] Classic Movie (1080p).mkv",
+					Seeders: 2,
+					Size:    4000000000,
+				},
+			},
+			profile: &anime.AutoDownloaderProfile{
+				MinSeeders: 10,
+			},
+			isValid: false,
+		},
+		{
+			name: "fail_blocked_release_group",
+			torrent: &NormalizedTorrent{
+				AnimeTorrent: hibiketorrent.AnimeTorrent{
+					Name:    "[SubsPlease] Bleach - 01 (1080p).mkv",
+					Seeders: 500,
+				},
+			},
+			profile: &anime.AutoDownloaderProfile{
+				Conditions: []anime.AutoDownloaderCondition{
+					{Term: "SubsPlease", Action: anime.AutoDownloaderProfileRuleFormatActionBlock},
+				},
+			},
+			isValid: false,
+		},
+		{
+			name: "fail_missing_required_codec",
+			torrent: &NormalizedTorrent{
+				AnimeTorrent: hibiketorrent.AnimeTorrent{
+					Name:    "[Erai-raws] Danmachi S5 - 01 (1080p).mkv",
+					Seeders: 800,
+				},
+			},
+			profile: &anime.AutoDownloaderProfile{
+				Conditions: []anime.AutoDownloaderCondition{
+					{Term: "AV1", Action: anime.AutoDownloaderProfileRuleFormatActionRequire},
+				},
+			},
+			isValid: false,
+		},
+		{
+			name: "fail_undersized_release",
+			torrent: &NormalizedTorrent{
+				AnimeTorrent: hibiketorrent.AnimeTorrent{
+					Name: "[Micro] Chainsaw Man - 01 (1080p).mkv",
+					Size: 150000000,
+				},
+			},
+			profile: &anime.AutoDownloaderProfile{
+				MinSize: "500MB",
+			},
+			isValid: false,
 		},
 	}
 
-	// Case 1: Pass
-	p1 := &anime.AutoDownloaderProfile{
-		MinSeeders: 10,
-		MinSize:    "500MB",
-		Conditions: []anime.AutoDownloaderCondition{
-			{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionRequire, ID: "1"},
-		},
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ad.isProfileValidChecks(tt.torrent, tt.profile)
+			assert.Equal(t, tt.isValid, result)
+		})
 	}
-	assert.True(t, ad.isProfileValidChecks(torrent, p1))
-
-	// Case 2: Fail min seeders
-	p2 := &anime.AutoDownloaderProfile{
-		MinSeeders: 50,
-	}
-	assert.False(t, ad.isProfileValidChecks(torrent, p2))
-
-	// Case 3: Fail block term
-	p3 := &anime.AutoDownloaderProfile{
-		Conditions: []anime.AutoDownloaderCondition{
-			{Term: "SubsPlease", Action: anime.AutoDownloaderProfileRuleFormatActionBlock},
-		},
-	}
-	assert.False(t, ad.isProfileValidChecks(torrent, p3))
-
-	// Case 4: Fail require term
-	p4 := &anime.AutoDownloaderProfile{
-		Conditions: []anime.AutoDownloaderCondition{
-			{Term: "HEVC", Action: anime.AutoDownloaderProfileRuleFormatActionRequire, ID: "2"},
-		},
-	}
-	assert.False(t, ad.isProfileValidChecks(torrent, p4))
 }
 
-//func TestTorrentSelection(t *testing.T) {
-//	test_utils.InitTestProvider(t, test_utils.Anilist())
-//
-//	// Load anime collection once for all tests
-//	anilistClient := anilist.TestGetMockAnilistClient()
-//	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil) // nil = boilerplate
-//	require.NoError(t, err)
-//
-//	tests := []struct {
-//		name             string
-//		mediaId          int
-//		userProgress     int
-//		torrents         []*hibiketorrent.AnimeTorrent
-//		rule             *anime.AutoDownloaderRule
-//		profiles         []*anime.AutoDownloaderProfile
-//		expectedResults  int
-//		expectedEpisodes []struct {
-//			episode     int
-//			hash        string
-//			score       int
-//			shouldMatch func(result *SimulationResult) bool
-//		}
-//	}{
-//		{
-//			name:         "Should select SubsPlease 1080p torrents and block BadGroup",
-//			mediaId:      154587, // Sousou no Frieren
-//			userProgress: 0,
-//			torrents: []*hibiketorrent.AnimeTorrent{
-//				{
-//					Name:       "[SubsPlease] Sousou no Frieren - 01 (1080p) [ABCD1234].mkv",
-//					InfoHash:   "hash1",
-//					Link:       "https://example.com/1",
-//					MagnetLink: "magnet:?xt=urn:btih:hash1",
-//					Seeders:    100,
-//					Size:       1500000000, // 1.5GB
-//				},
-//				{
-//					Name:       "[SubsPlease] Sousou no Frieren - 01 (720p) [EFGH5678].mkv",
-//					InfoHash:   "hash2",
-//					Link:       "https://example.com/2",
-//					MagnetLink: "magnet:?xt=urn:btih:hash2",
-//					Seeders:    50,
-//					Size:       800000000, // 800MB
-//				},
-//				{
-//					Name:       "[Erai-raws] Sousou no Frieren - 01 [1080p][Multiple Subtitle].mkv",
-//					InfoHash:   "hash3",
-//					Link:       "https://example.com/3",
-//					MagnetLink: "magnet:?xt=urn:btih:hash3",
-//					Seeders:    80,
-//					Size:       1400000000, // 1.4GB
-//				},
-//				{
-//					Name:       "[SubsPlease] Sousou no Frieren - 02 (1080p) [IJKL9012].mkv",
-//					InfoHash:   "hash4",
-//					Link:       "https://example.com/4",
-//					MagnetLink: "magnet:?xt=urn:btih:hash4",
-//					Seeders:    120,
-//					Size:       1600000000, // 1.6GB
-//				},
-//				{
-//					Name:       "[BadGroup] Sousou no Frieren - 01 (1080p) [BAD].mkv",
-//					InfoHash:   "hash5",
-//					Link:       "https://example.com/5",
-//					MagnetLink: "magnet:?xt=urn:btih:hash5",
-//					Seeders:    10,
-//					Size:       900000000, // 900MB
-//				},
-//			},
-//			rule: &anime.AutoDownloaderRule{
-//				DbID:                10,
-//				Enabled:             true,
-//				MediaId:             154587,
-//				Destination:         "/downloads",
-//				ProfileID:           lo.ToPtr(uint(2)),
-//				ReleaseGroups:       []string{"SubsPlease", "Erai-raws"},
-//				Resolutions:         []string{},
-//				EpisodeType:         anime.AutoDownloaderRuleEpisodeRecent,
-//				ComparisonTitle:     "Sousou no Frieren",
-//				TitleComparisonType: anime.AutoDownloaderRuleTitleComparisonLikely,
-//				MinSeeders:          0,
-//				Providers:           []string{"fake"},
-//			},
-//			profiles: []*anime.AutoDownloaderProfile{
-//				{
-//					DbID:   1,
-//					Name:   "Global Profile",
-//					Global: true,
-//					Conditions: []anime.AutoDownloaderCondition{
-//						{ID: "1", Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 20},
-//						{ID: "2", Term: "720p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
-//						{ID: "3", Term: "SubsPlease", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 15},
-//					},
-//					Resolutions:  []string{"1080p", "720p"},
-//					MinSeeders:   20,
-//					MinimumScore: 0,
-//				},
-//				{
-//					DbID:   2,
-//					Name:   "Specific Profile",
-//					Global: false,
-//					Conditions: []anime.AutoDownloaderCondition{
-//						{ID: "4", Term: "BadGroup", Action: anime.AutoDownloaderProfileRuleFormatActionBlock},
-//					},
-//					Resolutions:  []string{"1080p"},
-//					MinSeeders:   15,
-//					MinimumScore: 0,
-//				},
-//			},
-//			expectedResults: 2,
-//			expectedEpisodes: []struct {
-//				episode     int
-//				hash        string
-//				score       int
-//				shouldMatch func(result *SimulationResult) bool
-//			}{
-//				{
-//					episode: 1,
-//					hash:    "hash1",
-//					score:   35,
-//					shouldMatch: func(result *SimulationResult) bool {
-//						return assert.Contains(t, result.TorrentName, "SubsPlease") &&
-//							assert.Contains(t, result.TorrentName, "1080p") &&
-//							assert.Contains(t, result.TorrentName, "- 01")
-//					},
-//				},
-//				{
-//					episode: 2,
-//					hash:    "hash4",
-//					score:   35,
-//					shouldMatch: func(result *SimulationResult) bool {
-//						return assert.Contains(t, result.TorrentName, "SubsPlease") &&
-//							assert.Contains(t, result.TorrentName, "1080p") &&
-//							assert.Contains(t, result.TorrentName, "- 02")
-//					},
-//				},
-//			},
-//		},
-//	}
-//
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			t.Logf("=== Test: %s ===", tt.name)
-//
-//			// Log torrents
-//			t.Logf("Prepared %d fake torrents:", len(tt.torrents))
-//			for i, torrent := range tt.torrents {
-//				t.Logf("  [%d] %s (Seeders: %d, Size: %.2f GB)", i+1, torrent.Name, torrent.Seeders, float64(torrent.Size)/1e9)
-//			}
-//
-//			// Create fake provider
-//			fake := &Fake{
-//				GetLatestResults: tt.torrents,
-//				SearchResults:    tt.torrents,
-//			}
-//
-//			// Create AutoDownloader instance
-//			ad := fake.New(t)
-//			t.Logf("AutoDownloader instance created")
-//
-//			// Set anime collection
-//			ad.SetAnimeCollection(animeCollection)
-//			t.Logf("Loaded anime collection with %d list entries", len(animeCollection.GetMediaListCollection().GetLists()))
-//
-//			// Get anime from collection
-//			listEntry, found := animeCollection.GetListEntryFromAnimeId(tt.mediaId)
-//			require.True(t, found, "Anime with ID %d should be in the boilerplate collection", tt.mediaId)
-//			t.Logf("Found anime: %s (ID: %d)", *listEntry.GetMedia().GetTitle().GetUserPreferred(), listEntry.GetMedia().GetID())
-//
-//			// Log profiles
-//			for _, profile := range tt.profiles {
-//				t.Logf("Profile: %s (Global: %v)", profile.Name, profile.Global)
-//				if len(profile.Conditions) > 0 {
-//					t.Logf("  - Conditions: %d", len(profile.Conditions))
-//					for _, cond := range profile.Conditions {
-//						if cond.Action == anime.AutoDownloaderProfileRuleFormatActionScore {
-//							t.Logf("    * '%s' -> Score: %d", cond.Term, cond.Score)
-//						} else {
-//							t.Logf("    * '%s' -> Action: %s", cond.Term, cond.Action)
-//						}
-//					}
-//				}
-//			}
-//
-//			// Log rule
-//			t.Logf("Rule for media %d:", tt.rule.MediaId)
-//			t.Logf("  - Release Groups: %v", tt.rule.ReleaseGroups)
-//			t.Logf("  - Episode Type: %s", tt.rule.EpisodeType)
-//			t.Logf("  - Title Comparison: %s", tt.rule.TitleComparisonType)
-//
-//			// Insert profiles and rule into database
-//			for _, profile := range tt.profiles {
-//				err = db_bridge.InsertAutoDownloaderProfile(ad.database, profile)
-//				require.NoError(t, err)
-//			}
-//			err = db_bridge.InsertAutoDownloaderRule(ad.database, tt.rule)
-//			require.NoError(t, err)
-//			t.Logf("Inserted rule and %d profile(s) into database", len(tt.profiles))
-//
-//			// Set user progress
-//			listEntry.Progress = lo.ToPtr(tt.userProgress)
-//			t.Logf("Set user progress to episode %d", tt.userProgress)
-//
-//			// Clear any previous simulation results
-//			ad.ClearSimulationResults()
-//
-//			// Run the auto downloader synchronously in simulation mode
-//			t.Logf("\n--- Running AutoDownloader ---")
-//			ad.RunCheck(true)
-//
-//			// Get simulation results
-//			results := ad.GetSimulationResults()
-//			t.Logf("\n--- Simulation Results ---")
-//			t.Logf("Total torrents selected: %d", len(results))
-//			for i, result := range results {
-//				t.Logf("[%d] Episode %d: %s", i+1, result.Episode, result.TorrentName)
-//				t.Logf("    Hash: %s, Score: %d, MediaID: %d", result.Hash, result.Score, result.MediaID)
-//			}
-//
-//			// Verify total results
-//			assert.Equal(t, tt.expectedResults, len(results), "Should have selected %d torrent(s)", tt.expectedResults)
-//
-//			// Verify each expected episode
-//			for _, expected := range tt.expectedEpisodes {
-//				t.Logf("\n--- Verifying Episode %d ---", expected.episode)
-//
-//				// Find results for this episode
-//				episodeResults := lo.Filter(results, func(item *SimulationResult, _ int) bool {
-//					return item.Episode == expected.episode
-//				})
-//
-//				require.Equal(t, 1, len(episodeResults), "Should have exactly 1 torrent for episode %d", expected.episode)
-//
-//				result := episodeResults[0]
-//				t.Logf("Selected: %s", result.TorrentName)
-//				t.Logf("Hash: %s (expected: %s)", result.Hash, expected.hash)
-//				t.Logf("Score: %d (expected: %d)", result.Score, expected.score)
-//
-//				assert.Equal(t, expected.hash, result.Hash, "Episode %d should have hash %s", expected.episode, expected.hash)
-//				assert.Equal(t, expected.score, result.Score, "Episode %d should have score %d", expected.episode, expected.score)
-//
-//				if expected.shouldMatch != nil {
-//					assert.True(t, expected.shouldMatch(result), "Episode %d should match custom criteria", expected.episode)
-//				}
-//			}
-//
-//			t.Logf("\n✅ Test passed: %s", tt.name)
-//		})
-//	}
-//}
+func TestIntegration(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	anilistClient := anilist.TestGetMockAnilistClient()
+	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)
+	require.NoError(t, err)
+
+	tests := []struct {
+		name             string
+		mediaId          int
+		userProgress     int
+		torrents         []*hibiketorrent.AnimeTorrent
+		rule             *anime.AutoDownloaderRule
+		profiles         []*anime.AutoDownloaderProfile
+		expectedResults  int
+		expectedEpisodes []struct {
+			episode int
+			hash    string
+			score   int
+		}
+	}{
+		{
+			name:         "seasonal_catchup_with_quality_filtering",
+			mediaId:      154587, // Sousou no Frieren
+			userProgress: 0,
+			torrents: []*hibiketorrent.AnimeTorrent{
+				{
+					Name:     "[SubsPlease] Sousou no Frieren - 01 (1080p) [V0].mkv",
+					InfoHash: "hash_sp_01",
+					Seeders:  1200,
+					Size:     1400000000,
+				},
+				{
+					Name:     "[SubsPlease] Sousou no Frieren - 01 (720p).mkv",
+					InfoHash: "hash_sp_01_720",
+					Seeders:  450,
+					Size:     800000000,
+				},
+				{
+					Name:     "[Erai-raws] Sousou no Frieren - 01 [1080p].mkv",
+					InfoHash: "hash_erai_01",
+					Seeders:  900,
+					Size:     1350000000,
+				},
+				{
+					Name:     "[SubsPlease] Sousou no Frieren - 02 (1080p).mkv",
+					InfoHash: "hash_sp_02",
+					Seeders:  1100,
+					Size:     1450000000,
+				},
+				{
+					Name:     "[LowQuality] Sousou no Frieren - 01 (1080p).mkv",
+					InfoHash: "hash_bad_01",
+					Seeders:  10,
+					Size:     700000000,
+				},
+			},
+			rule: &anime.AutoDownloaderRule{
+				DbID:                10,
+				Enabled:             true,
+				MediaId:             154587,
+				Destination:         "/media/anime/frieren",
+				ProfileID:           lo.ToPtr(uint(2)),
+				ReleaseGroups:       []string{"SubsPlease", "Erai-raws"},
+				EpisodeType:         anime.AutoDownloaderRuleEpisodeRecent,
+				ComparisonTitle:     "Sousou no Frieren",
+				TitleComparisonType: anime.AutoDownloaderRuleTitleComparisonLikely,
+				Providers:           []string{"fake", "inexistant"}, // "inexistant" should be filtered out
+			},
+			profiles: []*anime.AutoDownloaderProfile{
+				{
+					DbID:   1,
+					Name:   "Global Defaults",
+					Global: true,
+					Conditions: []anime.AutoDownloaderCondition{
+						{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 25},
+						{Term: "720p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
+						{Term: "SubsPlease", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
+					},
+					Resolutions:  []string{"1080p", "720p"},
+					MinSeeders:   20,
+					MinimumScore: 0,
+				},
+				{
+					DbID:   2,
+					Name:   "Strict Filtering",
+					Global: false,
+					Conditions: []anime.AutoDownloaderCondition{
+						{Term: "LowQuality", Action: anime.AutoDownloaderProfileRuleFormatActionBlock},
+					},
+					Resolutions:  []string{"1080p"},
+					MinSeeders:   50,
+					MinimumScore: 10,
+				},
+			},
+			expectedResults: 2,
+			expectedEpisodes: []struct {
+				episode int
+				hash    string
+				score   int
+			}{
+				{episode: 1, hash: "hash_sp_01", score: 35},
+				{episode: 2, hash: "hash_sp_02", score: 35},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a new fake
+			fake := &Fake{
+				GetLatestResults: tt.torrents,
+				SearchResults:    tt.torrents,
+			}
+			ad := fake.New(t)
+			ad.SetAnimeCollection(animeCollection)
+
+			// Add local files to the database
+			_, err = fake.Database.InsertLocalFiles(&models.LocalFiles{Value: []byte("[]")})
+			require.NoError(t, err)
+
+			// Set user progress
+			listEntry, found := animeCollection.GetListEntryFromAnimeId(tt.mediaId)
+			require.True(t, found)
+			listEntry.Progress = lo.ToPtr(tt.userProgress)
+
+			// Add profiles and rule to the database
+			for _, profile := range tt.profiles {
+				err = db_bridge.InsertAutoDownloaderProfile(ad.database, profile)
+				require.NoError(t, err)
+			}
+			err = db_bridge.InsertAutoDownloaderRule(ad.database, tt.rule)
+			require.NoError(t, err)
+
+			ad.ClearSimulationResults()
+			// Run simulation
+			ad.RunCheck(true)
+
+			results := ad.GetSimulationResults()
+			assert.Equal(t, tt.expectedResults, len(results))
+
+			// Print the results
+			t.Logf("Results: %d\n", len(results))
+			for _, result := range results {
+				t.Logf("TorrentName: %s\n", result.TorrentName)
+				t.Logf("\tEpisode %d: Hash=%s, Score=%d\n", result.Episode, result.Hash, result.Score)
+			}
+
+			for _, expected := range tt.expectedEpisodes {
+				episodeResults := lo.Filter(results, func(item *SimulationResult, _ int) bool {
+					return item.Episode == expected.episode
+				})
+
+				if assert.Len(t, episodeResults, 1) {
+					res := episodeResults[0]
+					assert.Equal(t, expected.hash, res.Hash)
+					assert.Equal(t, expected.score, res.Score)
+				}
+			}
+		})
+	}
+}
+
+func TestDelayIntegration(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	anilistClient := anilist.TestGetMockAnilistClient()
+	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)
+	require.NoError(t, err)
+
+	mediaId := 154587 // Sousou no Frieren
+
+	tests := []struct {
+		name                 string
+		torrents             []*hibiketorrent.AnimeTorrent
+		existingItems        []*models.AutoDownloaderItem
+		profile              *anime.AutoDownloaderProfile
+		expectedQueued       int
+		expectedDownloaded   int
+		checkDelayedItemFunc func(t *testing.T, items []*models.AutoDownloaderItem, simResults []*SimulationResult)
+	}{
+		{
+			name: "Standard",
+			torrents: []*hibiketorrent.AnimeTorrent{
+				{Name: "[SubsPlease] Sousou no Frieren - 01 (1080p).mkv", InfoHash: "hash1", Seeders: 100},
+			},
+			profile: &anime.AutoDownloaderProfile{
+				Conditions: []anime.AutoDownloaderCondition{{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10}},
+			},
+			expectedQueued: 1,
+			checkDelayedItemFunc: func(t *testing.T, items []*models.AutoDownloaderItem, _ []*SimulationResult) {
+				require.Len(t, items, 1)
+				assert.False(t, items[0].IsDelayed)  // MUST be true
+				assert.False(t, items[0].Downloaded) // will always be false
+				assert.Equal(t, "hash1", items[0].Hash)
+			},
+		},
+		{
+			name: "Queue item for delay",
+			torrents: []*hibiketorrent.AnimeTorrent{
+				{Name: "[SubsPlease] Sousou no Frieren - 01 (1080p).mkv", InfoHash: "hash1", Seeders: 100},
+			},
+			profile: &anime.AutoDownloaderProfile{
+				Conditions:     []anime.AutoDownloaderCondition{{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10}},
+				DelayMinutes:   10,
+				SkipDelayScore: 50,
+			},
+			expectedQueued: 1,
+			checkDelayedItemFunc: func(t *testing.T, items []*models.AutoDownloaderItem, _ []*SimulationResult) {
+				require.Len(t, items, 1)
+				assert.True(t, items[0].IsDelayed)   // MUST be true
+				assert.False(t, items[0].Downloaded) // will always be false
+				assert.Equal(t, "hash1", items[0].Hash)
+			},
+		},
+		{
+			name: "Skip delay on high score",
+			torrents: []*hibiketorrent.AnimeTorrent{
+				{Name: "[SubsPlease] Sousou no Frieren - 01 (1080p).mkv", InfoHash: "hash1", Seeders: 100},
+			},
+			profile: &anime.AutoDownloaderProfile{
+				Conditions:     []anime.AutoDownloaderCondition{{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 100}},
+				DelayMinutes:   10,
+				SkipDelayScore: 50,
+			},
+			expectedDownloaded: 1,
+			checkDelayedItemFunc: func(t *testing.T, items []*models.AutoDownloaderItem, _ []*SimulationResult) {
+				require.Len(t, items, 1)
+				assert.False(t, items[0].IsDelayed)
+				assert.False(t, items[0].Downloaded) // will always be false
+			},
+		},
+		{
+			name: "Download expired delayed item",
+			torrents: []*hibiketorrent.AnimeTorrent{
+				{Name: "[SubsPlease] Sousou no Frieren - 01 (1080p).mkv", InfoHash: "hash1", Seeders: 100},
+			},
+			existingItems: []*models.AutoDownloaderItem{
+				{
+					RuleID:      1,
+					MediaID:     mediaId,
+					Episode:     1,
+					Hash:        "hash1",
+					IsDelayed:   true,
+					DelayUntil:  time.Now().Add(-1 * time.Minute), // Expired
+					TorrentData: mustMarshalTorrent(&NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Sousou no Frieren - 01 (1080p).mkv", InfoHash: "hash1"}}),
+				},
+			},
+			profile: &anime.AutoDownloaderProfile{
+				Conditions:   []anime.AutoDownloaderCondition{{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10}},
+				DelayMinutes: 10,
+			},
+			expectedDownloaded: 1,
+			checkDelayedItemFunc: func(t *testing.T, items []*models.AutoDownloaderItem, _ []*SimulationResult) {
+				require.Len(t, items, 1)
+				util.Spew(items)
+				assert.False(t, items[0].IsDelayed)
+			},
+		},
+		{
+			name: "Upgrade delayed item",
+			torrents: []*hibiketorrent.AnimeTorrent{
+				{Name: "[BetterGroup] Sousou no Frieren - 01 (1080p).mkv", InfoHash: "hash_better", Seeders: 100}, // Score 20
+			},
+			existingItems: []*models.AutoDownloaderItem{
+				{
+					RuleID:      1,
+					MediaID:     mediaId,
+					Episode:     1,
+					Hash:        "hash_bad",
+					Score:       10,
+					IsDelayed:   true,
+					DelayUntil:  time.Now().Add(5 * time.Minute), // Not expired
+					TorrentData: mustMarshalTorrent(&NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "Name", InfoHash: "hash_bad"}}),
+				},
+			},
+			profile: &anime.AutoDownloaderProfile{
+				Conditions: []anime.AutoDownloaderCondition{
+					{Term: "BetterGroup", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 20},
+					{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 0},
+				},
+				DelayMinutes:   10,
+				SkipDelayScore: 50,
+			},
+			expectedQueued: 1, // Updated but still queued
+			checkDelayedItemFunc: func(t *testing.T, items []*models.AutoDownloaderItem, _ []*SimulationResult) {
+				require.Len(t, items, 1)
+				assert.True(t, items[0].IsDelayed)
+				assert.Equal(t, "hash_better", items[0].Hash) // Updated hash
+				assert.Equal(t, 20, items[0].Score)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fake := &Fake{GetLatestResults: tt.torrents, SearchResults: tt.torrents}
+			ad := fake.New(t)
+			ad.SetAnimeCollection(animeCollection)
+
+			// Setup DB
+			_, _ = fake.Database.InsertLocalFiles(&models.LocalFiles{Value: []byte("[]")})
+			if tt.existingItems != nil {
+				for _, item := range tt.existingItems {
+					_ = ad.database.InsertAutoDownloaderItem(item)
+				}
+			}
+
+			// Setup Rule/Profile
+			_ = db_bridge.InsertAutoDownloaderProfile(ad.database, tt.profile)
+			_ = db_bridge.InsertAutoDownloaderRule(ad.database, &anime.AutoDownloaderRule{
+				DbID: 1, Enabled: true, MediaId: mediaId, ProfileID: lo.ToPtr(uint(1)),
+				EpisodeType: anime.AutoDownloaderRuleEpisodeRecent, ComparisonTitle: "Sousou no Frieren", TitleComparisonType: anime.AutoDownloaderRuleTitleComparisonLikely,
+			})
+
+			ad.ClearSimulationResults()
+			// devnote: We don't run in simulation mode so the items are added to the DB
+			// they won't be downloaded since DownloadAutomatically=false
+			ad.RunCheck(false)
+
+			results := ad.GetSimulationResults()
+
+			// Devnote: Assertions on internal state or simulation results won't reflect delayed downloads exactly since runCheck calls selectAndDownload then downloadDelayed
+			// We check the DB state instead
+			items, _ := ad.database.GetAutoDownloaderItems()
+			if tt.checkDelayedItemFunc != nil {
+				tt.checkDelayedItemFunc(t, items, results)
+			}
+		})
+	}
+}
+
+func mustMarshalTorrent(t *NormalizedTorrent) []byte {
+	b, _ := json.Marshal(t)
+	return b
+}

@@ -1,6 +1,7 @@
 package autodownloader
 
 import (
+	"encoding/json"
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -306,7 +307,11 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 	groupedCandidates := ad.groupTorrentCandidates(data)
 
 	// Select best candidates and download
-	downloaded := ad.selectAndDownloadBestCandidates(isSimulation, groupedCandidates, data.rules)
+	downloaded := ad.selectAndDownloadBestCandidates(isSimulation, groupedCandidates, data.rules, data.profiles)
+
+	// Download delayed items that can be downloaded
+	delayedDownloaded := ad.downloadDelayedItems(isSimulation)
+	downloaded += delayedDownloaded
 
 	// Notify user
 	ad.notifyDownloadResults(downloaded)
@@ -338,6 +343,26 @@ func (ad *AutoDownloader) fetchRunData() (*runData, error) {
 	profiles, err := db_bridge.GetAutoDownloaderProfiles(ad.database)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch profiles: %w", err)
+	}
+
+	// Filter out extensions that don't exist
+	if ad.torrentRepository != nil {
+		for _, rule := range rules {
+			if len(rule.Providers) > 0 {
+				rule.Providers = lo.Filter(rule.Providers, func(id string, _ int) bool {
+					_, found := ad.torrentRepository.GetAnimeProviderExtension(id)
+					return found
+				})
+			}
+		}
+		for _, profile := range profiles {
+			if len(profile.Providers) > 0 {
+				profile.Providers = lo.Filter(profile.Providers, func(id string, _ int) bool {
+					_, found := ad.torrentRepository.GetAnimeProviderExtension(id)
+					return found
+				})
+			}
+		}
 	}
 
 	// Get local files from the database
@@ -403,7 +428,7 @@ func (ad *AutoDownloader) groupTorrentCandidates(data *runData) map[uint]map[int
 		}
 
 		// Get all queued items from this media
-		queuedItems, _ := ad.database.GetAutoDownloaderItemByMediaId(listEntry.GetMedia().GetID())
+		ruleQueuedItems, _ := ad.database.GetAutoDownloaderItemByMediaId(listEntry.GetMedia().GetID())
 
 		// Initialize map for this rule
 		groupedCandidates[rule.DbID] = make(map[int][]*Candidate)
@@ -421,8 +446,8 @@ func (ad *AutoDownloader) groupTorrentCandidates(data *runData) map[uint]map[int
 				continue
 			}
 
-			// Skip if already in library or queue
-			if ad.isEpisodeAlreadyHandled(episode, rule.MediaId, data.localFileWrapper, queuedItems) {
+			// Skip if already in library or queue (not delayed)
+			if ad.isEpisodeAlreadyHandled(episode, rule.DbID, rule.MediaId, data.localFileWrapper, ruleQueuedItems) {
 				continue
 			}
 
@@ -472,8 +497,8 @@ func (ad *AutoDownloader) isTorrentAlreadyDownloaded(t *NormalizedTorrent, exist
 	return false
 }
 
-// isEpisodeAlreadyHandled checks if an episode is already in the library or queue
-func (ad *AutoDownloader) isEpisodeAlreadyHandled(episode int, mediaId int, lfWrapper *anime.LocalFileWrapper, queuedItems []*models.AutoDownloaderItem) bool {
+// isEpisodeAlreadyHandled checks if an episode is already in the library or queue but not delayed
+func (ad *AutoDownloader) isEpisodeAlreadyHandled(episode int, ruleId uint, mediaId int, lfWrapper *anime.LocalFileWrapper, queuedItems []*models.AutoDownloaderItem) bool {
 	// Check if already in the library
 	le, found := lfWrapper.GetLocalEntryById(mediaId)
 	if found {
@@ -482,9 +507,13 @@ func (ad *AutoDownloader) isEpisodeAlreadyHandled(episode int, mediaId int, lfWr
 		}
 	}
 
-	// Check if already in the queue
+	// Check if already in the queue for this specific rule
 	for _, item := range queuedItems {
-		if item.Episode == episode {
+		if item.IsDelayed {
+			continue
+		}
+		// Check rule id again
+		if item.Episode == episode && item.RuleID == ruleId {
 			return true
 		}
 	}
@@ -510,9 +539,170 @@ func (ad *AutoDownloader) calculateCandidateScore(t *NormalizedTorrent, ruleProf
 	return score, requiredMinScore
 }
 
+// delaySettings holds the delay configuration for a rule
+type delaySettings struct {
+	hasDelay       bool
+	delayMinutes   int
+	skipDelayScore int
+}
+
+// getDelaySettings extracts delay configuration from profiles (only the specific one if defined)
+// Uses the rule with the highest delay minutes and its delay score
+func (ad *AutoDownloader) getDelaySettings(rule *anime.AutoDownloaderRule, ruleProfiles []*anime.AutoDownloaderProfile) delaySettings {
+	settings := delaySettings{
+		hasDelay:       false,
+		delayMinutes:   0,
+		skipDelayScore: 999999,
+	}
+
+	for _, p := range ruleProfiles {
+		if rule.ProfileID != nil && p.DbID != *rule.ProfileID {
+			continue
+		}
+		if p.DelayMinutes > 0 {
+			settings.hasDelay = true
+			if p.DelayMinutes > settings.delayMinutes {
+				settings.delayMinutes = p.DelayMinutes
+				if p.SkipDelayScore > 0 {
+					settings.skipDelayScore = p.SkipDelayScore
+				}
+			}
+		}
+	}
+
+	return settings
+}
+
+// findStoredItemForEpisode finds an existing item for a specific episode and rule
+func (ad *AutoDownloader) findStoredItemForEpisode(episode int, ruleID uint, existingItems []*models.AutoDownloaderItem) *models.AutoDownloaderItem {
+	for _, item := range existingItems {
+		if item.Episode == episode && item.RuleID == ruleID {
+			return item
+		}
+	}
+	return nil
+}
+
+// handleDelayedItem processes a delayed item (upgrade check, threshold check, time check)
+// Returns true if the item was downloaded
+func (ad *AutoDownloader) handleDelayedItem(
+	isSimulation bool,
+	storedItem *models.AutoDownloaderItem,
+	bestCandidate *Candidate,
+	rule *anime.AutoDownloaderRule,
+	episode int,
+	settings delaySettings,
+) bool {
+	// 1. Upgrade if this torrent is better than the one delayed
+	if bestCandidate.Score > storedItem.Score {
+		// Serialize the updated torrent data
+		torrentData, err := json.Marshal(bestCandidate.Torrent)
+		if err != nil {
+			ad.logger.Error().Err(err).Msg("autodownloader: Failed to serialize upgraded torrent")
+		} else {
+			storedItem.TorrentData = torrentData
+		}
+
+		storedItem.Link = bestCandidate.Torrent.Link
+		storedItem.Hash = bestCandidate.Torrent.InfoHash
+		storedItem.TorrentName = bestCandidate.Torrent.Name
+		storedItem.Score = bestCandidate.Score
+		// Do NOT reset DelayUntil, keep the original timer
+		_ = ad.database.UpdateAutoDownloaderItem(storedItem.ID, storedItem)
+
+		ad.logger.Debug().Str("title", rule.ComparisonTitle).Int("episode", episode).Msg("autodownloader: Upgraded delayed item to better match")
+	}
+
+	// 2. Does the torrent now exceed the SkipDelayScore?
+	if storedItem.Score >= settings.skipDelayScore {
+		ad.logger.Debug().Str("title", rule.ComparisonTitle).Int("episode", episode).Msg("autodownloader: Skip delay threshold met")
+		return ad.downloadTorrent(isSimulation, bestCandidate.Torrent, rule, episode, bestCandidate.Score, storedItem)
+	}
+
+	// 3. Has the delay passed?
+	if time.Now().After(storedItem.DelayUntil) {
+		ad.logger.Debug().Str("title", rule.ComparisonTitle).Int("episode", episode).Msg("autodownloader: Delay timer expired, downloading")
+		return ad.downloadTorrent(isSimulation, bestCandidate.Torrent, rule, episode, bestCandidate.Score, storedItem)
+	}
+
+	return false
+}
+
+// handleNewEpisode processes a new episode (threshold check, delay queue, immediate download)
+// Returns true if the item was downloaded or queued
+func (ad *AutoDownloader) handleNewEpisode(
+	isSimulation bool,
+	bestCandidate *Candidate,
+	rule *anime.AutoDownloaderRule,
+	episode int,
+	settings delaySettings,
+) bool {
+	// 1. Delay the torrent
+	if settings.hasDelay && bestCandidate.Score < settings.skipDelayScore {
+		ad.logger.Debug().Int("episode", episode).Int("minutes", settings.delayMinutes).Msg("autodownloader: Queueing item for delay")
+		ad.queueTorrentForDelay(rule, episode, bestCandidate, settings.delayMinutes)
+		return false // not downloaded
+	}
+
+	// 2. Download or queue
+	return ad.downloadTorrent(isSimulation, bestCandidate.Torrent, rule, episode, bestCandidate.Score, nil)
+}
+
+// processEpisodeCandidate processes a single episode's candidates
+// Returns true if an item was downloaded
+func (ad *AutoDownloader) processEpisodeCandidate(
+	isSimulation bool,
+	episode int,
+	candidates []*Candidate,
+	rule *anime.AutoDownloaderRule,
+	existingItems []*models.AutoDownloaderItem,
+	settings delaySettings,
+) bool {
+	if len(candidates) == 0 {
+		return false
+	}
+
+	// 1. Identify best candidate
+	bestCandidate := ad.selectBestCandidate(candidates)
+	if bestCandidate == nil {
+		return false
+	}
+
+	ad.logger.Debug().
+		Str("releaseGroup", bestCandidate.Torrent.ParsedData.ReleaseGroup).
+		Str("resolution", bestCandidate.Torrent.ParsedData.VideoResolution).
+		Int("seeders", bestCandidate.Torrent.Seeders).
+		Int("score", bestCandidate.Score).
+		Str("rule", rule.ComparisonTitle).
+		Int("episode", episode).
+		Msg("autodownloader: Found best torrent")
+
+	// 2. Check existing state
+	storedItem := ad.findStoredItemForEpisode(episode, rule.DbID, existingItems)
+
+	// 3. Decision
+
+	// CASE A: Item already confirmed (not delayed)
+	if storedItem != nil && !storedItem.IsDelayed {
+		return false
+	}
+
+	// CASE B: Item is currently delayed
+	if storedItem != nil && storedItem.IsDelayed {
+		return ad.handleDelayedItem(isSimulation, storedItem, bestCandidate, rule, episode, settings)
+	}
+
+	// CASE C: This is a new episode
+	if storedItem == nil {
+		return ad.handleNewEpisode(isSimulation, bestCandidate, rule, episode, settings)
+	}
+
+	return false
+}
+
 // selectAndDownloadBestCandidates selects the best candidate for each episode and downloads it
 // Returns the number of successfully downloaded episodes
-func (ad *AutoDownloader) selectAndDownloadBestCandidates(isSimulation bool, groupedCandidates map[uint]map[int][]*Candidate, rules []*anime.AutoDownloaderRule) int {
+func (ad *AutoDownloader) selectAndDownloadBestCandidates(isSimulation bool, groupedCandidates map[uint]map[int][]*Candidate, rules []*anime.AutoDownloaderRule, profiles []*anime.AutoDownloaderProfile) int {
 	downloaded := 0
 	mu := sync.Mutex{}
 
@@ -524,27 +714,15 @@ func (ad *AutoDownloader) selectAndDownloadBestCandidates(isSimulation bool, gro
 			continue
 		}
 
+		// Resolve profiles and delay settings for this rule
+		ruleProfiles := ad.getRuleProfiles(rule, profiles)
+		settings := ad.getDelaySettings(rule, ruleProfiles)
+
+		// Get all existing items for this media to check state
+		existingItems, _ := ad.database.GetAutoDownloaderItemByMediaId(rule.MediaId)
+
 		for episode, candidates := range episodes {
-			if len(candidates) == 0 {
-				continue
-			}
-
-			// Select best candidate
-			bestCandidate := ad.selectBestCandidate(candidates)
-
-			// Log
-			ad.logger.Debug().
-				Str("releaseGroup", bestCandidate.Torrent.ParsedData.ReleaseGroup).
-				Str("resolution", bestCandidate.Torrent.ParsedData.VideoResolution).
-				Int("seeders", bestCandidate.Torrent.Seeders).
-				Int("score", bestCandidate.Score).
-				Str("rule", rule.ComparisonTitle).
-				Int("episode", episode).
-				Msg("autodownloader: Found best torrent")
-
-			// Download
-			ok := ad.downloadTorrent(isSimulation, bestCandidate.Torrent, rule, episode, bestCandidate.Score)
-			if ok {
+			if ad.processEpisodeCandidate(isSimulation, episode, candidates, rule, existingItems, settings) {
 				mu.Lock()
 				downloaded++
 				mu.Unlock()
@@ -553,6 +731,108 @@ func (ad *AutoDownloader) selectAndDownloadBestCandidates(isSimulation bool, gro
 	}
 
 	return downloaded
+}
+
+// downloadDelayedItems checks all delayed items and downloads those whose delay has expired
+// Returns the number of successfully downloaded items
+func (ad *AutoDownloader) downloadDelayedItems(isSimulation bool) int {
+	// Get all delayed items across all media
+	allItems, err := ad.database.GetDelayedAutoDownloaderItems()
+	if err != nil {
+		ad.logger.Error().Err(err).Msg("autodownloader: Failed to get delayed items")
+		return 0
+	}
+
+	// Filter to only delayed items with expired delay
+	now := time.Now()
+	expiredItems := make([]*models.AutoDownloaderItem, 0)
+	for _, item := range allItems {
+		if item.IsDelayed && now.After(item.DelayUntil) {
+			expiredItems = append(expiredItems, item)
+		}
+	}
+
+	if len(expiredItems) == 0 {
+		return 0
+	}
+
+	ad.logger.Debug().Int("count", len(expiredItems)).Msg("autodownloader: Processing expired delayed items")
+
+	// Get all rules to find the rule for each item
+	rules, err := db_bridge.GetAutoDownloaderRules(ad.database)
+	if err != nil {
+		ad.logger.Error().Err(err).Msg("autodownloader: Failed to get rules for delayed items")
+		return 0
+	}
+
+	downloaded := 0
+
+	for _, item := range expiredItems {
+		// Find the rule for this item
+		rule, found := lo.Find(rules, func(r *anime.AutoDownloaderRule) bool {
+			return r.DbID == item.RuleID
+		})
+		if !found {
+			ad.logger.Warn().Uint("ruleId", item.RuleID).Msg("autodownloader: Rule not found for delayed item, skipping")
+			continue
+		}
+
+		// Check if rule is enabled
+		if !rule.Enabled {
+			ad.logger.Debug().Uint("ruleId", item.RuleID).Msg("autodownloader: Rule disabled for delayed item, skipping")
+			continue
+		}
+
+		// Deserialize the stored torrent data
+		var t NormalizedTorrent
+		if len(item.TorrentData) > 0 {
+			if err := json.Unmarshal(item.TorrentData, &t); err != nil {
+				ad.logger.Error().Err(err).Str("name", item.TorrentName).Msg("autodownloader: Failed to deserialize torrent data, skipping")
+				continue
+			}
+		} else {
+			ad.logger.Warn().Uint("ruleId", item.RuleID).Str("name", item.TorrentName).Msg("autodownloader: No torrent data found for delayed item, skipping")
+			continue
+		}
+
+		// Download the stored torrent
+		if ad.downloadTorrent(isSimulation, &t, rule, item.Episode, item.Score, item) {
+			downloaded++
+		}
+	}
+
+	if downloaded > 0 {
+		ad.logger.Info().Int("count", downloaded).Msg("autodownloader: Downloaded expired delayed items")
+	}
+
+	return downloaded
+}
+
+// queueTorrentForDelay inserts an item with IsDelayed=true
+func (ad *AutoDownloader) queueTorrentForDelay(rule *anime.AutoDownloaderRule, episode int, candidate *Candidate, delayMinutes int) {
+	// Serialize the torrent data
+	torrentData, err := json.Marshal(candidate.Torrent)
+	if err != nil {
+		ad.logger.Error().Err(err).Msg("autodownloader: Failed to serialize torrent for delay")
+		return
+	}
+
+	item := &models.AutoDownloaderItem{
+		RuleID:      rule.DbID,
+		MediaID:     rule.MediaId,
+		Episode:     episode,
+		Link:        candidate.Torrent.Link,
+		Hash:        candidate.Torrent.InfoHash,
+		TorrentName: candidate.Torrent.Name,
+		Downloaded:  false,
+		IsDelayed:   true,
+		DelayUntil:  time.Now().Add(time.Duration(delayMinutes) * time.Minute),
+		Score:       candidate.Score,
+		TorrentData: torrentData,
+	}
+	_ = ad.database.InsertAutoDownloaderItem(item)
+
+	ad.wsEventManager.SendEvent(events.AutoDownloaderItemAdded, candidate.Torrent.Name)
 }
 
 // selectBestCandidate selects the best candidate from a list based on score and seeders
@@ -650,11 +930,8 @@ func (ad *AutoDownloader) inheritResolutionsFromProfiles(rule *anime.AutoDownloa
 	return res
 }
 
-func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorrent, rule *anime.AutoDownloaderRule, episode int, score int) bool {
+func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorrent, rule *anime.AutoDownloaderRule, episode int, score int, existingItem *models.AutoDownloaderItem) bool {
 	defer util.HandlePanicInModuleThen("autodownloader/downloadTorrent", func() {})
-
-	ad.mu.Lock()
-	defer ad.mu.Unlock()
 
 	ad.logger.Debug().Str("name", t.Name).Msg("autodownloader: Downloading torrent")
 
@@ -673,11 +950,16 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 	}
 
 	// Double check that the episode hasn't been added while we have the lock
-	items, err := ad.database.GetAutoDownloaderItemByMediaId(rule.MediaId)
-	if err == nil {
-		for _, item := range items {
-			if item.Episode == episode {
-				return false // Skip, episode was added by another goroutine
+	// Skip this check if we're updating an existing delayed item
+	var items []*models.AutoDownloaderItem
+	if existingItem == nil {
+		var err error
+		items, err = ad.database.GetAutoDownloaderItemByMediaId(rule.MediaId)
+		if err == nil {
+			for _, item := range items {
+				if item.Episode == episode && !item.IsDelayed {
+					return false // Skip, episode was added by another goroutine
+				}
 			}
 		}
 	}
@@ -706,11 +988,6 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 		return false
 	}
 
-	if ad.torrentClientRepository == nil {
-		ad.logger.Error().Msg("autodownloader: torrent client not found")
-		return false
-	}
-
 	useDebrid := false
 
 	if ad.settings.UseDebrid {
@@ -722,17 +999,26 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 		}
 		useDebrid = true
 
-		if ad.debridClientRepository == nil {
-			ad.logger.Error().Msg("autodownloader: debrid client not found")
-			return false
-		}
 	}
 
-	// Get torrent magnet
-	magnet, err := t.GetMagnet(providerExtension.GetProvider())
-	if err != nil {
-		ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to get magnet link for torrent")
-		return false
+	// Get torrent magnet (use stored magnet if this is a delayed item)
+	var magnet string
+	var err error
+	if existingItem != nil && existingItem.Magnet != "" {
+		// Use stored magnet for delayed items
+		magnet = existingItem.Magnet
+	} else {
+		// Fetch magnet from provider
+		magnet, err = t.GetMagnet(providerExtension.GetProvider())
+		if err != nil {
+			// Try to construct from hash as fallback
+			if t.InfoHash != "" {
+				magnet = fmt.Sprintf("magnet:?xt=urn:btih:%s", t.InfoHash)
+			} else {
+				ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to get magnet link for torrent")
+				return false
+			}
+		}
 	}
 
 	downloaded := false
@@ -741,6 +1027,11 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 		//
 		// Debrid
 		//
+
+		if ad.debridClientRepository == nil {
+			ad.logger.Error().Msg("autodownloader: debrid client not found")
+			return false
+		}
 
 		if ad.settings.DownloadAutomatically {
 			// Add the torrent to the debrid provider and queue it
@@ -774,6 +1065,11 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 		// Pause the torrent when it's added
 		if ad.settings.DownloadAutomatically {
 
+			if ad.torrentClientRepository == nil {
+				ad.logger.Error().Msg("autodownloader: torrent client not found")
+				return false
+			}
+
 			//
 			// Torrent client
 			//
@@ -803,21 +1099,46 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 		}
 	}
 
-	ad.logger.Info().Str("name", t.Name).Msg("autodownloader: Added torrent")
 	ad.wsEventManager.SendEvent(events.AutoDownloaderItemAdded, t.Name)
 
-	// Add the torrent to the database
-	item := &models.AutoDownloaderItem{
-		RuleID:      rule.DbID,
-		MediaID:     rule.MediaId,
-		Episode:     episode,
-		Link:        t.Link,
-		Hash:        t.InfoHash,
-		Magnet:      magnet,
-		TorrentName: t.Name,
-		Downloaded:  downloaded,
+	// Serialize torrent data for storage
+	torrentData, err := json.Marshal(t)
+	if err != nil {
+		ad.logger.Error().Err(err).Msg("autodownloader: Failed to serialize torrent data")
+		torrentData = nil
 	}
-	_ = ad.database.InsertAutoDownloaderItem(item)
+
+	// Update or insert the torrent in the database
+	if existingItem != nil {
+		// Update existing delayed item
+		existingItem.Link = t.Link
+		existingItem.Hash = t.InfoHash
+		existingItem.Magnet = magnet
+		existingItem.TorrentName = t.Name
+		existingItem.Downloaded = downloaded
+		existingItem.IsDelayed = false
+		existingItem.Score = score
+		existingItem.TorrentData = torrentData
+		_ = ad.database.UpdateAutoDownloaderItem(existingItem.ID, existingItem)
+		ad.logger.Info().Str("name", t.Name).Bool("downloaded", downloaded).Msg("autodownloader: Updated queued item")
+	} else {
+		// Insert new item
+		item := &models.AutoDownloaderItem{
+			RuleID:      rule.DbID,
+			MediaID:     rule.MediaId,
+			Episode:     episode,
+			Link:        t.Link,
+			Hash:        t.InfoHash,
+			Magnet:      magnet,
+			TorrentName: t.Name,
+			Downloaded:  downloaded,
+			IsDelayed:   false,
+			Score:       score,
+			TorrentData: torrentData,
+		}
+		_ = ad.database.InsertAutoDownloaderItem(item)
+		ad.logger.Info().Str("name", t.Name).Bool("downloaded", downloaded).Msg("autodownloader: Added item to queue")
+	}
 
 	// Event
 	afterEvent := &AutoDownloaderAfterDownloadTorrentEvent{

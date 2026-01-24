@@ -40,7 +40,7 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 	wg := sync.WaitGroup{}
 	rateLimiter := limiter.NewLimiter(time.Second, 2)
 
-	//// Check if we should use the default provider for rules/profiles that don't specify one
+	// Check if we should use the default provider for rules/profiles that don't specify one
 	defaultProv, hasDefault := ad.torrentRepository.GetDefaultAnimeProviderExtension()
 
 	for _, providerExt := range providers {
@@ -120,7 +120,7 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 						break
 					}
 					rateLimiter.Wait()
-					ad.logger.Debug().Str("releaseGroup", releaseGroup).Str("resolution", resolution).Msg("autodownloader: Searching for torrents")
+					ad.logger.Debug().Str("extensionId", providerExt.GetID()).Str("releaseGroup", releaseGroup).Str("resolution", resolution).Msg("autodownloader: Searching for torrents")
 					res, err := pExt.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
 						Media: hibiketorrent.Media{},
 						Query: releaseGroup + " " + resolution,
@@ -146,7 +146,7 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 				// Search without resolution as a fallback if nothing found for specific resolutions
 				if !foundForGroup {
 					rateLimiter.Wait()
-					ad.logger.Debug().Str("releaseGroup", releaseGroup).Msg("autodownloader: Searching for torrents without resolution")
+					ad.logger.Debug().Str("extensionId", providerExt.GetID()).Str("releaseGroup", releaseGroup).Msg("autodownloader: Searching for torrents without resolution")
 					res, err := pExt.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
 						Media: hibiketorrent.Media{},
 						Query: releaseGroup,

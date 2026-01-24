@@ -78,6 +78,12 @@ type (
 		MinSeeders   int    `json:"minSeeders,omitempty"`
 		MinSize      string `json:"minSize,omitempty"`
 		MaxSize      string `json:"maxSize,omitempty"`
+
+		// Delay download by X minutes to wait for better quality/repacks
+		DelayMinutes int `json:"delayMinutes"`
+		// If a torrent score hits this threshold, skip the delay and download/queue immediately
+		SkipDelayScore int `json:"skipDelayScore"`
+
 		// Providers (extension IDs) If set, only torrents from these providers are considered.
 		Providers []string `json:"providers"`
 	}

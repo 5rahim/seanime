@@ -1,22 +1,24 @@
 import { Models_AutoDownloaderItem } from "@/api/generated/types"
 import { useDeleteAutoDownloaderItem } from "@/api/hooks/auto_downloader.hooks"
 import { useTorrentClientAddMagnetFromRule } from "@/api/hooks/torrent_client.hooks"
+import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { formatDateAndTimeShort } from "@/lib/server/utils"
+import { formatDistanceToNowSafe } from "@/lib/helpers/date"
+import Image from "next/image"
 import React from "react"
 import { BiDownload, BiTrash } from "react-icons/bi"
 
-type AutoDownloaderItemListProps = {
+type AutoDownloaderQueueProps = {
     children?: React.ReactNode
     items: Models_AutoDownloaderItem[] | undefined
     isLoading: boolean
 }
 
-export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
+export function AutodownloaderQueue(props: AutoDownloaderQueueProps) {
 
     const {
         children,
@@ -26,6 +28,8 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
     } = props
 
     const serverStatus = useServerStatus()
+
+    const userMedia = useAnilistUserAnime()
 
     const { mutate: deleteItem, isPending } = useDeleteAutoDownloaderItem()
 
@@ -48,22 +52,36 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
                     Queue is empty
                 </p>
             )}
-            {data?.map((item) => (
-                <div className="rounded-[--radius] p-3 bg-gray-900" key={item.id}>
-                    <div className="flex items-center justify-between">
+            {data?.map((item) => {
+                const media = userMedia?.find(m => m.id === item.mediaId)
+                return <div className="rounded-[--radius] p-3 bg-gray-900" key={item.id}>
+                    <div className="flex items-center gap-4">
+                        <div className="size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none">
+                            <Image
+                                src={media?.coverImage?.medium ?? "/no-cover.png"}
+                                alt="cover"
+                                sizes="2rem"
+                                fill
+                                className="object-cover object-center"
+                            />
+                        </div>
                         <div>
                             <h3 className="text-sm font-medium tracking-wide">{item.torrentName}</h3>
-                            <p className="text-sm text-gray-400 flex gap-2 items-center">
-                                {item.downloaded && <span className="text-green-200">File downloaded </span>}
-                                {!item.downloaded && <span className="text-brand-300 italic">Queued </span>}
-                                {item.createdAt && formatDateAndTimeShort(item.createdAt)}
+                            <p className="text-md text-gray-400 flex gap-2 items-center">
+                                {item.downloaded && <span className="text-green-200">File downloaded</span>}
+                                {!item.downloaded && !item.isDelayed && <span className="text-blue-300 italic">Manual action required</span>}
+                                {item.isDelayed && <span className="text-indigo-300 italic">Delayed</span>}
+                                {item.isDelayed && item.delayUntil &&
+                                    <span>for {formatDistanceToNowSafe(item.delayUntil, { addSuffix: false })}.</span>}
                             </p>
+                            {item.createdAt && <span className="text-[--muted] text-sm">Added {formatDistanceToNowSafe(item.createdAt)}</span>}
                             {item.downloaded && (
                                 <p className="text-sm text-[--muted]">
                                     Not yet scanned
                                 </p>
                             )}
                         </div>
+                        <div className="flex-1"></div>
                         <div className="flex gap-2 items-center">
                             {!item.downloaded && (
                                 <>
@@ -113,7 +131,7 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
                         </div>
                     </div>
                 </div>
-            ))}
+            })}
         </Card>
     )
 }

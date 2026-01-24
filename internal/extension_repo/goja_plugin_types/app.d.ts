@@ -2963,6 +2963,8 @@ declare namespace $app {
         minSeeders?: number;
         minSize?: string;
         maxSize?: string;
+        delayMinutes: number;
+        skipDelayScore: number;
         providers?: Array<string>;
     }
 
@@ -3700,6 +3702,8 @@ declare namespace $app {
         magnet: string;
         torrentName: string;
         downloaded: boolean;
+        isDelayed: boolean;
+        delayUntil?: string;
         id: number;
         createdAt?: string;
         updatedAt?: string;

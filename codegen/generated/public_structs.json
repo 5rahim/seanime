@@ -30268,6 +30268,25 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IsDelayed",
+        "jsonName": "isDelayed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DelayUntil",
+        "jsonName": "delayUntil",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -44564,6 +44583,24 @@
         "comments": []
       },
       {
+        "name": "DelayMinutes",
+        "jsonName": "delayMinutes",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SkipDelayScore",
+        "jsonName": "skipDelayScore",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Providers",
         "jsonName": "providers",
         "goType": "[]string",
@@ -48067,6 +48104,92 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "simulationResults",
+        "jsonName": "simulationResults",
+        "goType": "[]SimulationResult",
+        "typescriptType": "Array\u003cAutoDownloader_SimulationResult\u003e",
+        "usedTypescriptType": "AutoDownloader_SimulationResult",
+        "usedStructName": "autodownloader.SimulationResult",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Stores results when running in simulation mode"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/autodownloader/autodownloader.go",
+    "filename": "autodownloader.go",
+    "name": "SimulationResult",
+    "formattedName": "AutoDownloader_SimulationResult",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "RuleID",
+        "jsonName": "RuleID",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaID",
+        "jsonName": "MediaID",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "Episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Link",
+        "jsonName": "Link",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "Hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentName",
+        "jsonName": "TorrentName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "Score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -48166,6 +48289,38 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library/autodownloader/autodownloader.go",
+    "filename": "autodownloader.go",
+    "name": "Candidate",
+    "formattedName": "AutoDownloader_Candidate",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "NormalizedTorrent",
+        "typescriptType": "AutoDownloader_NormalizedTorrent",
+        "usedTypescriptType": "AutoDownloader_NormalizedTorrent",
+        "usedStructName": "autodownloader.NormalizedTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "Score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Candidate represents a potential torrent to download with its score"
+    ]
+  },
+  {
     "filepath": "../internal/library/autodownloader/autodownloader_torrent.go",
     "filename": "autodownloader_torrent.go",
     "name": "NormalizedTorrent",
@@ -48208,6 +48363,70 @@
     "embeddedStructNames": [
       "hibiketorrent.AnimeTorrent"
     ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/fake.go",
+    "filename": "fake.go",
+    "name": "Fake",
+    "formattedName": "AutoDownloader_Fake",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "SearchResults",
+        "jsonName": "SearchResults",
+        "goType": "[]hibiketorrent.AnimeTorrent",
+        "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "GetLatestResults",
+        "jsonName": "GetLatestResults",
+        "goType": "[]hibiketorrent.AnimeTorrent",
+        "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/autodownloader/fake.go",
+    "filename": "fake.go",
+    "name": "FakeTorrentProvider",
+    "formattedName": "AutoDownloader_FakeTorrentProvider",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "fake",
+        "jsonName": "fake",
+        "goType": "Fake",
+        "typescriptType": "AutoDownloader_Fake",
+        "usedTypescriptType": "AutoDownloader_Fake",
+        "usedStructName": "autodownloader.Fake",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/library/autodownloader/hook_events.go",

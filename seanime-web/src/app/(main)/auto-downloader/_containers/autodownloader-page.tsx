@@ -11,8 +11,8 @@ import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AutoDownloaderRuleItem } from "@/app/(main)/auto-downloader/_components/autodownloader-rule-item"
 import { AutoDownloaderBatchRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-batch-rule-form"
-import { AutoDownloaderItemList } from "@/app/(main)/auto-downloader/_containers/autodownloader-item-list"
 import { AutoDownloaderProfiles } from "@/app/(main)/auto-downloader/_containers/autodownloader-profiles"
+import { AutodownloaderQueue } from "@/app/(main)/auto-downloader/_containers/autodownloader-queue"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
@@ -199,7 +199,7 @@ export function AutoDownloaderPage() {
                 <TabsContent value="queue" className={tabContentClass}>
 
                     <div className="pt-4">
-                        <AutoDownloaderItemList items={items} isLoading={itemsLoading} />
+                        <AutodownloaderQueue items={items} isLoading={itemsLoading} />
                     </div>
 
                 </TabsContent>

@@ -98,7 +98,7 @@ function ProfileItem({ profile, onEdit }: { profile: Anime_AutoDownloaderProfile
     return (
         <>
             <Card className="p-3 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full">
                     <div className="size-10 rounded-full bg-[--subtle] flex items-center justify-center">
                         <PiTargetBold
                             className={cn(
@@ -107,21 +107,23 @@ function ProfileItem({ profile, onEdit }: { profile: Anime_AutoDownloaderProfile
                             )}
                         />
                     </div>
-                    <div>
-                        <h4 className="font-semibold flex items-center gap-2">
+                    <div className="w-full">
+                        <h5 className="font-semibold flex items-center gap-2 line-clamp-1">
                             {profile.name}
                             {profile.global && <span className="text-xs bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-md">Global</span>}
-                        </h4>
-                        <p className="text-sm text-[--muted] line-clamp-1">
-                            {!!profile.resolutions?.length && <span>{profile.resolutions.join(", ")} • </span>}
-                            <span>{profile.conditions?.length} condition{(profile.conditions?.length !== 1) ? "s" : ""} • {profile.minimumScore} min
-                                                               score</span>
+                        </h5>
+                        <div className="text-sm text-[--muted] line-clamp-1 gap-2 space-x-3">
+                            {!!profile.resolutions?.length && <span className="!pl-0">{profile.resolutions.join(", ")}</span>}
+                            {!!profile.conditions?.length &&
+                                <span>{profile.conditions?.length} condition{(profile.conditions?.length !== 1) ? "s" : ""}</span>}
+                            {!!profile.minimumScore && <span>{`>=`} {profile.minimumScore}</span>}
+                            {!!profile.delayMinutes && <span>{profile.delayMinutes} min. delay</span>}
 
-                        </p>
+                        </div>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 mr-4">
+                    <div className="items-center gap-2 mr-4 hidden lg:flex">
                         <span className="text-sm text-[--muted]">Global</span>
                         <Switch
                             value={profile.global}
@@ -139,7 +141,7 @@ function ProfileItem({ profile, onEdit }: { profile: Anime_AutoDownloaderProfile
                         Edit
                     </Button>
                     <IconButton
-                        intent="alert-subtle"
+                        intent="alert-basic"
                         size="sm"
                         icon={<BiTrash />}
                         onClick={() => confirmDialog.open()}

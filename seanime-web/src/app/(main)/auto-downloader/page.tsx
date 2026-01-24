@@ -16,7 +16,7 @@ export default function Page() {
                     <div>
                         <h2>Auto Downloader</h2>
                         <p className="text-[--muted]">
-                            Add and manage auto-downloading rules for your favorite anime.
+                            Automatically download new episodes as they are released.
                         </p>
                     </div>
                 </div>

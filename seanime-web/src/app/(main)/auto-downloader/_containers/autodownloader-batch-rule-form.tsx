@@ -11,7 +11,11 @@ import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-load
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { AutoDownloaderMediaCombobox, useAutoDownloaderMediaList } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
+import {
+    _autoDownloader_listActiveMediaOnlyAtom,
+    AutoDownloaderMediaCombobox,
+    useAutoDownloaderMediaList,
+} from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import {
     AdditionalTermsField,
     ExcludeTermsField,
@@ -26,7 +30,7 @@ import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { upath } from "@/lib/helpers/upath"
-import { useAtomValue } from "jotai/react"
+import { useAtom, useAtomValue } from "jotai/react"
 import { uniq } from "lodash"
 import React from "react"
 import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form"
@@ -56,7 +60,7 @@ const schema = defineSchema(({ z, presets }) => z.object({
     minSeeders: z.number().min(0).optional().default(0),
     minSize: z.string().optional().default(""),
     maxSize: z.string().optional().default(""),
-    providers: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
+    providers: z.array(z.string()).optional().transform(value => !value?.length ? [] : uniq(value.filter(Boolean))),
     profileId: presets.multiSelect,
 }))
 
@@ -292,8 +296,11 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
         name: props.name,
     })
 
+    const userMedia = useAnilistUserAnime()
+
     const entriesAdded = useWatch({ name: "entries" }) as any[]
     const anilistListData = useAtomValue(__anilist_userAnimeListDataAtom)
+    const [showReleasingOnly, setShowReleasingOnly] = useAtom(_autoDownloader_listActiveMediaOnlyAtom)
 
     const handleFieldChange = (index: number, updatedValues: Partial<MediaEntry>, field: MediaEntry) => {
         if ("mediaId" in updatedValues) {
@@ -316,13 +323,35 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
         const existingRuleMediaIds = new Set(props.rules.map(rule => rule.mediaId))
 
         // Filter media that are currently watching and don't have rules
-        const currentlyWatchingMedia = props.allMedia.filter(media => {
+        const currentlyWatchingMedia = userMedia?.filter(media => {
             const listData = anilistListData[String(media.id)]
             return listData?.status === "CURRENT" && !existingRuleMediaIds.has(media.id)
-        })
+        }) ?? []
 
-        // Add entries for all currently watching anime
+        setShowReleasingOnly("all")
+
         currentlyWatchingMedia.forEach(media => {
+            const sanitizedTitle = sanitizeDirectoryName(media.title?.userPreferred || "")
+            append({
+                mediaId: media.id,
+                destination: upath.join(props.libraryPath, sanitizedTitle),
+                comparisonTitle: sanitizedTitle,
+            })
+        })
+    }
+
+    function handleAddUpcoming() {
+        // Get media ids that already have rules
+        const existingRuleMediaIds = new Set(props.rules.map(rule => rule.mediaId))
+
+        // Filter media that are upcoming and don't have rules
+        const upcomingMedia = userMedia?.filter(media => {
+            return media.status === "NOT_YET_RELEASED" && !existingRuleMediaIds.has(media.id)
+        }) ?? []
+
+        setShowReleasingOnly("all")
+
+        upcomingMedia.forEach(media => {
             const sanitizedTitle = sanitizeDirectoryName(media.title?.userPreferred || "")
             append({
                 mediaId: media.id,
@@ -370,6 +399,14 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                     leftIcon={<BiPlus />}
                 >
                     All Currently Watching
+                </Button>}
+                {!entriesAdded?.length && <Button
+                    intent="gray-subtle"
+                    className="rounded-full"
+                    onClick={handleAddUpcoming}
+                    leftIcon={<BiPlus />}
+                >
+                    All Upcoming
                 </Button>}
             </div>
         </div>

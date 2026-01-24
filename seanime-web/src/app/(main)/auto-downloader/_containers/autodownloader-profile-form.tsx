@@ -41,6 +41,8 @@ type FormData = {
     minSize: string
     maxSize: string
     providers: string[]
+    delayMinutes: number
+    skipDelayScore: number
 }
 
 const formDataAtom = atomWithImmer<FormData>({
@@ -53,6 +55,8 @@ const formDataAtom = atomWithImmer<FormData>({
     minSize: "",
     maxSize: "",
     providers: [],
+    delayMinutes: 0,
+    skipDelayScore: 0,
 })
 
 type AutoDownloaderProfileFormProps = {
@@ -85,6 +89,8 @@ export function AutoDownloaderProfileForm(props: AutoDownloaderProfileFormProps)
             draft.minSize = profile?.minSize ?? ""
             draft.maxSize = profile?.maxSize ?? ""
             draft.providers = profile?.providers ?? []
+            draft.delayMinutes = profile?.delayMinutes ?? 0
+            draft.skipDelayScore = profile?.skipDelayScore ?? 0
             return
         })
     }, [profile])
@@ -212,6 +218,45 @@ export function AutoDownloaderProfileForm(props: AutoDownloaderProfileFormProps)
             </div>
 
             <ProvidersFieldControlled />
+
+            <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Delay</div>
+                <p className="text-sm">
+                    Wait for better releases before downloading. The delay period will start once a first match is found.
+                    Global profile delays will be ignored if this profile is assigned to a rule.
+                </p>
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Delay</label>
+                    <NumberInput
+                        value={formData.delayMinutes}
+                        onValueChange={(v) => setFormData(draft => {
+                            draft.delayMinutes = v || 0
+                            return
+                        })}
+                        placeholder="0"
+                        min={0}
+                        formatOptions={{ useGrouping: false }}
+                        rightAddon="minutes"
+                        help="Wait this many minutes before downloading"
+                    />
+                </div>
+                {formData.delayMinutes > 0 && (
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Skip Delay Score</label>
+                        <NumberInput
+                            value={formData.skipDelayScore}
+                            onValueChange={(v) => setFormData(draft => {
+                                draft.skipDelayScore = v || 0
+                                return
+                            })}
+                            placeholder="0"
+                            formatOptions={{ useGrouping: false }}
+                            help="Skip the delay if torrent score exceeds this value"
+                        />
+                        <p className="text-sm text-[--muted]"></p>
+                    </div>
+                )}
+            </div>
 
             <div className="flex justify-end">
                 <Button

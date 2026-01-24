@@ -1351,6 +1351,8 @@ export type Anime_AutoDownloaderProfile = {
     minSeeders?: number
     minSize?: string
     maxSize?: string
+    delayMinutes: number
+    skipDelayScore: number
     providers?: Array<string>
 }
 
@@ -3581,6 +3583,8 @@ export type Models_AutoDownloaderItem = {
     magnet: string
     torrentName: string
     downloaded: boolean
+    isDelayed: boolean
+    delayUntil?: string
     id: number
     createdAt?: string
     updatedAt?: string

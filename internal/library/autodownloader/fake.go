@@ -9,9 +9,6 @@ import (
 	"seanime/internal/extension"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/test_utils"
-	"seanime/internal/torrent_clients/qbittorrent"
-	"seanime/internal/torrent_clients/torrent_client"
-	"seanime/internal/torrent_clients/transmission"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
@@ -23,6 +20,7 @@ import (
 type Fake struct {
 	SearchResults    []*hibiketorrent.AnimeTorrent
 	GetLatestResults []*hibiketorrent.AnimeTorrent
+	Database         *db.Database
 }
 
 type FakeTorrentProvider struct {
@@ -65,6 +63,8 @@ func (f *Fake) New(t *testing.T) *AutoDownloader {
 	database, err := db.NewDatabase("", test_utils.ConfigData.Database.Name, logger)
 	require.NoError(t, err)
 
+	f.Database = database
+
 	filecacher, err := filecache.NewCacher(t.TempDir())
 	require.NoError(t, err)
 
@@ -94,17 +94,17 @@ func (f *Fake) New(t *testing.T) *AutoDownloader {
 	})
 
 	metadataProviderRef := util.NewRef[metadata_provider.Provider](metadataProvider)
-	torrentClientRepository := torrent_client.NewRepository(&torrent_client.NewRepositoryOptions{
-		Logger:              logger,
-		QbittorrentClient:   &qbittorrent.Client{},
-		Transmission:        &transmission.Transmission{},
-		TorrentRepository:   torrentRepository,
-		Provider:            "",
-		MetadataProviderRef: nil,
-	})
+	//torrentClientRepository := torrent_client.NewRepository(&torrent_client.NewRepositoryOptions{
+	//	Logger:              logger,
+	//	QbittorrentClient:   &qbittorrent.Client{},
+	//	Transmission:        &transmission.Transmission{},
+	//	TorrentRepository:   torrentRepository,
+	//	Provider:            "",
+	//	MetadataProviderRef: nil,
+	//})
 	ad := New(&NewAutoDownloaderOptions{
 		Logger:                  logger,
-		TorrentClientRepository: torrentClientRepository,
+		TorrentClientRepository: nil,
 		TorrentRepository:       torrentRepository,
 		WSEventManager:          events.NewMockWSEventManager(logger),
 		Database:                database,
