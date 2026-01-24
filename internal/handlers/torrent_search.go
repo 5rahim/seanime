@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"seanime/internal/api/anilist"
+	"seanime/internal/database/db_bridge"
 	"seanime/internal/debrid/debrid"
+	"seanime/internal/library/anime"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util/result"
 	"strings"
@@ -78,4 +80,63 @@ func (h *Handler) HandleSearchTorrent(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, data)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleGetAutoSelectProfile
+//
+//	@summary returns the autoselect profile.
+//	@desc This returns the single autoselect profile if it exists.
+//	@route /api/v1/auto-select/profile [GET]
+//	@returns anime.AutoSelectProfile
+func (h *Handler) HandleGetAutoSelectProfile(c echo.Context) error {
+	profile, err := db_bridge.GetAutoSelectProfile(h.App.Database)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, profile)
+}
+
+// HandleSaveAutoSelectProfile
+//
+//	@summary creates or updates the autoselect profile.
+//	@desc Since there's only one profile at all time, this will create or update it.
+//	@route /api/v1/auto-select/profile [POST]
+//	@returns anime.AutoSelectProfile
+func (h *Handler) HandleSaveAutoSelectProfile(c echo.Context) error {
+	type body struct {
+		Profile *anime.AutoSelectProfile `json:"profile"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if err := db_bridge.SaveAutoSelectProfile(h.App.Database, b.Profile); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	// Get the saved profile to return it with the DB ID
+	profile, err := db_bridge.GetAutoSelectProfile(h.App.Database)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, profile)
+}
+
+// HandleDeleteAutoSelectProfile
+//
+//	@summary deletes the autoselect profile.
+//	@route /api/v1/auto-select/profile [DELETE]
+//	@returns bool
+func (h *Handler) HandleDeleteAutoSelectProfile(c echo.Context) error {
+	if err := db_bridge.DeleteAutoSelectProfile(h.App.Database); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, true)
 }

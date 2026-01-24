@@ -21,7 +21,7 @@ const nextConfig = {
     devIndicators: false,
     allowedDevOrigins: ["127.0.0.1", "localhost"],
     experimental: {
-        optimizePackageImports: ["react-icons", "lodash", "date-fns"],
+        // optimizePackageImports: ["react-icons", "lodash", "date-fns"],
         isolatedDevBuild: true,
         browserDebugInfoInTerminal: false,
     },

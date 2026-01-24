@@ -10422,6 +10422,103 @@
     }
   },
   {
+    "name": "HandleGetAutoSelectProfile",
+    "trimmedName": "GetAutoSelectProfile",
+    "comments": [
+      "HandleGetAutoSelectProfile",
+      "",
+      "\t@summary returns the autoselect profile.",
+      "\t@desc This returns the single autoselect profile if it exists.",
+      "\t@route /api/v1/auto-select/profile [GET]",
+      "\t@returns anime.AutoSelectProfile",
+      ""
+    ],
+    "filepath": "internal/handlers/torrent_search.go",
+    "filename": "torrent_search.go",
+    "api": {
+      "summary": "returns the autoselect profile.",
+      "descriptions": [
+        "This returns the single autoselect profile if it exists."
+      ],
+      "endpoint": "/api/v1/auto-select/profile",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "anime.AutoSelectProfile",
+      "returnGoType": "anime.AutoSelectProfile",
+      "returnTypescriptType": "Anime_AutoSelectProfile"
+    }
+  },
+  {
+    "name": "HandleSaveAutoSelectProfile",
+    "trimmedName": "SaveAutoSelectProfile",
+    "comments": [
+      "HandleSaveAutoSelectProfile",
+      "",
+      "\t@summary creates or updates the autoselect profile.",
+      "\t@desc Since there's only one profile at all time, this will create or update it.",
+      "\t@route /api/v1/auto-select/profile [POST]",
+      "\t@returns anime.AutoSelectProfile",
+      ""
+    ],
+    "filepath": "internal/handlers/torrent_search.go",
+    "filename": "torrent_search.go",
+    "api": {
+      "summary": "creates or updates the autoselect profile.",
+      "descriptions": [
+        "Since there's only one profile at all time, this will create or update it."
+      ],
+      "endpoint": "/api/v1/auto-select/profile",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Profile",
+          "jsonName": "profile",
+          "goType": "anime.AutoSelectProfile",
+          "usedStructType": "anime.AutoSelectProfile",
+          "typescriptType": "Anime_AutoSelectProfile",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "anime.AutoSelectProfile",
+      "returnGoType": "anime.AutoSelectProfile",
+      "returnTypescriptType": "Anime_AutoSelectProfile"
+    }
+  },
+  {
+    "name": "HandleDeleteAutoSelectProfile",
+    "trimmedName": "DeleteAutoSelectProfile",
+    "comments": [
+      "HandleDeleteAutoSelectProfile",
+      "",
+      "\t@summary deletes the autoselect profile.",
+      "\t@route /api/v1/auto-select/profile [DELETE]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/torrent_search.go",
+    "filename": "torrent_search.go",
+    "api": {
+      "summary": "deletes the autoselect profile.",
+      "descriptions": [],
+      "endpoint": "/api/v1/auto-select/profile",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleGetTorrentstreamSettings",
     "trimmedName": "GetTorrentstreamSettings",
     "comments": [

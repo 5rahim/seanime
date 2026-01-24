@@ -2147,6 +2147,31 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/torrent/search",
         },
+        /**
+         *  @description
+         *  Route returns the autoselect profile.
+         *  This returns the single autoselect profile if it exists.
+         */
+        GetAutoSelectProfile: {
+            key: "TORRENT-SEARCH-get-auto-select-profile",
+            methods: ["GET"],
+            endpoint: "/api/v1/auto-select/profile",
+        },
+        /**
+         *  @description
+         *  Route creates or updates the autoselect profile.
+         *  Since there's only one profile at all time, this will create or update it.
+         */
+        SaveAutoSelectProfile: {
+            key: "TORRENT-SEARCH-save-auto-select-profile",
+            methods: ["POST"],
+            endpoint: "/api/v1/auto-select/profile",
+        },
+        DeleteAutoSelectProfile: {
+            key: "TORRENT-SEARCH-delete-auto-select-profile",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/auto-select/profile",
+        },
     },
     TORRENTSTREAM: {
         /**

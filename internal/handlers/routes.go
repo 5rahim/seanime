@@ -285,6 +285,14 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.POST("/torrent-client/rule-magnet", h.HandleTorrentClientAddMagnetFromRule)
 
 	//
+	// Auto Select
+	//
+
+	v1.GET("/auto-select/profile", h.HandleGetAutoSelectProfile)
+	v1.POST("/auto-select/profile", h.HandleSaveAutoSelectProfile)
+	v1.DELETE("/auto-select/profile", h.HandleDeleteAutoSelectProfile)
+
+	//
 	// Download
 	//
 

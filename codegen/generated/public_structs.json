@@ -30193,6 +30193,28 @@
   {
     "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
+    "name": "AutoSelectProfile",
+    "formattedName": "Models_AutoSelectProfile",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
     "name": "AutoDownloaderItem",
     "formattedName": "Models_AutoDownloaderItem",
     "package": "models",
@@ -44696,6 +44718,229 @@
         "comments": [
           " Only used if Action == \"score\""
         ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autoselect_types.go",
+    "filename": "autoselect_types.go",
+    "name": "AutoSelectProfileRuleConditionAction",
+    "formattedName": "Anime_AutoSelectProfileRuleConditionAction",
+    "package": "anime",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": []
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autoselect_types.go",
+    "filename": "autoselect_types.go",
+    "name": "AutoSelectPreference",
+    "formattedName": "Anime_AutoSelectPreference",
+    "package": "anime",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"neutral\"",
+        "\"prefer\"",
+        "\"avoid\"",
+        "\"only\"",
+        "\"never\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autoselect_types.go",
+    "filename": "autoselect_types.go",
+    "name": "AutoSelectProfile",
+    "formattedName": "Anime_AutoSelectProfile",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "DbID",
+        "jsonName": "dbId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Providers",
+        "jsonName": "providers",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Ordered list of preferred providers (max 3)"
+        ]
+      },
+      {
+        "name": "ReleaseGroups",
+        "jsonName": "releaseGroups",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Preferred groups (e.g., [\"SubsPlease\", \"Erai-raws\"])"
+        ]
+      },
+      {
+        "name": "Resolutions",
+        "jsonName": "resolutions",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Preferred resolutions (e.g., [\"1080p\", \"720p\"])"
+        ]
+      },
+      {
+        "name": "ExcludeTerms",
+        "jsonName": "excludeTerms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Can exclude terms like \"CamRip\""
+        ]
+      },
+      {
+        "name": "PreferredLanguages",
+        "jsonName": "preferredLanguages",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Ordered list, e.g. [\"jp\", \"en\"]"
+        ]
+      },
+      {
+        "name": "PreferredCodecs",
+        "jsonName": "preferredCodecs",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Ordered list, e.g. [\"HEVC, x265, H.265\", \"AVC, x264\"]"
+        ]
+      },
+      {
+        "name": "PreferredSources",
+        "jsonName": "preferredSources",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Ordered list, e.g. [\"BDRip, BD RIP\", \"AT-X\"]"
+        ]
+      },
+      {
+        "name": "MultipleAudioPreference",
+        "jsonName": "multipleAudioPreference",
+        "goType": "AutoSelectPreference",
+        "typescriptType": "Anime_AutoSelectPreference",
+        "usedTypescriptType": "Anime_AutoSelectPreference",
+        "usedStructName": "anime.AutoSelectPreference",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MultipleSubsPreference",
+        "jsonName": "multipleSubsPreference",
+        "goType": "AutoSelectPreference",
+        "typescriptType": "Anime_AutoSelectPreference",
+        "usedTypescriptType": "Anime_AutoSelectPreference",
+        "usedStructName": "anime.AutoSelectPreference",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BatchPreference",
+        "jsonName": "batchPreference",
+        "goType": "AutoSelectPreference",
+        "typescriptType": "Anime_AutoSelectPreference",
+        "usedTypescriptType": "Anime_AutoSelectPreference",
+        "usedStructName": "anime.AutoSelectPreference",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RequireLanguage",
+        "jsonName": "requireLanguage",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Reject if no preferred language is found"
+        ]
+      },
+      {
+        "name": "RequireCodec",
+        "jsonName": "requireCodec",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Reject if no preferred codec is found"
+        ]
+      },
+      {
+        "name": "RequireSource",
+        "jsonName": "requireSource",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Reject if no preferred source is found"
+        ]
+      },
+      {
+        "name": "MinSeeders",
+        "jsonName": "minSeeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinSize",
+        "jsonName": "minSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxSize",
+        "jsonName": "maxSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []

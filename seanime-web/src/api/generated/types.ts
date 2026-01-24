@@ -1405,6 +1405,68 @@ export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected"
 export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
 
 /**
+ * - Filepath: internal/library/anime/autoselect_types.go
+ * - Filename: autoselect_types.go
+ * - Package: anime
+ */
+export type Anime_AutoSelectPreference = "neutral" | "prefer" | "avoid" | "only" | "never"
+
+/**
+ * - Filepath: internal/library/anime/autoselect_types.go
+ * - Filename: autoselect_types.go
+ * - Package: anime
+ */
+export type Anime_AutoSelectProfile = {
+    dbId: number
+    /**
+     * Ordered list of preferred providers (max 3)
+     */
+    providers?: Array<string>
+    /**
+     * Preferred groups (e.g., ["SubsPlease", "Erai-raws"])
+     */
+    releaseGroups?: Array<string>
+    /**
+     * Preferred resolutions (e.g., ["1080p", "720p"])
+     */
+    resolutions?: Array<string>
+    /**
+     * Can exclude terms like "CamRip"
+     */
+    excludeTerms?: Array<string>
+    /**
+     * Ordered list, e.g. ["jp", "en"]
+     */
+    preferredLanguages?: Array<string>
+    /**
+     * Ordered list, e.g. ["HEVC, x265, H.265", "AVC, x264"]
+     */
+    preferredCodecs?: Array<string>
+    /**
+     * Ordered list, e.g. ["BDRip, BD RIP", "AT-X"]
+     */
+    preferredSources?: Array<string>
+    multipleAudioPreference: Anime_AutoSelectPreference
+    multipleSubsPreference: Anime_AutoSelectPreference
+    batchPreference: Anime_AutoSelectPreference
+    /**
+     * Reject if no preferred language is found
+     */
+    requireLanguage: boolean
+    /**
+     * Reject if no preferred codec is found
+     */
+    requireCodec: boolean
+    /**
+     * Reject if no preferred source is found
+     */
+    requireSource: boolean
+    minSeeders?: number
+    minSize?: string
+    maxSize?: string
+}
+
+/**
  * - Filepath: internal/library/anime/entry.go
  * - Filename: entry.go
  * - Package: anime

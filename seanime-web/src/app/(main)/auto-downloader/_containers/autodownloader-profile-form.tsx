@@ -113,10 +113,14 @@ export function AutoDownloaderProfileForm(props: AutoDownloaderProfileFormProps)
             return
         }
 
+        // Filter out empty values
+        const filterEmptyReleaseGroups = formData.releaseGroups.filter(rg => rg.value.trim() !== "").map(rg => rg.value)
+        const filterEmptyResolutions = formData.resolutions.filter(r => r.value.trim() !== "").map(r => r.value)
+
         const data = {
             ...formData,
-            releaseGroups: formData.releaseGroups.map(rg => rg.value),
-            resolutions: formData.resolutions.map(r => r.value),
+            releaseGroups: filterEmptyReleaseGroups,
+            resolutions: filterEmptyResolutions,
             conditions: formData.conditions.map(c => ({
                 ...c,
                 action: c.action as Anime_AutoDownloaderProfileRuleFormatAction,
@@ -380,7 +384,8 @@ function ReleaseGroupsSortableField() {
                                     />
                                     <IconButton
                                         icon={<BiTrash />}
-                                        intent="alert-subtle"
+                                        intent="alert-basic"
+                                        size="sm"
                                         onClick={() => handleRemove(item.id)}
                                         type="button"
                                     />
@@ -489,9 +494,10 @@ function ResolutionsSortableField() {
                                     />
                                     <IconButton
                                         icon={<BiTrash />}
-                                        intent="alert-subtle"
+                                        intent="alert-basic"
                                         onClick={() => handleRemove(item.id)}
                                         type="button"
+                                        size="sm"
                                     />
                                 </div>
                             </SortableItem>
@@ -655,7 +661,7 @@ function ConditionItem(props: ConditionItemProps) {
                         />
                         <IconButton
                             icon={<BiTrash />}
-                            intent="alert-subtle"
+                            intent="alert-basic"
                             onClick={onRemove}
                             size="sm"
                             type="button"
@@ -682,10 +688,15 @@ function SortableItem({ id, children }: { id: string, children: React.ReactNode 
     }
 
     return (
-        <div ref={setNodeRef} style={style} className="flex items-start gap-2 bg-gray-900 p-2 rounded-lg">
-            <div {...attributes} {...listeners} className="cursor-move text-[--muted] hover:text-[--foreground] mt-2">
-                <BiMenu className="text-xl" />
-            </div>
+        <div ref={setNodeRef} style={style} className="flex items-center gap-2 bg-gray-900 p-2 rounded-lg">
+            <IconButton
+                {...attributes}
+                {...listeners}
+                icon={<BiMenu />}
+                size="sm"
+                intent="gray-basic"
+                className="cursor-grab active:cursor-grabbing"
+            />
             {children}
         </div>
     )

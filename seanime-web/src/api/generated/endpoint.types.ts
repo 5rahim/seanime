@@ -10,6 +10,7 @@ import type {
     AL_MediaSort,
     AL_MediaStatus,
     Anime_AutoDownloaderRule,
+    Anime_AutoSelectProfile,
     Anime_LocalFileMetadata,
     Anime_PlaylistEpisode,
     ChapterDownloader_DownloadID,
@@ -1971,6 +1972,17 @@ export type SearchTorrent_Variables = {
     absoluteOffset?: number
     resolution?: string
     bestRelease?: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/torrent_search.go
+ * - Filename: torrent_search.go
+ * - Endpoint: /api/v1/auto-select/profile
+ * @description
+ * Route creates or updates the autoselect profile.
+ */
+export type SaveAutoSelectProfile_Variables = {
+    profile?: Anime_AutoSelectProfile
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

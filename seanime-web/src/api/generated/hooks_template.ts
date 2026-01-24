@@ -2631,6 +2631,37 @@
 //     })
 // }
 
+// export function useGetAutoSelectProfile() {
+//     return useServerQuery<Anime_AutoSelectProfile>({
+//         endpoint: API_ENDPOINTS.TORRENT_SEARCH.GetAutoSelectProfile.endpoint,
+//         method: API_ENDPOINTS.TORRENT_SEARCH.GetAutoSelectProfile.methods[0],
+//         queryKey: [API_ENDPOINTS.TORRENT_SEARCH.GetAutoSelectProfile.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSaveAutoSelectProfile() {
+//     return useServerMutation<Anime_AutoSelectProfile, SaveAutoSelectProfile_Variables>({
+//         endpoint: API_ENDPOINTS.TORRENT_SEARCH.SaveAutoSelectProfile.endpoint,
+//         method: API_ENDPOINTS.TORRENT_SEARCH.SaveAutoSelectProfile.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENT_SEARCH.SaveAutoSelectProfile.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDeleteAutoSelectProfile() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.TORRENT_SEARCH.DeleteAutoSelectProfile.endpoint,
+//         method: API_ENDPOINTS.TORRENT_SEARCH.DeleteAutoSelectProfile.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENT_SEARCH.DeleteAutoSelectProfile.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // torrentstream
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

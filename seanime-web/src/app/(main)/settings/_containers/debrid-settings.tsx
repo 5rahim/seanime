@@ -1,5 +1,6 @@
 import { useGetDebridSettings, useSaveDebridSettings } from "@/api/hooks/debrid.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { AutoSelectProfileButton } from "@/app/(main)/settings/_components/autoselect-profile-form"
 import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -55,13 +56,13 @@ export function DebridSettings(props: DebridSettingsProps) {
                 onSubmit={data => {
                     if (settings) {
                         mutate({
-                            settings: {
-                                ...settings,
-                                ...data,
-                                provider: data.provider === "-" ? "" : data.provider,
-                                streamPreferredResolution: data.streamPreferredResolution === "-" ? "" : data.streamPreferredResolution,
+                                settings: {
+                                    ...settings,
+                                    ...data,
+                                    provider: data.provider === "-" ? "" : data.provider,
+                                    streamPreferredResolution: data.streamPreferredResolution === "-" ? "" : data.streamPreferredResolution,
+                                },
                             },
-                        },
                             {
                                 onSuccess: () => {
                                     formRef.current?.reset(formRef.current.getValues())
@@ -96,9 +97,9 @@ export function DebridSettings(props: DebridSettingsProps) {
                                     title="Auto Downloader not using Debrid"
                                     description={<p>
                                         Auto Downloader is enabled but not using Debrid. Change the <SeaLink
-                                            href="/auto-downloader"
-                                            className="underline"
-                                        >Auto Downloader settings</SeaLink> to use your Debrid service.
+                                        href="/auto-downloader"
+                                        className="underline"
+                                    >Auto Downloader settings</SeaLink> to use your Debrid service.
                                     </p>}
                                 />
                             )}
@@ -167,6 +168,10 @@ export function DebridSettings(props: DebridSettingsProps) {
                                     { label: "1080p", value: "1080" },
                                 ]}
                             />
+
+                            <div className="pt-2">
+                                <AutoSelectProfileButton />
+                            </div>
                         </SettingsCard>
 
 

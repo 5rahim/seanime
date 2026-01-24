@@ -253,7 +253,7 @@ type ScanSummary struct {
 }
 
 // +---------------------+
-// |   Auto downloader   |
+// |   Auto Downloader   |
 // +---------------------+
 
 type AutoDownloaderRule struct {
@@ -262,6 +262,15 @@ type AutoDownloaderRule struct {
 }
 
 type AutoDownloaderProfile struct {
+	BaseModel
+	Value []byte `gorm:"column:value" json:"value"`
+}
+
+// +---------------------+
+// |     Auto Select     |
+// +---------------------+
+
+type AutoSelectProfile struct {
 	BaseModel
 	Value []byte `gorm:"column:value" json:"value"`
 }
@@ -287,9 +296,10 @@ type AutoDownloaderSettings struct {
 	Interval              int    `gorm:"column:auto_downloader_interval" json:"interval"`
 	Enabled               bool   `gorm:"column:auto_downloader_enabled" json:"enabled"`
 	DownloadAutomatically bool   `gorm:"column:auto_downloader_download_automatically" json:"downloadAutomatically"`
-	EnableEnhancedQueries bool   `gorm:"column:auto_downloader_enable_enhanced_queries" json:"enableEnhancedQueries"`
-	EnableSeasonCheck     bool   `gorm:"column:auto_downloader_enable_season_check" json:"enableSeasonCheck"`
-	UseDebrid             bool   `gorm:"column:auto_downloader_use_debrid" json:"useDebrid"`
+	// DEPRECATED v3.4+
+	EnableEnhancedQueries bool `gorm:"column:auto_downloader_enable_enhanced_queries" json:"enableEnhancedQueries"`
+	EnableSeasonCheck     bool `gorm:"column:auto_downloader_enable_season_check" json:"enableSeasonCheck"`
+	UseDebrid             bool `gorm:"column:auto_downloader_use_debrid" json:"useDebrid"`
 }
 
 // +---------------------+
@@ -428,8 +438,9 @@ type MediastreamSettings struct {
 
 type TorrentstreamSettings struct {
 	BaseModel
-	Enabled             bool   `gorm:"column:enabled" json:"enabled"`
-	AutoSelect          bool   `gorm:"column:auto_select" json:"autoSelect"`
+	Enabled    bool `gorm:"column:enabled" json:"enabled"`
+	AutoSelect bool `gorm:"column:auto_select" json:"autoSelect"`
+	// DEPRECATED
 	PreferredResolution string `gorm:"column:preferred_resolution" json:"preferredResolution"`
 	DisableIPV6         bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
 	DownloadDir         string `gorm:"column:download_dir" json:"downloadDir"`
@@ -509,9 +520,10 @@ type DebridSettings struct {
 	Provider string `gorm:"column:provider" json:"provider"`
 	ApiKey   string `gorm:"column:api_key" json:"apiKey"`
 	//FallbackToDebridStreamingView bool   `gorm:"column:fallback_to_debrid_streaming_view" json:"fallbackToDebridStreamingView"` // DEPRECATED
-	IncludeDebridStreamInLibrary bool   `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
-	StreamAutoSelect             bool   `gorm:"column:stream_auto_select" json:"streamAutoSelect"`
-	StreamPreferredResolution    string `gorm:"column:stream_preferred_resolution" json:"streamPreferredResolution"`
+	IncludeDebridStreamInLibrary bool `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
+	StreamAutoSelect             bool `gorm:"column:stream_auto_select" json:"streamAutoSelect"`
+	// DEPRECATED
+	StreamPreferredResolution string `gorm:"column:stream_preferred_resolution" json:"streamPreferredResolution"`
 }
 
 type DebridTorrentItem struct {
