@@ -313,6 +313,17 @@ export type Login_Variables = {
 /**
  * - Filepath: internal/handlers/auto_downloader.go
  * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/run/simulation
+ * @description
+ * Route runs the AutoDownloader in simulation mode and returns the results.
+ */
+export type RunAutoDownloaderSimulation_Variables = {
+    ruleIds: Array<number>
+}
+
+/**
+ * - Filepath: internal/handlers/auto_downloader.go
+ * - Filename: auto_downloader.go
  * - Endpoint: /api/v1/auto-downloader/rule/{id}
  * @description
  * Route returns the rule with the given DB id.

@@ -5,7 +5,12 @@ import {
     Anime_AutoDownloaderRuleTitleComparisonType,
     Anime_LibraryCollection,
 } from "@/api/generated/types"
-import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
+import {
+    useCreateAutoDownloaderRule,
+    useDeleteAutoDownloaderRule,
+    useRunAutoDownloaderSimulation,
+    useUpdateAutoDownloaderRule,
+} from "@/api/hooks/auto_downloader.hooks"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
@@ -24,6 +29,7 @@ import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
+import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { upath } from "@/lib/helpers/upath"
 import { useAtom, useAtomValue } from "jotai/react"
@@ -31,7 +37,7 @@ import { atomWithStorage } from "jotai/utils"
 import { uniq } from "lodash"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
-import React, { useMemo, useRef } from "react"
+import React, { useMemo, useRef, useState } from "react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { FcFolder } from "react-icons/fc"
 import { LuTextCursorInput } from "react-icons/lu"
@@ -322,6 +328,19 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
         animeFolderName,
     })
 
+    const {
+        mutate: runSimulation,
+        data: simulationResults,
+        reset: resetSimulation,
+        isPending: isSimulationPending,
+    } = useRunAutoDownloaderSimulation()
+    const [showSimulationResults, setShowSimulationResults] = useState(false)
+    React.useEffect(() => {
+        if (simulationResults) {
+            setShowSimulationResults(true)
+        }
+    }, [simulationResults])
+
     React.useEffect(() => {
         const id = Number(form_mediaId)
         const destination = libraryCollection?.lists?.flatMap(list => list.entries)?.find(entry => entry?.media?.id === id)?.libraryData?.sharedPath
@@ -500,9 +519,43 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                 <ExcludeTermsField name="excludeTerms" control={form.control} />
 
             </div>
-            {type === "create" &&
-                <Field.Submit role="create" loading={isPending} disableOnSuccess={false} showLoadingOverlayOnSuccess>Create</Field.Submit>}
-            {type === "edit" && <Field.Submit role="update" loading={isPending}>Update</Field.Submit>}
+            <div className="flex items-center gap-2">
+                {type === "edit" && !!rule?.dbId && <div>
+                    <Button
+                        intent="gray-basic"
+                        onClick={() => runSimulation({ ruleIds: [rule?.dbId] })}
+                        loading={isSimulationPending || isPending}
+                    >
+                        Run simulation
+                    </Button>
+                </div>}
+                <div className="flex-1"></div>
+                <div className="flex items-center gap-2">
+                    {type === "create" &&
+                        <Field.Submit role="create" loading={isPending} disableOnSuccess={false} showLoadingOverlayOnSuccess>Create</Field.Submit>}
+                    {type === "edit" && <Field.Submit role="update" loading={isPending}>Update</Field.Submit>}
+                </div>
+            </div>
+
+            <Modal
+                title="Result"
+                open={showSimulationResults}
+                onOpenChange={v => {
+                    setShowSimulationResults(v)
+                    if (!v) resetSimulation()
+                }}
+                contentClass="max-w-3xl"
+            >
+                <p>
+                    Simulation results for rule "<strong>{rule?.comparisonTitle}</strong>" (ID: {rule?.dbId})
+                </p>
+                <p className="text-[--muted] text-sm">
+                    Check the server logs for more details.
+                </p>
+                <pre className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-300px)] whitespace-pre-wrap p-2 rounded-[--radius-md] bg-gray-900">
+                    {JSON.stringify(simulationResults, null, 2)}
+                </pre>
+            </Modal>
         </>
     )
 }

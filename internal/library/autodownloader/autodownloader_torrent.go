@@ -1,6 +1,7 @@
 package autodownloader
 
 import (
+	"context"
 	"errors"
 	"seanime/internal/extension"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
@@ -25,6 +26,7 @@ type (
 )
 
 func (ad *AutoDownloader) getTorrentsFromProviders(
+	ctx context.Context,
 	providers []extension.AnimeTorrentProviderExtension,
 	rules []*anime.AutoDownloaderRule,
 	profiles []*anime.AutoDownloaderProfile,
@@ -78,7 +80,10 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 		}
 		if !hasDefault {
 			defaultProv, foundDefault = ad.torrentRepository.GetAnimeProviderExtensionOrDefault(ad.settings.Provider)
+			hasDefault = foundDefault
 		}
+	} else {
+		hasDefault = true
 	}
 	ad.logger.Debug().Str("extension", defaultProv.GetName()).Bool("hasDefault", hasDefault).Msg("autodownloader: Checked for default provider")
 

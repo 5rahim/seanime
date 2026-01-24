@@ -1075,7 +1075,7 @@ func TestIntegration(t *testing.T) {
 
 			ad.ClearSimulationResults()
 			// Run simulation
-			ad.RunCheck(true)
+			ad.RunCheck(t.Context(), true)
 
 			results := ad.GetSimulationResults()
 			assert.Equal(t, tt.expectedResults, len(results))
@@ -1257,7 +1257,7 @@ func TestDelayIntegration(t *testing.T) {
 			ad.ClearSimulationResults()
 			// devnote: We don't run in simulation mode so the items are added to the DB
 			// they won't be downloaded since DownloadAutomatically=false
-			ad.RunCheck(false)
+			ad.RunCheck(t.Context(), false)
 
 			results := ad.GetSimulationResults()
 

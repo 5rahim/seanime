@@ -48159,7 +48159,7 @@
     "fields": [
       {
         "name": "RuleID",
-        "jsonName": "RuleID",
+        "jsonName": "ruleId",
         "goType": "uint",
         "typescriptType": "number",
         "required": true,
@@ -48168,7 +48168,7 @@
       },
       {
         "name": "MediaID",
-        "jsonName": "MediaID",
+        "jsonName": "mediaId",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -48177,7 +48177,7 @@
       },
       {
         "name": "Episode",
-        "jsonName": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -48186,7 +48186,7 @@
       },
       {
         "name": "Link",
-        "jsonName": "Link",
+        "jsonName": "link",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -48195,7 +48195,7 @@
       },
       {
         "name": "Hash",
-        "jsonName": "Hash",
+        "jsonName": "hash",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -48204,7 +48204,7 @@
       },
       {
         "name": "TorrentName",
-        "jsonName": "TorrentName",
+        "jsonName": "torrentName",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -48213,9 +48213,27 @@
       },
       {
         "name": "Score",
-        "jsonName": "Score",
+        "jsonName": "score",
         "goType": "int",
         "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExtensionID",
+        "jsonName": "extensionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsDelayed",
+        "jsonName": "isDelayed",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []

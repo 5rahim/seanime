@@ -330,6 +330,16 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route runs the AutoDownloader in simulation mode and returns the results.
+         *  It does nothing if the AutoDownloader is disabled.
+         */
+        RunAutoDownloaderSimulation: {
+            key: "AUTO-DOWNLOADER-run-auto-downloader-simulation",
+            methods: ["POST"],
+            endpoint: "/api/v1/auto-downloader/run/simulation",
+        },
+        /**
+         *  @description
          *  Route returns the rule with the given DB id.
          *  This is used to get a specific rule, useful for editing.
          */

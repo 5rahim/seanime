@@ -155,6 +155,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	// Auto Downloader
 	v1.POST("/auto-downloader/run", h.HandleRunAutoDownloader)
+	v1.POST("/auto-downloader/run/simulation", h.HandleRunAutoDownloaderSimulation)
 	v1.GET("/auto-downloader/rule/:id", h.HandleGetAutoDownloaderRule)
 	v1.GET("/auto-downloader/rule/anime/:id", h.HandleGetAutoDownloaderRulesByAnime)
 	v1.GET("/auto-downloader/rules", h.HandleGetAutoDownloaderRules)

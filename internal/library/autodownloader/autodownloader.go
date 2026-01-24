@@ -1,6 +1,7 @@
 package autodownloader
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"seanime/internal/api/anilist"
@@ -20,6 +21,7 @@ import (
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -58,13 +60,15 @@ type (
 
 	// SimulationResult represents a torrent that would be downloaded in simulation mode
 	SimulationResult struct {
-		RuleID      uint
-		MediaID     int
-		Episode     int
-		Link        string
-		Hash        string
-		TorrentName string
-		Score       int
+		RuleID      uint   `json:"ruleId"`
+		MediaID     int    `json:"mediaId"`
+		Episode     int    `json:"episode"`
+		Link        string `json:"link"`
+		Hash        string `json:"hash"`
+		TorrentName string `json:"torrentName"`
+		Score       int    `json:"score"`
+		ExtensionID string `json:"extensionId"`
+		IsDelayed   bool   `json:"isDelayed"`
 	}
 
 	NewAutoDownloaderOptions struct {
@@ -163,13 +167,13 @@ func (ad *AutoDownloader) ClearSimulationResults() {
 
 // RunCheck runs the auto downloader synchronously for testing purposes
 // This directly calls checkForNewEpisodes without using goroutines
-func (ad *AutoDownloader) RunCheck(isSimulation bool) {
+func (ad *AutoDownloader) RunCheck(ctx context.Context, isSimulation bool, ruleIDs ...uint) {
 	defer util.HandlePanicInModuleThen("autodownloader/RunCheck", func() {})
 
 	if ad == nil {
 		return
 	}
-	ad.checkForNewEpisodes(isSimulation)
+	ad.checkForNewEpisodes(ctx, isSimulation, ruleIDs...)
 }
 
 // Start will start the auto downloader in a goroutine
@@ -248,11 +252,11 @@ func (ad *AutoDownloader) start() {
 		case isSumulation := <-ad.startCh:
 			if ad.settings.Enabled {
 				ad.logger.Debug().Msg("autodownloader: Auto Downloader started")
-				ad.checkForNewEpisodes(isSumulation)
+				ad.checkForNewEpisodes(context.Background(), isSumulation)
 			}
 		case <-ticker.C:
 			if ad.settings.Enabled {
-				ad.checkForNewEpisodes(false)
+				ad.checkForNewEpisodes(context.Background(), false)
 			}
 		}
 		ticker.Stop()
@@ -261,7 +265,7 @@ func (ad *AutoDownloader) start() {
 }
 
 // checkForNewEpisodes will check the RSS feeds for new episodes.
-func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
+func (ad *AutoDownloader) checkForNewEpisodes(ctx context.Context, isSimulation bool, ruleIDs ...uint) {
 	defer util.HandlePanicInModuleThen("autodownloader/checkForNewEpisodes", func() {})
 
 	if ad.isOfflineRef.Get() {
@@ -278,7 +282,7 @@ func (ad *AutoDownloader) checkForNewEpisodes(isSimulation bool) {
 	ad.mu.Unlock()
 
 	// Fetch all necessary data
-	data, err := ad.fetchRunData()
+	data, err := ad.fetchRunData(ctx, ruleIDs...)
 	if err != nil {
 		ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch check data")
 		return
@@ -327,7 +331,7 @@ type runData struct {
 }
 
 // fetchRunData fetches all data needed for checking new episodes
-func (ad *AutoDownloader) fetchRunData() (*runData, error) {
+func (ad *AutoDownloader) fetchRunData(ctx context.Context, ruleIDs ...uint) (*runData, error) {
 	// Get rules from the database
 	rules, err := db_bridge.GetAutoDownloaderRules(ad.database)
 	if err != nil {
@@ -336,6 +340,9 @@ func (ad *AutoDownloader) fetchRunData() (*runData, error) {
 
 	// Filter out disabled rules
 	rules = lo.Filter(rules, func(r *anime.AutoDownloaderRule, _ int) bool {
+		if len(ruleIDs) > 0 && !slices.Contains(ruleIDs, r.DbID) {
+			return false
+		}
 		return r.Enabled
 	})
 
@@ -376,7 +383,7 @@ func (ad *AutoDownloader) fetchRunData() (*runData, error) {
 	providerExtensions := ad.getProvidersForRules(rules, profiles)
 
 	// Fetch torrents from all identified providers
-	torrents, err := ad.getTorrentsFromProviders(providerExtensions, rules, profiles)
+	torrents, err := ad.getTorrentsFromProviders(ctx, providerExtensions, rules, profiles)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get latest torrents: %w", err)
 	}
@@ -637,7 +644,7 @@ func (ad *AutoDownloader) handleNewEpisode(
 	// 1. Delay the torrent
 	if settings.hasDelay && bestCandidate.Score < settings.skipDelayScore {
 		ad.logger.Debug().Int("episode", episode).Int("minutes", settings.delayMinutes).Msg("autodownloader: Queueing item for delay")
-		ad.queueTorrentForDelay(rule, episode, bestCandidate, settings.delayMinutes)
+		ad.queueTorrentForDelay(isSimulation, rule, episode, bestCandidate, settings.delayMinutes)
 		return false // not downloaded
 	}
 
@@ -806,7 +813,23 @@ func (ad *AutoDownloader) downloadDelayedItems(isSimulation bool) int {
 }
 
 // queueTorrentForDelay inserts an item with IsDelayed=true
-func (ad *AutoDownloader) queueTorrentForDelay(rule *anime.AutoDownloaderRule, episode int, candidate *Candidate, delayMinutes int) {
+func (ad *AutoDownloader) queueTorrentForDelay(isSimulation bool, rule *anime.AutoDownloaderRule, episode int, candidate *Candidate, delayMinutes int) {
+	if isSimulation {
+		// Store in memory for simulation mode
+		ad.simulationResults = append(ad.simulationResults, &SimulationResult{
+			RuleID:      rule.DbID,
+			MediaID:     rule.MediaId,
+			Episode:     episode,
+			Link:        candidate.Torrent.Link,
+			Hash:        candidate.Torrent.InfoHash,
+			TorrentName: candidate.Torrent.Name,
+			Score:       candidate.Score,
+			ExtensionID: candidate.Torrent.ExtensionID,
+			IsDelayed:   true,
+		})
+		return
+	}
+
 	// Serialize the torrent data
 	torrentData, err := json.Marshal(candidate.Torrent)
 	if err != nil {
@@ -956,6 +979,7 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 			Hash:        t.InfoHash,
 			TorrentName: t.Name,
 			Score:       score,
+			ExtensionID: t.ExtensionID,
 		})
 		return true
 	}

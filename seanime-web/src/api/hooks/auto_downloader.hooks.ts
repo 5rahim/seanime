@@ -2,10 +2,17 @@ import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import {
     CreateAutoDownloaderRule_Variables,
     DeleteAutoDownloaderItem_Variables,
+    RunAutoDownloaderSimulation_Variables,
     UpdateAutoDownloaderRule_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Anime_AutoDownloaderProfile, Anime_AutoDownloaderRule, Models_AutoDownloaderItem, Nullish } from "@/api/generated/types"
+import {
+    Anime_AutoDownloaderProfile,
+    Anime_AutoDownloaderRule,
+    AutoDownloader_SimulationResult,
+    Models_AutoDownloaderItem,
+    Nullish,
+} from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -177,6 +184,17 @@ export function useDeleteAutoDownloaderProfile(id: Nullish<number>) {
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.key] })
             toast.success("Profile deleted")
+        },
+    })
+}
+
+export function useRunAutoDownloaderSimulation() {
+    return useServerMutation<Array<AutoDownloader_SimulationResult>, RunAutoDownloaderSimulation_Variables>({
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.endpoint,
+        method: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.methods[0],
+        mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.key],
+        onSuccess: async () => {
+
         },
     })
 }

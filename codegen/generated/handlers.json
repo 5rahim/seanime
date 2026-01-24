@@ -1385,6 +1385,46 @@
     }
   },
   {
+    "name": "HandleRunAutoDownloaderSimulation",
+    "trimmedName": "RunAutoDownloaderSimulation",
+    "comments": [
+      "HandleRunAutoDownloader",
+      "",
+      "\t@summary runs the AutoDownloader in simulation mode and returns the results.",
+      "\t@desc It does nothing if the AutoDownloader is disabled.",
+      "\t@route /api/v1/auto-downloader/run/simulation [POST]",
+      "\t@returns []autodownloader.SimulationResult",
+      ""
+    ],
+    "filepath": "internal/handlers/auto_downloader.go",
+    "filename": "auto_downloader.go",
+    "api": {
+      "summary": "runs the AutoDownloader in simulation mode and returns the results.",
+      "descriptions": [
+        "It does nothing if the AutoDownloader is disabled."
+      ],
+      "endpoint": "/api/v1/auto-downloader/run/simulation",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "RuleIds",
+          "jsonName": "ruleIds",
+          "goType": "[]uint",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cnumber\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "[]autodownloader.SimulationResult",
+      "returnGoType": "autodownloader.SimulationResult",
+      "returnTypescriptType": "Array\u003cAutoDownloader_SimulationResult\u003e"
+    }
+  },
+  {
     "name": "HandleGetAutoDownloaderRule",
     "trimmedName": "GetAutoDownloaderRule",
     "comments": [

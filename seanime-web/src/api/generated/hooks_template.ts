@@ -348,6 +348,17 @@
 //     })
 // }
 
+// export function useRunAutoDownloaderSimulation() {
+//     return useServerMutation<Array<AutoDownloader_SimulationResult>, RunAutoDownloaderSimulation_Variables>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.endpoint,
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.methods[0],
+//         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useGetAutoDownloaderRule(id: number) {
 //     return useServerQuery<Anime_AutoDownloaderRule>({
 //         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRule.endpoint.replace("{id}", String(id)),

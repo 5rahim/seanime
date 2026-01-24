@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"path/filepath"
 	"seanime/internal/api/anilist"
@@ -23,6 +24,29 @@ func (h *Handler) HandleRunAutoDownloader(c echo.Context) error {
 	h.App.AutoDownloader.Run(false)
 
 	return h.RespondWithData(c, true)
+}
+
+// HandleRunAutoDownloader
+//
+//	@summary runs the AutoDownloader in simulation mode and returns the results.
+//	@desc It does nothing if the AutoDownloader is disabled.
+//	@route /api/v1/auto-downloader/run/simulation [POST]
+//	@returns []autodownloader.SimulationResult
+func (h *Handler) HandleRunAutoDownloaderSimulation(c echo.Context) error {
+	type body struct {
+		RuleIds []uint `json:"ruleIds"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	h.App.AutoDownloader.RunCheck(context.Background(), true, b.RuleIds...)
+	res := h.App.AutoDownloader.GetSimulationResults()
+	h.App.AutoDownloader.ClearSimulationResults()
+
+	return h.RespondWithData(c, res)
 }
 
 // HandleGetAutoDownloaderRule

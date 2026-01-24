@@ -197,6 +197,7 @@ const (
 	RequestMediastreamMediaContainerEndpoint           = "MEDIASTREAM-request-mediastream-media-container"
 	ResetErroredChapterDownloadQueueEndpoint           = "MANGA-DOWNLOAD-reset-errored-chapter-download-queue"
 	RunAutoDownloaderEndpoint                          = "AUTO-DOWNLOADER-run-auto-downloader"
+	RunAutoDownloaderSimulationEndpoint                = "AUTO-DOWNLOADER-run-auto-downloader-simulation"
 	RunExtensionPlaygroundCodeEndpoint                 = "EXTENSIONS-run-extension-playground-code"
 	SaveAutoDownloaderSettingsEndpoint                 = "SETTINGS-save-auto-downloader-settings"
 	SaveDebridSettingsEndpoint                         = "DEBRID-save-debrid-settings"
