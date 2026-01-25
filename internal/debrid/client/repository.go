@@ -16,6 +16,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/torrents/autoselect"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
@@ -45,6 +46,8 @@ type (
 		completeAnimeCache  *anilist.CompleteAnimeCache
 		metadataProviderRef *util.Ref[metadata_provider.Provider]
 		platformRef         *util.Ref[platform.Platform]
+
+		autoSelect *autoselect.AutoSelect
 
 		previousStreamOptions mo.Option[*StartStreamOptions]
 	}
@@ -82,6 +85,13 @@ func NewRepository(opts *NewRepositoryOptions) (ret *Repository) {
 	}
 
 	ret.streamManager = NewStreamManager(ret)
+
+	ret.autoSelect = autoselect.New(&autoselect.NewAutoSelectOptions{
+		Logger:            opts.Logger,
+		TorrentRepository: opts.TorrentRepository,
+		MetadataProvider:  opts.MetadataProviderRef,
+		Platform:          opts.PlatformRef,
+	})
 
 	return
 }

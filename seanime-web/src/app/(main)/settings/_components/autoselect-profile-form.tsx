@@ -15,6 +15,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
+import capitalize from "lodash/capitalize"
 import React from "react"
 import { BiMenu, BiPlus, BiTrash } from "react-icons/bi"
 import { LuSettings2 } from "react-icons/lu"
@@ -36,6 +37,7 @@ type FormData = {
     multipleAudioPreference: Anime_AutoSelectPreference
     multipleSubsPreference: Anime_AutoSelectPreference
     batchPreference: Anime_AutoSelectPreference
+    bestReleasePreference: Anime_AutoSelectPreference
     requireLanguage: boolean
     requireCodec: boolean
     requireSource: boolean
@@ -52,6 +54,7 @@ const formDataAtom = atomWithImmer<FormData>({
     preferredLanguages: [],
     preferredCodecs: [],
     preferredSources: [],
+    bestReleasePreference: "neutral",
     multipleAudioPreference: "neutral",
     multipleSubsPreference: "neutral",
     batchPreference: "neutral",
@@ -102,6 +105,18 @@ export function AutoSelectProfileButton() {
                         )}
                         {profile.preferredLanguages && profile.preferredLanguages.length > 0 && (
                             <p><strong>Preferred Languages:</strong> {profile.preferredLanguages.join(", ")}</p>
+                        )}
+                        {profile.multipleAudioPreference && profile.multipleAudioPreference !== "neutral" && (
+                            <p><strong>Multi Audio:</strong> {capitalize(profile.multipleAudioPreference)}</p>
+                        )}
+                        {profile.multipleSubsPreference && profile.multipleSubsPreference !== "neutral" && (
+                            <p><strong>Multi Subs:</strong> {capitalize(profile.multipleSubsPreference)}</p>
+                        )}
+                        {profile.bestReleasePreference && profile.bestReleasePreference !== "neutral" && (
+                            <p><strong>Best Releases:</strong> {capitalize(profile.bestReleasePreference)}</p>
+                        )}
+                        {profile.batchPreference && profile.batchPreference !== "neutral" && (
+                            <p><strong>Batches:</strong> {capitalize(profile.batchPreference)}</p>
                         )}
                     </div>
                 )}
@@ -169,6 +184,7 @@ function AutoSelectProfileForm(props: AutoSelectProfileFormProps) {
                     id: `source-${Date.now()}-${Math.random()}`,
                     value: source,
                 })) || []
+                draft.bestReleasePreference = profile.bestReleasePreference || "neutral"
                 draft.multipleAudioPreference = profile.multipleAudioPreference || "neutral"
                 draft.multipleSubsPreference = profile.multipleSubsPreference || "neutral"
                 draft.batchPreference = profile.batchPreference || "neutral"
@@ -198,6 +214,7 @@ function AutoSelectProfileForm(props: AutoSelectProfileFormProps) {
                 preferredLanguages: filterEmpty(formData.preferredLanguages),
                 preferredCodecs: filterEmpty(formData.preferredCodecs),
                 preferredSources: filterEmpty(formData.preferredSources),
+                bestReleasePreference: formData.bestReleasePreference,
                 multipleAudioPreference: formData.multipleAudioPreference,
                 multipleSubsPreference: formData.multipleSubsPreference,
                 batchPreference: formData.batchPreference,
@@ -313,10 +330,18 @@ function AutoSelectProfileForm(props: AutoSelectProfileFormProps) {
                 />
 
                 <PreferenceField
-                    label="Batch"
+                    label="Batches"
                     value={formData.batchPreference}
                     onChange={(value) => setFormData(draft => {
                         draft.batchPreference = value
+                    })}
+                />
+                <PreferenceField
+                    label="Best Releases"
+                    without={["only"]}
+                    value={formData.bestReleasePreference}
+                    onChange={(value) => setFormData(draft => {
+                        draft.bestReleasePreference = value
                     })}
                 />
             </div>
@@ -1089,7 +1114,7 @@ function PreferredSourcesSortableField() {
         })
     }
 
-    const suggestions = ["BDRip, BD RIP", "WEB-DL", "AT-X", "Blu-Ray"]
+    const suggestions = ["BDRip, BD RIP, BluRay, Blu-Ray, Blu Ray, BD", "AT-X"]
 
     return (
         <div className="space-y-2">
@@ -1150,10 +1175,19 @@ function PreferredSourcesSortableField() {
 
 function PreferenceField(props: {
     label: string
+    without?: string[]
     value: Anime_AutoSelectPreference
     onChange: (value: Anime_AutoSelectPreference) => void
 }) {
-    const { label, value, onChange } = props
+    const { label, value, onChange, without = [] } = props
+
+    const options = [
+        { label: "Neutral", value: "neutral" },
+        { label: "Prefer", value: "prefer" },
+        { label: "Avoid", value: "avoid" },
+        { label: "Only", value: "only" },
+        { label: "Never", value: "never" },
+    ].filter(({ value }) => !without.includes(value as Anime_AutoSelectPreference))
 
     return (
         <div className="space-y-2">
@@ -1161,13 +1195,7 @@ function PreferenceField(props: {
             <Select
                 value={value}
                 onValueChange={(v) => onChange(v as Anime_AutoSelectPreference)}
-                options={[
-                    { label: "Neutral", value: "neutral" },
-                    { label: "Prefer", value: "prefer" },
-                    { label: "Avoid", value: "avoid" },
-                    { label: "Only", value: "only" },
-                    { label: "Never", value: "never" },
-                ]}
+                options={options}
             />
         </div>
     )

@@ -18,6 +18,7 @@ type (
 		MultipleAudioPreference AutoSelectPreference `json:"multipleAudioPreference"`
 		MultipleSubsPreference  AutoSelectPreference `json:"multipleSubsPreference"`
 		BatchPreference         AutoSelectPreference `json:"batchPreference"`
+		BestReleasePreference   AutoSelectPreference `json:"bestReleasePreference"`
 
 		RequireLanguage bool `json:"requireLanguage"` // Reject if no preferred language is found
 		RequireCodec    bool `json:"requireCodec"`    // Reject if no preferred codec is found

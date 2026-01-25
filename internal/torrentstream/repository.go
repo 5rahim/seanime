@@ -18,6 +18,7 @@ import (
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/torrents/autoselect"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
@@ -36,6 +37,8 @@ type (
 		settings mo.Option[Settings] // None by default, set and refreshed by [SetSettings]
 
 		selectionHistoryMap *result.Map[int, *hibiketorrent.AnimeTorrent] // Key: AniList media ID
+
+		autoSelect *autoselect.AutoSelect
 
 		// Injected dependencies
 		torrentRepository               *torrent.Repository
@@ -110,6 +113,14 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		previousStreamOptions:           mo.None[*StartStreamOptions](),
 		preloadedStream:                 mo.None[*preloadedStream](),
 	}
+
+	ret.autoSelect = autoselect.New(&autoselect.NewAutoSelectOptions{
+		Logger:            opts.Logger,
+		TorrentRepository: opts.TorrentRepository,
+		MetadataProvider:  opts.MetadataProviderRef,
+		Platform:          opts.PlatformRef,
+	})
+
 	ret.client = NewClient(ret)
 	ret.handler = newHandler(ret)
 	return ret

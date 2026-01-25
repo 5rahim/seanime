@@ -438,9 +438,8 @@ type MediastreamSettings struct {
 
 type TorrentstreamSettings struct {
 	BaseModel
-	Enabled    bool `gorm:"column:enabled" json:"enabled"`
-	AutoSelect bool `gorm:"column:auto_select" json:"autoSelect"`
-	// DEPRECATED
+	Enabled             bool   `gorm:"column:enabled" json:"enabled"`
+	AutoSelect          bool   `gorm:"column:auto_select" json:"autoSelect"`
 	PreferredResolution string `gorm:"column:preferred_resolution" json:"preferredResolution"`
 	DisableIPV6         bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
 	DownloadDir         string `gorm:"column:download_dir" json:"downloadDir"`
@@ -520,10 +519,9 @@ type DebridSettings struct {
 	Provider string `gorm:"column:provider" json:"provider"`
 	ApiKey   string `gorm:"column:api_key" json:"apiKey"`
 	//FallbackToDebridStreamingView bool   `gorm:"column:fallback_to_debrid_streaming_view" json:"fallbackToDebridStreamingView"` // DEPRECATED
-	IncludeDebridStreamInLibrary bool `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
-	StreamAutoSelect             bool `gorm:"column:stream_auto_select" json:"streamAutoSelect"`
-	// DEPRECATED
-	StreamPreferredResolution string `gorm:"column:stream_preferred_resolution" json:"streamPreferredResolution"`
+	IncludeDebridStreamInLibrary bool   `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
+	StreamAutoSelect             bool   `gorm:"column:stream_auto_select" json:"streamAutoSelect"`
+	StreamPreferredResolution    string `gorm:"column:stream_preferred_resolution" json:"streamPreferredResolution"`
 }
 
 type DebridTorrentItem struct {

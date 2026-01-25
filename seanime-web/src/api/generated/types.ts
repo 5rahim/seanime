@@ -1449,6 +1449,7 @@ export type Anime_AutoSelectProfile = {
     multipleAudioPreference: Anime_AutoSelectPreference
     multipleSubsPreference: Anime_AutoSelectPreference
     batchPreference: Anime_AutoSelectPreference
+    bestReleasePreference: Anime_AutoSelectPreference
     /**
      * Reject if no preferred language is found
      */

@@ -1,18 +1,16 @@
 package torrentstream
 
 import (
-	"cmp"
 	"context"
 	"fmt"
 	"seanime/internal/api/anilist"
+	"seanime/internal/database/db_bridge"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
-	"seanime/internal/hook"
+	"seanime/internal/library/anime"
 	torrentanalyzer "seanime/internal/torrents/analyzer"
-	itorrent "seanime/internal/torrents/torrent"
+	"seanime/internal/torrents/autoselect"
 	"seanime/internal/util"
 	"seanime/internal/util/torrentutil"
-	"slices"
-	"time"
 
 	"github.com/anacrolix/torrent"
 	"github.com/samber/lo"
@@ -45,262 +43,51 @@ func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode 
 		return nil, fmt.Errorf("torrent streaming is disabled")
 	}
 
-	providerExtension, ok := r.torrentRepository.GetAutoSelectProviderExtension()
-	if !ok {
-		r.logger.Error().Msg("torrentstream: Auto select provider extension not found")
-		return nil, fmt.Errorf("provider extension not found")
-	}
-	autoSelectProviderId := providerExtension.GetID()
-
-	defaultProviderExtension, ok := r.torrentRepository.GetDefaultAnimeProviderExtension()
-	if !ok {
-		r.logger.Error().Msg("torrentstream: Default provider extension not found")
-		return nil, fmt.Errorf("default provider extension not found")
-	}
-	defaultProviderId := defaultProviderExtension.GetID()
-
-	searchBatch := false
-	// Search batch if not a movie and finished
-	yearsSinceStart := 999
-	if media.StartDate != nil && *media.StartDate.Year > 0 {
-		yearsSinceStart = time.Now().Year() - *media.StartDate.Year // e.g. 2024 - 2020 = 4
-	}
-	if !media.IsMovie() && media.IsFinished() && yearsSinceStart > 4 {
-		searchBatch = true
-	}
-
 	r.sendStateEvent(eventLoading, TLSStateSearchingTorrents)
 
-	var data *itorrent.SearchData
-	var currentProvider = autoSelectProviderId
-searchLoop:
-	for {
-		var err error
-		data, err = r.torrentRepository.SearchAnime(context.Background(), itorrent.AnimeSearchOptions{
-			Provider:      currentProvider,
-			Type:          itorrent.AnimeSearchTypeSmart,
-			Media:         media.ToBaseAnime(),
-			Query:         "",
-			Batch:         searchBatch,
-			EpisodeNumber: episodeNumber,
-			BestReleases:  false,
-			Resolution:    r.settings.MustGet().PreferredResolution,
-		})
-		// If we are searching for batches, we don't want to return an error if no torrents are found
-		// We will just search again without the batch flag
-		if err != nil && !searchBatch {
-			r.logger.Error().Err(err).Msg("torrentstream: Error searching torrents")
-
-			// Try fallback provider if we're still on primary provider
-			if currentProvider == autoSelectProviderId && autoSelectProviderId != defaultProviderId {
-				r.logger.Debug().Msgf("torrentstream: Primary provider failed, trying fallback provider %s", defaultProviderId)
-				currentProvider = defaultProviderId
-				// Get fallback provider extension
-				providerExtension, ok = r.torrentRepository.GetAnimeProviderExtension(currentProvider)
-				if !ok {
-					r.logger.Error().Str("provider", defaultProviderId).Msg("torrentstream: Fallback provider extension not found")
-					return nil, fmt.Errorf("fallback provider extension not found")
-				}
-				continue
-			}
-
-			return nil, err
-		} else if err != nil {
-			searchBatch = false
-			continue
+	profile, found := db_bridge.FindAutoSelectProfile(r.db)
+	if !found {
+		resolution := r.settings.MustGet().PreferredResolution
+		if resolution == "" {
+			resolution = "1080p"
 		}
-
-		// This whole thing below just means that
-		// If we are looking for batches, there should be at least 3 torrents found or the max seeders should be at least 15
-		if searchBatch {
-			nbFound := len(data.Torrents)
-			seedersArr := lo.Map(data.Torrents, func(t *hibiketorrent.AnimeTorrent, _ int) int {
-				return t.Seeders
-			})
-			if len(seedersArr) == 0 {
-				searchBatch = false
-				continue
-			}
-			maxSeeders := slices.Max(seedersArr)
-			if maxSeeders >= 15 || nbFound > 2 {
-				break searchLoop
-			} else {
-				searchBatch = false
-			}
-		} else {
-			break searchLoop
+		profile = &anime.AutoSelectProfile{
+			Resolutions: []string{resolution},
+			MinSeeders:  0,
 		}
 	}
 
-	if data == nil || len(data.Torrents) == 0 {
-		// Try fallback provider if we're still on primary provider
-		if currentProvider == autoSelectProviderId && autoSelectProviderId != defaultProviderId {
-			r.logger.Debug().Msgf("torrentstream: No torrents found with primary provider, trying fallback provider %s", defaultProviderId)
-			currentProvider = defaultProviderId
-			// Get fallback provider extension
-			providerExtension, ok = r.torrentRepository.GetAnimeProviderExtension(currentProvider)
-			if !ok {
-				r.logger.Error().Str("provider", defaultProviderId).Msg("torrentstream: Fallback provider extension not found")
-				return nil, fmt.Errorf("fallback provider extension not found")
-			}
-
-			// Try searching with fallback provider (reset searchBatch)
-			searchBatch = false
-			if !media.IsMovie() && media.IsFinished() && yearsSinceStart > 4 {
-				searchBatch = true
-			}
-
-			// Restart the search with fallback provider
-			goto searchLoop
+	result, err := r.autoSelect.FindBestTorrent(
+		context.Background(),
+		media,
+		episodeNumber,
+		profile,
+		autoselect.SelectionModeTorrent,
+		nil,
+		r.client,
+		nil,
+	)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("torrentstream: Auto-select failed")
+		if err.Error() == "no torrents found" {
+			return nil, ErrNoTorrentsFound
 		}
-
-		r.logger.Error().Msg("torrentstream: No torrents found by auto-select, please select manually")
-		return nil, ErrNoTorrentsFound
+		return nil, err
 	}
 
-	// Sort by seeders from highest to lowest
-	slices.SortStableFunc(data.Torrents, func(a, b *hibiketorrent.AnimeTorrent) int {
-		return cmp.Compare(b.Seeders, a.Seeders)
-	})
-
-	// Trigger hook
-	fetchedEvent := &TorrentStreamAutoSelectTorrentsFetchedEvent{
-		Torrents: data.Torrents,
-	}
-	_ = hook.GlobalHookManager.OnTorrentStreamAutoSelectTorrentsFetched().Trigger(fetchedEvent)
-	data.Torrents = fetchedEvent.Torrents
-
-	r.logger.Debug().Msgf("torrentstream: Found %d torrents", len(data.Torrents))
-
-	// Go through the top 3 torrents
-	// - For each torrent, add it, get the files, and check if it has the episode
-	// - If it does, return the magnet link
-	var selectedTorrent *torrent.Torrent
-	var selectedFile *torrent.File
-	tries := 0
-
-	for _, searchT := range data.Torrents {
-		if tries >= 2 {
-			break
-		}
-		r.sendStateEvent(eventLoading, struct {
-			State              any    `json:"state"`
-			TorrentBeingLoaded string `json:"torrentBeingLoaded"`
-		}{
-			State:              TLSStateAddingTorrent,
-			TorrentBeingLoaded: searchT.Name,
-		})
-		r.logger.Trace().Msgf("torrentstream: Getting torrent magnet")
-		magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(searchT)
-		if err != nil {
-			r.logger.Warn().Err(err).Msgf("torrentstream: Error scraping magnet link for %s", searchT.Link)
-			tries++
-			continue
-		}
-		r.logger.Debug().Msgf("torrentstream: Adding torrent %s from magnet", searchT.Link)
-
-		t, err := r.client.AddTorrent(magnet)
-		if err != nil {
-			r.logger.Warn().Err(err).Msgf("torrentstream: Error adding torrent %s", searchT.Link)
-			tries++
-			continue
-		}
-
-		r.sendStateEvent(eventLoading, struct {
-			State              any    `json:"state"`
-			TorrentBeingLoaded string `json:"torrentBeingLoaded"`
-		}{
-			State:              TLSStateCheckingTorrent,
-			TorrentBeingLoaded: searchT.Name,
-		})
-
-		// If the torrent has only one file, return it
-		if len(t.Files()) == 1 {
-			tFile := t.Files()[0]
-			tFile.Download()
-			r.setPriorityDownloadStrategy(t, tFile)
-			r.logger.Debug().Msgf("torrentstream: Found single file torrent: %s", tFile.DisplayPath())
-
-			return &playbackTorrent{
-				Torrent: t,
-				File:    tFile,
-			}, nil
-		}
-
-		r.sendStateEvent(eventLoading, TLSStateSelectingFile)
-
-		// DEVNOTE: The gap between adding the torrent and file analysis causes some pieces to be downloaded
-		// We currently can't Pause/Resume torrents so :shrug:
-
-		filepaths := lo.Map(t.Files(), func(f *torrent.File, _ int) string {
-			return f.DisplayPath()
-		})
-
-		if len(filepaths) == 0 {
-			r.logger.Error().Msg("torrentstream: No files found in the torrent")
-			return nil, fmt.Errorf("no files found in the torrent")
-		}
-
-		// Create a new Torrent Analyzer
-		analyzer := torrentanalyzer.NewAnalyzer(&torrentanalyzer.NewAnalyzerOptions{
-			Logger:              r.logger,
-			Filepaths:           filepaths,
-			Media:               media,
-			PlatformRef:         r.platformRef,
-			MetadataProviderRef: r.metadataProviderRef,
-			ForceMatch:          true,
-		})
-
-		r.logger.Debug().Msgf("torrentstream: Analyzing torrent %s", searchT.Link)
-
-		// Analyze torrent files
-		analysis, err := analyzer.AnalyzeTorrentFiles()
-		if err != nil {
-			r.logger.Warn().Err(err).Msg("torrentstream: Error analyzing torrent files")
-			// Remove torrent on failure
-			go func() {
-				_ = r.client.RemoveTorrent(t.InfoHash().AsString())
-			}()
-			tries++
-			continue
-		}
-
-		analysisFile, found := analysis.GetFileByAniDBEpisode(aniDbEpisode)
-		// Check if analyzer found the episode
-		if !found {
-			r.logger.Error().Msgf("torrentstream: Failed to auto-select episode from torrent %s", searchT.Link)
-			// Remove torrent on failure
-			go func() {
-				_ = r.client.RemoveTorrent(t.InfoHash().AsString())
-			}()
-			tries++
-			continue
-		}
-
-		r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", aniDbEpisode, analysisFile.GetLocalFile().Name)
-
-		// Download the file and unselect the rest
-		for i, f := range t.Files() {
-			if i != analysisFile.GetIndex() {
-				f.SetPriority(torrent.PiecePriorityNone)
-			}
-		}
-		tFile := t.Files()[analysisFile.GetIndex()]
-		r.logger.Debug().Msgf("torrentstream: Selecting file %s", tFile.DisplayPath())
-		r.setPriorityDownloadStrategy(t, tFile)
-
-		selectedTorrent = t
-		selectedFile = tFile
-		break
-	}
-
-	if selectedTorrent == nil {
+	if result.Torrent == nil || result.File == nil {
 		return nil, ErrNoEpisodeFound
 	}
 
+	r.logger.Info().Msgf("torrentstream: Auto-selected torrent: %s", result.Torrent.Name())
+	r.logger.Debug().Msgf("torrentstream: Selected file: %s", result.File.DisplayPath())
+
+	// Set priority
+	r.setPriorityDownloadStrategy(result.Torrent, result.File)
+
 	ret = &playbackTorrent{
-		Torrent: selectedTorrent,
-		File:    selectedFile,
+		Torrent: result.Torrent,
+		File:    result.File,
 	}
 
 	return ret, nil

@@ -32665,6 +32665,17 @@
         "comments": []
       },
       {
+        "name": "autoSelect",
+        "jsonName": "autoSelect",
+        "goType": "autoselect.AutoSelect",
+        "typescriptType": "AutoSelect",
+        "usedTypescriptType": "AutoSelect",
+        "usedStructName": "autoselect.AutoSelect",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "previousStreamOptions",
         "jsonName": "previousStreamOptions",
         "goType": "",
@@ -44874,6 +44885,17 @@
       {
         "name": "BatchPreference",
         "jsonName": "batchPreference",
+        "goType": "AutoSelectPreference",
+        "typescriptType": "Anime_AutoSelectPreference",
+        "usedTypescriptType": "Anime_AutoSelectPreference",
+        "usedStructName": "anime.AutoSelectPreference",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BestReleasePreference",
+        "jsonName": "bestReleasePreference",
         "goType": "AutoSelectPreference",
         "typescriptType": "Anime_AutoSelectPreference",
         "usedTypescriptType": "Anime_AutoSelectPreference",
@@ -82356,6 +82378,197 @@
     "comments": []
   },
   {
+    "filepath": "../internal/torrents/autoselect/autoselect.go",
+    "filename": "autoselect.go",
+    "name": "AutoSelect",
+    "formattedName": "AutoSelect",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrentRepository",
+        "jsonName": "torrentRepository",
+        "goType": "itorrent.Repository",
+        "typescriptType": "Repository",
+        "usedTypescriptType": "Repository",
+        "usedStructName": "itorrent.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onEvent",
+        "jsonName": "onEvent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/autoselect/autoselect.go",
+    "filename": "autoselect.go",
+    "name": "NewAutoSelectOptions",
+    "formattedName": "NewAutoSelectOptions",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentRepository",
+        "jsonName": "TorrentRepository",
+        "goType": "itorrent.Repository",
+        "typescriptType": "Repository",
+        "usedTypescriptType": "Repository",
+        "usedStructName": "itorrent.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnEvent",
+        "jsonName": "OnEvent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/autoselect/autoselect.go",
+    "filename": "autoselect.go",
+    "name": "Result",
+    "formattedName": "Result",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "torrent.Torrent",
+        "typescriptType": "Torrent_Torrent",
+        "usedTypescriptType": "Torrent_Torrent",
+        "usedStructName": "torrent.Torrent",
+        "required": false,
+        "public": true,
+        "comments": [
+          " For torrent client"
+        ]
+      },
+      {
+        "name": "File",
+        "jsonName": "File",
+        "goType": "torrent.File",
+        "typescriptType": "Torrent_File",
+        "usedTypescriptType": "Torrent_File",
+        "usedStructName": "torrent.File",
+        "required": false,
+        "public": true,
+        "comments": [
+          " For torrent client"
+        ]
+      },
+      {
+        "name": "DebridTorrent",
+        "jsonName": "DebridTorrent",
+        "goType": "debrid.TorrentItem",
+        "typescriptType": "Debrid_TorrentItem",
+        "usedTypescriptType": "Debrid_TorrentItem",
+        "usedStructName": "debrid.TorrentItem",
+        "required": false,
+        "public": true,
+        "comments": [
+          " For debrid"
+        ]
+      },
+      {
+        "name": "DebridFileID",
+        "jsonName": "DebridFileID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " For debrid"
+        ]
+      },
+      {
+        "name": "OriginalTorrent",
+        "jsonName": "OriginalTorrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": [
+          " The original torrent object"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/torrents/torrent/repository.go",
     "filename": "repository.go",
     "name": "Repository",
@@ -83438,6 +83651,17 @@
         "comments": [
           " Key: AniList media ID"
         ]
+      },
+      {
+        "name": "autoSelect",
+        "jsonName": "autoSelect",
+        "goType": "autoselect.AutoSelect",
+        "typescriptType": "AutoSelect",
+        "usedTypescriptType": "AutoSelect",
+        "usedStructName": "autoselect.AutoSelect",
+        "required": false,
+        "public": false,
+        "comments": []
       },
       {
         "name": "torrentRepository",

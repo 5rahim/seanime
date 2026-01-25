@@ -10,6 +10,11 @@ import (
 	"gorm.io/gorm"
 )
 
+func FindAutoSelectProfile(db *db.Database) (*anime.AutoSelectProfile, bool) {
+	profile, err := GetAutoSelectProfile(db)
+	return profile, err == nil && profile.DbID != 0
+}
+
 // GetAutoSelectProfile returns the single autoselect profile if it exists
 func GetAutoSelectProfile(db *db.Database) (*anime.AutoSelectProfile, error) {
 	var res models.AutoSelectProfile
