@@ -18,14 +18,14 @@ type (
 	// NormalizedTorrent is a struct built from torrent from a provider.
 	// It is used to normalize the data from different providers so that it can be used by the AutoDownloader.
 	NormalizedTorrent struct {
-		hibiketorrent.AnimeTorrent
+		*hibiketorrent.AnimeTorrent
 		ParsedData  *habari.Metadata `json:"parsedData"`
 		magnet      string           // Access using GetMagnet()
 		ExtensionID string
 	}
 )
 
-func (ad *AutoDownloader) getTorrentsFromProviders(
+func (ad *AutoDownloader) fetchTorrentsFromProviders(
 	ctx context.Context,
 	providers []extension.AnimeTorrentProviderExtension,
 	rules []*anime.AutoDownloaderRule,
@@ -40,9 +40,10 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 	mu := sync.Mutex{}
 	torrents := make([]*NormalizedTorrent, 0)
 	wg := sync.WaitGroup{}
-	rateLimiter := limiter.NewLimiter(time.Second, 2)
 
-	// Check if we should use the default provider for rules/profiles that don't specify one
+	// Find which provider to use for rules/profiles that don't specify one
+	// If the default provider exists, we'll use it,
+	// if it doesn't, we get the provider with the most rules
 	var hasDefault bool
 	defaultProv, foundDefault := ad.torrentRepository.GetAnimeProviderExtension(ad.settings.Provider)
 	if !foundDefault {
@@ -87,31 +88,38 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 	}
 	ad.logger.Debug().Str("extension", defaultProv.GetName()).Bool("hasDefault", hasDefault).Msg("autodownloader: Checked for default provider")
 
+	// go through all providers concurrently
 	for _, providerExt := range providers {
 		wg.Add(1)
 		go func(pExt extension.AnimeTorrentProviderExtension) {
 			defer wg.Done()
 
-			// Get all latest torrents
+			// Set up a rate limiter for a single provider
+			rateLimiter := limiter.NewLimiter(time.Second, 2) // 2 reqs per sec
+
+			// Step 1: Get all latest torrents
 			ad.logger.Debug().Str("provider", pExt.GetName()).Msg("autodownloader: Getting latest torrents")
 			latest, err := pExt.GetProvider().GetLatest()
 			if err != nil {
 				ad.logger.Error().Err(err).Str("provider", pExt.GetName()).Msg("autodownloader: Failed to get latest torrents")
 			} else {
-				mu.Lock()
 				for _, t := range latest {
 					parsedData := habari.Parse(t.Name)
+					mu.Lock()
 					torrents = append(torrents, &NormalizedTorrent{
-						AnimeTorrent: *t,
+						AnimeTorrent: t,
 						ParsedData:   parsedData,
 						ExtensionID:  pExt.GetID(),
 					})
+					mu.Unlock()
 				}
-				mu.Unlock()
 			}
 
-			// Release Groups + Resolutions
-			// Identify rules relevant to this provider
+			// Step 2: Identify rules relevant to this provider
+			// If this provider is assigned to rules (directly or via profiles),
+			// we get them in order to retrieve the release groups/resolutions combos
+			// This will be used to launch more precise searches
+
 			relevantRules := make([]*anime.AutoDownloaderRule, 0)
 			for _, rule := range rules {
 				isRelevant := false
@@ -151,74 +159,84 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 				return
 			}
 
-			// Get deduplicated map of "Release Group" -> ["Resolutions"], e.g. "SubsPlease" -> []string{"1080p", "720p"}
-			// We pass 'profiles' so resolutions can be inherited if missing from the rule
+			// Get deduplicated map of Release groups to resolutions from rules or rules' profiles
+			// e.g. "SubsPlease" -> []string{"1080p", "720p"}
 			releaseGroupToResolutions := ad.getReleaseGroupToResolutionsMap(relevantRules, profiles)
 			ad.logger.Debug().Interface("releaseGroups", releaseGroupToResolutions).Msg("autodownloader: Found release groups to search for")
 
+			// For each release group, search for torrents with resolutions concurrently
+			// e.g. "SubsPlease 1080p"
+			pWg := sync.WaitGroup{}
+			pWg.Add(len(releaseGroupToResolutions))
 			for releaseGroup, resolutions := range releaseGroupToResolutions {
-				foundForGroup := false
+				go func(rg string, res []string) {
+					defer pWg.Done()
+					foundForGroup := false
 
-				// Search with resolution (limit 2)
-				for i, resolution := range resolutions {
-					if i >= 2 || resolution == "-" {
-						break
-					}
-					rateLimiter.Wait()
-					ad.logger.Debug().Str("extensionId", providerExt.GetID()).Str("releaseGroup", releaseGroup).Str("resolution", resolution).Msg("autodownloader: Searching for torrents")
-					res, err := pExt.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
-						Media: hibiketorrent.Media{},
-						Query: releaseGroup + " " + resolution,
-					})
-					if err == nil {
-						if len(res) > 0 {
-							foundForGroup = true
+					// For each release group, search with a specific resolution
+					// Devnote: Would be better to use OR operators for resolutions but not all providers support it, so we'll limit to 2 searches
+					for i, resolution := range res {
+						if i >= 2 || resolution == "-" {
+							break
 						}
-						mu.Lock()
-						for _, t := range res {
-							t := t // Capture loop variable
-							parsedData := habari.Parse(t.Name)
-							torrents = append(torrents, &NormalizedTorrent{
-								AnimeTorrent: *t,
-								ParsedData:   parsedData,
-								ExtensionID:  pExt.GetID(),
-							})
+						rateLimiter.Wait()
+						ad.logger.Debug().Str("extensionId", pExt.GetID()).Str("releaseGroup", rg).Str("resolution", resolution).Msg("autodownloader: Searching for torrents")
+						result, err := pExt.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
+							Media: hibiketorrent.Media{},
+							Query: rg + " " + resolution,
+						})
+						if err == nil {
+							if len(result) > 0 {
+								foundForGroup = true
+							}
+							for _, t := range result {
+								parsedData := habari.Parse(t.Name)
+								mu.Lock()
+								torrents = append(torrents, &NormalizedTorrent{
+									AnimeTorrent: t,
+									ParsedData:   parsedData,
+									ExtensionID:  pExt.GetID(),
+								})
+								mu.Unlock()
+							}
 						}
-						mu.Unlock()
 					}
-				}
 
-				// Search without resolution as a fallback if nothing found for specific resolutions
-				if !foundForGroup {
-					rateLimiter.Wait()
-					ad.logger.Debug().Str("extensionId", providerExt.GetID()).Str("releaseGroup", releaseGroup).Msg("autodownloader: Searching for torrents without resolution")
-					res, err := pExt.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
-						Media: hibiketorrent.Media{},
-						Query: releaseGroup,
-					})
-					if err == nil {
-						mu.Lock()
-						for _, t := range res {
-							t := t
-							parsedData := habari.Parse(t.Name)
-							torrents = append(torrents, &NormalizedTorrent{
-								AnimeTorrent: *t,
-								ParsedData:   parsedData,
-								ExtensionID:  pExt.GetID(),
-							})
+					// Search without resolution as a fallback if nothing found for specific resolutions
+					if !foundForGroup {
+						rateLimiter.Wait()
+						ad.logger.Debug().Str("extensionId", pExt.GetID()).Str("releaseGroup", rg).Msg("autodownloader: Searching for torrents without resolution")
+						result, err := pExt.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
+							Media: hibiketorrent.Media{},
+							Query: rg,
+						})
+						if err == nil {
+							for _, t := range result {
+								parsedData := habari.Parse(t.Name)
+								mu.Lock()
+								torrents = append(torrents, &NormalizedTorrent{
+									AnimeTorrent: t,
+									ParsedData:   parsedData,
+									ExtensionID:  pExt.GetID(),
+								})
+								mu.Unlock()
+							}
 						}
-						mu.Unlock()
 					}
-				}
+				}(releaseGroup, resolutions)
 			}
+			pWg.Wait()
 
 		}(providerExt)
 	}
 	wg.Wait()
 
 	// Deduplicate
-	ret = lo.UniqBy(torrents, func(t *NormalizedTorrent) string {
-		return t.Name
+	ret = lo.Filter(torrents, func(t *NormalizedTorrent, _ int) bool {
+		return t.InfoHash != ""
+	})
+	ret = lo.UniqBy(ret, func(t *NormalizedTorrent) string {
+		return t.InfoHash
 	})
 
 	ad.logger.Debug().Int("torrents", len(ret)).Msg("autodownloader: Found torrents")
@@ -229,7 +247,7 @@ func (ad *AutoDownloader) getTorrentsFromProviders(
 // GetMagnet returns the magnet link for the torrent.
 func (t *NormalizedTorrent) GetMagnet(providerExtension hibiketorrent.AnimeProvider) (string, error) {
 	if t.magnet == "" {
-		magnet, err := providerExtension.GetTorrentMagnetLink(&t.AnimeTorrent)
+		magnet, err := providerExtension.GetTorrentMagnetLink(t.AnimeTorrent)
 		if err != nil {
 			return "", err
 		}

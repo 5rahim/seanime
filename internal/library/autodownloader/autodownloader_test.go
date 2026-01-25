@@ -30,49 +30,49 @@ func TestIsConstraintsMatch(t *testing.T) {
 	}{
 		{
 			name:     "Min seeders pass",
-			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Seeders: 10}},
+			torrent:  &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Seeders: 10}},
 			rule:     &anime.AutoDownloaderRule{MinSeeders: 5},
 			expected: true,
 		},
 		{
 			name:     "Min seeders pass (no data)",
-			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Seeders: -1}},
+			torrent:  &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Seeders: -1}},
 			rule:     &anime.AutoDownloaderRule{MinSeeders: 5},
 			expected: true,
 		},
 		{
 			name:     "Min seeders fail",
-			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Seeders: 2}},
+			torrent:  &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Seeders: 2}},
 			rule:     &anime.AutoDownloaderRule{MinSeeders: 5},
 			expected: false,
 		},
 		{
 			name:     "Min size pass",
-			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 2048}}, // 2KB
+			torrent:  &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Size: 2048}}, // 2KB
 			rule:     &anime.AutoDownloaderRule{MinSize: "1KB"},
 			expected: true,
 		},
 		{
 			name:     "Min size pass (no data)",
-			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 0}},
+			torrent:  &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Size: 0}},
 			rule:     &anime.AutoDownloaderRule{MinSize: "1KB"},
 			expected: true,
 		},
 		{
 			name:     "Min size fail",
-			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 512}}, // 0.5KB
+			torrent:  &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Size: 512}}, // 0.5KB
 			rule:     &anime.AutoDownloaderRule{MinSize: "1KB"},
 			expected: false,
 		},
 		{
 			name:     "Max size pass",
-			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 1024}}, // 1KB
+			torrent:  &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Size: 1024}}, // 1KB
 			rule:     &anime.AutoDownloaderRule{MaxSize: "2KB"},
 			expected: true,
 		},
 		{
 			name:     "Max size fail",
-			torrent:  &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Size: 3072}}, // 3KB
+			torrent:  &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Size: 3072}}, // 3KB
 			rule:     &anime.AutoDownloaderRule{MaxSize: "2KB"},
 			expected: false,
 		},
@@ -126,37 +126,6 @@ func TestIsExcludedTermsMatch(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := ad.isExcludedTermsMatch(tt.torrent, tt.rule); got != tt.expected {
 				t.Errorf("isExcludedTermsMatch() = %v, want %v", got, tt.expected)
-			}
-		})
-	}
-}
-
-func TestStringToBytes(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected int64
-		hasError bool
-	}{
-		{"1GB", 1073741824, false},
-		{"1 GB", 1073741824, false},
-		{"1.5 GB", 1610612736, false},
-		{"1 GiB", 1073741824, false},
-		{"500MB", 524288000, false},
-		{"500 MiB", 524288000, false},
-		{"100KB", 102400, false},
-		{"1024 B", 1024, false},
-		{"", 0, false},
-		{"invalid", 0, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			val, err := stringToBytes(tt.input)
-			if tt.hasError {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expected, val)
 			}
 		})
 	}
@@ -281,14 +250,14 @@ func TestIsTorrentAlreadyDownloaded(t *testing.T) {
 		{
 			name: "torrent exists",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{InfoHash: "hash2"},
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{InfoHash: "hash2"},
 			},
 			expected: true,
 		},
 		{
 			name: "torrent does not exist",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{InfoHash: "hash999"},
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{InfoHash: "hash999"},
 			},
 			expected: false,
 		},
@@ -393,7 +362,7 @@ func TestCalculateCandidateScore(t *testing.T) {
 		{
 			name: "single profile, single condition",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] One Piece - 1000 (1080p) [ABCD].mkv"},
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[SubsPlease] One Piece - 1000 (1080p) [ABCD].mkv"},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
@@ -427,25 +396,25 @@ func TestSelectBestCandidate(t *testing.T) {
 		{
 			name: "highest score wins",
 			candidates: []*Candidate{
-				{Score: 10, Torrent: &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "a1", Seeders: 50}}},
-				{Score: 25, Torrent: &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "a2", Seeders: 30}}},
-				{Score: 15, Torrent: &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "a3", Seeders: 100}}},
+				{Score: 10, Torrent: &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "a1", Seeders: 50}}},
+				{Score: 25, Torrent: &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "a2", Seeders: 30}}},
+				{Score: 15, Torrent: &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "a3", Seeders: 100}}},
 			},
 			expectedTorrent: "a2",
 		},
 		{
 			name: "same score, more seeders wins",
 			candidates: []*Candidate{
-				{Score: 20, Torrent: &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "a1", Seeders: 50}}},
-				{Score: 20, Torrent: &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "a2", Seeders: 150}}},
-				{Score: 20, Torrent: &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "a3", Seeders: 100}}},
+				{Score: 20, Torrent: &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "a1", Seeders: 50}}},
+				{Score: 20, Torrent: &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "a2", Seeders: 150}}},
+				{Score: 20, Torrent: &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "a3", Seeders: 100}}},
 			},
 			expectedTorrent: "a2",
 		},
 		{
 			name: "single candidate",
 			candidates: []*Candidate{
-				{Score: 10, Torrent: &NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "a1", Seeders: 10}}},
+				{Score: 10, Torrent: &NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "a1", Seeders: 10}}},
 			},
 			expectedTorrent: "a1",
 		},
@@ -629,7 +598,7 @@ func TestTorrentScoring(t *testing.T) {
 		{
 			name: "preferred_fansub_match",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Shangri-La Frontier S02 - 14 (1080p).mkv"},
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Shangri-La Frontier S02 - 14 (1080p).mkv"},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
@@ -646,7 +615,7 @@ func TestTorrentScoring(t *testing.T) {
 		{
 			name: "reject_batch_uploads",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[ASW] Solo Leveling - S02E01 [1080p HEVC x265 10bit] (Batch)"},
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[ASW] Solo Leveling - S02E01 [1080p HEVC x265 10bit] (Batch)"},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
@@ -663,7 +632,7 @@ func TestTorrentScoring(t *testing.T) {
 		{
 			name: "regex_media_source_detection",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[EMBER] Frieren - 01 [BDRip] [1080p] [HEVC]"},
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[EMBER] Frieren - 01 [BDRip] [1080p] [HEVC]"},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
@@ -680,7 +649,7 @@ func TestTorrentScoring(t *testing.T) {
 		{
 			name: "cumulative_global_and_group_profiles",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Nippon-Yasan] Monogatari Series - Off & Monster Season - 01 (1080p).mkv"},
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[Nippon-Yasan] Monogatari Series - Off & Monster Season - 01 (1080p).mkv"},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
@@ -705,7 +674,7 @@ func TestTorrentScoring(t *testing.T) {
 		{
 			name: "version_revision_handling",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Dandadan - 01v2 (1080p).mkv"},
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Dandadan - 01v2 (1080p).mkv"},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
@@ -744,9 +713,9 @@ func TestTorrentRanking(t *testing.T) {
 			name:         "high_fidelity_archive",
 			scenarioDesc: "Prefer BDRip with lossless audio over high-seed Web-DL",
 			candidates: []*NormalizedTorrent{
-				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Sousou no Frieren - 01 (1080p) [Web-DL].mkv", Seeders: 3500, Size: 1400000000}},
-				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Erai-raws] Sousou no Frieren - 01 [1080p].mkv", Seeders: 1200, Size: 1600000000}},
-				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[CoalGirls] Sousou no Frieren - 01 [BDRip 1920x1080 HEVC FLAC].mkv", Seeders: 85, Size: 5200000000}},
+				{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Sousou no Frieren - 01 (1080p) [Web-DL].mkv", Seeders: 3500, Size: 1400000000}},
+				{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[Erai-raws] Sousou no Frieren - 01 [1080p].mkv", Seeders: 1200, Size: 1600000000}},
+				{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[CoalGirls] Sousou no Frieren - 01 [BDRip 1920x1080 HEVC FLAC].mkv", Seeders: 85, Size: 5200000000}},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
@@ -765,8 +734,8 @@ func TestTorrentRanking(t *testing.T) {
 			name:         "codec_compatibility",
 			scenarioDesc: "Filter out HEVC for legacy playback hardware",
 			candidates: []*NormalizedTorrent{
-				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Judas] Kaiju No. 8 - 01 [1080p][HEVC x265 10bit].mkv", Seeders: 2200}},
-				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Kaiju No. 8 - 01 (1080p).mkv", Seeders: 1800}},
+				{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[Judas] Kaiju No. 8 - 01 [1080p][HEVC x265 10bit].mkv", Seeders: 2200}},
+				{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Kaiju No. 8 - 01 (1080p).mkv", Seeders: 1800}},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
@@ -784,8 +753,8 @@ func TestTorrentRanking(t *testing.T) {
 			name:         "multi_audio_preference",
 			scenarioDesc: "Prioritize Dual Audio releases for local library",
 			candidates: []*NormalizedTorrent{
-				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Dungeon Meshi - 01 (1080p).mkv", Seeders: 2800}},
-				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[EMBER] Dungeon Meshi - 01 (1080p) [Dual Audio].mkv", Seeders: 210}},
+				{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Dungeon Meshi - 01 (1080p).mkv", Seeders: 2800}},
+				{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[EMBER] Dungeon Meshi - 01 (1080p) [Dual Audio].mkv", Seeders: 210}},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
@@ -803,8 +772,8 @@ func TestTorrentRanking(t *testing.T) {
 			name:         "release_revision_v2",
 			scenarioDesc: "Ensure v2/corrected releases are preferred over initial uploads",
 			candidates: []*NormalizedTorrent{
-				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Group] Metallic Rouge - 01 [1080p].mkv", Seeders: 900}},
-				{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[Group] Metallic Rouge - 01v2 [1080p].mkv", Seeders: 340}},
+				{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[Group] Metallic Rouge - 01 [1080p].mkv", Seeders: 900}},
+				{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[Group] Metallic Rouge - 01v2 [1080p].mkv", Seeders: 340}},
 			},
 			profiles: []*anime.AutoDownloaderProfile{
 				{
@@ -857,7 +826,7 @@ func TestIsProfileValidChecks(t *testing.T) {
 		{
 			name: "valid_standard_release",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{
 					Name:    "[SubsPlease] One Piece - 1100 (1080p).mkv",
 					Seeders: 1500,
 					Size:    1400000000,
@@ -875,7 +844,7 @@ func TestIsProfileValidChecks(t *testing.T) {
 		{
 			name: "fail_low_seeder_count",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{
 					Name:    "[OldGroup] Classic Movie (1080p).mkv",
 					Seeders: 2,
 					Size:    4000000000,
@@ -889,7 +858,7 @@ func TestIsProfileValidChecks(t *testing.T) {
 		{
 			name: "fail_blocked_release_group",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{
 					Name:    "[SubsPlease] Bleach - 01 (1080p).mkv",
 					Seeders: 500,
 				},
@@ -904,7 +873,7 @@ func TestIsProfileValidChecks(t *testing.T) {
 		{
 			name: "fail_missing_required_codec",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{
 					Name:    "[Erai-raws] Danmachi S5 - 01 (1080p).mkv",
 					Seeders: 800,
 				},
@@ -919,7 +888,7 @@ func TestIsProfileValidChecks(t *testing.T) {
 		{
 			name: "fail_undersized_release",
 			torrent: &NormalizedTorrent{
-				AnimeTorrent: hibiketorrent.AnimeTorrent{
+				AnimeTorrent: &hibiketorrent.AnimeTorrent{
 					Name: "[Micro] Chainsaw Man - 01 (1080p).mkv",
 					Size: 150000000,
 				},
@@ -1184,7 +1153,7 @@ func TestDelayIntegration(t *testing.T) {
 					Hash:        "hash1",
 					IsDelayed:   true,
 					DelayUntil:  time.Now().Add(-1 * time.Minute), // Expired
-					TorrentData: mustMarshalTorrent(&NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Sousou no Frieren - 01 (1080p).mkv", InfoHash: "hash1"}}),
+					TorrentData: mustMarshalTorrent(&NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "[SubsPlease] Sousou no Frieren - 01 (1080p).mkv", InfoHash: "hash1"}}),
 				},
 			},
 			profile: &anime.AutoDownloaderProfile{
@@ -1212,7 +1181,7 @@ func TestDelayIntegration(t *testing.T) {
 					Score:       10,
 					IsDelayed:   true,
 					DelayUntil:  time.Now().Add(5 * time.Minute), // Not expired
-					TorrentData: mustMarshalTorrent(&NormalizedTorrent{AnimeTorrent: hibiketorrent.AnimeTorrent{Name: "Name", InfoHash: "hash_bad"}}),
+					TorrentData: mustMarshalTorrent(&NormalizedTorrent{AnimeTorrent: &hibiketorrent.AnimeTorrent{Name: "Name", InfoHash: "hash_bad"}}),
 				},
 			},
 			profile: &anime.AutoDownloaderProfile{

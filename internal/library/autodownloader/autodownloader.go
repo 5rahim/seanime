@@ -380,10 +380,11 @@ func (ad *AutoDownloader) fetchRunData(ctx context.Context, ruleIDs ...uint) (*r
 	lfWrapper := anime.NewLocalFileWrapper(lfs)
 
 	// Identify distinct providers from rules and profiles
+	// Returns the default provider + any other provider used by rules or profiles
 	providerExtensions := ad.getProvidersForRules(rules, profiles)
 
 	// Fetch torrents from all identified providers
-	torrents, err := ad.getTorrentsFromProviders(ctx, providerExtensions, rules, profiles)
+	torrents, err := ad.fetchTorrentsFromProviders(ctx, providerExtensions, rules, profiles)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get latest torrents: %w", err)
 	}
@@ -554,12 +555,12 @@ type delaySettings struct {
 }
 
 // getDelaySettings extracts delay configuration from profiles
-// Uses the rule with the highest delay minutes and its delay score.
+// Uses the highest delay and skip delay score.
 func (ad *AutoDownloader) getDelaySettings(rule *anime.AutoDownloaderRule, ruleProfiles []*anime.AutoDownloaderProfile) delaySettings {
 	settings := delaySettings{
 		hasDelay:       false,
 		delayMinutes:   0,
-		skipDelayScore: 999999,
+		skipDelayScore: 0,
 	}
 
 	for _, p := range ruleProfiles {
@@ -567,9 +568,9 @@ func (ad *AutoDownloader) getDelaySettings(rule *anime.AutoDownloaderRule, ruleP
 			settings.hasDelay = true
 			if p.DelayMinutes > settings.delayMinutes {
 				settings.delayMinutes = p.DelayMinutes
-				if p.SkipDelayScore > 0 {
-					settings.skipDelayScore = p.SkipDelayScore
-				}
+			}
+			if p.SkipDelayScore > settings.skipDelayScore {
+				settings.skipDelayScore = p.SkipDelayScore
 			}
 		}
 	}
@@ -1480,6 +1481,7 @@ func (ad *AutoDownloader) getRuleListEntry(rule *anime.AutoDownloaderRule) (*ani
 }
 
 // getProvidersForRules returns all providers that will be used
+// Returns the default provider and any other provider used by rules or profiles
 func (ad *AutoDownloader) getProvidersForRules(rules []*anime.AutoDownloaderRule, profiles []*anime.AutoDownloaderProfile) []extension.AnimeTorrentProviderExtension {
 	providerIDs := make(map[string]struct{})
 

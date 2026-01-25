@@ -4,8 +4,6 @@ import (
 	"regexp"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
-	"seanime/internal/util/comparison"
-	"strconv"
 	"strings"
 
 	"github.com/samber/lo"
@@ -33,13 +31,13 @@ func (ad *AutoDownloader) isConstraintsMatch(t *NormalizedTorrent, rule *anime.A
 		return false
 	}
 	if t.Size > 0 && rule.MinSize != "" {
-		minSize, err := stringToBytes(rule.MinSize)
+		minSize, err := util.StringToBytes(rule.MinSize)
 		if err == nil && t.Size < minSize {
 			return false
 		}
 	}
 	if t.Size > 0 && rule.MaxSize != "" {
-		maxSize, err := stringToBytes(rule.MaxSize)
+		maxSize, err := util.StringToBytes(rule.MaxSize)
 		if err == nil && t.Size > maxSize {
 			return false
 		}
@@ -61,13 +59,13 @@ func (ad *AutoDownloader) isProfileValidChecks(t *NormalizedTorrent, profile *an
 	}
 	// Only check if torrent has size info
 	if profile.MinSize != "" && t.Size > 0 {
-		minSize, err := stringToBytes(profile.MinSize)
+		minSize, err := util.StringToBytes(profile.MinSize)
 		if err == nil && t.Size < minSize {
 			return false
 		}
 	}
 	if profile.MaxSize != "" && t.Size > 0 {
-		maxSize, err := stringToBytes(profile.MaxSize)
+		maxSize, err := util.StringToBytes(profile.MaxSize)
 		if err == nil && t.Size > maxSize {
 			return false
 		}
@@ -162,50 +160,6 @@ func (ad *AutoDownloader) calculateTorrentScore(t *NormalizedTorrent, profile *a
 
 	return score
 }
-
-// stringToBytes converts a size string (e.g. "1.5GB", "200MB", "1GiB") to bytes.
-// Supports B, KB, MB, GB, TB, KiB, MiB, GiB, TiB.
-// All units are treated as binary (1024-based)
-func stringToBytes(s string) (int64, error) {
-	s = strings.TrimSpace(strings.ToUpper(s))
-	if s == "" {
-		return 0, nil
-	}
-
-	if strings.Contains(s, "IB") {
-		s = strings.ReplaceAll(s, "IB", "B")
-	}
-
-	var multiplier int64 = 1
-	var numStr string
-
-	if strings.HasSuffix(s, "TB") {
-		multiplier = 1024 * 1024 * 1024 * 1024
-		numStr = strings.TrimSuffix(s, "TB")
-	} else if strings.HasSuffix(s, "GB") {
-		multiplier = 1024 * 1024 * 1024
-		numStr = strings.TrimSuffix(s, "GB")
-	} else if strings.HasSuffix(s, "MB") {
-		multiplier = 1024 * 1024
-		numStr = strings.TrimSuffix(s, "MB")
-	} else if strings.HasSuffix(s, "KB") {
-		multiplier = 1024
-		numStr = strings.TrimSuffix(s, "KB")
-	} else if strings.HasSuffix(s, "B") {
-		numStr = strings.TrimSuffix(s, "B")
-	} else {
-		numStr = s // Assume raw or default to simple parse attempt
-	}
-
-	numStr = strings.TrimSpace(numStr)
-	val, err := strconv.ParseFloat(numStr, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return int64(val * float64(multiplier)), nil
-}
-
 func (ad *AutoDownloader) isResolutionMatch(quality string, resolutions []string) (ok bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isResolutionMatch", func() {
 		ok = false
@@ -218,11 +172,11 @@ func (ad *AutoDownloader) isResolutionMatch(quality string, resolutions []string
 		return false
 	}
 
-	normalizedQuality := comparison.NormalizeResolution(quality)
+	normalizedQuality := util.NormalizeResolution(quality)
 
 	for _, q := range resolutions {
-		normalizedRuleRes := comparison.NormalizeResolution(q)
-		if comparison.ExtractResolutionInt(normalizedQuality) == comparison.ExtractResolutionInt(normalizedRuleRes) {
+		normalizedRuleRes := util.NormalizeResolution(q)
+		if util.ExtractResolutionInt(normalizedQuality) == util.ExtractResolutionInt(normalizedRuleRes) {
 			return true
 		}
 	}
