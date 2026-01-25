@@ -1972,6 +1972,7 @@ export type SearchTorrent_Variables = {
     absoluteOffset?: number
     resolution?: string
     bestRelease?: boolean
+    includeSpecialProviders?: boolean
 }
 
 /**

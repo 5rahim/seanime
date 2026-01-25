@@ -625,17 +625,6 @@ export default function Page() {
                                                     { label: "None", value: TORRENT_PROVIDER.NONE },
                                                 ]}
                                             />
-                                            <Field.Select
-                                                name="autoSelectTorrentProvider"
-                                                label="Auto-select Provider"
-                                                options={[
-                                                    ...(torrentProviderExtensions?.filter(ext => ext?.settings?.type === "main")?.map(ext => ({
-                                                        label: ext.name,
-                                                        value: ext.id,
-                                                    })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
-                                                    { label: "None", value: TORRENT_PROVIDER.NONE },
-                                                ]}
-                                            />
                                         </SettingsCard>
 
 

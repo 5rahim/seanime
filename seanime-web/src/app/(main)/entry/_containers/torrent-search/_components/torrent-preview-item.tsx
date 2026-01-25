@@ -28,7 +28,7 @@ export const TorrentList = ({ children }: { children?: React.ReactNode }) => {
     )
 }
 
-export const TorrentListItem = ({ torrent, metadata, debridCached, onClick, isSelected, episode, media, overrideProps }: {
+export const TorrentListItem = ({ torrent, metadata, debridCached, onClick, isSelected, episode, media, overrideProps, extensionName }: {
     torrent: HibikeTorrent_AnimeTorrent,
     metadata: Habari_Metadata | undefined,
     debridCached: boolean | undefined,
@@ -37,6 +37,7 @@ export const TorrentListItem = ({ torrent, metadata, debridCached, onClick, isSe
     isSelected: boolean
     onClick: () => void
     overrideProps?: Partial<TorrentPreviewItemProps>
+    extensionName?: string
 }) => {
     return (
         <TorrentPreviewItem
@@ -73,6 +74,8 @@ export const TorrentListItem = ({ torrent, metadata, debridCached, onClick, isSe
                 {torrent.date && <p className="text-[--muted] text-sm flex items-center gap-1">
                     <BiCalendarAlt /> {formatDistanceToNowSafe(torrent.date)}
                 </p>}
+                <div className="flex-1"></div>
+                {extensionName && <p className="text-[--muted] font-bold text-sm flex items-center gap-1">{extensionName}</p>}
             </div>
             {metadata && <TorrentParsedMetadata metadata={metadata} />}
         </TorrentPreviewItem>

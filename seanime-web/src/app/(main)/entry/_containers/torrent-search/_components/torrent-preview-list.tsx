@@ -5,6 +5,7 @@ import {
     Torrent_Preview,
     Torrent_TorrentMetadata,
 } from "@/api/generated/types"
+import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
 import {
     filterItems,
     sortItems,
@@ -28,6 +29,7 @@ type TorrentPreviewList = {
     onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void
     type: TorrentSelectionType
     torrentMetadata: Record<string, Torrent_TorrentMetadata> | undefined
+    includedSpecialProviders?: string[]
 }
 
 export const TorrentPreviewList = React.memo((
@@ -40,10 +42,12 @@ export const TorrentPreviewList = React.memo((
         debridInstantAvailability,
         type,
         torrentMetadata,
+        includedSpecialProviders = [],
     }: TorrentPreviewList) => {
     // Use hooks for sorting and filtering
     const { sortField, sortDirection, handleSortChange } = useTorrentSorting()
     const { filters, handleFilterChange } = useTorrentFiltering()
+    const { data: extensions } = useAnimeListTorrentProviderExtensions()
 
     if (isLoading) return <div className="space-y-2">
         <Skeleton className="h-[96px]" />
@@ -88,6 +92,9 @@ export const TorrentPreviewList = React.memo((
                                 debridCached={((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!item.torrent.infoHash && !!debridInstantAvailability[item.torrent.infoHash])}
                                 isSelected={selectedTorrents.findIndex(n => n.link === item.torrent!.link) !== -1}
                                 onClick={() => onToggleTorrent(item.torrent!)}
+                                extensionName={item.torrent.provider && includedSpecialProviders?.includes(item.torrent.provider)
+                                    ? extensions?.find(e => e.id === item.torrent?.provider)?.name
+                                    : undefined}
                             />
                         )
                     })}

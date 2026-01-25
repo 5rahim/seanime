@@ -135,6 +135,7 @@ func (r *Repository) GetDefaultAnimeProviderExtension() (extension.AnimeTorrentP
 	return r.GetAnimeProviderExtensionOrFirst(id)
 }
 
+// DEPRECATED: Use GetDefaultAnimeProviderExtension instead
 func (r *Repository) GetAutoSelectProviderExtension() (extension.AnimeTorrentProviderExtension, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -194,4 +195,15 @@ func (r *Repository) GetAllAnimeProviderExtensionIds() []string {
 		return true
 	})
 	return ids
+}
+
+func (r *Repository) GetAnimeProviderExtensionsBy(pred func(ext extension.AnimeTorrentProviderExtension) bool) []extension.AnimeTorrentProviderExtension {
+	exts := make([]extension.AnimeTorrentProviderExtension, 0)
+	extension.RangeExtensions[extension.AnimeTorrentProviderExtension](r.extensionBankRef.Get(), func(id string, ext extension.AnimeTorrentProviderExtension) bool {
+		if pred(ext) {
+			exts = append(exts, ext)
+		}
+		return true
+	})
+	return exts
 }

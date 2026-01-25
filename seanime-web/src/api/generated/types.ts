@@ -4686,6 +4686,7 @@ export type Torrent_SearchData = {
      * Animap media
      */
     animeMetadata?: Metadata_AnimeMetadata
+    includedSpecialProviders?: Array<string>
 }
 
 /**

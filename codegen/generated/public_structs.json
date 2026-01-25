@@ -82380,6 +82380,23 @@
   {
     "filepath": "../internal/torrents/autoselect/autoselect.go",
     "filename": "autoselect.go",
+    "name": "SelectionMode",
+    "formattedName": "SelectionMode",
+    "package": "autoselect",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"torrent\"",
+        "\"debrid\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/autoselect/autoselect.go",
+    "filename": "autoselect.go",
     "name": "AutoSelect",
     "formattedName": "AutoSelect",
     "package": "autoselect",
@@ -82531,10 +82548,10 @@
       {
         "name": "DebridTorrent",
         "jsonName": "DebridTorrent",
-        "goType": "debrid.TorrentItem",
-        "typescriptType": "Debrid_TorrentItem",
-        "usedTypescriptType": "Debrid_TorrentItem",
-        "usedStructName": "debrid.TorrentItem",
+        "goType": "debrid.TorrentInfo",
+        "typescriptType": "Debrid_TorrentInfo",
+        "usedTypescriptType": "Debrid_TorrentInfo",
+        "usedStructName": "debrid.TorrentInfo",
         "required": false,
         "public": true,
         "comments": [
@@ -82564,6 +82581,36 @@
         "comments": [
           " The original torrent object"
         ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/autoselect/comparison.go",
+    "filename": "comparison.go",
+    "name": "TorrentWithCacheStatus",
+    "formattedName": "TorrentWithCacheStatus",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsCached",
+        "jsonName": "IsCached",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -82815,6 +82862,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IncludeSpecialProviders",
+        "jsonName": "IncludeSpecialProviders",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -82954,6 +83010,15 @@
         "comments": [
           " Animap media"
         ]
+      },
+      {
+        "name": "IncludedSpecialProviders",
+        "jsonName": "includedSpecialProviders",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []

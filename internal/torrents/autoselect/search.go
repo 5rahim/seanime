@@ -273,6 +273,7 @@ func (s *AutoSelect) buildSearchOptions(
 		EpisodeNumber: episodeNumber,
 		BestReleases:  false,
 		Resolution:    resolution,
+		SkipPreviews:  true,
 	}, nil
 }
 

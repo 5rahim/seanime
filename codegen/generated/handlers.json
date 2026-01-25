@@ -10414,6 +10414,15 @@
           "typescriptType": "boolean",
           "required": false,
           "descriptions": []
+        },
+        {
+          "name": "IncludeSpecialProviders",
+          "jsonName": "includeSpecialProviders",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": false,
+          "descriptions": []
         }
       ],
       "returns": "torrent.SearchData",
