@@ -28,6 +28,7 @@ func TestNewMediaFetcher(t *testing.T) {
 	anilistClientRef := util.NewRef(anilistClient)
 	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
+	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
 	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()

@@ -33,3 +33,17 @@ func (db *Database) InsertLocalFiles(lfs *models.LocalFiles) (*models.LocalFiles
 	}
 	return lfs, nil
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (db *Database) UpsertShelvedLocalFiles(lfs *models.ShelvedLocalFiles) (*models.ShelvedLocalFiles, error) {
+	err := db.gormdb.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		UpdateAll: true,
+	}).Create(lfs).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return lfs, nil
+}

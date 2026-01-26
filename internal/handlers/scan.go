@@ -45,6 +45,12 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
+	// Get the latest shelved local files
+	existingShelvedLfs, err := db_bridge.GetShelvedLocalFiles(h.App.Database)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
 	// +---------------------+
 	// |       Scanner       |
 	// +---------------------+
@@ -61,20 +67,22 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 
 	// Create a new scanner
 	sc := scanner.Scanner{
-		DirPath:             libraryPath,
-		OtherDirPaths:       additionalLibraryPaths,
-		Enhanced:            b.Enhanced,
-		PlatformRef:         h.App.AnilistPlatformRef,
-		Logger:              h.App.Logger,
-		WSEventManager:      h.App.WSEventManager,
-		ExistingLocalFiles:  existingLfs,
-		SkipLockedFiles:     b.SkipLockedFiles,
-		SkipIgnoredFiles:    b.SkipIgnoredFiles,
-		ScanSummaryLogger:   scanSummaryLogger,
-		ScanLogger:          scanLogger,
-		MetadataProviderRef: h.App.MetadataProviderRef,
-		MatchingAlgorithm:   h.App.Settings.GetLibrary().ScannerMatchingAlgorithm,
-		MatchingThreshold:   h.App.Settings.GetLibrary().ScannerMatchingThreshold,
+		DirPath:              libraryPath,
+		OtherDirPaths:        additionalLibraryPaths,
+		Enhanced:             b.Enhanced,
+		PlatformRef:          h.App.AnilistPlatformRef,
+		Logger:               h.App.Logger,
+		WSEventManager:       h.App.WSEventManager,
+		ExistingLocalFiles:   existingLfs,
+		SkipLockedFiles:      b.SkipLockedFiles,
+		SkipIgnoredFiles:     b.SkipIgnoredFiles,
+		ScanSummaryLogger:    scanSummaryLogger,
+		ScanLogger:           scanLogger,
+		MetadataProviderRef:  h.App.MetadataProviderRef,
+		MatchingAlgorithm:    h.App.Settings.GetLibrary().ScannerMatchingAlgorithm,
+		MatchingThreshold:    h.App.Settings.GetLibrary().ScannerMatchingThreshold,
+		WithShelving:         true,
+		ExistingShelvedFiles: existingShelvedLfs,
 	}
 
 	// Scan the library
@@ -89,6 +97,12 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 
 	// Insert the local files
 	lfs, err := db_bridge.InsertLocalFiles(h.App.Database, allLfs)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	// Save the shelved local files
+	err = db_bridge.SaveShelvedLocalFiles(h.App.Database, sc.GetShelvedLocalFiles())
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
