@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
@@ -1059,6 +1060,15 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 
 	downloaded := false
 
+	downloadImmediately := ad.settings.DownloadAutomatically
+
+	// We won't download if the path doesn't exist, just queue it
+	// This is useful if the drive is disconnected so we don't just error out
+	if _, err := os.Stat(rule.Destination); err != nil {
+		downloadImmediately = false
+	}
+
+downloadScope:
 	if useDebrid {
 		//
 		// Debrid
@@ -1069,7 +1079,7 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 			return false
 		}
 
-		if ad.settings.DownloadAutomatically {
+		if downloadImmediately {
 			// Add the torrent to the debrid provider and queue it
 			_, err := ad.debridClientRepository.AddAndQueueTorrent(debrid.AddTorrentOptions{
 				MagnetLink:   magnet,
@@ -1077,7 +1087,8 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 			}, rule.Destination, rule.MediaId)
 			if err != nil {
 				ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to debrid")
-				return false
+				downloadImmediately = false
+				goto downloadScope
 			}
 		} else {
 			debridProvider, err := ad.debridClientRepository.GetProvider()
@@ -1099,11 +1110,13 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 
 	} else {
 		// Pause the torrent when it's added
-		if ad.settings.DownloadAutomatically {
+		if downloadImmediately {
 
 			if ad.torrentClientRepository == nil {
 				ad.logger.Error().Msg("autodownloader: torrent client not found")
-				return false
+				downloadImmediately = false
+				ad.logger.Warn().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Torrent will be queued.")
+				goto downloadScope
 			}
 
 			//
@@ -1112,7 +1125,9 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 			started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
 			if !started {
 				ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. torrent client is not running.")
-				return false
+				downloadImmediately = false
+				ad.logger.Warn().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Torrent will be queued.")
+				goto downloadScope
 			}
 
 			// Return if the torrent is already added
