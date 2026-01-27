@@ -473,13 +473,13 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                         type="number"
                     />}
 
-                    <Field.Number
+                    {form_episodeType === "recent" && <Field.Number
                         name="customEpisodeNumberAbsoluteOffset"
                         label="Episode number absolute offset"
                         help="For example, if the release group starts numbering at 13 instead of 1, set this to 12."
                         className="w-32"
                         hideControls
-                    />
+                    />}
                 </div>
 
                 <ProfileSelectField name="profileId" />

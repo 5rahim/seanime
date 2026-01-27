@@ -1,3 +1,4 @@
+import { Anime_AutoDownloaderRule } from "@/api/generated/types"
 import {
     useDeleteAutoDownloaderRule,
     useGetAutoDownloaderItems,
@@ -91,6 +92,23 @@ export function AutoDownloaderPage() {
         })
     }
 
+    function sortRules(a: Anime_AutoDownloaderRule, b: Anime_AutoDownloaderRule) {
+        const mediaA = userMedia?.find(m => m.id === a.mediaId)
+        const mediaB = userMedia?.find(m => m.id === b.mediaId)
+        if (mediaA && !mediaB) return 1
+        if (!mediaA && mediaB) return -1
+        if (!mediaA && !mediaB) return 0
+        if (mediaA?.status !== mediaB?.status) {
+            if (mediaA?.status === "RELEASING") return -1
+            if (mediaB?.status === "RELEASING") return 1
+            if (mediaA?.status === "FINISHED") return 1
+            if (mediaB?.status === "FINISHED") return -1
+            if (mediaA?.status === "NOT_YET_RELEASED") return 1
+            if (mediaB?.status === "NOT_YET_RELEASED") return -1
+        }
+        return mediaA?.title?.userPreferred?.localeCompare(mediaB?.title?.userPreferred ?? "") ?? 0
+    }
+
     return (
         <div className="space-y-4">
             <ConfirmationDialog {...confirmDeleteNoLongerAiring} />
@@ -121,7 +139,7 @@ export function AutoDownloaderPage() {
 
                                 <Card className="p-4 space-y-4">
                                     <ul className="text-base text-[--muted]">
-                                        <li><em className="font-semibold">Rules</em> allow you to programmatically download new episodes based on the
+                                        <li>Rules allow you to programmatically download new episodes based on the
                                                                                      parameters you set.
                                         </li>
                                     </ul>
@@ -176,7 +194,7 @@ export function AutoDownloaderPage() {
 
                                     {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}
                                     {(!!data?.length) && <div className="space-y-2">
-                                        {data?.map(rule => (
+                                        {data?.toSorted(sortRules)?.map(rule => (
                                             <AutoDownloaderRuleItem
                                                 key={rule.dbId}
                                                 rule={rule}

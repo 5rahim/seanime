@@ -225,8 +225,9 @@ export function ExcludeTermsField(props: AdditionalTermsFieldProps) {
     return (
         <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
             <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Exclude Terms</div>
-            <p className="text-sm">
-                Torrents containing any of these terms will be rejected. (Case insensitive)
+            <p className="text-sm"><span className="font-semibold">
+                All options must be included for the torrent to be rejected.</span> Torrents containing any of these terms will be rejected. (Case
+                                                                                    insensitive)
             </p>
 
             <TextArrayField

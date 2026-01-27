@@ -93,3 +93,6 @@ internal/extension_repo/**/test*.ts
 internal/extension_repo/goja_plugin_test
 
 *.sh
+
+seanime-web-tr/
+codegen/nonext/

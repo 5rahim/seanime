@@ -38,7 +38,7 @@ export function AutoDownloaderProfiles() {
                 </div>
 
                 <div className="space-y-3">
-                    {profiles?.map(profile => (
+                    {profiles?.toSorted((a, b) => a.name?.toLowerCase()?.localeCompare(b.name?.toLowerCase()))?.map(profile => (
                         <ProfileItem
                             key={profile.dbId}
                             profile={profile}

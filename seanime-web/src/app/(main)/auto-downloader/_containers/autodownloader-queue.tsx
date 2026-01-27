@@ -56,7 +56,7 @@ export function AutodownloaderQueue(props: AutoDownloaderQueueProps) {
                     Queue is empty
                 </p>
             )}
-            {data?.map((item) => {
+            {data?.toSorted((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""))?.map((item) => {
                 const media = userMedia?.find(m => m.id === item.mediaId)
                 return <div className="rounded-[--radius] p-3 bg-gray-900" key={item.id}>
                     <div className="flex items-center gap-4">
