@@ -51,7 +51,7 @@ func (h *Handler) HandleSearchTorrent(c echo.Context) error {
 		EpisodeNumber:           b.EpisodeNumber,
 		BestReleases:            b.BestRelease,
 		Resolution:              b.Resolution,
-		IncludeSpecialProviders: b.IncludeSpecialProviders,
+		IncludeSpecialProviders: false,
 	})
 	if err != nil {
 		return h.RespondWithError(c, err)
