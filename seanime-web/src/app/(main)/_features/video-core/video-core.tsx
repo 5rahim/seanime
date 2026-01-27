@@ -1486,7 +1486,7 @@ export function VideoCore(props: VideoCoreProps) {
         return (
             <ScopeProvider atoms={[__torrentSearch_selectionAtom, __torrentSearch_selectionEpisodeAtom, __torrentSearch_selectedTorrentsAtom]}>
                 <VideoCoreAnime4K />
-                <VideoCorePreferencesModal />
+                <VideoCorePreferencesModal isWebPlayer={props.id !== "native-player"} />
                 {fullscreen && <RemoveScrollBar />}
                 <div
                     data-vc-element="inline-container"
@@ -1534,7 +1534,7 @@ export function VideoCore(props: VideoCoreProps) {
             <ScopeProvider atoms={[__torrentSearch_selectionAtom, __torrentSearch_selectionEpisodeAtom, __torrentSearch_selectedTorrentsAtom]}>
 
                 <VideoCoreAnime4K />
-                <VideoCorePreferencesModal />
+                <VideoCorePreferencesModal isWebPlayer={props.id !== "native-player"} />
                 {state.active && !isMiniPlayer && <RemoveScrollBar />}
 
                 <TorrentStreamOverlay isNativePlayerComponent="overlay" show={(state.active && isMiniPlayer)} />

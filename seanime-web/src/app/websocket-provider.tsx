@@ -45,10 +45,39 @@ export function useIsMainTabRef() {
 }
 
 export function WebsocketProvider({ children }: { children: React.ReactNode }) {
+    const [socket] = useAtom(websocketAtom)
+    const [isConnected] = useAtom(websocketConnectedAtom)
+
+    return (
+        <>
+            <WebsocketManagement />
+            <ManageOpenDrawers />
+            {__isTauriDesktop__ && <TauriRestartServerPrompt />}
+            {__isElectronDesktop__ && <ElectronRestartServerPrompt />}
+            <WebSocketContext.Provider value={socket}>
+                {!isConnected && <div
+                    className="fixed right-4 bottom-4 bg-gray-950 border text-sm py-3 px-5 font-semibold rounded-xl z-[100] flex gap-2 items-center"
+                >
+                    <ImSpinner2 className="animate-spin text-lg" />
+                    Establishing connection...
+                </div>}
+                {children}
+            </WebSocketContext.Provider>
+        </>
+    )
+}
+
+function ManageOpenDrawers() {
+    const openDrawers = useAtomValue(__openDrawersAtom)
+    if (openDrawers.length > 0) return <RemoveScrollBar />
+    return null
+}
+
+function WebsocketManagement() {
     const [socket, setSocket] = useAtom(websocketAtom)
     const [isConnected, setIsConnected] = useAtom(websocketConnectedAtom)
     const setConnectionErrorCount = useSetAtom(websocketConnectionErrorCountAtom)
-    const openDrawers = useAtomValue(__openDrawersAtom)
+
     const [cookies, setCookie, removeCookie] = useCookies(["Seanime-Client-Id"])
 
     const [, setClientId] = useAtom(clientIdAtom)
@@ -282,21 +311,5 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
         }
     })
 
-    return (
-        <>
-            {openDrawers.length > 0 && <RemoveScrollBar />}
-            {__isTauriDesktop__ && <TauriRestartServerPrompt />}
-            {__isElectronDesktop__ && <ElectronRestartServerPrompt />}
-            <WebSocketContext.Provider value={socket}>
-                {!isConnected && <div
-                    className="fixed right-4 bottom-4 bg-gray-950 border text-sm py-3 px-5 font-semibold rounded-xl z-[100] flex gap-2 items-center"
-                >
-                    <ImSpinner2 className="animate-spin text-lg" />
-                    Establishing connection...
-                </div>}
-                {children}
-            </WebSocketContext.Provider>
-        </>
-    )
+    return null
 }
-

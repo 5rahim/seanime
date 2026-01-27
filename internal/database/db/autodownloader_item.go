@@ -34,6 +34,16 @@ func (db *Database) GetAutoDownloaderItemByMediaId(mId int) ([]*models.AutoDownl
 	return res, nil
 }
 
+func (db *Database) GetDelayedAutoDownloaderItems() ([]*models.AutoDownloaderItem, error) {
+	var res []*models.AutoDownloaderItem
+	err := db.gormdb.Where("is_delayed = ?", true).Find(&res).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (db *Database) InsertAutoDownloaderItem(item *models.AutoDownloaderItem) error {
 	err := db.gormdb.Create(item).Error
 	if err != nil {
@@ -53,5 +63,5 @@ func (db *Database) DeleteDownloadedAutoDownloaderItems() error {
 
 func (db *Database) UpdateAutoDownloaderItem(id uint, item *models.AutoDownloaderItem) error {
 	// Save the data
-	return db.gormdb.Model(&models.AutoDownloaderItem{}).Where("id = ?", id).Updates(item).Error
+	return db.gormdb.Save(item).Error
 }

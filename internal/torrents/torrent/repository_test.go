@@ -9,7 +9,7 @@ import (
 
 func getTestRepo(t *testing.T) *Repository {
 	logger := util.NewLogger()
-	metadataProvider := metadata_provider.GetMockProvider(t, nil)
+	metadataProvider := metadata_provider.GetFakeProvider(t, nil)
 	metadataProviderRef := util.NewRef[metadata_provider.Provider](metadataProvider)
 
 	extensionBank := extension.NewUnifiedBank()

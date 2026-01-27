@@ -94,89 +94,140 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     const serverStatus = useServerStatus()
     const { hasStreamingEnabled } = useHasTorrentOrDebridInclusion()
     const missingEpisodes = useMissingEpisodes()
+
+    const prevListDataRef = React.useRef(_listData)
+    const prevLibraryDataRef = React.useRef(_libraryData)
+
     const [listData, setListData] = useState<Anime_EntryListData | undefined>(_listData)
     const [libraryData, setLibraryData] = useState<Anime_EntryLibraryData | undefined>(_libraryData)
     const setActionPopupHover = useSetAtom(__mediaEntryCard_hoveredPopupId)
 
     const { selectMediaAndOpenEditor } = usePlaylistEditorManager()
 
-    const ref = React.useRef<HTMLDivElement>(null)
-
     const [__atomicLibraryCollection, getAtomicLibraryEntry] = useAtom(getAtomicLibraryEntryAtom)
 
     const showLibraryBadge = !!libraryData && !!props.showLibraryBadge
 
+    const mediaId = media.id
+    const mediaEpisodes = (media as AL_BaseAnime)?.episodes
+    const mediaChapters = (media as AL_BaseManga)?.chapters
+    const mediaIsAdult = media?.isAdult
+
     const showProgressBar = React.useMemo(() => {
         return !!listData?.progress
-        && type === "anime" ? !!(media as AL_BaseAnime)?.episodes : !!(media as AL_BaseManga)?.chapters
+        && type === "anime" ? !!mediaEpisodes : !!mediaChapters
             && listData?.status !== "COMPLETED"
-    }, [listData?.progress, media, listData?.status])
+    }, [listData?.progress, mediaEpisodes, mediaChapters, listData?.status, type])
 
-    const showTrailer = React.useMemo(() => _showTrailer && !libraryData && !media?.isAdult, [_showTrailer, libraryData, media])
+    const showTrailer = React.useMemo(() => _showTrailer && !libraryData && !mediaIsAdult, [_showTrailer, libraryData, mediaIsAdult])
 
-    const MANGA_LINK = serverStatus?.isOffline ? `/offline/entry/manga?id=${media.id}` : `/manga/entry?id=${media.id}`
-    const ANIME_LINK = serverStatus?.isOffline ? `/offline/entry/anime?id=${media.id}` : `/entry?id=${media.id}`
+    const MANGA_LINK = React.useMemo(() =>
+            serverStatus?.isOffline ? `/offline/entry/manga?id=${mediaId}` : `/manga/entry?id=${mediaId}`,
+        [serverStatus?.isOffline, mediaId],
+    )
+    const ANIME_LINK = React.useMemo(() =>
+            serverStatus?.isOffline ? `/offline/entry/anime?id=${mediaId}` : `/entry?id=${mediaId}`,
+        [serverStatus?.isOffline, mediaId],
+    )
 
     const link = React.useMemo(() => {
         return type === "anime" ? ANIME_LINK : MANGA_LINK
-    }, [serverStatus?.isOffline, type])
+    }, [ANIME_LINK, MANGA_LINK, type])
 
     const progressTotal = type === "anime" ? (media as AL_BaseAnime)?.episodes : (media as AL_BaseManga)?.chapters
 
     const pathname = usePathname()
-    //
-    // // Dynamically refresh data when LibraryCollection is updated
-    React.useEffect(() => {
-        if (pathname !== "/") {
-            const entry = getAtomicLibraryEntry(media.id)
-            if (!_listData) {
-                setListData(entry?.listData)
-            }
-            if (!_libraryData) {
-                setLibraryData(entry?.libraryData)
-            }
-        }
-    }, [pathname, __atomicLibraryCollection])
 
-    React.useLayoutEffect(() => {
-        setListData(_listData)
+    React.useEffect(() => {
+        if (_listData !== prevListDataRef.current) {
+            prevListDataRef.current = _listData
+            setListData(_listData)
+        }
     }, [_listData])
 
-    React.useLayoutEffect(() => {
-        setLibraryData(_libraryData)
+    React.useEffect(() => {
+        if (_libraryData !== prevLibraryDataRef.current) {
+            prevLibraryDataRef.current = _libraryData
+            setLibraryData(_libraryData)
+        }
     }, [_libraryData])
 
-    const listDataFromCollection = useAnilistUserAnimeListData(media.id)
+    // Dynamically refresh data when LibraryCollection is updated
+    React.useEffect(() => {
+        if (pathname !== "/" && !_listData && !_libraryData) {
+            const entry = getAtomicLibraryEntry(mediaId)
+            if (entry?.listData) {
+                setListData(entry.listData)
+            }
+            if (entry?.libraryData) {
+                setLibraryData(entry.libraryData)
+            }
+        }
+    }, [pathname, __atomicLibraryCollection, _listData, _libraryData, mediaId])
+
+    const listDataFromCollection = useAnilistUserAnimeListData(mediaId)
 
     React.useEffect(() => {
-        if (listDataFromCollection && !_listData) {
+        if (listDataFromCollection && !_listData && listDataFromCollection !== listData) {
             setListData(listDataFromCollection)
         }
-    }, [listDataFromCollection, _listData])
+    }, [listDataFromCollection, _listData, listData])
 
     const { setPlayNext } = usePlayNext()
     const handleWatchButtonClicked = React.useCallback(() => {
         if ((!!listData?.progress && (listData?.status !== "COMPLETED"))) {
-            setPlayNext(media.id, () => {
+            setPlayNext(mediaId, () => {
                 router.push(ANIME_LINK)
             })
         } else {
             router.push(ANIME_LINK)
         }
-    }, [listData?.progress, listData?.status, media.id])
+    }, [listData?.progress, listData?.status, mediaId, ANIME_LINK, setPlayNext, router])
 
     const onPopupMouseEnter = React.useCallback(() => {
-        setActionPopupHover(media.id)
-    }, [media.id])
+        setActionPopupHover(mediaId)
+    }, [mediaId, setActionPopupHover])
 
     const onPopupMouseLeave = React.useCallback(() => {
         setActionPopupHover(undefined)
-    }, [media.id])
+    }, [setActionPopupHover])
 
     const { setPreviewModalMediaId } = useMediaPreviewModal()
     const { openDirInLibraryExplorer } = useLibraryExplorer()
 
     const [hoveringTitle, setHoveringTitle] = useState(false)
+    const [isHoveringCard, setIsHoveringCard] = useState(false)
+    const [shouldRenderPopup, setShouldRenderPopup] = useState(false)
+
+    // Handle delayed unmount for exit animation
+    React.useEffect(() => {
+        if (isHoveringCard) {
+            setShouldRenderPopup(true)
+            return
+        } else {
+            // Delay unmount to allow exit animation
+            const timer = setTimeout(() => {
+                setShouldRenderPopup(false)
+            }, 35) // Match animation duration
+            return () => clearTimeout(timer)
+        }
+    }, [isHoveringCard])
+
+    const handlePreviewClick = React.useCallback(() => {
+        setPreviewModalMediaId(mediaId, type)
+    }, [mediaId, type, setPreviewModalMediaId])
+
+    const handleAddToPlaylistClick = React.useCallback(() => {
+        selectMediaAndOpenEditor(mediaId)
+    }, [mediaId, selectMediaAndOpenEditor])
+
+    const handleOpenInExplorerClick = React.useCallback(() => {
+        if (libraryData?.sharedPath) {
+            openDirInLibraryExplorer(libraryData.sharedPath)
+        }
+    }, [libraryData?.sharedPath, openDirInLibraryExplorer])
+
+    const stringifiedListData = React.useMemo(() => JSON.stringify(listData), [listData])
 
     if (!media) return null
 
@@ -185,9 +236,10 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
             data-media-id={media.id}
             data-media-mal-id={media.idMal}
             data-media-type={type}
-            mRef={ref}
             className={props.containerClassName}
-            data-list-data={JSON.stringify(listData)}
+            data-list-data={stringifiedListData}
+            onMouseEnter={() => setIsHoveringCard(true)}
+            onMouseLeave={() => setIsHoveringCard(false)}
         >
 
             <MediaEntryCardOverlay overlay={overlay} />
@@ -198,23 +250,17 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         {media.title?.userPreferred}
                     </ContextMenuLabel>
                     {!serverStatus?.isOffline && <ContextMenuItem
-                        onClick={() => {
-                            setPreviewModalMediaId(media.id!, type)
-                        }}
+                        onClick={handlePreviewClick}
                     >
                         <LuEye /> Preview
                     </ContextMenuItem>}
                     {(libraryData || nakamaLibraryData || (listData && hasStreamingEnabled)) && <ContextMenuItem
-                        onClick={() => {
-                            selectMediaAndOpenEditor(media.id!)
-                        }}
+                        onClick={handleAddToPlaylistClick}
                     >
                         <BiAddToQueue /> Add to Playlist
                     </ContextMenuItem>}
                     {(!!libraryData) && <ContextMenuItem
-                        onClick={() => {
-                            openDirInLibraryExplorer(libraryData?.sharedPath)
-                        }}
+                        onClick={handleOpenInExplorerClick}
                     >
                         <LuFolderTree /> Open in Library Explorer
                     </ContextMenuItem>}
@@ -229,6 +275,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         onMouseEnter={onPopupMouseEnter}
                         onMouseLeave={onPopupMouseLeave}
                         coverImage={media.bannerImage || media.coverImage?.extraLarge || ""}
+                        shouldRenderPopup={shouldRenderPopup}
                     >
 
                         {/*METADATA SECTION*/}

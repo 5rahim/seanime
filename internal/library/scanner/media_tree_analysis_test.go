@@ -27,7 +27,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 
 	tests := []struct {
 		name                          string
@@ -122,7 +122,7 @@ func TestMediaTreeAnalysis2(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 
 	tests := []struct {
 		name    string

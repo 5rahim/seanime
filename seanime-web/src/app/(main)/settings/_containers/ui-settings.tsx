@@ -391,7 +391,7 @@ export function UISettings() {
                                     <Field.Text
                                         label="Image path"
                                         name="libraryScreenCustomBackgroundImage"
-                                        placeholder="e.g., image.png"
+                                        placeholder="e.g. image.png"
                                         help="Background image for all pages. Dimmed on non-library screens."
                                     />
 
@@ -424,7 +424,7 @@ export function UISettings() {
                                     <Field.Text
                                         label="Image path"
                                         name="libraryScreenCustomBannerImage"
-                                        placeholder="e.g., image.gif"
+                                        placeholder="e.g. image.gif"
                                         help="Banner image for all pages."
                                     />
                                     <Field.Text

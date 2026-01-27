@@ -126,6 +126,18 @@ func (a *App) runMigrations() {
 			}
 			done = true
 		}
+
+		//-----------------------------------------------------------------------------------------
+
+		//c6, _ := semver.NewConstraint("< 3.4.0")
+		//if c5.Check(previousVersion) {
+		//	a.Logger.Debug().Msg("app: Executing version migration task (deleting custom source collections)")
+		//	err := a.Database.Gorm().Where("1 = 1").Delete(&models.CustomSourceCollection{}).Error
+		//	if err != nil {
+		//		a.Logger.Error().Err(err).Msg("app: MIGRATION FAILED")
+		//	}
+		//	done = true
+		//}
 	}
 	//}()
 

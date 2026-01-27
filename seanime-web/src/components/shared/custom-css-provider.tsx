@@ -8,7 +8,7 @@ const customCSSAtom = atomWithStorage("sea-custom-css", {
     mobileCustomCSS: "",
 }, undefined, { getOnInit: true })
 
-export function CustomCSSProvider({ children }: { children: React.ReactNode }) {
+export function CustomCSSProvider({ children }: { children?: React.ReactNode }) {
     const [customCSS, setCustomCSS] = useAtom(customCSSAtom)
     const [mounted, setMounted] = useState(false)
     const { width } = useWindowSize()
@@ -23,7 +23,6 @@ export function CustomCSSProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <>
-            {children}
             {mounted && usedCSS && (
                 <style id="sea-custom-css" dangerouslySetInnerHTML={{ __html: usedCSS }} />
             )}

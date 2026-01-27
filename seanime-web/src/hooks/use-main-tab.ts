@@ -92,37 +92,3 @@ export function useMainTab(): boolean {
 
     return isMainTab
 }
-
-// export function useMainTab() {
-//     const [isLeader, setIsLeader] = useState(false)
-//
-//     useEffect(() => {
-//         const controller = new AbortController()
-//         navigator.locks.request(
-//             "main_tab",
-//             {
-//                 signal: controller.signal,
-//                 // steal: true,
-//             },
-//             async () => {
-//                 // If this callback runs, we've acquired the lock
-//                 setIsLeader(true)
-//
-//                 // return a promise that never resolves to hold the lock
-//                 // until the component unmounts (signal aborts)
-//                 return new Promise<void>((resolve) => {
-//                     controller.signal.onabort = () => resolve()
-//                 })
-//             },
-//         ).catch()
-//
-//         return () => {
-//             controller.abort()
-//             setIsLeader(false)
-//         }
-//     }, [])
-//
-//     console.warn(isLeader)
-//
-//     return isLeader
-// }

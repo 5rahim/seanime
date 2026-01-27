@@ -29,7 +29,7 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 
 	// Set the SQLite database path
 	var sqlitePath string
-	if os.Getenv("TEST_ENV") == "true" {
+	if os.Getenv("TEST_ENV") == "true" || appDataDir == "" {
 		sqlitePath = ":memory:"
 	} else {
 		sqlitePath = filepath.Join(appDataDir, dbName+".db")
@@ -87,11 +87,14 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 func migrateTables(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&models.LocalFiles{},
+		&models.ShelvedLocalFiles{},
 		&models.Settings{},
 		&models.Account{},
 		&models.Mal{},
 		&models.ScanSummary{},
+		&models.AutoSelectProfile{},
 		&models.AutoDownloaderRule{},
+		&models.AutoDownloaderProfile{},
 		&models.AutoDownloaderItem{},
 		&models.SilencedMediaEntry{},
 		&models.Theme{},

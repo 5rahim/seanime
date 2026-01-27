@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"path/filepath"
 	"seanime/internal/api/anilist"
@@ -20,9 +21,32 @@ import (
 //	@returns bool
 func (h *Handler) HandleRunAutoDownloader(c echo.Context) error {
 
-	h.App.AutoDownloader.Run()
+	h.App.AutoDownloader.Run(false)
 
 	return h.RespondWithData(c, true)
+}
+
+// HandleRunAutoDownloader
+//
+//	@summary runs the AutoDownloader in simulation mode and returns the results.
+//	@desc It does nothing if the AutoDownloader is disabled.
+//	@route /api/v1/auto-downloader/run/simulation [POST]
+//	@returns []autodownloader.SimulationResult
+func (h *Handler) HandleRunAutoDownloaderSimulation(c echo.Context) error {
+	type body struct {
+		RuleIds []uint `json:"ruleIds"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	h.App.AutoDownloader.RunCheck(context.Background(), true, b.RuleIds...)
+	res := h.App.AutoDownloader.GetSimulationResults()
+	h.App.AutoDownloader.ClearSimulationResults()
+
+	return h.RespondWithData(c, res)
 }
 
 // HandleGetAutoDownloaderRule
@@ -88,16 +112,7 @@ func (h *Handler) HandleGetAutoDownloaderRules(c echo.Context) error {
 //	@returns anime.AutoDownloaderRule
 func (h *Handler) HandleCreateAutoDownloaderRule(c echo.Context) error {
 	type body struct {
-		Enabled             bool                                        `json:"enabled"`
-		MediaId             int                                         `json:"mediaId"`
-		ReleaseGroups       []string                                    `json:"releaseGroups"`
-		Resolutions         []string                                    `json:"resolutions"`
-		AdditionalTerms     []string                                    `json:"additionalTerms"`
-		ComparisonTitle     string                                      `json:"comparisonTitle"`
-		TitleComparisonType anime.AutoDownloaderRuleTitleComparisonType `json:"titleComparisonType"`
-		EpisodeType         anime.AutoDownloaderRuleEpisodeType         `json:"episodeType"`
-		EpisodeNumbers      []int                                       `json:"episodeNumbers,omitempty"`
-		Destination         string                                      `json:"destination"`
+		Rule anime.AutoDownloaderRule `json:"rule"`
 	}
 
 	var b body
@@ -106,26 +121,19 @@ func (h *Handler) HandleCreateAutoDownloaderRule(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	if b.Destination == "" {
+	if b.Rule.Destination == "" {
 		return h.RespondWithError(c, errors.New("destination is required"))
 	}
+	if b.Rule.MediaId == 0 {
+		return h.RespondWithError(c, errors.New("media id is required"))
+	}
 
-	if !filepath.IsAbs(b.Destination) {
+	if !filepath.IsAbs(b.Rule.Destination) {
 		return h.RespondWithError(c, errors.New("destination must be an absolute path"))
 	}
 
-	rule := &anime.AutoDownloaderRule{
-		Enabled:             b.Enabled,
-		MediaId:             b.MediaId,
-		ReleaseGroups:       b.ReleaseGroups,
-		Resolutions:         b.Resolutions,
-		ComparisonTitle:     b.ComparisonTitle,
-		TitleComparisonType: b.TitleComparisonType,
-		EpisodeType:         b.EpisodeType,
-		EpisodeNumbers:      b.EpisodeNumbers,
-		Destination:         b.Destination,
-		AdditionalTerms:     b.AdditionalTerms,
-	}
+	b.Rule.DbID = 0
+	rule := &b.Rule
 
 	if err := db_bridge.InsertAutoDownloaderRule(h.App.Database, rule); err != nil {
 		return h.RespondWithError(c, err)
@@ -205,6 +213,109 @@ func (h *Handler) HandleDeleteAutoDownloaderRule(c echo.Context) error {
 	}
 
 	if err := db_bridge.DeleteAutoDownloaderRule(h.App.Database, uint(id)); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, true)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleGetAutoDownloaderProfiles
+//
+//	@summary returns all profiles.
+//	@route /api/v1/auto-downloader/profiles [GET]
+//	@returns []anime.AutoDownloaderProfile
+func (h *Handler) HandleGetAutoDownloaderProfiles(c echo.Context) error {
+	profiles, err := db_bridge.GetAutoDownloaderProfiles(h.App.Database)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, profiles)
+}
+
+// HandleGetAutoDownloaderProfile
+//
+//	@summary returns the profile with the given DB id.
+//	@route /api/v1/auto-downloader/profile/{id} [GET]
+//	@param id - int - true - "The DB id of the profile"
+//	@returns anime.AutoDownloaderProfile
+func (h *Handler) HandleGetAutoDownloaderProfile(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return h.RespondWithError(c, errors.New("invalid id"))
+	}
+
+	profile, err := db_bridge.GetAutoDownloaderProfile(h.App.Database, uint(id))
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, profile)
+}
+
+// HandleCreateAutoDownloaderProfile
+//
+//	@summary creates a new profile.
+//	@route /api/v1/auto-downloader/profile [POST]
+//	@returns anime.AutoDownloaderProfile
+func (h *Handler) HandleCreateAutoDownloaderProfile(c echo.Context) error {
+	var profile anime.AutoDownloaderProfile
+	if err := c.Bind(&profile); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if profile.Name == "" {
+		return h.RespondWithError(c, errors.New("profile name is required"))
+	}
+
+	if err := db_bridge.InsertAutoDownloaderProfile(h.App.Database, &profile); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, profile)
+}
+
+// HandleUpdateAutoDownloaderProfile
+//
+//	@summary updates a profile.
+//	@route /api/v1/auto-downloader/profile [PATCH]
+//	@returns anime.AutoDownloaderProfile
+func (h *Handler) HandleUpdateAutoDownloaderProfile(c echo.Context) error {
+	var profile anime.AutoDownloaderProfile
+	if err := c.Bind(&profile); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if profile.DbID == 0 {
+		return h.RespondWithError(c, errors.New("invalid profile id"))
+	}
+
+	if profile.Name == "" {
+		return h.RespondWithError(c, errors.New("profile name is required"))
+	}
+
+	if err := db_bridge.UpdateAutoDownloaderProfile(h.App.Database, profile.DbID, &profile); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, profile)
+}
+
+// HandleDeleteAutoDownloaderProfile
+//
+//	@summary deletes a profile.
+//	@route /api/v1/auto-downloader/profile/{id} [DELETE]
+//	@param id - int - true - "The DB id of the profile"
+//	@returns bool
+func (h *Handler) HandleDeleteAutoDownloaderProfile(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return h.RespondWithError(c, errors.New("invalid id"))
+	}
+
+	if err := db_bridge.DeleteAutoDownloaderProfile(h.App.Database, uint(id)); err != nil {
 		return h.RespondWithError(c, err)
 	}
 

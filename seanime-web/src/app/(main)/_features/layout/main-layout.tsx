@@ -45,6 +45,53 @@ import { TopIndefiniteLoader } from "../top-indefinite-loader"
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
+    return (
+        <>
+            <Loader />
+            <GlobalSearch />
+            <ScanProgressBar />
+            <LibraryWatcher />
+            <ScannerModal />
+            <PlaylistListModal />
+            <GlobalPlaylistManager />
+            <ChapterDownloadsDrawer />
+            <TorrentStreamOverlay />
+            <DebridStreamOverlay />
+            <MediaPreviewModal />
+            <PlaybackManagerProgressTracking />
+            <ManualProgressTracking />
+            <IssueReport />
+            <ErrorExplainer />
+            <SeaCommand />
+            <PluginManager />
+            {(__isElectronDesktop__) && <VideoCoreProvider key="native-player" id="native-player">
+                <NativePlayer />
+            </VideoCoreProvider>}
+            <NakamaManager />
+            <NakamaWatchPartyChatProvider />
+            <NakamaWatchPartyChat />
+            <TopIndefiniteLoader />
+            <Announcements />
+            <LibraryExplorerDrawer />
+            <PluginWebviewSlot slot="fixed" />
+
+            <AppSidebarProvider>
+                <AppLayout withSidebar sidebarSize="slim">
+                    <AppLayoutSidebar>
+                        <MainSidebar />
+                    </AppLayoutSidebar>
+                    <AppLayout>
+                        <AppLayoutContent>
+                            {children}
+                        </AppLayoutContent>
+                    </AppLayout>
+                </AppLayout>
+            </AppSidebarProvider>
+        </>
+    )
+}
+
+function Loader() {
     /**
      * Data loaders
      */
@@ -90,47 +137,5 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
         return <LoadingOverlayWithLogo />
     }
 
-    return (
-        <>
-            <GlobalSearch />
-            <ScanProgressBar />
-            <LibraryWatcher />
-            <ScannerModal />
-            <PlaylistListModal />
-            <GlobalPlaylistManager />
-            <ChapterDownloadsDrawer />
-            <TorrentStreamOverlay />
-            <DebridStreamOverlay />
-            <MediaPreviewModal />
-            <PlaybackManagerProgressTracking />
-            <ManualProgressTracking />
-            <IssueReport />
-            <ErrorExplainer />
-            <SeaCommand />
-            <PluginManager />
-            {(__isElectronDesktop__) && <VideoCoreProvider key="native-player" id="native-player">
-                <NativePlayer />
-            </VideoCoreProvider>}
-            <NakamaManager />
-            <NakamaWatchPartyChatProvider />
-            <NakamaWatchPartyChat />
-            <TopIndefiniteLoader />
-            <Announcements />
-            <LibraryExplorerDrawer />
-            <PluginWebviewSlot slot="fixed" />
-
-            <AppSidebarProvider>
-                <AppLayout withSidebar sidebarSize="slim">
-                    <AppLayoutSidebar>
-                        <MainSidebar />
-                    </AppLayoutSidebar>
-                    <AppLayout>
-                        <AppLayoutContent>
-                            {children}
-                        </AppLayoutContent>
-                    </AppLayout>
-                </AppLayout>
-            </AppSidebarProvider>
-        </>
-    )
+    return null
 }

@@ -25,6 +25,7 @@ import { RiEdit2Line } from "react-icons/ri"
 import { VscVerified } from "react-icons/vsc"
 import { useCopyToClipboard } from "react-use"
 import { toast } from "sonner"
+import { z } from "zod"
 
 export const EpisodeItemIsolation = createIsolation()
 
@@ -56,12 +57,16 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
         return encodeURIComponent(filePath)
     }
 
+    function handleClick() {
+        onPlay?.({ path: episode.localFile?.path ?? "", mediaId: media.id })
+    }
+
     return (
         <EpisodeItemIsolation.Provider>
             <EpisodeGridItem
                 media={media}
                 image={episode.episodeMetadata?.image}
-                onClick={() => onPlay?.({ path: episode.localFile?.path ?? "", mediaId: media.id })}
+                onClick={handleClick}
                 isInvalid={episode.isInvalid}
                 title={episode.displayTitle}
                 episodeTitle={episode.episodeTitle}
@@ -174,6 +179,22 @@ function MetadataModal({ episode }: { episode: Anime_Episode }) {
 
     const { updateLocalFile, isPending } = useUpdateLocalFileData()
 
+    function handleSave(data: z.infer<typeof localFileMetadataSchema>) {
+        if (episode.localFile) {
+            updateLocalFile(episode.localFile, {
+                metadata: {
+                    ...episode.localFile?.metadata,
+                    type: data.type as Anime_LocalFileType,
+                    episode: data.episode,
+                    aniDBEpisode: data.aniDBEpisode,
+                },
+            }, () => {
+                setIsOpen(false)
+                toast.success("Metadata saved")
+            })
+        }
+    }
+
     return (
         <Modal
             open={isOpen}
@@ -186,21 +207,7 @@ function MetadataModal({ episode }: { episode: Anime_Episode }) {
             <p className="w-full line-clamp-2 text-sm px-4 text-center py-2 flex-none">{episode.localFile?.name}</p>
             <Form
                 schema={localFileMetadataSchema}
-                onSubmit={(data) => {
-                    if (episode.localFile) {
-                        updateLocalFile(episode.localFile, {
-                            metadata: {
-                                ...episode.localFile?.metadata,
-                                type: data.type as Anime_LocalFileType,
-                                episode: data.episode,
-                                aniDBEpisode: data.aniDBEpisode,
-                            },
-                        }, () => {
-                            setIsOpen(false)
-                            toast.success("Metadata saved")
-                        })
-                    }
-                }}
+                onSubmit={handleSave}
                 onError={console.log}
                 //@ts-ignore
                 defaultValues={{ ...episode.fileMetadata }}
@@ -282,7 +289,6 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
                 alt="banner"
                 fill
                 quality={80}
-                preload
                 sizes="20rem"
                 className="object-cover object-center opacity-30"
             />
@@ -300,7 +306,8 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
                 {episode.episodeMetadata?.airDate || "Unknown airing date"} - {episode.episodeMetadata?.length || "N/A"} minutes
             </p>
             <p className="text-gray-300">
-                {(episode.episodeMetadata?.summary || episode.episodeMetadata?.overview)?.replaceAll("`", "'")?.replace(/source:.*/gi, "") || "No summary"}
+                {(episode.episodeMetadata?.summary || episode.episodeMetadata?.overview)?.replaceAll("`", "'")
+                    ?.replace(/source:.*/gi, "") || "No summary"}
             </p>
             <Separator />
             <p className="text-[--muted] line-clamp-2 tracking-wide text-sm">

@@ -35,6 +35,11 @@ type LocalFiles struct {
 	Value []byte `gorm:"column:value" json:"value"`
 }
 
+type ShelvedLocalFiles struct {
+	BaseModel
+	Value []byte `gorm:"column:value" json:"value"`
+}
+
 // +---------------------+
 // |       Settings      |
 // +---------------------+
@@ -62,10 +67,11 @@ type AnilistSettings struct {
 }
 
 type LibrarySettings struct {
-	LibraryPath                     string `gorm:"column:library_path" json:"libraryPath"`
-	AutoUpdateProgress              bool   `gorm:"column:auto_update_progress" json:"autoUpdateProgress"`
-	DisableUpdateCheck              bool   `gorm:"column:disable_update_check" json:"disableUpdateCheck"`
-	TorrentProvider                 string `gorm:"column:torrent_provider" json:"torrentProvider"`
+	LibraryPath        string `gorm:"column:library_path" json:"libraryPath"`
+	AutoUpdateProgress bool   `gorm:"column:auto_update_progress" json:"autoUpdateProgress"`
+	DisableUpdateCheck bool   `gorm:"column:disable_update_check" json:"disableUpdateCheck"`
+	TorrentProvider    string `gorm:"column:torrent_provider" json:"torrentProvider"`
+	// DEPRECATED
 	AutoSelectTorrentProvider       string `gorm:"column:auto_select_torrent_provider" json:"autoSelectTorrentProvider"`
 	AutoScan                        bool   `gorm:"column:auto_scan" json:"autoScan"`
 	EnableOnlinestream              bool   `gorm:"column:enable_onlinestream" json:"enableOnlinestream"`
@@ -253,7 +259,7 @@ type ScanSummary struct {
 }
 
 // +---------------------+
-// |   Auto downloader   |
+// |   Auto Downloader   |
 // +---------------------+
 
 type AutoDownloaderRule struct {
@@ -261,16 +267,34 @@ type AutoDownloaderRule struct {
 	Value []byte `gorm:"column:value" json:"value"`
 }
 
+type AutoDownloaderProfile struct {
+	BaseModel
+	Value []byte `gorm:"column:value" json:"value"`
+}
+
+// +---------------------+
+// |     Auto Select     |
+// +---------------------+
+
+type AutoSelectProfile struct {
+	BaseModel
+	Value []byte `gorm:"column:value" json:"value"`
+}
+
 type AutoDownloaderItem struct {
 	BaseModel
-	RuleID      uint   `gorm:"column:rule_id" json:"ruleId"`
-	MediaID     int    `gorm:"column:media_id" json:"mediaId"`
-	Episode     int    `gorm:"column:episode" json:"episode"`
-	Link        string `gorm:"column:link" json:"link"`
-	Hash        string `gorm:"column:hash" json:"hash"`
-	Magnet      string `gorm:"column:magnet" json:"magnet"`
-	TorrentName string `gorm:"column:torrent_name" json:"torrentName"`
-	Downloaded  bool   `gorm:"column:downloaded" json:"downloaded"`
+	RuleID      uint      `gorm:"column:rule_id" json:"ruleId"`
+	MediaID     int       `gorm:"column:media_id" json:"mediaId"`
+	Episode     int       `gorm:"column:episode" json:"episode"`
+	Link        string    `gorm:"column:link" json:"link"`
+	Hash        string    `gorm:"column:hash" json:"hash"`
+	Magnet      string    `gorm:"column:magnet" json:"magnet"`
+	TorrentName string    `gorm:"column:torrent_name" json:"torrentName"`
+	Downloaded  bool      `gorm:"column:downloaded" json:"downloaded"`
+	IsDelayed   bool      `gorm:"column:is_delayed" json:"isDelayed"`
+	DelayUntil  time.Time `gorm:"column:delay_until" json:"delayUntil"`
+	Score       int       `gorm:"column:score" json:"score"`
+	TorrentData []byte    `gorm:"column:torrent_data" json:"-"` // Serialized NormalizedTorrent
 }
 
 type AutoDownloaderSettings struct {
@@ -278,9 +302,10 @@ type AutoDownloaderSettings struct {
 	Interval              int    `gorm:"column:auto_downloader_interval" json:"interval"`
 	Enabled               bool   `gorm:"column:auto_downloader_enabled" json:"enabled"`
 	DownloadAutomatically bool   `gorm:"column:auto_downloader_download_automatically" json:"downloadAutomatically"`
-	EnableEnhancedQueries bool   `gorm:"column:auto_downloader_enable_enhanced_queries" json:"enableEnhancedQueries"`
-	EnableSeasonCheck     bool   `gorm:"column:auto_downloader_enable_season_check" json:"enableSeasonCheck"`
-	UseDebrid             bool   `gorm:"column:auto_downloader_use_debrid" json:"useDebrid"`
+	// DEPRECATED v3.4+
+	EnableEnhancedQueries bool `gorm:"column:auto_downloader_enable_enhanced_queries" json:"enableEnhancedQueries"`
+	EnableSeasonCheck     bool `gorm:"column:auto_downloader_enable_season_check" json:"enableSeasonCheck"`
+	UseDebrid             bool `gorm:"column:auto_downloader_use_debrid" json:"useDebrid"`
 }
 
 // +---------------------+

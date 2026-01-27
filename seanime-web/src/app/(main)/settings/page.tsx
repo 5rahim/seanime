@@ -615,19 +615,8 @@ export default function Page() {
                                             <Field.Select
                                                 name="torrentProvider"
                                                 label="Default Provider"
-                                                help="Used by the search engine and auto downloader. Select 'None' if you don't need torrent support."
+                                                help="Used by the search engine. Select 'None' if you don't need torrent support."
                                                 leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
-                                                options={[
-                                                    ...(torrentProviderExtensions?.filter(ext => ext?.settings?.type === "main")?.map(ext => ({
-                                                        label: ext.name,
-                                                        value: ext.id,
-                                                    })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
-                                                    { label: "None", value: TORRENT_PROVIDER.NONE },
-                                                ]}
-                                            />
-                                            <Field.Select
-                                                name="autoSelectTorrentProvider"
-                                                label="Auto-select Provider"
                                                 options={[
                                                     ...(torrentProviderExtensions?.filter(ext => ext?.settings?.type === "main")?.map(ext => ({
                                                         label: ext.name,

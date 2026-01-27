@@ -2,10 +2,17 @@ import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import {
     CreateAutoDownloaderRule_Variables,
     DeleteAutoDownloaderItem_Variables,
+    RunAutoDownloaderSimulation_Variables,
     UpdateAutoDownloaderRule_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Anime_AutoDownloaderRule, Models_AutoDownloaderItem, Nullish } from "@/api/generated/types"
+import {
+    Anime_AutoDownloaderProfile,
+    Anime_AutoDownloaderRule,
+    AutoDownloader_SimulationResult,
+    Models_AutoDownloaderItem,
+    Nullish,
+} from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -118,5 +125,76 @@ export function useGetAutoDownloaderRulesByAnime(id: number, enabled: boolean) {
         method: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRulesByAnime.methods[0],
         queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRulesByAnime.key, String(id)],
         enabled: enabled,
+    })
+}
+
+export function useGetAutoDownloaderProfiles() {
+    return useServerQuery<Array<Anime_AutoDownloaderProfile>>({
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.endpoint,
+        method: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.methods[0],
+        queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.key],
+        enabled: true,
+    })
+}
+
+export function useGetAutoDownloaderProfile(id: Nullish<number>) {
+    return useServerQuery<Anime_AutoDownloaderProfile>({
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfile.endpoint.replace("{id}", String(id)),
+        method: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfile.methods[0],
+        queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfile.key, String(id)],
+        enabled: !!id,
+    })
+}
+
+export function useCreateAutoDownloaderProfile() {
+    const queryClient = useQueryClient()
+
+    return useServerMutation<Anime_AutoDownloaderProfile, Anime_AutoDownloaderProfile>({
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.endpoint,
+        method: API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.methods[0],
+        mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.key],
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.key] })
+            toast.success("Profile created")
+        },
+    })
+}
+
+export function useUpdateAutoDownloaderProfile() {
+    const queryClient = useQueryClient()
+
+    return useServerMutation<Anime_AutoDownloaderProfile, Anime_AutoDownloaderProfile>({
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.endpoint,
+        method: API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.methods[0],
+        mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.key],
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.key] })
+            toast.success("Profile updated")
+        },
+    })
+}
+
+export function useDeleteAutoDownloaderProfile(id: Nullish<number>) {
+    const queryClient = useQueryClient()
+
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.endpoint.replace("{id}", String(id)),
+        method: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.methods[0],
+        mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.key, String(id)],
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.key] })
+            toast.success("Profile deleted")
+        },
+    })
+}
+
+export function useRunAutoDownloaderSimulation() {
+    return useServerMutation<Array<AutoDownloader_SimulationResult>, RunAutoDownloaderSimulation_Variables>({
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.endpoint,
+        method: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.methods[0],
+        mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.key],
+        onSuccess: async () => {
+
+        },
     })
 }

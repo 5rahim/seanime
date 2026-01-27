@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func GetMockRepository(t *testing.T, db *db.Database) *Repository {
+func GetFakeRepository(t *testing.T, db *db.Database) *Repository {
 	logger := util.NewLogger()
 	cacheDir := filepath.Join(test_utils.ConfigData.Path.DataDir, "cache")
 	fileCacher, err := filecache.NewCacher(cacheDir)

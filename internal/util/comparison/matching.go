@@ -53,6 +53,10 @@ func FindBestMatchWithLevenshtein(v *string, vals []*string) (*LevenshteinResult
 		}
 	}
 
+	if bestResult == nil {
+		return nil, false
+	}
+
 	return bestResult, true
 }
 
@@ -148,6 +152,10 @@ func FindBestMatchWithJaccard(v *string, vals []*string) (*JaccardResult, bool) 
 		}
 	}
 
+	if bestResult == nil {
+		return nil, false
+	}
+
 	return bestResult, true
 }
 
@@ -189,6 +197,10 @@ func FindBestMatchWithSorensenDice(v *string, vals []*string) (*SorensenDiceResu
 		if bestResult == nil || result.Rating > bestResult.Rating {
 			bestResult = result
 		}
+	}
+
+	if bestResult == nil {
+		return nil, false
 	}
 
 	return bestResult, true

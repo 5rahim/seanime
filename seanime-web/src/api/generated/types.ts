@@ -1321,40 +1321,151 @@ export type AL_UserStudioStats_Studio = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/library/anime/autodownloader_rule.go
- * - Filename: autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
  * - Package: anime
  */
-export type Anime_AutoDownloaderRule = {
+export type Anime_AutoDownloaderCondition = {
+    id: string
+    term: string
+    isRegex: boolean
+    action: Anime_AutoDownloaderProfileRuleFormatAction
     /**
-     * Will be set when fetched from the database
+     * Only used if Action == "score"
      */
-    dbId: number
-    enabled: boolean
-    mediaId: number
-    releaseGroups?: Array<string>
-    resolutions?: Array<string>
-    comparisonTitle: string
-    titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType
-    episodeType: Anime_AutoDownloaderRuleEpisodeType
-    episodeNumbers?: Array<number>
-    destination: string
-    additionalTerms?: Array<string>
+    score: number
 }
 
 /**
- * - Filepath: internal/library/anime/autodownloader_rule.go
- * - Filename: autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
+ * - Package: anime
+ */
+export type Anime_AutoDownloaderProfile = {
+    dbId: number
+    name: string
+    global: boolean
+    releaseGroups?: Array<string>
+    resolutions?: Array<string>
+    conditions?: Array<Anime_AutoDownloaderCondition>
+    minimumScore: number
+    minSeeders?: number
+    minSize?: string
+    maxSize?: string
+    delayMinutes: number
+    skipDelayScore: number
+    providers?: Array<string>
+}
+
+/**
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
+ * - Package: anime
+ */
+export type Anime_AutoDownloaderProfileRuleFormatAction = "score" | "block" | "require"
+
+/**
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
+ * - Package: anime
+ */
+export type Anime_AutoDownloaderRule = {
+    dbId: number
+    enabled: boolean
+    mediaId: number
+    destination: string
+    profileId?: number
+    releaseGroups?: Array<string>
+    resolutions?: Array<string>
+    episodeNumbers?: Array<number>
+    episodeType: Anime_AutoDownloaderRuleEpisodeType
+    comparisonTitle: string
+    titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType
+    additionalTerms?: Array<string>
+    excludeTerms?: Array<string>
+    minSeeders: number
+    minSize: string
+    maxSize: string
+    customEpisodeNumberAbsoluteOffset?: number
+    providers?: Array<string>
+}
+
+/**
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
  * - Package: anime
  */
 export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected"
 
 /**
- * - Filepath: internal/library/anime/autodownloader_rule.go
- * - Filename: autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_types.go
+ * - Filename: autodownloader_types.go
  * - Package: anime
  */
 export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
+
+/**
+ * - Filepath: internal/library/anime/autoselect_types.go
+ * - Filename: autoselect_types.go
+ * - Package: anime
+ */
+export type Anime_AutoSelectPreference = "neutral" | "prefer" | "avoid" | "only" | "never"
+
+/**
+ * - Filepath: internal/library/anime/autoselect_types.go
+ * - Filename: autoselect_types.go
+ * - Package: anime
+ */
+export type Anime_AutoSelectProfile = {
+    dbId: number
+    /**
+     * Ordered list of preferred providers (max 3)
+     */
+    providers?: Array<string>
+    /**
+     * Preferred groups (e.g., ["SubsPlease", "Erai-raws"])
+     */
+    releaseGroups?: Array<string>
+    /**
+     * Preferred resolutions (e.g., ["1080p", "720p"])
+     */
+    resolutions?: Array<string>
+    /**
+     * Can exclude terms like "CamRip"
+     */
+    excludeTerms?: Array<string>
+    /**
+     * Ordered list, e.g. ["jp", "en"]
+     */
+    preferredLanguages?: Array<string>
+    /**
+     * Ordered list, e.g. ["HEVC, x265, H.265", "AVC, x264"]
+     */
+    preferredCodecs?: Array<string>
+    /**
+     * Ordered list, e.g. ["BDRip, BD RIP", "AT-X"]
+     */
+    preferredSources?: Array<string>
+    multipleAudioPreference: Anime_AutoSelectPreference
+    multipleSubsPreference: Anime_AutoSelectPreference
+    batchPreference: Anime_AutoSelectPreference
+    bestReleasePreference: Anime_AutoSelectPreference
+    /**
+     * Reject if no preferred language is found
+     */
+    requireLanguage: boolean
+    /**
+     * Reject if no preferred codec is found
+     */
+    requireCodec: boolean
+    /**
+     * Reject if no preferred source is found
+     */
+    requireSource: boolean
+    minSeeders?: number
+    minSize?: string
+    maxSize?: string
+}
 
 /**
  * - Filepath: internal/library/anime/entry.go
@@ -1733,6 +1844,27 @@ export type Anime_UnmatchedGroup = {
  * - Package: anime
  */
 export type Anime_WatchType = "localfile" | "debrid" | "torrent" | "nakama" | "online"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Autodownloader
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/library/autodownloader/autodownloader.go
+ * - Filename: autodownloader.go
+ * - Package: autodownloader
+ */
+export type AutoDownloader_SimulationResult = {
+    ruleId: number
+    mediaId: number
+    episode: number
+    link: string
+    hash: string
+    torrentName: string
+    score: number
+    extensionId: string
+    isDelayed: boolean
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ChapterDownloader
@@ -3536,6 +3668,9 @@ export type Models_AutoDownloaderItem = {
     magnet: string
     torrentName: string
     downloaded: boolean
+    isDelayed: boolean
+    delayUntil?: string
+    score: number
     id: number
     createdAt?: string
     updatedAt?: string
@@ -4551,6 +4686,7 @@ export type Torrent_SearchData = {
      * Animap media
      */
     animeMetadata?: Metadata_AnimeMetadata
+    includedSpecialProviders?: Array<string>
 }
 
 /**

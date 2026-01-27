@@ -348,6 +348,17 @@
 //     })
 // }
 
+// export function useRunAutoDownloaderSimulation() {
+//     return useServerMutation<Array<AutoDownloader_SimulationResult>, RunAutoDownloaderSimulation_Variables>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.endpoint,
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.methods[0],
+//         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useGetAutoDownloaderRule(id: number) {
 //     return useServerQuery<Anime_AutoDownloaderRule>({
 //         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRule.endpoint.replace("{id}", String(id)),
@@ -402,6 +413,57 @@
 //         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderRule.endpoint.replace("{id}", String(id)),
 //         method: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderRule.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderRule.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useGetAutoDownloaderProfiles() {
+//     return useServerQuery<Array<Anime_AutoDownloaderProfile>>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.endpoint,
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.methods[0],
+//         queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfiles.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetAutoDownloaderProfile(id: number) {
+//     return useServerQuery<Anime_AutoDownloaderProfile>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfile.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfile.methods[0],
+//         queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderProfile.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useCreateAutoDownloaderProfile() {
+//     return useServerMutation<Anime_AutoDownloaderProfile>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.endpoint,
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.methods[0],
+//         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useUpdateAutoDownloaderProfile() {
+//     return useServerMutation<Anime_AutoDownloaderProfile>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.endpoint,
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.methods[0],
+//         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDeleteAutoDownloaderProfile(id: number) {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.methods[0],
+//         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.key],
 //         onSuccess: async () => {
 // 
 //         },
@@ -2563,6 +2625,37 @@
 //         endpoint: API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.endpoint,
 //         method: API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useGetAutoSelectProfile() {
+//     return useServerQuery<Anime_AutoSelectProfile>({
+//         endpoint: API_ENDPOINTS.TORRENT_SEARCH.GetAutoSelectProfile.endpoint,
+//         method: API_ENDPOINTS.TORRENT_SEARCH.GetAutoSelectProfile.methods[0],
+//         queryKey: [API_ENDPOINTS.TORRENT_SEARCH.GetAutoSelectProfile.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSaveAutoSelectProfile() {
+//     return useServerMutation<Anime_AutoSelectProfile, SaveAutoSelectProfile_Variables>({
+//         endpoint: API_ENDPOINTS.TORRENT_SEARCH.SaveAutoSelectProfile.endpoint,
+//         method: API_ENDPOINTS.TORRENT_SEARCH.SaveAutoSelectProfile.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENT_SEARCH.SaveAutoSelectProfile.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDeleteAutoSelectProfile() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.TORRENT_SEARCH.DeleteAutoSelectProfile.endpoint,
+//         method: API_ENDPOINTS.TORRENT_SEARCH.DeleteAutoSelectProfile.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENT_SEARCH.DeleteAutoSelectProfile.key],
 //         onSuccess: async () => {
 // 
 //         },

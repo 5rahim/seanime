@@ -39,6 +39,7 @@ import { useSetAtom } from "jotai/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
+import { z } from "zod"
 import { useServerStatus } from "../../_hooks/use-server-status"
 import { useVideoCoreScreenshot } from "./video-core-screenshot"
 
@@ -148,7 +149,7 @@ const KeybindingRow = ({
     </div>
 )
 
-export function VideoCorePreferencesModal() {
+export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolean }) {
     const isFullscreen = useAtomValue(vc_isFullscreen)
     const containerElement = useAtomValue(vc_containerElement)
     const [open, setOpen] = useAtom(videoCorePreferencesModalAtom)
@@ -251,6 +252,28 @@ export function VideoCorePreferencesModal() {
             "Space": "⎵",
         }
         return keyMap[keyCode] || keyCode
+    }
+
+    function handleSaveTranslationSettings(data: z.infer<typeof translationSettingsSchema>) {
+        const currentMediaPlayer = serverStatus?.settings?.mediaPlayer!
+
+        saveMediaPlayerSettings({
+            mediaPlayer: {
+                ...currentMediaPlayer,
+                vcTranslate: data.vcTranslate,
+                vcTranslateTargetLanguage: data.vcTranslateTargetLanguage.toLowerCase(),
+                vcTranslateProvider: data.vcTranslateProvider,
+                vcTranslateApiKey: data.vcTranslateApiKey,
+            },
+        }, {
+            onSuccess: () => {
+                toast.success("Translation settings saved")
+                translationFormRef.current?.reset(translationFormRef.current.getValues())
+
+                subtitleManager?.updateShouldTranslate(data.vcTranslate ? data.vcTranslateTargetLanguage : null)
+                mediaCaptionsManager?.updateShouldTranslate(data.vcTranslate ? data.vcTranslateTargetLanguage : null)
+            },
+        })
     }
 
     return (
@@ -555,7 +578,7 @@ export function VideoCorePreferencesModal() {
                             <TextInput
                                 value={editedSubsBlacklist}
                                 onValueChange={setEditedSubsBlacklist}
-                                placeholder="e.g., sign & songs"
+                                placeholder="e.g. sign & songs"
                                 onKeyDown={(e) => e.stopPropagation()}
                                 onInput={(e) => e.stopPropagation()}
                                 help="Subtitle tracks that will not be selected by default if they match the preferred lanauges. Separate multiple names with commas."
@@ -563,7 +586,7 @@ export function VideoCorePreferencesModal() {
                         </div>
                     </div>
 
-                    <div className="space-y-3">
+                    {isWebPlayer && <div className="space-y-3">
                         <h3 className="text-lg font-semibold text-white">Rendering</h3>
                         <div className="space-y-2">
                             <Switch
@@ -573,23 +596,8 @@ export function VideoCorePreferencesModal() {
                                 onValueChange={setEditedUseLibassRenderer}
                                 help="The player will convert other subtitle formats (SRT, VTT, ...) to ASS. In case your language is not supported, you can add a new font or disable this feature. Reloading the player is required after changing this setting."
                             />
-
-                            {/*<div className="space-y-2">*/}
-                            {/*    <label className="text-sm font-medium text-muted-foreground">*/}
-                            {/*        Subtitle Delay (seconds)*/}
-                            {/*    </label>*/}
-                            {/*    <NumberInput*/}
-                            {/*        value={editedSubtitleDelay}*/}
-                            {/*        onValueChange={setEditedSubtitleDelay}*/}
-                            {/*        fieldClass="w-32"*/}
-                            {/*        step={0.1}*/}
-                            {/*        hideControls={true}*/}
-                            {/*        onKeyDown={(e) => e.stopPropagation()}*/}
-                            {/*        onInput={(e) => e.stopPropagation()}*/}
-                            {/*    />*/}
-                            {/*</div>*/}
                         </div>
-                    </div>
+                    </div>}
 
                     <div className="flex items-center justify-between pt-6">
                         <Button
@@ -617,27 +625,7 @@ export function VideoCorePreferencesModal() {
                 <TabsContent value="translation" className={tabContentClass}>
                     <Form
                         schema={translationSettingsSchema}
-                        onSubmit={data => {
-                            const currentMediaPlayer = serverStatus?.settings?.mediaPlayer!
-
-                            saveMediaPlayerSettings({
-                                mediaPlayer: {
-                                    ...currentMediaPlayer,
-                                    vcTranslate: data.vcTranslate,
-                                    vcTranslateTargetLanguage: data.vcTranslateTargetLanguage.toLowerCase(),
-                                    vcTranslateProvider: data.vcTranslateProvider,
-                                    vcTranslateApiKey: data.vcTranslateApiKey,
-                                },
-                            }, {
-                                onSuccess: () => {
-                                    toast.success("Translation settings saved")
-                                    translationFormRef.current?.reset(translationFormRef.current.getValues())
-
-                                    subtitleManager?.updateShouldTranslate(data.vcTranslate ? data.vcTranslateTargetLanguage : null)
-                                    mediaCaptionsManager?.updateShouldTranslate(data.vcTranslate ? data.vcTranslateTargetLanguage : null)
-                                },
-                            })
-                        }}
+                        onSubmit={handleSaveTranslationSettings}
                         defaultValues={{
                             vcTranslate: serverStatus?.settings?.mediaPlayer?.vcTranslate ?? false,
                             vcTranslateProvider: serverStatus?.settings?.mediaPlayer?.vcTranslateProvider || "deepl",

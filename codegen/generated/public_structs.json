@@ -30171,6 +30171,50 @@
   {
     "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
+    "name": "AutoDownloaderProfile",
+    "formattedName": "Models_AutoDownloaderProfile",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "AutoSelectProfile",
+    "formattedName": "Models_AutoSelectProfile",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
     "name": "AutoDownloaderItem",
     "formattedName": "Models_AutoDownloaderItem",
     "package": "models",
@@ -30246,6 +30290,45 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IsDelayed",
+        "jsonName": "isDelayed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DelayUntil",
+        "jsonName": "delayUntil",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentData",
+        "jsonName": "",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Serialized NormalizedTorrent"
+        ]
       }
     ],
     "comments": [],
@@ -32577,6 +32660,17 @@
         "jsonName": "platformRef",
         "goType": "",
         "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "autoSelect",
+        "jsonName": "autoSelect",
+        "goType": "autoselect.AutoSelect",
+        "typescriptType": "AutoSelect",
+        "usedTypescriptType": "AutoSelect",
+        "usedStructName": "autoselect.AutoSelect",
         "required": false,
         "public": false,
         "comments": []
@@ -41537,6 +41631,102 @@
     "comments": []
   },
   {
+    "filepath": "../internal/goja/goja_bindings/abort_context.go",
+    "filename": "abort_context.go",
+    "name": "AbortSignal",
+    "formattedName": "AbortSignal",
+    "package": "goja_bindings",
+    "fields": [
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "aborted",
+        "jsonName": "aborted",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "reason",
+        "jsonName": "reason",
+        "goType": "goja.Value",
+        "typescriptType": "Value",
+        "usedTypescriptType": "Value",
+        "usedStructName": "goja.Value",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedTypescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancel",
+        "jsonName": "cancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "listeners",
+        "jsonName": "listeners",
+        "goType": "[]goja.Callable",
+        "typescriptType": "Array\u003cCallable\u003e",
+        "usedTypescriptType": "Callable",
+        "usedStructName": "goja.Callable",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedTypescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "gojautil.Scheduler",
+        "typescriptType": "Scheduler",
+        "usedTypescriptType": "Scheduler",
+        "usedStructName": "gojautil.Scheduler",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/goja/goja_bindings/chromedp.go",
     "filename": "chromedp.go",
     "name": "ChromeDP",
@@ -41728,6 +41918,17 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
         "public": false,
         "comments": []
       },
@@ -44117,8 +44318,8 @@
     ]
   },
   {
-    "filepath": "../internal/library/anime/autodownloader_rule.go",
-    "filename": "autodownloader_rule.go",
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
     "name": "AutoDownloaderRuleTitleComparisonType",
     "formattedName": "Anime_AutoDownloaderRuleTitleComparisonType",
     "package": "anime",
@@ -44134,8 +44335,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/anime/autodownloader_rule.go",
-    "filename": "autodownloader_rule.go",
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
     "name": "AutoDownloaderRuleEpisodeType",
     "formattedName": "Anime_AutoDownloaderRuleEpisodeType",
     "package": "anime",
@@ -44151,8 +44352,26 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/anime/autodownloader_rule.go",
-    "filename": "autodownloader_rule.go",
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
+    "name": "AutoDownloaderProfileRuleFormatAction",
+    "formattedName": "Anime_AutoDownloaderProfileRuleFormatAction",
+    "package": "anime",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"score\"",
+        "\"block\"",
+        "\"require\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
     "name": "AutoDownloaderRule",
     "formattedName": "Anime_AutoDownloaderRule",
     "package": "anime",
@@ -44164,9 +44383,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Will be set when fetched from the database"
-        ]
+        "comments": []
       },
       {
         "name": "Enabled",
@@ -44187,6 +44404,24 @@
         "comments": []
       },
       {
+        "name": "Destination",
+        "jsonName": "destination",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ProfileID",
+        "jsonName": "profileId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ReleaseGroups",
         "jsonName": "releaseGroups",
         "goType": "[]string",
@@ -44201,6 +44436,26 @@
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumbers",
+        "jsonName": "episodeNumbers",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeType",
+        "jsonName": "episodeType",
+        "goType": "AutoDownloaderRuleEpisodeType",
+        "typescriptType": "Anime_AutoDownloaderRuleEpisodeType",
+        "usedTypescriptType": "Anime_AutoDownloaderRuleEpisodeType",
+        "usedStructName": "anime.AutoDownloaderRuleEpisodeType",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -44225,28 +44480,35 @@
         "comments": []
       },
       {
-        "name": "EpisodeType",
-        "jsonName": "episodeType",
-        "goType": "AutoDownloaderRuleEpisodeType",
-        "typescriptType": "Anime_AutoDownloaderRuleEpisodeType",
-        "usedTypescriptType": "Anime_AutoDownloaderRuleEpisodeType",
-        "usedStructName": "anime.AutoDownloaderRuleEpisodeType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumbers",
-        "jsonName": "episodeNumbers",
-        "goType": "[]int",
-        "typescriptType": "Array\u003cnumber\u003e",
+        "name": "AdditionalTerms",
+        "jsonName": "additionalTerms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
       },
       {
-        "name": "Destination",
-        "jsonName": "destination",
+        "name": "ExcludeTerms",
+        "jsonName": "excludeTerms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinSeeders",
+        "jsonName": "minSeeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinSize",
+        "jsonName": "minSize",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -44254,10 +44516,450 @@
         "comments": []
       },
       {
-        "name": "AdditionalTerms",
-        "jsonName": "additionalTerms",
+        "name": "MaxSize",
+        "jsonName": "maxSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CustomEpisodeNumberAbsoluteOffset",
+        "jsonName": "customEpisodeNumberAbsoluteOffset",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Providers",
+        "jsonName": "providers",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
+    "name": "AutoDownloaderProfile",
+    "formattedName": "Anime_AutoDownloaderProfile",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "DbID",
+        "jsonName": "dbId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Global",
+        "jsonName": "global",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseGroups",
+        "jsonName": "releaseGroups",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Resolutions",
+        "jsonName": "resolutions",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Conditions",
+        "jsonName": "conditions",
+        "goType": "[]AutoDownloaderCondition",
+        "typescriptType": "Array\u003cAnime_AutoDownloaderCondition\u003e",
+        "usedTypescriptType": "Anime_AutoDownloaderCondition",
+        "usedStructName": "anime.AutoDownloaderCondition",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinimumScore",
+        "jsonName": "minimumScore",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinSeeders",
+        "jsonName": "minSeeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinSize",
+        "jsonName": "minSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxSize",
+        "jsonName": "maxSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DelayMinutes",
+        "jsonName": "delayMinutes",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SkipDelayScore",
+        "jsonName": "skipDelayScore",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Providers",
+        "jsonName": "providers",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autodownloader_types.go",
+    "filename": "autodownloader_types.go",
+    "name": "AutoDownloaderCondition",
+    "formattedName": "Anime_AutoDownloaderCondition",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Term",
+        "jsonName": "term",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsRegex",
+        "jsonName": "isRegex",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Action",
+        "jsonName": "action",
+        "goType": "AutoDownloaderProfileRuleFormatAction",
+        "typescriptType": "Anime_AutoDownloaderProfileRuleFormatAction",
+        "usedTypescriptType": "Anime_AutoDownloaderProfileRuleFormatAction",
+        "usedStructName": "anime.AutoDownloaderProfileRuleFormatAction",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Only used if Action == \"score\""
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autoselect_types.go",
+    "filename": "autoselect_types.go",
+    "name": "AutoSelectProfileRuleConditionAction",
+    "formattedName": "Anime_AutoSelectProfileRuleConditionAction",
+    "package": "anime",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": []
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autoselect_types.go",
+    "filename": "autoselect_types.go",
+    "name": "AutoSelectPreference",
+    "formattedName": "Anime_AutoSelectPreference",
+    "package": "anime",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"neutral\"",
+        "\"prefer\"",
+        "\"avoid\"",
+        "\"only\"",
+        "\"never\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/autoselect_types.go",
+    "filename": "autoselect_types.go",
+    "name": "AutoSelectProfile",
+    "formattedName": "Anime_AutoSelectProfile",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "DbID",
+        "jsonName": "dbId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Providers",
+        "jsonName": "providers",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Ordered list of preferred providers (max 3)"
+        ]
+      },
+      {
+        "name": "ReleaseGroups",
+        "jsonName": "releaseGroups",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Preferred groups (e.g., [\"SubsPlease\", \"Erai-raws\"])"
+        ]
+      },
+      {
+        "name": "Resolutions",
+        "jsonName": "resolutions",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Preferred resolutions (e.g., [\"1080p\", \"720p\"])"
+        ]
+      },
+      {
+        "name": "ExcludeTerms",
+        "jsonName": "excludeTerms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Can exclude terms like \"CamRip\""
+        ]
+      },
+      {
+        "name": "PreferredLanguages",
+        "jsonName": "preferredLanguages",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Ordered list, e.g. [\"jp\", \"en\"]"
+        ]
+      },
+      {
+        "name": "PreferredCodecs",
+        "jsonName": "preferredCodecs",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Ordered list, e.g. [\"HEVC, x265, H.265\", \"AVC, x264\"]"
+        ]
+      },
+      {
+        "name": "PreferredSources",
+        "jsonName": "preferredSources",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Ordered list, e.g. [\"BDRip, BD RIP\", \"AT-X\"]"
+        ]
+      },
+      {
+        "name": "MultipleAudioPreference",
+        "jsonName": "multipleAudioPreference",
+        "goType": "AutoSelectPreference",
+        "typescriptType": "Anime_AutoSelectPreference",
+        "usedTypescriptType": "Anime_AutoSelectPreference",
+        "usedStructName": "anime.AutoSelectPreference",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MultipleSubsPreference",
+        "jsonName": "multipleSubsPreference",
+        "goType": "AutoSelectPreference",
+        "typescriptType": "Anime_AutoSelectPreference",
+        "usedTypescriptType": "Anime_AutoSelectPreference",
+        "usedStructName": "anime.AutoSelectPreference",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BatchPreference",
+        "jsonName": "batchPreference",
+        "goType": "AutoSelectPreference",
+        "typescriptType": "Anime_AutoSelectPreference",
+        "usedTypescriptType": "Anime_AutoSelectPreference",
+        "usedStructName": "anime.AutoSelectPreference",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BestReleasePreference",
+        "jsonName": "bestReleasePreference",
+        "goType": "AutoSelectPreference",
+        "typescriptType": "Anime_AutoSelectPreference",
+        "usedTypescriptType": "Anime_AutoSelectPreference",
+        "usedStructName": "anime.AutoSelectPreference",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RequireLanguage",
+        "jsonName": "requireLanguage",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Reject if no preferred language is found"
+        ]
+      },
+      {
+        "name": "RequireCodec",
+        "jsonName": "requireCodec",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Reject if no preferred codec is found"
+        ]
+      },
+      {
+        "name": "RequireSource",
+        "jsonName": "requireSource",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Reject if no preferred source is found"
+        ]
+      },
+      {
+        "name": "MinSeeders",
+        "jsonName": "minSeeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinSize",
+        "jsonName": "minSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxSize",
+        "jsonName": "maxSize",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
@@ -47698,6 +48400,110 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "simulationResults",
+        "jsonName": "simulationResults",
+        "goType": "[]SimulationResult",
+        "typescriptType": "Array\u003cAutoDownloader_SimulationResult\u003e",
+        "usedTypescriptType": "AutoDownloader_SimulationResult",
+        "usedStructName": "autodownloader.SimulationResult",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Stores results when running in simulation mode"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/autodownloader/autodownloader.go",
+    "filename": "autodownloader.go",
+    "name": "SimulationResult",
+    "formattedName": "AutoDownloader_SimulationResult",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "RuleID",
+        "jsonName": "ruleId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Link",
+        "jsonName": "link",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentName",
+        "jsonName": "torrentName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExtensionID",
+        "jsonName": "extensionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsDelayed",
+        "jsonName": "isDelayed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -47797,6 +48603,38 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library/autodownloader/autodownloader.go",
+    "filename": "autodownloader.go",
+    "name": "Candidate",
+    "formattedName": "AutoDownloader_Candidate",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "NormalizedTorrent",
+        "typescriptType": "AutoDownloader_NormalizedTorrent",
+        "usedTypescriptType": "AutoDownloader_NormalizedTorrent",
+        "usedStructName": "autodownloader.NormalizedTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "Score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Candidate represents a potential torrent to download with its score"
+    ]
+  },
+  {
     "filepath": "../internal/library/autodownloader/autodownloader_torrent.go",
     "filename": "autodownloader_torrent.go",
     "name": "NormalizedTorrent",
@@ -47824,12 +48662,85 @@
         "comments": [
           " Access using GetMagnet()"
         ]
+      },
+      {
+        "name": "ExtensionID",
+        "jsonName": "ExtensionID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
     "embeddedStructNames": [
       "hibiketorrent.AnimeTorrent"
     ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/fake.go",
+    "filename": "fake.go",
+    "name": "Fake",
+    "formattedName": "AutoDownloader_Fake",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "SearchResults",
+        "jsonName": "SearchResults",
+        "goType": "[]hibiketorrent.AnimeTorrent",
+        "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "GetLatestResults",
+        "jsonName": "GetLatestResults",
+        "goType": "[]hibiketorrent.AnimeTorrent",
+        "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/autodownloader/fake.go",
+    "filename": "fake.go",
+    "name": "FakeTorrentProvider",
+    "formattedName": "AutoDownloader_FakeTorrentProvider",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "fake",
+        "jsonName": "fake",
+        "goType": "Fake",
+        "typescriptType": "AutoDownloader_Fake",
+        "usedTypescriptType": "AutoDownloader_Fake",
+        "usedStructName": "autodownloader.Fake",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/library/autodownloader/hook_events.go",
@@ -47845,6 +48756,17 @@
         "typescriptType": "Array\u003cAnime_AutoDownloaderRule\u003e",
         "usedTypescriptType": "Anime_AutoDownloaderRule",
         "usedStructName": "anime.AutoDownloaderRule",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Profiles",
+        "jsonName": "profiles",
+        "goType": "[]anime.AutoDownloaderProfile",
+        "typescriptType": "Array\u003cAnime_AutoDownloaderProfile\u003e",
+        "usedTypescriptType": "Anime_AutoDownloaderProfile",
+        "usedStructName": "anime.AutoDownloaderProfile",
         "required": false,
         "public": true,
         "comments": []
@@ -71129,6 +72051,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "TooltipText",
+        "jsonName": "tooltipText",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -71180,6 +72111,15 @@
       {
         "name": "Intent",
         "jsonName": "intent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TooltipText",
+        "jsonName": "tooltipText",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
@@ -76305,6 +77245,47 @@
     "comments": []
   },
   {
+    "filepath": "../internal/report/repository.go",
+    "filename": "repository.go",
+    "name": "AnonymizeOptions",
+    "formattedName": "Report_AnonymizeOptions",
+    "package": "report",
+    "fields": [
+      {
+        "name": "Content",
+        "jsonName": "content",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Settings",
+        "jsonName": "Settings",
+        "goType": "models.Settings",
+        "typescriptType": "Models_Settings",
+        "usedTypescriptType": "Models_Settings",
+        "usedStructName": "models.Settings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DebridSettings",
+        "jsonName": "DebridSettings",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedTypescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/test_utils/data.go",
     "filename": "data.go",
     "name": "Config",
@@ -81397,6 +82378,244 @@
     "comments": []
   },
   {
+    "filepath": "../internal/torrents/autoselect/autoselect.go",
+    "filename": "autoselect.go",
+    "name": "SelectionMode",
+    "formattedName": "SelectionMode",
+    "package": "autoselect",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"torrent\"",
+        "\"debrid\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/autoselect/autoselect.go",
+    "filename": "autoselect.go",
+    "name": "AutoSelect",
+    "formattedName": "AutoSelect",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrentRepository",
+        "jsonName": "torrentRepository",
+        "goType": "itorrent.Repository",
+        "typescriptType": "Repository",
+        "usedTypescriptType": "Repository",
+        "usedStructName": "itorrent.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onEvent",
+        "jsonName": "onEvent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/autoselect/autoselect.go",
+    "filename": "autoselect.go",
+    "name": "NewAutoSelectOptions",
+    "formattedName": "NewAutoSelectOptions",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentRepository",
+        "jsonName": "TorrentRepository",
+        "goType": "itorrent.Repository",
+        "typescriptType": "Repository",
+        "usedTypescriptType": "Repository",
+        "usedStructName": "itorrent.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnEvent",
+        "jsonName": "OnEvent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/autoselect/autoselect.go",
+    "filename": "autoselect.go",
+    "name": "Result",
+    "formattedName": "Result",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "torrent.Torrent",
+        "typescriptType": "Torrent_Torrent",
+        "usedTypescriptType": "Torrent_Torrent",
+        "usedStructName": "torrent.Torrent",
+        "required": false,
+        "public": true,
+        "comments": [
+          " For torrent client"
+        ]
+      },
+      {
+        "name": "File",
+        "jsonName": "File",
+        "goType": "torrent.File",
+        "typescriptType": "Torrent_File",
+        "usedTypescriptType": "Torrent_File",
+        "usedStructName": "torrent.File",
+        "required": false,
+        "public": true,
+        "comments": [
+          " For torrent client"
+        ]
+      },
+      {
+        "name": "DebridTorrent",
+        "jsonName": "DebridTorrent",
+        "goType": "debrid.TorrentInfo",
+        "typescriptType": "Debrid_TorrentInfo",
+        "usedTypescriptType": "Debrid_TorrentInfo",
+        "usedStructName": "debrid.TorrentInfo",
+        "required": false,
+        "public": true,
+        "comments": [
+          " For debrid"
+        ]
+      },
+      {
+        "name": "DebridFileID",
+        "jsonName": "DebridFileID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " For debrid"
+        ]
+      },
+      {
+        "name": "OriginalTorrent",
+        "jsonName": "OriginalTorrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": [
+          " The original torrent object"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/autoselect/comparison.go",
+    "filename": "comparison.go",
+    "name": "TorrentWithCacheStatus",
+    "formattedName": "TorrentWithCacheStatus",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsCached",
+        "jsonName": "IsCached",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/torrents/torrent/repository.go",
     "filename": "repository.go",
     "name": "Repository",
@@ -81643,6 +82862,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IncludeSpecialProviders",
+        "jsonName": "IncludeSpecialProviders",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -81782,6 +83010,15 @@
         "comments": [
           " Animap media"
         ]
+      },
+      {
+        "name": "IncludedSpecialProviders",
+        "jsonName": "includedSpecialProviders",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -82479,6 +83716,17 @@
         "comments": [
           " Key: AniList media ID"
         ]
+      },
+      {
+        "name": "autoSelect",
+        "jsonName": "autoSelect",
+        "goType": "autoselect.AutoSelect",
+        "typescriptType": "AutoSelect",
+        "usedTypescriptType": "AutoSelect",
+        "usedStructName": "autoselect.AutoSelect",
+        "required": false,
+        "public": false,
+        "comments": []
       },
       {
         "name": "torrentRepository",

@@ -423,6 +423,7 @@ declare namespace $app {
         preventDefault(): void;
 
         rules?: Array<Anime_AutoDownloaderRule>;
+        profiles?: Array<Anime_AutoDownloaderProfile>;
     }
 
     /**
@@ -2936,32 +2937,74 @@ declare namespace $app {
     }
 
     /**
-     * - Filepath: internal/library/anime/autodownloader_rule.go
+     * - Filepath: internal/library/anime/autodownloader_types.go
      */
-    interface Anime_AutoDownloaderRule {
+    interface Anime_AutoDownloaderCondition {
+        id: string;
+        term: string;
+        isRegex: boolean;
+        action: Anime_AutoDownloaderProfileRuleFormatAction;
         /**
-         * Will be set when fetched from the database
+         * Only used if Action == "score"
          */
-        dbId: number;
-        enabled: boolean;
-        mediaId: number;
-        releaseGroups?: Array<string>;
-        resolutions?: Array<string>;
-        comparisonTitle: string;
-        titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType;
-        episodeType: Anime_AutoDownloaderRuleEpisodeType;
-        episodeNumbers?: Array<number>;
-        destination: string;
-        additionalTerms?: Array<string>;
+        score: number;
     }
 
     /**
-     * - Filepath: internal/library/anime/autodownloader_rule.go
+     * - Filepath: internal/library/anime/autodownloader_types.go
+     */
+    interface Anime_AutoDownloaderProfile {
+        dbId: number;
+        name: string;
+        global: boolean;
+        releaseGroups?: Array<string>;
+        resolutions?: Array<string>;
+        conditions?: Array<Anime_AutoDownloaderCondition>;
+        minimumScore: number;
+        minSeeders?: number;
+        minSize?: string;
+        maxSize?: string;
+        delayMinutes: number;
+        skipDelayScore: number;
+        providers?: Array<string>;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/autodownloader_types.go
+     */
+    export type Anime_AutoDownloaderProfileRuleFormatAction = "score" | "block" | "require";
+
+    /**
+     * - Filepath: internal/library/anime/autodownloader_types.go
+     */
+    interface Anime_AutoDownloaderRule {
+        dbId: number;
+        enabled: boolean;
+        mediaId: number;
+        destination: string;
+        profileId?: number;
+        releaseGroups?: Array<string>;
+        resolutions?: Array<string>;
+        episodeNumbers?: Array<number>;
+        episodeType: Anime_AutoDownloaderRuleEpisodeType;
+        comparisonTitle: string;
+        titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType;
+        additionalTerms?: Array<string>;
+        excludeTerms?: Array<string>;
+        minSeeders: number;
+        minSize: string;
+        maxSize: string;
+        customEpisodeNumberAbsoluteOffset?: number;
+        providers?: Array<string>;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/autodownloader_types.go
      */
     export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected";
 
     /**
-     * - Filepath: internal/library/anime/autodownloader_rule.go
+     * - Filepath: internal/library/anime/autodownloader_types.go
      */
     export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely";
 
@@ -3358,6 +3401,7 @@ declare namespace $app {
          * Access using GetMagnet()
          */
         magnet: string;
+        ExtensionID: string;
         provider?: string;
         name: string;
         date: string;
@@ -3659,6 +3703,9 @@ declare namespace $app {
         magnet: string;
         torrentName: string;
         downloaded: boolean;
+        isDelayed: boolean;
+        delayUntil?: string;
+        score: number;
         id: number;
         createdAt?: string;
         updatedAt?: string;

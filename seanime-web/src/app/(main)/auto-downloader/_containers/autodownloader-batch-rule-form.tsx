@@ -1,26 +1,36 @@
 import {
     AL_BaseAnime,
+    Anime_AutoDownloaderRule,
     Anime_AutoDownloaderRuleEpisodeType,
     Anime_AutoDownloaderRuleTitleComparisonType,
     Anime_LibraryCollection,
 } from "@/api/generated/types"
 import { useCreateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
+import { __anilist_userAnimeListDataAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
+    _autoDownloader_listActiveMediaOnlyAtom,
     AutoDownloaderMediaCombobox,
-    TextArrayField,
     useAutoDownloaderMediaList,
 } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { CloseButton, IconButton } from "@/components/ui/button"
+import {
+    AdditionalTermsField,
+    ExcludeTermsField,
+    ProfileSelectField,
+    ProvidersField,
+    ReleaseGroupsField,
+    ResolutionsField,
+} from "@/app/(main)/auto-downloader/_containers/autodownloader-shared-fields"
+import { Button, CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { upath } from "@/lib/helpers/upath"
+import { useAtom, useAtomValue } from "jotai/react"
 import { uniq } from "lodash"
 import React from "react"
 import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form"
@@ -32,9 +42,10 @@ import { toast } from "sonner"
 
 type AutoDownloaderBatchRuleFormProps = {
     onRuleCreated: () => void
+    rules: Anime_AutoDownloaderRule[]
 }
 
-const schema = defineSchema(({ z }) => z.object({
+const schema = defineSchema(({ z, presets }) => z.object({
     enabled: z.boolean(),
     entries: z.array(z.object({
         mediaId: z.number(),
@@ -44,13 +55,20 @@ const schema = defineSchema(({ z }) => z.object({
     releaseGroups: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     resolutions: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     additionalTerms: z.array(z.string()).optional().transform(value => !value?.length ? [] : uniq(value.filter(Boolean))),
+    excludeTerms: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     titleComparisonType: z.string(),
+    minSeeders: z.number().min(0).optional().default(0),
+    minSize: z.string().optional().default(""),
+    maxSize: z.string().optional().default(""),
+    providers: z.array(z.string()).optional().transform(value => !value?.length ? [] : uniq(value.filter(Boolean))),
+    profileId: presets.multiSelect,
 }))
 
 export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormProps) {
 
     const {
         onRuleCreated,
+        rules,
     } = props
 
     const userMedia = useAnilistUserAnime()
@@ -72,15 +90,24 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
                 continue
             }
             createRule({
-                titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
-                episodeType: "recent" as Anime_AutoDownloaderRuleEpisodeType,
-                enabled: data.enabled,
-                mediaId: entry.mediaId,
-                releaseGroups: data.releaseGroups,
-                resolutions: data.resolutions,
-                additionalTerms: data.additionalTerms,
-                comparisonTitle: entry.comparisonTitle,
-                destination: entry.destination,
+                rule: {
+                    dbId: 0,
+                    titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
+                    episodeType: "recent" as Anime_AutoDownloaderRuleEpisodeType,
+                    enabled: data.enabled,
+                    mediaId: entry.mediaId,
+                    releaseGroups: data.releaseGroups,
+                    resolutions: data.resolutions,
+                    additionalTerms: data.additionalTerms,
+                    excludeTerms: data.excludeTerms,
+                    comparisonTitle: entry.comparisonTitle,
+                    destination: entry.destination,
+                    minSeeders: data.minSeeders,
+                    minSize: data.minSize,
+                    maxSize: data.maxSize,
+                    providers: data.providers,
+                    profileId: !!data.profileId?.[0] ? Number(data.profileId[0]) : undefined,
+                },
             })
         }
         onRuleCreated?.()
@@ -102,6 +129,8 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
                 defaultValues={{
                     enabled: true,
                     titleComparisonType: "likely",
+                    minSeeders: 0,
+                    profileId: [],
                 }}
             >
                 {(f) => (
@@ -112,6 +141,7 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
                             isPending={isPending}
                             mediaList={mediaList}
                             libraryCollection={libraryCollection}
+                            rules={rules}
                         />
                     </div>
                 )}
@@ -126,6 +156,7 @@ type RuleFormFieldsProps = {
     isPending: boolean
     mediaList: AL_BaseAnime[]
     libraryCollection?: Anime_LibraryCollection | undefined
+    rules: Anime_AutoDownloaderRule[]
 }
 
 function RuleFormFields(props: RuleFormFieldsProps) {
@@ -136,6 +167,7 @@ function RuleFormFields(props: RuleFormFieldsProps) {
         isPending,
         mediaList,
         libraryCollection,
+        rules,
         ...rest
     } = props
 
@@ -159,9 +191,11 @@ function RuleFormFields(props: RuleFormFieldsProps) {
                     libraryPath={serverStatus?.settings?.library?.libraryPath || ""}
                     name="entries"
                     control={form.control}
-                    label="Library entries"
+                    label="Anime"
                     separatorText="AND"
                     form={form}
+                    libraryCollection={libraryCollection}
+                    rules={rules}
                 />
 
                 <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
@@ -174,7 +208,7 @@ function RuleFormFields(props: RuleFormFieldsProps) {
                                 label: <div className="w-full">
                                     <p className="mb-1 flex items-center"><MdVerified className="text-lg inline-block mr-2" />Most likely</p>
                                     <p className="font-normal text-sm text-[--muted]">The torrent name will be parsed and analyzed using a comparison
-                                        algorithm</p>
+                                                                                      algorithm</p>
                                 </div>,
                                 value: "likely",
                             },
@@ -182,7 +216,7 @@ function RuleFormFields(props: RuleFormFieldsProps) {
                                 label: <div className="w-full">
                                     <p className="mb-1 flex items-center"><LuTextCursorInput className="text-lg inline-block mr-2" />Exact match</p>
                                     <p className="font-normal text-sm text-[--muted]">The torrent name must contain the comparison title you set (case
-                                        insensitive)</p>
+                                                                                      insensitive)</p>
                                 </div>,
                                 value: "contains",
                             },
@@ -190,70 +224,41 @@ function RuleFormFields(props: RuleFormFieldsProps) {
                     />
                 </div>
 
-                <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Release Groups</div>
-                    <p className="text-sm">
-                        List of release groups to look for. If empty, any release group will be accepted.
-                    </p>
+                <ProfileSelectField name="profileId" />
 
-                    <TextArrayField
-                        name="releaseGroups"
-                        control={form.control}
-                        type="text"
-                        placeholder="e.g. SubsPlease"
-                        separatorText="OR"
-                    />
-                </div>
+                <ReleaseGroupsField name="releaseGroups" control={form.control} />
+
+                <ResolutionsField name="resolutions" control={form.control} />
 
                 <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Resolutions</div>
-                    <p className="text-sm">
-                        List of resolutions to look for. If empty, the highest resolution will be accepted.
-                    </p>
-
-                    <TextArrayField
-                        name="resolutions"
-                        control={form.control}
-                        type="text"
-                        placeholder="e.g. 1080p"
-                        separatorText="OR"
-                    />
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Constraints</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Field.Number
+                            name="minSeeders"
+                            label="Min Seeders"
+                            min={0}
+                            fieldClass="w-full"
+                        />
+                        <Field.Text
+                            name="minSize"
+                            label="Min Size"
+                            placeholder="e.g. 100MB"
+                            fieldClass="w-full"
+                        />
+                        <Field.Text
+                            name="maxSize"
+                            label="Max Size"
+                            placeholder="e.g. 2GB or 10GiB"
+                            fieldClass="w-full"
+                        />
+                    </div>
                 </div>
 
-                <Accordion type="single" collapsible className="!my-4">
-                    <AccordionItem value="more">
-                        <AccordionTrigger className="border rounded-[--radius] bg-gray-900">
-                            More filters
-                        </AccordionTrigger>
-                        <AccordionContent className="pt-0">
-                            <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                                <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Additional
-                                    terms
-                                </div>
-                                <div>
-                                    <p className="text-sm -top-2 relative"><span className="text-red-100">
-                                        All options must be included for the torrent to be accepted.</span> Within each option, you can
-                                        include variations separated by
-                                        commas. For example, adding
-                                        "H265,H.265, H 265,x265" and
-                                        "10bit,10-bit,10 bit" will match
-                                        <code className="text-gray-400"> [Group] Torrent name [HEVC 10bit
-                                            x265]</code> but not <code className="text-gray-400">[Group] Torrent name
-                                                [H265]</code>. Case
-                                        insensitive.</p>
-                                </div>
+                <ProvidersField name="providers" control={form.control} />
 
-                                <TextArrayField
-                                    name="additionalTerms"
-                                    control={form.control}
-                                    type="text"
-                                    placeholder="e.g. H265,H.265,H 265,x265"
-                                    separatorText="AND"
-                                />
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
+                <AdditionalTermsField name="additionalTerms" control={form.control} />
+
+                <ExcludeTermsField name="excludeTerms" control={form.control} />
 
             </div>
             <div className="flex gap-2">
@@ -271,6 +276,8 @@ type MediaArrayFieldProps = {
     label?: string
     separatorText?: string
     form: UseFormReturn<InferType<typeof schema>>
+    libraryCollection?: Anime_LibraryCollection | undefined
+    rules: Anime_AutoDownloaderRule[]
 }
 
 interface MediaEntry {
@@ -289,6 +296,12 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
         name: props.name,
     })
 
+    const userMedia = useAnilistUserAnime()
+
+    const entriesAdded = useWatch({ name: "entries" }) as any[]
+    const anilistListData = useAtomValue(__anilist_userAnimeListDataAtom)
+    const [showReleasingOnly, setShowReleasingOnly] = useAtom(_autoDownloader_listActiveMediaOnlyAtom)
+
     const handleFieldChange = (index: number, updatedValues: Partial<MediaEntry>, field: MediaEntry) => {
         if ("mediaId" in updatedValues) {
             const mediaId = updatedValues.mediaId!
@@ -303,6 +316,49 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
         } else {
             update(index, { ...field, ...updatedValues })
         }
+    }
+
+    function handleAddCurrentlyWatching() {
+        // Get media ids that already have rules
+        const existingRuleMediaIds = new Set(props.rules.map(rule => rule.mediaId))
+
+        // Filter media that are currently watching and don't have rules
+        const currentlyWatchingMedia = userMedia?.filter(media => {
+            const listData = anilistListData[String(media.id)]
+            return listData?.status === "CURRENT" && !existingRuleMediaIds.has(media.id)
+        }) ?? []
+
+        setShowReleasingOnly("all")
+
+        currentlyWatchingMedia.forEach(media => {
+            const sanitizedTitle = sanitizeDirectoryName(media.title?.userPreferred || "")
+            append({
+                mediaId: media.id,
+                destination: upath.join(props.libraryPath, sanitizedTitle),
+                comparisonTitle: sanitizedTitle,
+            })
+        })
+    }
+
+    function handleAddUpcoming() {
+        // Get media ids that already have rules
+        const existingRuleMediaIds = new Set(props.rules.map(rule => rule.mediaId))
+
+        // Filter media that are upcoming and don't have rules
+        const upcomingMedia = userMedia?.filter(media => {
+            return media.status === "NOT_YET_RELEASED" && !existingRuleMediaIds.has(media.id)
+        }) ?? []
+
+        setShowReleasingOnly("all")
+
+        upcomingMedia.forEach(media => {
+            const sanitizedTitle = sanitizeDirectoryName(media.title?.userPreferred || "")
+            append({
+                mediaId: media.id,
+                destination: upath.join(props.libraryPath, sanitizedTitle),
+                comparisonTitle: sanitizedTitle,
+            })
+        })
     }
 
     return (
@@ -325,16 +381,34 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                     separatorText={index < fields.length - 1 ? props.separatorText : undefined}
                 />
             ))}
-            <IconButton
-                intent="success"
-                className="rounded-full"
-                onClick={() => append({
-                    mediaId: 0,
-                    destination: props.libraryPath,
-                    comparisonTitle: "",
-                })}
-                icon={<BiPlus />}
-            />
+            <div className="flex gap-2 flex-wrap">
+                <IconButton
+                    intent="success"
+                    className="rounded-full"
+                    onClick={() => append({
+                        mediaId: 0,
+                        destination: props.libraryPath,
+                        comparisonTitle: "",
+                    })}
+                    icon={<BiPlus />}
+                />
+                {!entriesAdded?.length && <Button
+                    intent="gray-subtle"
+                    className="rounded-full"
+                    onClick={handleAddCurrentlyWatching}
+                    leftIcon={<BiPlus />}
+                >
+                    All Currently Watching
+                </Button>}
+                {!entriesAdded?.length && <Button
+                    intent="gray-subtle"
+                    className="rounded-full"
+                    onClick={handleAddUpcoming}
+                    leftIcon={<BiPlus />}
+                >
+                    All Upcoming
+                </Button>}
+            </div>
         </div>
     )
 }

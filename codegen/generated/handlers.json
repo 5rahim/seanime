@@ -1385,6 +1385,46 @@
     }
   },
   {
+    "name": "HandleRunAutoDownloaderSimulation",
+    "trimmedName": "RunAutoDownloaderSimulation",
+    "comments": [
+      "HandleRunAutoDownloader",
+      "",
+      "\t@summary runs the AutoDownloader in simulation mode and returns the results.",
+      "\t@desc It does nothing if the AutoDownloader is disabled.",
+      "\t@route /api/v1/auto-downloader/run/simulation [POST]",
+      "\t@returns []autodownloader.SimulationResult",
+      ""
+    ],
+    "filepath": "internal/handlers/auto_downloader.go",
+    "filename": "auto_downloader.go",
+    "api": {
+      "summary": "runs the AutoDownloader in simulation mode and returns the results.",
+      "descriptions": [
+        "It does nothing if the AutoDownloader is disabled."
+      ],
+      "endpoint": "/api/v1/auto-downloader/run/simulation",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "RuleIds",
+          "jsonName": "ruleIds",
+          "goType": "[]uint",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cnumber\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "[]autodownloader.SimulationResult",
+      "returnGoType": "autodownloader.SimulationResult",
+      "returnTypescriptType": "Array\u003cAutoDownloader_SimulationResult\u003e"
+    }
+  },
+  {
     "name": "HandleGetAutoDownloaderRule",
     "trimmedName": "GetAutoDownloaderRule",
     "comments": [
@@ -1525,92 +1565,11 @@
       "params": [],
       "bodyFields": [
         {
-          "name": "Enabled",
-          "jsonName": "enabled",
-          "goType": "bool",
-          "usedStructType": "",
-          "typescriptType": "boolean",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "MediaId",
-          "jsonName": "mediaId",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "ReleaseGroups",
-          "jsonName": "releaseGroups",
-          "goType": "[]string",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cstring\u003e",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "Resolutions",
-          "jsonName": "resolutions",
-          "goType": "[]string",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cstring\u003e",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "AdditionalTerms",
-          "jsonName": "additionalTerms",
-          "goType": "[]string",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cstring\u003e",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "ComparisonTitle",
-          "jsonName": "comparisonTitle",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "TitleComparisonType",
-          "jsonName": "titleComparisonType",
-          "goType": "anime.AutoDownloaderRuleTitleComparisonType",
-          "usedStructType": "anime.AutoDownloaderRuleTitleComparisonType",
-          "typescriptType": "Anime_AutoDownloaderRuleTitleComparisonType",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "EpisodeType",
-          "jsonName": "episodeType",
-          "goType": "anime.AutoDownloaderRuleEpisodeType",
-          "usedStructType": "anime.AutoDownloaderRuleEpisodeType",
-          "typescriptType": "Anime_AutoDownloaderRuleEpisodeType",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "EpisodeNumbers",
-          "jsonName": "episodeNumbers",
-          "goType": "[]int",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cnumber\u003e",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "Destination",
-          "jsonName": "destination",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
+          "name": "Rule",
+          "jsonName": "rule",
+          "goType": "anime.AutoDownloaderRule",
+          "usedStructType": "anime.AutoDownloaderRule",
+          "typescriptType": "Anime_AutoDownloaderRule",
           "required": true,
           "descriptions": []
         }
@@ -1696,6 +1655,167 @@
           "required": true,
           "descriptions": [
             "The DB id of the rule"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGetAutoDownloaderProfiles",
+    "trimmedName": "GetAutoDownloaderProfiles",
+    "comments": [
+      "HandleGetAutoDownloaderProfiles",
+      "",
+      "\t@summary returns all profiles.",
+      "\t@route /api/v1/auto-downloader/profiles [GET]",
+      "\t@returns []anime.AutoDownloaderProfile",
+      ""
+    ],
+    "filepath": "internal/handlers/auto_downloader.go",
+    "filename": "auto_downloader.go",
+    "api": {
+      "summary": "returns all profiles.",
+      "descriptions": [],
+      "endpoint": "/api/v1/auto-downloader/profiles",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]anime.AutoDownloaderProfile",
+      "returnGoType": "anime.AutoDownloaderProfile",
+      "returnTypescriptType": "Array\u003cAnime_AutoDownloaderProfile\u003e"
+    }
+  },
+  {
+    "name": "HandleGetAutoDownloaderProfile",
+    "trimmedName": "GetAutoDownloaderProfile",
+    "comments": [
+      "HandleGetAutoDownloaderProfile",
+      "",
+      "\t@summary returns the profile with the given DB id.",
+      "\t@route /api/v1/auto-downloader/profile/{id} [GET]",
+      "\t@param id - int - true - \"The DB id of the profile\"",
+      "\t@returns anime.AutoDownloaderProfile",
+      ""
+    ],
+    "filepath": "internal/handlers/auto_downloader.go",
+    "filename": "auto_downloader.go",
+    "api": {
+      "summary": "returns the profile with the given DB id.",
+      "descriptions": [],
+      "endpoint": "/api/v1/auto-downloader/profile/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "The DB id of the profile"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "anime.AutoDownloaderProfile",
+      "returnGoType": "anime.AutoDownloaderProfile",
+      "returnTypescriptType": "Anime_AutoDownloaderProfile"
+    }
+  },
+  {
+    "name": "HandleCreateAutoDownloaderProfile",
+    "trimmedName": "CreateAutoDownloaderProfile",
+    "comments": [
+      "HandleCreateAutoDownloaderProfile",
+      "",
+      "\t@summary creates a new profile.",
+      "\t@route /api/v1/auto-downloader/profile [POST]",
+      "\t@returns anime.AutoDownloaderProfile",
+      ""
+    ],
+    "filepath": "internal/handlers/auto_downloader.go",
+    "filename": "auto_downloader.go",
+    "api": {
+      "summary": "creates a new profile.",
+      "descriptions": [],
+      "endpoint": "/api/v1/auto-downloader/profile",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "anime.AutoDownloaderProfile",
+      "returnGoType": "anime.AutoDownloaderProfile",
+      "returnTypescriptType": "Anime_AutoDownloaderProfile"
+    }
+  },
+  {
+    "name": "HandleUpdateAutoDownloaderProfile",
+    "trimmedName": "UpdateAutoDownloaderProfile",
+    "comments": [
+      "HandleUpdateAutoDownloaderProfile",
+      "",
+      "\t@summary updates a profile.",
+      "\t@route /api/v1/auto-downloader/profile [PATCH]",
+      "\t@returns anime.AutoDownloaderProfile",
+      ""
+    ],
+    "filepath": "internal/handlers/auto_downloader.go",
+    "filename": "auto_downloader.go",
+    "api": {
+      "summary": "updates a profile.",
+      "descriptions": [],
+      "endpoint": "/api/v1/auto-downloader/profile",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "anime.AutoDownloaderProfile",
+      "returnGoType": "anime.AutoDownloaderProfile",
+      "returnTypescriptType": "Anime_AutoDownloaderProfile"
+    }
+  },
+  {
+    "name": "HandleDeleteAutoDownloaderProfile",
+    "trimmedName": "DeleteAutoDownloaderProfile",
+    "comments": [
+      "HandleDeleteAutoDownloaderProfile",
+      "",
+      "\t@summary deletes a profile.",
+      "\t@route /api/v1/auto-downloader/profile/{id} [DELETE]",
+      "\t@param id - int - true - \"The DB id of the profile\"",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/auto_downloader.go",
+    "filename": "auto_downloader.go",
+    "api": {
+      "summary": "deletes a profile.",
+      "descriptions": [],
+      "endpoint": "/api/v1/auto-downloader/profile/{id}",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "The DB id of the profile"
           ]
         }
       ],
@@ -9315,6 +9435,15 @@
       "params": [],
       "bodyFields": [
         {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "Interval",
           "jsonName": "interval",
           "goType": "int",
@@ -10285,11 +10414,117 @@
           "typescriptType": "boolean",
           "required": false,
           "descriptions": []
+        },
+        {
+          "name": "IncludeSpecialProviders",
+          "jsonName": "includeSpecialProviders",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": false,
+          "descriptions": []
         }
       ],
       "returns": "torrent.SearchData",
       "returnGoType": "torrent.SearchData",
       "returnTypescriptType": "Torrent_SearchData"
+    }
+  },
+  {
+    "name": "HandleGetAutoSelectProfile",
+    "trimmedName": "GetAutoSelectProfile",
+    "comments": [
+      "HandleGetAutoSelectProfile",
+      "",
+      "\t@summary returns the autoselect profile.",
+      "\t@desc This returns the single autoselect profile if it exists.",
+      "\t@route /api/v1/auto-select/profile [GET]",
+      "\t@returns anime.AutoSelectProfile",
+      ""
+    ],
+    "filepath": "internal/handlers/torrent_search.go",
+    "filename": "torrent_search.go",
+    "api": {
+      "summary": "returns the autoselect profile.",
+      "descriptions": [
+        "This returns the single autoselect profile if it exists."
+      ],
+      "endpoint": "/api/v1/auto-select/profile",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "anime.AutoSelectProfile",
+      "returnGoType": "anime.AutoSelectProfile",
+      "returnTypescriptType": "Anime_AutoSelectProfile"
+    }
+  },
+  {
+    "name": "HandleSaveAutoSelectProfile",
+    "trimmedName": "SaveAutoSelectProfile",
+    "comments": [
+      "HandleSaveAutoSelectProfile",
+      "",
+      "\t@summary creates or updates the autoselect profile.",
+      "\t@desc Since there's only one profile at all time, this will create or update it.",
+      "\t@route /api/v1/auto-select/profile [POST]",
+      "\t@returns anime.AutoSelectProfile",
+      ""
+    ],
+    "filepath": "internal/handlers/torrent_search.go",
+    "filename": "torrent_search.go",
+    "api": {
+      "summary": "creates or updates the autoselect profile.",
+      "descriptions": [
+        "Since there's only one profile at all time, this will create or update it."
+      ],
+      "endpoint": "/api/v1/auto-select/profile",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Profile",
+          "jsonName": "profile",
+          "goType": "anime.AutoSelectProfile",
+          "usedStructType": "anime.AutoSelectProfile",
+          "typescriptType": "Anime_AutoSelectProfile",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "anime.AutoSelectProfile",
+      "returnGoType": "anime.AutoSelectProfile",
+      "returnTypescriptType": "Anime_AutoSelectProfile"
+    }
+  },
+  {
+    "name": "HandleDeleteAutoSelectProfile",
+    "trimmedName": "DeleteAutoSelectProfile",
+    "comments": [
+      "HandleDeleteAutoSelectProfile",
+      "",
+      "\t@summary deletes the autoselect profile.",
+      "\t@route /api/v1/auto-select/profile [DELETE]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/torrent_search.go",
+    "filename": "torrent_search.go",
+    "api": {
+      "summary": "deletes the autoselect profile.",
+      "descriptions": [],
+      "endpoint": "/api/v1/auto-select/profile",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {

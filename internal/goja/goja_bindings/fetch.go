@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"seanime/internal/util"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/dop251/goja"
@@ -39,6 +41,7 @@ type Fetch struct {
 	vm             *goja.Runtime
 	fetchSem       chan struct{}
 	vmResponseCh   chan func()
+	closed         atomic.Bool
 	allowedDomains []string // empty = allow all domains
 	rules          []accessRule
 	anilistToken   string
@@ -148,6 +151,7 @@ func (f *Fetch) Close() {
 		if r := recover(); r != nil {
 		}
 	}()
+	f.closed.Store(true)
 	close(f.vmResponseCh)
 }
 
@@ -369,6 +373,10 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 	}
 
 	go func() {
+		defer util.HandlePanicInModuleThen("goja/goja_bindings/Fetch", func() {})
+		if f.closed.Load() {
+			return
+		}
 		// Acquire semaphore
 		f.fetchSem <- struct{}{}
 		defer func() { <-f.fetchSem }()

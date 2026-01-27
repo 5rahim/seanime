@@ -173,7 +173,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate, withTitle 
                 <CarouselContent>
                     {episodes.map((episode, idx) => (
                         <CarouselItem
-                            key={episode?.localFile?.path || idx}
+                            key={episode?.localFile?.path || episode?.baseAnime?.id}
                             className={episodeCardCarouselItemClass(ts.smallerEpisodeCarouselSize)}
                         >
                             <_EpisodeCard

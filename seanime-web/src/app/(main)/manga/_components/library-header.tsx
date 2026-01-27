@@ -129,7 +129,6 @@ export function MangaLibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                                     alt="banner image"
                                     fill
                                     quality={100}
-                                    priority
                                     sizes="100vw"
                                     className={cn(
                                         "object-cover object-center z-[1] opacity-100 transition-opacity duration-700 scroll-locked-offset",
@@ -152,7 +151,6 @@ export function MangaLibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                      alt="banner image"
                      fill
                      quality={100}
-                     priority
                      sizes="100vw"
                      className={cn(
                      "object-cover object-center z-[1] opacity-50 transition-opacity scroll-locked-offset",

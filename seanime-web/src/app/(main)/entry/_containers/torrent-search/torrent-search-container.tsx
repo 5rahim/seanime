@@ -396,6 +396,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         debridInstantAvailability={debridInstantAvailability}
                                         type={type}
                                         torrentMetadata={data?.torrentMetadata}
+                                        includedSpecialProviders={data?.includedSpecialProviders}
                                         // animeMetadata={data?.animeMetadata}
                                     />
                                 </>

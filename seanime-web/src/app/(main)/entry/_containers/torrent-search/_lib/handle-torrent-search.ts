@@ -130,6 +130,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
             type: searchType,
             provider: selectedProviderExtension?.id!,
             bestRelease: searchType === Torrent_SearchType.SMART && smartSearchBest,
+        includeSpecialProviders: true,
         },
         !(searchType === Torrent_SearchType.SIMPLE && debouncedGlobalFilter.length === 0) // If simple search, user input must not be empty
         && !warnings.noProvider

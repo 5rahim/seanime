@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func GetMockProvider(t *testing.T, db *db.Database) Provider {
+func GetFakeProvider(t *testing.T, db *db.Database) Provider {
 	filecacher, err := filecache.NewCacher(t.TempDir())
 	require.NoError(t, err)
 	return NewProvider(&NewProviderImplOptions{

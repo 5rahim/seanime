@@ -24,7 +24,7 @@ func TestNewAnimeEntry(t *testing.T) {
 	database, err := db.NewDatabase(t.TempDir(), "test", logger)
 	assert.NoError(t, err)
 
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 
 	tests := []struct {
 		name                              string

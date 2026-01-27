@@ -10,8 +10,7 @@ import type {
     AL_MediaSort,
     AL_MediaStatus,
     Anime_AutoDownloaderRule,
-    Anime_AutoDownloaderRuleEpisodeType,
-    Anime_AutoDownloaderRuleTitleComparisonType,
+    Anime_AutoSelectProfile,
     Anime_LocalFileMetadata,
     Anime_PlaylistEpisode,
     ChapterDownloader_DownloadID,
@@ -315,6 +314,17 @@ export type Login_Variables = {
 /**
  * - Filepath: internal/handlers/auto_downloader.go
  * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/run/simulation
+ * @description
+ * Route runs the AutoDownloader in simulation mode and returns the results.
+ */
+export type RunAutoDownloaderSimulation_Variables = {
+    ruleIds: Array<number>
+}
+
+/**
+ * - Filepath: internal/handlers/auto_downloader.go
+ * - Filename: auto_downloader.go
  * - Endpoint: /api/v1/auto-downloader/rule/{id}
  * @description
  * Route returns the rule with the given DB id.
@@ -348,16 +358,7 @@ export type GetAutoDownloaderRulesByAnime_Variables = {
  * Route creates a new rule.
  */
 export type CreateAutoDownloaderRule_Variables = {
-    enabled: boolean
-    mediaId: number
-    releaseGroups: Array<string>
-    resolutions: Array<string>
-    additionalTerms: Array<string>
-    comparisonTitle: string
-    titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType
-    episodeType: Anime_AutoDownloaderRuleEpisodeType
-    episodeNumbers?: Array<number>
-    destination: string
+    rule: Anime_AutoDownloaderRule
 }
 
 /**
@@ -381,6 +382,34 @@ export type UpdateAutoDownloaderRule_Variables = {
 export type DeleteAutoDownloaderRule_Variables = {
     /**
      *  The DB id of the rule
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/auto_downloader.go
+ * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/profile/{id}
+ * @description
+ * Route returns the profile with the given DB id.
+ */
+export type GetAutoDownloaderProfile_Variables = {
+    /**
+     *  The DB id of the profile
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/auto_downloader.go
+ * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/profile/{id}
+ * @description
+ * Route deletes a profile.
+ */
+export type DeleteAutoDownloaderProfile_Variables = {
+    /**
+     *  The DB id of the profile
      */
     id: number
 }
@@ -1788,6 +1817,7 @@ export type SaveSettings_Variables = {
  * Route updates the auto-downloader settings.
  */
 export type SaveAutoDownloaderSettings_Variables = {
+    provider: string
     interval: number
     enabled: boolean
     downloadAutomatically: boolean
@@ -1942,6 +1972,18 @@ export type SearchTorrent_Variables = {
     absoluteOffset?: number
     resolution?: string
     bestRelease?: boolean
+    includeSpecialProviders?: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/torrent_search.go
+ * - Filename: torrent_search.go
+ * - Endpoint: /api/v1/auto-select/profile
+ * @description
+ * Route creates or updates the autoselect profile.
+ */
+export type SaveAutoSelectProfile_Variables = {
+    profile?: Anime_AutoSelectProfile
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

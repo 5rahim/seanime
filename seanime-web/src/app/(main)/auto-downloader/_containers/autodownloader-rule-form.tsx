@@ -5,27 +5,40 @@ import {
     Anime_AutoDownloaderRuleTitleComparisonType,
     Anime_LibraryCollection,
 } from "@/api/generated/types"
-import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
+import {
+    useCreateAutoDownloaderRule,
+    useDeleteAutoDownloaderRule,
+    useRunAutoDownloaderSimulation,
+    useUpdateAutoDownloaderRule,
+} from "@/api/hooks/auto_downloader.hooks"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Button, CloseButton, IconButton } from "@/components/ui/button"
+import {
+    AdditionalTermsField,
+    ExcludeTermsField,
+    ProfileSelectField,
+    ProvidersField,
+    ReleaseGroupsField,
+    ResolutionsField,
+    TextArrayField,
+} from "@/app/(main)/auto-downloader/_containers/autodownloader-shared-fields"
+import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
+import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
-import { TextInput } from "@/components/ui/text-input"
 import { upath } from "@/lib/helpers/upath"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { uniq } from "lodash"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
-import React, { useMemo, useRef } from "react"
-import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form"
-import { BiPlus } from "react-icons/bi"
+import React, { useMemo, useRef, useState } from "react"
+import { UseFormReturn, useWatch } from "react-hook-form"
 import { FcFolder } from "react-icons/fc"
 import { LuTextCursorInput } from "react-icons/lu"
 import { MdFilterAlt, MdVerified } from "react-icons/md"
@@ -39,17 +52,24 @@ type AutoDownloaderRuleFormProps = {
     onRuleCreatedOrDeleted?: () => void
 }
 
-const schema = defineSchema(({ z }) => z.object({
+const schema = defineSchema(({ z, presets }) => z.object({
     enabled: z.boolean(),
     mediaId: z.number().min(1),
     releaseGroups: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     resolutions: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     episodeNumbers: z.array(z.number()).transform(value => uniq(value.filter(Boolean))),
     additionalTerms: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
+    excludeTerms: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     comparisonTitle: z.string().min(1),
     titleComparisonType: z.string(),
     episodeType: z.string(),
     destination: z.string().min(1),
+    minSeeders: z.number().min(0).optional().default(0),
+    minSize: z.string().optional().default(""),
+    maxSize: z.string().optional().default(""),
+    customEpisodeNumberAbsoluteOffset: z.number(),
+    providers: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
+    profileId: presets.multiSelect,
 }))
 
 export const _autoDownloader_listActiveMediaOnlyAtom = atomWithStorage<"airing" | "airing-upcoming" | "all">(
@@ -103,9 +123,13 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
         }
         if (type === "create") {
             createRule({
-                ...data,
-                titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
-                episodeType: data.episodeType as Anime_AutoDownloaderRuleEpisodeType,
+                rule: {
+                    ...data,
+                    dbId: 0,
+                    profileId: !!data.profileId?.[0] ? Number(data.profileId[0]) : undefined,
+                    titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
+                    episodeType: data.episodeType as Anime_AutoDownloaderRuleEpisodeType,
+                },
             }, {
                 onSuccess: () => onRuleCreatedOrDeleted?.(),
             })
@@ -114,6 +138,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
             updateRule({
                 rule: {
                     ...data,
+                    profileId: !!data.profileId?.[0] ? Number(data.profileId[0]) : undefined,
                     dbId: rule.dbId || 0,
                     titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
                     episodeType: data.episodeType as Anime_AutoDownloaderRuleEpisodeType,
@@ -144,6 +169,13 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                     episodeNumbers: rule?.episodeNumbers ?? [],
                     destination: rule?.destination ?? "",
                     additionalTerms: rule?.additionalTerms ?? [],
+                    excludeTerms: rule?.excludeTerms ?? [],
+                    minSeeders: rule?.minSeeders ?? 0,
+                    minSize: rule?.minSize,
+                    maxSize: rule?.maxSize,
+                    customEpisodeNumberAbsoluteOffset: rule?.customEpisodeNumberAbsoluteOffset ?? 0,
+                    providers: rule?.providers ?? [],
+                    profileId: rule?.profileId ? [String(rule.profileId)] : [],
                 }}
                 onError={() => {
                     toast.error("An error occurred, verify the fields.")
@@ -196,11 +228,21 @@ export function AutoDownloaderMediaCombobox(props: {
     mediaId?: number | undefined
 }) {
     const [showReleasingOnly, setShowReleasingOnly] = useAtom(_autoDownloader_listActiveMediaOnlyAtom)
+    const { setPreviewModalMediaId } = useMediaPreviewModal()
 
     return <Combobox
         name="mediaId"
         label={<div className="flex items-center gap-2">
-            <p className="text-lg font-semibold">Media</p>
+            <p
+                className={cn("text-lg font-semibold",
+                    // props.type === "edit" && "cursor-pointer"
+                )}
+                // onClick={() => {
+                //     if(props.mediaId) setPreviewModalMediaId(props.mediaId, "anime")
+                // }}
+            >
+                Anime
+            </p>
             {props.type !== "edit" && <Button
                 leftIcon={<MdFilterAlt />} intent="gray-link" className="!text-[--muted] cursor-pointer hover:underline underline-offset-2 py-0 px-2"
                 onClick={() => setShowReleasingOnly(prev => {
@@ -272,6 +314,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
     const form_mediaId = useWatch({ name: "mediaId" }) as number
     const form_episodeType = useWatch({ name: "episodeType" }) as Anime_AutoDownloaderRuleEpisodeType
     const destination = useWatch({ name: "destination" }) as string
+    const titleComparisonType = useWatch({ name: "titleComparisonType" }) as string
 
     const selectedMedia = allMedia.find(media => media.id === Number(form_mediaId))
 
@@ -284,6 +327,19 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
         setDestination: path => form.setValue("destination", path),
         animeFolderName,
     })
+
+    const {
+        mutate: runSimulation,
+        data: simulationResults,
+        reset: resetSimulation,
+        isPending: isSimulationPending,
+    } = useRunAutoDownloaderSimulation()
+    const [showSimulationResults, setShowSimulationResults] = useState(false)
+    React.useEffect(() => {
+        if (simulationResults) {
+            setShowSimulationResults(true)
+        }
+    }, [simulationResults])
 
     React.useEffect(() => {
         const id = Number(form_mediaId)
@@ -347,17 +403,17 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     <Field.Text
                         name="comparisonTitle"
                         label="Comparison title"
-                        help="Used for comparison purposes. When using 'Exact match', use a title most likely to be used in a torrent name."
                     />
                     <Field.RadioCards
                         label="Type of search"
                         name="titleComparisonType"
+                        itemContainerClass="w-full"
                         options={[
                             {
                                 label: <div className="w-full">
                                     <p className="mb-1 flex items-center"><MdVerified className="text-lg inline-block mr-2" />Most likely</p>
                                     <p className="font-normal text-sm text-[--muted]">The torrent name will be parsed and analyzed using a comparison
-                                        algorithm</p>
+                                                                                      algorithm</p>
                                 </div>,
                                 value: "likely",
                             },
@@ -365,12 +421,20 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                                 label: <div className="w-full">
                                     <p className="mb-1 flex items-center"><LuTextCursorInput className="text-lg inline-block mr-2" />Exact match</p>
                                     <p className="font-normal text-sm text-[--muted]">The torrent name must contain the comparison title you set (case
-                                        insensitive)</p>
+                                                                                      insensitive)</p>
                                 </div>,
                                 value: "contains",
                             },
                         ]}
                     />
+
+                    {titleComparisonType === "likely" && <div className="text-sm text-[--muted]">
+                        <p className="!text-[--foreground]">Will also use these titles:</p>
+                        {selectedMedia?.title?.english && <p className="font-medium">{selectedMedia?.title?.english}</p>}
+                        {selectedMedia?.title?.romaji && <p className="font-medium">{selectedMedia?.title?.romaji}</p>}
+                        {!!selectedMedia?.synonyms?.length &&
+                            <div className="font-medium">{selectedMedia?.synonyms?.map(n => <p key={n}>{n}</p>)}</div>}
+                    </div>}
                 </div>
                 <div
                     className={cn(
@@ -382,6 +446,8 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     <Field.RadioCards
                         name="episodeType"
                         label="Episodes to look for"
+                        fieldClass="w-full"
+                        itemContainerClass="!w-full"
                         options={[
                             {
                                 label: <div className="w-full">
@@ -406,143 +472,91 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                         control={form.control}
                         type="number"
                     />}
+
+                    {form_episodeType === "recent" && <Field.Number
+                        name="customEpisodeNumberAbsoluteOffset"
+                        label="Episode number absolute offset"
+                        help="For example, if the release group starts numbering at 13 instead of 1, set this to 12."
+                        className="w-32"
+                        hideControls
+                    />}
                 </div>
+
+                <ProfileSelectField name="profileId" />
+
+                <ReleaseGroupsField name="releaseGroups" control={form.control} />
+
+                <ResolutionsField name="resolutions" control={form.control} />
 
                 <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Release Groups</div>
-                    <p className="text-sm">
-                        List of release groups to look for. If empty, any release group will be accepted.
-                    </p>
-
-                    <TextArrayField
-                        name="releaseGroups"
-                        control={form.control}
-                        type="text"
-                        placeholder="e.g. SubsPlease"
-                        separatorText="OR"
-                    />
-                </div>
-
-                <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Resolutions</div>
-                    <p className="text-sm">
-                        List of resolutions to look for. If empty, the highest resolution will be accepted.
-                    </p>
-
-                    <TextArrayField
-                        name="resolutions"
-                        control={form.control}
-                        type="text"
-                        placeholder="e.g. 1080p"
-                        separatorText="OR"
-                    />
-                </div>
-
-                <Accordion type="single" collapsible className="!my-4" defaultValue={!!rule?.additionalTerms?.length ? "more" : undefined}>
-                    <AccordionItem value="more">
-                        <AccordionTrigger className="border rounded-[--radius] bg-gray-900">
-                            More filters
-                        </AccordionTrigger>
-                        <AccordionContent className="pt-0">
-                            <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                                <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Additional
-                                    terms
-                                </div>
-                                <div>
-                                    {/*<p className="text-sm">*/}
-                                    {/*    List of video terms to look for. If any term is found in the torrent name, it will be accepted.*/}
-                                    {/*</p>*/}
-                                    <p className="text-sm -top-2 relative"><span className="text-red-100">
-                                        All options must be included for the torrent to be accepted.</span> Within each option, you can
-                                        include variations separated by
-                                        commas. For example, adding
-                                        "H265,H.265, H 265,x265" and
-                                        "10bit,10-bit,10 bit" will match
-                                        <code className="text-gray-400"> [Group] Torrent name [HEVC 10bit
-                                            x265]</code> but not <code className="text-gray-400">[Group] Torrent name
-                                                [H265]</code>. Case
-                                        insensitive.</p>
-                                </div>
-
-                                <TextArrayField
-                                    name="additionalTerms"
-                                    control={form.control}
-                                    // value={additionalTerms}
-                                    // onChange={(value) => form.setValue("additionalTerms", value)}
-                                    type="text"
-                                    placeholder="e.g. H265,H.265,H 265,x265"
-                                    separatorText="AND"
-                                />
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-
-            </div>
-            {type === "create" &&
-                <Field.Submit role="create" loading={isPending} disableOnSuccess={false} showLoadingOverlayOnSuccess>Create</Field.Submit>}
-            {type === "edit" && <Field.Submit role="update" loading={isPending}>Update</Field.Submit>}
-        </>
-    )
-}
-
-type TextArrayFieldProps<T extends string | number> = {
-    name: string
-    control: any
-    type?: "text" | "number"
-    label?: string
-    placeholder?: string
-    separatorText?: string
-}
-
-export function TextArrayField<T extends string | number>(props: TextArrayFieldProps<T>) {
-    const { fields, append, remove } = useFieldArray({
-        control: props.control,
-        name: props.name,
-    })
-
-    return (
-        <div className="space-y-2">
-            {props.label && <div className="flex items-center">
-                <div className="text-base font-semibold">{props.label}</div>
-            </div>}
-            {fields.map((field, index) => (
-                <React.Fragment key={field.id}>
-                    <div className="flex gap-2 items-center">
-                        {props.type === "text" && (
-                            <TextInput
-                                {...props.control.register(`${props.name}.${index}`)}
-                                placeholder={props.placeholder}
-                            />
-                        )}
-                        {props.type === "number" && (
-                            <TextInput
-                                type="number"
-                                {...props.control.register(`${props.name}.${index}`, {
-                                    valueAsNumber: true,
-                                    min: 1,
-                                    validate: (value: number) => !isNaN(value),
-                                })}
-                            />
-                        )}
-                        <CloseButton
-                            size="sm"
-                            intent="alert-subtle"
-                            onClick={() => remove(index)}
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Constraints</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Field.Number
+                            name="minSeeders"
+                            label="Min Seeders"
+                            min={0}
+                            fieldClass="w-full"
+                        />
+                        <Field.Text
+                            name="minSize"
+                            label="Min Size"
+                            placeholder="e.g. 100MB"
+                            fieldClass="w-full"
+                        />
+                        <Field.Text
+                            name="maxSize"
+                            label="Max Size"
+                            placeholder="e.g. 2GB or 10GiB"
+                            fieldClass="w-full"
                         />
                     </div>
-                    {(!!props.separatorText && index < fields.length - 1) && (
-                        <p className="text-center text-[--muted]">{props.separatorText}</p>
-                    )}
-                </React.Fragment>
-            ))}
-            <IconButton
-                intent="success-glass"
-                className="rounded-full"
-                onClick={() => append(props.type === "number" ? 1 : "")}
-                icon={<BiPlus />}
-            />
-        </div>
+                </div>
+
+                <ProvidersField name="providers" control={form.control} />
+
+                <AdditionalTermsField name="additionalTerms" control={form.control} defaultOpen={!!rule?.additionalTerms?.length} />
+
+                <ExcludeTermsField name="excludeTerms" control={form.control} />
+
+            </div>
+            <div className="flex items-center gap-2">
+                {type === "edit" && !!rule?.dbId && <div>
+                    <Button
+                        intent="gray-basic"
+                        onClick={() => runSimulation({ ruleIds: [rule?.dbId] })}
+                        loading={isSimulationPending || isPending}
+                    >
+                        Run simulation
+                    </Button>
+                </div>}
+                <div className="flex-1"></div>
+                <div className="flex items-center gap-2">
+                    {type === "create" &&
+                        <Field.Submit role="create" loading={isPending} disableOnSuccess={false} showLoadingOverlayOnSuccess>Create</Field.Submit>}
+                    {type === "edit" && <Field.Submit role="update" loading={isPending}>Update</Field.Submit>}
+                </div>
+            </div>
+
+            <Modal
+                title="Result"
+                open={showSimulationResults}
+                onOpenChange={v => {
+                    setShowSimulationResults(v)
+                    if (!v) resetSimulation()
+                }}
+                contentClass="max-w-3xl"
+            >
+                <p>
+                    Simulation results for rule "<strong>{rule?.comparisonTitle}</strong>" (ID: {rule?.dbId})
+                </p>
+                <p className="text-[--muted] text-sm">
+                    Check the server logs for more details.
+                </p>
+                <pre className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-300px)] whitespace-pre-wrap p-2 rounded-[--radius-md] bg-gray-900">
+                    {JSON.stringify(simulationResults, null, 2)}
+                </pre>
+            </Modal>
+        </>
     )
 }
 

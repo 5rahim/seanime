@@ -1,12 +1,14 @@
 package db_bridge
 
 import (
+	"errors"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
 
 	"github.com/goccy/go-json"
 	"github.com/samber/mo"
+	"gorm.io/gorm"
 )
 
 var CurrLocalFilesDbId uint
@@ -95,4 +97,54 @@ func InsertLocalFiles(db *db.Database, lfs []*anime.LocalFile) ([]*anime.LocalFi
 
 	return lfs, nil
 
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func GetShelvedLocalFiles(db *db.Database) ([]*anime.LocalFile, error) {
+	var res models.ShelvedLocalFiles
+	err := db.Gorm().Last(&res).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	lfsBytes := res.Value
+	var lfs []*anime.LocalFile
+	if err := json.Unmarshal(lfsBytes, &lfs); err != nil {
+		return nil, err
+	}
+
+	db.Logger.Debug().Msg("db: Shelved local files retrieved")
+
+	return lfs, nil
+}
+
+func SaveShelvedLocalFiles(db *db.Database, lfs []*anime.LocalFile) error {
+	// Marshal the local files
+	marshaledLfs, err := json.Marshal(lfs)
+	if err != nil {
+		return err
+	}
+
+	// Save the local files
+	ret, err := db.UpsertShelvedLocalFiles(&models.ShelvedLocalFiles{
+		BaseModel: models.BaseModel{
+			ID: 1,
+		},
+		Value: marshaledLfs,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Unmarshal the saved local files
+	var retLfs []*anime.LocalFile
+	if err := json.Unmarshal(ret.Value, &retLfs); err != nil {
+		return nil
+	}
+
+	return nil
 }

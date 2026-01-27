@@ -25,7 +25,7 @@ func TestSelectFilesFromSeason(t *testing.T) {
 	anilistClient := anilist.TestGetMockAnilistClient()
 	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
 	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), extensionBankRef, logger, database)
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 
 	tests := []struct {
 		name            string

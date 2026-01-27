@@ -24,7 +24,7 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 	logger := util.NewLogger()
 	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
 	require.NoError(t, err)
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistClientRef := util.NewRef(anilistClient)
 	extensionBankRef := util.NewRef(extension.NewUnifiedBank())

@@ -19,7 +19,7 @@ export function getMangaCollectionTitle(type?: string) {
 }
 
 export function formatDateAndTimeShort(date: string) {
-    return new Date(date).toLocaleString("en-US", {
+    return new Date(date).toLocaleString(undefined, {
         dateStyle: "short",
         timeStyle: "short",
     })

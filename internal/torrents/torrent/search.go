@@ -28,7 +28,7 @@ const (
 )
 
 var (
-	metadataCache = result.NewMap[string, *TorrentMetadata]()
+	metadataCache = result.NewBoundedCache[string, *TorrentMetadata](100)
 )
 
 type (
@@ -42,10 +42,12 @@ type (
 		// Search options
 		Query string
 		// Filter options
-		Batch         bool
-		EpisodeNumber int
-		BestReleases  bool
-		Resolution    string
+		Batch                   bool
+		EpisodeNumber           int
+		BestReleases            bool
+		Resolution              string
+		IncludeSpecialProviders bool
+		SkipPreviews            bool
 	}
 
 	// Preview contains the torrent and episode information
@@ -66,42 +68,73 @@ type (
 		TorrentMetadata           map[string]*TorrentMetadata                      `json:"torrentMetadata"`           // Torrent metadata
 		DebridInstantAvailability map[string]debrid.TorrentItemInstantAvailability `json:"debridInstantAvailability"` // Debrid instant availability
 		AnimeMetadata             *metadata.AnimeMetadata                          `json:"animeMetadata"`             // Animap media
+		IncludedSpecialProviders  []string                                         `json:"includedSpecialProviders"`
 	}
 )
 
 func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (ret *SearchData, err error) {
 	defer util.HandlePanicInModuleWithError("torrents/torrent/SearchAnime", &err)
-
-	r.logger.Debug().Str("provider", opts.Provider).Str("type", string(opts.Type)).Str("query", opts.Query).Msg("torrent repo: Searching for anime torrents")
+	var torrents []*hibiketorrent.AnimeTorrent
 
 	// Find the provider by ID
 	providerExtension, ok := extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBankRef.Get(), opts.Provider)
 	if !ok {
-		// Get the default provider
 		providerExtension, ok = r.GetDefaultAnimeProviderExtension()
 		if !ok {
 			return nil, fmt.Errorf("torrent provider not found")
 		}
 	}
 
-	if opts.Type == AnimeSearchTypeSmart && !providerExtension.GetProvider().GetSettings().CanSmartSearch {
-		return nil, fmt.Errorf("provider does not support smart search")
+	providers := []extension.AnimeTorrentProviderExtension{providerExtension}
+	includedSpeicalProviders := make([]string, 0)
+
+	// Add other special providers if requested
+	if opts.IncludeSpecialProviders && opts.Type == AnimeSearchTypeSmart && opts.Batch == true {
+		specialAdded := 0
+		specialProviders := r.GetAnimeProviderExtensionsBy(func(ext extension.AnimeTorrentProviderExtension) bool {
+			if specialAdded >= 2 {
+				return false
+			}
+			if opts.Provider == ext.GetID() {
+				return false
+			}
+			if ext.GetProvider().GetSettings().Type == hibiketorrent.AnimeProviderTypeSpecial {
+				specialAdded++
+				includedSpeicalProviders = append(includedSpeicalProviders, ext.GetID())
+				return true
+			}
+			return false
+		})
+		providers = append(providers, specialProviders...)
 	}
 
-	var torrents []*hibiketorrent.AnimeTorrent
+	r.logger.Debug().Str("provider", opts.Provider).Interface("specialProviders", includedSpeicalProviders).Msg("torrent search: Searching for anime torrents")
 
-	// Fetch Animap media
+	// Fetch Animap media, this is cached
 	animeMetadata := mo.None[*metadata.AnimeMetadata]()
 	animeMetadataF, err := r.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.GetID())
 	if err == nil {
 		animeMetadata = mo.Some(animeMetadataF)
 	}
 
+	status := anilist.MediaStatusNotYetReleased
+	if opts.Media.GetStatus() != nil {
+		status = *opts.Media.GetStatus()
+	}
+	format := anilist.MediaFormatTv
+	if opts.Media.GetFormat() != nil {
+		format = *opts.Media.GetFormat()
+	}
+	var year int
+	if opts.Media.GetStartDate() != nil && opts.Media.GetStartDate().GetYear() != nil {
+		year = *opts.Media.GetStartDate().GetYear()
+	}
+
 	queryMedia := hibiketorrent.Media{
 		ID:                   opts.Media.GetID(),
 		IDMal:                opts.Media.GetIDMal(),
-		Status:               string(*opts.Media.GetStatus()),
-		Format:               string(*opts.Media.GetFormat()),
+		Status:               string(status),
+		Format:               string(format),
 		EnglishTitle:         opts.Media.GetTitle().GetEnglish(),
 		RomajiTitle:          opts.Media.GetRomajiTitleSafe(),
 		EpisodeCount:         opts.Media.GetTotalEpisodeCount(),
@@ -109,111 +142,164 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 		Synonyms:             opts.Media.GetSynonymsContainingSeason(),
 		IsAdult:              *opts.Media.GetIsAdult(),
 		StartDate: &hibiketorrent.FuzzyDate{
-			Year:  *opts.Media.GetStartDate().GetYear(),
+			Year:  year,
 			Month: opts.Media.GetStartDate().GetMonth(),
 			Day:   opts.Media.GetStartDate().GetDay(),
 		},
 	}
 
-	//// Force simple search if Animap media is absent
-	//if opts.Type == AnimeSearchTypeSmart && animeMetadata.IsAbsent() {
-	//	opts.Type = AnimeSearchTypeSimple
-	//}
+	var mainErr error
 
-	var queryKey string
+	smartQueryKey := fmt.Sprintf("%d-%s-%d-%s-%t-%t", opts.Media.GetID(), opts.Query, opts.EpisodeNumber, opts.Resolution, opts.BestReleases, opts.Batch)
+	simpleQueryKey := fmt.Sprintf("%d-%s", opts.Media.GetID(), opts.Query)
 
-	switch opts.Type {
-	case AnimeSearchTypeSmart:
-		anidbAID := 0
-		anidbEID := 0
-
-		// Get the AniDB Anime ID and Episode ID
-		if animeMetadata.IsPresent() {
-			// Override absolute offset value of queryMedia
-			queryMedia.AbsoluteSeasonOffset = animeMetadata.MustGet().GetOffset()
-
-			if animeMetadata.MustGet().GetMappings() != nil {
-
-				anidbAID = animeMetadata.MustGet().GetMappings().AnidbId
-				// Find Animap Episode based on inputted episode number
-				episodeMetadata, found := animeMetadata.MustGet().FindEpisode(strconv.Itoa(opts.EpisodeNumber))
-				if found {
-					anidbEID = episodeMetadata.AnidbEid
-				}
-			}
-		}
-
-		queryKey = fmt.Sprintf("%d-%s-%d-%d-%d-%s-%t-%t", opts.Media.GetID(), opts.Query, opts.EpisodeNumber, anidbAID, anidbEID, opts.Resolution, opts.BestReleases, opts.Batch)
+	if opts.Type == AnimeSearchTypeSmart {
 		if cache, found := r.animeProviderSmartSearchCaches.Get(opts.Provider); found {
 			// Check the cache
-			data, found := cache.Get(queryKey)
+			data, found := cache.Get(smartQueryKey)
 			if found {
-				r.logger.Debug().Str("provider", opts.Provider).Str("type", string(opts.Type)).Msg("torrent repo: Cache HIT")
+				r.logger.Debug().Str("provider", opts.Provider).Str("type", string(opts.Type)).Msg("torrent search: Cache HIT")
 				return data, nil
 			}
 		}
-
-		// Check for context cancellation before making the request
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-		}
-
-		torrents, err = providerExtension.GetProvider().SmartSearch(hibiketorrent.AnimeSmartSearchOptions{
-			Media:         queryMedia,
-			Query:         opts.Query,
-			Batch:         opts.Batch,
-			EpisodeNumber: opts.EpisodeNumber,
-			Resolution:    opts.Resolution,
-			AnidbAID:      anidbAID,
-			AnidbEID:      anidbEID,
-			BestReleases:  opts.BestReleases,
-		})
-
-		torrents = lo.UniqBy(torrents, func(t *hibiketorrent.AnimeTorrent) string {
-			return t.InfoHash
-		})
-
-	case AnimeSearchTypeSimple:
-
-		queryKey = fmt.Sprintf("%d-%s", opts.Media.GetID(), opts.Query)
+	} else if opts.Type == AnimeSearchTypeSimple {
 		if cache, found := r.animeProviderSearchCaches.Get(opts.Provider); found {
 			// Check the cache
-			data, found := cache.Get(queryKey)
+			data, found := cache.Get(simpleQueryKey)
 			if found {
-				r.logger.Debug().Str("provider", opts.Provider).Str("type", string(opts.Type)).Msg("torrent repo: Cache HIT")
+				r.logger.Debug().Str("provider", opts.Provider).Str("type", string(opts.Type)).Msg("torrent search: Cache HIT")
 				return data, nil
 			}
 		}
-
-		// Check for context cancellation before making the request
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-		}
-
-		torrents, err = providerExtension.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
-			Media: queryMedia,
-			Query: opts.Query,
-		})
-	}
-	if err != nil {
-		return nil, err
 	}
 
-	//
-	// Torrent metadata
-	//
-	torrentMetadata := make(map[string]*TorrentMetadata)
-	mu := sync.Mutex{}
 	wg := sync.WaitGroup{}
+	wg.Add(len(providers))
+	mu := sync.Mutex{}
+	for i, provider := range providers {
+		go func() {
+			defer wg.Done()
+
+			isMain := i == 0
+			r.logger.Debug().Str("provider", provider.GetID()).Str("type", string(opts.Type)).Str("query", opts.Query).Msg("torrent search: Searching for anime torrents")
+
+			searchType := opts.Type
+			if isMain && opts.Type == AnimeSearchTypeSmart && !provider.GetProvider().GetSettings().CanSmartSearch {
+				mainErr = fmt.Errorf("provider %s does not support smart search", provider.GetID())
+				return
+			}
+			if !isMain && opts.Type == AnimeSearchTypeSmart && !provider.GetProvider().GetSettings().CanSmartSearch {
+				searchType = AnimeSearchTypeSimple
+			}
+
+			//// Force simple search if Animap media is absent
+			//if opts.Type == AnimeSearchTypeSmart && animeMetadata.IsAbsent() {
+			//	opts.Type = AnimeSearchTypeSimple
+			//}
+
+			switch searchType {
+			case AnimeSearchTypeSmart:
+				anidbAID := 0
+				anidbEID := 0
+
+				// Get the AniDB Anime ID and Episode ID
+				if animeMetadata.IsPresent() {
+					// Override absolute offset value of queryMedia
+					queryMedia.AbsoluteSeasonOffset = animeMetadata.MustGet().GetOffset()
+
+					if animeMetadata.MustGet().GetMappings() != nil {
+
+						anidbAID = animeMetadata.MustGet().GetMappings().AnidbId
+						// Find Animap Episode based on requested episode number
+						episodeMetadata, found := animeMetadata.MustGet().FindEpisode(strconv.Itoa(opts.EpisodeNumber))
+						if found {
+							anidbEID = episodeMetadata.AnidbEid
+						}
+					}
+				}
+
+				// Check for context cancellation before making the request
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+
+				res, err := provider.GetProvider().SmartSearch(hibiketorrent.AnimeSmartSearchOptions{
+					Media:         queryMedia,
+					Query:         opts.Query,
+					Batch:         opts.Batch,
+					EpisodeNumber: opts.EpisodeNumber,
+					Resolution:    opts.Resolution,
+					AnidbAID:      anidbAID,
+					AnidbEID:      anidbEID,
+					BestReleases:  opts.BestReleases,
+				})
+				if err == nil {
+					mu.Lock()
+					r.logger.Debug().Str("provider", provider.GetID()).Int("found", len(res)).Msg("torrent search: Found torrents")
+					torrents = append(torrents, res...)
+					mu.Unlock()
+				}
+
+			case AnimeSearchTypeSimple:
+
+				// Check for context cancellation before making the request
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+
+				res, err := provider.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
+					Media: queryMedia,
+					Query: opts.Query,
+				})
+				if err == nil {
+					mu.Lock()
+					r.logger.Debug().Str("provider", provider.GetID()).Int("found", len(res)).Msg("torrent search: Found torrents")
+					torrents = append(torrents, res...)
+					mu.Unlock()
+				}
+			}
+			if err != nil {
+				if isMain {
+					mainErr = err
+				}
+				return
+			}
+
+		}()
+	}
+	wg.Wait()
+
+	if mainErr != nil {
+		return nil, mainErr
+	}
+
+	// Place best torrents on top, deduplicate
+	bestReleases := make([]*hibiketorrent.AnimeTorrent, 0)
+	other := make([]*hibiketorrent.AnimeTorrent, 0)
+	for _, t := range torrents {
+		if t.IsBestRelease {
+			bestReleases = append(bestReleases, t)
+		} else {
+			other = append(other, t)
+		}
+	}
+	torrents = append(bestReleases, other...)
+
+	torrents = lo.UniqBy(torrents, func(t *hibiketorrent.AnimeTorrent) string {
+		return t.InfoHash
+	})
+
+	// Parse all torrents
+	torrentMetadata := make(map[string]*TorrentMetadata)
 	wg.Add(len(torrents))
 	for _, t := range torrents {
 		go func(t *hibiketorrent.AnimeTorrent) {
 			defer wg.Done()
-			metadata, found := metadataCache.Get(t.Name)
+			tMetadata, found := metadataCache.Get(t.Name)
 			if !found {
 				m := habari.Parse(t.Name)
 				var distance *comparison.LevenshteinResult
@@ -223,14 +309,14 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 						Distance: 1000,
 					}
 				}
-				metadata = &TorrentMetadata{
+				tMetadata = &TorrentMetadata{
 					Distance: distance.Distance,
 					Metadata: m,
 				}
-				metadataCache.Set(t.Name, metadata)
+				metadataCache.Set(t.Name, tMetadata)
 			}
 			mu.Lock()
-			torrentMetadata[t.InfoHash] = metadata
+			torrentMetadata[t.InfoHash] = tMetadata
 			mu.Unlock()
 		}(t)
 	}
@@ -241,10 +327,10 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 	//
 	previews := make([]*Preview, 0)
 
-	if opts.Type == AnimeSearchTypeSmart {
-
+	if opts.Type == AnimeSearchTypeSmart && !opts.SkipPreviews {
 		wg := sync.WaitGroup{}
 		wg.Add(len(torrents))
+		mu := sync.Mutex{}
 		for _, t := range torrents {
 			go func(t *hibiketorrent.AnimeTorrent) {
 				defer wg.Done()
@@ -263,7 +349,9 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 					searchOpts:    &opts,
 				})
 				if preview != nil {
+					mu.Lock()
 					previews = append(previews, preview)
+					mu.Unlock()
 				}
 			}(t)
 		}
@@ -277,21 +365,34 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 		}
 	}
 
-	// sort both by seeders
+	// sort both by seeders, put best releases on top
 	slices.SortFunc(torrents, func(i, j *hibiketorrent.AnimeTorrent) int {
+		if i.IsBestRelease != j.IsBestRelease {
+			if i.IsBestRelease {
+				return -1
+			}
+			return 1
+		}
 		return cmp.Compare(j.Seeders, i.Seeders)
 	})
 	previews = lo.Filter(previews, func(p *Preview, _ int) bool {
 		return p != nil && p.Torrent != nil
 	})
 	slices.SortFunc(previews, func(i, j *Preview) int {
+		if i.Torrent.IsBestRelease != j.Torrent.IsBestRelease {
+			if i.Torrent.IsBestRelease {
+				return -1
+			}
+			return 1
+		}
 		return cmp.Compare(j.Torrent.Seeders, i.Torrent.Seeders)
 	})
 
 	ret = &SearchData{
-		Torrents:        torrents,
-		Previews:        previews,
-		TorrentMetadata: torrentMetadata,
+		Torrents:                 torrents,
+		Previews:                 previews,
+		TorrentMetadata:          torrentMetadata,
+		IncludedSpecialProviders: includedSpeicalProviders,
 	}
 
 	if animeMetadata.IsPresent() {
@@ -302,11 +403,11 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 	switch opts.Type {
 	case AnimeSearchTypeSmart:
 		if cache, found := r.animeProviderSmartSearchCaches.Get(opts.Provider); found {
-			cache.Set(queryKey, ret)
+			cache.Set(smartQueryKey, ret)
 		}
 	case AnimeSearchTypeSimple:
 		if cache, found := r.animeProviderSearchCaches.Get(opts.Provider); found {
-			cache.Set(queryKey, ret)
+			cache.Set(simpleQueryKey, ret)
 		}
 	}
 
@@ -323,7 +424,7 @@ type createAnimeTorrentPreviewOptions struct {
 func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOptions) *Preview {
 
 	var parsedData *habari.Metadata
-	metadata, found := metadataCache.Get(opts.torrent.Name)
+	tMetadata, found := metadataCache.Get(opts.torrent.Name)
 	if !found { // Should always be found
 		parsedData = habari.Parse(opts.torrent.Name)
 		metadataCache.Set(opts.torrent.Name, &TorrentMetadata{
@@ -331,11 +432,11 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 			Metadata: parsedData,
 		})
 	}
-	parsedData = metadata.Metadata
+	parsedData = tMetadata.Metadata
 
 	isBatch := opts.torrent.IsBestRelease ||
 		opts.torrent.IsBatch ||
-		comparison.ValueContainsBatchKeywords(opts.torrent.Name) || // Contains batch keywords
+		//comparison.ValueContainsBatchKeywords(opts.torrent.Name) || // Contains batch keywords
 		(!opts.media.IsMovieOrSingleEpisode() && (len(parsedData.EpisodeNumber) > 1 || len(parsedData.EpisodeNumber) == 0)) // Multiple episodes parsed & not a movie
 
 	if opts.torrent.ReleaseGroup == "" {

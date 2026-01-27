@@ -27,7 +27,7 @@ func TestGojaAnimeTorrentProvider(t *testing.T) {
 	platform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
 	platformRef := util.NewRef(platform)
 
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 	metadataProviderRef := util.NewRef(metadataProvider)
 
 	repo := NewPlaygroundRepository(logger, platformRef, metadataProviderRef)

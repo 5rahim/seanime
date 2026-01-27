@@ -84,7 +84,6 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
                         alt="banner"
                         fill
                         quality={80}
-                        priority
                         sizes="20rem"
                         className="object-cover object-center opacity-30"
                     />

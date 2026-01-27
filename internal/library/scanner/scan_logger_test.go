@@ -29,7 +29,7 @@ func TestScanLogger(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	allMedia := animeCollection.GetAllAnime()
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 

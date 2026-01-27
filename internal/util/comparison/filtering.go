@@ -55,44 +55,6 @@ func ExtractSeasonNumber(val string) int {
 	return -1
 }
 
-// ExtractResolutionInt extracts the resolution from a string and returns it as an integer.
-// This is used for comparing resolutions.
-// If the resolution is not found, it returns 0.
-func ExtractResolutionInt(val string) int {
-	val = strings.ToLower(val)
-
-	if strings.Contains(strings.ToUpper(val), "4K") {
-		return 2160
-	}
-	if strings.Contains(val, "2160") {
-		return 2160
-	}
-	if strings.Contains(val, "1080") {
-		return 1080
-	}
-	if strings.Contains(val, "720") {
-		return 720
-	}
-	if strings.Contains(val, "540") {
-		return 540
-	}
-	if strings.Contains(val, "480") {
-		return 480
-	}
-
-	re := regexp.MustCompile(`^\d{3,4}([pP])$`)
-	matches := re.FindStringSubmatch(val)
-	if len(matches) > 1 {
-		res, err := strconv.Atoi(matches[1])
-		if err != nil {
-			return 0
-		}
-		return res
-	}
-
-	return 0
-}
-
 func ValueContainsSpecial(val string) bool {
 	regexes := []*regexp.Regexp{
 		regexp.MustCompile(`(?i)(^|(?P<show>.*?)[ _.\-(]+)(SP|OAV|OVA|OAD|ONA) ?(?P<ep>\d{1,2})(-(?P<ep2>[0-9]{1,3}))? ?(?P<title>.*)$`),

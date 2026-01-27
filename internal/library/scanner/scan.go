@@ -3,6 +3,7 @@ package scanner
 import (
 	"context"
 	"errors"
+	"os"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/events"
@@ -13,6 +14,8 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
+	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -36,15 +39,17 @@ type Scanner struct {
 	MetadataProviderRef *util.Ref[metadata_provider.Provider]
 	MatchingThreshold   float64
 	MatchingAlgorithm   string
+	// If true, locked files whose library path doesn't exist will be put aside
+	WithShelving         bool
+	ExistingShelvedFiles []*anime.LocalFile
+	ShelvedLocalFiles    []*anime.LocalFile
 }
 
 // Scan will scan the directory and return a list of anime.LocalFile.
 func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error) {
 	defer util.HandlePanicWithError(&err)
 
-	go func() {
-		anime.EpisodeCollectionFromLocalFilesCache.Clear()
-	}()
+	go anime.EpisodeCollectionFromLocalFilesCache.Clear()
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 0)
 	scn.WSEventManager.SendEvent(events.EventScanStatus, "Retrieving local files...")
@@ -87,7 +92,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 			LocalFiles: event.LocalFiles,
 			Duration:   int(time.Since(startTime).Milliseconds()),
 		}
-		hook.GlobalHookManager.OnScanCompleted().Trigger(completedEvent)
+		_ = hook.GlobalHookManager.OnScanCompleted().Trigger(completedEvent)
 
 		return completedEvent.LocalFiles, nil
 	}
@@ -97,6 +102,12 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 	// +---------------------+
 
 	libraryPaths := append([]string{scn.DirPath}, scn.OtherDirPaths...)
+	// Sort library paths by length, so that longer paths are checked first
+	sortedLibraryPaths := make([]string, len(libraryPaths))
+	copy(sortedLibraryPaths, libraryPaths)
+	sort.Slice(sortedLibraryPaths, func(i, j int) bool {
+		return len(sortedLibraryPaths[i]) > len(sortedLibraryPaths[j])
+	})
 
 	// Create a map of local file paths used to avoid duplicates
 	retrievedPathMap := make(map[string]struct{})
@@ -176,6 +187,27 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 		}
 	}
 
+	scn.WSEventManager.SendEvent(events.EventScanProgress, 20)
+	scn.WSEventManager.SendEvent(events.EventScanStatus, "Verifying shelved files...")
+
+	// +---------------------+
+	// |    Shelved files    |
+	// +---------------------+
+
+	scn.Logger.Debug().Int("count", len(scn.ExistingShelvedFiles)).Msg("scanner: Verifying shelved files")
+
+	// Unshelve shelved files \/
+	// Check for shelved files that are now present
+	// If a shelved file is found, it is added to the skipped files list (so it's not rescanned)
+	for _, shelvedLf := range scn.ExistingShelvedFiles {
+		if filesystem.FileExists(shelvedLf.Path) {
+			skippedLfs[shelvedLf.GetNormalizedPath()] = shelvedLf
+		}
+	}
+
+	scn.WSEventManager.SendEvent(events.EventScanProgress, 30)
+	scn.WSEventManager.SendEvent(events.EventScanStatus, "Scanning local files...")
+
 	// Create local files from paths (skipping skipped files)
 	localFiles = lop.Map(paths, func(path string, _ int) *anime.LocalFile {
 		if _, ok := skippedLfs[util.NormalizePath(path)]; !ok {
@@ -243,9 +275,15 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 			for _, sf := range skippedLfs {
 				if filesystem.FileExists(sf.Path) { // Verify that the file still exists
 					localFiles = append(localFiles, sf)
+				} else if scn.WithShelving && sf.IsLocked() { // If the file is locked and shelving is enabled, shelve it
+					scn.ShelvedLocalFiles = append(scn.ShelvedLocalFiles, sf)
 				}
 			}
 		}
+
+		// Add remaining shelved files
+		scn.addRemainingShelvedFiles(skippedLfs, sortedLibraryPaths)
+
 		scn.Logger.Debug().Msg("scanner: Scan completed")
 		scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Scan completed")
@@ -261,7 +299,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 		return localFiles, nil
 	}
 
-	scn.WSEventManager.SendEvent(events.EventScanProgress, 20)
+	scn.WSEventManager.SendEvent(events.EventScanProgress, 40)
 	if scn.Enhanced {
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Fetching media detected from file titles...")
 	} else {
@@ -288,7 +326,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 		return nil, err
 	}
 
-	scn.WSEventManager.SendEvent(events.EventScanProgress, 40)
+	scn.WSEventManager.SendEvent(events.EventScanProgress, 50)
 	scn.WSEventManager.SendEvent(events.EventScanStatus, "Matching local files...")
 
 	// +---------------------+
@@ -396,11 +434,18 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 					mu.Lock()
 					localFiles = append(localFiles, skippedLf)
 					mu.Unlock()
+				} else if scn.WithShelving && skippedLf.IsLocked() { // If the file is locked and shelving is enabled, shelve it
+					mu.Lock()
+					scn.ShelvedLocalFiles = append(scn.ShelvedLocalFiles, skippedLf)
+					mu.Unlock()
 				}
 			}(skippedLf)
 		}
 		wg.Wait()
 	}
+
+	// Add remaining shelved files
+	scn.addRemainingShelvedFiles(skippedLfs, sortedLibraryPaths)
 
 	scn.Logger.Info().Msg("scanner: Scan completed")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
@@ -427,4 +472,60 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 // InLibrariesOnly removes files are not under the library paths
 func (scn *Scanner) InLibrariesOnly(lfs []*anime.LocalFile) {
 
+}
+
+func (scn *Scanner) GetShelvedLocalFiles() []*anime.LocalFile {
+	return scn.ShelvedLocalFiles
+}
+
+func (scn *Scanner) addRemainingShelvedFiles(skippedLfs map[string]*anime.LocalFile, sortedLibraryPaths []string) {
+	// If a shelved file was not unshelved, it should either:
+	// be kept shelved or
+	// removed (if its library path exists)
+
+	libraryPathExistsCache := make(map[string]bool)
+
+	for _, shelvedLf := range scn.ExistingShelvedFiles {
+		// If not in skippedLfs (meaning it wasn't unshelved), keep it shelved or remove it
+		if _, ok := skippedLfs[shelvedLf.GetNormalizedPath()]; !ok {
+
+			// Check if we should really keep it shelved
+			keepShelved := false
+
+			// Find which library path this file belongs to
+			var matchedLibPath string
+			for _, libPath := range sortedLibraryPaths {
+				if strings.HasPrefix(shelvedLf.GetNormalizedPath(), util.NormalizePath(libPath)) {
+					matchedLibPath = libPath
+					break
+				}
+			}
+
+			if matchedLibPath != "" {
+				exists, checked := libraryPathExistsCache[matchedLibPath]
+				if !checked {
+					_, err := os.Stat(matchedLibPath)
+					exists = err == nil || !os.IsNotExist(err)
+					libraryPathExistsCache[matchedLibPath] = exists
+				}
+
+				if !exists {
+					// Library path doesn't exist (e.g. drive disconnected), so keep shelved
+					keepShelved = true
+				} else {
+					// Library path exists, but file was not found, we assume it was deleted
+					keepShelved = false
+				}
+			} else {
+				// File doesn't belong to any known library path.
+				// Meaning the library path was explicitly removed from the settings
+				// default to removing it, doesn't hurt to scan again
+				keepShelved = false
+			}
+
+			if keepShelved {
+				scn.ShelvedLocalFiles = append(scn.ShelvedLocalFiles, shelvedLf)
+			}
+		}
+	}
 }

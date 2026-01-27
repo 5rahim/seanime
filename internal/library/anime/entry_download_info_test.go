@@ -22,10 +22,10 @@ func TestNewEntryDownloadInfo(t *testing.T) {
 	logger := util.NewLogger()
 	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
 	require.NoError(t, err)
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistClient.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,6 +93,23 @@ func TestNewEntryDownloadInfo(t *testing.T) {
 				{episodeNumber: 12, aniDbEpisode: "12"},
 			},
 		},
+		{
+			name:            "Watashi ga Koibito ni Nareru Wake Naijan, Murimuri! Season 2",
+			localFiles:      nil,
+			mediaId:         199112,
+			currentProgress: 0,
+			status:          anilist.MediaListStatusCurrent,
+			expectedEpisodeNumbersToDownload: []struct {
+				episodeNumber int
+				aniDbEpisode  string
+			}{
+				{episodeNumber: 1, aniDbEpisode: "1"},
+				{episodeNumber: 2, aniDbEpisode: "2"},
+				{episodeNumber: 3, aniDbEpisode: "3"},
+				{episodeNumber: 4, aniDbEpisode: "4"},
+				{episodeNumber: 5, aniDbEpisode: "5"},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -100,6 +117,7 @@ func TestNewEntryDownloadInfo(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			anilistEntry, _ := animeCollection.GetListEntryFromAnimeId(tt.mediaId)
+			require.NotNil(t, anilistEntry)
 
 			animeMetadata, err := metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, tt.mediaId)
 			require.NoError(t, err)
@@ -147,7 +165,7 @@ func TestNewEntryDownloadInfo2(t *testing.T) {
 	logger := util.NewLogger()
 	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
 	require.NoError(t, err)
-	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProvider := metadata_provider.GetFakeProvider(t, database)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)

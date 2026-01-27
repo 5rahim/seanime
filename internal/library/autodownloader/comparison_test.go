@@ -18,7 +18,7 @@ import (
 func TestComparison(t *testing.T) {
 	database, _ := db.NewDatabase(t.TempDir(), "test", util.NewLogger())
 	ad := AutoDownloader{
-		metadataProviderRef: util.NewRef(metadata_provider.GetMockProvider(t, database)),
+		metadataProviderRef: util.NewRef(metadata_provider.GetFakeProvider(t, database)),
 		settings: &models.AutoDownloaderSettings{
 			EnableSeasonCheck: true,
 		},
@@ -92,29 +92,29 @@ func TestComparison(t *testing.T) {
 		},
 	}
 
-	lfw := anime.NewLocalFileWrapper([]*anime.LocalFile{
-		{
-			Path: "/data/seanime/library/[Oshi no Ko] 2nd Season/[SubsPlease] Oshi no Ko - 12 (1080p).mkv",
-			Name: "Oshi no Ko - 12 (1080p).mkv",
-			ParsedData: &anime.LocalFileParsedData{
-				Original:     "Oshi no Ko - 12 (1080p).mkv",
-				Title:        "Oshi no Ko",
-				ReleaseGroup: "SubsPlease",
-			},
-			ParsedFolderData: []*anime.LocalFileParsedData{
-				{
-					Original: "[Oshi no Ko] 2nd Season",
-					Title:    "[Oshi no Ko]",
-				},
-			},
-			Metadata: &anime.LocalFileMetadata{
-				Episode:      1,
-				AniDBEpisode: "1",
-				Type:         "main",
-			},
-			MediaId: 166531,
-		},
-	})
+	//lfw := anime.NewLocalFileWrapper([]*anime.LocalFile{
+	//	{
+	//		Path: "/data/seanime/library/[Oshi no Ko] 2nd Season/[SubsPlease] Oshi no Ko - 12 (1080p).mkv",
+	//		Name: "Oshi no Ko - 12 (1080p).mkv",
+	//		ParsedData: &anime.LocalFileParsedData{
+	//			Original:     "Oshi no Ko - 12 (1080p).mkv",
+	//			Title:        "Oshi no Ko",
+	//			ReleaseGroup: "SubsPlease",
+	//		},
+	//		ParsedFolderData: []*anime.LocalFileParsedData{
+	//			{
+	//				Original: "[Oshi no Ko] 2nd Season",
+	//				Title:    "[Oshi no Ko]",
+	//			},
+	//		},
+	//		Metadata: &anime.LocalFileMetadata{
+	//			Episode:      1,
+	//			AniDBEpisode: "1",
+	//			Type:         "main",
+	//		},
+	//		MediaId: 166531,
+	//	},
+	//})
 
 	for _, tt := range tests {
 		t.Run(tt.torrentName, func(t *testing.T) {
@@ -127,9 +127,9 @@ func TestComparison(t *testing.T) {
 			} else {
 				require.False(t, ad.isTitleMatch(p, tt.torrentName, rule, aniListEntry))
 			}
-			lfwe, ok := lfw.GetLocalEntryById(166531)
-			require.True(t, ok)
-			_, ok = ad.isSeasonAndEpisodeMatch(p, rule, aniListEntry, lfwe, []*models.AutoDownloaderItem{})
+			//lfwe, ok := lfw.GetLocalEntryById(166531)
+			//require.True(t, ok)
+			_, ok := ad.isSeasonAndEpisodeMatch(p, rule, aniListEntry)
 			if tt.succeedSeasonAndEpisodeMatch {
 				require.True(t, ok)
 			} else {
@@ -143,7 +143,7 @@ func TestComparison(t *testing.T) {
 func TestComparison2(t *testing.T) {
 	database, _ := db.NewDatabase(t.TempDir(), "test", util.NewLogger())
 	ad := AutoDownloader{
-		metadataProviderRef: util.NewRef(metadata_provider.GetMockProvider(t, database)),
+		metadataProviderRef: util.NewRef(metadata_provider.GetFakeProvider(t, database)),
 		settings: &models.AutoDownloaderSettings{
 			EnableSeasonCheck: true,
 		},
@@ -240,7 +240,7 @@ func TestComparison2(t *testing.T) {
 func TestComparison3(t *testing.T) {
 	database, _ := db.NewDatabase(t.TempDir(), "test", util.NewLogger())
 	ad := AutoDownloader{
-		metadataProviderRef: util.NewRef(metadata_provider.GetMockProvider(t, database)),
+		metadataProviderRef: util.NewRef(metadata_provider.GetFakeProvider(t, database)),
 		settings: &models.AutoDownloaderSettings{
 			EnableSeasonCheck: true,
 		},
@@ -284,29 +284,29 @@ func TestComparison3(t *testing.T) {
 		},
 	}
 
-	lfw := anime.NewLocalFileWrapper([]*anime.LocalFile{
-		{
-			Path: "/data/seanime/library/Dandadan/[SubsPlease] Dandadan - 01 (1080p).mkv",
-			Name: "Dandadan - 01 (1080p).mkv",
-			ParsedData: &anime.LocalFileParsedData{
-				Original:     "Dandadan - 01 (1080p).mkv",
-				Title:        "Dandadan",
-				ReleaseGroup: "SubsPlease",
-			},
-			ParsedFolderData: []*anime.LocalFileParsedData{
-				{
-					Original: "Dandadan",
-					Title:    "Dandadan",
-				},
-			},
-			Metadata: &anime.LocalFileMetadata{
-				Episode:      1,
-				AniDBEpisode: "1",
-				Type:         "main",
-			},
-			MediaId: 171018,
-		},
-	})
+	//lfw := anime.NewLocalFileWrapper([]*anime.LocalFile{
+	//	{
+	//		Path: "/data/seanime/library/Dandadan/[SubsPlease] Dandadan - 01 (1080p).mkv",
+	//		Name: "Dandadan - 01 (1080p).mkv",
+	//		ParsedData: &anime.LocalFileParsedData{
+	//			Original:     "Dandadan - 01 (1080p).mkv",
+	//			Title:        "Dandadan",
+	//			ReleaseGroup: "SubsPlease",
+	//		},
+	//		ParsedFolderData: []*anime.LocalFileParsedData{
+	//			{
+	//				Original: "Dandadan",
+	//				Title:    "Dandadan",
+	//			},
+	//		},
+	//		Metadata: &anime.LocalFileMetadata{
+	//			Episode:      1,
+	//			AniDBEpisode: "1",
+	//			Type:         "main",
+	//		},
+	//		MediaId: 171018,
+	//	},
+	//})
 
 	for _, tt := range tests {
 		t.Run(tt.torrentName, func(t *testing.T) {
@@ -319,9 +319,9 @@ func TestComparison3(t *testing.T) {
 			} else {
 				require.False(t, ad.isTitleMatch(p, tt.torrentName, rule, aniListEntry))
 			}
-			lfwe, ok := lfw.GetLocalEntryById(171018)
-			require.True(t, ok)
-			_, ok = ad.isSeasonAndEpisodeMatch(p, rule, aniListEntry, lfwe, []*models.AutoDownloaderItem{})
+			//lfwe, ok := lfw.GetLocalEntryById(171018)
+			//require.True(t, ok)
+			_, ok := ad.isSeasonAndEpisodeMatch(p, rule, aniListEntry)
 			if tt.succeedSeasonAndEpisodeMatch {
 				assert.True(t, ok)
 			} else {

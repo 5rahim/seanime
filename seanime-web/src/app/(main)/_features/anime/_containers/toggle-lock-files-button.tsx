@@ -17,7 +17,7 @@ export const ToggleLockFilesButton = memo((props: ToggleLockFilesButtonProps) =>
     const [isLocked, setIsLocked] = React.useState(allFilesLocked)
     const { mutate: performBulkAction, isPending } = useAnimeEntryBulkAction(mediaId)
 
-    React.useLayoutEffect(() => {
+    React.useEffect(() => {
         setIsLocked(allFilesLocked)
     }, [allFilesLocked])
 

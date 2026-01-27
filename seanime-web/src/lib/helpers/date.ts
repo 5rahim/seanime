@@ -1,9 +1,9 @@
-import { format, FormatOptions } from "date-fns"
+import { format, FormatDistanceToNowOptions, FormatOptions } from "date-fns"
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow"
 
-export function formatDistanceToNowSafe(value: string) {
+export function formatDistanceToNowSafe(value: string, options: FormatDistanceToNowOptions | undefined = { addSuffix: true }) {
     try {
-        return formatDistanceToNow(value, { addSuffix: true })
+        return formatDistanceToNow(value, options)
     }
     catch (e) {
         return "N/A"

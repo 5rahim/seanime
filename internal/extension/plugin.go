@@ -299,14 +299,14 @@ func (p *PluginPermissions) GetDescription() string {
 		desc.WriteString("File System:\n")
 
 		if len(p.Allow.ReadPaths) > 0 {
-			desc.WriteString("• Read from:\n")
+			desc.WriteString("• Read files in:\n")
 			for _, path := range p.Allow.ReadPaths {
 				desc.WriteString("\t  - " + explainPath(path) + "\n")
 			}
 		}
 
 		if len(p.Allow.WritePaths) > 0 {
-			desc.WriteString("• Write to:\n")
+			desc.WriteString("• Modify/deletes files in:\n")
 			for _, path := range p.Allow.WritePaths {
 				desc.WriteString("\t  - " + explainPath(path) + "\n")
 			}
@@ -351,7 +351,7 @@ func (p *PluginPermissions) GetDescription() string {
 	if len(p.Allow.NetworkAccess.AllowedDomains) > 0 {
 		desc.WriteString("Network Access:\n")
 		for _, domain := range p.Allow.ReadNetworkAccessAllowedDomains() {
-			desc.WriteString("• " + domain + "\n")
+			desc.WriteString("• Domain: " + domain + "\n")
 		}
 		desc.WriteString("\n")
 	}
