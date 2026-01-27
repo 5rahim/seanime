@@ -738,7 +738,7 @@ function ResolutionsSortableField() {
         })
     }
 
-    const suggestions = ["1080p", "720p", "2160p", "480p"]
+    const suggestions = ["1080p", "720p", "480p"]
 
     return (
         <div className="space-y-2">

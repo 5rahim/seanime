@@ -147,77 +147,102 @@ func (s *AutoSelect) searchFromProvider(
 
 	s.logger.Debug().Str("provider", provider).Msg("autoselect: Searching from provider")
 
-	// Build initial search options
-	searchOptions, err := s.buildSearchOptions(provider, media, episodeNumber, shouldSearchBatch, profile)
-	if err != nil {
-		s.logger.Warn().Err(err).Str("provider", provider).Msg("autoselect: Failed to build search options")
-		return nil, err
+	resolutions := []string{""}
+	if profile != nil && len(profile.Resolutions) > 0 {
+		resolutions = profile.Resolutions
 	}
 
-	// Search loop with batch/single fallback
-	var allTorrents []*hibiketorrent.AnimeTorrent
-
-	for {
-		s.logger.Debug().
-			Str("provider", provider).
-			Bool("batch", searchOptions.Batch).
-			Int("episode", episodeNumber).
-			Interface("type", searchOptions.Type).
-			Msg("autoselect: Executing search")
-
-		data, err := s.torrentRepository.SearchAnime(ctx, searchOptions)
-
-		logFound := 0
-		if data != nil {
-			logFound = len(data.Torrents)
+	// Try each resolution until we get results
+	for _, resolution := range resolutions {
+		if resolution != "" {
+			s.logger.Debug().Str("provider", provider).Str("resolution", resolution).Msg("autoselect: Trying resolution")
 		}
-		s.logger.Debug().Str("provider", provider).Int("found", logFound).Msg("autoselect: Search completed")
 
-		// Handle error
+		// Build search options for this resolution
+		searchOptions, err := s.buildSearchOptions(provider, media, episodeNumber, shouldSearchBatch, resolution)
 		if err != nil {
-			if searchOptions.Batch {
-				// Batch search failed, retry without batch
-				s.logger.Warn().Err(err).Str("provider", provider).Msg("autoselect: Batch search failed, retrying without batch")
-				searchOptions.Batch = false
-				continue
-			}
-			// Single search failed, return error
-			return nil, err
+			s.logger.Warn().Err(err).Str("provider", provider).Msg("autoselect: Failed to build search options")
+			continue
 		}
 
-		// Handle batch results
-		if searchOptions.Batch {
-			if data == nil || !s.validateBatchResults(data.Torrents) {
-				s.logger.Warn().Str("provider", provider).Msg("autoselect: Batch results insufficient, retrying without batch")
-				searchOptions.Batch = false
-				continue
+		// Search loop with batch/single fallback
+		var allTorrents []*hibiketorrent.AnimeTorrent
+
+		for {
+			s.logger.Debug().
+				Str("provider", provider).
+				Bool("batch", searchOptions.Batch).
+				Int("episode", episodeNumber).
+				Interface("type", searchOptions.Type).
+				Str("resolution", resolution).
+				Msg("autoselect: Executing search")
+
+			data, err := s.torrentRepository.SearchAnime(ctx, searchOptions)
+
+			logFound := 0
+			if data != nil {
+				logFound = len(data.Torrents)
+			}
+			s.logger.Debug().Str("provider", provider).Int("found", logFound).Msg("autoselect: Search completed")
+
+			// error
+			if err != nil {
+				if searchOptions.Batch {
+					// Batch search failed, retry without batch
+					s.logger.Warn().Err(err).Str("provider", provider).Msg("autoselect: Batch search failed, retrying without batch")
+					searchOptions.Batch = false
+					continue
+				}
+				// Single search failed, break to try next resolution
+				break
 			}
 
-			// Found valid batch, add to results
-			s.logger.Debug().Str("provider", provider).Int("count", len(data.Torrents)).Msg("autoselect: Found valid batch torrents")
-			allTorrents = append(allTorrents, data.Torrents...)
+			// Handle batch results
+			if searchOptions.Batch {
+				if data == nil || !s.validateBatchResults(data.Torrents) {
+					s.logger.Warn().Str("provider", provider).Msg("autoselect: Batch results insufficient, retrying without batch")
+					searchOptions.Batch = false
+					continue
+				}
 
-			// Also search for single episodes to maximize results
-			s.logger.Debug().Str("provider", provider).Msg("autoselect: Searching for single episodes")
-			singleOpts := searchOptions
-			singleOpts.Batch = false
+				// Found valid batch, add to results
+				s.logger.Debug().Str("provider", provider).Int("count", len(data.Torrents)).Msg("autoselect: Found valid batch torrents")
+				allTorrents = append(allTorrents, data.Torrents...)
 
-			data2, err2 := s.torrentRepository.SearchAnime(ctx, singleOpts)
-			if err2 == nil && data2 != nil && len(data2.Torrents) > 0 {
-				s.logger.Debug().Str("provider", provider).Int("count", len(data2.Torrents)).Msg("autoselect: Found single episode torrents")
-				allTorrents = append(allTorrents, data2.Torrents...)
+				// Also search for single episodes to maximize results
+				s.logger.Debug().Str("provider", provider).Msg("autoselect: Searching for single episodes")
+				singleOpts := searchOptions
+				singleOpts.Batch = false
+
+				data2, err2 := s.torrentRepository.SearchAnime(ctx, singleOpts)
+				if err2 == nil && data2 != nil && len(data2.Torrents) > 0 {
+					s.logger.Debug().Str("provider", provider).Int("count", len(data2.Torrents)).Msg("autoselect: Found single episode torrents")
+					allTorrents = append(allTorrents, data2.Torrents...)
+				}
+				break
+			}
+
+			// Single episode search results
+			if data != nil && len(data.Torrents) > 0 {
+				allTorrents = append(allTorrents, data.Torrents...)
 			}
 			break
 		}
 
-		// Single episode search results
-		if data != nil && len(data.Torrents) > 0 {
-			allTorrents = append(allTorrents, data.Torrents...)
+		// If we found results, return them
+		if len(allTorrents) > 0 {
+			s.logger.Debug().Str("provider", provider).Str("resolution", resolution).Int("count", len(allTorrents)).Msg("autoselect: Found torrents with resolution")
+			return allTorrents, nil
 		}
-		break
+
+		// no results with this resolution, try next one
+		if resolution != "" {
+			s.logger.Debug().Str("provider", provider).Str("resolution", resolution).Msg("autoselect: No results with this resolution, trying next")
+		}
 	}
 
-	return allTorrents, nil
+	// no results found with any resolution
+	return nil, fmt.Errorf("no torrents found with any resolution")
 }
 
 // shouldSearchBatch determines if we should initially attempt to search for batches.
@@ -233,13 +258,13 @@ func (s *AutoSelect) shouldSearchBatch(media *anilist.CompleteAnime) bool {
 	return false
 }
 
-// buildSearchOptions constructs the search options based on the provider capabilities and profile.
+// buildSearchOptions constructs the search options based on the provider capabilities and resolution.
 func (s *AutoSelect) buildSearchOptions(
 	provider string,
 	media *anilist.CompleteAnime,
 	episodeNumber int,
 	batch bool,
-	profile *anime.AutoSelectProfile,
+	resolution string,
 ) (itorrent.AnimeSearchOptions, error) {
 
 	ext, ok := s.torrentRepository.GetAnimeProviderExtension(provider)
@@ -256,12 +281,6 @@ func (s *AutoSelect) buildSearchOptions(
 		searchType = itorrent.AnimeSearchTypeSimple
 		// Use sanitized romaji title for simple search
 		query = util.CleanMediaTitle(media.ToBaseAnime().GetRomajiTitleSafe())
-	}
-
-	// Set resolution if available in profile
-	resolution := ""
-	if profile != nil && len(profile.Resolutions) > 0 {
-		resolution = profile.Resolutions[0]
 	}
 
 	return itorrent.AnimeSearchOptions{
