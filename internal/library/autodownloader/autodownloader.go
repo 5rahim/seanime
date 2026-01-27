@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
@@ -1062,12 +1061,6 @@ func (ad *AutoDownloader) downloadTorrent(isSimulation bool, t *NormalizedTorren
 
 	downloadImmediately := ad.settings.DownloadAutomatically
 
-	// We won't download if the path doesn't exist, just queue it
-	// This is useful if the drive is disconnected so we don't just error out
-	if _, err := os.Stat(rule.Destination); err != nil {
-		downloadImmediately = false
-	}
-
 downloadScope:
 	if useDebrid {
 		//
@@ -1088,6 +1081,7 @@ downloadScope:
 			if err != nil {
 				ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to debrid")
 				downloadImmediately = false
+				ad.logger.Warn().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Torrent will be queued.")
 				goto downloadScope
 			}
 		} else {
@@ -1143,7 +1137,9 @@ downloadScope:
 			err := ad.torrentClientRepository.AddMagnets([]string{magnet}, rule.Destination)
 			if err != nil {
 				ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to torrent client")
-				return false
+				downloadImmediately = false
+				ad.logger.Warn().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Torrent will be queued.")
+				goto downloadScope
 			}
 
 			downloaded = true
