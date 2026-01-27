@@ -154,16 +154,16 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     // Dynamically refresh data when LibraryCollection is updated
     React.useEffect(() => {
-        if (pathname !== "/" && !_listData && !_libraryData) {
+        if (pathname !== "/") {
             const entry = getAtomicLibraryEntry(mediaId)
-            if (entry?.listData) {
-                setListData(entry.listData)
+            if (!_listData) {
+                setListData(entry?.listData)
             }
-            if (entry?.libraryData) {
-                setLibraryData(entry.libraryData)
+            if (!_libraryData) {
+                setLibraryData(entry?.libraryData)
             }
         }
-    }, [pathname, __atomicLibraryCollection, _listData, _libraryData, mediaId])
+    }, [pathname, __atomicLibraryCollection])
 
     const listDataFromCollection = useAnilistUserAnimeListData(mediaId)
 
