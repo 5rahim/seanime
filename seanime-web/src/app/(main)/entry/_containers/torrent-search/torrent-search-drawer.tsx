@@ -3,7 +3,6 @@ import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers
 import { useTorrentSearchSelection } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { TorrentConfirmationContinueButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-download-modal"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { cn } from "@/components/ui/core/styling"
 import { Vaul, VaulContent } from "@/components/vaul"
@@ -78,20 +77,11 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry, isPlaylistDrawe
 
             <VaulContent
                 className={cn(
-                    "bg-gray-950 h-[90%] lg:h-[80%] bg-opacity-95 6xl:max-w-[1900px] firefox:bg-opacity-100 mx-4 lg:mx-8 6xl:mx-auto overflow-hidden",
+                    "bg-gray-950 h-[90%] lg:h-[80%] bg-opacity-90 6xl:max-w-[1900px] firefox:bg-opacity-100 mx-4 lg:mx-8 6xl:mx-auto overflow-hidden",
                     selectionType === "download" && "lg:h-[92.5%] xl:mx-[10rem] 2xl:mx-[20rem]",
                     selectionType === undefined && "lg:h-[80%] xl:mx-[10rem] 2xl:mx-[20rem]",
                 )}
             >
-                <GlowingEffect
-                    spread={40}
-                    // blur={1}
-                    glow={true}
-                    disabled={false}
-                    proximity={100}
-                    inactiveZone={0.01}
-                    className="opacity-30"
-                />
                 <div className="p-4 lg:p-8 flex-1 overflow-y-auto">
                     <AppLayoutStack className="relative z-[1]" data-torrent-search-drawer-content>
                         {selectionType === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}

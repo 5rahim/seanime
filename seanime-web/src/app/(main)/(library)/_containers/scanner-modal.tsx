@@ -3,7 +3,6 @@ import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -93,18 +92,18 @@ export function ScannerModal() {
                 }}
                 title="Library Scanner"
                 titleClass="text-center"
-                contentClass="space-y-4 max-w-2xl bg-gray-950 bg-opacity-70 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none rounded-xl"
-                overlayClass="bg-gray-950/70 backdrop-blur-sm"
+                contentClass="space-y-4 max-w-2xl bg-gray-950 bg-opacity-90 firefox:bg-opacity-100 rounded-xl"
+                overlayClass=""
             >
-                <GlowingEffect
-                    spread={50}
-                    glow={true}
-                    disabled={false}
-                    proximity={100}
-                    inactiveZone={0.01}
-                    // movementDuration={4}
-                    className="!mt-0 opacity-30"
-                />
+                {/*<GlowingEffect*/}
+                {/*    spread={50}*/}
+                {/*    glow={true}*/}
+                {/*    disabled={false}*/}
+                {/*    proximity={100}*/}
+                {/*    inactiveZone={0.01}*/}
+                {/*    // movementDuration={4}*/}
+                {/*    className="!mt-0 opacity-30"*/}
+                {/*/>*/}
 
                 {/* <div
                  data-scanner-modal-top-pattern

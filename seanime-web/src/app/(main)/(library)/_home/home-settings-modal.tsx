@@ -7,7 +7,6 @@ import { useSaveTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { DEFAULT_HOME_ITEMS, HOME_ITEM_IDS, HOME_ITEMS } from "@/app/(main)/(library)/_home/home-items.utils"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { uuidv4 } from "@/app/websocket-provider"
-import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -197,18 +196,19 @@ export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibr
                     <IoHomeOutline className="size-5" />
                     Home
                 </div>}
-                contentClass="max-w-5xl bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
-                overlayClass="bg-gray-950/70 backdrop-blur-sm"
+                contentClass="max-w-5xl bg-gray-950 bg-opacity-90 sm:rounded-3xl"
+                // contentClass="max-w-5xl bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none
+                // sm:rounded-3xl" overlayClass="bg-gray-950/70 backdrop-blur-sm"
             >
-                <GlowingEffect
-                    variant="classic"
-                    spread={40}
-                    glow={true}
-                    disabled={false}
-                    proximity={64}
-                    inactiveZone={0.01}
-                    className="opacity-50 !mt-0"
-                />
+                {/*<GlowingEffect*/}
+                {/*    variant="classic"*/}
+                {/*    spread={40}*/}
+                {/*    glow={true}*/}
+                {/*    disabled={false}*/}
+                {/*    proximity={64}*/}
+                {/*    inactiveZone={0.01}*/}
+                {/*    className="opacity-50 !mt-0"*/}
+                {/*/>*/}
 
                 <div className="space-y-6">
                     <div>
@@ -551,8 +551,8 @@ function HomeItemOptionsModal({ id, item, isOpen, onClose, onSave, isUpdating }:
                     Configure {homeItemConfig.name}
                 </div>
             }
-            contentClass="max-w-2xl bg-gray-950 bg-opacity-60 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
-            overlayClass="bg-gray-950/70 backdrop-blur-sm"
+            contentClass="max-w-2xl bg-gray-950 bg-opacity-90 firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
+            overlayClass="bg-black/80"
         >
             <div className="space-y-6">
                 <div className="text-sm text-gray-400">

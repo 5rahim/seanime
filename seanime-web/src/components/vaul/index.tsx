@@ -29,7 +29,8 @@ const VaulOverlay = React.forwardRef<
     return (
         <VaulPrimitive.Overlay
             ref={ref}
-            className={cn("fixed inset-0 z-50 bg-gray-950/70 backdrop-blur-sm", className)}
+            className={cn("fixed inset-0 z-50 bg-black/80", className)}
+            // className={cn("fixed inset-0 z-50 bg-gray-950/70 backdrop-blur-sm", className)}
             {...props}
         />
     )

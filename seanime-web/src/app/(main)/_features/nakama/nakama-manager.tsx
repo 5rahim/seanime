@@ -318,8 +318,8 @@ export function NakamaManager() {
                 <MdOutlineConnectWithoutContact className="size-8" />
                 Nakama
             </div>}
-            contentClass="max-w-3xl bg-gray-950 bg-opacity-60 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
-            overlayClass="bg-gray-950/70 backdrop-blur-sm"
+            contentClass="max-w-3xl bg-gray-950 bg-opacity-90 firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
+            overlayClass="bg-black/80"
             // allowOutsideInteraction
         >
 

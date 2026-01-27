@@ -178,6 +178,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 	mu := sync.Mutex{}
 	for i, provider := range providers {
 		go func() {
+			defer util.HandlePanicInModuleThen("torrents/torrent/SearchAnime", func() {})
 			defer wg.Done()
 
 			isMain := i == 0
@@ -422,6 +423,7 @@ type createAnimeTorrentPreviewOptions struct {
 }
 
 func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOptions) *Preview {
+	defer util.HandlePanicInModuleThen("torrents/torrent/createAnimeTorrentPreview", func() {})
 
 	var parsedData *habari.Metadata
 	tMetadata, found := metadataCache.Get(opts.torrent.Name)

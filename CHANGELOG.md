@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
   - Ability to delay downloads in order to fetch better torrents
   - Each profile can have its own set of preferred params (providers, codecs, etc...)
   - Each rule can have a specific profile or inherit global ones
-- ✨️ Auto Select is now fully customizable
+- ✨️ Auto-select is now fully customizable
   - Ability to choose and rank providers/indexers, release groups, codecs, etc. 
   - Ability to prefer/avoid/block specific codecs, sources, languages
   - Ability to exclude terms

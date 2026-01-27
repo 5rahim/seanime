@@ -391,7 +391,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                 open={open}
                 onOpenChange={setOpen}
                 size="lg"
-                contentClass="z-[51] bg-gray-950/80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none"
+                contentClass="z-[51] bg-gray-950/80 firefox:bg-opacity-100 firefox:backdrop-blur-none"
                 data-chapter-reader-settings-drawer
             >
                 <div className="space-y-4 py-4" data-chapter-reader-settings-drawer-content>
