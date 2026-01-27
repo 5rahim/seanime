@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.4.1
+
+- 🦺 Auto Downloader: Fixed resolution preference causing no results to be returned
+- 🦺 Performance: Removed heavy background blurring and glow effects
+- 🦺 Torrent Search: Reverted 'special' provider inclusion in batch searches
+- 🦺 My Lists: Fixed library badge not showing up
+
 ## v3.4.0
 
 - ✨️ New Auto Downloader
