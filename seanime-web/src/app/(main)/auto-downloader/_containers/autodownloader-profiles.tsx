@@ -37,7 +37,7 @@ export function AutoDownloaderProfiles() {
                     </Button>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2">
                     {profiles?.toSorted((a, b) => a.name?.toLowerCase()?.localeCompare(b.name?.toLowerCase()))?.map(profile => (
                         <ProfileItem
                             key={profile.dbId}

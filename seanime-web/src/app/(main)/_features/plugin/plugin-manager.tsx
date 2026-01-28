@@ -86,21 +86,22 @@ function SizeEvents() {
     const { sendDOMViewportSizeEvent } = usePluginSendDOMViewportSizeEvent()
 
     const { width, height } = useWindowSize()
-    const debounceWindowSize = useDebounce({ width, height }, 400)
+    const debouncedWidth = useDebounce(width, 400)
+    const debouncedHeight = useDebounce(height, 400)
 
     useEffect(() => {
         if (!isMainTabRef.current) return
         sendDOMViewportSizeEvent({
-            width: debounceWindowSize.width,
-            height: debounceWindowSize.height,
+            width: debouncedWidth,
+            height: debouncedHeight,
         })
-    }, [debounceWindowSize])
+    }, [debouncedWidth, debouncedHeight])
 
     usePluginListenDOMGetViewportSizeEvent((event, extensionId) => {
         if (!isMainTabRef.current) return
         sendDOMViewportSizeEvent({
-            width: debounceWindowSize.width,
-            height: debounceWindowSize.height,
+            width: debouncedWidth,
+            height: debouncedHeight,
         }, extensionId)
     }, "")
 

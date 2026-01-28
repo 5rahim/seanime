@@ -17,12 +17,12 @@ const nextConfig = {
     },
     transpilePackages: ["@uiw/react-textarea-code-editor", "@replit/codemirror-vscode-keymap"],
     assetPrefix: isProd ? undefined : (isDesktop ? `http://${internalHost}:43210` : undefined),
-    reactCompiler: true,
+    reactCompiler: isProd,
     devIndicators: false,
     allowedDevOrigins: ["127.0.0.1", "localhost"],
     experimental: {
         // optimizePackageImports: ["react-icons", "lodash", "date-fns"],
-        isolatedDevBuild: true,
+        // isolatedDevBuild: true, // memory issues?
         browserDebugInfoInTerminal: false,
     },
 }

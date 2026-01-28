@@ -2,8 +2,8 @@ package qbittorrent_util
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"github.com/goccy/go-json"
 	"io"
 	"mime/multipart"
 	"net/http"
