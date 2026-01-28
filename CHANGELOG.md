@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.4.2
+
+- 🦺 Auto Downloader: Skip watched episodes (regression)
+
 ## v3.4.1
 
 - 🦺 Auto Downloader: Fixed resolution preference causing no results to be returned
