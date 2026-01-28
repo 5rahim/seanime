@@ -515,6 +515,15 @@ func (ad *AutoDownloader) isEpisodeAlreadyHandled(episode int, ruleId uint, medi
 		}
 	}
 
+	ac, ok := ad.animeCollection.Get()
+	if ok {
+		// Episode has already been watched
+		listEntry, found := ac.GetListEntryFromAnimeId(mediaId)
+		if found && listEntry.GetProgressSafe() >= episode {
+			return true
+		}
+	}
+
 	// Check if already in the queue for this specific rule
 	for _, item := range queuedItems {
 		if item.IsDelayed {

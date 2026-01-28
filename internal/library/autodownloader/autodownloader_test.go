@@ -1013,6 +1013,83 @@ func TestIntegration(t *testing.T) {
 				{episode: 2, hash: "hash_sp_02", score: 35},
 			},
 		},
+		{
+			name:         "do_not_download_watched_episodes",
+			mediaId:      154587, // Sousou no Frieren
+			userProgress: 1,
+			torrents: []*hibiketorrent.AnimeTorrent{
+				{
+					Name:     "[SubsPlease] Sousou no Frieren - 01 (1080p) [V0].mkv",
+					InfoHash: "hash_sp_01",
+					Seeders:  1200,
+					Size:     1400000000,
+				},
+				{
+					Name:     "[Erai-raws] Sousou no Frieren - 01 [1080p].mkv",
+					InfoHash: "hash_erai_01",
+					Seeders:  900,
+					Size:     1350000000,
+				},
+				{
+					Name:     "[SubsPlease] Sousou no Frieren - 02 (1080p).mkv",
+					InfoHash: "hash_sp_02",
+					Seeders:  1100,
+					Size:     1450000000,
+				},
+				{
+					Name:     "[LowQuality] Sousou no Frieren - 01 (1080p).mkv",
+					InfoHash: "hash_bad_01",
+					Seeders:  10,
+					Size:     700000000,
+				},
+			},
+			rule: &anime.AutoDownloaderRule{
+				DbID:                10,
+				Enabled:             true,
+				MediaId:             154587,
+				Destination:         "/media/anime/frieren",
+				ProfileID:           lo.ToPtr(uint(2)),
+				ReleaseGroups:       []string{"SubsPlease", "Erai-raws"},
+				EpisodeType:         anime.AutoDownloaderRuleEpisodeRecent,
+				ComparisonTitle:     "Sousou no Frieren",
+				TitleComparisonType: anime.AutoDownloaderRuleTitleComparisonLikely,
+				Providers:           []string{"fake", "inexistant"}, // "inexistant" should be filtered out
+			},
+			profiles: []*anime.AutoDownloaderProfile{
+				{
+					DbID:   1,
+					Name:   "Global Defaults",
+					Global: true,
+					Conditions: []anime.AutoDownloaderCondition{
+						{Term: "1080p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 25},
+						{Term: "720p", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
+						{Term: "SubsPlease", Action: anime.AutoDownloaderProfileRuleFormatActionScore, Score: 10},
+					},
+					Resolutions:  []string{"1080p", "720p"},
+					MinSeeders:   20,
+					MinimumScore: 0,
+				},
+				{
+					DbID:   2,
+					Name:   "Strict Filtering",
+					Global: false,
+					Conditions: []anime.AutoDownloaderCondition{
+						{Term: "LowQuality", Action: anime.AutoDownloaderProfileRuleFormatActionBlock},
+					},
+					Resolutions:  []string{"1080p"},
+					MinSeeders:   50,
+					MinimumScore: 10,
+				},
+			},
+			expectedResults: 1,
+			expectedEpisodes: []struct {
+				episode int
+				hash    string
+				score   int
+			}{
+				{episode: 2, hash: "hash_sp_02", score: 35},
+			},
+		},
 	}
 
 	for _, tt := range tests {
