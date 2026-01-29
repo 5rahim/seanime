@@ -340,11 +340,6 @@ export function AnimeEntryPage() {
                                     hideBackButton
                                 />
                                 <PluginWebviewSlot slot="after-anime-entry-episode-list" />
-                                {/*<LegacyOnlinestreamPage*/}
-                                {/*    animeEntry={animeEntry}*/}
-                                {/*    animeEntryLoading={animeEntryLoading}*/}
-                                {/*    hideBackButton*/}
-                                {/*/>*/}
                                 <MediaEntryCharactersSection details={animeDetails} />
                                 <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                             </div>

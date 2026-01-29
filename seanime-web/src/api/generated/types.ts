@@ -5136,6 +5136,16 @@ export type VideoCore_VideoInitialState = {
  * - Filepath: internal/videocore/types.go
  * - Filename: types.go
  * - Package: videocore
+ */
+export type VideoCore_VideoLibassFont = {
+    name?: string
+    src: string
+}
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
  * @description
  *  VideoPlaybackInfo contains detailed information about the currently played media.
  *  It is filled by the client, passed to the player and sent to the server during playback.
@@ -5151,6 +5161,7 @@ export type VideoCore_VideoPlaybackInfo = {
     localFile?: Anime_LocalFile
     onlinestreamParams?: VideoCore_OnlinestreamParams
     subtitleTracks?: Array<VideoCore_VideoSubtitleTrack>
+    libassFonts?: Array<VideoCore_VideoLibassFont>
     videoSources?: Array<VideoCore_VideoSource>
     /**
      * index of VideoSource

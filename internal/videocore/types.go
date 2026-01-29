@@ -65,6 +65,11 @@ type VideoSubtitleTrack struct {
 	UseLibassRenderer *bool   `json:"useLibassRenderer"`
 }
 
+type VideoLibassFont struct {
+	Name *string `json:"name,omitempty"`
+	Src  string  `json:"src"`
+}
+
 type VideoTextTrack struct {
 	Number   int    `json:"number"`
 	Type     string `json:"type"` // "subtitles" | "captions"
@@ -109,6 +114,7 @@ type VideoPlaybackInfo struct {
 	// Set by WebPlayer when online stream starts. Used for Nakama watch parties.
 	OnlinestreamParams             *OnlinestreamParams   `json:"onlinestreamParams"`
 	SubtitleTracks                 []*VideoSubtitleTrack `json:"subtitleTracks"`
+	LibassFonts                    []*VideoLibassFont    `json:"libassFonts"`
 	VideoSources                   []*VideoSource        `json:"videoSources"`
 	SelectedVideoSource            *int                  `json:"selectedVideoSource"` // index of VideoSource
 	PlaylistExternalEpisodeNumbers []int                 `json:"playlistExternalEpisodeNumbers"`

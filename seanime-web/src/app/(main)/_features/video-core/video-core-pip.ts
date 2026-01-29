@@ -310,7 +310,7 @@ export class VideoCorePipManager extends EventTarget {
         canvas.height = this.video.videoHeight
 
         if (this.subtitleManager?.libassRenderer) {
-            this.subtitleManager.libassRenderer.resize(this.video.videoWidth, this.video.videoHeight)
+            await this.subtitleManager.libassRenderer.resize(true, this.video.videoWidth, this.video.videoHeight)
         }
 
         this.canvasController = new AbortController()
@@ -350,7 +350,7 @@ export class VideoCorePipManager extends EventTarget {
             context.drawImage(pgsCanvas, 0, 0, canvas.width, canvas.height)
         }
         if (this.mediaCaptionsManager) {
-            this.mediaCaptionsManager.renderToCanvas(context, canvas.width, canvas.height, this.video.currentTime)
+            await this.mediaCaptionsManager.renderToCanvas(context, canvas.width, canvas.height, this.video.currentTime)
         }
 
         // wait for metadata
@@ -415,7 +415,7 @@ export class VideoCorePipManager extends EventTarget {
                 if (isNaN(width) || isNaN(height) || !isFinite(width) || !isFinite(height)) {
                     return
                 }
-                this.subtitleManager?.libassRenderer?.resize(width, height)
+                this.subtitleManager?.libassRenderer?.resize(true, width, height)
                 this.subtitleManager?.pgsRenderer?.resize()
             }, { signal: this.canvasController.signal })
 

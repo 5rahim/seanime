@@ -6,7 +6,8 @@ import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episod
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import { useNakamaStatus, useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
-import { useSkipData } from "@/app/(main)/_features/sea-media-player/aniskip"
+import { EpisodePillsGrid } from "@/app/(main)/_features/video-core/_components/episode-pills-grid.tsx"
+import { useSkipData } from "@/app/(main)/_features/video-core/_lib/aniskip.ts"
 import { VideoCore, VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
 import { isHLSSrc, isNativeVideoExtension, isProbablyHls } from "@/app/(main)/_features/video-core/video-core-hls"
 import {
@@ -16,7 +17,6 @@ import {
 } from "@/app/(main)/_features/video-core/video-core-inline-helpers"
 import { vc_useLibassRendererAtom, VideoCore_VideoPlaybackInfo, VideoCore_VideoSource } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
-import { EpisodePillsGrid } from "@/app/(main)/onlinestream/_components/episode-pills-grid"
 import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
@@ -45,8 +45,6 @@ import React from "react"
 import { BsFillGrid3X3GapFill } from "react-icons/bs"
 import { CgMediaPodcast } from "react-icons/cg"
 import { FaSearch } from "react-icons/fa"
-import "@/app/vidstack-theme.css"
-import "@vidstack/react/player/styles/default/layouts/video.css"
 import { HiOutlineCog6Tooth } from "react-icons/hi2"
 import { LuSpeech } from "react-icons/lu"
 import { MdOutlineSubtitles } from "react-icons/md"
@@ -715,6 +713,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                             <EpisodePillsGrid
                                 key="grid-view"
                                 episodes={episodes?.map(ep => ({
+                                    id: String(ep.number),
                                     number: ep.number,
                                     title: ep.title,
                                     isFiller: ep.isFiller,

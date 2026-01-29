@@ -608,7 +608,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             try {
                 subtitleLog.info("Initializing libass renderer")
 
-                const defaultFontUrl = "/jassub/Roboto-Medium.ttf"
+                const defaultFontUrl = "/fonts/Roboto-Medium.ttf"
 
                 this.libassRenderer = new JASSUB({
                     video: this.videoElement,
@@ -628,8 +628,13 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                 await this.libassRenderer.ready
                 subtitleLog.info("Libass renderer ready")
 
+
                 this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")
                     ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}`) || []
+
+                if (!this.playbackInfo.libassFonts) {
+                    this.fonts = [...new Set([...this.fonts, defaultFontUrl])]
+                }
 
                 this.fonts = [defaultFontUrl, ...this.fonts]
 

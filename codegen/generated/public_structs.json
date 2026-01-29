@@ -88171,6 +88171,34 @@
   {
     "filepath": "../internal/videocore/types.go",
     "filename": "types.go",
+    "name": "VideoLibassFont",
+    "formattedName": "VideoCore_VideoLibassFont",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Src",
+        "jsonName": "src",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/videocore/types.go",
+    "filename": "types.go",
     "name": "VideoTextTrack",
     "formattedName": "VideoCore_VideoTextTrack",
     "package": "videocore",
@@ -88445,6 +88473,17 @@
         "typescriptType": "Array\u003cVideoCore_VideoSubtitleTrack\u003e",
         "usedTypescriptType": "VideoCore_VideoSubtitleTrack",
         "usedStructName": "videocore.VideoSubtitleTrack",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LibassFonts",
+        "jsonName": "libassFonts",
+        "goType": "[]VideoLibassFont",
+        "typescriptType": "Array\u003cVideoCore_VideoLibassFont\u003e",
+        "usedTypescriptType": "VideoCore_VideoLibassFont",
+        "usedStructName": "videocore.VideoLibassFont",
         "required": false,
         "public": true,
         "comments": []

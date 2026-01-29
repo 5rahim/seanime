@@ -1,8 +1,19 @@
 import { tanstackRouter } from "@tanstack/router-vite-plugin"
 import react from "@vitejs/plugin-react"
 import path from "path"
-import { defineConfig } from "vite"
+import { defineConfig, type Plugin } from "vite"
 import { VitePWA } from "vite-plugin-pwa"
+
+const crossOriginIsolation = (): Plugin => ({
+    name: "configure-server",
+    configureServer(server) {
+        server.middlewares.use((_req, res, next) => {
+            res.setHeader("Cross-Origin-Embedder-Policy", "credentialless")
+            res.setHeader("Cross-Origin-Opener-Policy", "same-origin")
+            next()
+        })
+    },
+})
 
 // ref: https://vitejs.dev/config/
 export default defineConfig(() => {
@@ -13,6 +24,7 @@ export default defineConfig(() => {
     return {
         envPrefix: "VITE_PUBLIC_",
         plugins: [
+            crossOriginIsolation(),
             tanstackRouter({
                 routesDirectory: "./src/routes",
                 generatedRouteTree: "./src/routeTree.gen.ts",
@@ -21,6 +33,10 @@ export default defineConfig(() => {
             }),
             VitePWA({
                 registerType: "autoUpdate",
+                // disables precaching entirely to act as an online-only pwa
+                workbox: {
+                    globPatterns: [],
+                },
                 manifest: {
                     name: "Seanime",
                     short_name: "Seanime",
@@ -96,8 +112,8 @@ export default defineConfig(() => {
                                 return "anime4k-vendor"
                             }
 
-                            if (id.includes("@vidstack") || id.includes("media-captions") || id.includes("media-icons")) {
-                                return "vidstack-vendor"
+                            if (id.includes("media-captions")) {
+                                return "media-captions-vendor"
                             }
 
                             if (id.includes("hls.js")) {
@@ -141,10 +157,6 @@ export default defineConfig(() => {
 
                             if (id.includes("react-icons")) {
                                 return "icons-vendor"
-                            }
-
-                            if (id.includes("lucide-react")) {
-                                return "lucide-icons-vendor"
                             }
 
                             return "vendor"

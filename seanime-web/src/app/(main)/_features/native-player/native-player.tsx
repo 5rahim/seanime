@@ -10,7 +10,7 @@ import { useAtom, useAtomValue } from "jotai"
 import React from "react"
 import { toast } from "sonner"
 import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
-import { useSkipData } from "../sea-media-player/aniskip"
+import { useSkipData } from "../video-core/_lib/aniskip.ts"
 import { nativePlayer_stateAtom } from "./native-player.atoms"
 
 const log = logger("NATIVE PLAYER")

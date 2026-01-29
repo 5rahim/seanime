@@ -5,7 +5,6 @@ import { Continuity_WatchHistory, Continuity_WatchHistoryItemResponse, Nullish }
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { logger } from "@/lib/helpers/debug"
 import { useQueryClient } from "@tanstack/react-query"
-import { MediaPlayerInstance } from "@vidstack/react"
 import React from "react"
 
 export function useUpdateContinuityWatchHistoryItem() {
@@ -57,7 +56,7 @@ export function getEpisodeMinutesRemaining(history: Nullish<Continuity_WatchHist
     return Math.round((item.duration - item.currentTime) / 60)
 }
 
-export function useHandleContinuityWithMediaPlayer(playerRef: React.RefObject<MediaPlayerInstance | HTMLVideoElement>,
+export function useHandleContinuityWithMediaPlayer(playerRef: React.RefObject<HTMLVideoElement>,
     episodeNumber: Nullish<number>,
     mediaId: Nullish<number | string>,
 ) {

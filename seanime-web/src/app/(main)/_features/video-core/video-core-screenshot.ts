@@ -27,10 +27,10 @@ export function useVideoCoreScreenshot() {
         if (!ctx) return
 
         return new Promise((resolve) => {
-            libassRenderer.resize(canvas.width, canvas.height)
+            libassRenderer.resize(true, canvas.width, canvas.height)
             screenshotTimeout.current = setTimeout(() => {
                 ctx.drawImage(libassRenderer._canvas, 0, 0, canvas.width, canvas.height)
-                libassRenderer.resize(0, 0, 0, 0)
+                libassRenderer.resize(true, 0, 0, 0)
                 resolve()
             }, 300)
         })

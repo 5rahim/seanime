@@ -58,6 +58,23 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 			},
 		}))
 	} else {
+		e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				cUrl := c.Request().URL.RequestURI()
+
+				if strings.HasPrefix(cUrl, "/api") ||
+					strings.HasPrefix(cUrl, "/events") ||
+					strings.HasPrefix(cUrl, "/manga-downloads") {
+					return next(c)
+				}
+
+				c.Response().Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+				c.Response().Header().Set("Cross-Origin-Embedder-Policy", "credentialless")
+
+				return next(c)
+			}
+		})
+
 		e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 			Filesystem: http.FS(distFS),
 			HTML5:      true,

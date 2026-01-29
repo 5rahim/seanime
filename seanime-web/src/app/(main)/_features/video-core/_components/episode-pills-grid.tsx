@@ -1,8 +1,9 @@
-import { cn } from "@/components/ui/core/styling"
+import { cn } from "@/components/ui/core/styling.ts"
 import { motion } from "motion/react"
 import React from "react"
 
 type Episode = {
+    id: string
     number: number
     title?: string | null
     isFiller?: boolean
@@ -11,7 +12,7 @@ type Episode = {
 type EpisodePillsGridProps = {
     episodes: Episode[]
     currentEpisodeNumber: number | null
-    onEpisodeSelect: (episodeNumber: number) => void
+    onEpisodeSelect: (episodeNumber: number, id: string) => void
     progress?: number
     disabled?: boolean
     className?: string
@@ -57,7 +58,7 @@ export function EpisodePillsGrid({
                             //     duration: 0.15,
                             //     // delay: episode.number * 0.005
                             // }}
-                            onClick={() => !disabled && onEpisodeSelect(episode.number)}
+                            onClick={() => !disabled && onEpisodeSelect(episode.number, getEpisodeId(episode))}
                             disabled={disabled}
                             title={episode.title || `Episode ${episode.number}`}
                             id={getEpisodeId(episode)}
