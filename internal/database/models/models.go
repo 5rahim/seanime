@@ -374,6 +374,8 @@ type Theme struct {
 
 	// v3+
 	HomeItems []byte `gorm:"column:home_items;type:text" json:"homeItems"`
+	// v3.5+
+	EnableBlurringEffects bool `gorm:"column:enable_blurring_effects" json:"enableBlurringEffects"`
 }
 
 type HomeItem struct {

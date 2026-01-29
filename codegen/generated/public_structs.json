@@ -30781,6 +30781,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "EnableBlurringEffects",
+        "jsonName": "enableBlurringEffects",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],

@@ -4011,6 +4011,7 @@ export type Models_Theme = {
     mobileCustomCSS: string
     unpinnedMenuItems: Models_StringSlice
     homeItems?: Array<string>
+    enableBlurringEffects: boolean
     id: number
     createdAt?: string
     updatedAt?: string

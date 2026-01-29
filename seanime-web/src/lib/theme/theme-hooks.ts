@@ -119,6 +119,7 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     customCSS: "",
     mobileCustomCSS: "",
     unpinnedMenuItems: [],
+    enableBlurringEffects: false,
 }
 
 export type ThemeSettingsHook = {
@@ -170,6 +171,7 @@ export function useThemeSettings(): ThemeSettingsHook {
         mobileCustomCSS: getThemeValue("mobileCustomCSS", serverStatus?.themeSettings),
         unpinnedMenuItems: getThemeValue("unpinnedMenuItems", serverStatus?.themeSettings)
             ?.filter((n: string) => n !== "anilist" && n !== "nakama" && n !== "library"),
+        enableBlurringEffects: getThemeValue("enableBlurringEffects", serverStatus?.themeSettings),
     }
 }
 

@@ -5,10 +5,12 @@ import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inje
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling.ts"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { useBoolean } from "@/hooks/use-disclosure"
+import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
@@ -20,6 +22,7 @@ export const __scanner_isScanningAtom = atom(false)
 
 export function ScannerModal() {
     const serverStatus = useServerStatus()
+    const ts = useThemeSettings()
     const [isOpen, setOpen] = useAtom(__scanner_modalIsOpen)
     const [, setScannerIsScanning] = useAtom(__scanner_isScanningAtom)
     const [userMedia] = useAtom(__anilist_userAnimeMediaAtom)
@@ -92,8 +95,11 @@ export function ScannerModal() {
                 }}
                 title="Library Scanner"
                 titleClass="text-center"
-                contentClass="space-y-4 max-w-2xl bg-gray-950 bg-opacity-90 firefox:bg-opacity-100 rounded-xl"
-                overlayClass=""
+                contentClass={cn(
+                    "space-y-4 max-w-2xl bg-gray-950 bg-opacity-90 rounded-xl",
+                    ts.enableBlurringEffects && "bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none",
+                )}
+                overlayClass={cn(ts.enableBlurringEffects && "bg-gray-950/70 backdrop-blur-sm")}
             >
                 {/*<GlowingEffect*/}
                 {/*    spread={50}*/}

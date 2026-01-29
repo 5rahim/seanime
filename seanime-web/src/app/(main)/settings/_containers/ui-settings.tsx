@@ -25,6 +25,7 @@ import { atomWithStorage } from "jotai/utils"
 import React, { useState } from "react"
 import { useFormContext, UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
+import { z } from "zod"
 import { useServerStatus } from "../../_hooks/use-server-status"
 import { SettingsCard } from "../_components/settings-card"
 import { SettingsIsDirty } from "../_components/settings-submit-button"
@@ -68,6 +69,7 @@ const themeSchema = defineSchema(({ z }) => z.object({
     customCSS: z.string().default(THEME_DEFAULT_VALUES.customCSS),
     mobileCustomCSS: z.string().default(THEME_DEFAULT_VALUES.mobileCustomCSS),
     unpinnedMenuItems: z.array(z.string()).default(THEME_DEFAULT_VALUES.unpinnedMenuItems),
+    enableBlurringEffects: z.boolean().default(THEME_DEFAULT_VALUES.enableBlurringEffects),
 }))
 
 export const __ui_fixBorderRenderingArtifacts = atomWithStorage("sea-ui-settings-fix-border-rendering-artifacts", false)
@@ -198,41 +200,43 @@ export function UISettings() {
         return null
     }
 
+    function handleSave(data: z.infer<typeof themeSchema>) {
+        if (colord(data.backgroundColor).isLight()) {
+            toast.error("Seanime does not support light themes")
+            return
+        }
+
+        const prevEnableColorSettings = themeSettings?.enableColorSettings
+
+        mutate({
+            theme: {
+                id: 0,
+                ...themeSettings,
+                ...data,
+                libraryScreenCustomBackgroundBlur: data.libraryScreenCustomBackgroundBlur === "-"
+                    ? ""
+                    : data.libraryScreenCustomBackgroundBlur,
+            },
+        }, {
+            onSuccess() {
+                if (data.enableColorSettings !== prevEnableColorSettings && !data.enableColorSettings) {
+                    window.location.reload()
+                }
+                formRef.current?.reset(formRef.current?.getValues())
+            },
+        })
+
+        setCustomCSS({
+            customCSS: data.customCSS,
+            mobileCustomCSS: data.mobileCustomCSS,
+        })
+    }
+
     return (
         <Form
             schema={themeSchema}
             mRef={formRef}
-            onSubmit={data => {
-                if (colord(data.backgroundColor).isLight()) {
-                    toast.error("Seanime does not support light themes")
-                    return
-                }
-
-                const prevEnableColorSettings = themeSettings?.enableColorSettings
-
-                mutate({
-                    theme: {
-                        id: 0,
-                        ...themeSettings,
-                        ...data,
-                        libraryScreenCustomBackgroundBlur: data.libraryScreenCustomBackgroundBlur === "-"
-                            ? ""
-                            : data.libraryScreenCustomBackgroundBlur,
-                    },
-                }, {
-                    onSuccess() {
-                        if (data.enableColorSettings !== prevEnableColorSettings && !data.enableColorSettings) {
-                            window.location.reload()
-                        }
-                        formRef.current?.reset(formRef.current?.getValues())
-                    },
-                })
-
-                setCustomCSS({
-                    customCSS: data.customCSS,
-                    mobileCustomCSS: data.mobileCustomCSS,
-                })
-            }}
+            onSubmit={handleSave}
             defaultValues={{
                 enableColorSettings: themeSettings?.enableColorSettings,
                 animeEntryScreenLayout: themeSettings?.animeEntryScreenLayout,
@@ -269,6 +273,7 @@ export function UISettings() {
                 customCSS: themeSettings?.customCSS,
                 mobileCustomCSS: themeSettings?.mobileCustomCSS,
                 unpinnedMenuItems: themeSettings?.unpinnedMenuItems ?? [],
+                enableBlurringEffects: themeSettings?.enableBlurringEffects,
             }}
             stackClass="space-y-4 relative"
         >
@@ -381,6 +386,13 @@ export function UISettings() {
                                         ))}
                                     </div>
                                 )}
+
+                                <Field.Switch
+                                    side="right"
+                                    label="Enable blurring effects"
+                                    help="May impact performance on some devices."
+                                    name="enableBlurringEffects"
+                                />
 
                             </SettingsCard>
 

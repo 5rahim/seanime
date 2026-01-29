@@ -15,6 +15,7 @@ import { NumberInput } from "@/components/ui/number-input"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Select } from "@/components/ui/select"
 import { TextInput } from "@/components/ui/text-input"
+import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import { DndContext, DragEndEvent } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
@@ -64,6 +65,7 @@ const HOME_ITEM_ICONS = {
 
 export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibrary?: boolean, isNakamaLibrary: boolean }) {
     const serverStatus = useServerStatus()
+    const ts = useThemeSettings()
     const [isModalOpen, setIsModalOpen] = useAtom(__home_settingsModalOpen)
     const [optionsModalOpen, setOptionsModalOpen] = React.useState<string | null>(null)
 
@@ -196,9 +198,11 @@ export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibr
                     <IoHomeOutline className="size-5" />
                     Home
                 </div>}
-                contentClass="max-w-5xl bg-gray-950 bg-opacity-90 sm:rounded-3xl"
-                // contentClass="max-w-5xl bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none
-                // sm:rounded-3xl" overlayClass="bg-gray-950/70 backdrop-blur-sm"
+                contentClass={cn(
+                    "max-w-5xl bg-gray-950 bg-opacity-90 sm:rounded-3xl",
+                    ts.enableBlurringEffects && "bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none",
+                )}
+                overlayClass={cn(ts.enableBlurringEffects && "bg-gray-950/70 backdrop-blur-sm")}
             >
                 {/*<GlowingEffect*/}
                 {/*    variant="classic"*/}
