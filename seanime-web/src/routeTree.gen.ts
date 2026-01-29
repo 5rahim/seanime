@@ -8,759 +8,755 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root"
-import { Route as MainRouteImport } from "./routes/_main"
-import { Route as SplashscreenIndexRouteImport } from "./routes/splashscreen/index"
-import { Route as ScanLogViewerIndexRouteImport } from "./routes/scan-log-viewer/index"
-import { Route as IssueReportIndexRouteImport } from "./routes/issue-report/index"
-import { Route as DocsIndexRouteImport } from "./routes/docs/index"
-import { Route as AuthIndexRouteImport } from "./routes/auth/index"
-import { Route as MainIndexRouteImport } from "./routes/_main/index"
-import { Route as MainErrorTestRouteImport } from "./routes/_main/error-test"
-import { Route as SplashscreenCrashIndexRouteImport } from "./routes/splashscreen/crash/index"
-import { Route as MainTorrentListIndexRouteImport } from "./routes/_main/torrent-list/index"
-import { Route as MainSyncIndexRouteImport } from "./routes/_main/sync/index"
-import { Route as MainSettingsIndexRouteImport } from "./routes/_main/settings/index"
-import { Route as MainSearchIndexRouteImport } from "./routes/_main/search/index"
-import { Route as MainScheduleIndexRouteImport } from "./routes/_main/schedule/index"
-import { Route as MainScanSummariesIndexRouteImport } from "./routes/_main/scan-summaries/index"
-import { Route as MainQbittorrentIndexRouteImport } from "./routes/_main/qbittorrent/index"
-import { Route as MainOnlinestreamIndexRouteImport } from "./routes/_main/onlinestream/index"
-import { Route as MainOfflineIndexRouteImport } from "./routes/_main/offline/index"
-import { Route as MainMediastreamIndexRouteImport } from "./routes/_main/mediastream/index"
-import { Route as MainMedialinksIndexRouteImport } from "./routes/_main/medialinks/index"
-import { Route as MainMangaIndexRouteImport } from "./routes/_main/manga/index"
-import { Route as MainListsIndexRouteImport } from "./routes/_main/lists/index"
-import { Route as MainExtensionsIndexRouteImport } from "./routes/_main/extensions/index"
-import { Route as MainEntryIndexRouteImport } from "./routes/_main/entry/index"
-import { Route as MainDiscoverIndexRouteImport } from "./routes/_main/discover/index"
-import { Route as MainDebridIndexRouteImport } from "./routes/_main/debrid/index"
-import { Route as MainCustomSourcesIndexRouteImport } from "./routes/_main/custom-sources/index"
-import { Route as MainAutoDownloaderIndexRouteImport } from "./routes/_main/auto-downloader/index"
-import { Route as MainOfflineMangaIndexRouteImport } from "./routes/_main/offline/manga/index"
-import { Route as MainMangaEntryIndexRouteImport } from "./routes/_main/manga/entry/index"
-import { Route as MainExtensionsPlaygroundIndexRouteImport } from "./routes/_main/extensions/playground/index"
-import { Route as MainAuthCallbackIndexRouteImport } from "./routes/_main/auth/callback/index"
-import { Route as MainOfflineEntryMangaIndexRouteImport } from "./routes/_main/offline/entry/manga/index"
-import { Route as MainOfflineEntryAnimeIndexRouteImport } from "./routes/_main/offline/entry/anime/index"
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as MainRouteImport } from './routes/_main'
+import { Route as SplashscreenIndexRouteImport } from './routes/splashscreen/index'
+import { Route as ScanLogViewerIndexRouteImport } from './routes/scan-log-viewer/index'
+import { Route as IssueReportIndexRouteImport } from './routes/issue-report/index'
+import { Route as DocsIndexRouteImport } from './routes/docs/index'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as MainIndexRouteImport } from './routes/_main/index'
+import { Route as MainErrorTestRouteImport } from './routes/_main/error-test'
+import { Route as SplashscreenCrashIndexRouteImport } from './routes/splashscreen/crash/index'
+import { Route as MainTorrentListIndexRouteImport } from './routes/_main/torrent-list/index'
+import { Route as MainSyncIndexRouteImport } from './routes/_main/sync/index'
+import { Route as MainSettingsIndexRouteImport } from './routes/_main/settings/index'
+import { Route as MainSearchIndexRouteImport } from './routes/_main/search/index'
+import { Route as MainScheduleIndexRouteImport } from './routes/_main/schedule/index'
+import { Route as MainScanSummariesIndexRouteImport } from './routes/_main/scan-summaries/index'
+import { Route as MainQbittorrentIndexRouteImport } from './routes/_main/qbittorrent/index'
+import { Route as MainOnlinestreamIndexRouteImport } from './routes/_main/onlinestream/index'
+import { Route as MainOfflineIndexRouteImport } from './routes/_main/offline/index'
+import { Route as MainMediastreamIndexRouteImport } from './routes/_main/mediastream/index'
+import { Route as MainMedialinksIndexRouteImport } from './routes/_main/medialinks/index'
+import { Route as MainMangaIndexRouteImport } from './routes/_main/manga/index'
+import { Route as MainListsIndexRouteImport } from './routes/_main/lists/index'
+import { Route as MainExtensionsIndexRouteImport } from './routes/_main/extensions/index'
+import { Route as MainEntryIndexRouteImport } from './routes/_main/entry/index'
+import { Route as MainDiscoverIndexRouteImport } from './routes/_main/discover/index'
+import { Route as MainDebridIndexRouteImport } from './routes/_main/debrid/index'
+import { Route as MainCustomSourcesIndexRouteImport } from './routes/_main/custom-sources/index'
+import { Route as MainAutoDownloaderIndexRouteImport } from './routes/_main/auto-downloader/index'
+import { Route as MainOfflineMangaIndexRouteImport } from './routes/_main/offline/manga/index'
+import { Route as MainMangaEntryIndexRouteImport } from './routes/_main/manga/entry/index'
+import { Route as MainExtensionsPlaygroundIndexRouteImport } from './routes/_main/extensions/playground/index'
+import { Route as MainAuthCallbackIndexRouteImport } from './routes/_main/auth/callback/index'
+import { Route as MainOfflineEntryMangaIndexRouteImport } from './routes/_main/offline/entry/manga/index'
+import { Route as MainOfflineEntryAnimeIndexRouteImport } from './routes/_main/offline/entry/anime/index'
 
 const MainRoute = MainRouteImport.update({
-    id: "/_main",
-    getParentRoute: () => rootRouteImport,
+  id: '/_main',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const SplashscreenIndexRoute = SplashscreenIndexRouteImport.update({
-    id: "/splashscreen/",
-    path: "/splashscreen/",
-    getParentRoute: () => rootRouteImport,
+  id: '/splashscreen/',
+  path: '/splashscreen/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ScanLogViewerIndexRoute = ScanLogViewerIndexRouteImport.update({
-    id: "/scan-log-viewer/",
-    path: "/scan-log-viewer/",
-    getParentRoute: () => rootRouteImport,
+  id: '/scan-log-viewer/',
+  path: '/scan-log-viewer/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const IssueReportIndexRoute = IssueReportIndexRouteImport.update({
-    id: "/issue-report/",
-    path: "/issue-report/",
-    getParentRoute: () => rootRouteImport,
+  id: '/issue-report/',
+  path: '/issue-report/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DocsIndexRoute = DocsIndexRouteImport.update({
-    id: "/docs/",
-    path: "/docs/",
-    getParentRoute: () => rootRouteImport,
+  id: '/docs/',
+  path: '/docs/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
-    id: "/auth/",
-    path: "/auth/",
-    getParentRoute: () => rootRouteImport,
+  id: '/auth/',
+  path: '/auth/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MainIndexRoute = MainIndexRouteImport.update({
-    id: "/",
-    path: "/",
-    getParentRoute: () => MainRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainErrorTestRoute = MainErrorTestRouteImport.update({
-    id: "/error-test",
-    path: "/error-test",
-    getParentRoute: () => MainRoute,
+  id: '/error-test',
+  path: '/error-test',
+  getParentRoute: () => MainRoute,
 } as any)
 const SplashscreenCrashIndexRoute = SplashscreenCrashIndexRouteImport.update({
-    id: "/splashscreen/crash/",
-    path: "/splashscreen/crash/",
-    getParentRoute: () => rootRouteImport,
+  id: '/splashscreen/crash/',
+  path: '/splashscreen/crash/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MainTorrentListIndexRoute = MainTorrentListIndexRouteImport.update({
-    id: "/torrent-list/",
-    path: "/torrent-list/",
-    getParentRoute: () => MainRoute,
+  id: '/torrent-list/',
+  path: '/torrent-list/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainSyncIndexRoute = MainSyncIndexRouteImport.update({
-    id: "/sync/",
-    path: "/sync/",
-    getParentRoute: () => MainRoute,
+  id: '/sync/',
+  path: '/sync/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainSettingsIndexRoute = MainSettingsIndexRouteImport.update({
-    id: "/settings/",
-    path: "/settings/",
-    getParentRoute: () => MainRoute,
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainSearchIndexRoute = MainSearchIndexRouteImport.update({
-    id: "/search/",
-    path: "/search/",
-    getParentRoute: () => MainRoute,
+  id: '/search/',
+  path: '/search/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainScheduleIndexRoute = MainScheduleIndexRouteImport.update({
-    id: "/schedule/",
-    path: "/schedule/",
-    getParentRoute: () => MainRoute,
+  id: '/schedule/',
+  path: '/schedule/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainScanSummariesIndexRoute = MainScanSummariesIndexRouteImport.update({
-    id: "/scan-summaries/",
-    path: "/scan-summaries/",
-    getParentRoute: () => MainRoute,
+  id: '/scan-summaries/',
+  path: '/scan-summaries/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainQbittorrentIndexRoute = MainQbittorrentIndexRouteImport.update({
-    id: "/qbittorrent/",
-    path: "/qbittorrent/",
-    getParentRoute: () => MainRoute,
+  id: '/qbittorrent/',
+  path: '/qbittorrent/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainOnlinestreamIndexRoute = MainOnlinestreamIndexRouteImport.update({
-    id: "/onlinestream/",
-    path: "/onlinestream/",
-    getParentRoute: () => MainRoute,
+  id: '/onlinestream/',
+  path: '/onlinestream/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainOfflineIndexRoute = MainOfflineIndexRouteImport.update({
-    id: "/offline/",
-    path: "/offline/",
-    getParentRoute: () => MainRoute,
+  id: '/offline/',
+  path: '/offline/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainMediastreamIndexRoute = MainMediastreamIndexRouteImport.update({
-    id: "/mediastream/",
-    path: "/mediastream/",
-    getParentRoute: () => MainRoute,
+  id: '/mediastream/',
+  path: '/mediastream/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainMedialinksIndexRoute = MainMedialinksIndexRouteImport.update({
-    id: "/medialinks/",
-    path: "/medialinks/",
-    getParentRoute: () => MainRoute,
+  id: '/medialinks/',
+  path: '/medialinks/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainMangaIndexRoute = MainMangaIndexRouteImport.update({
-    id: "/manga/",
-    path: "/manga/",
-    getParentRoute: () => MainRoute,
+  id: '/manga/',
+  path: '/manga/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainListsIndexRoute = MainListsIndexRouteImport.update({
-    id: "/lists/",
-    path: "/lists/",
-    getParentRoute: () => MainRoute,
+  id: '/lists/',
+  path: '/lists/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainExtensionsIndexRoute = MainExtensionsIndexRouteImport.update({
-    id: "/extensions/",
-    path: "/extensions/",
-    getParentRoute: () => MainRoute,
+  id: '/extensions/',
+  path: '/extensions/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainEntryIndexRoute = MainEntryIndexRouteImport.update({
-    id: "/entry/",
-    path: "/entry/",
-    getParentRoute: () => MainRoute,
+  id: '/entry/',
+  path: '/entry/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainDiscoverIndexRoute = MainDiscoverIndexRouteImport.update({
-    id: "/discover/",
-    path: "/discover/",
-    getParentRoute: () => MainRoute,
+  id: '/discover/',
+  path: '/discover/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainDebridIndexRoute = MainDebridIndexRouteImport.update({
-    id: "/debrid/",
-    path: "/debrid/",
-    getParentRoute: () => MainRoute,
+  id: '/debrid/',
+  path: '/debrid/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainCustomSourcesIndexRoute = MainCustomSourcesIndexRouteImport.update({
-    id: "/custom-sources/",
-    path: "/custom-sources/",
-    getParentRoute: () => MainRoute,
+  id: '/custom-sources/',
+  path: '/custom-sources/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainAutoDownloaderIndexRoute = MainAutoDownloaderIndexRouteImport.update({
-    id: "/auto-downloader/",
-    path: "/auto-downloader/",
-    getParentRoute: () => MainRoute,
+  id: '/auto-downloader/',
+  path: '/auto-downloader/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainOfflineMangaIndexRoute = MainOfflineMangaIndexRouteImport.update({
-    id: "/offline/manga/",
-    path: "/offline/manga/",
-    getParentRoute: () => MainRoute,
+  id: '/offline/manga/',
+  path: '/offline/manga/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainMangaEntryIndexRoute = MainMangaEntryIndexRouteImport.update({
-    id: "/manga/entry/",
-    path: "/manga/entry/",
-    getParentRoute: () => MainRoute,
+  id: '/manga/entry/',
+  path: '/manga/entry/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainExtensionsPlaygroundIndexRoute =
-    MainExtensionsPlaygroundIndexRouteImport.update({
-        id: "/extensions/playground/",
-        path: "/extensions/playground/",
-        getParentRoute: () => MainRoute,
-    } as any)
-const MainAuthCallbackIndexRoute = MainAuthCallbackIndexRouteImport.update({
-    id: "/auth/callback/",
-    path: "/auth/callback/",
+  MainExtensionsPlaygroundIndexRouteImport.update({
+    id: '/extensions/playground/',
+    path: '/extensions/playground/',
     getParentRoute: () => MainRoute,
+  } as any)
+const MainAuthCallbackIndexRoute = MainAuthCallbackIndexRouteImport.update({
+  id: '/auth/callback/',
+  path: '/auth/callback/',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainOfflineEntryMangaIndexRoute =
-    MainOfflineEntryMangaIndexRouteImport.update({
-        id: "/offline/entry/manga/",
-        path: "/offline/entry/manga/",
-        getParentRoute: () => MainRoute,
-    } as any)
+  MainOfflineEntryMangaIndexRouteImport.update({
+    id: '/offline/entry/manga/',
+    path: '/offline/entry/manga/',
+    getParentRoute: () => MainRoute,
+  } as any)
 const MainOfflineEntryAnimeIndexRoute =
-    MainOfflineEntryAnimeIndexRouteImport.update({
-        id: "/offline/entry/anime/",
-        path: "/offline/entry/anime/",
-        getParentRoute: () => MainRoute,
-    } as any)
+  MainOfflineEntryAnimeIndexRouteImport.update({
+    id: '/offline/entry/anime/',
+    path: '/offline/entry/anime/',
+    getParentRoute: () => MainRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-    "/": typeof MainIndexRoute
-    "/error-test": typeof MainErrorTestRoute
-    "/auth/": typeof AuthIndexRoute
-    "/docs/": typeof DocsIndexRoute
-    "/issue-report/": typeof IssueReportIndexRoute
-    "/scan-log-viewer/": typeof ScanLogViewerIndexRoute
-    "/splashscreen/": typeof SplashscreenIndexRoute
-    "/auto-downloader/": typeof MainAutoDownloaderIndexRoute
-    "/custom-sources/": typeof MainCustomSourcesIndexRoute
-    "/debrid/": typeof MainDebridIndexRoute
-    "/discover/": typeof MainDiscoverIndexRoute
-    "/entry/": typeof MainEntryIndexRoute
-    "/extensions/": typeof MainExtensionsIndexRoute
-    "/lists/": typeof MainListsIndexRoute
-    "/manga/": typeof MainMangaIndexRoute
-    "/medialinks/": typeof MainMedialinksIndexRoute
-    "/mediastream/": typeof MainMediastreamIndexRoute
-    "/offline/": typeof MainOfflineIndexRoute
-    "/onlinestream/": typeof MainOnlinestreamIndexRoute
-    "/qbittorrent/": typeof MainQbittorrentIndexRoute
-    "/scan-summaries/": typeof MainScanSummariesIndexRoute
-    "/schedule/": typeof MainScheduleIndexRoute
-    "/search/": typeof MainSearchIndexRoute
-    "/settings/": typeof MainSettingsIndexRoute
-    "/sync/": typeof MainSyncIndexRoute
-    "/torrent-list/": typeof MainTorrentListIndexRoute
-    "/splashscreen/crash/": typeof SplashscreenCrashIndexRoute
-    "/auth/callback/": typeof MainAuthCallbackIndexRoute
-    "/extensions/playground/": typeof MainExtensionsPlaygroundIndexRoute
-    "/manga/entry/": typeof MainMangaEntryIndexRoute
-    "/offline/manga/": typeof MainOfflineMangaIndexRoute
-    "/offline/entry/anime/": typeof MainOfflineEntryAnimeIndexRoute
-    "/offline/entry/manga/": typeof MainOfflineEntryMangaIndexRoute
+  '/': typeof MainIndexRoute
+  '/error-test': typeof MainErrorTestRoute
+  '/auth/': typeof AuthIndexRoute
+  '/docs/': typeof DocsIndexRoute
+  '/issue-report/': typeof IssueReportIndexRoute
+  '/scan-log-viewer/': typeof ScanLogViewerIndexRoute
+  '/splashscreen/': typeof SplashscreenIndexRoute
+  '/auto-downloader/': typeof MainAutoDownloaderIndexRoute
+  '/custom-sources/': typeof MainCustomSourcesIndexRoute
+  '/debrid/': typeof MainDebridIndexRoute
+  '/discover/': typeof MainDiscoverIndexRoute
+  '/entry/': typeof MainEntryIndexRoute
+  '/extensions/': typeof MainExtensionsIndexRoute
+  '/lists/': typeof MainListsIndexRoute
+  '/manga/': typeof MainMangaIndexRoute
+  '/medialinks/': typeof MainMedialinksIndexRoute
+  '/mediastream/': typeof MainMediastreamIndexRoute
+  '/offline/': typeof MainOfflineIndexRoute
+  '/onlinestream/': typeof MainOnlinestreamIndexRoute
+  '/qbittorrent/': typeof MainQbittorrentIndexRoute
+  '/scan-summaries/': typeof MainScanSummariesIndexRoute
+  '/schedule/': typeof MainScheduleIndexRoute
+  '/search/': typeof MainSearchIndexRoute
+  '/settings/': typeof MainSettingsIndexRoute
+  '/sync/': typeof MainSyncIndexRoute
+  '/torrent-list/': typeof MainTorrentListIndexRoute
+  '/splashscreen/crash/': typeof SplashscreenCrashIndexRoute
+  '/auth/callback/': typeof MainAuthCallbackIndexRoute
+  '/extensions/playground/': typeof MainExtensionsPlaygroundIndexRoute
+  '/manga/entry/': typeof MainMangaEntryIndexRoute
+  '/offline/manga/': typeof MainOfflineMangaIndexRoute
+  '/offline/entry/anime/': typeof MainOfflineEntryAnimeIndexRoute
+  '/offline/entry/manga/': typeof MainOfflineEntryMangaIndexRoute
 }
-
 export interface FileRoutesByTo {
-    "/error-test": typeof MainErrorTestRoute
-    "/": typeof MainIndexRoute
-    "/auth": typeof AuthIndexRoute
-    "/docs": typeof DocsIndexRoute
-    "/issue-report": typeof IssueReportIndexRoute
-    "/scan-log-viewer": typeof ScanLogViewerIndexRoute
-    "/splashscreen": typeof SplashscreenIndexRoute
-    "/auto-downloader": typeof MainAutoDownloaderIndexRoute
-    "/custom-sources": typeof MainCustomSourcesIndexRoute
-    "/debrid": typeof MainDebridIndexRoute
-    "/discover": typeof MainDiscoverIndexRoute
-    "/entry": typeof MainEntryIndexRoute
-    "/extensions": typeof MainExtensionsIndexRoute
-    "/lists": typeof MainListsIndexRoute
-    "/manga": typeof MainMangaIndexRoute
-    "/medialinks": typeof MainMedialinksIndexRoute
-    "/mediastream": typeof MainMediastreamIndexRoute
-    "/offline": typeof MainOfflineIndexRoute
-    "/onlinestream": typeof MainOnlinestreamIndexRoute
-    "/qbittorrent": typeof MainQbittorrentIndexRoute
-    "/scan-summaries": typeof MainScanSummariesIndexRoute
-    "/schedule": typeof MainScheduleIndexRoute
-    "/search": typeof MainSearchIndexRoute
-    "/settings": typeof MainSettingsIndexRoute
-    "/sync": typeof MainSyncIndexRoute
-    "/torrent-list": typeof MainTorrentListIndexRoute
-    "/splashscreen/crash": typeof SplashscreenCrashIndexRoute
-    "/auth/callback": typeof MainAuthCallbackIndexRoute
-    "/extensions/playground": typeof MainExtensionsPlaygroundIndexRoute
-    "/manga/entry": typeof MainMangaEntryIndexRoute
-    "/offline/manga": typeof MainOfflineMangaIndexRoute
-    "/offline/entry/anime": typeof MainOfflineEntryAnimeIndexRoute
-    "/offline/entry/manga": typeof MainOfflineEntryMangaIndexRoute
+  '/error-test': typeof MainErrorTestRoute
+  '/': typeof MainIndexRoute
+  '/auth': typeof AuthIndexRoute
+  '/docs': typeof DocsIndexRoute
+  '/issue-report': typeof IssueReportIndexRoute
+  '/scan-log-viewer': typeof ScanLogViewerIndexRoute
+  '/splashscreen': typeof SplashscreenIndexRoute
+  '/auto-downloader': typeof MainAutoDownloaderIndexRoute
+  '/custom-sources': typeof MainCustomSourcesIndexRoute
+  '/debrid': typeof MainDebridIndexRoute
+  '/discover': typeof MainDiscoverIndexRoute
+  '/entry': typeof MainEntryIndexRoute
+  '/extensions': typeof MainExtensionsIndexRoute
+  '/lists': typeof MainListsIndexRoute
+  '/manga': typeof MainMangaIndexRoute
+  '/medialinks': typeof MainMedialinksIndexRoute
+  '/mediastream': typeof MainMediastreamIndexRoute
+  '/offline': typeof MainOfflineIndexRoute
+  '/onlinestream': typeof MainOnlinestreamIndexRoute
+  '/qbittorrent': typeof MainQbittorrentIndexRoute
+  '/scan-summaries': typeof MainScanSummariesIndexRoute
+  '/schedule': typeof MainScheduleIndexRoute
+  '/search': typeof MainSearchIndexRoute
+  '/settings': typeof MainSettingsIndexRoute
+  '/sync': typeof MainSyncIndexRoute
+  '/torrent-list': typeof MainTorrentListIndexRoute
+  '/splashscreen/crash': typeof SplashscreenCrashIndexRoute
+  '/auth/callback': typeof MainAuthCallbackIndexRoute
+  '/extensions/playground': typeof MainExtensionsPlaygroundIndexRoute
+  '/manga/entry': typeof MainMangaEntryIndexRoute
+  '/offline/manga': typeof MainOfflineMangaIndexRoute
+  '/offline/entry/anime': typeof MainOfflineEntryAnimeIndexRoute
+  '/offline/entry/manga': typeof MainOfflineEntryMangaIndexRoute
 }
-
 export interface FileRoutesById {
-    __root__: typeof rootRouteImport
-    "/_main": typeof MainRouteWithChildren
-    "/_main/error-test": typeof MainErrorTestRoute
-    "/_main/": typeof MainIndexRoute
-    "/auth/": typeof AuthIndexRoute
-    "/docs/": typeof DocsIndexRoute
-    "/issue-report/": typeof IssueReportIndexRoute
-    "/scan-log-viewer/": typeof ScanLogViewerIndexRoute
-    "/splashscreen/": typeof SplashscreenIndexRoute
-    "/_main/auto-downloader/": typeof MainAutoDownloaderIndexRoute
-    "/_main/custom-sources/": typeof MainCustomSourcesIndexRoute
-    "/_main/debrid/": typeof MainDebridIndexRoute
-    "/_main/discover/": typeof MainDiscoverIndexRoute
-    "/_main/entry/": typeof MainEntryIndexRoute
-    "/_main/extensions/": typeof MainExtensionsIndexRoute
-    "/_main/lists/": typeof MainListsIndexRoute
-    "/_main/manga/": typeof MainMangaIndexRoute
-    "/_main/medialinks/": typeof MainMedialinksIndexRoute
-    "/_main/mediastream/": typeof MainMediastreamIndexRoute
-    "/_main/offline/": typeof MainOfflineIndexRoute
-    "/_main/onlinestream/": typeof MainOnlinestreamIndexRoute
-    "/_main/qbittorrent/": typeof MainQbittorrentIndexRoute
-    "/_main/scan-summaries/": typeof MainScanSummariesIndexRoute
-    "/_main/schedule/": typeof MainScheduleIndexRoute
-    "/_main/search/": typeof MainSearchIndexRoute
-    "/_main/settings/": typeof MainSettingsIndexRoute
-    "/_main/sync/": typeof MainSyncIndexRoute
-    "/_main/torrent-list/": typeof MainTorrentListIndexRoute
-    "/splashscreen/crash/": typeof SplashscreenCrashIndexRoute
-    "/_main/auth/callback/": typeof MainAuthCallbackIndexRoute
-    "/_main/extensions/playground/": typeof MainExtensionsPlaygroundIndexRoute
-    "/_main/manga/entry/": typeof MainMangaEntryIndexRoute
-    "/_main/offline/manga/": typeof MainOfflineMangaIndexRoute
-    "/_main/offline/entry/anime/": typeof MainOfflineEntryAnimeIndexRoute
-    "/_main/offline/entry/manga/": typeof MainOfflineEntryMangaIndexRoute
+  __root__: typeof rootRouteImport
+  '/_main': typeof MainRouteWithChildren
+  '/_main/error-test': typeof MainErrorTestRoute
+  '/_main/': typeof MainIndexRoute
+  '/auth/': typeof AuthIndexRoute
+  '/docs/': typeof DocsIndexRoute
+  '/issue-report/': typeof IssueReportIndexRoute
+  '/scan-log-viewer/': typeof ScanLogViewerIndexRoute
+  '/splashscreen/': typeof SplashscreenIndexRoute
+  '/_main/auto-downloader/': typeof MainAutoDownloaderIndexRoute
+  '/_main/custom-sources/': typeof MainCustomSourcesIndexRoute
+  '/_main/debrid/': typeof MainDebridIndexRoute
+  '/_main/discover/': typeof MainDiscoverIndexRoute
+  '/_main/entry/': typeof MainEntryIndexRoute
+  '/_main/extensions/': typeof MainExtensionsIndexRoute
+  '/_main/lists/': typeof MainListsIndexRoute
+  '/_main/manga/': typeof MainMangaIndexRoute
+  '/_main/medialinks/': typeof MainMedialinksIndexRoute
+  '/_main/mediastream/': typeof MainMediastreamIndexRoute
+  '/_main/offline/': typeof MainOfflineIndexRoute
+  '/_main/onlinestream/': typeof MainOnlinestreamIndexRoute
+  '/_main/qbittorrent/': typeof MainQbittorrentIndexRoute
+  '/_main/scan-summaries/': typeof MainScanSummariesIndexRoute
+  '/_main/schedule/': typeof MainScheduleIndexRoute
+  '/_main/search/': typeof MainSearchIndexRoute
+  '/_main/settings/': typeof MainSettingsIndexRoute
+  '/_main/sync/': typeof MainSyncIndexRoute
+  '/_main/torrent-list/': typeof MainTorrentListIndexRoute
+  '/splashscreen/crash/': typeof SplashscreenCrashIndexRoute
+  '/_main/auth/callback/': typeof MainAuthCallbackIndexRoute
+  '/_main/extensions/playground/': typeof MainExtensionsPlaygroundIndexRoute
+  '/_main/manga/entry/': typeof MainMangaEntryIndexRoute
+  '/_main/offline/manga/': typeof MainOfflineMangaIndexRoute
+  '/_main/offline/entry/anime/': typeof MainOfflineEntryAnimeIndexRoute
+  '/_main/offline/entry/manga/': typeof MainOfflineEntryMangaIndexRoute
 }
-
 export interface FileRouteTypes {
-    fileRoutesByFullPath: FileRoutesByFullPath
-    fullPaths:
-        | "/"
-        | "/error-test"
-        | "/auth/"
-        | "/docs/"
-        | "/issue-report/"
-        | "/scan-log-viewer/"
-        | "/splashscreen/"
-        | "/auto-downloader/"
-        | "/custom-sources/"
-        | "/debrid/"
-        | "/discover/"
-        | "/entry/"
-        | "/extensions/"
-        | "/lists/"
-        | "/manga/"
-        | "/medialinks/"
-        | "/mediastream/"
-        | "/offline/"
-        | "/onlinestream/"
-        | "/qbittorrent/"
-        | "/scan-summaries/"
-        | "/schedule/"
-        | "/search/"
-        | "/settings/"
-        | "/sync/"
-        | "/torrent-list/"
-        | "/splashscreen/crash/"
-        | "/auth/callback/"
-        | "/extensions/playground/"
-        | "/manga/entry/"
-        | "/offline/manga/"
-        | "/offline/entry/anime/"
-        | "/offline/entry/manga/"
-    fileRoutesByTo: FileRoutesByTo
-    to:
-        | "/error-test"
-        | "/"
-        | "/auth"
-        | "/docs"
-        | "/issue-report"
-        | "/scan-log-viewer"
-        | "/splashscreen"
-        | "/auto-downloader"
-        | "/custom-sources"
-        | "/debrid"
-        | "/discover"
-        | "/entry"
-        | "/extensions"
-        | "/lists"
-        | "/manga"
-        | "/medialinks"
-        | "/mediastream"
-        | "/offline"
-        | "/onlinestream"
-        | "/qbittorrent"
-        | "/scan-summaries"
-        | "/schedule"
-        | "/search"
-        | "/settings"
-        | "/sync"
-        | "/torrent-list"
-        | "/splashscreen/crash"
-        | "/auth/callback"
-        | "/extensions/playground"
-        | "/manga/entry"
-        | "/offline/manga"
-        | "/offline/entry/anime"
-        | "/offline/entry/manga"
-    id:
-        | "__root__"
-        | "/_main"
-        | "/_main/error-test"
-        | "/_main/"
-        | "/auth/"
-        | "/docs/"
-        | "/issue-report/"
-        | "/scan-log-viewer/"
-        | "/splashscreen/"
-        | "/_main/auto-downloader/"
-        | "/_main/custom-sources/"
-        | "/_main/debrid/"
-        | "/_main/discover/"
-        | "/_main/entry/"
-        | "/_main/extensions/"
-        | "/_main/lists/"
-        | "/_main/manga/"
-        | "/_main/medialinks/"
-        | "/_main/mediastream/"
-        | "/_main/offline/"
-        | "/_main/onlinestream/"
-        | "/_main/qbittorrent/"
-        | "/_main/scan-summaries/"
-        | "/_main/schedule/"
-        | "/_main/search/"
-        | "/_main/settings/"
-        | "/_main/sync/"
-        | "/_main/torrent-list/"
-        | "/splashscreen/crash/"
-        | "/_main/auth/callback/"
-        | "/_main/extensions/playground/"
-        | "/_main/manga/entry/"
-        | "/_main/offline/manga/"
-        | "/_main/offline/entry/anime/"
-        | "/_main/offline/entry/manga/"
-    fileRoutesById: FileRoutesById
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/error-test'
+    | '/auth/'
+    | '/docs/'
+    | '/issue-report/'
+    | '/scan-log-viewer/'
+    | '/splashscreen/'
+    | '/auto-downloader/'
+    | '/custom-sources/'
+    | '/debrid/'
+    | '/discover/'
+    | '/entry/'
+    | '/extensions/'
+    | '/lists/'
+    | '/manga/'
+    | '/medialinks/'
+    | '/mediastream/'
+    | '/offline/'
+    | '/onlinestream/'
+    | '/qbittorrent/'
+    | '/scan-summaries/'
+    | '/schedule/'
+    | '/search/'
+    | '/settings/'
+    | '/sync/'
+    | '/torrent-list/'
+    | '/splashscreen/crash/'
+    | '/auth/callback/'
+    | '/extensions/playground/'
+    | '/manga/entry/'
+    | '/offline/manga/'
+    | '/offline/entry/anime/'
+    | '/offline/entry/manga/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/error-test'
+    | '/'
+    | '/auth'
+    | '/docs'
+    | '/issue-report'
+    | '/scan-log-viewer'
+    | '/splashscreen'
+    | '/auto-downloader'
+    | '/custom-sources'
+    | '/debrid'
+    | '/discover'
+    | '/entry'
+    | '/extensions'
+    | '/lists'
+    | '/manga'
+    | '/medialinks'
+    | '/mediastream'
+    | '/offline'
+    | '/onlinestream'
+    | '/qbittorrent'
+    | '/scan-summaries'
+    | '/schedule'
+    | '/search'
+    | '/settings'
+    | '/sync'
+    | '/torrent-list'
+    | '/splashscreen/crash'
+    | '/auth/callback'
+    | '/extensions/playground'
+    | '/manga/entry'
+    | '/offline/manga'
+    | '/offline/entry/anime'
+    | '/offline/entry/manga'
+  id:
+    | '__root__'
+    | '/_main'
+    | '/_main/error-test'
+    | '/_main/'
+    | '/auth/'
+    | '/docs/'
+    | '/issue-report/'
+    | '/scan-log-viewer/'
+    | '/splashscreen/'
+    | '/_main/auto-downloader/'
+    | '/_main/custom-sources/'
+    | '/_main/debrid/'
+    | '/_main/discover/'
+    | '/_main/entry/'
+    | '/_main/extensions/'
+    | '/_main/lists/'
+    | '/_main/manga/'
+    | '/_main/medialinks/'
+    | '/_main/mediastream/'
+    | '/_main/offline/'
+    | '/_main/onlinestream/'
+    | '/_main/qbittorrent/'
+    | '/_main/scan-summaries/'
+    | '/_main/schedule/'
+    | '/_main/search/'
+    | '/_main/settings/'
+    | '/_main/sync/'
+    | '/_main/torrent-list/'
+    | '/splashscreen/crash/'
+    | '/_main/auth/callback/'
+    | '/_main/extensions/playground/'
+    | '/_main/manga/entry/'
+    | '/_main/offline/manga/'
+    | '/_main/offline/entry/anime/'
+    | '/_main/offline/entry/manga/'
+  fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
-    MainRoute: typeof MainRouteWithChildren
-    AuthIndexRoute: typeof AuthIndexRoute
-    DocsIndexRoute: typeof DocsIndexRoute
-    IssueReportIndexRoute: typeof IssueReportIndexRoute
-    ScanLogViewerIndexRoute: typeof ScanLogViewerIndexRoute
-    SplashscreenIndexRoute: typeof SplashscreenIndexRoute
-    SplashscreenCrashIndexRoute: typeof SplashscreenCrashIndexRoute
+  MainRoute: typeof MainRouteWithChildren
+  AuthIndexRoute: typeof AuthIndexRoute
+  DocsIndexRoute: typeof DocsIndexRoute
+  IssueReportIndexRoute: typeof IssueReportIndexRoute
+  ScanLogViewerIndexRoute: typeof ScanLogViewerIndexRoute
+  SplashscreenIndexRoute: typeof SplashscreenIndexRoute
+  SplashscreenCrashIndexRoute: typeof SplashscreenCrashIndexRoute
 }
 
-declare module "@tanstack/react-router" {
-    interface FileRoutesByPath {
-        "/_main": {
-            id: "/_main"
-            path: ""
-            fullPath: "/"
-            preLoaderRoute: typeof MainRouteImport
-            parentRoute: typeof rootRouteImport
-        }
-        "/splashscreen/": {
-            id: "/splashscreen/"
-            path: "/splashscreen"
-            fullPath: "/splashscreen/"
-            preLoaderRoute: typeof SplashscreenIndexRouteImport
-            parentRoute: typeof rootRouteImport
-        }
-        "/scan-log-viewer/": {
-            id: "/scan-log-viewer/"
-            path: "/scan-log-viewer"
-            fullPath: "/scan-log-viewer/"
-            preLoaderRoute: typeof ScanLogViewerIndexRouteImport
-            parentRoute: typeof rootRouteImport
-        }
-        "/issue-report/": {
-            id: "/issue-report/"
-            path: "/issue-report"
-            fullPath: "/issue-report/"
-            preLoaderRoute: typeof IssueReportIndexRouteImport
-            parentRoute: typeof rootRouteImport
-        }
-        "/docs/": {
-            id: "/docs/"
-            path: "/docs"
-            fullPath: "/docs/"
-            preLoaderRoute: typeof DocsIndexRouteImport
-            parentRoute: typeof rootRouteImport
-        }
-        "/auth/": {
-            id: "/auth/"
-            path: "/auth"
-            fullPath: "/auth/"
-            preLoaderRoute: typeof AuthIndexRouteImport
-            parentRoute: typeof rootRouteImport
-        }
-        "/_main/": {
-            id: "/_main/"
-            path: "/"
-            fullPath: "/"
-            preLoaderRoute: typeof MainIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/error-test": {
-            id: "/_main/error-test"
-            path: "/error-test"
-            fullPath: "/error-test"
-            preLoaderRoute: typeof MainErrorTestRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/splashscreen/crash/": {
-            id: "/splashscreen/crash/"
-            path: "/splashscreen/crash"
-            fullPath: "/splashscreen/crash/"
-            preLoaderRoute: typeof SplashscreenCrashIndexRouteImport
-            parentRoute: typeof rootRouteImport
-        }
-        "/_main/torrent-list/": {
-            id: "/_main/torrent-list/"
-            path: "/torrent-list"
-            fullPath: "/torrent-list/"
-            preLoaderRoute: typeof MainTorrentListIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/sync/": {
-            id: "/_main/sync/"
-            path: "/sync"
-            fullPath: "/sync/"
-            preLoaderRoute: typeof MainSyncIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/settings/": {
-            id: "/_main/settings/"
-            path: "/settings"
-            fullPath: "/settings/"
-            preLoaderRoute: typeof MainSettingsIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/search/": {
-            id: "/_main/search/"
-            path: "/search"
-            fullPath: "/search/"
-            preLoaderRoute: typeof MainSearchIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/schedule/": {
-            id: "/_main/schedule/"
-            path: "/schedule"
-            fullPath: "/schedule/"
-            preLoaderRoute: typeof MainScheduleIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/scan-summaries/": {
-            id: "/_main/scan-summaries/"
-            path: "/scan-summaries"
-            fullPath: "/scan-summaries/"
-            preLoaderRoute: typeof MainScanSummariesIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/qbittorrent/": {
-            id: "/_main/qbittorrent/"
-            path: "/qbittorrent"
-            fullPath: "/qbittorrent/"
-            preLoaderRoute: typeof MainQbittorrentIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/onlinestream/": {
-            id: "/_main/onlinestream/"
-            path: "/onlinestream"
-            fullPath: "/onlinestream/"
-            preLoaderRoute: typeof MainOnlinestreamIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/offline/": {
-            id: "/_main/offline/"
-            path: "/offline"
-            fullPath: "/offline/"
-            preLoaderRoute: typeof MainOfflineIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/mediastream/": {
-            id: "/_main/mediastream/"
-            path: "/mediastream"
-            fullPath: "/mediastream/"
-            preLoaderRoute: typeof MainMediastreamIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/medialinks/": {
-            id: "/_main/medialinks/"
-            path: "/medialinks"
-            fullPath: "/medialinks/"
-            preLoaderRoute: typeof MainMedialinksIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/manga/": {
-            id: "/_main/manga/"
-            path: "/manga"
-            fullPath: "/manga/"
-            preLoaderRoute: typeof MainMangaIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/lists/": {
-            id: "/_main/lists/"
-            path: "/lists"
-            fullPath: "/lists/"
-            preLoaderRoute: typeof MainListsIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/extensions/": {
-            id: "/_main/extensions/"
-            path: "/extensions"
-            fullPath: "/extensions/"
-            preLoaderRoute: typeof MainExtensionsIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/entry/": {
-            id: "/_main/entry/"
-            path: "/entry"
-            fullPath: "/entry/"
-            preLoaderRoute: typeof MainEntryIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/discover/": {
-            id: "/_main/discover/"
-            path: "/discover"
-            fullPath: "/discover/"
-            preLoaderRoute: typeof MainDiscoverIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/debrid/": {
-            id: "/_main/debrid/"
-            path: "/debrid"
-            fullPath: "/debrid/"
-            preLoaderRoute: typeof MainDebridIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/custom-sources/": {
-            id: "/_main/custom-sources/"
-            path: "/custom-sources"
-            fullPath: "/custom-sources/"
-            preLoaderRoute: typeof MainCustomSourcesIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/auto-downloader/": {
-            id: "/_main/auto-downloader/"
-            path: "/auto-downloader"
-            fullPath: "/auto-downloader/"
-            preLoaderRoute: typeof MainAutoDownloaderIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/offline/manga/": {
-            id: "/_main/offline/manga/"
-            path: "/offline/manga"
-            fullPath: "/offline/manga/"
-            preLoaderRoute: typeof MainOfflineMangaIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/manga/entry/": {
-            id: "/_main/manga/entry/"
-            path: "/manga/entry"
-            fullPath: "/manga/entry/"
-            preLoaderRoute: typeof MainMangaEntryIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/extensions/playground/": {
-            id: "/_main/extensions/playground/"
-            path: "/extensions/playground"
-            fullPath: "/extensions/playground/"
-            preLoaderRoute: typeof MainExtensionsPlaygroundIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/auth/callback/": {
-            id: "/_main/auth/callback/"
-            path: "/auth/callback"
-            fullPath: "/auth/callback/"
-            preLoaderRoute: typeof MainAuthCallbackIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/offline/entry/manga/": {
-            id: "/_main/offline/entry/manga/"
-            path: "/offline/entry/manga"
-            fullPath: "/offline/entry/manga/"
-            preLoaderRoute: typeof MainOfflineEntryMangaIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
-        "/_main/offline/entry/anime/": {
-            id: "/_main/offline/entry/anime/"
-            path: "/offline/entry/anime"
-            fullPath: "/offline/entry/anime/"
-            preLoaderRoute: typeof MainOfflineEntryAnimeIndexRouteImport
-            parentRoute: typeof MainRoute
-        }
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/_main': {
+      id: '/_main'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof MainRouteImport
+      parentRoute: typeof rootRouteImport
     }
+    '/splashscreen/': {
+      id: '/splashscreen/'
+      path: '/splashscreen'
+      fullPath: '/splashscreen/'
+      preLoaderRoute: typeof SplashscreenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scan-log-viewer/': {
+      id: '/scan-log-viewer/'
+      path: '/scan-log-viewer'
+      fullPath: '/scan-log-viewer/'
+      preLoaderRoute: typeof ScanLogViewerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/issue-report/': {
+      id: '/issue-report/'
+      path: '/issue-report'
+      fullPath: '/issue-report/'
+      preLoaderRoute: typeof IssueReportIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/': {
+      id: '/docs/'
+      path: '/docs'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof DocsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/': {
+      id: '/auth/'
+      path: '/auth'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_main/': {
+      id: '/_main/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof MainIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/error-test': {
+      id: '/_main/error-test'
+      path: '/error-test'
+      fullPath: '/error-test'
+      preLoaderRoute: typeof MainErrorTestRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/splashscreen/crash/': {
+      id: '/splashscreen/crash/'
+      path: '/splashscreen/crash'
+      fullPath: '/splashscreen/crash/'
+      preLoaderRoute: typeof SplashscreenCrashIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_main/torrent-list/': {
+      id: '/_main/torrent-list/'
+      path: '/torrent-list'
+      fullPath: '/torrent-list/'
+      preLoaderRoute: typeof MainTorrentListIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/sync/': {
+      id: '/_main/sync/'
+      path: '/sync'
+      fullPath: '/sync/'
+      preLoaderRoute: typeof MainSyncIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/settings/': {
+      id: '/_main/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof MainSettingsIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/search/': {
+      id: '/_main/search/'
+      path: '/search'
+      fullPath: '/search/'
+      preLoaderRoute: typeof MainSearchIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/schedule/': {
+      id: '/_main/schedule/'
+      path: '/schedule'
+      fullPath: '/schedule/'
+      preLoaderRoute: typeof MainScheduleIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/scan-summaries/': {
+      id: '/_main/scan-summaries/'
+      path: '/scan-summaries'
+      fullPath: '/scan-summaries/'
+      preLoaderRoute: typeof MainScanSummariesIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/qbittorrent/': {
+      id: '/_main/qbittorrent/'
+      path: '/qbittorrent'
+      fullPath: '/qbittorrent/'
+      preLoaderRoute: typeof MainQbittorrentIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/onlinestream/': {
+      id: '/_main/onlinestream/'
+      path: '/onlinestream'
+      fullPath: '/onlinestream/'
+      preLoaderRoute: typeof MainOnlinestreamIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/offline/': {
+      id: '/_main/offline/'
+      path: '/offline'
+      fullPath: '/offline/'
+      preLoaderRoute: typeof MainOfflineIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/mediastream/': {
+      id: '/_main/mediastream/'
+      path: '/mediastream'
+      fullPath: '/mediastream/'
+      preLoaderRoute: typeof MainMediastreamIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/medialinks/': {
+      id: '/_main/medialinks/'
+      path: '/medialinks'
+      fullPath: '/medialinks/'
+      preLoaderRoute: typeof MainMedialinksIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/manga/': {
+      id: '/_main/manga/'
+      path: '/manga'
+      fullPath: '/manga/'
+      preLoaderRoute: typeof MainMangaIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/lists/': {
+      id: '/_main/lists/'
+      path: '/lists'
+      fullPath: '/lists/'
+      preLoaderRoute: typeof MainListsIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/extensions/': {
+      id: '/_main/extensions/'
+      path: '/extensions'
+      fullPath: '/extensions/'
+      preLoaderRoute: typeof MainExtensionsIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/entry/': {
+      id: '/_main/entry/'
+      path: '/entry'
+      fullPath: '/entry/'
+      preLoaderRoute: typeof MainEntryIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/discover/': {
+      id: '/_main/discover/'
+      path: '/discover'
+      fullPath: '/discover/'
+      preLoaderRoute: typeof MainDiscoverIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/debrid/': {
+      id: '/_main/debrid/'
+      path: '/debrid'
+      fullPath: '/debrid/'
+      preLoaderRoute: typeof MainDebridIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/custom-sources/': {
+      id: '/_main/custom-sources/'
+      path: '/custom-sources'
+      fullPath: '/custom-sources/'
+      preLoaderRoute: typeof MainCustomSourcesIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/auto-downloader/': {
+      id: '/_main/auto-downloader/'
+      path: '/auto-downloader'
+      fullPath: '/auto-downloader/'
+      preLoaderRoute: typeof MainAutoDownloaderIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/offline/manga/': {
+      id: '/_main/offline/manga/'
+      path: '/offline/manga'
+      fullPath: '/offline/manga/'
+      preLoaderRoute: typeof MainOfflineMangaIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/manga/entry/': {
+      id: '/_main/manga/entry/'
+      path: '/manga/entry'
+      fullPath: '/manga/entry/'
+      preLoaderRoute: typeof MainMangaEntryIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/extensions/playground/': {
+      id: '/_main/extensions/playground/'
+      path: '/extensions/playground'
+      fullPath: '/extensions/playground/'
+      preLoaderRoute: typeof MainExtensionsPlaygroundIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/auth/callback/': {
+      id: '/_main/auth/callback/'
+      path: '/auth/callback'
+      fullPath: '/auth/callback/'
+      preLoaderRoute: typeof MainAuthCallbackIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/offline/entry/manga/': {
+      id: '/_main/offline/entry/manga/'
+      path: '/offline/entry/manga'
+      fullPath: '/offline/entry/manga/'
+      preLoaderRoute: typeof MainOfflineEntryMangaIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/offline/entry/anime/': {
+      id: '/_main/offline/entry/anime/'
+      path: '/offline/entry/anime'
+      fullPath: '/offline/entry/anime/'
+      preLoaderRoute: typeof MainOfflineEntryAnimeIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+  }
 }
 
 interface MainRouteChildren {
-    MainErrorTestRoute: typeof MainErrorTestRoute
-    MainIndexRoute: typeof MainIndexRoute
-    MainAutoDownloaderIndexRoute: typeof MainAutoDownloaderIndexRoute
-    MainCustomSourcesIndexRoute: typeof MainCustomSourcesIndexRoute
-    MainDebridIndexRoute: typeof MainDebridIndexRoute
-    MainDiscoverIndexRoute: typeof MainDiscoverIndexRoute
-    MainEntryIndexRoute: typeof MainEntryIndexRoute
-    MainExtensionsIndexRoute: typeof MainExtensionsIndexRoute
-    MainListsIndexRoute: typeof MainListsIndexRoute
-    MainMangaIndexRoute: typeof MainMangaIndexRoute
-    MainMedialinksIndexRoute: typeof MainMedialinksIndexRoute
-    MainMediastreamIndexRoute: typeof MainMediastreamIndexRoute
-    MainOfflineIndexRoute: typeof MainOfflineIndexRoute
-    MainOnlinestreamIndexRoute: typeof MainOnlinestreamIndexRoute
-    MainQbittorrentIndexRoute: typeof MainQbittorrentIndexRoute
-    MainScanSummariesIndexRoute: typeof MainScanSummariesIndexRoute
-    MainScheduleIndexRoute: typeof MainScheduleIndexRoute
-    MainSearchIndexRoute: typeof MainSearchIndexRoute
-    MainSettingsIndexRoute: typeof MainSettingsIndexRoute
-    MainSyncIndexRoute: typeof MainSyncIndexRoute
-    MainTorrentListIndexRoute: typeof MainTorrentListIndexRoute
-    MainAuthCallbackIndexRoute: typeof MainAuthCallbackIndexRoute
-    MainExtensionsPlaygroundIndexRoute: typeof MainExtensionsPlaygroundIndexRoute
-    MainMangaEntryIndexRoute: typeof MainMangaEntryIndexRoute
-    MainOfflineMangaIndexRoute: typeof MainOfflineMangaIndexRoute
-    MainOfflineEntryAnimeIndexRoute: typeof MainOfflineEntryAnimeIndexRoute
-    MainOfflineEntryMangaIndexRoute: typeof MainOfflineEntryMangaIndexRoute
+  MainErrorTestRoute: typeof MainErrorTestRoute
+  MainIndexRoute: typeof MainIndexRoute
+  MainAutoDownloaderIndexRoute: typeof MainAutoDownloaderIndexRoute
+  MainCustomSourcesIndexRoute: typeof MainCustomSourcesIndexRoute
+  MainDebridIndexRoute: typeof MainDebridIndexRoute
+  MainDiscoverIndexRoute: typeof MainDiscoverIndexRoute
+  MainEntryIndexRoute: typeof MainEntryIndexRoute
+  MainExtensionsIndexRoute: typeof MainExtensionsIndexRoute
+  MainListsIndexRoute: typeof MainListsIndexRoute
+  MainMangaIndexRoute: typeof MainMangaIndexRoute
+  MainMedialinksIndexRoute: typeof MainMedialinksIndexRoute
+  MainMediastreamIndexRoute: typeof MainMediastreamIndexRoute
+  MainOfflineIndexRoute: typeof MainOfflineIndexRoute
+  MainOnlinestreamIndexRoute: typeof MainOnlinestreamIndexRoute
+  MainQbittorrentIndexRoute: typeof MainQbittorrentIndexRoute
+  MainScanSummariesIndexRoute: typeof MainScanSummariesIndexRoute
+  MainScheduleIndexRoute: typeof MainScheduleIndexRoute
+  MainSearchIndexRoute: typeof MainSearchIndexRoute
+  MainSettingsIndexRoute: typeof MainSettingsIndexRoute
+  MainSyncIndexRoute: typeof MainSyncIndexRoute
+  MainTorrentListIndexRoute: typeof MainTorrentListIndexRoute
+  MainAuthCallbackIndexRoute: typeof MainAuthCallbackIndexRoute
+  MainExtensionsPlaygroundIndexRoute: typeof MainExtensionsPlaygroundIndexRoute
+  MainMangaEntryIndexRoute: typeof MainMangaEntryIndexRoute
+  MainOfflineMangaIndexRoute: typeof MainOfflineMangaIndexRoute
+  MainOfflineEntryAnimeIndexRoute: typeof MainOfflineEntryAnimeIndexRoute
+  MainOfflineEntryMangaIndexRoute: typeof MainOfflineEntryMangaIndexRoute
 }
 
 const MainRouteChildren: MainRouteChildren = {
-    MainErrorTestRoute: MainErrorTestRoute,
-    MainIndexRoute: MainIndexRoute,
-    MainAutoDownloaderIndexRoute: MainAutoDownloaderIndexRoute,
-    MainCustomSourcesIndexRoute: MainCustomSourcesIndexRoute,
-    MainDebridIndexRoute: MainDebridIndexRoute,
-    MainDiscoverIndexRoute: MainDiscoverIndexRoute,
-    MainEntryIndexRoute: MainEntryIndexRoute,
-    MainExtensionsIndexRoute: MainExtensionsIndexRoute,
-    MainListsIndexRoute: MainListsIndexRoute,
-    MainMangaIndexRoute: MainMangaIndexRoute,
-    MainMedialinksIndexRoute: MainMedialinksIndexRoute,
-    MainMediastreamIndexRoute: MainMediastreamIndexRoute,
-    MainOfflineIndexRoute: MainOfflineIndexRoute,
-    MainOnlinestreamIndexRoute: MainOnlinestreamIndexRoute,
-    MainQbittorrentIndexRoute: MainQbittorrentIndexRoute,
-    MainScanSummariesIndexRoute: MainScanSummariesIndexRoute,
-    MainScheduleIndexRoute: MainScheduleIndexRoute,
-    MainSearchIndexRoute: MainSearchIndexRoute,
-    MainSettingsIndexRoute: MainSettingsIndexRoute,
-    MainSyncIndexRoute: MainSyncIndexRoute,
-    MainTorrentListIndexRoute: MainTorrentListIndexRoute,
-    MainAuthCallbackIndexRoute: MainAuthCallbackIndexRoute,
-    MainExtensionsPlaygroundIndexRoute: MainExtensionsPlaygroundIndexRoute,
-    MainMangaEntryIndexRoute: MainMangaEntryIndexRoute,
-    MainOfflineMangaIndexRoute: MainOfflineMangaIndexRoute,
-    MainOfflineEntryAnimeIndexRoute: MainOfflineEntryAnimeIndexRoute,
-    MainOfflineEntryMangaIndexRoute: MainOfflineEntryMangaIndexRoute,
+  MainErrorTestRoute: MainErrorTestRoute,
+  MainIndexRoute: MainIndexRoute,
+  MainAutoDownloaderIndexRoute: MainAutoDownloaderIndexRoute,
+  MainCustomSourcesIndexRoute: MainCustomSourcesIndexRoute,
+  MainDebridIndexRoute: MainDebridIndexRoute,
+  MainDiscoverIndexRoute: MainDiscoverIndexRoute,
+  MainEntryIndexRoute: MainEntryIndexRoute,
+  MainExtensionsIndexRoute: MainExtensionsIndexRoute,
+  MainListsIndexRoute: MainListsIndexRoute,
+  MainMangaIndexRoute: MainMangaIndexRoute,
+  MainMedialinksIndexRoute: MainMedialinksIndexRoute,
+  MainMediastreamIndexRoute: MainMediastreamIndexRoute,
+  MainOfflineIndexRoute: MainOfflineIndexRoute,
+  MainOnlinestreamIndexRoute: MainOnlinestreamIndexRoute,
+  MainQbittorrentIndexRoute: MainQbittorrentIndexRoute,
+  MainScanSummariesIndexRoute: MainScanSummariesIndexRoute,
+  MainScheduleIndexRoute: MainScheduleIndexRoute,
+  MainSearchIndexRoute: MainSearchIndexRoute,
+  MainSettingsIndexRoute: MainSettingsIndexRoute,
+  MainSyncIndexRoute: MainSyncIndexRoute,
+  MainTorrentListIndexRoute: MainTorrentListIndexRoute,
+  MainAuthCallbackIndexRoute: MainAuthCallbackIndexRoute,
+  MainExtensionsPlaygroundIndexRoute: MainExtensionsPlaygroundIndexRoute,
+  MainMangaEntryIndexRoute: MainMangaEntryIndexRoute,
+  MainOfflineMangaIndexRoute: MainOfflineMangaIndexRoute,
+  MainOfflineEntryAnimeIndexRoute: MainOfflineEntryAnimeIndexRoute,
+  MainOfflineEntryMangaIndexRoute: MainOfflineEntryMangaIndexRoute,
 }
 
 const MainRouteWithChildren = MainRoute._addFileChildren(MainRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-    MainRoute: MainRouteWithChildren,
-    AuthIndexRoute: AuthIndexRoute,
-    DocsIndexRoute: DocsIndexRoute,
-    IssueReportIndexRoute: IssueReportIndexRoute,
-    ScanLogViewerIndexRoute: ScanLogViewerIndexRoute,
-    SplashscreenIndexRoute: SplashscreenIndexRoute,
-    SplashscreenCrashIndexRoute: SplashscreenCrashIndexRoute,
+  MainRoute: MainRouteWithChildren,
+  AuthIndexRoute: AuthIndexRoute,
+  DocsIndexRoute: DocsIndexRoute,
+  IssueReportIndexRoute: IssueReportIndexRoute,
+  ScanLogViewerIndexRoute: ScanLogViewerIndexRoute,
+  SplashscreenIndexRoute: SplashscreenIndexRoute,
+  SplashscreenCrashIndexRoute: SplashscreenCrashIndexRoute,
 }
 export const routeTree = rootRouteImport
-    ._addFileChildren(rootRouteChildren)
-    ._addFileTypes<FileRouteTypes>()
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
