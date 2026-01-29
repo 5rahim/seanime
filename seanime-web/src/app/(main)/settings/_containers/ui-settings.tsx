@@ -1,4 +1,3 @@
-"use client"
 import { useUpdateTheme } from "@/api/hooks/theme.hooks"
 import { useCustomCSS } from "@/components/shared/custom-css-provider"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion/accordion"
@@ -9,6 +8,7 @@ import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ANIME_COLLECTION_SORTING_OPTIONS, CONTINUE_WATCHING_SORTING_OPTIONS, MANGA_COLLECTION_SORTING_OPTIONS } from "@/lib/helpers/filtering"
+import { THEME_COLOR_BANK } from "@/lib/theme/theme-bank"
 import {
     THEME_DEFAULT_VALUES,
     ThemeLibraryScreenBannerType,
@@ -16,8 +16,7 @@ import {
     ThemeMediaPageBannerType,
     ThemeMediaPageBannerTypeOptions,
     useThemeSettings,
-} from "@/lib/theme/hooks"
-import { THEME_COLOR_BANK } from "@/lib/theme/theme-bank"
+} from "@/lib/theme/theme-hooks.ts"
 import { __isDesktop__ } from "@/types/constants"
 import { colord } from "colord"
 import { atom } from "jotai"

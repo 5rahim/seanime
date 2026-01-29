@@ -1,4 +1,3 @@
-"use client"
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { HibikeManga_ChapterDetails, Manga_MediaDownloadData } from "@/api/generated/types"
 import { useServerHMACAuth, useServerStatus } from "@/app/(main)/_hooks/use-server-status"

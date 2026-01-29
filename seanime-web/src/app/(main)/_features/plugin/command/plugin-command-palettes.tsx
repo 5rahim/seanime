@@ -1,10 +1,10 @@
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { WSEvents } from "@/lib/server/ws-events"
 import { useAtom } from "jotai/react"
 import { atom } from "jotai/vanilla"
 import React from "react"
 import { usePluginListenCommandPaletteInfoEvent, usePluginSendListCommandPalettesEvent } from "../generated/plugin-events"
 import { PluginCommandPalette, PluginCommandPaletteInfo } from "./plugin-command-palette"
-import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
-import { WSEvents } from "@/lib/server/ws-events"
 
 
 export const __plugin_commandPalettesAtom = atom<PluginCommandPaletteInfo[]>([])
@@ -48,7 +48,7 @@ export function PluginCommandPalettes() {
         type: WSEvents.PLUGIN_UNLOADED,
         onMessage: (extensionId) => {
             setCommandPalettes(prev => prev.filter(palette => palette.extensionId !== extensionId))
-        }
+        },
     })
 
     if (!commandPalettes) return null

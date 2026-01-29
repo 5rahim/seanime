@@ -9,7 +9,7 @@ import {
     filterAnimeCollectionEntries,
     sortContinueWatchingEntries,
 } from "@/lib/helpers/filtering"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import { atomWithImmer } from "jotai-immer"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import React from "react"

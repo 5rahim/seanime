@@ -728,9 +728,10 @@ export function LibraryExplorerSuperUpdateDrawer(props: LibraryExplorerSuperUpda
                                             name="replaceText"
                                             label={<div className="flex items-center gap-1">
                                                 <span>Replace with</span>
-                                                <Popover className="w-full max-w-2xl"
-                                                         trigger={
-                                                             <AiOutlineExclamationCircle className="transition-opacity opacity-45 hover:opacity-90" />}
+                                                <Popover
+                                                    className="w-full max-w-2xl"
+                                                    trigger={
+                                                        <AiOutlineExclamationCircle className="transition-opacity opacity-45 hover:opacity-90" />}
                                                 >
                                                     <div className="p-3 bg-gray-800 rounded-md">
                                                         <p className="text-sm text-gray-300 mb-2">Enumeration patterns:</p>

@@ -1,5 +1,3 @@
-"use client"
-
 import { Updater_Announcement, Updater_AnnouncementAction, Updater_AnnouncementSeverity } from "@/api/generated/types"
 import { useGetAnnouncements } from "@/api/hooks/status.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"

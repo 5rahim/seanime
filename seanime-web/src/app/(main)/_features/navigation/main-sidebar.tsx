@@ -1,4 +1,3 @@
-"use client"
 import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { useLogout } from "@/api/hooks/auth.hooks"
 import { useGetExtensionUpdateData as useGetExtensionUpdateData, usePluginWithIssuesCount } from "@/api/hooks/extensions.hooks"
@@ -16,6 +15,7 @@ import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes-loa
 import { useCurrentUser, useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TauriUpdateModal } from "@/app/(main)/_tauri/tauri-update-modal"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
+import { SeaLink } from "@/components/shared/sea-link.tsx"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -27,14 +27,13 @@ import { HoverCard } from "@/components/ui/hover-card"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu, VerticalMenuItem } from "@/components/ui/vertical-menu"
 import { openTab } from "@/lib/helpers/browser"
+import { usePathname, useRouter } from "@/lib/navigation.ts"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import { __isDesktop__, __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
 import { useAtom, useSetAtom } from "jotai"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { BiChevronRight, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
 import { FiLogIn, FiSearch } from "react-icons/fi"
@@ -156,7 +155,7 @@ function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean
             href: "/",
             isCurrent: pathname === "/",
         },
-        // ...(process.env.NODE_ENV === "development" ? [{
+        // ...(import.meta.env.MODE === "development" ? [{
         //     id: "test",
         //     iconType: GrTest,
         //     name: "Test",
@@ -625,7 +624,7 @@ function SidebarUser({ isCollapsed, expandedSidebar, onLogout }: { isCollapsed: 
             >
                 <div className="mt-5 text-center space-y-4">
 
-                    <Link
+                    <SeaLink
                         href={ANILIST_PIN_URL}
                         target="_blank"
                     >
@@ -641,7 +640,7 @@ function SidebarUser({ isCollapsed, expandedSidebar, onLogout }: { isCollapsed: 
                             intent="white"
                             size="md"
                         >Get AniList token</Button>
-                    </Link>
+                    </SeaLink>
 
                     <Form
                         schema={defineSchema(({ z }) => z.object({

@@ -1,4 +1,3 @@
-"use client"
 import { Torrentstream_TorrentStatus } from "@/api/generated/types"
 import { useTorrentstreamStopStream } from "@/api/hooks/torrentstream.hooks"
 import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
@@ -11,11 +10,9 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import { Inter } from "next/font/google"
 import React, { useRef, useState } from "react"
 import { BiDownArrow, BiGroup, BiStop, BiUpArrow } from "react-icons/bi"
 
-const inter = Inter({ subsets: ["latin"] })
 
 export const enum TorrentStreamEvents {
     TorrentLoading = "loading",

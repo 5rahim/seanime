@@ -1,5 +1,3 @@
-"use client"
-
 import { cn } from "@/components/ui/core/styling"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import * as React from "react"

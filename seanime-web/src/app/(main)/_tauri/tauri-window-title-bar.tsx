@@ -1,4 +1,3 @@
-"use client"
 import { IconButton } from "@/components/ui/button"
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow"
 import { platform } from "@tauri-apps/plugin-os"

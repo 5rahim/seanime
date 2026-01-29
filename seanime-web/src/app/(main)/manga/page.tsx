@@ -1,15 +1,13 @@
-"use client"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { MangaLibraryHeader } from "@/app/(main)/manga/_components/library-header"
 import { useHandleMangaCollection } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { MangaLibraryView } from "@/app/(main)/manga/_screens/manga-library-view"
 import { cn } from "@/components/ui/core/styling"
-import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import { __isDesktop__ } from "@/types/constants"
 import React from "react"
 
-export const dynamic = "force-static"
 
 export default function Page() {
     const {

@@ -10,6 +10,8 @@ import("strip-ansi").then(module => {
 const { autoUpdater } = require("electron-updater")
 const log = require("electron-log")
 
+const _isViteFrontend = true
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Chromium flags
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +21,6 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch("bypasscsp-schemes")
     app.commandLine.appendSwitch("no-sandbox")
     app.commandLine.appendSwitch("no-zygote")
-
 
     app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required")
     app.commandLine.appendSwitch("force_high_performance_gpu")
@@ -182,44 +183,61 @@ function setupAppProtocol() {
 
     const webPath = path.join(__dirname, "../web-denshi")
 
-    protocol.handle("app", (request) => {
-        const requestUrl = new URL(request.url)
-        let urlPath = requestUrl.pathname
+    if (!_isViteFrontend) {
+        protocol.handle("app", (request) => {
+            const requestUrl = new URL(request.url)
+            let urlPath = requestUrl.pathname
 
-        // next.js ssg: add .html to path
-        if (!urlPath.endsWith(".html") && path.extname(urlPath) === "") {
-            urlPath = urlPath + ".html"
-        }
-
-        // might not happen?
-        if (urlPath === "/.html") {
-            urlPath = "/index.html"
-        }
-
-        let filePath = path.join(webPath, urlPath)
-
-        const resolvedPath = path.resolve(filePath)
-        const resolvedWebPath = path.resolve(webPath)
-        if (!resolvedPath.startsWith(resolvedWebPath)) {
-            filePath = path.join(webPath, "index.html")
-        }
-
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-            return net.fetch(`file://${filePath}`)
-        }
-
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-            const indexPath = path.join(filePath, "index.html")
-            if (fs.existsSync(indexPath)) {
-                return net.fetch(`file://${indexPath}`)
+            // next.js ssg: add .html to path
+            if (!urlPath.endsWith(".html") && path.extname(urlPath) === "") {
+                urlPath = urlPath + ".html"
             }
-        }
 
-        // fallback to root index.html
-        log.warn(`[Protocol] Fallback for ${request.url}, serving index.html`) // Added a log
-        const fallbackPath = path.join(webPath, "index.html")
-        return net.fetch(`file://${fallbackPath}`)
-    })
+            // might not happen?
+            if (urlPath === "/.html") {
+                urlPath = "/index.html"
+            }
+
+            let filePath = path.join(webPath, urlPath)
+
+            const resolvedPath = path.resolve(filePath)
+            const resolvedWebPath = path.resolve(webPath)
+            if (!resolvedPath.startsWith(resolvedWebPath)) {
+                filePath = path.join(webPath, "index.html")
+            }
+
+            if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+                return net.fetch(`file://${filePath}`)
+            }
+
+            if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+                const indexPath = path.join(filePath, "index.html")
+                if (fs.existsSync(indexPath)) {
+                    return net.fetch(`file://${indexPath}`)
+                }
+            }
+
+            // fallback to root index.html
+            log.warn(`[Protocol] Fallback for ${request.url}, serving index.html`) // Added a log
+            const fallbackPath = path.join(webPath, "index.html")
+            return net.fetch(`file://${fallbackPath}`)
+        })
+    } else {
+        protocol.handle("app", (request) => {
+            const requestUrl = new URL(request.url)
+            const urlPath = requestUrl.pathname
+            let filePath = path.join(webPath, urlPath)
+
+            // Serve file if it exists
+            if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+                return net.fetch(`file://${filePath}`)
+            }
+
+            // Fallback to index.html for SPA
+            const fallbackPath = path.join(webPath, "index.html")
+            return net.fetch(`file://${fallbackPath}`)
+        })
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,3 @@
-"use client"
-
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu"
 import { cva } from "class-variance-authority"
 import * as React from "react"

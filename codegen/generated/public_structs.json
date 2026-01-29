@@ -29065,6 +29065,28 @@
   {
     "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
+    "name": "ShelvedLocalFiles",
+    "formattedName": "Models_ShelvedLocalFiles",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
     "name": "Settings",
     "formattedName": "Models_Settings",
     "package": "models",
@@ -52218,6 +52240,37 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WithShelving",
+        "jsonName": "WithShelving",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExistingShelvedFiles",
+        "jsonName": "ExistingShelvedFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShelvedLocalFiles",
+        "jsonName": "ShelvedLocalFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -82616,6 +82669,76 @@
     "comments": []
   },
   {
+    "filepath": "../internal/torrents/autoselect/search_test.go",
+    "filename": "search_test.go",
+    "name": "FakeSearchProvider",
+    "formattedName": "FakeSearchProvider",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "SearchResults",
+        "jsonName": "SearchResults",
+        "goType": "map[string][]hibiketorrent.AnimeTorrent",
+        "typescriptType": "Record\u003cstring, Array\u003cHibikeTorrent_AnimeTorrent\u003e\u003e",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": [
+          " keyed by resolution"
+        ]
+      },
+      {
+        "name": "CanSmartSearch",
+        "jsonName": "CanSmartSearch",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SearchCallCount",
+        "jsonName": "SearchCallCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LastSearchQuery",
+        "jsonName": "LastSearchQuery",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LastResolution",
+        "jsonName": "LastResolution",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LastBatchSetting",
+        "jsonName": "LastBatchSetting",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " FakeSearchProvider is a fake torrent provider for testing search functionality"
+    ]
+  },
+  {
     "filepath": "../internal/torrents/torrent/repository.go",
     "filename": "repository.go",
     "name": "Repository",
@@ -82866,6 +82989,15 @@
       {
         "name": "IncludeSpecialProviders",
         "jsonName": "IncludeSpecialProviders",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SkipPreviews",
+        "jsonName": "SkipPreviews",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,

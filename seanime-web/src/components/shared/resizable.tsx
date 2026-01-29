@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react"
 import { BsThreeDotsVertical } from "react-icons/bs"
 import * as ResizablePrimitive from "react-resizable-panels"

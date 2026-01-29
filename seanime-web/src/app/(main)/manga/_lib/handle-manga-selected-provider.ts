@@ -167,7 +167,7 @@ export function useSelectedMangaProvider(mId: Nullish<string | number>) {
                     [String(mId)]: provider,
                 }
             })
-        }
+        },
     }
 }
 

@@ -62,7 +62,6 @@ export function useHandleMangaChapters(
     }, [selectedExtension, chapterContainer])
 
 
-
     /**
      * 4. Filters
      */

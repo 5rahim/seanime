@@ -6,10 +6,10 @@ import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-s
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { cn } from "@/components/ui/core/styling"
 import { Vaul, VaulContent } from "@/components/vaul"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { usePathname, useRouter, useSearchParams } from "@/lib/navigation.ts"
+import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 
 export const __torrentSearch_selectionAtom = atom<TorrentSelectionType | undefined>(undefined)

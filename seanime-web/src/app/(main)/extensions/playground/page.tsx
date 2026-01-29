@@ -1,5 +1,3 @@
-"use client"
-
 import { Extension_Language, Extension_Type } from "@/api/generated/types"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { ExtensionPlayground } from "@/app/(main)/extensions/playground/_containers/extension-playground"

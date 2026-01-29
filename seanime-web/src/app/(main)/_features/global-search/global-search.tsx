@@ -1,4 +1,3 @@
-"use client"
 import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
 import { useAnilistListManga } from "@/api/hooks/manga.hooks"
 import { SeaImage } from "@/components/shared/sea-image"
@@ -8,11 +7,11 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { useDebounce } from "@/hooks/use-debounce"
+import { useRouter } from "@/lib/navigation.ts"
 import { Combobox, Dialog, Transition } from "@headlessui/react"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
-import { useRouter } from "next/navigation"
 import React, { Fragment, useEffect, useRef } from "react"
 import { BiChevronRight } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
@@ -32,7 +31,7 @@ export function GlobalSearch() {
     const [open, setOpen] = useAtom(__globalSearch_isOpenAtom)
 
     useEffect(() => {
-        if(open) {
+        if (open) {
             setTimeout(() => {
                 console.log("open", open, inputRef.current)
                 console.log("focusing")
@@ -214,10 +213,10 @@ export function GlobalSearch() {
                                                                 <h4 className="mt-3 font-semibold text-[--foreground] line-clamp-3">{activeOption.title?.userPreferred}</h4>
                                                                 <p className="text-sm leading-6 text-[--muted]">
                                                                     {activeOption.format}{activeOption.season
-                                                                        ? ` - ${capitalize(activeOption.season)} `
-                                                                        : " - "}{activeOption.seasonYear
-                                                                            ? activeOption.seasonYear
-                                                                            : "-"}
+                                                                    ? ` - ${capitalize(activeOption.season)} `
+                                                                    : " - "}{activeOption.seasonYear
+                                                                    ? activeOption.seasonYear
+                                                                    : "-"}
                                                                 </p>
                                                             </div>
                                                             <SeaLink
@@ -259,7 +258,7 @@ export function GlobalSearch() {
                                                         />
                                                     </div>}
                                                     <h5 className="mt-4 font-semibold text-[--foreground]">Nothing
-                                                        found</h5>
+                                                                                                           found</h5>
                                                     <p className="mt-2 text-[--muted]">
                                                         We couldn't find anything with that name. Please try again.
                                                     </p>

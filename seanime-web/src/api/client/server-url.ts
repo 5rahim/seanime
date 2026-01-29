@@ -2,7 +2,7 @@ import { __DEV_SERVER_PORT, TESTONLY__DEV_SERVER_PORT2, TESTONLY__DEV_SERVER_POR
 import { __isDesktop__ } from "@/types/constants"
 
 function devOrProd(dev: string, prod: string): string {
-    return process.env.NODE_ENV === "development" ? dev : prod
+    return import.meta.env.MODE === "development" ? dev : prod
 }
 
 export function getServerBaseUrl(removeProtocol: boolean = false): string {
@@ -17,14 +17,14 @@ export function getServerBaseUrl(removeProtocol: boolean = false): string {
     // DEV ONLY: Hack to allow multiple development servers for the same web server
     // localhost:43210 -> 127.0.0.1:43001
     // 192.168.1.100:43210 -> 127.0.0.1:43002
-    if (process.env.NODE_ENV === "development" && window.location.host.includes("localhost")) {
+    if (import.meta.env.MODE === "development" && window.location.host.includes("localhost")) {
         let ret = `http://127.0.0.1:${TESTONLY__DEV_SERVER_PORT2}`
         if (removeProtocol) {
             ret = ret.replace("http://", "").replace("https://", "")
         }
         return ret
     }
-    if (process.env.NODE_ENV === "development" && window.location.host.startsWith("192.168")) {
+    if (import.meta.env.MODE === "development" && window.location.host.startsWith("192.168")) {
         let ret = `http://127.0.0.1:${TESTONLY__DEV_SERVER_PORT3}`
         if (removeProtocol) {
             ret = ret.replace("http://", "").replace("https://", "")

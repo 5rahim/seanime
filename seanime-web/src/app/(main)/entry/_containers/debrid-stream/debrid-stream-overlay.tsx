@@ -117,7 +117,7 @@ export function DebridStreamOverlay() {
     return (
         <>
 
-        {minimized && (
+            {minimized && (
                 <div className="fixed z-[100] bottom-8 w-full h-fit flex justify-center">
                     <div
                         className="shadow-2xl p-4 bg-gray-900 border text-white rounded-3xl cursor-pointer hover:border-gray-600"

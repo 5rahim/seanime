@@ -1,4 +1,3 @@
-"use client"
 import { __scanner_isScanningAtom } from "@/app/(main)/(library)/_containers/scanner-modal"
 
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"

@@ -1,11 +1,8 @@
-"use client"
-
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { AnilistCollectionLists } from "@/app/(main)/lists/_containers/anilist-collection-lists"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import React from "react"
 
-export const dynamic = "force-static"
 
 export default function Home() {
 

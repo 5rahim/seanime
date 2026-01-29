@@ -1,5 +1,3 @@
-"use client"
-
 import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import * as React from "react"

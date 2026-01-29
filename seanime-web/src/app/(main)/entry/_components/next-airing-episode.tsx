@@ -1,6 +1,6 @@
 import { AL_BaseAnime } from "@/api/generated/types"
 import { cn } from "@/components/ui/core/styling"
-import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import { addSeconds, format, formatDistanceToNow } from "date-fns"
 import React from "react"
 import { BiCalendarAlt } from "react-icons/bi"

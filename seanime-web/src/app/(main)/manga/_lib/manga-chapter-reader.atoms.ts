@@ -1,4 +1,3 @@
-"use client"
 import { atom } from "jotai/index"
 import { atomWithStorage } from "jotai/utils"
 

@@ -17,11 +17,11 @@ import { OnlinestreamPage } from "@/app/(main)/onlinestream/_containers/onlinest
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { cn } from "@/components/ui/core/styling"
 import { StaticTabs } from "@/components/ui/tabs"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { usePathname, useRouter, useSearchParams } from "@/lib/navigation.ts"
+import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { AnimatePresence } from "motion/react"
-import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { FiGlobe } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
@@ -159,11 +159,15 @@ export function AnimeEntryPage() {
 
     }, [animeEntry, animeEntryLoading, mediaId, searchParams, serverStatus, currentView, tab])
 
+    const pathname = usePathname()
+
     React.useEffect(() => {
+        if (!pathname.startsWith("/entry")) return
+
         if (!mediaId || (!animeEntryLoading && !animeEntry)) {
             router.push("/")
         }
-    }, [animeEntry, animeEntryLoading])
+    }, [animeEntry, animeEntryLoading, pathname, mediaId])
 
     // Reset view when unmounting
     useUnmount(() => {

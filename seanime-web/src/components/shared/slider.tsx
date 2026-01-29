@@ -1,4 +1,3 @@
-"use client"
 import { cn } from "@/components/ui/core/styling"
 import { useDraggableScroll } from "@/hooks/use-draggable-scroll"
 import { MdChevronLeft } from "react-icons/md"
@@ -85,17 +84,19 @@ export const Slider: React.FC<SliderProps> = (props) => {
     }, [ref.current])
 
     return (
-        <div className={cn(
-            "relative flex items-center lg:gap-2",
-            props.containerClassName,
-        )}>
+        <div
+            className={cn(
+                "relative flex items-center lg:gap-2",
+                props.containerClassName,
+            )}
+        >
             <div
                 onClick={slideLeft}
                 className={`flex items-center cursor-pointer hover:text-action absolute left-0 bg-gradient-to-r from-[--background] z-40 h-full w-16 hover:opacity-100 ${
                     !isScrolledToLeft ? "lg:visible" : "invisible"
                 }`}
             >
-                <MdChevronLeft className="w-7 h-7 stroke-2 mx-auto"/>
+                <MdChevronLeft className="w-7 h-7 stroke-2 mx-auto" />
             </div>
             <div
                 onScroll={handleScroll}
@@ -113,7 +114,7 @@ export const Slider: React.FC<SliderProps> = (props) => {
                         "lg:visible": !isScrolledToRight && showChevronRight,
                     })}
             >
-                <MdChevronRight className="w-7 h-7 stroke-2 mx-auto"/>
+                <MdChevronRight className="w-7 h-7 stroke-2 mx-auto" />
             </div>
         </div>
     )

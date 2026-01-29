@@ -4,7 +4,7 @@
  */
 
 import { cn } from "@/components/ui/core/styling"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import React from "react"
 
 export function MediaCardBodyBottomGradient() {
@@ -36,10 +36,8 @@ export function EpisodeItemBottomGradient({ isSingleContainer, className }: { is
     // if (!!ts.libraryScreenCustomBackgroundImage || ts.hasCustomBackgroundColor) {
     //     return (
     //         <div
-    //             className="z-[1] absolute inset-x-0 bottom-0 w-full h-full opacity-80 md:h-[60%] bg-gradient-to-t from-[--background] to-transparent"
-    //         />
-    //     )
-    // }
+    //             className="z-[1] absolute inset-x-0 bottom-0 w-full h-full opacity-80 md:h-[60%] bg-gradient-to-t from-[--background]
+    // to-transparent" /> ) }
 
     if (isSingleContainer) {
         return <div

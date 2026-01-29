@@ -1,13 +1,6 @@
-"use client"
-import { useMALLogout } from "@/api/hooks/mal.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { Button } from "@/components/ui/button"
-import { MAL_CLIENT_ID } from "@/lib/server/config"
 import React from "react"
-import { BiCheckCircle, BiLogOut, BiXCircle } from "react-icons/bi"
-import { SiMyanimelist } from "react-icons/si"
 
-export const dynamic = "force-static"
 
 export default function _page() {
     const status = useServerStatus()

@@ -244,11 +244,11 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
                 {!!selectedChapter &&
                     <div data-manga-reader-bar-chapter-nav-container className="flex gap-3 items-center flex-none whitespace-nowrap ">
-                    <ChapterNavButton dir="left" />
-                    <span className="hidden md:inline-block">Chapter </span>
-                    {`${selectedChapter?.chapterNumber}`}
-                    <ChapterNavButton dir="right" />
-                </div>}
+                        <ChapterNavButton dir="left" />
+                        <span className="hidden md:inline-block">Chapter </span>
+                        {`${selectedChapter?.chapterNumber}`}
+                        <ChapterNavButton dir="right" />
+                    </div>}
 
                 <div data-manga-reader-bar-spacer className="flex flex-1"></div>
 
@@ -313,9 +313,9 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                             </div>
                             {pageStretch !== MangaPageStretch.NONE &&
                                 <div data-manga-reader-bar-info-container-stretch className="flex items-center gap-1">
-                                <span className="text-white w-6">s:</span>
-                                {MANGA_PAGE_STRETCH_OPTIONS.find((option) => option.value === pageStretch)?.label}
-                            </div>}
+                                    <span className="text-white w-6">s:</span>
+                                    {MANGA_PAGE_STRETCH_OPTIONS.find((option) => option.value === pageStretch)?.label}
+                                </div>}
                             {readingMode !== MangaReadingMode.LONG_STRIP && (
                                 <div data-manga-reader-bar-info-container-direction className="flex items-center gap-1">
                                     <span className="text-white w-6">d:</span>

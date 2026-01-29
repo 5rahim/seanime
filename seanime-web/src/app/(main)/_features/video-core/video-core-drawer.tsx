@@ -1,5 +1,3 @@
-"use client"
-
 import { CloseButton } from "@/components/ui/button"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "@/components/ui/core/styling"
 import { __isDesktop__ } from "@/types/constants"

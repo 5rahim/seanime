@@ -1,4 +1,3 @@
-"use client"
 import { AL_BaseAnime, AL_BaseManga, Anime_Entry, Manga_Entry } from "@/api/generated/types"
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import {

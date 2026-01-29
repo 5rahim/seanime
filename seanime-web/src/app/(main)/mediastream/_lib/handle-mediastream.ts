@@ -10,6 +10,7 @@ import { useMediastreamCurrentFile, useMediastreamJassubOffscreenRender } from "
 import { clientIdAtom } from "@/app/websocket-provider"
 import { useDebounce } from "@/hooks/use-debounce"
 import { logger } from "@/lib/helpers/debug"
+import { useRouter } from "@/lib/navigation.ts"
 import { legacy_getAssetUrl } from "@/lib/server/assets"
 import { WSEvents } from "@/lib/server/ws-events"
 import {
@@ -23,7 +24,6 @@ import {
 } from "@vidstack/react"
 import HLS, { LoadPolicy } from "hls.js"
 import { useAtomValue } from "jotai"
-import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
 
@@ -251,7 +251,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             // const legacyWasmUrl = new URL("/jassub/jassub-worker.wasm.js", window.location.origin).toString()
             const modernWasmUrl = new URL("/jassub/jassub-worker-modern.wasm", window.location.origin).toString()
 
-            const legacyWasmUrl = process.env.NODE_ENV === "development"
+            const legacyWasmUrl = import.meta.env.MODE === "development"
                 ? "/jassub/jassub-worker.wasm.js" : legacy_getAssetUrl("/jassub/jassub-worker.wasm.js")
 
             logger("MEDIASTREAM").info("Loading JASSUB renderer")

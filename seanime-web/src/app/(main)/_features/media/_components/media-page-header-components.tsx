@@ -11,7 +11,13 @@ import { Popover } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
 import { getScoreColor } from "@/lib/helpers/score"
 import { getImageUrl } from "@/lib/server/assets"
-import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, ThemeMediaPageInfoBoxSize, useIsMobile, useThemeSettings } from "@/lib/theme/hooks"
+import {
+    ThemeMediaPageBannerSize,
+    ThemeMediaPageBannerType,
+    ThemeMediaPageInfoBoxSize,
+    useIsMobile,
+    useThemeSettings,
+} from "@/lib/theme/theme-hooks.ts"
 import capitalize from "lodash/capitalize"
 import { motion } from "motion/react"
 import React from "react"

@@ -1,4 +1,4 @@
-"use client"
+
 
 import { ElectronWindowTitleBar } from "@/app/(main)/_electron/electron-window-title-bar"
 import { TauriWindowTitleBar } from "@/app/(main)/_tauri/tauri-window-title-bar"

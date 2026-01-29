@@ -48,25 +48,25 @@ Seanime is a **media server** with a **web interface** and **desktop app** for m
 
 ## Features
 
-
-- Cross-platform web interface and desktop app
-- Built-in video player with Seanime Denshi (supports SSA/ASS subtitles, Anime4K sharpening, and more)
-- Complete AniList integration (browse, manage, score, discover, etc.)
-- Custom source support for adding series not available on AniList and even non-anime/manga series
-- Offline mode for use without an internet connection
-- Scan your anime library in seconds (no renaming or special folder structure required)
-- Integrated torrent search engine for extensions
-- Stream torrents directly to your media player without downloading using Bittorrent, Torbox and Real-Debrid
-- Support for qBittorrent, Transmission, Torbox and Real-Debrid for downloading
-- Automatically download new episodes with custom filters
-- MPV, VLC and MPC-HC support for watching on desktop
-- Watch on mobile with external player links to mobile apps (Outplayer, VLC, etc.)
-- Transcoding and direct play for streaming to any device web browser
-- Online streaming support for extensions
-- Read manga chapters from your local library or extensions
-- Schedule for tracking upcoming or missed episodes
-- Customizable UI
-- And more
+- **Cross-platform**: Web interface and desktop app for Windows, Linux, and macOS
+- **Seanime Denshi**: Desktop client with built-in video player (support for SSA/ASS subtitles, Anime4K sharpening, auto translation, and more)
+- **AniList Integration**: Browse and manage your lists, discover anime and manga
+- **Custom Sources**: Support for adding non-AniList anime and manga series 
+- **Library Management**: Fast and smart scanning of local files without strict naming conventions or folder structures
+- **Torrent Integration**: Built-in torrent search engine via extensions and downloading support with Qbittorrent, Transmission, Torbox, and Real-Debrid
+- **Torrent Streaming**: Stream torrents directly to the media player without waiting for downloads (supports Bittorrent, Torbox and Real-Debrid)
+- **Online Streaming**: Watch anime from online sources directly within the app via extensions
+- **Auto Downloader**: Automatically track and download new episodes with customizable filters and advanced features (prioritization, scoring, delay, etc.)
+- **Extension Marketplace**: In-app repository to install and manage extensions for online streaming, manga sources, and torrent providers
+- **Manga Reader**: Read chapters from your local library or via extensions with a unified interface
+- **Transcoding & Direct Play**: Stream your library to any device web browser with on-the-fly transcoding or direct play
+- **External Player Support**: Seamless integration with MPV, VLC, and MPC-HC on desktop
+- **Mobile Player Integration**: Open files and streams in mobile players (Outplayer, VLC, etc.) via intents or deep links
+- **Playlists**: Create and manage playlists for a seamless binge watching experience
+- **Customizable UI**: Personalize the interface with color themes, background images, and layout options
+- **Discord Rich Presence**: Display your watching activity automatically
+- **Offline Mode**: Access your anime and manga library without an internet connection
+- **Schedule**: Track upcoming releases and missed episodes
 
 ## Get started
 
@@ -86,9 +86,11 @@ This is a one-person project and may not meet every use case. If it doesn’t fu
 
 ### Not planned
 
-- Support for other trackers such as Trakt, SIMKL, etc.
-- Support for other media players
-- Dedicated clients (TV, mobile, etc.)
+- Android, iOS, AndroidTV, tvOS, ... apps
+- Built-in support for other trackers such as MyAnimeList, Trakt, SIMKL, etc.
+- Built-in support for other media players
+- Built-in localization (translations)
+
 
 Consider sponsoring or sharing the project if you want to see more features implemented.
 
@@ -99,6 +101,18 @@ The maintenance of this project is made possible by the sponsors.
 <p align="center">
 <!-- real-sponsors --><a href="https://github.com/TorBox-App"><img src="https:&#x2F;&#x2F;github.com&#x2F;TorBox-App.png" width="60px" alt="User avatar: TorBox-App" /></a><!-- real-sponsors -->
 </p>
+
+## Technology stack
+
+- The server is built with [Go](https://go.dev/)
+  - Web server powered by [Echo](https://echo.labstack.com/)
+  - Video filename parsing powered by [Habari](https://github.com/5rahim/habari)
+  - Javascript Plugin system powered by [Goja](https://github.com/dop251/goja)
+  - Database managed with [GORM](https://gorm.io/) and uses [SQLite](https://github.com/glebarez/sqlite)
+  - Torrent streaming powered by [anacrolix/torrent](https://github.com/anacrolix/torrent)
+  - Windows Systray managed by [Fyne](https://github.com/fyne-io/systray)
+- The Web app is built with [React](https://reactjs.org/), [Vite](https://vitejs.dev/), and [Tanstack Router](https://tanstack.com/router)
+- The Desktop client (which wraps the webapp and server) is built with a modified version of [Electron](https://www.electronjs.org/)/Chromium
 
 ## Development and Build
 

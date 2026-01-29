@@ -1,14 +1,10 @@
-"use client"
-
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
 import { LegacyOnlinestreamPage } from "@/app/(main)/onlinestream/_containers/legacy-onlinestream-page"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams } from "@/lib/navigation.ts"
 import React from "react"
 
-
-export const dynamic = "force-static"
 
 export default function Page() {
     const searchParams = useSearchParams()

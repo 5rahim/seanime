@@ -1,7 +1,5 @@
-"use client"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 
-export const dynamic = "force-static"
 
 export default function Page() {
 

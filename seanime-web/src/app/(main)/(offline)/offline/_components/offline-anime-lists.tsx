@@ -4,7 +4,7 @@ import { useHandleLibraryCollection } from "@/app/(main)/(library)/_lib/handle-l
 import { LibraryView } from "@/app/(main)/(library)/_screens/library-view"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { cn } from "@/components/ui/core/styling"
-import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import React from "react"
 
 export function OfflineAnimeLists() {

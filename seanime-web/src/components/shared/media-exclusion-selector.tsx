@@ -1,5 +1,3 @@
-"use client"
-
 import { Anime_LibraryCollectionEntry } from "@/api/generated/types"
 import { animeLibraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { imageShimmer } from "@/components/shared/image-helpers"
@@ -136,10 +134,10 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
 
             const allEntries: Anime_LibraryCollectionEntry[] = []
             animeLibraryCollectionEntries?.forEach(entry => {
-                    if (selectedIds.includes(entry.mediaId)) {
-                        allEntries.push(entry)
-                    }
-                })
+                if (selectedIds.includes(entry.mediaId)) {
+                    allEntries.push(entry)
+                }
+            })
             return allEntries.slice(0, 5)
         }, [animeLibraryCollectionEntries, selectedIds])
 

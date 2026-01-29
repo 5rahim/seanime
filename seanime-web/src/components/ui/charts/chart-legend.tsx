@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { ChartColor } from "./color-theme"
 import { Legend } from "./legend"

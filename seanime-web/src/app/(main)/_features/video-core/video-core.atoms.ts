@@ -1,9 +1,4 @@
-import {
-    VideoCore_PlaybackType,
-    VideoCore_VideoPlaybackInfo,
-    VideoCore_VideoSource,
-    VideoCore_VideoSubtitleTrack,
-} from "@/api/generated/types"
+import { VideoCore_PlaybackType, VideoCore_VideoPlaybackInfo, VideoCore_VideoSource, VideoCore_VideoSubtitleTrack } from "@/api/generated/types"
 import { atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 

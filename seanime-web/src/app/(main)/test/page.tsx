@@ -1,5 +1,3 @@
-"use client"
-
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import React from "react"
 

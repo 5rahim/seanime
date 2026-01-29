@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { Pie, PieChart as ReChartsDonutChart, ResponsiveContainer, Sector, Tooltip } from "recharts"
 import { cn } from "../core/styling"

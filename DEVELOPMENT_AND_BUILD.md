@@ -50,7 +50,7 @@ Choose the appropriate command based on your target platform:
 
 The project is built with:
 - Backend: Go server with REST API endpoints
-- Frontend: React/Next.js web interface
+- Frontend: React + Vite + Tanstack Router
 
 For development, you should be familiar with both Go and React.
 

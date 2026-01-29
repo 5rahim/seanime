@@ -9,10 +9,10 @@ import { __manga_chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_co
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
 import { cn } from "@/components/ui/core/styling"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { usePathname } from "@/lib/navigation.ts"
+import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import { __isDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai/react"
-import { usePathname } from "next/navigation"
 import React from "react"
 import { LuFolderDown } from "react-icons/lu"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
@@ -85,7 +85,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
     const openDownloadQueue = useSetAtom(__manga_chapterDownloadsDrawerIsOpenAtom)
     const isMangaPage = pathname.startsWith("/manga")
 
-    if (!ts.hideTopNavbar && process.env.NEXT_PUBLIC_PLATFORM !== "desktop") return null
+    if (!ts.hideTopNavbar && import.meta.env.VITE_PUBLIC_PLATFORM !== "desktop") return null
 
     return (
         <div data-sidebar-navbar className="flex flex-col gap-1">

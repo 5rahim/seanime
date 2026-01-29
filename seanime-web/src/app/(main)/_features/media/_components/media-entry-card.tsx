@@ -39,10 +39,10 @@ import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
+import { usePathname, useRouter } from "@/lib/navigation.ts"
 import { useAtom } from "jotai"
 import { useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
-import { usePathname, useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { BiAddToQueue, BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
@@ -239,6 +239,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
             className={props.containerClassName}
             data-list-data={stringifiedListData}
             onMouseEnter={() => setIsHoveringCard(true)}
+            onMouseOver={() => setIsHoveringCard(true)}
             onMouseLeave={() => setIsHoveringCard(false)}
         >
 

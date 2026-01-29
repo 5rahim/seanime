@@ -531,7 +531,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                         ref={playerRef}
                         autoPlay={autoPlay}
                         crossOrigin
-                        src={url}
+                        src={url as any}
                         poster={poster}
                         aspectRatio="16/9"
                         controlsDelay={discreteControls ? 500 : undefined}

@@ -1,4 +1,3 @@
-"use client"
 import { TorrentClientAction_Variables } from "@/api/generated/endpoint.types"
 import { TorrentClient_Torrent } from "@/api/generated/types"
 import { useGetActiveTorrentList, useTorrentClientAction } from "@/api/hooks/torrent_client.hooks"
@@ -24,7 +23,6 @@ import { BiDownArrow, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiTrash, 
 import { LuListCheck } from "react-icons/lu"
 import { TbSortAscending, TbSortDescending } from "react-icons/tb"
 
-export const dynamic = "force-static"
 
 export default function Page() {
     const serverStatus = useServerStatus()

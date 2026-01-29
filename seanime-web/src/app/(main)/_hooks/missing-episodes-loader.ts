@@ -1,7 +1,7 @@
 import { useGetMissingEpisodes } from "@/api/hooks/anime_entries.hooks"
 import { missingEpisodeCountAtom, missingEpisodesAtom, missingSilencedEpisodesAtom } from "@/app/(main)/_atoms/missing-episodes.atoms"
+import { usePathname } from "@/lib/navigation.ts"
 import { useAtomValue, useSetAtom } from "jotai/react"
-import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 
 export function useMissingEpisodeCount() {

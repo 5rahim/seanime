@@ -1,4 +1,3 @@
-"use client"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
@@ -15,12 +14,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { usePathname } from "@/lib/navigation.ts"
+import { useRouter, useSearchParams } from "@/lib/navigation.ts"
 import { MediaPlayerInstance } from "@vidstack/react"
 import "@/app/vidstack-theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { uniq } from "lodash"
 import { CaptionsFileFormat } from "media-captions"
-import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import "@vidstack/react/player/styles/base.css"
 import { BiInfoCircle } from "react-icons/bi"
@@ -36,6 +36,7 @@ export default function Page() {
     const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
     const playerRef = React.useRef<MediaPlayerInstance>(null)
     const { filePath } = useMediastreamCurrentFile()
+    const pathname = usePathname()
 
     const mainEpisodes = React.useMemo(() => {
         return animeEntry?.episodes?.filter(ep => ep.type === "main") ?? []
@@ -96,10 +97,11 @@ export default function Page() {
      * - Reset current progress
      */
     React.useEffect(() => {
+        if (!pathname.startsWith("/mediastream")) return
         if (!mediaId || (!animeEntryLoading && !animeEntry) || (!animeEntryLoading && !!animeEntry && !filePath)) {
             router.push("/")
         }
-    }, [mediaId, animeEntry, animeEntryLoading, filePath])
+    }, [mediaId, pathname, animeEntry, animeEntryLoading, filePath])
 
     if (animeEntryLoading || !animeEntry?.media) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">

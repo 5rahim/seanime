@@ -1,7 +1,5 @@
-"use client"
-
+import { useRouter } from "@/lib/navigation.ts"
 import Mousetrap from "mousetrap"
-import { useRouter } from "next/navigation"
 import React from "react"
 
 // This is only rendered on the Electron Desktop client

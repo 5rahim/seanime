@@ -1,4 +1,3 @@
-"use client"
 import { AL_BaseAnime, AL_BaseManga, Local_QueueState } from "@/api/generated/types"
 import {
     useLocalGetHasLocalChanges,
@@ -33,7 +32,6 @@ import { LuCloud, LuCloudDownload, LuCloudOff, LuCloudUpload, LuFolderSync } fro
 import { VscSyncIgnored } from "react-icons/vsc"
 import { toast } from "sonner"
 
-export const dynamic = "force-static"
 
 export default function Page() {
     const serverStatus = useServerStatus()

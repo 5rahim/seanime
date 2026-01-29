@@ -4,7 +4,7 @@ import { MangaLibraryHeader } from "@/app/(main)/manga/_components/library-heade
 import { useHandleMangaCollection } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { MangaLibraryView } from "@/app/(main)/manga/_screens/manga-library-view"
 import { cn } from "@/components/ui/core/styling"
-import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import React from "react"
 
 export function OfflineMangaLists() {

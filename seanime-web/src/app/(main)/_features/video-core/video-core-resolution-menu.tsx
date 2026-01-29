@@ -2,7 +2,7 @@ import { vc_containerElement, vc_isFullscreen, vc_miniPlayer } from "@/app/(main
 import { VideoCoreControlButtonIcon } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { vc_hlsCurrentQuality, vc_hlsQualityLevels, vc_hlsSetQuality } from "@/app/(main)/_features/video-core/video-core-hls"
 import { VideoCoreMenu, VideoCoreMenuBody, VideoCoreMenuTitle, VideoCoreSettingSelect } from "@/app/(main)/_features/video-core/video-core-menu"
-import { VideoCoreLifecycleState, VideoCore_VideoSource } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCore_VideoSource, VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { atom, useAtomValue } from "jotai"
 import React from "react"
 import { LuFilm } from "react-icons/lu"

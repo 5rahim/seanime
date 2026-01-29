@@ -1,4 +1,3 @@
-"use client"
 import { useListCustomSourceExtensions } from "@/api/hooks/extensions.hooks"
 import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -16,14 +15,12 @@ import { PageWrapper } from "@/components/shared/page-wrapper"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { StaticTabs } from "@/components/ui/tabs"
+import { useRouter, useSearchParams } from "@/lib/navigation.ts"
 import { useAtom } from "jotai/react"
 import { AnimatePresence, motion } from "motion/react"
-import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { FaSearch } from "react-icons/fa"
 import { MdDataSaverOn } from "react-icons/md"
-
-export const dynamic = "force-static"
 
 
 export default function Page() {

@@ -257,10 +257,10 @@ func (t *TorBox) AddTorrent(opts debrid.AddTorrentOptions) (string, error) {
 		return "", fmt.Errorf("torbox: Failed to add torrent: %w", err)
 	}
 
-	err = writer.WriteField("seed", "1")
-	if err != nil {
-		return "", fmt.Errorf("torbox: Failed to add torrent: %w", err)
-	}
+	//err = writer.WriteField("seed", "1")
+	//if err != nil {
+	//	return "", fmt.Errorf("torbox: Failed to add torrent: %w", err)
+	//}
 
 	err = writer.Close()
 	if err != nil {

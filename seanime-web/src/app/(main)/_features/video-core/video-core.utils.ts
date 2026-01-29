@@ -9,14 +9,13 @@ import {
     vc_playbackRate,
     vc_readyState,
     vc_timeRanges,
-    vc_videoElement,
     vc_videoSize,
     vc_volume,
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
 import { VideoCoreTimeRangeChapter } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { VideoCore_VideoPlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
-import { useAtomValue, useSetAtom } from "jotai/react"
+import { useSetAtom } from "jotai/react"
 import React, { useEffect } from "react"
 
 export function useVideoCoreBindings(videoRef: React.MutableRefObject<HTMLVideoElement | null>,

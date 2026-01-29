@@ -1,5 +1,3 @@
-"use client"
-
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card"
 import { cva } from "class-variance-authority"
 import * as React from "react"

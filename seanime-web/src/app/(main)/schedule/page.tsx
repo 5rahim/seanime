@@ -1,5 +1,3 @@
-"use client"
-
 import { useGetMissingEpisodes } from "@/api/hooks/anime_entries.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
@@ -11,7 +9,6 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import React from "react"
 import { ScheduleCalendar } from "./_components/schedule-calendar"
 
-export const dynamic = "force-static"
 
 export default function Page() {
 

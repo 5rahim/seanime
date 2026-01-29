@@ -1,4 +1,4 @@
-"use client"
+
 
 import { ScanLogViewer } from "@/app/scan-log-viewer/scan-log-viewer"
 import { TextInput } from "@/components/ui/text-input"

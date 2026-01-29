@@ -1,4 +1,3 @@
-"use client"
 import { Anime_LocalFile, Summary_ScanSummaryFile, Summary_ScanSummaryLog } from "@/api/generated/types"
 import { useGetScanSummaries } from "@/api/hooks/scan_summary.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
@@ -21,7 +20,6 @@ import { BsFileEarmarkExcelFill, BsFileEarmarkPlayFill } from "react-icons/bs"
 import { LuFileSearch, LuFolderTree, LuTextSelect } from "react-icons/lu"
 import { TbListSearch } from "react-icons/tb"
 
-export const dynamic = "force-static"
 
 export default function Page() {
 

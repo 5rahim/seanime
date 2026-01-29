@@ -316,12 +316,12 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     {/*    target="_blank"*/}
                     {/*    href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || currentGroup?.localFiles?.[0]?.parsedFolderInfo?.[0]?.title || "")}`}*/}
                     {/*>*/}
-                        <Button
-                            intent="white-subtle"
-                            onClick={handleSearchAnime}
-                        >
-                            Search on AniList
-                        </Button>
+                    <Button
+                        intent="white-subtle"
+                        onClick={handleSearchAnime}
+                    >
+                        Search on AniList
+                    </Button>
                     {/*</SeaLink>*/}
 
                     {/*TODO: Search on custom sources*/}

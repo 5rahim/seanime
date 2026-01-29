@@ -1,5 +1,3 @@
-"use client"
-
 import type { IntlTranslations } from "@zag-js/number-input"
 import * as numberInput from "@zag-js/number-input"
 import { normalizeProps, useMachine } from "@zag-js/react"

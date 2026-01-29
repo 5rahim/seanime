@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { getImageUrl } from "@/lib/server/assets"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import React from "react"
 import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
 
@@ -190,7 +190,7 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                             )}
                         >
                             {title?.replaceAll("`", "'")}</span>{(!!episodeTitle && !!length) &&
-                                <span className="ml-4">{length}m</span>}
+                        <span className="ml-4">{length}m</span>}
                     </p>
 
                     {!!episodeTitle &&
@@ -204,7 +204,8 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                     {!!description && !ts.hideEpisodeCardDescription &&
                         <p data-episode-grid-item-episode-description className="text-sm text-[--muted] line-clamp-2">{description.replaceAll("`",
                             "'")}</p>}
-                    {!!fileName && !ts.hideDownloadedEpisodeCardFilename && <p data-episode-grid-item-filename className="text-xs tracking-wider opacity-75 line-clamp-1 mt-1">{fileName}</p>}
+                    {!!fileName && !ts.hideDownloadedEpisodeCardFilename &&
+                        <p data-episode-grid-item-filename className="text-xs tracking-wider opacity-75 line-clamp-1 mt-1">{fileName}</p>}
                     {children && children}
                 </div>
             </div>

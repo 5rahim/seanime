@@ -14,11 +14,11 @@ import {
     __onlinestream_selectedServerAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { logger, useLatestFunction } from "@/lib/helpers/debug"
+import { usePathname, useRouter, useSearchParams } from "@/lib/navigation.ts"
 import { MediaPlayerInstance } from "@vidstack/react"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { uniq } from "lodash"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
 

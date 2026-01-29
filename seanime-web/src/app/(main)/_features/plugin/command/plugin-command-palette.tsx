@@ -1,7 +1,7 @@
 import { CommandDialog, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { useUpdateEffect } from "@/components/ui/core/hooks"
+import { usePathname, useRouter } from "@/lib/navigation.ts"
 import mousetrap from "mousetrap"
-import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { PluginProvider, registry, RenderPluginComponents } from "../components/registry"
 import {

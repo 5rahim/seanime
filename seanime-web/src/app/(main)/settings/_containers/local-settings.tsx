@@ -8,7 +8,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import React from "react"
-import { LuCloudUpload, LuDatabase, LuUserCog } from "react-icons/lu"
+import { LuCloudUpload, LuUserCog } from "react-icons/lu"
 
 type Props = {
     isPending: boolean

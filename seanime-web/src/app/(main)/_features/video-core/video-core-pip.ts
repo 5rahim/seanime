@@ -34,7 +34,6 @@ export class VideoCorePipManager extends EventTarget {
     private isSyncingFromMain = false
     private isSyncingFromPip = false
     private playbackInfo: VideoCore_VideoPlaybackInfo | null = null
-    private _isPip = false
 
     constructor(onPipElementChange: (element: HTMLVideoElement | null) => void) {
         super()
@@ -56,11 +55,18 @@ export class VideoCorePipManager extends EventTarget {
         // }, { signal: this.controller.signal })
     }
 
+    private _isPip = false
+
+    get isPip(): boolean {
+        return this._isPip
+    }
+
     addEventListener<K extends keyof VideoCorePipManagerEventMap>(
         type: K,
         listener: (this: VideoCorePipManager, ev: VideoCorePipManagerEventMap[K]) => any,
         options?: boolean | AddEventListenerOptions,
     ): void
+
     addEventListener(
         type: string,
         listener: EventListenerOrEventListenerObject,
@@ -80,6 +86,7 @@ export class VideoCorePipManager extends EventTarget {
         listener: (this: VideoCorePipManager, ev: VideoCorePipManagerEventMap[K]) => any,
         options?: boolean | EventListenerOptions,
     ): void
+
     removeEventListener(
         type: string,
         listener: EventListenerOrEventListenerObject,
@@ -114,10 +121,6 @@ export class VideoCorePipManager extends EventTarget {
 
     setMediaCaptionsManager(mediaCaptionsManager: MediaCaptionsManager) {
         this.mediaCaptionsManager = mediaCaptionsManager
-    }
-
-    get isPip(): boolean {
-        return this._isPip
     }
 
     togglePip(enable?: boolean) {
@@ -226,7 +229,6 @@ export class VideoCorePipManager extends EventTarget {
         })
         return element
     }
-
 
 
     private renderToCanvas = (

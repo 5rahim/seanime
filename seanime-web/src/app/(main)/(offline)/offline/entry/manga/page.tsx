@@ -1,24 +1,25 @@
-"use client"
-
 import { useGetMangaEntry } from "@/api/hooks/manga.hooks"
 import { OfflineMetaSection } from "@/app/(main)/(offline)/offline/entry/_components/offline-meta-section"
 import { OfflineChapterList } from "@/app/(main)/(offline)/offline/entry/manga/_components/offline-chapter-list"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { PageWrapper } from "@/components/shared/page-wrapper"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname } from "@/lib/navigation.ts"
+import { useRouter, useSearchParams } from "@/lib/navigation.ts"
 import React from "react"
 
 export default function Page() {
     const router = useRouter()
     const mediaId = useSearchParams().get("id")
+    const pathname = usePathname()
 
     const { data: mangaEntry, isLoading: mangaEntryLoading } = useGetMangaEntry(mediaId)
 
     React.useEffect(() => {
+        if (!pathname.startsWith("/offline/entry/manga")) return
         if (!mediaId || (!mangaEntryLoading && !mangaEntry)) {
             router.push("/offline")
         }
-    }, [mangaEntry, mangaEntryLoading])
+    }, [mangaEntry, mangaEntryLoading, pathname])
 
     if (mangaEntryLoading) return <MediaEntryPageLoadingDisplay />
     if (!mangaEntry) return null

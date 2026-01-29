@@ -1,4 +1,4 @@
-"use client"
+
 
 import { Report_IssueReport } from "@/api/generated/types"
 import { ScanLogViewer } from "@/app/scan-log-viewer/scan-log-viewer"

@@ -4,7 +4,7 @@ import { LibraryExplorer } from "@/app/(main)/_features/library-explorer/library
 import { libraryExplorer_drawerOpenAtom } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import { cn } from "@/components/ui/core/styling"
 import { Vaul, VaulContent } from "@/components/vaul"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom } from "jotai/react"
 import React from "react"

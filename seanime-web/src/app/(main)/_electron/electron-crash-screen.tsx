@@ -1,5 +1,3 @@
-"use client"
-
 import { Alert } from "@/components/ui/alert"
 import React from "react"
 

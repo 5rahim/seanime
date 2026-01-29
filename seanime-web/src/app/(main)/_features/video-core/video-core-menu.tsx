@@ -378,17 +378,17 @@ export function VideoCoreSettingSelect(props: VideoCoreSettingSelectProps) {
                         <span className="flex-1" data-vc-element="setting-select-option-separator"></span>
                         {(option.moreInfo || option.description) &&
                             <div className="w-fit flex-none ml-2 flex gap-2 items-center" data-vc-element="setting-select-option-description">
-                            {option.moreInfo && <span className="text-xs font-medium tracking-wide text-[--muted]">
-                                {option.moreInfo}
-                            </span>}
-                            {option.description && <Tooltip
-                                trigger={<AiFillInfoCircle className="text-sm" />}
-                                portalContainer={isFullscreen ? containerElement || undefined : undefined}
-                                className="z-[150]"
-                            >
-                                {option.description}
-                            </Tooltip>}
-                        </div>}
+                                {option.moreInfo && <span className="text-xs font-medium tracking-wide text-[--muted]">
+                                    {option.moreInfo}
+                                </span>}
+                                {option.description && <Tooltip
+                                    trigger={<AiFillInfoCircle className="text-sm" />}
+                                    portalContainer={isFullscreen ? containerElement || undefined : undefined}
+                                    className="z-[150]"
+                                >
+                                    {option.description}
+                                </Tooltip>}
+                            </div>}
                     </div>
 
                 </div>

@@ -1,5 +1,3 @@
-"use client"
-
 import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core"
 import { IconButton } from "@/components/ui/button"
 import { useAtomValue } from "jotai"

@@ -205,10 +205,6 @@ export class MediaCaptionsManager extends EventTarget {
         this._onSelectedTrackChanged = callback
     }
 
-    private _setSubtitleDelay(delay: number) {
-        this.subtitleDelay = delay
-    }
-
     public getTracks(): MediaCaptionsTrack[] {
         return this.loadedTracks.map((loadedTrack, index) => {
             return {
@@ -438,6 +434,43 @@ export class MediaCaptionsManager extends EventTarget {
         return this.currentTrackIndex
     }
 
+    public destroy() {
+        log.info("Destroying media-captions manager")
+
+        if (this.timeUpdateListener) {
+            this.videoElement.removeEventListener("timeupdate", this.timeUpdateListener)
+            this.timeUpdateListener = null
+        }
+
+        if (this.renderer) {
+            this.renderer.destroy()
+            this.renderer = null
+        }
+
+        if (this.overlayElement) {
+            this.overlayElement.remove()
+            this.overlayElement = null
+        }
+
+        if (this.wrapperElement) {
+            this.wrapperElement.remove()
+            this.wrapperElement = null
+        }
+
+        this.loadedTracks = []
+        this.tracks = []
+        this.currentTrackIndex = NO_TRACK_IDX
+
+        const event: MediaCaptionsDestroyedEvent = new CustomEvent("destroyed")
+        this.dispatchEvent(event)
+    }
+
+    private _setSubtitleDelay(delay: number) {
+        this.subtitleDelay = delay
+    }
+
+    // Adds a new subtitle track and selects it AFTER initialization
+
     private applyCaptionStyles() {
         if (!this.overlayElement) return
 
@@ -505,8 +538,6 @@ export class MediaCaptionsManager extends EventTarget {
         }
     }
 
-    // Adds a new subtitle track and selects it AFTER initialization
-
     // Called after selecting a non-translated file and shouldTranslate is true.
     private _translateFileTrack(trackNumber: number) {
         if (!this.shouldTranslate) return
@@ -549,37 +580,6 @@ export class MediaCaptionsManager extends EventTarget {
         // Send server translate request
         this.sendTranslateRequest(undefined, { index: trackNumber, ...trackToTranslate })
         log.info("Sent translate request for track", trackNumber, this.shouldTranslate)
-    }
-
-    public destroy() {
-        log.info("Destroying media-captions manager")
-
-        if (this.timeUpdateListener) {
-            this.videoElement.removeEventListener("timeupdate", this.timeUpdateListener)
-            this.timeUpdateListener = null
-        }
-
-        if (this.renderer) {
-            this.renderer.destroy()
-            this.renderer = null
-        }
-
-        if (this.overlayElement) {
-            this.overlayElement.remove()
-            this.overlayElement = null
-        }
-
-        if (this.wrapperElement) {
-            this.wrapperElement.remove()
-            this.wrapperElement = null
-        }
-
-        this.loadedTracks = []
-        this.tracks = []
-        this.currentTrackIndex = NO_TRACK_IDX
-
-        const event: MediaCaptionsDestroyedEvent = new CustomEvent("destroyed")
-        this.dispatchEvent(event)
     }
 
     private async init() {

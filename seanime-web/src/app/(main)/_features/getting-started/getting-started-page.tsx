@@ -3,11 +3,13 @@ import { useGettingStarted } from "@/api/hooks/settings.hooks"
 import { useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
+import { SeaImage as Image } from "@/components/shared/sea-image"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardProps } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
+import { useRouter } from "@/lib/navigation.ts"
 import {
     DEFAULT_TORRENT_PROVIDER,
     getDefaultIinaSocket,
@@ -18,8 +20,6 @@ import {
 } from "@/lib/server/settings"
 import { __isDesktop__, __isElectronDesktop__ } from "@/types/constants"
 import { AnimatePresence, motion } from "motion/react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
 import React from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { BiChevronLeft, BiChevronRight, BiDownload, BiFolder, BiPlay, BiRocket } from "react-icons/bi"
@@ -362,11 +362,11 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                                 <Alert
                                     intent="info-basic"
                                     description={<p>For IINA to work correctly with Seanime, make sure <strong>Quit after all windows are
-                                        closed</strong> is <span
-                                            className="underline"
-                                        >checked</span> and <strong>Keep window open after playback
-                                            finishes</strong> is <span className="underline">unchecked</span> in
-                                        your IINA general settings.</p>}
+                                                                                                               closed</strong> is <span
+                                        className="underline"
+                                    >checked</span> and <strong>Keep window open after playback
+                                                                finishes</strong> is <span className="underline">unchecked</span> in
+                                                    your IINA general settings.</p>}
                                 />
                             </motion.div>
                         )}

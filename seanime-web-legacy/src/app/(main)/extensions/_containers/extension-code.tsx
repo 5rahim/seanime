@@ -1,0 +1,169 @@
+import { Extension_Extension } from "@/api/generated/types"
+import { useGetExtensionPayload, useUpdateExtensionCode } from "@/api/hooks/extensions.hooks"
+import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Modal } from "@/components/ui/modal"
+import { javascript } from "@codemirror/lang-javascript"
+import { StreamLanguage } from "@codemirror/language"
+import { go } from "@codemirror/legacy-modes/mode/go"
+import { unifiedMergeView } from "@codemirror/merge"
+import { vscodeDark } from "@uiw/codemirror-theme-vscode"
+import CodeMirror, { EditorView } from "@uiw/react-codemirror"
+import React, { useMemo } from "react"
+
+
+type ExtensionCodeModalProps = {
+    children?: React.ReactElement
+    extension: Extension_Extension
+    readOnly?: boolean
+    diff?: string
+}
+
+export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
+
+
+    return (
+        <Modal
+            contentClass="max-w-5xl"
+            trigger={props.children}
+            title="Code"
+            onInteractOutside={e => {
+                if (!props.readOnly) e.preventDefault()
+            }}
+            // size="xl"
+            // contentClass="space-y-4"
+        >
+            <Content {...props} />
+        </Modal>
+    )
+}
+
+function Content(props: ExtensionCodeModalProps) {
+    const {
+        extension,
+        readOnly,
+        diff,
+    } = props
+
+    const [code, setCode] = React.useState("")
+
+    const { data: payload, isLoading } = useGetExtensionPayload(extension.id)
+
+    React.useEffect(() => {
+        if (payload) {
+            setCode(payload)
+        }
+    }, [payload])
+
+    const { mutate: updateCode, isPending } = useUpdateExtensionCode()
+
+    React.useLayoutEffect(() => {
+        setCode(extension.payload)
+    }, [extension.payload])
+
+    function handleSave() {
+        if (isPending) {
+            return
+        }
+        if (code === extension.payload) {
+            return
+        }
+        if (code.length === 0) {
+            return
+        }
+        updateCode({
+            id: extension.id,
+            payload: code,
+        })
+    }
+
+    if (isLoading) {
+        return <LoadingSpinner />
+    }
+
+    return (
+        <>
+            <div>
+                <p>
+                    {extension.name}
+                </p>
+                {!readOnly && !diff && <div className="text-sm text-[--muted]">
+                    You can edit the code of the extension here.
+                </div>}
+            </div>
+            {!readOnly && <div className="flex">
+                <Button intent="white" loading={isPending} onClick={handleSave}>
+                    Save
+                </Button>
+                <div className="flex flex-1"></div>
+            </div>}
+            {!diff ? <ExtensionCodeEditor
+                code={code}
+                setCode={setCode}
+                language={extension.language}
+                readOnly={readOnly}
+            /> : <UnifiedDiff oldCode={diff} currentCode={code} />}
+        </>
+    )
+}
+
+
+function ExtensionCodeEditor({
+    code,
+    setCode,
+    language,
+    readOnly,
+}: { code: string, language: string, setCode: any, readOnly?: boolean }) {
+
+    return (
+        <div className="overflow-hidden rounded-[--radius-md]">
+            <CodeMirror
+                value={code}
+                height="75vh"
+                theme={vscodeDark}
+                extensions={[javascript({ typescript: language === "typescript" }), StreamLanguage.define(go)]}
+                onChange={setCode}
+                readOnly={readOnly}
+            />
+        </div>
+    )
+}
+
+interface Props {
+    oldCode: string;
+    currentCode: string;
+}
+
+export const UnifiedDiff = ({ oldCode, currentCode }: Props) => {
+    const extensions = useMemo(() => [
+        javascript({ typescript: true }),
+        unifiedMergeView({
+            original: oldCode,
+            highlightChanges: true,
+            gutter: true,
+            mergeControls: false,
+            // allowInlineDiffs: true,
+        }),
+    ], [oldCode])
+
+    const hideDiffStyles = EditorView.theme({
+        ".cm-changedText": {
+            background: "rgba(100, 160, 128, .1) !important",
+        },
+        ".cm-changedLine": {
+            background: "rgba(100, 160, 128, .06) !important",
+        },
+    })
+
+    return (
+        <div className="overflow-hidden rounded-[--radius-md]">
+            <CodeMirror
+                value={currentCode}
+                height="75vh"
+                theme={vscodeDark}
+                extensions={[hideDiffStyles, ...extensions]}
+                readOnly
+            />
+        </div>
+    )
+}
