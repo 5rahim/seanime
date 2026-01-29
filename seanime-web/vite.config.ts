@@ -1,10 +1,10 @@
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
-import { VitePWA } from "vite-plugin-pwa"
 import { tanstackRouter } from "@tanstack/router-vite-plugin"
+import react from "@vitejs/plugin-react"
 import path from "path"
+import { defineConfig } from "vite"
+import { VitePWA } from "vite-plugin-pwa"
 
-// https://vitejs.dev/config/
+// ref: https://vitejs.dev/config/
 export default defineConfig(() => {
     const isDesktop = process.env.VITE_PUBLIC_PLATFORM === "desktop"
     const isElectronDesktop = process.env.VITE_PUBLIC_DESKTOP === "electron"
@@ -12,9 +12,6 @@ export default defineConfig(() => {
 
     return {
         envPrefix: "VITE_PUBLIC_",
-        define: {
-            "process.env": {},
-        },
         plugins: [
             tanstackRouter({
                 routesDirectory: "./src/routes",
@@ -66,6 +63,9 @@ export default defineConfig(() => {
             alias: {
                 "@": path.resolve(__dirname, "./src"),
             },
+        },
+        worker: {
+            format: "es",
         },
         build: {
             outDir,

@@ -289,7 +289,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             fonts = [defaultFontUrl, ...fonts]
 
             // @ts-expect-error
-            const renderer = new LibASSTextRenderer(() => import("jassub"), {
+            const renderer = new LibASSTextRenderer(() => import("jassub-v1"), {
                 wasmUrl: wasmUrl,
                 workerUrl: workerUrl,
                 legacyWasmUrl: legacyWasmUrl,
