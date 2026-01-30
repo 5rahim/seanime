@@ -1,3 +1,4 @@
+import { VideoCore_InSightData } from "@/api/generated/types"
 import { MKVParser_TrackInfo, VideoCore_ClientEventType, VideoCore_PlaybackState, VideoCore_ServerEvent } from "@/api/generated/types"
 import {
     vc_activePlayerId,
@@ -9,6 +10,7 @@ import {
 import { Anime4KManagerOptionChangedEvent } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { AudioManagerHlsTrackChangedEvent, AudioManagerTrackChangedEvent } from "@/app/(main)/_features/video-core/video-core-audio"
 import { FullscreenManagerChangedEvent, vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
+import { useVideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight.tsx"
 import {
     MediaCaptionsTrackDeselectedEvent,
     MediaCaptionsTrackInfo,
@@ -100,6 +102,7 @@ export function useVideoCoreSetupEvents(id: string,
     const autoNext = useAtomValue(vc_autoNextAtom)
     const showOverlayFeedback = useSetAtom(vc_showOverlayFeedback)
     const { playEpisode: playPlaylistEpisode, playlistState } = useVideoCorePlaylist()
+    const { toggleOpen: toggleInSight, setData: setInSightData } = useVideoCoreInSight()
 
     // React.useEffect(() => {
     //     log.trace(activePlayer, id)
@@ -726,6 +729,10 @@ export function useVideoCoreSetupEvents(id: string,
                 case "translated-text":
                     const p = payload as { original: string, translated: string }
                     subtitleManager?.processEventTranslationQueue?.(p.original, p.translated)
+                    break
+                case "in-sight-data":
+                    log.info("In-sight data event received", payload)
+                    setInSightData((payload ?? null) as VideoCore_InSightData | null)
                     break
                 default:
                     log.warn("Unknown event received", type)

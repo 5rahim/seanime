@@ -646,6 +646,7 @@ function createMainWindow() {
     const windowOptions = {
         width: 800, height: 600, show: false,
         backgroundColor: "#111111",
+        acceptFirstMouse: false,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,

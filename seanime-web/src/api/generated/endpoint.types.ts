@@ -15,9 +15,9 @@ import type {
     Anime_PlaylistEpisode,
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
+    Debrid_TorrentItem,
     DebridClient_CancelStreamOptions,
     DebridClient_StreamPlaybackType,
-    Debrid_TorrentItem,
     HibikeTorrent_AnimeTorrent,
     HibikeTorrent_BatchEpisodeFiles,
     LibraryExplorer_SuperUpdateFileOptions,
@@ -1960,7 +1960,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 export type SearchTorrent_Variables = {
     /**
      *  "smart" or "simple"
-     *  
+     *
      *  "smart" or "simple"
      */
     type?: string
@@ -2033,7 +2033,7 @@ export type TorrentstreamStartStream_Variables = {
     batchEpisodeFiles?: HibikeTorrent_BatchEpisodeFiles
     /**
      *  Preload is true if the stream should only be prepared.
-     *  
+     *
      *  Preload is true if the stream should only be prepared.
      */
     preload?: boolean
@@ -2048,6 +2048,24 @@ export type TorrentstreamStartStream_Variables = {
  */
 export type GetTorrentstreamBatchHistory_Variables = {
     mediaId: number
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// videocore
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/videocore.go
+ * - Filename: videocore.go
+ * - Endpoint: /api/v1/videocore/insight/character/{malId}
+ * @description
+ * Route returns the character details.
+ */
+export type VideoCoreInSightGetCharacterDetails_Variables = {
+    /**
+     *  The MAL character ID
+     */
+    malId: number
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

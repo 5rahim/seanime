@@ -96,8 +96,8 @@ func New(opts NewVideoCoreOptions) *VideoCore {
 		playbackMkvEvents:           result.NewMap[uint64, []*mkvparser.SubtitleEvent](),
 	}
 	vc.Start()
-	//vc.inSight = NewInSight(opts.Logger, vc)
-	//vc.inSight.Start()
+	vc.inSight = NewInSight(opts.Logger, vc)
+	vc.inSight.Start()
 	return vc
 }
 
@@ -345,7 +345,7 @@ func (vc *VideoCore) clearPlayback() {
 	vc.setPlaybackStatus(nil)
 	vc.setPlaybackState(nil)
 	vc.playbackMkvEvents.Clear()
-	//vc.inSight.Clear()
+	vc.inSight.Clear()
 }
 
 func (vc *VideoCore) setPlaybackState(state *PlaybackState) {
@@ -539,6 +539,15 @@ func (vc *VideoCore) PlayPlaylistEpisode(which string) {
 		return
 	}
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventPlayPlaylistEpisode), which)
+}
+
+// SendInSightData sends InSight data for a playback session.
+func (vc *VideoCore) SendInSightData(data *InSightData) {
+	state, ok := vc.GetPlaybackState()
+	if !ok {
+		return
+	}
+	vc.sendPlayerEventTo(state.ClientId, string(ServerEventInSightData), data)
 }
 
 // Terminate sends a terminate command to the video player and clears the playback state.

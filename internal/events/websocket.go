@@ -232,7 +232,7 @@ func (m *WSEventManager) OnClientEvent(event *WebsocketClientEvent) {
 				case subscriber.Channel <- event:
 				default:
 					// Channel is blocked, skip sending
-					m.Logger.Warn().Msgf("ws: Client event channel is blocked, event dropped, %v", event)
+					m.Logger.Warn().Msgf("ws: Client event channel is blocked, event dropped, %v", subscriber)
 				}
 			}
 		}()

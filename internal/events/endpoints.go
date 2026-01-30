@@ -247,4 +247,5 @@ const (
 	UpdateMangaProgressEndpoint                        = "MANGA-update-manga-progress"
 	UpdatePlaylistEndpoint                             = "PLAYLIST-update-playlist"
 	UpdateThemeEndpoint                                = "THEME-update-theme"
+	VideoCoreInSightGetCharacterDetailsEndpoint        = "VIDEOCORE-video-core-in-sight-get-character-details"
 )

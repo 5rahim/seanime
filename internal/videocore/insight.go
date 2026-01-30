@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"regexp"
 	"seanime/internal/mkvparser"
+	"seanime/internal/util/limiter"
+	"seanime/internal/util/result"
 	"sort"
 	"strings"
 	"sync"
@@ -22,13 +24,15 @@ type InSight struct {
 	logger *zerolog.Logger
 	vc     *VideoCore
 
-	currentPosition int64
-	inSightData     *InSightData
-	mu              sync.RWMutex
-	characters      []*InSightCharacter
-	searchCache     []insightSearchEntry
-	processedCounts map[int]int
-	cancelPolling   context.CancelFunc
+	currentPosition       int64
+	inSightData           *InSightData
+	mu                    sync.RWMutex
+	characters            []*InSightCharacter
+	searchCache           []insightSearchEntry
+	processedCounts       map[int]int
+	cancelPolling         context.CancelFunc
+	rateLimiter           *limiter.Limiter
+	characterDetailsCache *result.BoundedCache[int, *InSightCharacterDetails]
 }
 
 type insightSearchEntry struct {
@@ -64,6 +68,29 @@ type InSightCharacter struct {
 	Favorites int    `json:"favorites"`
 }
 
+type InSightCharacterDetails struct {
+	MalID  int    `json:"mal_id"`
+	URL    string `json:"url"`
+	Images struct {
+		Jpg struct {
+			ImageUrl string `json:"image_url"`
+		} `json:"jpg"`
+		Webp struct {
+			ImageUrl      string `json:"image_url"`
+			SmallImageUrl string `json:"small_image_url"`
+		} `json:"webp"`
+	} `json:"images"`
+	Name      string   `json:"name"`
+	NameKanji string   `json:"name_kanji"`
+	Nicknames []string `json:"nicknames"`
+	Favorites int      `json:"favorites"`
+	About     string   `json:"about"`
+}
+
+type jikanCharacterFullResponse struct {
+	Data InSightCharacterDetails `json:"data"`
+}
+
 var (
 	JikanSeriesCharactersUrl = "https://api.jikan.moe/v4/anime/%d/characters"
 	JikanCharacterUrl        = "https://api.jikan.moe/v4/characters/%d/full"
@@ -73,11 +100,21 @@ var (
 
 func NewInSight(logger *zerolog.Logger, vc *VideoCore) *InSight {
 	return &InSight{
-		logger:          logger,
-		vc:              vc,
-		characters:      make([]*InSightCharacter, 0),
-		processedCounts: make(map[int]int),
+		logger:                logger,
+		vc:                    vc,
+		characters:            make([]*InSightCharacter, 0),
+		processedCounts:       make(map[int]int),
+		rateLimiter:           limiter.NewLimiter(1*time.Second, 3), // max 3 requests per second
+		characterDetailsCache: result.NewBoundedCache[int, *InSightCharacterDetails](100),
 	}
+}
+
+func (vc *VideoCore) InSight() *InSight {
+	return vc.inSight
+}
+
+func (is *InSight) sendToPlayer() {
+	is.vc.SendInSightData(is.inSightData)
 }
 
 func (is *InSight) Start() {
@@ -89,6 +126,8 @@ func (is *InSight) Start() {
 				go func(ev *VideoLoadedEvent) {
 					if ev.State.PlaybackInfo != nil && ev.State.PlaybackInfo.Media != nil && ev.State.PlaybackInfo.Media.IDMal != nil {
 						is.fetchCharacters(*ev.State.PlaybackInfo.Media.IDMal)
+						// send to player
+						is.sendToPlayer()
 						//is.startPolling() todo
 					}
 				}(e)
@@ -155,8 +194,6 @@ func (is *InSight) startPolling() {
 }
 
 func (is *InSight) stopPolling() {
-	is.mu.Lock()
-	defer is.mu.Unlock()
 	if is.cancelPolling != nil {
 		is.cancelPolling()
 		is.cancelPolling = nil
@@ -218,13 +255,14 @@ type jikanAnimeCharactersResponse struct {
 	} `json:"data"`
 }
 
-func (is *InSight) fetchCharacters(malID int) {
-	if malID == 0 {
+func (is *InSight) fetchCharacters(malId int) {
+	if malId == 0 {
 		return
 	}
-	is.logger.Debug().Int("malID", malID).Msg("insight: Fetching characters")
+	is.logger.Debug().Int("malId", malId).Msg("insight: Fetching characters")
 
-	resp, err := req.C().R().Get(fmt.Sprintf(JikanSeriesCharactersUrl, malID))
+	is.rateLimiter.Wait()
+	resp, err := req.C().R().Get(fmt.Sprintf(JikanSeriesCharactersUrl, malId))
 	if err != nil {
 		is.logger.Error().Err(err).Msg("insight: Failed to fetch characters")
 		return
@@ -495,5 +533,34 @@ func (is *InSight) Clear() {
 	is.characters = make([]*InSightCharacter, 0)
 	is.searchCache = make([]insightSearchEntry, 0)
 	is.processedCounts = make(map[int]int)
+	is.characterDetailsCache.Clear()
 	is.stopPolling()
+}
+
+func (is *InSight) GetCharacterInfo(malId int) (*InSightCharacterDetails, error) {
+	if cached, ok := is.characterDetailsCache.Get(malId); ok {
+		return cached, nil
+	}
+
+	is.logger.Debug().Int("malId", malId).Msg("insight: Fetching character info")
+
+	is.rateLimiter.Wait()
+
+	resp, err := req.C().R().Get(fmt.Sprintf(JikanCharacterUrl, malId))
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.IsErrorState() {
+		return nil, fmt.Errorf("failed to fetch character info: %s", resp.Status)
+	}
+
+	var data jikanCharacterFullResponse
+	if err := resp.UnmarshalJson(&data); err != nil {
+		return nil, err
+	}
+
+	is.characterDetailsCache.Set(malId, &data.Data)
+
+	return &data.Data, nil
 }

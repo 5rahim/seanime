@@ -5065,6 +5065,32 @@ export type VideoCore_InSightCharacter = {
  * - Filename: insight.go
  * - Package: videocore
  */
+export type VideoCore_InSightCharacterDetails = {
+    mal_id: number
+    url: string
+    images: VideoCore_InSightCharacterDetails_Images
+    name: string
+    name_kanji: string
+    nicknames?: Array<string>
+    favorites: number
+    about: string
+}
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightCharacterDetails_Images = {
+    jpg: { image_url: string; }
+    webp: { image_url: string; small_image_url: string; }
+}
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
 export type VideoCore_InSightCharacter_Images = {
     jpg: { image_url: string; }
     webp: { image_url: string; small_image_url: string; }
@@ -5157,6 +5183,7 @@ export type VideoCore_ServerEvent = "pause" |
     "get-text-tracks" |
     "request-play-episode" |
     "translated-text" |
+    "in-sight-data" |
     "get-fullscreen" |
     "get-pip" |
     "get-anime-4k" |

@@ -10908,6 +10908,46 @@
     }
   },
   {
+    "name": "HandleVideoCoreInSightGetCharacterDetails",
+    "trimmedName": "VideoCoreInSightGetCharacterDetails",
+    "comments": [
+      "HandleVideoCoreInSightGetCharacterDetails",
+      "",
+      "\t@summary returns the character details.",
+      "\t@param malId - int - true - \"The MAL character ID\"",
+      "\t@returns videocore.InSightCharacterDetails",
+      "\t@route /api/v1/videocore/insight/character/{malId} [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/videocore.go",
+    "filename": "videocore.go",
+    "api": {
+      "summary": "returns the character details.",
+      "descriptions": [],
+      "endpoint": "/api/v1/videocore/insight/character/{malId}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "malId",
+          "jsonName": "malId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "The MAL character ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "videocore.InSightCharacterDetails",
+      "returnGoType": "videocore.InSightCharacterDetails",
+      "returnTypescriptType": "VideoCore_InSightCharacterDetails"
+    }
+  },
+  {
     "name": "webSocketEventHandler",
     "trimmedName": "webSocketEventHandler",
     "comments": [

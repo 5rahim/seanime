@@ -2248,5 +2248,12 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/torrentstream/batch-history",
         },
     },
+    VIDEOCORE: {
+        VideoCoreInSightGetCharacterDetails: {
+            key: "VIDEOCORE-video-core-in-sight-get-character-details",
+            methods: ["GET"],
+            endpoint: "/api/v1/videocore/insight/character/{malId}",
+        },
+    },
 } satisfies ApiEndpoints
 

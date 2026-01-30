@@ -449,6 +449,11 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.POST("/directstream/subs/convert-subs", h.HandleDirectstreamConvertSubs)
 
 	//
+	// VideoCore
+	//
+	v1.GET("/videocore/insight/character/:malId", h.HandleVideoCoreInSightGetCharacterDetails)
+
+	//
 	// Torrent stream
 	//
 	v1.GET("/torrentstream/settings", h.HandleGetTorrentstreamSettings)

@@ -68,12 +68,14 @@ export function useSaveAutoDownloaderSettings() {
 }
 
 export function useSaveMediaPlayerSettings() {
+    const queryClient = useQueryClient()
     return useServerMutation<boolean, SaveMediaPlayerSettings_Variables>({
         endpoint: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.endpoint,
         method: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.methods[0],
         mutationKey: [API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.key],
         onSuccess: async () => {
-
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SETTINGS.GetSettings.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
         },
     })
 }

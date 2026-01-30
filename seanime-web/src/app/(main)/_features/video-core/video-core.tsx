@@ -32,6 +32,9 @@ import {
     vc_hlsSetAudioTrack,
     vc_hlsSetQuality,
 } from "@/app/(main)/_features/video-core/video-core-hls"
+import { vc_inSight_data } from "@/app/(main)/_features/video-core/video-core-in-sight.tsx"
+import { vc_inSight_open } from "@/app/(main)/_features/video-core/video-core-in-sight.tsx"
+import { VideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight.tsx"
 import { useVideoCoreIOSFullscreenSubtitles } from "@/app/(main)/_features/video-core/video-core-ios-fullscreen-subtitles"
 import { MediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core-media-captions"
 import { vc_mediaSessionManager, VideoCoreMediaSessionManager } from "@/app/(main)/_features/video-core/video-core-media-session"
@@ -306,6 +309,8 @@ interface PlayerContentProps {
     combineRef: (instance: HTMLVideoElement | null) => void
     combineContainerRef: (instance: HTMLDivElement | null) => void
     handleContainerPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void
+    handleContainerMouseEnter: () => void
+    handleContainerMouseLeave: () => void
     handleClick: (e: React.MouseEvent<HTMLDivElement>) => void
     handleLoadedMetadata: (e: React.SyntheticEvent<HTMLVideoElement>) => void
     handleTimeUpdate: (e: React.SyntheticEvent<HTMLVideoElement>) => void
@@ -334,6 +339,8 @@ const PlayerContent = React.memo<PlayerContentProps>(({
     combineRef,
     combineContainerRef,
     handleContainerPointerMove,
+    handleContainerMouseEnter,
+    handleContainerMouseLeave,
     handleClick,
     handleLoadedMetadata,
     handleTimeUpdate,
@@ -403,6 +410,8 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                     (!busy && !isMiniPlayer) && "cursor-none",
                 )}
                 onPointerMove={handleContainerPointerMove}
+                onMouseEnter={handleContainerMouseEnter}
+                onMouseLeave={handleContainerMouseLeave}
             >
                 {(!!state.playbackInfo?.streamUrl && !state.loadingState) ? (
                     <>
@@ -486,6 +495,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                                 preload="auto"
                                 src={streamUrl && !streamUrl.includes(".m3u8") ? streamUrl : undefined}
                                 ref={combineRef}
+                                tabIndex={0}
                                 onLoadedMetadata={handleLoadedMetadata}
                                 onTimeUpdate={handleTimeUpdate}
                                 onEnded={handleEnded}
@@ -505,6 +515,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                                 controls={false}
                                 style={{
                                     border: "none",
+                                    outline: "none",
                                     width: "100%",
                                     height: "100%",
                                     objectFit: "contain",
@@ -526,6 +537,8 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                                 ))}
                             </video>
                         </div>
+
+                        {!isMobile && <VideoCoreInSight />}
 
                         {!isMobile && <VideoCoreTopSection inline={inline}>
                             <VideoCoreTopPlaybackInfo state={state} />
@@ -729,6 +742,8 @@ export function VideoCore(props: VideoCoreProps) {
     const setIsFullscreen = useSetAtom(vc_isFullscreen)
     const [mediaSessionManager, setMediaSessionManager] = useAtom(vc_mediaSessionManager)
     const action = useSetAtom(vc_dispatchAction)
+    const setInSightOpen = useSetAtom(vc_inSight_open)
+    const setInSightData = useSetAtom(vc_inSight_data)
 
     // States
     const qc = useQueryClient()
@@ -899,6 +914,8 @@ export function VideoCore(props: VideoCoreProps) {
             setPipElement(null)
             fullscreenManager?.destroy?.()
             setFullscreenManager(null)
+            setInSightOpen(false)
+            setInSightData(null)
             // setIsFullscreen(false)
             if (mediaSessionManager) {
                 mediaSessionManager.setVideo(null)
@@ -913,6 +930,8 @@ export function VideoCore(props: VideoCoreProps) {
         if (!!state.playbackInfo?.id && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
             hasSoughtRef.current = false
             isFirstError.current = true
+            setInSightOpen(false)
+            setInSightData(null)
             log.info("New stream loaded", state.playbackInfo)
             setStreamType(state.playbackInfo.streamType)
             vc_logGeneralInfo(videoRef.current)
@@ -1436,6 +1455,8 @@ export function VideoCore(props: VideoCoreProps) {
     // container events
     const setNotBusyTimeout = React.useRef<NodeJS.Timeout | null>(null)
     const lastPointerPosition = React.useRef({ x: 0, y: 0 })
+    const isHoveringContainer = React.useRef(false)
+
     const handleContainerPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
         const { x, y } = e.nativeEvent
         const dx = x - lastPointerPosition.current.x
@@ -1452,6 +1473,32 @@ export function VideoCore(props: VideoCoreProps) {
         }, DELAY_BEFORE_NOT_BUSY)
         lastPointerPosition.current = { x, y }
     }
+
+    const handleContainerMouseEnter = () => {
+        isHoveringContainer.current = true
+        if (videoRef.current && state.active) {
+            videoRef.current.focus()
+        }
+    }
+
+    const handleContainerMouseLeave = () => {
+        isHoveringContainer.current = false
+    }
+
+    // Focus video element when window regains focus, but only if hovering
+    React.useEffect(() => {
+        const handleWindowFocus = () => {
+            if (videoRef.current && state.active && isHoveringContainer.current) {
+                videoRef.current.focus()
+                setBusy(false)
+            }
+        }
+
+        window.addEventListener("focus", handleWindowFocus)
+        return () => {
+            window.removeEventListener("focus", handleWindowFocus)
+        }
+    }, [state.active])
 
     const chapterCues = useMemo(() => {
             if (!duration || duration <= 1) return []
@@ -1506,6 +1553,8 @@ export function VideoCore(props: VideoCoreProps) {
                         combineRef={combineRef}
                         combineContainerRef={combineContainerRef}
                         handleContainerPointerMove={handleContainerPointerMove}
+                        handleContainerMouseEnter={handleContainerMouseEnter}
+                        handleContainerMouseLeave={handleContainerMouseLeave}
                         handleClick={handleClick}
                         handleLoadedMetadata={handleLoadedMetadata}
                         handleTimeUpdate={handleTimeUpdate}
@@ -1584,6 +1633,8 @@ export function VideoCore(props: VideoCoreProps) {
                         combineRef={combineRef}
                         combineContainerRef={combineContainerRef}
                         handleContainerPointerMove={handleContainerPointerMove}
+                        handleContainerMouseEnter={handleContainerMouseEnter}
+                        handleContainerMouseLeave={handleContainerMouseLeave}
                         handleClick={handleClick}
                         handleLoadedMetadata={handleLoadedMetadata}
                         handleTimeUpdate={handleTimeUpdate}

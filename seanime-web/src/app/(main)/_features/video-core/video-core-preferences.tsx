@@ -12,6 +12,7 @@ import {
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
+import { useVideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight.tsx"
 import { useVideoCoreOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import {
@@ -464,6 +465,16 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                         handleKeyRecord={handleKeyRecord}
                                         formatKeyDisplay={formatKeyDisplay}
                                     />
+                                    <KeybindingRow
+                                        action="Display Characters"
+                                        description="Toggle characters panel"
+                                        actionKey="openInSight"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
                                 </div>
                             </div>
 
@@ -667,54 +678,59 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                             label="Target Language"
                                             name="vcTranslateTargetLanguage"
                                             options={[
-                                                { value: "en", label: "English" },
+                                                // DeepL
+                                                { value: "en-US", label: "English (US)" },
+                                                { value: "en-GB", label: "English (UK)" },
                                                 { value: "es", label: "Spanish" },
                                                 { value: "fr", label: "French" },
                                                 { value: "de", label: "German" },
                                                 { value: "it", label: "Italian" },
-                                                { value: "pt", label: "Portuguese" },
+                                                { value: "pt-BR", label: "Portuguese (BR)" },
+                                                { value: "pt-PT", label: "Portuguese (PT)" },
                                                 { value: "ru", label: "Russian" },
                                                 { value: "ja", label: "Japanese" },
                                                 { value: "ko", label: "Korean" },
-                                                { value: "zh", label: "Chinese" },
+                                                { value: "zh-hans", label: "Chinese (Simplified)" },
+                                                { value: "zh-hant", label: "Chinese (Traditional)" },
                                                 { value: "ar", label: "Arabic" },
-                                                { value: "hi", label: "Hindi" },
                                                 { value: "tr", label: "Turkish" },
                                                 { value: "pl", label: "Polish" },
                                                 { value: "nl", label: "Dutch" },
                                                 { value: "sv", label: "Swedish" },
-                                                { value: "no", label: "Norwegian" },
+                                                { value: "nb", label: "Norwegian" },
                                                 { value: "da", label: "Danish" },
                                                 { value: "fi", label: "Finnish" },
                                                 { value: "el", label: "Greek" },
                                                 { value: "cs", label: "Czech" },
                                                 { value: "hu", label: "Hungarian" },
                                                 { value: "ro", label: "Romanian" },
-                                                { value: "th", label: "Thai" },
-                                                { value: "vi", label: "Vietnamese" },
                                                 { value: "id", label: "Indonesian" },
-                                                { value: "ms", label: "Malay" },
                                                 { value: "uk", label: "Ukrainian" },
                                                 { value: "bg", label: "Bulgarian" },
-                                                { value: "hr", label: "Croatian" },
-                                                { value: "sr", label: "Serbian" },
                                                 { value: "sk", label: "Slovak" },
                                                 { value: "sl", label: "Slovenian" },
                                                 { value: "et", label: "Estonian" },
                                                 { value: "lv", label: "Latvian" },
                                                 { value: "lt", label: "Lithuanian" },
-                                                { value: "he", label: "Hebrew" },
-                                                { value: "fa", label: "Persian" },
+                                                // Not currently supported by DeepL
+                                                { value: "hi", label: "Hindi" },
                                                 { value: "bn", label: "Bengali" },
-                                                { value: "ur", label: "Urdu" },
                                                 { value: "ta", label: "Tamil" },
                                                 { value: "te", label: "Telugu" },
                                                 { value: "mr", label: "Marathi" },
                                                 { value: "kn", label: "Kannada" },
                                                 { value: "ml", label: "Malayalam" },
                                                 { value: "pa", label: "Punjabi" },
+                                                { value: "fa", label: "Persian" },
+                                                { value: "ur", label: "Urdu" },
                                                 { value: "sw", label: "Swahili" },
                                                 { value: "af", label: "Afrikaans" },
+                                                { value: "ms", label: "Malay" },
+                                                { value: "hr", label: "Croatian" },
+                                                { value: "sr", label: "Serbian" },
+                                                { value: "he", label: "Hebrew" },
+                                                { value: "th", label: "Thai" },
+                                                { value: "vi", label: "Vietnamese" },
                                             ]}
                                             contentClass="z-[999]"
                                             help="Select the language you want subtitles to be translated to"
@@ -790,6 +806,7 @@ export function VideoCoreKeybindingController(props: {
     const setVolume = useSetAtom(vc_storedVolumeAtom)
     const muted = useAtomValue(vc_isMuted)
     const setMuted = useSetAtom(vc_storedMutedAtom)
+    const { toggleOpen: toggleInSight } = useVideoCoreInSight()
     const { showOverlayFeedback } = useVideoCoreOverlayFeedback()
 
     const action = useSetAtom(vc_dispatchAction)
@@ -1003,8 +1020,13 @@ export function VideoCoreKeybindingController(props: {
         } else if (e.code === keybindings.takeScreenshot.key) {
             e.preventDefault()
             takeScreenshot()
+        } else if (e.code === keybindings.openInSight.key) {
+            e.preventDefault()
+            toggleInSight()
         }
-    }, [keybindings, volume, muted, seek, active, fullscreen, pip, showOverlayFeedback, introEndTime, introStartTime, isKeybindingsModalOpen])
+        },
+        [keybindings, volume, muted, seek, active, fullscreen, pip, showOverlayFeedback, introEndTime, introStartTime, isKeybindingsModalOpen,
+            toggleInSight])
 
     // Keyboard shortcut handlers
     const handleNextChapter = useCallback(() => {

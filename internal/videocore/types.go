@@ -10,29 +10,44 @@ import (
 type ClientEventType string
 
 const (
-	PlayerEventVideoLoaded                ClientEventType = "video-loaded"
-	PlayerEventVideoLoadedMetadata        ClientEventType = "video-loaded-metadata"
-	PlayerEventVideoCanPlay               ClientEventType = "video-can-play"
-	PlayerEventVideoPaused                ClientEventType = "video-paused"
-	PlayerEventVideoResumed               ClientEventType = "video-resumed"
-	PlayerEventVideoStatus                ClientEventType = "video-status"
-	PlayerEventVideoCompleted             ClientEventType = "video-completed"
-	PlayerEventVideoFullscreen            ClientEventType = "video-fullscreen"
-	PlayerEventVideoPip                   ClientEventType = "video-pip"
-	PlayerEventVideoSubtitleTrack         ClientEventType = "video-subtitle-track"
-	PlayerEventMediaCaptionTrack          ClientEventType = "video-media-caption-track"
-	PlayerEventVideoSubtitleTrackContent  ClientEventType = "video-subtitle-track-content"
-	PlayerEventAnime4K                    ClientEventType = "video-anime-4k"
-	PlayerEventVideoAudioTrack            ClientEventType = "video-audio-track"
-	PlayerEventVideoEnded                 ClientEventType = "video-ended"
-	PlayerEventVideoSeeked                ClientEventType = "video-seeked"
-	PlayerEventVideoError                 ClientEventType = "video-error"
-	PlayerEventVideoTerminated            ClientEventType = "video-terminated"
-	PlayerEventVideoPlaybackState         ClientEventType = "video-playback-state"
-	PlayerEventSubtitleFileUploaded       ClientEventType = "subtitle-file-uploaded"
-	PlayerEventVideoPlaylist              ClientEventType = "video-playlist"
-	PlayerEventVideoTextTracks            ClientEventType = "video-text-tracks"
-	PlayerEventTranslateText              ClientEventType = "translate-text"
+	// Player is mounted, playback is about to start
+	PlayerEventVideoLoaded ClientEventType = "video-loaded"
+	// Player loaded metadata for playback
+	PlayerEventVideoLoadedMetadata ClientEventType = "video-loaded-metadata"
+	// Player is ready to play
+	PlayerEventVideoCanPlay    ClientEventType = "video-can-play"
+	PlayerEventVideoPaused     ClientEventType = "video-paused"
+	PlayerEventVideoResumed    ClientEventType = "video-resumed"
+	PlayerEventVideoStatus     ClientEventType = "video-status"
+	PlayerEventVideoCompleted  ClientEventType = "video-completed"
+	PlayerEventVideoFullscreen ClientEventType = "video-fullscreen"
+	PlayerEventVideoPip        ClientEventType = "video-pip"
+	// Subtitle track is selected
+	PlayerEventVideoSubtitleTrack ClientEventType = "video-subtitle-track"
+	// Caption track is selected
+	PlayerEventMediaCaptionTrack ClientEventType = "video-media-caption-track"
+	// Subtitle track content is sent
+	PlayerEventVideoSubtitleTrackContent ClientEventType = "video-subtitle-track-content"
+	// Anime4K option is changed
+	PlayerEventAnime4K ClientEventType = "video-anime-4k"
+	// Audio track is selected
+	PlayerEventVideoAudioTrack ClientEventType = "video-audio-track"
+	// Playback reached the end
+	PlayerEventVideoEnded  ClientEventType = "video-ended"
+	PlayerEventVideoSeeked ClientEventType = "video-seeked"
+	PlayerEventVideoError  ClientEventType = "video-error"
+	// Player unmounted (gracefully or fatal)
+	PlayerEventVideoTerminated ClientEventType = "video-terminated"
+	// Player sent type and playback info
+	PlayerEventVideoPlaybackState ClientEventType = "video-playback-state"
+	// Subtitle file was uploaded
+	PlayerEventSubtitleFileUploaded ClientEventType = "subtitle-file-uploaded"
+	PlayerEventVideoPlaylist        ClientEventType = "video-playlist"
+	// Player sent all text tracks
+	PlayerEventVideoTextTracks ClientEventType = "video-text-tracks"
+	// Request to translate text
+	PlayerEventTranslateText ClientEventType = "translate-text"
+	// Request to translate subtitle file track
 	PlayerEventTranslateSubtitleFileTrack ClientEventType = "translate-subtitle-file-track"
 )
 
@@ -410,6 +425,7 @@ const (
 	ServerEventGetTextTracks               ServerEvent = "get-text-tracks"
 	ServerEventRequestPlayEpisode          ServerEvent = "request-play-episode"
 	ServerEventTranslatedText              ServerEvent = "translated-text"
+	ServerEventInSightData                 ServerEvent = "in-sight-data"
 	// State requests
 	ServerEventGetFullscreen           ServerEvent = "get-fullscreen"
 	ServerEventGetPip                  ServerEvent = "get-pip"
