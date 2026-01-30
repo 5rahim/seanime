@@ -49194,6 +49194,17 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "scanning",
+        "jsonName": "scanning",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -87767,6 +87778,283 @@
     "comments": []
   },
   {
+    "filepath": "../internal/videocore/insight.go",
+    "filename": "insight.go",
+    "name": "InSight",
+    "formattedName": "VideoCore_InSight",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vc",
+        "jsonName": "vc",
+        "goType": "VideoCore",
+        "typescriptType": "VideoCore_VideoCore",
+        "usedTypescriptType": "VideoCore_VideoCore",
+        "usedStructName": "videocore.VideoCore",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentPosition",
+        "jsonName": "currentPosition",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "inSightData",
+        "jsonName": "inSightData",
+        "goType": "InSightData",
+        "typescriptType": "VideoCore_InSightData",
+        "usedTypescriptType": "VideoCore_InSightData",
+        "usedStructName": "videocore.InSightData",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "characters",
+        "jsonName": "characters",
+        "goType": "[]InSightCharacter",
+        "typescriptType": "Array\u003cVideoCore_InSightCharacter\u003e",
+        "usedTypescriptType": "VideoCore_InSightCharacter",
+        "usedStructName": "videocore.InSightCharacter",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "searchCache",
+        "jsonName": "searchCache",
+        "goType": "[]insightSearchEntry",
+        "typescriptType": "Array\u003cVideoCore_insightSearchEntry\u003e",
+        "usedTypescriptType": "VideoCore_insightSearchEntry",
+        "usedStructName": "videocore.insightSearchEntry",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "processedCounts",
+        "jsonName": "processedCounts",
+        "goType": "map[int]int",
+        "typescriptType": "Record\u003cnumber, number\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancelPolling",
+        "jsonName": "cancelPolling",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " InSight returns the characters for any given anime.",
+      " It maps specific characters to a window of time where they appear in the subtitles (ASS character) or are mentioned by other characters.",
+      " This allows the frontend to show all characters and highlight characters based on the current playback position."
+    ]
+  },
+  {
+    "filepath": "../internal/videocore/insight.go",
+    "filename": "insight.go",
+    "name": "InSightData",
+    "formattedName": "VideoCore_InSightData",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "Characters",
+        "jsonName": "characters",
+        "goType": "[]InSightCharacter",
+        "typescriptType": "Array\u003cVideoCore_InSightCharacter\u003e",
+        "usedTypescriptType": "VideoCore_InSightCharacter",
+        "usedStructName": "videocore.InSightCharacter",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Suggestions",
+        "jsonName": "suggestions",
+        "goType": "[]InSightSegment",
+        "typescriptType": "Array\u003cVideoCore_InSightSegment\u003e",
+        "usedTypescriptType": "VideoCore_InSightSegment",
+        "usedStructName": "videocore.InSightSegment",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/videocore/insight.go",
+    "filename": "insight.go",
+    "name": "InSightSegment",
+    "formattedName": "VideoCore_InSightSegment",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "CharacterId",
+        "jsonName": "characterId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartTime",
+        "jsonName": "startTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EndTime",
+        "jsonName": "endTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/videocore/insight.go",
+    "filename": "insight.go",
+    "name": "InSightCharacter",
+    "formattedName": "VideoCore_InSightCharacter",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "MalID",
+        "jsonName": "mal_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "URL",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Images",
+        "jsonName": "images",
+        "goType": "VideoCore_InSightCharacter_Images",
+        "inlineStructType": "struct{\nJpg __STRUCT__ `json:\"jpg\"`\nWebp __STRUCT__ `json:\"webp\"`}",
+        "typescriptType": "VideoCore_InSightCharacter_Images",
+        "usedTypescriptType": "{ jpg: { image_url: string; }; webp: { image_url: string; small_image_url: string; }; }",
+        "usedStructName": "videocore.InSightCharacter_Images",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Role",
+        "jsonName": "role",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Favorites",
+        "jsonName": "favorites",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/videocore/insight.go",
+    "filename": "insight.go",
+    "name": "InSightCharacter_Images",
+    "formattedName": "VideoCore_InSightCharacter_Images",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "Jpg",
+        "jsonName": "jpg",
+        "goType": "__STRUCT__",
+        "inlineStructType": "struct{\nImageUrl string `json:\"image_url\"`}",
+        "typescriptType": "{ image_url: string; }",
+        "usedTypescriptType": "{ image_url: string; }",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Webp",
+        "jsonName": "webp",
+        "goType": "__STRUCT__",
+        "inlineStructType": "struct{\nImageUrl string `json:\"image_url\"`\nSmallImageUrl string `json:\"small_image_url\"`}",
+        "typescriptType": "{ image_url: string; small_image_url: string; }",
+        "usedTypescriptType": "{ image_url: string; small_image_url: string; }",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/videocore/subtitles.go",
     "filename": "subtitles.go",
     "name": "GenerateSubtitleFileOptions",
@@ -88027,6 +88315,7 @@
         "\"video-pip\"",
         "\"video-subtitle-track\"",
         "\"video-media-caption-track\"",
+        "\"video-subtitle-track-content\"",
         "\"video-anime-4k\"",
         "\"video-audio-track\"",
         "\"video-ended\"",
@@ -89351,6 +89640,46 @@
   {
     "filepath": "../internal/videocore/types.go",
     "filename": "types.go",
+    "name": "VideoSubtitleTrackContentEvent",
+    "formattedName": "VideoCore_VideoSubtitleTrackContentEvent",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "TrackNumber",
+        "jsonName": "trackNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Content",
+        "jsonName": "content",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "videocore.BaseVideoEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/videocore/types.go",
+    "filename": "types.go",
     "name": "VideoMediaCaptionTrackEvent",
     "formattedName": "VideoCore_VideoMediaCaptionTrackEvent",
     "package": "videocore",
@@ -89521,6 +89850,7 @@
         "\"get-pip\"",
         "\"get-anime-4k\"",
         "\"get-subtitle-track\"",
+        "\"get-subtitle-track-content\"",
         "\"get-audio-track\"",
         "\"get-media-caption-track\"",
         "\"get-playback-state\"",
@@ -89669,6 +89999,26 @@
         "typescriptType": "VideoCore_PlaybackState",
         "usedTypescriptType": "VideoCore_PlaybackState",
         "usedStructName": "videocore.PlaybackState",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playbackMkvEvents",
+        "jsonName": "playbackMkvEvents",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "inSight",
+        "jsonName": "inSight",
+        "goType": "InSight",
+        "typescriptType": "VideoCore_InSight",
+        "usedTypescriptType": "VideoCore_InSight",
+        "usedStructName": "videocore.InSight",
         "required": false,
         "public": false,
         "comments": []

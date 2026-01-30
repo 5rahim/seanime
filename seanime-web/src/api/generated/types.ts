@@ -5032,6 +5032,7 @@ export type VideoCore_ClientEventType = "video-loaded" |
     "video-pip" |
     "video-subtitle-track" |
     "video-media-caption-track" |
+    "video-subtitle-track-content" |
     "video-anime-4k" |
     "video-audio-track" |
     "video-ended" |
@@ -5044,6 +5045,51 @@ export type VideoCore_ClientEventType = "video-loaded" |
     "video-text-tracks" |
     "translate-text" |
     "translate-subtitle-file-track"
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightCharacter = {
+    mal_id: number
+    url: string
+    images: VideoCore_InSightCharacter_Images
+    name: string
+    role: string
+    favorites: number
+}
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightCharacter_Images = {
+    jpg: { image_url: string; }
+    webp: { image_url: string; small_image_url: string; }
+}
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightData = {
+    characters?: Array<VideoCore_InSightCharacter>
+    suggestions?: Array<VideoCore_InSightSegment>
+}
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightSegment = {
+    characterId: number
+    startTime: number
+    endTime: number
+}
 
 /**
  * - Filepath: internal/videocore/types.go
@@ -5115,6 +5161,7 @@ export type VideoCore_ServerEvent = "pause" |
     "get-pip" |
     "get-anime-4k" |
     "get-subtitle-track" |
+    "get-subtitle-track-content" |
     "get-audio-track" |
     "get-media-caption-track" |
     "get-playback-state" |

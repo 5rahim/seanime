@@ -271,8 +271,9 @@ export class MediaCaptionsManager extends EventTarget {
             isTranslated = true
         }
 
-        this.tracks.push(track)
         const index = this.tracks.length - 1
+        track.index = index
+        this.tracks.push(track)
         this.loadedTracks.push({
             index: index,
             metadata: track,
@@ -284,6 +285,7 @@ export class MediaCaptionsManager extends EventTarget {
                 if (track.content && track.type === "vtt") return await parseText(track.content)
                 const vttContent = await this.fetchAndConvertToVTT(track.src, track.content)
                 if (!vttContent) return null
+                track.content = vttContent
                 return await parseText(vttContent)
             },
         })
@@ -432,6 +434,10 @@ export class MediaCaptionsManager extends EventTarget {
     public getSelectedTrackIndexOrNull() {
         if (this.currentTrackIndex === NO_TRACK_IDX) return null
         return this.currentTrackIndex
+    }
+
+    getTrackContent(idx: number): string | null {
+        return this.loadedTracks?.[idx]?.metadata?.content || null
     }
 
     public destroy() {
@@ -633,6 +639,7 @@ export class MediaCaptionsManager extends EventTarget {
                         if (track.content && track.type === "vtt") return await parseText(track.content)
                         const vttContent = await this.fetchAndConvertToVTT(track.src, track.content)
                         if (!vttContent) return null
+                        track.content = vttContent
                         return await parseText(vttContent)
                     },
                 })

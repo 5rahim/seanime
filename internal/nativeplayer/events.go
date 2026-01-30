@@ -33,6 +33,7 @@ func (p *NativePlayer) Watch(clientId string, playbackInfo *PlaybackInfo) {
 
 // SubtitleEvent sends the subtitle event to the client.
 func (p *NativePlayer) SubtitleEvent(clientId string, event *mkvparser.SubtitleEvent) {
+	p.videoCore.RecordEvent(event)
 	p.sendPlayerEventTo(clientId, string(ServerEventSubtitleEvent), event, true)
 }
 

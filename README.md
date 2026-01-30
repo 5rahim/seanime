@@ -102,17 +102,11 @@ The maintenance of this project is made possible by the sponsors.
 <!-- real-sponsors --><a href="https://github.com/TorBox-App"><img src="https:&#x2F;&#x2F;github.com&#x2F;TorBox-App.png" width="60px" alt="User avatar: TorBox-App" /></a><!-- real-sponsors -->
 </p>
 
-## Technology stack
+## Tech stack
 
-- The server is built with [Go](https://go.dev/)
-  - Web server powered by [Echo](https://echo.labstack.com/)
-  - Video filename parsing powered by [Habari](https://github.com/5rahim/habari)
-  - Javascript Plugin system powered by [Goja](https://github.com/dop251/goja)
-  - Database managed with [GORM](https://gorm.io/) and uses [SQLite](https://github.com/glebarez/sqlite)
-  - Torrent streaming powered by [anacrolix/torrent](https://github.com/anacrolix/torrent)
-  - Windows Systray managed by [Fyne](https://github.com/fyne-io/systray)
-- The Web app is built with [React](https://reactjs.org/), [Vite](https://vitejs.dev/), and [Tanstack Router](https://tanstack.com/router)
-- The Desktop client (which wraps the webapp and server) is built with a modified version of [Electron](https://www.electronjs.org/)/Chromium
+* Server: Built with [Go](https://go.dev/)
+* Frontend: Built with [React](https://reactjs.org/), [Vite](https://vitejs.dev/), and [Tanstack Router](https://tanstack.com/router)
+* Seanime Denshi: Built with a custom [Electron](https://www.electronjs.org/)/Chromium to support more codecs
 
 ## Development and Build
 

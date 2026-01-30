@@ -213,8 +213,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                 // side="right"
                                 label="Smart search"
                                 moreHelp={selectedProviderExtension?.settings?.canSmartSearch
-                                    ? "Automatically search based on given parameters"
-                                    : "This provider does not support smart search"}
+                                    ? "Automated search based on given parameters."
+                                    : "This provider does not support smart search."}
                                 value={searchType === Torrent_SearchType.SMART}
                                 onValueChange={v => setSearchType(v ? Torrent_SearchType.SMART : Torrent_SearchType.SIMPLE)}
                                 disabled={!selectedProviderExtension?.settings?.canSmartSearch}

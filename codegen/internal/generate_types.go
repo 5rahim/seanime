@@ -34,6 +34,7 @@ var additionalStructNames = []string{
 	"videocore.PlaybackState",
 	"plugin_ui.WebviewSlot",
 	"plugin_ui.WebviewOptions",
+	"videocore.InSightData",
 }
 
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.

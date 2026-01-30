@@ -21,6 +21,7 @@ const (
 	PlayerEventVideoPip                   ClientEventType = "video-pip"
 	PlayerEventVideoSubtitleTrack         ClientEventType = "video-subtitle-track"
 	PlayerEventMediaCaptionTrack          ClientEventType = "video-media-caption-track"
+	PlayerEventVideoSubtitleTrackContent  ClientEventType = "video-subtitle-track-content"
 	PlayerEventAnime4K                    ClientEventType = "video-anime-4k"
 	PlayerEventVideoAudioTrack            ClientEventType = "video-audio-track"
 	PlayerEventVideoEnded                 ClientEventType = "video-ended"
@@ -188,7 +189,12 @@ type (
 	}
 	clientVideoSubtitleTrackPayload struct {
 		TrackNumber int    `json:"trackNumber"`
-		Kind        string `json:"kind"`
+		Kind        string `json:"kind"` // file | event
+	}
+	clientVideoSubtitleTrackContentPayload struct {
+		TrackNumber int    `json:"trackNumber"`
+		Content     string `json:"content"`
+		Type        string `json:"type"`
 	}
 	clientVideoMediaCaptionTrackPayload struct {
 		TrackIndex int `json:"trackIndex"`
@@ -344,6 +350,12 @@ type (
 		TrackNumber int    `json:"trackNumber"`
 		Kind        string `json:"kind"` // "file" | "event"
 	}
+	VideoSubtitleTrackContentEvent struct {
+		BaseVideoEvent
+		TrackNumber int    `json:"trackNumber"`
+		Content     string `json:"content"`
+		Type        string `json:"type"`
+	}
 	VideoMediaCaptionTrackEvent struct {
 		BaseVideoEvent
 		TrackIndex int `json:"trackIndex"`
@@ -399,12 +411,13 @@ const (
 	ServerEventRequestPlayEpisode          ServerEvent = "request-play-episode"
 	ServerEventTranslatedText              ServerEvent = "translated-text"
 	// State requests
-	ServerEventGetFullscreen        ServerEvent = "get-fullscreen"
-	ServerEventGetPip               ServerEvent = "get-pip"
-	ServerEventGetAnime4K           ServerEvent = "get-anime-4k"
-	ServerEventGetSubtitleTrack     ServerEvent = "get-subtitle-track"
-	ServerEventGetAudioTrack        ServerEvent = "get-audio-track"
-	ServerEventGetMediaCaptionTrack ServerEvent = "get-media-caption-track"
-	ServerEventGetPlaybackState     ServerEvent = "get-playback-state"
-	ServerEventGetPlaylist          ServerEvent = "get-playlist"
+	ServerEventGetFullscreen           ServerEvent = "get-fullscreen"
+	ServerEventGetPip                  ServerEvent = "get-pip"
+	ServerEventGetAnime4K              ServerEvent = "get-anime-4k"
+	ServerEventGetSubtitleTrack        ServerEvent = "get-subtitle-track"
+	ServerEventGetSubtitleTrackContent ServerEvent = "get-subtitle-track-content"
+	ServerEventGetAudioTrack           ServerEvent = "get-audio-track"
+	ServerEventGetMediaCaptionTrack    ServerEvent = "get-media-caption-track"
+	ServerEventGetPlaybackState        ServerEvent = "get-playback-state"
+	ServerEventGetPlaylist             ServerEvent = "get-playlist"
 )

@@ -8,40 +8,40 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root"
-import { Route as MainRouteImport } from "./routes/_main"
-import { Route as MainAuthCallbackIndexRouteImport } from "./routes/_main/auth/callback/index"
-import { Route as MainAutoDownloaderIndexRouteImport } from "./routes/_main/auto-downloader/index"
-import { Route as MainCustomSourcesIndexRouteImport } from "./routes/_main/custom-sources/index"
-import { Route as MainDebridIndexRouteImport } from "./routes/_main/debrid/index"
-import { Route as MainDiscoverIndexRouteImport } from "./routes/_main/discover/index"
-import { Route as MainEntryIndexRouteImport } from "./routes/_main/entry/index"
-import { Route as MainErrorTestRouteImport } from "./routes/_main/error-test"
-import { Route as MainExtensionsIndexRouteImport } from "./routes/_main/extensions/index"
-import { Route as MainExtensionsPlaygroundIndexRouteImport } from "./routes/_main/extensions/playground/index"
-import { Route as MainIndexRouteImport } from "./routes/_main/index"
-import { Route as MainListsIndexRouteImport } from "./routes/_main/lists/index"
-import { Route as MainMangaEntryIndexRouteImport } from "./routes/_main/manga/entry/index"
-import { Route as MainMangaIndexRouteImport } from "./routes/_main/manga/index"
-import { Route as MainMedialinksIndexRouteImport } from "./routes/_main/medialinks/index"
-import { Route as MainMediastreamIndexRouteImport } from "./routes/_main/mediastream/index"
-import { Route as MainOfflineEntryAnimeIndexRouteImport } from "./routes/_main/offline/entry/anime/index"
-import { Route as MainOfflineEntryMangaIndexRouteImport } from "./routes/_main/offline/entry/manga/index"
-import { Route as MainOfflineIndexRouteImport } from "./routes/_main/offline/index"
-import { Route as MainOfflineMangaIndexRouteImport } from "./routes/_main/offline/manga/index"
-import { Route as MainQbittorrentIndexRouteImport } from "./routes/_main/qbittorrent/index"
-import { Route as MainScanSummariesIndexRouteImport } from "./routes/_main/scan-summaries/index"
-import { Route as MainScheduleIndexRouteImport } from "./routes/_main/schedule/index"
-import { Route as MainSearchIndexRouteImport } from "./routes/_main/search/index"
-import { Route as MainSettingsIndexRouteImport } from "./routes/_main/settings/index"
-import { Route as MainSyncIndexRouteImport } from "./routes/_main/sync/index"
-import { Route as MainTorrentListIndexRouteImport } from "./routes/_main/torrent-list/index"
-import { Route as AuthIndexRouteImport } from "./routes/auth/index"
-import { Route as DocsIndexRouteImport } from "./routes/docs/index"
-import { Route as IssueReportIndexRouteImport } from "./routes/issue-report/index"
-import { Route as ScanLogViewerIndexRouteImport } from "./routes/scan-log-viewer/index"
-import { Route as SplashscreenCrashIndexRouteImport } from "./routes/splashscreen/crash/index"
-import { Route as SplashscreenIndexRouteImport } from "./routes/splashscreen/index"
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as MainRouteImport } from './routes/_main'
+import { Route as SplashscreenIndexRouteImport } from './routes/splashscreen/index'
+import { Route as ScanLogViewerIndexRouteImport } from './routes/scan-log-viewer/index'
+import { Route as IssueReportIndexRouteImport } from './routes/issue-report/index'
+import { Route as DocsIndexRouteImport } from './routes/docs/index'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as MainIndexRouteImport } from './routes/_main/index'
+import { Route as MainErrorTestRouteImport } from './routes/_main/error-test'
+import { Route as SplashscreenCrashIndexRouteImport } from './routes/splashscreen/crash/index'
+import { Route as MainTorrentListIndexRouteImport } from './routes/_main/torrent-list/index'
+import { Route as MainSyncIndexRouteImport } from './routes/_main/sync/index'
+import { Route as MainSettingsIndexRouteImport } from './routes/_main/settings/index'
+import { Route as MainSearchIndexRouteImport } from './routes/_main/search/index'
+import { Route as MainScheduleIndexRouteImport } from './routes/_main/schedule/index'
+import { Route as MainScanSummariesIndexRouteImport } from './routes/_main/scan-summaries/index'
+import { Route as MainQbittorrentIndexRouteImport } from './routes/_main/qbittorrent/index'
+import { Route as MainOfflineIndexRouteImport } from './routes/_main/offline/index'
+import { Route as MainMediastreamIndexRouteImport } from './routes/_main/mediastream/index'
+import { Route as MainMedialinksIndexRouteImport } from './routes/_main/medialinks/index'
+import { Route as MainMangaIndexRouteImport } from './routes/_main/manga/index'
+import { Route as MainListsIndexRouteImport } from './routes/_main/lists/index'
+import { Route as MainExtensionsIndexRouteImport } from './routes/_main/extensions/index'
+import { Route as MainEntryIndexRouteImport } from './routes/_main/entry/index'
+import { Route as MainDiscoverIndexRouteImport } from './routes/_main/discover/index'
+import { Route as MainDebridIndexRouteImport } from './routes/_main/debrid/index'
+import { Route as MainCustomSourcesIndexRouteImport } from './routes/_main/custom-sources/index'
+import { Route as MainAutoDownloaderIndexRouteImport } from './routes/_main/auto-downloader/index'
+import { Route as MainOfflineMangaIndexRouteImport } from './routes/_main/offline/manga/index'
+import { Route as MainMangaEntryIndexRouteImport } from './routes/_main/manga/entry/index'
+import { Route as MainExtensionsPlaygroundIndexRouteImport } from './routes/_main/extensions/playground/index'
+import { Route as MainAuthCallbackIndexRouteImport } from './routes/_main/auth/callback/index'
+import { Route as MainOfflineEntryMangaIndexRouteImport } from './routes/_main/offline/entry/manga/index'
+import { Route as MainOfflineEntryAnimeIndexRouteImport } from './routes/_main/offline/entry/anime/index'
 
 const MainRoute = MainRouteImport.update({
   id: '/_main',

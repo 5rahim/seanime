@@ -252,6 +252,10 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         return this.currentTrackNumber
     }
 
+    getTrackContent(number: number): string | null {
+        return this.fileTracks[number]?.content || null
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Sets the track to no track.

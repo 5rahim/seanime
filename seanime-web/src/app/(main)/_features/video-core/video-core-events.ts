@@ -574,7 +574,7 @@ export function useVideoCoreSetupEvents(id: string,
                         }
                     }
                     break
-                case "add-subtitle-track":
+                case "add-subtitle-track": // not used
                     log.info("Add subtitle track event received", payload)
                     const subtitleTrack = payload as MKVParser_TrackInfo
                     if (subtitleManager) {
@@ -587,7 +587,7 @@ export function useVideoCoreSetupEvents(id: string,
                     if (subtitleManager) {
                         subtitleManager.addFileTrack(fileTrack)
                     } else if (mediaCaptionsManager) {
-                        mediaCaptionsManager.addCaptionTrack(fileTrack)
+                        mediaCaptionsManager.addCaptionTrack({ ...fileTrack })
                     }
                     showOverlayFeedback({ message: `Subtitle track added: ${fileTrack.label}`, type: "message", duration: 1500 })
                     break
@@ -602,7 +602,7 @@ export function useVideoCoreSetupEvents(id: string,
                         }
                     }
                     break
-                case "add-media-caption-track":
+                case "add-media-caption-track": // not used
                     log.info("Add media caption track event received", payload)
                     const track = payload as MediaCaptionsTrackInfo
                     if (mediaCaptionsManager) {
@@ -630,6 +630,25 @@ export function useVideoCoreSetupEvents(id: string,
                     log.info("Get audio track event received")
                     const trackNumber = audioManager?.getSelectedTrackNumberOrNull() ?? -1
                     sendEvent<VideoCoreAudioTrackEventPayload>("video-audio-track", { trackNumber: trackNumber, isHLS: audioManager?.isHLS ?? false })
+                    break
+                case "get-subtitle-track-content":
+                    log.info("Get subtitle track content event received")
+                    const number = payload as number
+                    if (subtitleManager) {
+                        const content = subtitleManager.getTrackContent(number)
+                        sendEvent("video-subtitle-track-content", {
+                            trackNumber: number,
+                            content: content ?? "",
+                            type: "ass",
+                        })
+                    } else if (mediaCaptionsManager) {
+                        const content = mediaCaptionsManager.getTrackContent(number)
+                        sendEvent("video-subtitle-track-content", {
+                            trackNumber: number,
+                            content: content ?? "",
+                            type: "vtt",
+                        })
+                    }
                     break
                 case "get-subtitle-track":
                     log.info("Get subtitle track event received")
