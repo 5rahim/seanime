@@ -19,7 +19,7 @@ const crossOriginIsolation = (): Plugin => ({
 export default defineConfig(() => {
     const isDesktop = process.env.VITE_PUBLIC_PLATFORM === "desktop"
     const isElectronDesktop = process.env.VITE_PUBLIC_DESKTOP === "electron"
-    const outDir = isDesktop ? (isElectronDesktop ? "out-denshi" : "out-desktop") : "out"
+    const outDir = isElectronDesktop ? "out-denshi" : "out"
 
     return {
         envPrefix: "VITE_PUBLIC_",
@@ -36,6 +36,7 @@ export default defineConfig(() => {
                 // disables precaching entirely to act as an online-only pwa
                 workbox: {
                     globPatterns: [],
+                    navigateFallback: "/index.html",
                 },
                 manifest: {
                     name: "Seanime",
@@ -91,15 +92,15 @@ export default defineConfig(() => {
                 output: {
                     manualChunks: (id) => {
                         if (id.includes("node_modules")) {
-                            if (
-                                id.includes("/node_modules/react/") ||
-                                id.includes("/node_modules/react-dom/") ||
-                                id.includes("/node_modules/react-compiler-runtime/") ||
-                                id.includes("/node_modules/scheduler/") ||
-                                id.includes("/node_modules/prop-types/")
-                            ) {
-                                return "react-vendor"
-                            }
+                            // if (
+                            //     id.includes("/node_modules/react/") ||
+                            //     id.includes("/node_modules/react-dom/") ||
+                            //     id.includes("/node_modules/react-compiler-runtime/") ||
+                            //     id.includes("/node_modules/scheduler/") ||
+                            //     id.includes("/node_modules/prop-types/")
+                            // ) {
+                            //     return "react-vendor"
+                            // }
 
                             if (id.includes("@tanstack")) {
                                 return "tanstack-vendor"

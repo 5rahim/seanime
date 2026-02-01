@@ -8,40 +8,40 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as MainRouteImport } from './routes/_main'
-import { Route as SplashscreenIndexRouteImport } from './routes/splashscreen/index'
-import { Route as ScanLogViewerIndexRouteImport } from './routes/scan-log-viewer/index'
-import { Route as IssueReportIndexRouteImport } from './routes/issue-report/index'
-import { Route as DocsIndexRouteImport } from './routes/docs/index'
-import { Route as AuthIndexRouteImport } from './routes/auth/index'
-import { Route as MainIndexRouteImport } from './routes/_main/index'
-import { Route as MainErrorTestRouteImport } from './routes/_main/error-test'
-import { Route as SplashscreenCrashIndexRouteImport } from './routes/splashscreen/crash/index'
-import { Route as MainTorrentListIndexRouteImport } from './routes/_main/torrent-list/index'
-import { Route as MainSyncIndexRouteImport } from './routes/_main/sync/index'
-import { Route as MainSettingsIndexRouteImport } from './routes/_main/settings/index'
-import { Route as MainSearchIndexRouteImport } from './routes/_main/search/index'
-import { Route as MainScheduleIndexRouteImport } from './routes/_main/schedule/index'
-import { Route as MainScanSummariesIndexRouteImport } from './routes/_main/scan-summaries/index'
-import { Route as MainQbittorrentIndexRouteImport } from './routes/_main/qbittorrent/index'
-import { Route as MainOfflineIndexRouteImport } from './routes/_main/offline/index'
-import { Route as MainMediastreamIndexRouteImport } from './routes/_main/mediastream/index'
-import { Route as MainMedialinksIndexRouteImport } from './routes/_main/medialinks/index'
-import { Route as MainMangaIndexRouteImport } from './routes/_main/manga/index'
-import { Route as MainListsIndexRouteImport } from './routes/_main/lists/index'
-import { Route as MainExtensionsIndexRouteImport } from './routes/_main/extensions/index'
-import { Route as MainEntryIndexRouteImport } from './routes/_main/entry/index'
-import { Route as MainDiscoverIndexRouteImport } from './routes/_main/discover/index'
-import { Route as MainDebridIndexRouteImport } from './routes/_main/debrid/index'
-import { Route as MainCustomSourcesIndexRouteImport } from './routes/_main/custom-sources/index'
-import { Route as MainAutoDownloaderIndexRouteImport } from './routes/_main/auto-downloader/index'
-import { Route as MainOfflineMangaIndexRouteImport } from './routes/_main/offline/manga/index'
-import { Route as MainMangaEntryIndexRouteImport } from './routes/_main/manga/entry/index'
-import { Route as MainExtensionsPlaygroundIndexRouteImport } from './routes/_main/extensions/playground/index'
-import { Route as MainAuthCallbackIndexRouteImport } from './routes/_main/auth/callback/index'
-import { Route as MainOfflineEntryMangaIndexRouteImport } from './routes/_main/offline/entry/manga/index'
-import { Route as MainOfflineEntryAnimeIndexRouteImport } from './routes/_main/offline/entry/anime/index'
+import { Route as rootRouteImport } from "./routes/__root"
+import { Route as MainRouteImport } from "./routes/_main"
+import { Route as MainAuthCallbackIndexRouteImport } from "./routes/_main/auth/callback/index"
+import { Route as MainAutoDownloaderIndexRouteImport } from "./routes/_main/auto-downloader/index"
+import { Route as MainCustomSourcesIndexRouteImport } from "./routes/_main/custom-sources/index"
+import { Route as MainDebridIndexRouteImport } from "./routes/_main/debrid/index"
+import { Route as MainDiscoverIndexRouteImport } from "./routes/_main/discover/index"
+import { Route as MainEntryIndexRouteImport } from "./routes/_main/entry/index"
+import { Route as MainErrorTestRouteImport } from "./routes/_main/error-test"
+import { Route as MainExtensionsIndexRouteImport } from "./routes/_main/extensions/index"
+import { Route as MainExtensionsPlaygroundIndexRouteImport } from "./routes/_main/extensions/playground/index"
+import { Route as MainIndexRouteImport } from "./routes/_main/index"
+import { Route as MainListsIndexRouteImport } from "./routes/_main/lists/index"
+import { Route as MainMangaEntryIndexRouteImport } from "./routes/_main/manga/entry/index"
+import { Route as MainMangaIndexRouteImport } from "./routes/_main/manga/index"
+import { Route as MainMedialinksIndexRouteImport } from "./routes/_main/medialinks/index"
+import { Route as MainMediastreamIndexRouteImport } from "./routes/_main/mediastream/index"
+import { Route as MainOfflineEntryAnimeIndexRouteImport } from "./routes/_main/offline/entry/anime/index"
+import { Route as MainOfflineEntryMangaIndexRouteImport } from "./routes/_main/offline/entry/manga/index"
+import { Route as MainOfflineIndexRouteImport } from "./routes/_main/offline/index"
+import { Route as MainOfflineMangaIndexRouteImport } from "./routes/_main/offline/manga/index"
+import { Route as MainQbittorrentIndexRouteImport } from "./routes/_main/qbittorrent/index"
+import { Route as MainScanSummariesIndexRouteImport } from "./routes/_main/scan-summaries/index"
+import { Route as MainScheduleIndexRouteImport } from "./routes/_main/schedule/index"
+import { Route as MainSearchIndexRouteImport } from "./routes/_main/search/index"
+import { Route as MainSettingsIndexRouteImport } from "./routes/_main/settings/index"
+import { Route as MainSyncIndexRouteImport } from "./routes/_main/sync/index"
+import { Route as MainTorrentListIndexRouteImport } from "./routes/_main/torrent-list/index"
+import { Route as DocsIndexRouteImport } from "./routes/docs/index"
+import { Route as IssueReportIndexRouteImport } from "./routes/issue-report/index"
+import { Route as PublicAuthIndexRouteImport } from "./routes/public/auth/index"
+import { Route as ScanLogViewerIndexRouteImport } from "./routes/scan-log-viewer/index"
+import { Route as SplashscreenCrashIndexRouteImport } from "./routes/splashscreen/crash/index"
+import { Route as SplashscreenIndexRouteImport } from "./routes/splashscreen/index"
 
 const MainRoute = MainRouteImport.update({
   id: '/_main',
@@ -67,11 +67,6 @@ const DocsIndexRoute = DocsIndexRouteImport.update({
   path: '/docs/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthIndexRoute = AuthIndexRouteImport.update({
-  id: '/auth/',
-  path: '/auth/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MainIndexRoute = MainIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -85,6 +80,11 @@ const MainErrorTestRoute = MainErrorTestRouteImport.update({
 const SplashscreenCrashIndexRoute = SplashscreenCrashIndexRouteImport.update({
   id: '/splashscreen/crash/',
   path: '/splashscreen/crash/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicAuthIndexRoute = PublicAuthIndexRouteImport.update({
+  id: "/public/auth/",
+  path: "/public/auth/",
   getParentRoute: () => rootRouteImport,
 } as any)
 const MainTorrentListIndexRoute = MainTorrentListIndexRouteImport.update({
@@ -214,7 +214,6 @@ const MainOfflineEntryAnimeIndexRoute =
 export interface FileRoutesByFullPath {
   '/': typeof MainIndexRoute
   '/error-test': typeof MainErrorTestRoute
-  '/auth/': typeof AuthIndexRoute
   '/docs/': typeof DocsIndexRoute
   '/issue-report/': typeof IssueReportIndexRoute
   '/scan-log-viewer/': typeof ScanLogViewerIndexRoute
@@ -237,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof MainSettingsIndexRoute
   '/sync/': typeof MainSyncIndexRoute
   '/torrent-list/': typeof MainTorrentListIndexRoute
+  "/public/auth/": typeof PublicAuthIndexRoute
   '/splashscreen/crash/': typeof SplashscreenCrashIndexRoute
   '/auth/callback/': typeof MainAuthCallbackIndexRoute
   '/extensions/playground/': typeof MainExtensionsPlaygroundIndexRoute
@@ -248,7 +248,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/error-test': typeof MainErrorTestRoute
   '/': typeof MainIndexRoute
-  '/auth': typeof AuthIndexRoute
   '/docs': typeof DocsIndexRoute
   '/issue-report': typeof IssueReportIndexRoute
   '/scan-log-viewer': typeof ScanLogViewerIndexRoute
@@ -271,6 +270,7 @@ export interface FileRoutesByTo {
   '/settings': typeof MainSettingsIndexRoute
   '/sync': typeof MainSyncIndexRoute
   '/torrent-list': typeof MainTorrentListIndexRoute
+  "/public/auth": typeof PublicAuthIndexRoute
   '/splashscreen/crash': typeof SplashscreenCrashIndexRoute
   '/auth/callback': typeof MainAuthCallbackIndexRoute
   '/extensions/playground': typeof MainExtensionsPlaygroundIndexRoute
@@ -284,7 +284,6 @@ export interface FileRoutesById {
   '/_main': typeof MainRouteWithChildren
   '/_main/error-test': typeof MainErrorTestRoute
   '/_main/': typeof MainIndexRoute
-  '/auth/': typeof AuthIndexRoute
   '/docs/': typeof DocsIndexRoute
   '/issue-report/': typeof IssueReportIndexRoute
   '/scan-log-viewer/': typeof ScanLogViewerIndexRoute
@@ -307,6 +306,7 @@ export interface FileRoutesById {
   '/_main/settings/': typeof MainSettingsIndexRoute
   '/_main/sync/': typeof MainSyncIndexRoute
   '/_main/torrent-list/': typeof MainTorrentListIndexRoute
+  "/public/auth/": typeof PublicAuthIndexRoute
   '/splashscreen/crash/': typeof SplashscreenCrashIndexRoute
   '/_main/auth/callback/': typeof MainAuthCallbackIndexRoute
   '/_main/extensions/playground/': typeof MainExtensionsPlaygroundIndexRoute
@@ -320,7 +320,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/error-test'
-    | '/auth/'
     | '/docs/'
     | '/issue-report/'
     | '/scan-log-viewer/'
@@ -343,6 +342,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/sync/'
     | '/torrent-list/'
+      | "/public/auth/"
     | '/splashscreen/crash/'
     | '/auth/callback/'
     | '/extensions/playground/'
@@ -354,7 +354,6 @@ export interface FileRouteTypes {
   to:
     | '/error-test'
     | '/'
-    | '/auth'
     | '/docs'
     | '/issue-report'
     | '/scan-log-viewer'
@@ -377,6 +376,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sync'
     | '/torrent-list'
+      | "/public/auth"
     | '/splashscreen/crash'
     | '/auth/callback'
     | '/extensions/playground'
@@ -389,7 +389,6 @@ export interface FileRouteTypes {
     | '/_main'
     | '/_main/error-test'
     | '/_main/'
-    | '/auth/'
     | '/docs/'
     | '/issue-report/'
     | '/scan-log-viewer/'
@@ -412,6 +411,7 @@ export interface FileRouteTypes {
     | '/_main/settings/'
     | '/_main/sync/'
     | '/_main/torrent-list/'
+      | "/public/auth/"
     | '/splashscreen/crash/'
     | '/_main/auth/callback/'
     | '/_main/extensions/playground/'
@@ -423,11 +423,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   MainRoute: typeof MainRouteWithChildren
-  AuthIndexRoute: typeof AuthIndexRoute
   DocsIndexRoute: typeof DocsIndexRoute
   IssueReportIndexRoute: typeof IssueReportIndexRoute
   ScanLogViewerIndexRoute: typeof ScanLogViewerIndexRoute
   SplashscreenIndexRoute: typeof SplashscreenIndexRoute
+  PublicAuthIndexRoute: typeof PublicAuthIndexRoute
   SplashscreenCrashIndexRoute: typeof SplashscreenCrashIndexRoute
 }
 
@@ -468,13 +468,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/': {
-      id: '/auth/'
-      path: '/auth'
-      fullPath: '/auth/'
-      preLoaderRoute: typeof AuthIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_main/': {
       id: '/_main/'
       path: '/'
@@ -494,6 +487,13 @@ declare module '@tanstack/react-router' {
       path: '/splashscreen/crash'
       fullPath: '/splashscreen/crash/'
       preLoaderRoute: typeof SplashscreenCrashIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/public/auth/": {
+      id: "/public/auth/"
+      path: "/public/auth"
+      fullPath: "/public/auth/"
+      preLoaderRoute: typeof PublicAuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_main/torrent-list/': {
@@ -729,11 +729,11 @@ const MainRouteWithChildren = MainRoute._addFileChildren(MainRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   MainRoute: MainRouteWithChildren,
-  AuthIndexRoute: AuthIndexRoute,
   DocsIndexRoute: DocsIndexRoute,
   IssueReportIndexRoute: IssueReportIndexRoute,
   ScanLogViewerIndexRoute: ScanLogViewerIndexRoute,
   SplashscreenIndexRoute: SplashscreenIndexRoute,
+  PublicAuthIndexRoute: PublicAuthIndexRoute,
   SplashscreenCrashIndexRoute: SplashscreenCrashIndexRoute,
 }
 export const routeTree = rootRouteImport

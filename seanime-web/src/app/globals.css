@@ -172,6 +172,10 @@ html {
     color: var(--foreground);
 }
 
+body {
+    background-color: transparent !important;
+}
+
 html * {
     border-color: var(--border);
 }
