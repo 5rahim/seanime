@@ -450,10 +450,18 @@ function createTray() {
     tray.setContextMenu(contextMenu)
 
     tray.on("click", () => {
-        mainWindow.show()
-        mainWindow.focus()
-        if (process.platform === "darwin") {
-            app.dock.show()
+        if(mainWindow.isVisible()) {
+            mainWindow.hide()
+            if (process.platform === "darwin") {
+                app.dock.hide();
+            }
+        }
+        else {
+            mainWindow.show()
+            mainWindow.focus()
+            if (process.platform === "darwin") {
+                app.dock.show()
+            }
         }
     })
 }
