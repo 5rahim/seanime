@@ -70,6 +70,11 @@ func TestExtractSeasonNumber(t *testing.T) {
 			expected: 2,
 		},
 		{
+			name:     "Roman numberal ignored",
+			input:    "Spy X Family",
+			expected: -1,
+		},
+		{
 			name:     "Roman Numerals",
 			input:    "Overlord III",
 			expected: 3,

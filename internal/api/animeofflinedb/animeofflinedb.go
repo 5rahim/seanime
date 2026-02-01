@@ -69,9 +69,9 @@ func FetchAndConvertDatabase(existingMediaIDs map[int]bool) ([]*anime.Normalized
 	}
 
 	// stream and convert directly to NormalizedMedia
-	// estimate ~20000 entries with anilist ids
-	allMedia := make([]*anime.NormalizedMedia, 0, 20000)
-	result := make([]*anime.NormalizedMedia, 0, 20000)
+	// estimate ~20300 entries with anilist ids
+	allMedia := make([]*anime.NormalizedMedia, 0, 20300)
+	result := make([]*anime.NormalizedMedia, 0, 20300)
 
 	scanner := bufio.NewScanner(resp.Body)
 	buf := make([]byte, 0, 64*1024)

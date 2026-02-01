@@ -149,6 +149,14 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
     const { torrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
 
+    const providerOptions = React.useMemo(() => [
+        ...(providerExtensions?.map(ext => ({
+            label: ext.name,
+            value: ext.id,
+        })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
+        { label: "None", value: TORRENT_PROVIDER.NONE },
+    ], [providerExtensions])
+
 
     return (
         <>
@@ -195,13 +203,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                 value={selectedProviderExtension?.id ?? TORRENT_PROVIDER.NONE}
                                 onValueChange={setSelectedProviderExtensionId}
                                 leftIcon={<LuFileSearch />}
-                                options={[
-                                    ...(providerExtensions?.map(ext => ({
-                                        label: ext.name,
-                                        value: ext.id,
-                                    })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
-                                    { label: "None", value: TORRENT_PROVIDER.NONE },
-                                ]}
+                                options={providerOptions}
                             />
                         </div>
 
@@ -390,7 +392,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     <TorrentPreviewList
                                         entry={entry}
                                         previews={previews}
-                                        isLoading={isLoading || isFetching}
+                                        isLoading={isLoading}
                                         selectedTorrents={selectedTorrents}
                                         onToggleTorrent={handleToggleTorrent}
                                         debridInstantAvailability={debridInstantAvailability}

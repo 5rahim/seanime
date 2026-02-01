@@ -72,8 +72,8 @@ type (
 	}
 )
 
-func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (ret *SearchData, err error) {
-	defer util.HandlePanicInModuleWithError("torrents/torrent/SearchAnime", &err)
+func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (ret *SearchData, retErr error) {
+	defer util.HandlePanicInModuleWithError("torrents/torrent/SearchAnime", &retErr)
 	var torrents []*hibiketorrent.AnimeTorrent
 
 	// Find the provider by ID
@@ -86,7 +86,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 	}
 
 	providers := []extension.AnimeTorrentProviderExtension{providerExtension}
-	includedSpeicalProviders := make([]string, 0)
+	includedSpecialProviders := make([]string, 0)
 
 	// Add other special providers if requested
 	if opts.IncludeSpecialProviders && opts.Type == AnimeSearchTypeSmart && opts.Batch == true {
@@ -100,7 +100,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 			}
 			if ext.GetProvider().GetSettings().Type == hibiketorrent.AnimeProviderTypeSpecial {
 				specialAdded++
-				includedSpeicalProviders = append(includedSpeicalProviders, ext.GetID())
+				includedSpecialProviders = append(includedSpecialProviders, ext.GetID())
 				return true
 			}
 			return false
@@ -108,12 +108,12 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 		providers = append(providers, specialProviders...)
 	}
 
-	r.logger.Debug().Str("provider", opts.Provider).Interface("specialProviders", includedSpeicalProviders).Msg("torrent search: Searching for anime torrents")
+	r.logger.Debug().Str("provider", opts.Provider).Interface("specialProviders", includedSpecialProviders).Msg("torrent search: Searching for anime torrents")
 
 	// Fetch Animap media, this is cached
 	animeMetadata := mo.None[*metadata.AnimeMetadata]()
-	animeMetadataF, err := r.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.GetID())
-	if err == nil {
+	animeMetadataF, errM := r.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.GetID())
+	if errM == nil {
 		animeMetadata = mo.Some(animeMetadataF)
 	}
 
@@ -236,13 +236,19 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 					AnidbEID:      anidbEID,
 					BestReleases:  opts.BestReleases,
 				})
-				if err == nil {
-					mu.Lock()
-					r.logger.Debug().Str("provider", provider.GetID()).Int("found", len(res)).Msg("torrent search: Found torrents")
-					torrents = append(torrents, res...)
-					mu.Unlock()
+				if err != nil {
+					if isMain {
+						mainErr = err
+					}
+					return
 				}
 
+				mu.Lock()
+				r.logger.Debug().Str("provider", provider.GetID()).Int("found", len(res)).Msg("torrent search: Found torrents")
+				torrents = append(torrents, res...)
+				mu.Unlock()
+
+				return
 			case AnimeSearchTypeSimple:
 
 				// Check for context cancellation before making the request
@@ -256,17 +262,18 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 					Media: queryMedia,
 					Query: opts.Query,
 				})
-				if err == nil {
-					mu.Lock()
-					r.logger.Debug().Str("provider", provider.GetID()).Int("found", len(res)).Msg("torrent search: Found torrents")
-					torrents = append(torrents, res...)
-					mu.Unlock()
+				if err != nil {
+					if isMain {
+						mainErr = err
+					}
+					return
 				}
-			}
-			if err != nil {
-				if isMain {
-					mainErr = err
-				}
+
+				mu.Lock()
+				r.logger.Debug().Str("provider", provider.GetID()).Int("found", len(res)).Msg("torrent search: Found torrents")
+				torrents = append(torrents, res...)
+				mu.Unlock()
+
 				return
 			}
 
@@ -393,7 +400,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 		Torrents:                 torrents,
 		Previews:                 previews,
 		TorrentMetadata:          torrentMetadata,
-		IncludedSpecialProviders: includedSpeicalProviders,
+		IncludedSpecialProviders: includedSpecialProviders,
 	}
 
 	if animeMetadata.IsPresent() {
