@@ -25,13 +25,13 @@ func HandleDoH(dohUrl string, logger *zerolog.Logger) {
 		return
 	}
 
-	// Override the default resolver
-	net.DefaultResolver = resolver
-
 	// Test the resolver
 	_, err = resolver.LookupIPAddr(context.Background(), "ipv4.google.com")
 	if err != nil {
 		logger.Error().Err(err).Msgf("doh: DoH resolver failed lookup: %s", dohUrl)
 		return
 	}
+
+	// Override the default resolver
+	net.DefaultResolver = resolver
 }

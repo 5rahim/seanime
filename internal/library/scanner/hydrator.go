@@ -23,8 +23,9 @@ import (
 // FileHydrator hydrates the metadata of all (matched) LocalFiles.
 // LocalFiles should already have their media ID hydrated.
 type FileHydrator struct {
-	LocalFiles          []*anime.LocalFile       // Local files to hydrate
-	AllMedia            []*anime.NormalizedMedia // All media used to hydrate local files
+	LocalFiles []*anime.LocalFile       // Local files to hydrate
+	AllMedia   []*anime.NormalizedMedia // All media used to hydrate local files
+	// Used by media tree analysis
 	CompleteAnimeCache  *anilist.CompleteAnimeCache
 	PlatformRef         *util.Ref[platform.Platform]
 	MetadataProviderRef *util.Ref[metadata_provider.Provider]
@@ -107,6 +108,9 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		}
 		return
 	}
+
+	// Make sure the media is fetched
+	_ = anime.FetchNormalizedMedia(fh.PlatformRef.Get().GetAnilistClient(), fh.AnilistRateLimiter, fh.CompleteAnimeCache, media)
 
 	// Tree contains media relations
 	tree := anilist.NewCompleteAnimeRelationTree()

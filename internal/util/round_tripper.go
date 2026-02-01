@@ -65,8 +65,7 @@ func (ug *cloudFlareRoundTripper) RoundTrip(r *http.Request) (*http.Response, er
 			for header, value := range ug.options.Headers {
 				if _, ok := r.Header[header]; !ok {
 					if header == "User-Agent" {
-						// Generate new random user agent for each attempt
-						r.Header.Set(header, GetRandomUserAgent())
+						r.Header.Set(header, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36")
 					} else {
 						r.Header.Set(header, value)
 					}
@@ -120,7 +119,7 @@ func GetDefaultOptions() Options {
 		Headers: map[string]string{
 			"Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
 			"Accept-Language": "en-US,en;q=0.5",
-			"User-Agent":      GetRandomUserAgent(),
+			"User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
 		},
 	}
 }

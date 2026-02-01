@@ -326,6 +326,7 @@ export default function Page() {
                                         autoSyncToLocalAccount: data.autoSyncToLocalAccount ?? false,
                                         autoSaveCurrentMediaOffline: data.autoSaveCurrentMediaOffline ?? false,
                                         useFallbackMetadataProvider: data.useFallbackMetadataProvider ?? false,
+                                        scannerUseLegacyMatching: data.scannerUseLegacyMatching ?? false,
                                     },
                                     nakama: {
                                         enabled: data.nakamaEnabled ?? false,
@@ -491,6 +492,7 @@ export default function Page() {
                                 vcTranslateApiKey: status?.settings?.mediaPlayer?.vcTranslateApiKey ?? "",
                                 vcTranslateProvider: status?.settings?.mediaPlayer?.vcTranslateProvider ?? "",
                                 vcTranslateTargetLanguage: status?.settings?.mediaPlayer?.vcTranslateTargetLanguage ?? "",
+                                scannerUseLegacyMatching: status?.settings?.library?.scannerUseLegacyMatching ?? false,
                             }}
                             stackClass="space-y-0 relative"
                         >

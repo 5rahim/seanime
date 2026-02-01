@@ -1757,6 +1757,7 @@ export type SaveIssueReport_Variables = {
  */
 export type ScanLocalFiles_Variables = {
     enhanced: boolean
+    enhanceWithOfflineDatabase: boolean
     skipLockedFiles: boolean
     skipIgnoredFiles: boolean
 }

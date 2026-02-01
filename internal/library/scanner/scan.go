@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"os"
+	"runtime"
+	"runtime/debug"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/events"
@@ -25,20 +27,22 @@ import (
 )
 
 type Scanner struct {
-	DirPath             string
-	OtherDirPaths       []string
-	Enhanced            bool
-	PlatformRef         *util.Ref[platform.Platform]
-	Logger              *zerolog.Logger
-	WSEventManager      events.WSEventManagerInterface
-	ExistingLocalFiles  []*anime.LocalFile
-	SkipLockedFiles     bool
-	SkipIgnoredFiles    bool
-	ScanSummaryLogger   *summary.ScanSummaryLogger
-	ScanLogger          *ScanLogger
-	MetadataProviderRef *util.Ref[metadata_provider.Provider]
-	MatchingThreshold   float64
-	MatchingAlgorithm   string
+	DirPath                    string
+	OtherDirPaths              []string
+	Enhanced                   bool
+	EnhanceWithOfflineDatabase bool
+	PlatformRef                *util.Ref[platform.Platform]
+	Logger                     *zerolog.Logger
+	WSEventManager             events.WSEventManagerInterface
+	ExistingLocalFiles         []*anime.LocalFile
+	SkipLockedFiles            bool
+	SkipIgnoredFiles           bool
+	ScanSummaryLogger          *summary.ScanSummaryLogger
+	ScanLogger                 *ScanLogger
+	MetadataProviderRef        *util.Ref[metadata_provider.Provider]
+	UseLegacyMatching          bool
+	MatchingThreshold          float64 // only used by legacy
+	MatchingAlgorithm          string  // only used by legacy
 	// If true, locked files whose library path doesn't exist will be put aside
 	WithShelving         bool
 	ExistingShelvedFiles []*anime.LocalFile
@@ -301,7 +305,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 40)
 	if scn.Enhanced {
-		scn.WSEventManager.SendEvent(events.EventScanStatus, "Fetching media detected from file titles...")
+		scn.WSEventManager.SendEvent(events.EventScanStatus, "Fetching additional matching data...")
 	} else {
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Fetching media...")
 	}
@@ -312,15 +316,16 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 
 	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(ctx, &MediaFetcherOptions{
-		Enhanced:               scn.Enhanced,
-		PlatformRef:            scn.PlatformRef,
-		MetadataProviderRef:    scn.MetadataProviderRef,
-		LocalFiles:             localFiles,
-		CompleteAnimeCache:     completeAnimeCache,
-		Logger:                 scn.Logger,
-		AnilistRateLimiter:     anilistRateLimiter,
-		DisableAnimeCollection: false,
-		ScanLogger:             scn.ScanLogger,
+		Enhanced:                   scn.Enhanced,
+		EnhanceWithOfflineDatabase: scn.EnhanceWithOfflineDatabase,
+		PlatformRef:                scn.PlatformRef,
+		MetadataProviderRef:        scn.MetadataProviderRef,
+		LocalFiles:                 localFiles,
+		CompleteAnimeCache:         completeAnimeCache,
+		Logger:                     scn.Logger,
+		AnilistRateLimiter:         anilistRateLimiter,
+		DisableAnimeCollection:     false,
+		ScanLogger:                 scn.ScanLogger,
 	})
 	if err != nil {
 		return nil, err
@@ -349,14 +354,14 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 
 	// Create a new matcher
 	matcher := &Matcher{
-		LocalFiles:         localFiles,
-		MediaContainer:     mc,
-		CompleteAnimeCache: completeAnimeCache,
-		Logger:             scn.Logger,
-		ScanLogger:         scn.ScanLogger,
-		ScanSummaryLogger:  scn.ScanSummaryLogger,
-		Algorithm:          scn.MatchingAlgorithm,
-		Threshold:          scn.MatchingThreshold,
+		LocalFiles:        localFiles,
+		MediaContainer:    mc,
+		Logger:            scn.Logger,
+		ScanLogger:        scn.ScanLogger,
+		ScanSummaryLogger: scn.ScanSummaryLogger,
+		Algorithm:         scn.MatchingAlgorithm,
+		Threshold:         scn.MatchingThreshold,
+		UseLegacyMatching: scn.UseLegacyMatching,
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 60)
@@ -465,6 +470,9 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 	}
 	hook.GlobalHookManager.OnScanCompleted().Trigger(completedEvent)
 	localFiles = completedEvent.LocalFiles
+
+	runtime.GC()
+	debug.FreeOSMemory()
 
 	return localFiles, nil
 }

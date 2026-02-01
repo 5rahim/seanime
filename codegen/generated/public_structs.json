@@ -24222,6 +24222,154 @@
     ]
   },
   {
+    "filepath": "../internal/api/animeofflinedb/animeofflinedb.go",
+    "filename": "animeofflinedb.go",
+    "name": "DatabaseRoot",
+    "formattedName": "DatabaseRoot",
+    "package": "animeofflinedb",
+    "fields": [
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "[]AnimeEntry",
+        "typescriptType": "Array\u003cAnimeEntry\u003e",
+        "usedTypescriptType": "AnimeEntry",
+        "usedStructName": "animeofflinedb.AnimeEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/animeofflinedb/animeofflinedb.go",
+    "filename": "animeofflinedb.go",
+    "name": "AnimeEntry",
+    "formattedName": "AnimeEntry",
+    "package": "animeofflinedb",
+    "fields": [
+      {
+        "name": "Sources",
+        "jsonName": "sources",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " TV, MOVIE, OVA, ONA, SPECIAL, UNKNOWN"
+        ]
+      },
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " FINISHED, ONGOING, UPCOMING, UNKNOWN"
+        ]
+      },
+      {
+        "name": "AnimeSeason",
+        "jsonName": "animeSeason",
+        "goType": "AnimeSeason",
+        "typescriptType": "AnimeSeason",
+        "usedTypescriptType": "AnimeSeason",
+        "usedStructName": "animeofflinedb.AnimeSeason",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Picture",
+        "jsonName": "picture",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Thumbnail",
+        "jsonName": "thumbnail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Synonyms",
+        "jsonName": "synonyms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/animeofflinedb/animeofflinedb.go",
+    "filename": "animeofflinedb.go",
+    "name": "AnimeSeason",
+    "formattedName": "AnimeSeason",
+    "package": "animeofflinedb",
+    "fields": [
+      {
+        "name": "Season",
+        "jsonName": "season",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " SPRING, SUMMER, FALL, WINTER, UNDEFINED"
+        ]
+      },
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/api/anizip/anizip.go",
     "filename": "anizip.go",
     "name": "Episode",
@@ -24700,11 +24848,13 @@
         "comments": []
       },
       {
-        "name": "userAgent",
-        "jsonName": "userAgent",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
+        "name": "client",
+        "jsonName": "client",
+        "goType": "req.Client",
+        "typescriptType": "Client",
+        "usedTypescriptType": "Client",
+        "usedStructName": "req.Client",
+        "required": false,
         "public": false,
         "comments": []
       },
@@ -29463,6 +29613,15 @@
       {
         "name": "UseFallbackMetadataProvider",
         "jsonName": "useFallbackMetadataProvider",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ScannerUseLegacyMatching",
+        "jsonName": "scannerUseLegacyMatching",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -47955,11 +48114,315 @@
     "name": "NormalizedMedia",
     "formattedName": "Anime_NormalizedMedia",
     "package": "anime",
-    "fields": [],
-    "comments": [],
-    "embeddedStructNames": [
-      "anilist.BaseAnime"
-    ]
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "ID",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IdMal",
+        "jsonName": "IdMal",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "Title",
+        "goType": "NormalizedMediaTitle",
+        "typescriptType": "Anime_NormalizedMediaTitle",
+        "usedTypescriptType": "Anime_NormalizedMediaTitle",
+        "usedStructName": "anime.NormalizedMediaTitle",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Synonyms",
+        "jsonName": "Synonyms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Format",
+        "jsonName": "Format",
+        "goType": "anilist.MediaFormat",
+        "typescriptType": "AL_MediaFormat",
+        "usedTypescriptType": "AL_MediaFormat",
+        "usedStructName": "anilist.MediaFormat",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "Status",
+        "goType": "anilist.MediaStatus",
+        "typescriptType": "AL_MediaStatus",
+        "usedTypescriptType": "AL_MediaStatus",
+        "usedStructName": "anilist.MediaStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Season",
+        "jsonName": "Season",
+        "goType": "anilist.MediaSeason",
+        "typescriptType": "AL_MediaSeason",
+        "usedTypescriptType": "AL_MediaSeason",
+        "usedStructName": "anilist.MediaSeason",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Year",
+        "jsonName": "Year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartDate",
+        "jsonName": "StartDate",
+        "goType": "NormalizedMediaDate",
+        "typescriptType": "Anime_NormalizedMediaDate",
+        "usedTypescriptType": "Anime_NormalizedMediaDate",
+        "usedStructName": "anime.NormalizedMediaDate",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episodes",
+        "jsonName": "Episodes",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BannerImage",
+        "jsonName": "BannerImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CoverImage",
+        "jsonName": "CoverImage",
+        "goType": "NormalizedMediaCoverImage",
+        "typescriptType": "Anime_NormalizedMediaCoverImage",
+        "usedTypescriptType": "Anime_NormalizedMediaCoverImage",
+        "usedStructName": "anime.NormalizedMediaCoverImage",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NextAiringEpisode",
+        "jsonName": "NextAiringEpisode",
+        "goType": "NormalizedMediaNextAiringEpisode",
+        "typescriptType": "Anime_NormalizedMediaNextAiringEpisode",
+        "usedTypescriptType": "Anime_NormalizedMediaNextAiringEpisode",
+        "usedStructName": "anime.NormalizedMediaNextAiringEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "fetched",
+        "jsonName": "fetched",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/normalized_media.go",
+    "filename": "normalized_media.go",
+    "name": "NormalizedMediaTitle",
+    "formattedName": "Anime_NormalizedMediaTitle",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "Romaji",
+        "jsonName": "Romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "English",
+        "jsonName": "English",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "Native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "UserPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/normalized_media.go",
+    "filename": "normalized_media.go",
+    "name": "NormalizedMediaDate",
+    "formattedName": "Anime_NormalizedMediaDate",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "Year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "Month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "Day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/normalized_media.go",
+    "filename": "normalized_media.go",
+    "name": "NormalizedMediaCoverImage",
+    "formattedName": "Anime_NormalizedMediaCoverImage",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "ExtraLarge",
+        "jsonName": "ExtraLarge",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Large",
+        "jsonName": "Large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Medium",
+        "jsonName": "Medium",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Color",
+        "jsonName": "Color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/normalized_media.go",
+    "filename": "normalized_media.go",
+    "name": "NormalizedMediaNextAiringEpisode",
+    "formattedName": "Anime_NormalizedMediaNextAiringEpisode",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "AiringAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "TimeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "Episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/library/anime/normalized_media.go",
@@ -51196,10 +51659,10 @@
       {
         "name": "AllMedia",
         "jsonName": "allMedia",
-        "goType": "[]anilist.CompleteAnime",
-        "typescriptType": "Array\u003cAL_CompleteAnime\u003e",
-        "usedTypescriptType": "AL_CompleteAnime",
-        "usedStructName": "anilist.CompleteAnime",
+        "goType": "[]anime.NormalizedMedia",
+        "typescriptType": "Array\u003cAnime_NormalizedMedia\u003e",
+        "usedTypescriptType": "Anime_NormalizedMedia",
+        "usedStructName": "anime.NormalizedMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -51638,17 +52101,6 @@
         "comments": []
       },
       {
-        "name": "CompleteAnimeCache",
-        "jsonName": "CompleteAnimeCache",
-        "goType": "anilist.CompleteAnimeCache",
-        "typescriptType": "AL_CompleteAnimeCache",
-        "usedTypescriptType": "AL_CompleteAnimeCache",
-        "usedStructName": "anilist.CompleteAnimeCache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Logger",
         "jsonName": "Logger",
         "goType": "zerolog.Logger",
@@ -51700,6 +52152,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Debug",
+        "jsonName": "Debug",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UseLegacyMatching",
+        "jsonName": "UseLegacyMatching",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -51714,10 +52184,10 @@
       {
         "name": "AllMedia",
         "jsonName": "AllMedia",
-        "goType": "[]anilist.CompleteAnime",
-        "typescriptType": "Array\u003cAL_CompleteAnime\u003e",
-        "usedTypescriptType": "AL_CompleteAnime",
-        "usedStructName": "anilist.CompleteAnime",
+        "goType": "[]anime.NormalizedMedia",
+        "typescriptType": "Array\u003cAnime_NormalizedMedia\u003e",
+        "usedTypescriptType": "Anime_NormalizedMedia",
+        "usedStructName": "anime.NormalizedMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -51755,6 +52225,19 @@
         "comments": []
       },
       {
+        "name": "NormalizedTitlesCache",
+        "jsonName": "NormalizedTitlesCache",
+        "goType": "map[int][]NormalizedTitle",
+        "typescriptType": "Record\u003cnumber, Array\u003cScanner_NormalizedTitle\u003e\u003e",
+        "usedTypescriptType": "Scanner_NormalizedTitle",
+        "usedStructName": "scanner.NormalizedTitle",
+        "required": false,
+        "public": true,
+        "comments": [
+          " mediaId -\u003e normalized titles"
+        ]
+      },
+      {
         "name": "ScanLogger",
         "jsonName": "ScanLogger",
         "goType": "ScanLogger",
@@ -51766,13 +52249,26 @@
         "comments": []
       },
       {
+        "name": "TokenIndex",
+        "jsonName": "TokenIndex",
+        "goType": "map[string][]anime.NormalizedMedia",
+        "typescriptType": "Record\u003cstring, Array\u003cAnime_NormalizedMedia\u003e\u003e",
+        "usedTypescriptType": "Anime_NormalizedMedia",
+        "usedStructName": "anime.NormalizedMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "engTitles",
         "jsonName": "engTitles",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " legacy"
+        ]
       },
       {
         "name": "romTitles",
@@ -51781,7 +52277,9 @@
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " legacy"
+        ]
       },
       {
         "name": "synonyms",
@@ -51790,18 +52288,9 @@
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": false,
-        "comments": []
-      },
-      {
-        "name": "allMedia",
-        "jsonName": "allMedia",
-        "goType": "[]anilist.CompleteAnime",
-        "typescriptType": "Array\u003cAL_CompleteAnime\u003e",
-        "usedTypescriptType": "AL_CompleteAnime",
-        "usedStructName": "anilist.CompleteAnime",
-        "required": false,
-        "public": false,
-        "comments": []
+        "comments": [
+          " legacy"
+        ]
       }
     ],
     "comments": []
@@ -51816,10 +52305,10 @@
       {
         "name": "AllMedia",
         "jsonName": "AllMedia",
-        "goType": "[]anilist.CompleteAnime",
-        "typescriptType": "Array\u003cAL_CompleteAnime\u003e",
-        "usedTypescriptType": "AL_CompleteAnime",
-        "usedStructName": "anilist.CompleteAnime",
+        "goType": "[]anime.NormalizedMedia",
+        "typescriptType": "Array\u003cAnime_NormalizedMedia\u003e",
+        "usedTypescriptType": "Anime_NormalizedMedia",
+        "usedStructName": "anime.NormalizedMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -51881,6 +52370,15 @@
       {
         "name": "Enhanced",
         "jsonName": "Enhanced",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UseLegacyEnhanced",
+        "jsonName": "UseLegacyEnhanced",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -52155,6 +52653,15 @@
         "comments": []
       },
       {
+        "name": "EnhanceWithOfflineDatabase",
+        "jsonName": "EnhanceWithOfflineDatabase",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "PlatformRef",
         "jsonName": "PlatformRef",
         "goType": "",
@@ -52246,13 +52753,24 @@
         "comments": []
       },
       {
+        "name": "UseLegacyMatching",
+        "jsonName": "UseLegacyMatching",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "MatchingThreshold",
         "jsonName": "MatchingThreshold",
         "goType": "float64",
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " only used by legacy"
+        ]
       },
       {
         "name": "MatchingAlgorithm",
@@ -52261,7 +52779,9 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " only used by legacy"
+        ]
       },
       {
         "name": "WithShelving",
@@ -52340,6 +52860,83 @@
     ],
     "comments": [
       " ScanLogger is a custom logger struct for scanning operations."
+    ]
+  },
+  {
+    "filepath": "../internal/library/scanner/title_normalization.go",
+    "filename": "title_normalization.go",
+    "name": "NormalizedTitle",
+    "formattedName": "Scanner_NormalizedTitle",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "Original",
+        "jsonName": "Original",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Normalized",
+        "jsonName": "Normalized",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Tokens",
+        "jsonName": "Tokens",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Season",
+        "jsonName": "Season",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Part",
+        "jsonName": "Part",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Year",
+        "jsonName": "Year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CleanBaseTitle",
+        "jsonName": "CleanBaseTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Title without season/part/year info"
+        ]
+      }
+    ],
+    "comments": [
+      " NormalizedTitle holds the normalized form and extracted metadata"
     ]
   },
   {

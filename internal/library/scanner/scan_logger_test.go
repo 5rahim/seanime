@@ -74,7 +74,7 @@ func TestScanLogger(t *testing.T) {
 			// +---------------------+
 
 			mc := NewMediaContainer(&MediaContainerOptions{
-				AllMedia:   allMedia,
+				AllMedia:   NormalizedMediaFromAnilistComplete(allMedia),
 				ScanLogger: scanLogger,
 			})
 
@@ -87,12 +87,11 @@ func TestScanLogger(t *testing.T) {
 			// +---------------------+
 
 			matcher := &Matcher{
-				LocalFiles:         lfs,
-				MediaContainer:     mc,
-				CompleteAnimeCache: completeAnimeCache,
-				Logger:             util.NewLogger(),
-				ScanLogger:         scanLogger,
-				ScanSummaryLogger:  nil,
+				LocalFiles:        lfs,
+				MediaContainer:    mc,
+				Logger:            util.NewLogger(),
+				ScanLogger:        scanLogger,
+				ScanSummaryLogger: nil,
 			}
 
 			err = matcher.MatchLocalFilesWithMedia()

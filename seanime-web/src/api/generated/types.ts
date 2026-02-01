@@ -3804,6 +3804,7 @@ export type Models_LibrarySettings = {
     autoSyncToLocalAccount: boolean
     autoSaveCurrentMediaOffline: boolean
     useFallbackMetadataProvider: boolean
+    scannerUseLegacyMatching: boolean
 }
 
 /**

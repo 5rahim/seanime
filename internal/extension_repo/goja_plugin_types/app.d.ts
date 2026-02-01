@@ -1610,7 +1610,7 @@ declare namespace $app {
     interface ScanMediaFetcherCompletedEvent {
         next(): void;
 
-        allMedia?: Array<AL_CompleteAnime>;
+        allMedia?: Array<Anime_NormalizedMedia>;
         unknownMediaIds?: Array<number>;
     }
 
@@ -3278,29 +3278,58 @@ declare namespace $app {
      * - Filepath: internal/library/anime/normalized_media.go
      */
     interface Anime_NormalizedMedia {
-        id: number;
-        idMal?: number;
-        siteUrl?: string;
-        status?: AL_MediaStatus;
-        season?: AL_MediaSeason;
-        type?: AL_MediaType;
-        format?: AL_MediaFormat;
-        seasonYear?: number;
-        bannerImage?: string;
-        episodes?: number;
-        synonyms?: Array<string>;
-        isAdult?: boolean;
-        countryOfOrigin?: string;
-        meanScore?: number;
-        description?: string;
-        genres?: Array<string>;
-        duration?: number;
-        trailer?: AL_BaseAnime_Trailer;
-        title?: AL_BaseAnime_Title;
-        coverImage?: AL_BaseAnime_CoverImage;
-        startDate?: AL_BaseAnime_StartDate;
-        endDate?: AL_BaseAnime_EndDate;
-        nextAiringEpisode?: AL_BaseAnime_NextAiringEpisode;
+        ID: number;
+        IdMal?: number;
+        Title?: Anime_NormalizedMediaTitle;
+        Synonyms?: Array<string>;
+        Format?: AL_MediaFormat;
+        Status?: AL_MediaStatus;
+        Season?: AL_MediaSeason;
+        Year?: number;
+        StartDate?: Anime_NormalizedMediaDate;
+        Episodes?: number;
+        BannerImage?: string;
+        CoverImage?: Anime_NormalizedMediaCoverImage;
+        NextAiringEpisode?: Anime_NormalizedMediaNextAiringEpisode;
+        fetched: boolean;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/normalized_media.go
+     */
+    interface Anime_NormalizedMediaCoverImage {
+        ExtraLarge?: string;
+        Large?: string;
+        Medium?: string;
+        Color?: string;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/normalized_media.go
+     */
+    interface Anime_NormalizedMediaDate {
+        Year?: number;
+        Month?: number;
+        Day?: number;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/normalized_media.go
+     */
+    interface Anime_NormalizedMediaNextAiringEpisode {
+        AiringAt: number;
+        TimeUntilAiring: number;
+        Episode: number;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/normalized_media.go
+     */
+    interface Anime_NormalizedMediaTitle {
+        Romaji?: string;
+        English?: string;
+        Native?: string;
+        UserPreferred?: string;
     }
 
     /**

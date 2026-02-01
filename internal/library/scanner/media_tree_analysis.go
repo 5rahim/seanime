@@ -106,7 +106,7 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 	}
 	branches, _ := p.Wait()
 
-	if branches == nil || len(branches) == 0 {
+	if len(branches) == 0 {
 		return nil, errors.New("no branches found")
 	}
 

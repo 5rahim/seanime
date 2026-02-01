@@ -5,6 +5,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Field } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import React from "react"
+import { useWatch } from "react-hook-form"
+import { useFormContext } from "react-hook-form"
 import { FcFolder } from "react-icons/fc"
 
 type LibrarySettingsProps = {
@@ -17,6 +19,11 @@ export function AnimeLibrarySettings(props: LibrarySettingsProps) {
         isPending,
         ...rest
     } = props
+
+    const { watch } = useFormContext()
+
+    const useLegacyMatching = useWatch({ name: "scannerUseLegacyMatching" })
+    const useLegacyEnhancedMatching = useWatch({ name: "scannerUseLegacyEnhancedMatching" })
 
 
     return (
@@ -66,14 +73,22 @@ export function AnimeLibrarySettings(props: LibrarySettingsProps) {
                 className="border rounded-[--radius-md]"
                 triggerClass="dark:bg-[--paper]"
                 contentClass="!pt-2 dark:bg-[--paper]"
+                defaultValue={(useLegacyMatching || useLegacyEnhancedMatching) ? "more" : undefined}
             >
                 <AccordionItem value="more">
                     <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]">
                         Advanced
                     </AccordionTrigger>
                     <AccordionContent className="space-y-4">
-                        <div className="flex flex-col md:flex-row gap-3">
-
+                        <>
+                            <Field.Switch
+                                name="scannerUseLegacyMatching"
+                                label="Use legacy matching algorithm"
+                                help="Enable to use the legacy matching algorithms. (Versions 3.4 and below)"
+                                moreHelp="The legacy matching algorithm uses simpler methods which may be less accurate."
+                            />
+                        </>
+                        {useLegacyMatching && <div className="flex flex-col md:flex-row gap-3">
                             <Field.Select
                                 options={[
                                     { value: "-", label: "Levenshtein + Sorensen-Dice (Default)" },
@@ -96,7 +111,7 @@ export function AnimeLibrarySettings(props: LibrarySettingsProps) {
                                 max={1.0}
                                 step={0.1}
                             />
-                        </div>
+                        </div>}
 
                         <Separator />
 

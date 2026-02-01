@@ -4255,10 +4255,10 @@
         {
           "name": "AllMedia",
           "jsonName": "allMedia",
-          "goType": "[]anilist.CompleteAnime",
-          "typescriptType": "Array\u003cAL_CompleteAnime\u003e",
-          "usedTypescriptType": "AL_CompleteAnime",
-          "usedStructName": "anilist.CompleteAnime",
+          "goType": "[]anime.NormalizedMedia",
+          "typescriptType": "Array\u003cAnime_NormalizedMedia\u003e",
+          "usedTypescriptType": "Anime_NormalizedMedia",
+          "usedStructName": "anime.NormalizedMedia",
           "required": false,
           "public": true,
           "comments": []

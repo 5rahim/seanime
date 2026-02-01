@@ -19,9 +19,10 @@ import (
 func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 
 	type body struct {
-		Enhanced         bool `json:"enhanced"`
-		SkipLockedFiles  bool `json:"skipLockedFiles"`
-		SkipIgnoredFiles bool `json:"skipIgnoredFiles"`
+		Enhanced                   bool `json:"enhanced"`
+		EnhanceWithOfflineDatabase bool `json:"enhanceWithOfflineDatabase"`
+		SkipLockedFiles            bool `json:"skipLockedFiles"`
+		SkipIgnoredFiles           bool `json:"skipIgnoredFiles"`
 	}
 
 	var b body
@@ -67,22 +68,24 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 
 	// Create a new scanner
 	sc := scanner.Scanner{
-		DirPath:              libraryPath,
-		OtherDirPaths:        additionalLibraryPaths,
-		Enhanced:             b.Enhanced,
-		PlatformRef:          h.App.AnilistPlatformRef,
-		Logger:               h.App.Logger,
-		WSEventManager:       h.App.WSEventManager,
-		ExistingLocalFiles:   existingLfs,
-		SkipLockedFiles:      b.SkipLockedFiles,
-		SkipIgnoredFiles:     b.SkipIgnoredFiles,
-		ScanSummaryLogger:    scanSummaryLogger,
-		ScanLogger:           scanLogger,
-		MetadataProviderRef:  h.App.MetadataProviderRef,
-		MatchingAlgorithm:    h.App.Settings.GetLibrary().ScannerMatchingAlgorithm,
-		MatchingThreshold:    h.App.Settings.GetLibrary().ScannerMatchingThreshold,
-		WithShelving:         true,
-		ExistingShelvedFiles: existingShelvedLfs,
+		DirPath:                    libraryPath,
+		OtherDirPaths:              additionalLibraryPaths,
+		Enhanced:                   b.Enhanced,
+		EnhanceWithOfflineDatabase: b.EnhanceWithOfflineDatabase,
+		PlatformRef:                h.App.AnilistPlatformRef,
+		Logger:                     h.App.Logger,
+		WSEventManager:             h.App.WSEventManager,
+		ExistingLocalFiles:         existingLfs,
+		SkipLockedFiles:            b.SkipLockedFiles,
+		SkipIgnoredFiles:           b.SkipIgnoredFiles,
+		ScanSummaryLogger:          scanSummaryLogger,
+		ScanLogger:                 scanLogger,
+		MetadataProviderRef:        h.App.MetadataProviderRef,
+		MatchingAlgorithm:          h.App.Settings.GetLibrary().ScannerMatchingAlgorithm,
+		MatchingThreshold:          h.App.Settings.GetLibrary().ScannerMatchingThreshold,
+		UseLegacyMatching:          h.App.Settings.GetLibrary().ScannerUseLegacyMatching,
+		WithShelving:               true,
+		ExistingShelvedFiles:       existingShelvedLfs,
 	}
 
 	// Scan the library

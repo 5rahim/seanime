@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"seanime/internal/api/anilist"
 	"seanime/internal/hook_resolver"
 	"seanime/internal/library/anime"
 )
@@ -65,7 +64,7 @@ type ScanMediaFetcherStartedEvent struct {
 type ScanMediaFetcherCompletedEvent struct {
 	hook_resolver.Event
 	// All media fetched from AniList, to be matched against the local files.
-	AllMedia []*anilist.CompleteAnime `json:"allMedia"`
+	AllMedia []*anime.NormalizedMedia `json:"allMedia"`
 	// Media IDs that are not in the user's collection.
 	UnknownMediaIds []int `json:"unknownMediaIds"`
 }

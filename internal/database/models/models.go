@@ -96,6 +96,8 @@ type LibrarySettings struct {
 	AutoSaveCurrentMediaOffline bool `gorm:"column:auto_save_current_media_offline" json:"autoSaveCurrentMediaOffline"`
 	// v3+
 	UseFallbackMetadataProvider bool `gorm:"column:use_fallback_metadata_provider" json:"useFallbackMetadataProvider"`
+	// v3.5+
+	ScannerUseLegacyMatching bool `gorm:"column:scanner_use_legacy_matching" json:"scannerUseLegacyMatching"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {

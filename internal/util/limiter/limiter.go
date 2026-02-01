@@ -9,7 +9,8 @@ import (
 
 func NewAnilistLimiter() *Limiter {
 	//return NewLimiter(15*time.Second, 18)
-	return NewLimiter(6*time.Second, 8)
+	//return NewLimiter(6*time.Second, 8)
+	return NewLimiter(10*time.Second, 5)
 }
 
 //----------------------------------------------------------------------------------------------------------------------

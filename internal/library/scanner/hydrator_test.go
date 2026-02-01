@@ -79,7 +79,7 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			// +---------------------+
 
 			mc := NewMediaContainer(&MediaContainerOptions{
-				AllMedia:   allMedia,
+				AllMedia:   NormalizedMediaFromAnilistComplete(allMedia),
 				ScanLogger: scanLogger,
 			})
 
@@ -92,11 +92,10 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			// +---------------------+
 
 			matcher := &Matcher{
-				LocalFiles:         lfs,
-				MediaContainer:     mc,
-				CompleteAnimeCache: nil,
-				Logger:             util.NewLogger(),
-				ScanLogger:         scanLogger,
+				LocalFiles:     lfs,
+				MediaContainer: mc,
+				Logger:         util.NewLogger(),
+				ScanLogger:     scanLogger,
 			}
 
 			err = matcher.MatchLocalFilesWithMedia()

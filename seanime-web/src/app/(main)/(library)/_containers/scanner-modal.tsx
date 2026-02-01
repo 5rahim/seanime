@@ -7,6 +7,7 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling.ts"
 import { Modal } from "@/components/ui/modal"
+import { RadioGroup } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { useBoolean } from "@/hooks/use-disclosure"
@@ -29,6 +30,7 @@ export function ScannerModal() {
     const anilistDataOnly = useBoolean(true)
     const skipLockedFiles = useBoolean(true)
     const skipIgnoredFiles = useBoolean(true)
+    const enhanceWithOfflineDatabase = useBoolean(true)
 
     const { mutate: scanLibrary, isPending: isScanning } = useScanLocalFiles(() => {
         setOpen(false)
@@ -48,6 +50,7 @@ export function ScannerModal() {
             enhanced: !anilistDataOnly.active,
             skipLockedFiles: skipLockedFiles.active,
             skipIgnoredFiles: skipIgnoredFiles.active,
+            enhanceWithOfflineDatabase: enhanceWithOfflineDatabase.active,
         })
         setOpen(false)
     }
@@ -150,21 +153,33 @@ export function ScannerModal() {
                             <h5 className="text-[--muted]">Matching data</h5>
                             <Switch
                                 side="right"
-                                label="Use my AniList lists only"
-                                moreHelp="Disabling this will cause Seanime to send more API requests which may lead to rate limits and slower scanning"
-                                // label="Enhanced scanning"
+                                label="My AniList Collection only"
+                                moreHelp="This is faster but generally less accurate if your collection does not contain all anime in the library."
+                                help={anilistDataOnly.active ? "Matches local files against your AniList collection." : ""}
                                 value={anilistDataOnly.active}
                                 onValueChange={v => anilistDataOnly.set(v as boolean)}
                                 // className="data-[state=checked]:bg-amber-700 dark:data-[state=checked]:bg-amber-700"
                                 // size="lg"
-                                help={!anilistDataOnly.active
-                                    ? <span><span className="text-[--orange]">Slower for large libraries</span>. For faster scanning, add the anime
-                                                                                                               entries present in your library to your
-                                                                                                               lists and re-enable this before
-                                                                                                               scanning.</span>
-                                    : ""}
+
                                 disabled={!userMedia?.length}
                             />
+                            {!anilistDataOnly.active && <RadioGroup
+                                label="Enhanced matching method"
+                                options={[
+                                    { value: "database", label: "Use Anime Offline Database" },
+                                    { value: "anilist", label: "Use AniList API" },
+                                ]}
+                                size="lg"
+                                stackClass="space-y-2 py-1"
+                                value={enhanceWithOfflineDatabase.active ? "database" : "anilist"}
+                                onValueChange={v => enhanceWithOfflineDatabase.set(v === "database")}
+                                help={enhanceWithOfflineDatabase.active
+                                    ? <span>Matches local files against the entire AniList catalog. Scanning will be slower.</span>
+                                    : <span><span className="text-[--orange]">Slower for large libraries</span>. Seanime will send an API request for
+                                                                                                               each anime title found in the library,
+                                                                                                               which may lead to rate limits and
+                                                                                                               slower scanning.</span>}
+                            />}
                         </AppLayoutStack>
 
                     </AppLayoutStack>

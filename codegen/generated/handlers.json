@@ -9089,6 +9089,15 @@
           "descriptions": []
         },
         {
+          "name": "EnhanceWithOfflineDatabase",
+          "jsonName": "enhanceWithOfflineDatabase",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "SkipLockedFiles",
           "jsonName": "skipLockedFiles",
           "goType": "bool",
