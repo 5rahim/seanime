@@ -84,13 +84,13 @@ export const TorrentPreviewList = React.memo((
                         // const isReleasedBeforeMedia = differenceInCalendarYears(mediaReleaseDate, item.torrent.date) > 2
                         return (
                             <TorrentListItem
-                                key={item.torrent.link}
+                                key={item.torrent.infoHash}
                                 torrent={item.torrent}
                                 media={entry.media}
                                 episode={item.episode}
                                 metadata={torrentMetadata?.[item.torrent.infoHash!]?.metadata}
                                 debridCached={((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!item.torrent.infoHash && !!debridInstantAvailability[item.torrent.infoHash])}
-                                isSelected={selectedTorrents.findIndex(n => n.link === item.torrent!.link) !== -1}
+                                isSelected={selectedTorrents.findIndex(n => n.infoHash === item.torrent!.infoHash) !== -1}
                                 onClick={() => onToggleTorrent(item.torrent!)}
                                 extensionName={item.torrent.provider && includedSpecialProviders?.includes(item.torrent.provider)
                                     ? extensions?.find(e => e.id === item.torrent?.provider)?.name

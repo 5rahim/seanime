@@ -124,13 +124,13 @@ export const TorrentTable = memo((
                                 }
                                 return (
                                     <TorrentListItem
-                                        key={torrent.link}
+                                        key={torrent.infoHash}
                                         torrent={torrent}
                                         metadata={torrentMetadata?.[torrent.infoHash!]?.metadata}
                                         media={entry?.media}
                                         episode={undefined}
                                         debridCached={((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!torrent.infoHash && !!debridInstantAvailability[torrent.infoHash])}
-                                        isSelected={selectedTorrents.findIndex(n => n.link === torrent!.link) !== -1}
+                                        isSelected={selectedTorrents.findIndex(n => n.infoHash === torrent!.infoHash) !== -1}
                                         onClick={() => onToggleTorrent(torrent!)}
                                         overrideProps={{
                                             releaseGroup: releaseGroup,

@@ -126,15 +126,15 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
     const handleToggleTorrent = React.useCallback((t: HibikeTorrent_AnimeTorrent) => {
         if (type === "download") {
             setSelectedTorrents(prev => {
-                const idx = prev.findIndex(n => n.link === t.link)
+                const idx = prev.findIndex(n => n.infoHash === t.infoHash)
                 if (idx !== -1) {
-                    return prev.filter(n => n.link !== t.link)
+                    return prev.filter(n => n.infoHash !== t.infoHash)
                 }
                 return [...prev, t]
             })
         } else {
             setSelectedTorrents(prev => {
-                const idx = prev.findIndex(n => n.link === t.link)
+                const idx = prev.findIndex(n => n.infoHash === t.infoHash)
                 if (idx !== -1) {
                     return []
                 }

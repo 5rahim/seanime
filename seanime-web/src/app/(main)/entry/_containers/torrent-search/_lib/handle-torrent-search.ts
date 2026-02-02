@@ -52,7 +52,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     // Update the selected provider only when the default provider changes
     React.useLayoutEffect(() => {
         setSelectedProviderExtensionId(defaultProviderExtension?.id || "none")
-    }, [defaultProviderExtension])
+    }, [defaultProviderExtension?.id])
 
     // Get the selected provider extension
     const selectedProviderExtension = React.useMemo(() => {
@@ -121,8 +121,8 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
      * Fetch torrent search data
      */
     const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSearchTorrent({
-        query: debouncedGlobalFilter.trim().toLowerCase(),
-        episodeNumber: debouncedSmartSearchEpisode,
+            query: debouncedGlobalFilter.trim().toLowerCase(),
+            episodeNumber: debouncedSmartSearchEpisode,
             batch: smartSearchBatch,
             media: entry?.media,
             absoluteOffset: downloadInfo?.absoluteOffset || 0,
@@ -130,7 +130,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
             type: searchType,
             provider: selectedProviderExtension?.id!,
             bestRelease: searchType === Torrent_SearchType.SMART && smartSearchBest,
-        includeSpecialProviders: true,
+            includeSpecialProviders: true,
         },
         !(searchType === Torrent_SearchType.SIMPLE && debouncedGlobalFilter.length === 0) // If simple search, user input must not be empty
         && !warnings.noProvider

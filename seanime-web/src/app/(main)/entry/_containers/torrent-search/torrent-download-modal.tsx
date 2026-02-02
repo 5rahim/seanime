@@ -197,7 +197,7 @@ export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
                     {selectedTorrents.map(torrent => (
                         <Tooltip
                             data-torrent-confirmation-modal-tooltip
-                            key={`${torrent.link}`}
+                            key={`${torrent.infoHash}`}
                             trigger={<div
                                 className={cn(
                                     "ml-12 gap-2 p-2 border rounded-[--radius-md] hover:bg-gray-800 relative",

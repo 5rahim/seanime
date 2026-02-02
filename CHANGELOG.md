@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.4.3
+
+- ⚡️ Updated filename parser: Better handling of special characters
+- 🦺 Auto Scanner: Fixed missing support for shelving local files
+- 🦺 Auto Downloader: Fixed torrents with custom offset being re-downloaded
+- 🦺 qBittorrent: Fixed failed unmarshalling due to type mismatch
+- 🦺 Torrent Search: Fixed search for shows with no mapping (regression)
+- 🦺 Torrent Search: Fixed provider selector being reset
+- 🦺 Torrent Search: Use InfoHash as key instead of torrent URL
+- 🦺 Torrent Search: Set default InfoHash if empty when returned by provider 
+
 ## v3.4.2
 
 - 🦺 Auto Downloader: Skip watched episodes (regression)

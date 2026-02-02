@@ -43,7 +43,7 @@ export const TorrentListItem = ({ torrent, metadata, debridCached, onClick, isSe
         <TorrentPreviewItem
             link={overrideProps?.link ?? torrent?.link}
             confirmed={overrideProps?.confirmed ?? torrent?.confirmed}
-            key={torrent.link}
+            key={torrent.infoHash}
             displayName={overrideProps?.displayName ?? (episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || "")}
             releaseGroup={overrideProps?.releaseGroup ?? (torrent.releaseGroup || "")}
             torrentName={overrideProps?.torrentName ?? torrent.name}
