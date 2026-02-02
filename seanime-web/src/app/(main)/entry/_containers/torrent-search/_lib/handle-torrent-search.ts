@@ -49,10 +49,10 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     // Gives the ability to change the selected provider extension
     const [selectedProviderExtensionId, setSelectedProviderExtensionId] = React.useState(defaultProviderExtension?.id || "none")
 
-    // Update the selected provider only when the default provider changes
+    // Update the selected provider
     React.useLayoutEffect(() => {
-        setSelectedProviderExtensionId(defaultProviderExtension?.id || "none")
-    }, [defaultProviderExtension])
+        setSelectedProviderExtensionId(selectedProviderExtensionId)
+    }, [selectedProviderExtensionId])
 
     // Get the selected provider extension
     const selectedProviderExtension = React.useMemo(() => {
