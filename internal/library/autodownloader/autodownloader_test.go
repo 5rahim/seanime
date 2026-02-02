@@ -290,6 +290,7 @@ func TestIsEpisodeAlreadyHandled(t *testing.T) {
 		{RuleID: 2, MediaID: 1, Episode: 8},
 		{RuleID: 1, MediaID: 10, Episode: 42, IsDelayed: true},
 		{RuleID: 3, MediaID: 20, Episode: 13},
+		{RuleID: 5, MediaID: 20, Episode: 1},
 	}
 
 	tests := []struct {
@@ -352,7 +353,7 @@ func TestIsEpisodeAlreadyHandled(t *testing.T) {
 		},
 		{
 			name:     "absolute offset handled - found in queue",
-			episode:  13, // -> 1
+			episode:  13, // the one found in the queue has the same episode number
 			offset:   12,
 			ruleID:   3,
 			mediaId:  20,
@@ -368,10 +369,18 @@ func TestIsEpisodeAlreadyHandled(t *testing.T) {
 		},
 		{
 			name:     "absolute offset handled - found in local files",
-			episode:  13, // -> 1
+			episode:  13, // the local file has episode 1
 			offset:   12,
 			ruleID:   4,
 			mediaId:  21,
+			expected: true,
+		},
+		{
+			name:     "absolute offset handled - non-offset episode in queue",
+			episode:  13, // the queue has episode 1
+			offset:   12,
+			ruleID:   5,
+			mediaId:  20,
 			expected: true,
 		},
 	}

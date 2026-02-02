@@ -289,6 +289,9 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 	bestReleases := make([]*hibiketorrent.AnimeTorrent, 0)
 	other := make([]*hibiketorrent.AnimeTorrent, 0)
 	for _, t := range torrents {
+		if t.InfoHash == "" { // make sure it's never empty
+			t.InfoHash = t.Name
+		}
 		if t.IsBestRelease {
 			bestReleases = append(bestReleases, t)
 		} else {
