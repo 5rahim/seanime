@@ -16,7 +16,7 @@ export const Route = createRootRoute({
             {__isElectronDesktop__ && <ElectronManager />}
             <CustomBackgroundImage />
             <Outlet />
-            {/*<TanStackRouterDevtools /> */}
+            {/*<TanStackRouterDevtools />*/}
         </Template>
     ),
     pendingComponent: LoadingOverlayWithLogo,

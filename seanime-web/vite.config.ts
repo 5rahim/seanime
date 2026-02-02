@@ -147,14 +147,14 @@ export default defineConfig(() => {
                                 return "charts-vendor"
                             }
 
-                            if (
-                                id.includes("date-fns") ||
-                                id.includes("lodash") ||
-                                id.includes("crypto-js") ||
-                                id.includes("libphonenumber-js")
-                            ) {
-                                return "utils-vendor"
-                            }
+                            // if (
+                            //     id.includes("date-fns") ||
+                            //     id.includes("lodash") ||
+                            //     id.includes("crypto-js") ||
+                            //     id.includes("libphonenumber-js")
+                            // ) {
+                            //     return "utils-vendor"
+                            // }
 
                             if (id.includes("react-icons")) {
                                 return "icons-vendor"
