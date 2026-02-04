@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { z } from "zod"
-import Page from "@/app/(main)/search/page"
 
 const searchSchema = z.object({
     sorting: z.string().optional(),
@@ -13,6 +12,5 @@ const searchSchema = z.object({
 })
 
 export const Route = createFileRoute("/_main/search/")({
-    component: Page,
     validateSearch: searchSchema,
 })

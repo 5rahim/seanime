@@ -10,7 +10,7 @@ import JASSUB from "jassub"
 import modernWasmUrl from "jassub/dist/wasm/jassub-worker-modern.wasm?url"
 import wasmUrl from "jassub/dist/wasm/jassub-worker.wasm?url"
 import type { ASSEvent } from "jassub/dist/worker/util"
-import workerUrl from "jassub/dist/worker/worker.js?url"
+import workerUrl from "jassub/dist/worker/worker.js?worker&url"
 import { toast } from "sonner"
 
 const subtitleLog = logger("VIDEO CORE SUBTITLES")
@@ -614,6 +614,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
                 const defaultFontUrl = "/fonts/Roboto-Medium.ttf"
 
+                console.warn(workerUrl)
+
                 this.libassRenderer = new JASSUB({
                     video: this.videoElement,
                     subContent: this.defaultSubtitleHeader,
@@ -625,7 +627,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                     availableFonts: {
                         [DEFAULT_FONT_NAME]: defaultFontUrl,
                     },
-                    debug: false,
+                    debug: true,
                 })
 
                 subtitleLog.info("Waiting for libass renderer...")

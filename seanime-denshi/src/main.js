@@ -177,7 +177,7 @@ function setupCustomProtocol() {
 // call before app.whenReady
 setupCustomProtocol()
 
-// Sets up the app protocol to serve the next.js static files from web-denshi/
+// Sets up the app protocol to serve the static files
 function setupAppProtocol() {
     if (_development) return
 
@@ -686,6 +686,16 @@ function createMainWindow() {
     if (process.platform === "win32" || process.platform === "linux") {
         mainWindow.setMenuBarVisibility(false)
     }
+
+    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+        callback({
+            responseHeaders: {
+                ...details.responseHeaders,
+                "Cross-Origin-Opener-Policy": ["same-origin"],
+                "Cross-Origin-Embedder-Policy": ["credentialless"]
+            }
+        })
+    })
 
     mainWindow.on("render-process-gone", (event, details) => {
         console.log("[Main] Render process gone", details)

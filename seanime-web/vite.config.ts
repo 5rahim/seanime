@@ -17,7 +17,6 @@ const crossOriginIsolation = (): Plugin => ({
 
 // ref: https://vitejs.dev/config/
 export default defineConfig(() => {
-    const isDesktop = process.env.VITE_PUBLIC_PLATFORM === "desktop"
     const isElectronDesktop = process.env.VITE_PUBLIC_DESKTOP === "electron"
     const outDir = isElectronDesktop ? "out-denshi" : "out"
 
@@ -32,12 +31,9 @@ export default defineConfig(() => {
                 autoCodeSplitting: true,
             }),
             VitePWA({
-                registerType: "autoUpdate",
-                // disables precaching entirely to act as an online-only pwa
-                workbox: {
-                    globPatterns: [],
-                    navigateFallback: "/index.html",
-                },
+                strategies: "generateSW",
+                injectRegister: false,
+                selfDestroying: true,
                 manifest: {
                     name: "Seanime",
                     short_name: "Seanime",
