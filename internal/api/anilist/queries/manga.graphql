@@ -175,6 +175,7 @@ fragment baseManga on Media {
   meanScore
   description
   genres
+  isFavourite
   title {
     userPreferred
     romaji

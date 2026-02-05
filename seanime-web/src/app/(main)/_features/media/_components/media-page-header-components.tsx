@@ -21,7 +21,7 @@ import {
 import capitalize from "lodash/capitalize"
 import { motion } from "motion/react"
 import React from "react"
-import { BiCalendarAlt, BiSolidStar, BiStar } from "react-icons/bi"
+import { BiCalendarAlt, BiSolidStar, BiStar, BiSolidHeart } from "react-icons/bi"
 import { MdOutlineSegment } from "react-icons/md"
 import { RiSignalTowerFill } from "react-icons/ri"
 import { useWindowScroll, useWindowSize } from "react-use"
@@ -454,6 +454,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             score={listData?.score}
                             progress={listData?.progress}
                             episodes={progressTotal}
+                            isFav={media.isFavourite}
                         />
 
                         <AnilistMediaEntryModal listData={listData} media={media} type={type} />
@@ -513,10 +514,11 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export function MediaPageHeaderScoreAndProgress({ score, progress, episodes }: {
+export function MediaPageHeaderScoreAndProgress({ score, progress, episodes, isFav }: {
     score: Nullish<number>,
     progress: Nullish<number>,
     episodes: Nullish<number>,
+    isFav: Nullish<boolean>,
 }) {
 
     return (
@@ -530,6 +532,13 @@ export function MediaPageHeaderScoreAndProgress({ score, progress, episodes }: {
             >
                 {score / 10}
             </Badge>}
+
+            {isFav && <Badge
+                leftIcon={<BiSolidHeart className="text-pink-500"/>}
+                size="xl"
+            >
+            </Badge>}
+
             <Badge
                 size="xl"
                 intent="basic"

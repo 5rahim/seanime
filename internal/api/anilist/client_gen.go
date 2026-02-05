@@ -61,6 +61,7 @@ type BaseAnime struct {
 	Description       *string                      "json:\"description,omitempty\" graphql:\"description\""
 	Genres            []*string                    "json:\"genres,omitempty\" graphql:\"genres\""
 	Duration          *int                         "json:\"duration,omitempty\" graphql:\"duration\""
+	IsFavourite       bool                         "json:\"isFavourite\" graphql:\"isFavourite\""
 	Trailer           *BaseAnime_Trailer           "json:\"trailer,omitempty\" graphql:\"trailer\""
 	Title             *BaseAnime_Title             "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage        *BaseAnime_CoverImage        "json:\"coverImage,omitempty\" graphql:\"coverImage\""
@@ -170,6 +171,12 @@ func (t *BaseAnime) GetDuration() *int {
 		t = &BaseAnime{}
 	}
 	return t.Duration
+}
+func (t *BaseAnime) GetIsFavourite() bool {
+	if t == nil {
+		t = &BaseAnime{}
+	}
+	return t.IsFavourite
 }
 func (t *BaseAnime) GetTrailer() *BaseAnime_Trailer {
 	if t == nil {
@@ -496,6 +503,7 @@ type BaseManga struct {
 	MeanScore       *int                  "json:\"meanScore,omitempty\" graphql:\"meanScore\""
 	Description     *string               "json:\"description,omitempty\" graphql:\"description\""
 	Genres          []*string             "json:\"genres,omitempty\" graphql:\"genres\""
+	IsFavourite     bool                  "json:\"isFavourite\" graphql:\"isFavourite\""
 	Title           *BaseManga_Title      "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage      *BaseManga_CoverImage "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate       *BaseManga_StartDate  "json:\"startDate,omitempty\" graphql:\"startDate\""
@@ -597,6 +605,12 @@ func (t *BaseManga) GetGenres() []*string {
 		t = &BaseManga{}
 	}
 	return t.Genres
+}
+func (t *BaseManga) GetIsFavourite() bool {
+	if t == nil {
+		t = &BaseManga{}
+	}
+	return t.IsFavourite
 }
 func (t *BaseManga) GetTitle() *BaseManga_Title {
 	if t == nil {
@@ -7598,6 +7612,7 @@ fragment baseAnime on Media {
 	description
 	genres
 	duration
+	isFavourite
 	trailer {
 		id
 		site
@@ -7758,6 +7773,7 @@ fragment baseAnime on Media {
 	description
 	genres
 	duration
+	isFavourite
 	trailer {
 		id
 		site
@@ -7833,6 +7849,7 @@ fragment baseAnime on Media {
 	description
 	genres
 	duration
+	isFavourite
 	trailer {
 		id
 		site
@@ -7908,6 +7925,7 @@ fragment baseAnime on Media {
 	description
 	genres
 	duration
+	isFavourite
 	trailer {
 		id
 		site
@@ -7988,6 +8006,7 @@ fragment baseAnime on Media {
 	description
 	genres
 	duration
+	isFavourite
 	trailer {
 		id
 		site
@@ -8131,6 +8150,7 @@ fragment baseAnime on Media {
 	description
 	genres
 	duration
+	isFavourite
 	trailer {
 		id
 		site
@@ -8335,6 +8355,7 @@ fragment baseAnime on Media {
 	description
 	genres
 	duration
+	isFavourite
 	trailer {
 		id
 		site
@@ -8419,6 +8440,7 @@ fragment baseAnime on Media {
 	description
 	genres
 	duration
+	isFavourite
 	trailer {
 		id
 		site
@@ -8519,6 +8541,7 @@ fragment baseAnime on Media {
 	description
 	genres
 	duration
+	isFavourite
 	trailer {
 		id
 		site
@@ -8841,6 +8864,7 @@ fragment baseManga on Media {
 	meanScore
 	description
 	genres
+	isFavourite
 	title {
 		userPreferred
 		romaji
@@ -8910,6 +8934,7 @@ fragment baseManga on Media {
 	meanScore
 	description
 	genres
+	isFavourite
 	title {
 		userPreferred
 		romaji
@@ -8978,6 +9003,7 @@ fragment baseManga on Media {
 	meanScore
 	description
 	genres
+	isFavourite
 	title {
 		userPreferred
 		romaji
@@ -9138,6 +9164,7 @@ fragment baseManga on Media {
 	meanScore
 	description
 	genres
+	isFavourite
 	title {
 		userPreferred
 		romaji
@@ -9211,6 +9238,7 @@ fragment baseManga on Media {
 	meanScore
 	description
 	genres
+	isFavourite
 	title {
 		userPreferred
 		romaji
@@ -9430,6 +9458,7 @@ fragment baseAnime on Media {
 	description
 	genres
 	duration
+	isFavourite
 	trailer {
 		id
 		site

@@ -241,6 +241,15 @@
         "comments": []
       },
       {
+        "name": "IsFavourite",
+        "jsonName": "isFavourite",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Trailer",
         "jsonName": "trailer",
         "goType": "BaseAnime_Trailer",
@@ -860,6 +869,15 @@
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsFavourite",
+        "jsonName": "isFavourite",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -24222,154 +24240,6 @@
     ]
   },
   {
-    "filepath": "../internal/api/animeofflinedb/animeofflinedb.go",
-    "filename": "animeofflinedb.go",
-    "name": "DatabaseRoot",
-    "formattedName": "DatabaseRoot",
-    "package": "animeofflinedb",
-    "fields": [
-      {
-        "name": "Data",
-        "jsonName": "data",
-        "goType": "[]AnimeEntry",
-        "typescriptType": "Array\u003cAnimeEntry\u003e",
-        "usedTypescriptType": "AnimeEntry",
-        "usedStructName": "animeofflinedb.AnimeEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/animeofflinedb/animeofflinedb.go",
-    "filename": "animeofflinedb.go",
-    "name": "AnimeEntry",
-    "formattedName": "AnimeEntry",
-    "package": "animeofflinedb",
-    "fields": [
-      {
-        "name": "Sources",
-        "jsonName": "sources",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " TV, MOVIE, OVA, ONA, SPECIAL, UNKNOWN"
-        ]
-      },
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " FINISHED, ONGOING, UPCOMING, UNKNOWN"
-        ]
-      },
-      {
-        "name": "AnimeSeason",
-        "jsonName": "animeSeason",
-        "goType": "AnimeSeason",
-        "typescriptType": "AnimeSeason",
-        "usedTypescriptType": "AnimeSeason",
-        "usedStructName": "animeofflinedb.AnimeSeason",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Picture",
-        "jsonName": "picture",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Thumbnail",
-        "jsonName": "thumbnail",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Synonyms",
-        "jsonName": "synonyms",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/animeofflinedb/animeofflinedb.go",
-    "filename": "animeofflinedb.go",
-    "name": "AnimeSeason",
-    "formattedName": "AnimeSeason",
-    "package": "animeofflinedb",
-    "fields": [
-      {
-        "name": "Season",
-        "jsonName": "season",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " SPRING, SUMMER, FALL, WINTER, UNDEFINED"
-        ]
-      },
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/api/anizip/anizip.go",
     "filename": "anizip.go",
     "name": "Episode",
@@ -26833,7 +26703,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/continuity/history.go",
+    "filepath": "..\\internal\\continuity\\history.go",
     "filename": "history.go",
     "name": "WatchHistory",
     "formattedName": "Continuity_WatchHistory",
@@ -29632,7 +29502,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/database/models/models.go",
+    "filepath": "..\\internal\\database\\models\\models.go",
     "filename": "models.go",
     "name": "LibraryPaths",
     "formattedName": "Models_LibraryPaths",
@@ -29748,7 +29618,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/database/models/models.go",
+    "filepath": "..\\internal\\database\\models\\models.go",
     "filename": "models.go",
     "name": "IntSlice",
     "formattedName": "Models_IntSlice",
@@ -31890,7 +31760,7 @@
     ]
   },
   {
-    "filepath": "../internal/database/models/models.go",
+    "filepath": "..\\internal\\database\\models\\models.go",
     "filename": "models.go",
     "name": "StringSlice",
     "formattedName": "Models_StringSlice",
@@ -51462,6 +51332,72 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library/scanner/efficient_dice.go",
+    "filename": "efficient_dice.go",
+    "name": "EfficientDice",
+    "formattedName": "Scanner_EfficientDice",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "ngramSize",
+        "jsonName": "ngramSize",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "caseSensitive",
+        "jsonName": "caseSensitive",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ngramBufferA",
+        "jsonName": "ngramBufferA",
+        "goType": "[]uint64",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ngramBufferB",
+        "jsonName": "ngramBufferB",
+        "goType": "[]uint64",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ngramCountMapA",
+        "jsonName": "ngramCountMapA",
+        "goType": "map[uint64]int16",
+        "typescriptType": "Record\u003cnumber, number\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ngramCountMapB",
+        "jsonName": "ngramCountMapB",
+        "goType": "map[uint64]int16",
+        "typescriptType": "Record\u003cnumber, number\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " EfficientDice is Sorensen-Dice implementation that minimizes allocs"
+    ]
+  },
+  {
     "filepath": "../internal/library/scanner/hook_events.go",
     "filename": "hook_events.go",
     "name": "ScanStartedEvent",
@@ -52377,8 +52313,8 @@
         "comments": []
       },
       {
-        "name": "UseLegacyEnhanced",
-        "jsonName": "UseLegacyEnhanced",
+        "name": "EnhanceWithOfflineDatabase",
+        "jsonName": "EnhanceWithOfflineDatabase",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -52932,6 +52868,17 @@
         "public": true,
         "comments": [
           " Title without season/part/year info"
+        ]
+      },
+      {
+        "name": "IsMain",
+        "jsonName": "IsMain",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether this title is a main title (romaji,english)"
         ]
       }
     ],
@@ -54136,7 +54083,7 @@
     ]
   },
   {
-    "filepath": "../internal/local/database_models.go",
+    "filepath": "..\\internal\\local\\database_models.go",
     "filename": "database_models.go",
     "name": "StringMap",
     "formattedName": "Local_StringMap",
@@ -54150,7 +54097,7 @@
     "comments": null
   },
   {
-    "filepath": "../internal/local/database_models.go",
+    "filepath": "..\\internal\\local\\database_models.go",
     "filename": "database_models.go",
     "name": "LocalMangaChapterContainers",
     "formattedName": "Local_LocalMangaChapterContainers",
@@ -55622,7 +55569,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/manga/download.go",
+    "filepath": "..\\internal\\manga\\download.go",
     "filename": "download.go",
     "name": "MediaMap",
     "formattedName": "Manga_MediaMap",
@@ -55637,7 +55584,7 @@
     "comments": null
   },
   {
-    "filepath": "../internal/manga/download.go",
+    "filepath": "..\\internal\\manga\\download.go",
     "filename": "download.go",
     "name": "ProviderDownloadMap",
     "formattedName": "Manga_ProviderDownloadMap",
@@ -56065,7 +56012,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/manga/downloader/chapter_downloader.go",
+    "filepath": "..\\internal\\manga\\downloader\\chapter_downloader.go",
     "filename": "chapter_downloader.go",
     "name": "Registry",
     "formattedName": "ChapterDownloader_Registry",
@@ -66321,7 +66268,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/nakama/share.go",
+    "filepath": "..\\internal\\nakama\\share.go",
     "filename": "share.go",
     "name": "NakamaCustomSourceMap",
     "formattedName": "Nakama_NakamaCustomSourceMap",

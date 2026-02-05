@@ -284,6 +284,7 @@ fragment baseAnime on Media {
   description
   genres
   duration
+  isFavourite
   trailer {
     id
     site

@@ -408,6 +408,7 @@ export type AL_BaseAnime = {
     description?: string
     genres?: Array<string>
     duration?: number
+    isFavourite: boolean
     trailer?: AL_BaseAnime_Trailer
     title?: AL_BaseAnime_Title
     coverImage?: AL_BaseAnime_CoverImage
@@ -554,6 +555,7 @@ export type AL_BaseManga = {
     meanScore?: number
     description?: string
     genres?: Array<string>
+    isFavourite: boolean
     title?: AL_BaseManga_Title
     coverImage?: AL_BaseManga_CoverImage
     startDate?: AL_BaseManga_StartDate
@@ -1908,7 +1910,7 @@ export type Continuity_UpdateWatchHistoryItemOptions = {
 }
 
 /**
- * - Filepath: internal/continuity/history.go
+ * - Filepath: ..\internal\continuity\history.go
  * - Filename: history.go
  * - Package: continuity
  */
@@ -3304,7 +3306,7 @@ export type Manga_PageDimension = {
 }
 
 /**
- * - Filepath: internal/manga/download.go
+ * - Filepath: ..\internal\manga\download.go
  * - Filename: download.go
  * - Package: manga
  */
@@ -3762,14 +3764,14 @@ export type Models_HomeItem = {
 }
 
 /**
- * - Filepath: internal/database/models/models.go
+ * - Filepath: ..\internal\database\models\models.go
  * - Filename: models.go
  * - Package: models
  */
 export type Models_IntSlice = Array<number>
 
 /**
- * - Filepath: internal/database/models/models.go
+ * - Filepath: ..\internal\database\models\models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -3955,7 +3957,7 @@ export type Models_SilencedMediaEntry = {
 }
 
 /**
- * - Filepath: internal/database/models/models.go
+ * - Filepath: ..\internal\database\models\models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -4117,7 +4119,7 @@ export type Nakama_NakamaAnimeLibrary = {
 }
 
 /**
- * - Filepath: internal/nakama/share.go
+ * - Filepath: ..\internal\nakama\share.go
  * - Filename: share.go
  * - Package: nakama
  */
