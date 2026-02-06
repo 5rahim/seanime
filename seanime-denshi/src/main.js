@@ -8,7 +8,8 @@ import("strip-ansi").then(module => {
     stripAnsi = module.default
 })
 const { autoUpdater } = require("electron-updater")
-const log = require("electron-log")
+const log = require("electron-log/main")
+log.initialize()
 
 const _isRsbuildFrontend = true
 

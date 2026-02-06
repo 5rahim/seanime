@@ -351,6 +351,11 @@ function applyEpisodeReplacement(episode: number, replaceText: string, index: nu
         if (!isNaN(decrement)) {
             newEpisode = episode - decrement
         }
+    } else if (replaceText.startsWith("start=")) {
+        const start = parseInt(replaceText.substring(6))
+        if (!isNaN(start)) {
+            newEpisode = start + index
+        }
     } else {
         const directValue = parseInt(replaceText)
         if (!isNaN(directValue)) {
@@ -971,7 +976,7 @@ function MetadataEditRule({ edit, index, onUpdate, onRemove }: MetadataEditRuleP
     const getReplacePlaceholder = () => {
         switch (edit.type) {
             case "episode":
-                return "e.g.: increment=1, decrement=1, or direct value like 5"
+                return "e.g.: increment=1, decrement=1, start=1, or direct value like 5"
             case "anidb":
                 return "Replacement text (supports enumeration patterns)"
             case "type":
