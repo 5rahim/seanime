@@ -640,6 +640,7 @@ function WebviewIframe({ webview, onUpdatePosition, onClose }: WebviewIframeProp
                     (isDragging) && "pointer-events-none",
                     options.className,
                 )}
+                {...({ credentialless: "true" } as any)}
             />
         </div>
     )
