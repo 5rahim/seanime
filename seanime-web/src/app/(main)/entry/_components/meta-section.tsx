@@ -1,7 +1,7 @@
 import { AL_AnimeDetailsById_Media, Anime_Entry } from "@/api/generated/types"
+import { AnimeAutoDownloaderButton } from "@/app/(main)/_features/anime-library/_containers/anime-auto-downloader-button"
+import { ToggleLockFilesButton } from "@/app/(main)/_features/anime-library/_containers/toggle-lock-files-button"
 import { TrailerModal } from "@/app/(main)/_features/anime/_components/trailer-modal"
-import { AnimeAutoDownloaderButton } from "@/app/(main)/_features/anime/_containers/anime-auto-downloader-button"
-import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import { AnimeEntryStudio } from "@/app/(main)/_features/media/_components/anime-entry-studio"
 import {
     AnimeEntryRankings,
@@ -28,7 +28,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
 import { TORRENT_CLIENT } from "@/lib/server/settings"
 import { getCustomSourceExtensionId, getCustomSourceMediaSiteUrl, isCustomSource } from "@/lib/server/utils"
-import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
 import { BiExtension } from "react-icons/bi"
 import { IoInformationCircle } from "react-icons/io5"

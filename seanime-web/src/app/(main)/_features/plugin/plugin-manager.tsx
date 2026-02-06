@@ -1,7 +1,7 @@
 import { useListExtensionData } from "@/api/hooks/extensions.hooks"
 import { useIsMainTabRef } from "@/app/websocket-provider"
 import { useDebounce } from "@/hooks/use-debounce"
-import { usePathname, useRouter, useSearchParams } from "@/lib/navigation.ts"
+import { usePathname, useRouter, useSearchParams } from "@/lib/navigation"
 import { WSEvents } from "@/lib/server/ws-events"
 import { startTransition, useEffect, useState } from "react"
 import { useWindowSize } from "react-use"

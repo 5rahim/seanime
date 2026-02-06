@@ -1,5 +1,7 @@
 // Flash notification system
-import { vc_miniPlayer, vc_paused } from "@/app/(main)/_features/video-core/video-core"
+
+import { vc_paused } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { cn } from "@/components/ui/core/styling"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"

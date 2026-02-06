@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { openTab } from "@/lib/helpers/browser"
-import { atom } from "jotai/index"
+import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 

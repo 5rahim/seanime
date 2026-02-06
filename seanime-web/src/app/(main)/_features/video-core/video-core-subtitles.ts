@@ -7,11 +7,12 @@ import { logger } from "@/lib/helpers/debug"
 import { detectTrackLanguage } from "@/lib/helpers/language"
 import { getAssetUrl } from "@/lib/server/assets"
 import JASSUB from "jassub"
-import modernWasmUrl from "jassub/dist/wasm/jassub-worker-modern.wasm?url"
-import wasmUrl from "jassub/dist/wasm/jassub-worker.wasm?url"
 import type { ASSEvent } from "jassub/dist/worker/util"
-import workerUrl from "jassub/dist/worker/worker.js?worker&url"
 import { toast } from "sonner"
+
+const modernWasmUrl = "/jassub/jassub-worker-modern.wasm"
+const wasmUrl = "/jassub/jassub-worker.wasm"
+const workerUrl = "/jassub/jassub-worker.js"
 
 const subtitleLog = logger("VIDEO CORE SUBTITLES")
 
@@ -207,6 +208,72 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         subtitleLog.info("Event Tracks", this.eventTracks)
         subtitleLog.info("PGS Event Tracks", this.pgsEventTracks)
         subtitleLog.info("File tracks", this.fileTracks)
+    }
+
+    private async _init() {
+        if (!this.libassRenderer) {
+            try {
+                // (function () {
+                //     console.log("Worker test")
+                //     const w = new Worker(workerUrl)
+                //
+                //     w.onerror = (e) => {
+                //         console.error("worker crashed:", e.message, "at line", e.lineno)
+                //     }
+                //
+                //     w.onmessage = (e) => {
+                //         console.log("worker replied:", e.data)
+                //     }
+                // })()
+
+                subtitleLog.info("Initializing libass renderer")
+
+                const defaultFontUrl = "/fonts/Roboto-Medium.ttf"
+
+                console.warn(workerUrl)
+
+                this.libassRenderer = new JASSUB({
+                    video: this.videoElement,
+                    subContent: this.defaultSubtitleHeader,
+                    wasmUrl: wasmUrl,
+                    workerUrl: workerUrl,
+                    modernWasmUrl: modernWasmUrl,
+                    fonts: this.fonts,
+                    defaultFont: DEFAULT_FONT_NAME,
+                    availableFonts: {
+                        [DEFAULT_FONT_NAME]: defaultFontUrl,
+                    },
+                    debug: false,
+                })
+
+                subtitleLog.info("Waiting for libass renderer...")
+                await this.libassRenderer.ready
+                subtitleLog.info("Libass renderer ready")
+
+
+                this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")
+                    ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}`) || []
+
+                if (!this.playbackInfo.libassFonts) {
+                    this.fonts = [...new Set([...this.fonts, defaultFontUrl])]
+                }
+
+                this.fonts = [defaultFontUrl, ...this.fonts]
+
+                await this.libassRenderer.renderer.addFonts(this.fonts)
+            }
+            catch (e) {
+                subtitleLog.error("Error initializing libass renderer", e)
+                toast.error("Error initializing libass renderer: " + e)
+            }
+        }
+
+        if (!this.pgsRenderer && this.playbackInfo.mkvMetadata?.tracks?.some(t => isPGS(t.codecID))) {
+            this.pgsRenderer = new VideoCorePgsRenderer({
+                videoElement: this.videoElement,
+                // debug: process.env.NODE_ENV === "development",
+            })
+        }
     }
 
     addEventListener<K extends keyof VideoCoreSubtitleManagerEventMap>(
@@ -605,59 +672,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         const event: SubtitleManagerTracksLoadedEvent = new CustomEvent("tracksloaded", { detail: { tracks: tracks } })
         this.dispatchEvent(event)
         this._onTracksLoaded?.(tracks)
-    }
-
-    private async _init() {
-        if (!this.libassRenderer) {
-            try {
-                subtitleLog.info("Initializing libass renderer")
-
-                const defaultFontUrl = "/fonts/Roboto-Medium.ttf"
-
-                console.warn(workerUrl)
-
-                this.libassRenderer = new JASSUB({
-                    video: this.videoElement,
-                    subContent: this.defaultSubtitleHeader,
-                    wasmUrl: wasmUrl,
-                    workerUrl: workerUrl,
-                    modernWasmUrl: modernWasmUrl,
-                    fonts: this.fonts,
-                    defaultFont: DEFAULT_FONT_NAME,
-                    availableFonts: {
-                        [DEFAULT_FONT_NAME]: defaultFontUrl,
-                    },
-                    debug: true,
-                })
-
-                subtitleLog.info("Waiting for libass renderer...")
-                await this.libassRenderer.ready
-                subtitleLog.info("Libass renderer ready")
-
-
-                this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")
-                    ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}`) || []
-
-                if (!this.playbackInfo.libassFonts) {
-                    this.fonts = [...new Set([...this.fonts, defaultFontUrl])]
-                }
-
-                this.fonts = [defaultFontUrl, ...this.fonts]
-
-                await this.libassRenderer.renderer.addFonts(this.fonts)
-            }
-            catch (e) {
-                subtitleLog.error("Error initializing libass renderer", e)
-                toast.error("Error initializing libass renderer: " + e)
-            }
-        }
-
-        if (!this.pgsRenderer && this.playbackInfo.mkvMetadata?.tracks?.some(t => isPGS(t.codecID))) {
-            this.pgsRenderer = new VideoCorePgsRenderer({
-                videoElement: this.videoElement,
-                // debug: process.env.NODE_ENV === "development",
-            })
-        }
     }
 
     // When called for the first time, it will initialize the libass renderer.

@@ -1,6 +1,6 @@
 import { Anime_LocalFile, Summary_ScanSummaryFile, Summary_ScanSummaryLog } from "@/api/generated/types"
 import { useGetScanSummaries } from "@/api/hooks/scan_summary.hooks"
-import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { CustomLibraryBanner } from "@/app/(main)/_features/anime-library/_containers/custom-library-banner"
 import { useLibraryExplorer } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { SeaImage } from "@/components/shared/sea-image"

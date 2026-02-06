@@ -3,7 +3,7 @@ import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/cus
 import { SeaImage } from "@/components/shared/sea-image"
 import { cn } from "@/components/ui/core/styling"
 import { getImageUrl } from "@/lib/server/assets"
-import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { __isDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"

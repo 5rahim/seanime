@@ -2,9 +2,9 @@ import { useGetLibraryExplorerFileTree, useRefreshLibraryExplorerFileTree } from
 import { AL_BaseAnime, Anime_LocalFile, Anime_LocalFileType, LibraryExplorer_FileTreeNodeJSON } from "@/api/generated/types"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useDeleteLocalFiles, useUpdateLocalFileData, useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
-import { __unknownMedia_drawerIsOpen, UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media-manager"
-import { __unmatchedFileManagerIsOpen, UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { __unknownMedia_drawerIsOpen, UnknownMediaManager } from "@/app/(main)/_features/anime-library/_containers/unknown-media-manager"
+import { __unmatchedFileManagerIsOpen, UnmatchedFileManager } from "@/app/(main)/_features/anime-library/_containers/unmatched-file-manager"
 import { LibraryExplorerSuperUpdate } from "@/app/(main)/_features/library-explorer/library-explorer-super-update"
 import { LibraryExplorerSuperUpdateDrawer } from "@/app/(main)/_features/library-explorer/library-explorer-super-update-drawer"
 import {

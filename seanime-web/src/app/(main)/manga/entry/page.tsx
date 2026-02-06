@@ -7,8 +7,8 @@ import { MetaSection } from "@/app/(main)/manga/_components/meta-section"
 import { ChapterList } from "@/app/(main)/manga/_containers/chapter-list/chapter-list"
 import { useHandleMangaDownloadData } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { PageWrapper } from "@/components/shared/page-wrapper"
-import { usePathname } from "@/lib/navigation.ts"
-import { useRouter, useSearchParams } from "@/lib/navigation.ts"
+import { usePathname } from "@/lib/navigation"
+import { useRouter, useSearchParams } from "@/lib/navigation"
 import React from "react"
 
 

@@ -1,13 +1,11 @@
-import {
-    vc_anime4kManager,
-    vc_miniPlayer,
-    vc_paused,
-    vc_pip,
-    vc_realVideoSize,
-    vc_seeking,
-    vc_videoElement,
-} from "@/app/(main)/_features/video-core/video-core"
-import { Anime4KOption } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
+import { vc_anime4kManager } from "@/app/(main)/_features/video-core/video-core"
+import type { Anime4KOption } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
+import { vc_realVideoSize } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_seeking } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_paused } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_pip } from "@/app/(main)/_features/video-core/video-core-pip"
 import { logger } from "@/lib/helpers/debug"
 import { useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"

@@ -1,9 +1,9 @@
-/// <reference types="vite/client" />
+/// <reference types="@rsbuild/core/types" />
 
 interface ImportMetaEnv {
-    readonly VITE_APP_TITLE: string
-    readonly VITE_PUBLIC_PLATFORM: string
-    readonly VITE_PUBLIC_DESKTOP: string
+    readonly SEA_APP_TITLE: string
+    readonly SEA_PUBLIC_PLATFORM: string
+    readonly SEA_PUBLIC_DESKTOP: string
 }
 
 interface ImportMeta {

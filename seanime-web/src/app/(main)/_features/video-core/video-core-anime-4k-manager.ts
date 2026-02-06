@@ -1,21 +1,6 @@
 import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
-import {
-    Anime4KPipeline,
-    CNNx2M,
-    CNNx2UL,
-    CNNx2VL,
-    DenoiseCNNx2VL,
-    GANx3L,
-    GANx4UUL,
-    ModeA,
-    ModeAA,
-    ModeB,
-    ModeBB,
-    ModeC,
-    ModeCA,
-    render,
-} from "anime4k-webgpu"
+import type { Anime4KPipeline } from "anime4k-webgpu"
 
 const log = logger("VIDEO CORE ANIME 4K MANAGER")
 
@@ -405,6 +390,8 @@ export class VideoCoreAnime4KManager extends EventTarget {
             return
         }
 
+        const anime4k = await import("anime4k-webgpu")
+
         const nativeDimensions = {
             width: this.videoElement.videoWidth,
             height: this.videoElement.videoHeight,
@@ -417,7 +404,7 @@ export class VideoCoreAnime4KManager extends EventTarget {
 
         log.info("Rendering started")
 
-        await render({
+        await anime4k.render({
             video: this.videoElement,
             canvas: this.canvas,
             pipelineBuilder: (device, inputTexture) => {
@@ -430,7 +417,7 @@ export class VideoCoreAnime4KManager extends EventTarget {
                     targetDimensions,
                 }
 
-                return this.createPipeline(commonProps)
+                return this.createPipeline(commonProps, anime4k)
             },
         })
 
@@ -455,34 +442,34 @@ export class VideoCoreAnime4KManager extends EventTarget {
         }
     }
 
-    private createPipeline(commonProps: any): [Anime4KPipeline] {
+    private createPipeline(commonProps: any, anime4k: typeof import("anime4k-webgpu")): [Anime4KPipeline] {
         switch (this._currentOption) {
             case "mode-a":
-                return [new ModeA(commonProps)]
+                return [new anime4k.ModeA(commonProps)]
             case "mode-b":
-                return [new ModeB(commonProps)]
+                return [new anime4k.ModeB(commonProps)]
             case "mode-c":
-                return [new ModeC(commonProps)]
+                return [new anime4k.ModeC(commonProps)]
             case "mode-aa":
-                return [new ModeAA(commonProps)]
+                return [new anime4k.ModeAA(commonProps)]
             case "mode-bb":
-                return [new ModeBB(commonProps)]
+                return [new anime4k.ModeBB(commonProps)]
             case "mode-ca":
-                return [new ModeCA(commonProps)]
+                return [new anime4k.ModeCA(commonProps)]
             case "cnn-2x-medium":
-                return [new CNNx2M(commonProps)]
+                return [new anime4k.CNNx2M(commonProps)]
             case "cnn-2x-very-large":
-                return [new CNNx2VL(commonProps)]
+                return [new anime4k.CNNx2VL(commonProps)]
             case "denoise-cnn-2x-very-large":
-                return [new DenoiseCNNx2VL(commonProps)]
+                return [new anime4k.DenoiseCNNx2VL(commonProps)]
             case "cnn-2x-ultra-large":
-                return [new CNNx2UL(commonProps)]
+                return [new anime4k.CNNx2UL(commonProps)]
             case "gan-3x-large":
-                return [new GANx3L(commonProps)]
+                return [new anime4k.GANx3L(commonProps)]
             case "gan-4x-ultra-large":
-                return [new GANx4UUL(commonProps)]
+                return [new anime4k.GANx4UUL(commonProps)]
             default:
-                return [new ModeA(commonProps)]
+                return [new anime4k.ModeA(commonProps)]
         }
     }
 

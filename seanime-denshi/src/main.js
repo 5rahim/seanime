@@ -10,7 +10,7 @@ import("strip-ansi").then(module => {
 const { autoUpdater } = require("electron-updater")
 const log = require("electron-log")
 
-const _isViteFrontend = true
+const _isRsbuildFrontend = true
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Chromium flags
@@ -183,7 +183,7 @@ function setupAppProtocol() {
 
     const webPath = path.join(__dirname, "../web-denshi")
 
-    if (!_isViteFrontend) {
+    if (!_isRsbuildFrontend) {
         protocol.handle("app", (request) => {
             const requestUrl = new URL(request.url)
             let urlPath = requestUrl.pathname
@@ -223,19 +223,39 @@ function setupAppProtocol() {
             return net.fetch(`file://${fallbackPath}`)
         })
     } else {
-        protocol.handle("app", (request) => {
+        protocol.handle("app", async (request) => {
             const requestUrl = new URL(request.url)
             const urlPath = requestUrl.pathname
             let filePath = path.join(webPath, urlPath)
 
-            // Serve file if it exists
             if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-                return net.fetch(`file://${filePath}`)
+                const response = await net.fetch(`file://${filePath}`)
+                const newHeaders = new Headers(response.headers)
+                newHeaders.set("Cross-Origin-Opener-Policy", "same-origin")
+                newHeaders.set("Cross-Origin-Embedder-Policy", "credentialless")
+                return new Response(response.body, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: newHeaders,
+                })
             }
 
-            // Fallback to index.html for SPA
-            const fallbackPath = path.join(webPath, "index.html")
-            return net.fetch(`file://${fallbackPath}`)
+            const ext = path.extname(urlPath)
+            if (!ext || ext === ".html") {
+                const fallbackPath = path.join(webPath, "index.html")
+                const response = await net.fetch(`file://${fallbackPath}`)
+                const newHeaders = new Headers(response.headers)
+                newHeaders.set("Cross-Origin-Opener-Policy", "same-origin")
+                newHeaders.set("Cross-Origin-Embedder-Policy", "credentialless")
+                return new Response(response.body, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: newHeaders,
+                })
+            }
+
+            console.error(`[App Protocol] 404 Not Found: ${urlPath}`)
+            return new Response("Not Found", { status: 404 })
         })
     }
 }
@@ -468,13 +488,12 @@ function createTray() {
     tray.setContextMenu(contextMenu)
 
     tray.on("click", () => {
-        if(mainWindow.isVisible()) {
+        if (mainWindow.isVisible()) {
             mainWindow.hide()
             if (process.platform === "darwin") {
-                app.dock.hide();
+                app.dock.hide()
             }
-        }
-        else {
+        } else {
             mainWindow.show()
             mainWindow.focus()
             if (process.platform === "darwin") {
@@ -686,16 +705,6 @@ function createMainWindow() {
     if (process.platform === "win32" || process.platform === "linux") {
         mainWindow.setMenuBarVisibility(false)
     }
-
-    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-        callback({
-            responseHeaders: {
-                ...details.responseHeaders,
-                "Cross-Origin-Opener-Policy": ["same-origin"],
-                "Cross-Origin-Embedder-Policy": ["credentialless"]
-            }
-        })
-    })
 
     mainWindow.on("render-process-gone", (event, details) => {
         console.log("[Main] Render process gone", details)

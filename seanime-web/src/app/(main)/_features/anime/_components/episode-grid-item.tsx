@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { getImageUrl } from "@/lib/server/assets"
-import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
 import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
 

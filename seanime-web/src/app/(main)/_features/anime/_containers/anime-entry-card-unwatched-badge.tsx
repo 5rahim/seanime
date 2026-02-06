@@ -2,7 +2,7 @@ import { AL_BaseAnime, Anime_EntryLibraryData, Anime_NakamaEntryLibraryData, Nul
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { anilist_getCurrentEpisodes } from "@/lib/helpers/media"
-import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
 import { MdOutlinePlayCircleOutline } from "react-icons/md"
 

@@ -1,4 +1,4 @@
-import { THEME_DEFAULT_VALUES, useThemeSettings } from "@/lib/theme/theme-hooks.ts"
+import { THEME_DEFAULT_VALUES, useThemeSettings } from "@/lib/theme/theme-hooks"
 import { colord, extend, RgbColor } from "colord"
 import mixPlugin from "colord/plugins/mix"
 import React from "react"

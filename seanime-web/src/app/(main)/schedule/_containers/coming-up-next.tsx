@@ -3,7 +3,7 @@ import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-ca
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
-import { useRouter } from "@/lib/navigation.ts"
+import { useRouter } from "@/lib/navigation"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import React from "react"
 

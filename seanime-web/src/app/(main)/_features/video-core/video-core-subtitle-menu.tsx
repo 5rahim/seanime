@@ -1,24 +1,17 @@
 import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
-import {
-    vc_containerElement,
-    vc_dispatchAction,
-    vc_isFullscreen,
-    vc_mediaCaptionsManager,
-    vc_miniPlayer,
-    vc_subtitleManager,
-    vc_videoElement,
-} from "@/app/(main)/_features/video-core/video-core"
+import { vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_mediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_menuSectionOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_containerElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { VideoCoreControlButtonIcon } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { MediaCaptionsTrack } from "@/app/(main)/_features/video-core/video-core-media-captions"
-import {
-    vc_menuOpen,
-    vc_menuSectionOpen,
-    VideoCoreMenu,
-    VideoCoreMenuBody,
-    VideoCoreMenuTitle,
-    VideoCoreSettingSelect,
-} from "@/app/(main)/_features/video-core/video-core-menu"
+import { VideoCoreMenu, VideoCoreMenuBody, VideoCoreMenuTitle, VideoCoreSettingSelect } from "@/app/(main)/_features/video-core/video-core-menu"
 import { NormalizedTrackInfo } from "@/app/(main)/_features/video-core/video-core-subtitles"
+import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
 import { IconButton } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
 import { useAtomValue } from "jotai"

@@ -1,4 +1,4 @@
-import { useRouter } from "@/lib/navigation.ts"
+import { useRouter } from "@/lib/navigation"
 import Mousetrap from "mousetrap"
 import React from "react"
 

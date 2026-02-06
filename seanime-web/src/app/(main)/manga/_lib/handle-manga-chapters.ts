@@ -2,7 +2,8 @@ import { useGetMangaEntryChapters } from "@/api/hooks/manga.hooks"
 import { useHandleMangaProviderExtensions } from "@/app/(main)/manga/_lib/handle-manga-providers"
 import { useSelectedMangaFilters, useSelectedMangaProvider } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
-import { uniq, uniqBy } from "lodash"
+import uniq from "lodash/uniq"
+import uniqBy from "lodash/uniqBy"
 import React from "react"
 
 export function useHandleMangaChapters(

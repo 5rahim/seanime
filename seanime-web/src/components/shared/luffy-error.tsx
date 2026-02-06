@@ -1,7 +1,7 @@
 import { SeaImage } from "@/components/shared/sea-image"
 import { Button } from "@/components/ui/button/button"
 import { cn } from "@/components/ui/core/styling"
-import { useRouter } from "@/lib/navigation.ts"
+import { useRouter } from "@/lib/navigation"
 import React from "react"
 
 interface LuffyErrorProps {

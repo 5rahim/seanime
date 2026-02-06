@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardProps } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
-import { useRouter } from "@/lib/navigation.ts"
+import { useRouter } from "@/lib/navigation"
 import {
     DEFAULT_TORRENT_PROVIDER,
     getDefaultIinaSocket,

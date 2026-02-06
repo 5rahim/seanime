@@ -1,7 +1,7 @@
 import { useLogin } from "@/api/hooks/auth.hooks"
 import { websocketConnectedAtom } from "@/app/websocket-provider"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
-import { useRouter } from "@/lib/navigation.ts"
+import { useRouter } from "@/lib/navigation"
 import { useAtomValue } from "jotai/react"
 import React from "react"
 import { toast } from "sonner"

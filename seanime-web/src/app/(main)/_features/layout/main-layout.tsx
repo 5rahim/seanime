@@ -1,5 +1,5 @@
-import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scan-progress-bar"
-import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner-modal"
+import { ScanProgressBar } from "@/app/(main)/_features/anime-library/_containers/scan-progress-bar"
+import { ScannerModal } from "@/app/(main)/_features/anime-library/_containers/scanner-modal"
 import { ErrorExplainer } from "@/app/(main)/_features/error-explainer/error-explainer"
 import { GlobalSearch } from "@/app/(main)/_features/global-search/global-search"
 import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
@@ -14,7 +14,7 @@ import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { SeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
-import { VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
+
 import { useAnimeCollectionLoader } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useAnimeLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes-loader"
@@ -31,7 +31,7 @@ import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-str
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
-import { usePathname, useRouter } from "@/lib/navigation.ts"
+import { usePathname, useRouter } from "@/lib/navigation"
 import { __isElectronDesktop__ } from "@/types/constants"
 import React from "react"
 import { useServerStatus } from "../../_hooks/use-server-status"
@@ -39,8 +39,9 @@ import { useInvalidateQueriesListener } from "../../_listeners/invalidate-querie
 import { Announcements } from "../announcements"
 import { NakamaManager } from "../nakama/nakama-manager"
 import { NakamaWatchPartyChat, NakamaWatchPartyChatProvider } from "../nakama/nakama-watch-party-chat"
-import { NativePlayer } from "../native-player/native-player"
 import { TopIndefiniteLoader } from "../top-indefinite-loader"
+
+const NativePlayerLazyWrapper = React.lazy(() => import("@/app/(main)/_features/native-player/native-player-lazy-wrapper"))
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
@@ -62,10 +63,13 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <IssueReport />
             <ErrorExplainer />
             <SeaCommand />
+
             <PluginManager />
-            {(__isElectronDesktop__) && <VideoCoreProvider key="native-player" id="native-player">
-                <NativePlayer />
-            </VideoCoreProvider>}
+            {(__isElectronDesktop__) && (
+                <React.Suspense fallback={null}>
+                    <NativePlayerLazyWrapper />
+                </React.Suspense>
+            )}
             <NakamaManager />
             <NakamaWatchPartyChatProvider />
             <NakamaWatchPartyChat />

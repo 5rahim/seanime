@@ -1,5 +1,3 @@
-
-
 import { Report_IssueReport } from "@/api/generated/types"
 import { ScanLogViewer } from "@/app/scan-log-viewer/scan-log-viewer"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -8,7 +6,8 @@ import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { TextInput } from "@/components/ui/text-input"
 import { format, isSameSecond, parseISO } from "date-fns"
-import { max, min } from "lodash"
+import max from "lodash/max"
+import min from "lodash/min"
 import React, { useLayoutEffect, useRef, useState } from "react"
 import { FiMousePointer } from "react-icons/fi"
 import { HiServerStack } from "react-icons/hi2"

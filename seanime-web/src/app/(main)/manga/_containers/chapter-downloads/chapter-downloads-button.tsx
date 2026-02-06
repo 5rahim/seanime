@@ -1,6 +1,6 @@
 import { __manga_chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { Button } from "@/components/ui/button"
-import { usePathname } from "@/lib/navigation.ts"
+import { usePathname } from "@/lib/navigation"
 import { useSetAtom } from "jotai/react"
 import React from "react"
 import { LuFolderDown } from "react-icons/lu"

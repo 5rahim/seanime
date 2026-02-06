@@ -1,7 +1,7 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useMALAuth } from "@/api/hooks/mal.hooks"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
-import { useRouter } from "@/lib/navigation.ts"
+import { useRouter } from "@/lib/navigation"
 import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 

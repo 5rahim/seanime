@@ -104,9 +104,9 @@ The maintenance of this project is made possible by the sponsors.
 
 ## Tech stack
 
-* Server: Built with [Go](https://go.dev/)
-* Frontend: Built with [React](https://reactjs.org/), [Vite](https://vitejs.dev/), and [Tanstack Router](https://tanstack.com/router)
-* Seanime Denshi: Built with a custom [Electron](https://www.electronjs.org/)/Chromium to support more codecs
+* Server: [Go](https://go.dev/)
+* Frontend: [React](https://reactjs.org/), [Rsbuild/Rspack](https://rsbuild.rs/), [Tanstack Router](https://tanstack.com/router)
+* Seanime Denshi: [Electron](https://www.electronjs.org/)
 
 ## Development and Build
 

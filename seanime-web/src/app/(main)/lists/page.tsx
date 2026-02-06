@@ -1,4 +1,4 @@
-import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { CustomLibraryBanner } from "@/app/(main)/_features/anime-library/_containers/custom-library-banner"
 import { AnilistCollectionLists } from "@/app/(main)/lists/_containers/anilist-collection-lists"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import React from "react"

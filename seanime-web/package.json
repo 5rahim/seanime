@@ -4,15 +4,16 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "env-cmd -f .env.web vite --port 43210 --host 0.0.0.0",
-        "dev:mobile": "env-cmd -f .env.mobile vite --port 43210 --host 0.0.0.0",
-        "dev:desktop": "env-cmd -f .env.desktop vite --port 43210 --host 0.0.0.0",
-        "dev:denshi": "env-cmd -f .env.denshi vite --port 43210 --host 0.0.0.0",
-        "build": "tsc && vite build",
-        "build:desktop": "tsc && env-cmd -f .env.desktop vite build",
-        "build:denshi": "tsc && env-cmd -f .env.denshi vite build",
-        "build:development:desktop": "tsc && env-cmd -f .env.development.desktop vite build",
-        "preview": "vite preview"
+        "dev": "env-cmd -f .env.web rsbuild dev",
+        "dev:mobile": "env-cmd -f .env.mobile rsbuild dev",
+        "dev:desktop": "env-cmd -f .env.desktop rsbuild dev",
+        "dev:denshi": "env-cmd -f .env.denshi rsbuild dev",
+        "build": "tsc && rsbuild build",
+        "build:rsdoctor": "RSDOCTOR=true rsbuild build",
+        "build:desktop": "tsc && env-cmd -f .env.desktop rsbuild build",
+        "build:denshi": "tsc && env-cmd -f .env.denshi rsbuild build",
+        "build:development:desktop": "tsc && env-cmd -f .env.development.desktop rsbuild build",
+        "preview": "rsbuild preview"
     },
     "dependencies": {
         "@codemirror/autocomplete": "^6.20.0",
@@ -137,13 +138,16 @@
         "upath": "^2.0.1",
         "use-debounce": "^10.1.0",
         "vaul": "^1.1.2",
-        "vite-plugin-pwa": "^1.2.0",
         "zod": "^3.25.67"
     },
     "devDependencies": {
         "@graphql-codegen/client-preset": "4.8.2",
+        "@rsbuild/core": "^1.7.3",
+        "@rsbuild/plugin-babel": "^1.1.0",
+        "@rsbuild/plugin-react": "^1.4.5",
+        "@rsdoctor/rspack-plugin": "^1.5.2",
         "@tanstack/router-devtools": "^1.157.18",
-        "@tanstack/router-vite-plugin": "^1.157.18",
+        "@tanstack/router-plugin": "^1.158.1",
         "@types/crypto-js": "^4.2.2",
         "@types/fs-extra": "^11.0.4",
         "@types/google.maps": "^3.58.1",
@@ -157,13 +161,12 @@
         "@types/react": "^18.3.23",
         "@types/react-dom": "^18.3.7",
         "@types/react-window": "^1.8.8",
-        "@vitejs/plugin-react": "^5.1.2",
         "autoprefixer": "^10",
         "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250405",
         "encoding": "^0.1.13",
         "postcss": "^8",
         "tailwindcss": "^3.4.17",
         "typescript": "^5",
-        "vite": "^7.3.1"
+        "workbox-webpack-plugin": "^7.4.0"
     }
 }

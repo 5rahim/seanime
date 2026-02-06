@@ -1,5 +1,5 @@
 import { cn } from "@/components/ui/core/styling"
-import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import * as React from "react"
 import { Drawer as VaulPrimitive } from "vaul"

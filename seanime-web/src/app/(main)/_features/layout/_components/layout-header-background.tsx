@@ -1,5 +1,5 @@
 import { cn } from "@/components/ui/core/styling"
-import { usePathname } from "@/lib/navigation.ts"
+import { usePathname } from "@/lib/navigation"
 import React from "react"
 
 export function LayoutHeaderBackground() {

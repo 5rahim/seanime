@@ -7,7 +7,7 @@ import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websocke
 import { useIsMainTab, useIsMainTabRef } from "@/app/websocket-provider"
 import { VerticalMenuItem } from "@/components/ui/vertical-menu"
 import { logger } from "@/lib/helpers/debug"
-import { usePathname, useSearchParams } from "@/lib/navigation.ts"
+import { usePathname, useSearchParams } from "@/lib/navigation"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useMap } from "@uidotdev/usehooks"
 import React, { useMemo } from "react"

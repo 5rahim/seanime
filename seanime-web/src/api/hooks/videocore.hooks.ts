@@ -1,6 +1,6 @@
-import { useServerQuery } from "@/api/client/requests.ts"
-import { API_ENDPOINTS } from "@/api/generated/endpoints.ts"
-import { VideoCore_InSightCharacterDetails } from "@/api/generated/types.ts"
+import { useServerQuery } from "@/api/client/requests"
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { VideoCore_InSightCharacterDetails } from "@/api/generated/types"
 
 export function useVideoCoreInSightGetCharacterDetails(malId: number) {
     return useServerQuery<VideoCore_InSightCharacterDetails>({

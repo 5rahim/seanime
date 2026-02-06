@@ -1,4 +1,4 @@
-import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core"
+import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { IconButton } from "@/components/ui/button"
 import { useAtomValue } from "jotai"
 import React from "react"

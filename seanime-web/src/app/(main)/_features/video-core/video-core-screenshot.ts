@@ -1,8 +1,10 @@
+import { vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_anime4kManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_showOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { useAtomValue, useSetAtom } from "jotai"
 import React from "react"
-import { vc_anime4kManager, vc_subtitleManager, vc_videoElement } from "./video-core"
 import { vc_anime4kOption } from "./video-core-anime-4k"
-import { vc_showOverlayFeedback } from "./video-core-overlay-display"
 
 export function useVideoCoreScreenshot() {
 

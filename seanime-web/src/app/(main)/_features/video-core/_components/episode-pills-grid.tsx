@@ -1,4 +1,4 @@
-import { cn } from "@/components/ui/core/styling.ts"
+import { cn } from "@/components/ui/core/styling"
 import { motion } from "motion/react"
 import React from "react"
 

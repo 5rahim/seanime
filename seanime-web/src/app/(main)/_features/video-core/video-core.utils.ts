@@ -1,22 +1,59 @@
 import { MKVParser_ChapterInfo } from "@/api/generated/types"
-import {
-    vc_buffering,
-    vc_currentTime,
-    vc_duration,
-    vc_ended,
-    vc_isMuted,
-    vc_paused,
-    vc_playbackRate,
-    vc_readyState,
-    vc_timeRanges,
-    vc_videoSize,
-    vc_volume,
-    VideoCoreChapterCue,
-} from "@/app/(main)/_features/video-core/video-core"
+import { VideoCoreChapterCue } from "@/app/(main)/_features/video-core/video-core"
+import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_videoSize } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_duration } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_currentTime } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_playbackRate } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_readyState } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_buffering } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isMuted } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_volume } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_timeRanges } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_ended } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_paused } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_showOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { VideoCoreTimeRangeChapter } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { VideoCore_VideoPlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { atom } from "jotai"
 import { useSetAtom } from "jotai/react"
 import React, { useEffect } from "react"
+
+type VideoCoreAction = "seekTo" | "seek" | "togglePlay"
+
+export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCoreAction; payload?: any }) => {
+    const videoElement = get(vc_videoElement)
+    const duration = get(vc_duration)
+    let t = 0
+    if (videoElement) {
+        switch (action.type) {
+            // for smooth seeking, we don't want to peg the current time to the actual video time
+            // instead act like the target time is instantly reached
+            case "seekTo":
+                if (isNaN(duration) || duration <= 1) return
+                t = Math.min(duration, Math.max(0, action.payload.time))
+                videoElement.currentTime = t
+                set(vc_currentTime, t)
+                if (action.payload.flashTime) {
+                    set(vc_showOverlayFeedback, { message: `${vc_formatTime(t)} / ${vc_formatTime(duration)}`, type: "message" })
+                }
+                break
+            case "seek":
+                if (isNaN(duration) || duration <= 1) return
+                const currentTime = get(vc_currentTime)
+                t = Math.min(duration, Math.max(0, currentTime + action.payload.time))
+                videoElement.currentTime = t
+                set(vc_currentTime, t)
+                if (action.payload.flashTime) {
+                    set(vc_showOverlayFeedback, { message: `${vc_formatTime(t)} / ${vc_formatTime(duration)}`, type: "message" })
+                }
+                break
+            case "togglePlay":
+                videoElement.paused ? videoElement.play() : videoElement.pause()
+                break
+        }
+    }
+})
 
 export function useVideoCoreBindings(videoRef: React.MutableRefObject<HTMLVideoElement | null>,
     playbackInfo: VideoCore_VideoPlaybackInfo | null | undefined,

@@ -1,19 +1,18 @@
 import { useSaveMediaPlayerSettings } from "@/api/hooks/settings.hooks"
+import { vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_mediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_audioManager } from "@/app/(main)/_features/video-core/video-core"
 import {
-    vc_audioManager,
-    vc_containerElement,
-    vc_dispatchAction,
-    vc_isFullscreen,
-    vc_isMuted,
-    vc_mediaCaptionsManager,
-    vc_pip,
-    vc_subtitleManager,
-    vc_volume,
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
+import { vc_isMuted } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_volume } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_containerElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
-import { useVideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight.tsx"
+import { useVideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
 import { useVideoCoreOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
+import { vc_pip } from "@/app/(main)/_features/video-core/video-core-pip"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import {
     vc_defaultKeybindings,
@@ -25,6 +24,7 @@ import {
     vc_useLibassRendererAtom,
     VideoCoreKeybindings,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
 import { AlphaBadge } from "@/components/shared/beta-badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"

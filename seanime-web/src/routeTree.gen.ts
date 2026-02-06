@@ -8,54 +8,54 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from '@tanstack/react-router'
 
-import { Route as rootRouteImport } from "./routes/__root"
-import { Route as MainRouteImport } from "./routes/_main"
-import { Route as MainAuthCallbackIndexRouteImport } from "./routes/_main/auth/callback/index"
-import { Route as MainCustomSourcesIndexRouteImport } from "./routes/_main/custom-sources/index"
-import { Route as MainDiscoverIndexRouteImport } from "./routes/_main/discover/index"
-import { Route as MainEntryIndexRouteImport } from "./routes/_main/entry/index"
-import { Route as MainErrorTestRouteImport } from "./routes/_main/error-test"
-import { Route as MainExtensionsIndexRouteImport } from "./routes/_main/extensions/index"
-import { Route as MainIndexRouteImport } from "./routes/_main/index"
-import { Route as MainMangaEntryIndexRouteImport } from "./routes/_main/manga/entry/index"
-import { Route as MainMedialinksIndexRouteImport } from "./routes/_main/medialinks/index"
-import { Route as MainMediastreamIndexRouteImport } from "./routes/_main/mediastream/index"
-import { Route as MainOfflineEntryAnimeIndexRouteImport } from "./routes/_main/offline/entry/anime/index"
-import { Route as MainOfflineEntryMangaIndexRouteImport } from "./routes/_main/offline/entry/manga/index"
-import { Route as MainOfflineIndexRouteImport } from "./routes/_main/offline/index"
-import { Route as MainSearchIndexRouteImport } from "./routes/_main/search/index"
-import { Route as MainSettingsIndexRouteImport } from "./routes/_main/settings/index"
-import { Route as PublicAuthIndexRouteImport } from "./routes/public/auth/index"
-import { Route as SplashscreenCrashIndexRouteImport } from "./routes/splashscreen/crash/index"
-import { Route as SplashscreenIndexRouteImport } from "./routes/splashscreen/index"
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as MainRouteImport } from './routes/_main'
+import { Route as SplashscreenIndexRouteImport } from './routes/splashscreen/index'
+import { Route as MainIndexRouteImport } from './routes/_main/index'
+import { Route as MainErrorTestRouteImport } from './routes/_main/error-test'
+import { Route as SplashscreenCrashIndexRouteImport } from './routes/splashscreen/crash/index'
+import { Route as PublicAuthIndexRouteImport } from './routes/public/auth/index'
+import { Route as MainSettingsIndexRouteImport } from './routes/_main/settings/index'
+import { Route as MainSearchIndexRouteImport } from './routes/_main/search/index'
+import { Route as MainOfflineIndexRouteImport } from './routes/_main/offline/index'
+import { Route as MainMediastreamIndexRouteImport } from './routes/_main/mediastream/index'
+import { Route as MainMedialinksIndexRouteImport } from './routes/_main/medialinks/index'
+import { Route as MainExtensionsIndexRouteImport } from './routes/_main/extensions/index'
+import { Route as MainEntryIndexRouteImport } from './routes/_main/entry/index'
+import { Route as MainDiscoverIndexRouteImport } from './routes/_main/discover/index'
+import { Route as MainCustomSourcesIndexRouteImport } from './routes/_main/custom-sources/index'
+import { Route as MainMangaEntryIndexRouteImport } from './routes/_main/manga/entry/index'
+import { Route as MainAuthCallbackIndexRouteImport } from './routes/_main/auth/callback/index'
+import { Route as MainOfflineEntryMangaIndexRouteImport } from './routes/_main/offline/entry/manga/index'
+import { Route as MainOfflineEntryAnimeIndexRouteImport } from './routes/_main/offline/entry/anime/index'
 
-const ScanLogViewerIndexLazyRouteImport = createFileRoute("/scan-log-viewer/")()
-const IssueReportIndexLazyRouteImport = createFileRoute("/issue-report/")()
-const DocsIndexLazyRouteImport = createFileRoute("/docs/")()
+const ScanLogViewerIndexLazyRouteImport = createFileRoute('/scan-log-viewer/')()
+const IssueReportIndexLazyRouteImport = createFileRoute('/issue-report/')()
+const DocsIndexLazyRouteImport = createFileRoute('/docs/')()
 const MainTorrentListIndexLazyRouteImport = createFileRoute(
-    "/_main/torrent-list/",
+  '/_main/torrent-list/',
 )()
-const MainSyncIndexLazyRouteImport = createFileRoute("/_main/sync/")()
-const MainScheduleIndexLazyRouteImport = createFileRoute("/_main/schedule/")()
+const MainSyncIndexLazyRouteImport = createFileRoute('/_main/sync/')()
+const MainScheduleIndexLazyRouteImport = createFileRoute('/_main/schedule/')()
 const MainScanSummariesIndexLazyRouteImport = createFileRoute(
-    "/_main/scan-summaries/",
+  '/_main/scan-summaries/',
 )()
 const MainQbittorrentIndexLazyRouteImport = createFileRoute(
-    "/_main/qbittorrent/",
+  '/_main/qbittorrent/',
 )()
-const MainMangaIndexLazyRouteImport = createFileRoute("/_main/manga/")()
-const MainListsIndexLazyRouteImport = createFileRoute("/_main/lists/")()
-const MainDebridIndexLazyRouteImport = createFileRoute("/_main/debrid/")()
+const MainMangaIndexLazyRouteImport = createFileRoute('/_main/manga/')()
+const MainListsIndexLazyRouteImport = createFileRoute('/_main/lists/')()
+const MainDebridIndexLazyRouteImport = createFileRoute('/_main/debrid/')()
 const MainAutoDownloaderIndexLazyRouteImport = createFileRoute(
-    "/_main/auto-downloader/",
+  '/_main/auto-downloader/',
 )()
 const MainOfflineMangaIndexLazyRouteImport = createFileRoute(
-    "/_main/offline/manga/",
+  '/_main/offline/manga/',
 )()
 const MainExtensionsPlaygroundIndexLazyRouteImport = createFileRoute(
-    "/_main/extensions/playground/",
+  '/_main/extensions/playground/',
 )()
 
 const MainRoute = MainRouteImport.update({
@@ -67,23 +67,23 @@ const ScanLogViewerIndexLazyRoute = ScanLogViewerIndexLazyRouteImport.update({
   path: '/scan-log-viewer/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() =>
-    import("./routes/scan-log-viewer/index.lazy").then((d) => d.Route),
+  import('./routes/scan-log-viewer/index.lazy').then((d) => d.Route),
 )
 const IssueReportIndexLazyRoute = IssueReportIndexLazyRouteImport.update({
   id: '/issue-report/',
   path: '/issue-report/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() =>
-    import("./routes/issue-report/index.lazy").then((d) => d.Route),
+  import('./routes/issue-report/index.lazy').then((d) => d.Route),
 )
 const DocsIndexLazyRoute = DocsIndexLazyRouteImport.update({
   id: '/docs/',
   path: '/docs/',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import("./routes/docs/index.lazy").then((d) => d.Route))
+} as any).lazy(() => import('./routes/docs/index.lazy').then((d) => d.Route))
 const SplashscreenIndexRoute = SplashscreenIndexRouteImport.update({
-  id: "/splashscreen/",
-  path: "/splashscreen/",
+  id: '/splashscreen/',
+  path: '/splashscreen/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MainIndexRoute = MainIndexRouteImport.update({
@@ -97,80 +97,80 @@ const MainErrorTestRoute = MainErrorTestRouteImport.update({
   getParentRoute: () => MainRoute,
 } as any)
 const MainTorrentListIndexLazyRoute =
-    MainTorrentListIndexLazyRouteImport.update({
-      id: "/torrent-list/",
-      path: "/torrent-list/",
-      getParentRoute: () => MainRoute,
-    } as any).lazy(() =>
-        import("./routes/_main/torrent-list/index.lazy").then((d) => d.Route),
-    )
+  MainTorrentListIndexLazyRouteImport.update({
+    id: '/torrent-list/',
+    path: '/torrent-list/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/torrent-list/index.lazy').then((d) => d.Route),
+  )
 const MainSyncIndexLazyRoute = MainSyncIndexLazyRouteImport.update({
-  id: "/sync/",
-  path: "/sync/",
+  id: '/sync/',
+  path: '/sync/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/sync/index.lazy").then((d) => d.Route),
+  import('./routes/_main/sync/index.lazy').then((d) => d.Route),
 )
 const MainScheduleIndexLazyRoute = MainScheduleIndexLazyRouteImport.update({
-  id: "/schedule/",
-  path: "/schedule/",
+  id: '/schedule/',
+  path: '/schedule/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/schedule/index.lazy").then((d) => d.Route),
+  import('./routes/_main/schedule/index.lazy').then((d) => d.Route),
 )
 const MainScanSummariesIndexLazyRoute =
-    MainScanSummariesIndexLazyRouteImport.update({
-      id: "/scan-summaries/",
-      path: "/scan-summaries/",
-      getParentRoute: () => MainRoute,
-    } as any).lazy(() =>
-        import("./routes/_main/scan-summaries/index.lazy").then((d) => d.Route),
-    )
+  MainScanSummariesIndexLazyRouteImport.update({
+    id: '/scan-summaries/',
+    path: '/scan-summaries/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/scan-summaries/index.lazy').then((d) => d.Route),
+  )
 const MainQbittorrentIndexLazyRoute =
-    MainQbittorrentIndexLazyRouteImport.update({
-      id: "/qbittorrent/",
-      path: "/qbittorrent/",
-      getParentRoute: () => MainRoute,
-    } as any).lazy(() =>
-        import("./routes/_main/qbittorrent/index.lazy").then((d) => d.Route),
-    )
+  MainQbittorrentIndexLazyRouteImport.update({
+    id: '/qbittorrent/',
+    path: '/qbittorrent/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/qbittorrent/index.lazy').then((d) => d.Route),
+  )
 const MainMangaIndexLazyRoute = MainMangaIndexLazyRouteImport.update({
-  id: "/manga/",
-  path: "/manga/",
+  id: '/manga/',
+  path: '/manga/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/manga/index.lazy").then((d) => d.Route),
+  import('./routes/_main/manga/index.lazy').then((d) => d.Route),
 )
 const MainListsIndexLazyRoute = MainListsIndexLazyRouteImport.update({
-  id: "/lists/",
-  path: "/lists/",
+  id: '/lists/',
+  path: '/lists/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/lists/index.lazy").then((d) => d.Route),
+  import('./routes/_main/lists/index.lazy').then((d) => d.Route),
 )
 const MainDebridIndexLazyRoute = MainDebridIndexLazyRouteImport.update({
-  id: "/debrid/",
-  path: "/debrid/",
+  id: '/debrid/',
+  path: '/debrid/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/debrid/index.lazy").then((d) => d.Route),
+  import('./routes/_main/debrid/index.lazy').then((d) => d.Route),
 )
 const MainAutoDownloaderIndexLazyRoute =
-    MainAutoDownloaderIndexLazyRouteImport.update({
-      id: "/auto-downloader/",
-      path: "/auto-downloader/",
-      getParentRoute: () => MainRoute,
-    } as any).lazy(() =>
-        import("./routes/_main/auto-downloader/index.lazy").then((d) => d.Route),
-    )
+  MainAutoDownloaderIndexLazyRouteImport.update({
+    id: '/auto-downloader/',
+    path: '/auto-downloader/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/auto-downloader/index.lazy').then((d) => d.Route),
+  )
 const SplashscreenCrashIndexRoute = SplashscreenCrashIndexRouteImport.update({
   id: '/splashscreen/crash/',
   path: '/splashscreen/crash/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PublicAuthIndexRoute = PublicAuthIndexRouteImport.update({
-  id: "/public/auth/",
-  path: "/public/auth/",
+  id: '/public/auth/',
+  path: '/public/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MainSettingsIndexRoute = MainSettingsIndexRouteImport.update({
@@ -178,14 +178,14 @@ const MainSettingsIndexRoute = MainSettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/settings/index.lazy").then((d) => d.Route),
+  import('./routes/_main/settings/index.lazy').then((d) => d.Route),
 )
 const MainSearchIndexRoute = MainSearchIndexRouteImport.update({
   id: '/search/',
   path: '/search/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/search/index.lazy").then((d) => d.Route),
+  import('./routes/_main/search/index.lazy').then((d) => d.Route),
 )
 const MainOfflineIndexRoute = MainOfflineIndexRouteImport.update({
   id: '/offline/',
@@ -197,67 +197,67 @@ const MainMediastreamIndexRoute = MainMediastreamIndexRouteImport.update({
   path: '/mediastream/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/mediastream/index.lazy").then((d) => d.Route),
+  import('./routes/_main/mediastream/index.lazy').then((d) => d.Route),
 )
 const MainMedialinksIndexRoute = MainMedialinksIndexRouteImport.update({
   id: '/medialinks/',
   path: '/medialinks/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/medialinks/index.lazy").then((d) => d.Route),
+  import('./routes/_main/medialinks/index.lazy').then((d) => d.Route),
 )
 const MainExtensionsIndexRoute = MainExtensionsIndexRouteImport.update({
   id: '/extensions/',
   path: '/extensions/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/extensions/index.lazy").then((d) => d.Route),
+  import('./routes/_main/extensions/index.lazy').then((d) => d.Route),
 )
 const MainEntryIndexRoute = MainEntryIndexRouteImport.update({
   id: '/entry/',
   path: '/entry/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/entry/index.lazy").then((d) => d.Route),
+  import('./routes/_main/entry/index.lazy').then((d) => d.Route),
 )
 const MainDiscoverIndexRoute = MainDiscoverIndexRouteImport.update({
   id: '/discover/',
   path: '/discover/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/discover/index.lazy").then((d) => d.Route),
+  import('./routes/_main/discover/index.lazy').then((d) => d.Route),
 )
 const MainCustomSourcesIndexRoute = MainCustomSourcesIndexRouteImport.update({
   id: '/custom-sources/',
   path: '/custom-sources/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/custom-sources/index.lazy").then((d) => d.Route),
+  import('./routes/_main/custom-sources/index.lazy').then((d) => d.Route),
 )
 const MainOfflineMangaIndexLazyRoute =
-    MainOfflineMangaIndexLazyRouteImport.update({
-      id: "/offline/manga/",
-      path: "/offline/manga/",
-      getParentRoute: () => MainRoute,
-    } as any).lazy(() =>
-        import("./routes/_main/offline/manga/index.lazy").then((d) => d.Route),
-    )
+  MainOfflineMangaIndexLazyRouteImport.update({
+    id: '/offline/manga/',
+    path: '/offline/manga/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/offline/manga/index.lazy').then((d) => d.Route),
+  )
 const MainExtensionsPlaygroundIndexLazyRoute =
-    MainExtensionsPlaygroundIndexLazyRouteImport.update({
-      id: "/extensions/playground/",
-      path: "/extensions/playground/",
-      getParentRoute: () => MainRoute,
-    } as any).lazy(() =>
-        import("./routes/_main/extensions/playground/index.lazy").then(
-            (d) => d.Route,
-        ),
-    )
+  MainExtensionsPlaygroundIndexLazyRouteImport.update({
+    id: '/extensions/playground/',
+    path: '/extensions/playground/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/extensions/playground/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 const MainMangaEntryIndexRoute = MainMangaEntryIndexRouteImport.update({
   id: '/manga/entry/',
   path: '/manga/entry/',
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
-    import("./routes/_main/manga/entry/index.lazy").then((d) => d.Route),
+  import('./routes/_main/manga/entry/index.lazy').then((d) => d.Route),
 )
 const MainAuthCallbackIndexRoute = MainAuthCallbackIndexRouteImport.update({
   id: '/auth/callback/',
@@ -270,9 +270,9 @@ const MainOfflineEntryMangaIndexRoute =
     path: '/offline/entry/manga/',
     getParentRoute: () => MainRoute,
   } as any).lazy(() =>
-      import("./routes/_main/offline/entry/manga/index.lazy").then(
-          (d) => d.Route,
-      ),
+    import('./routes/_main/offline/entry/manga/index.lazy').then(
+      (d) => d.Route,
+    ),
   )
 const MainOfflineEntryAnimeIndexRoute =
   MainOfflineEntryAnimeIndexRouteImport.update({
@@ -280,18 +280,18 @@ const MainOfflineEntryAnimeIndexRoute =
     path: '/offline/entry/anime/',
     getParentRoute: () => MainRoute,
   } as any).lazy(() =>
-      import("./routes/_main/offline/entry/anime/index.lazy").then(
-          (d) => d.Route,
-      ),
+    import('./routes/_main/offline/entry/anime/index.lazy').then(
+      (d) => d.Route,
+    ),
   )
 
 export interface FileRoutesByFullPath {
   '/': typeof MainIndexRoute
   '/error-test': typeof MainErrorTestRoute
   '/splashscreen/': typeof SplashscreenIndexRoute
-  "/docs/": typeof DocsIndexLazyRoute
-  "/issue-report/": typeof IssueReportIndexLazyRoute
-  "/scan-log-viewer/": typeof ScanLogViewerIndexLazyRoute
+  '/docs/': typeof DocsIndexLazyRoute
+  '/issue-report/': typeof IssueReportIndexLazyRoute
+  '/scan-log-viewer/': typeof ScanLogViewerIndexLazyRoute
   '/custom-sources/': typeof MainCustomSourcesIndexRoute
   '/discover/': typeof MainDiscoverIndexRoute
   '/entry/': typeof MainEntryIndexRoute
@@ -301,21 +301,21 @@ export interface FileRoutesByFullPath {
   '/offline/': typeof MainOfflineIndexRoute
   '/search/': typeof MainSearchIndexRoute
   '/settings/': typeof MainSettingsIndexRoute
-  "/public/auth/": typeof PublicAuthIndexRoute
+  '/public/auth/': typeof PublicAuthIndexRoute
   '/splashscreen/crash/': typeof SplashscreenCrashIndexRoute
-  "/auto-downloader/": typeof MainAutoDownloaderIndexLazyRoute
-  "/debrid/": typeof MainDebridIndexLazyRoute
-  "/lists/": typeof MainListsIndexLazyRoute
-  "/manga/": typeof MainMangaIndexLazyRoute
-  "/qbittorrent/": typeof MainQbittorrentIndexLazyRoute
-  "/scan-summaries/": typeof MainScanSummariesIndexLazyRoute
-  "/schedule/": typeof MainScheduleIndexLazyRoute
-  "/sync/": typeof MainSyncIndexLazyRoute
-  "/torrent-list/": typeof MainTorrentListIndexLazyRoute
+  '/auto-downloader/': typeof MainAutoDownloaderIndexLazyRoute
+  '/debrid/': typeof MainDebridIndexLazyRoute
+  '/lists/': typeof MainListsIndexLazyRoute
+  '/manga/': typeof MainMangaIndexLazyRoute
+  '/qbittorrent/': typeof MainQbittorrentIndexLazyRoute
+  '/scan-summaries/': typeof MainScanSummariesIndexLazyRoute
+  '/schedule/': typeof MainScheduleIndexLazyRoute
+  '/sync/': typeof MainSyncIndexLazyRoute
+  '/torrent-list/': typeof MainTorrentListIndexLazyRoute
   '/auth/callback/': typeof MainAuthCallbackIndexRoute
   '/manga/entry/': typeof MainMangaEntryIndexRoute
-  "/extensions/playground/": typeof MainExtensionsPlaygroundIndexLazyRoute
-  "/offline/manga/": typeof MainOfflineMangaIndexLazyRoute
+  '/extensions/playground/': typeof MainExtensionsPlaygroundIndexLazyRoute
+  '/offline/manga/': typeof MainOfflineMangaIndexLazyRoute
   '/offline/entry/anime/': typeof MainOfflineEntryAnimeIndexRoute
   '/offline/entry/manga/': typeof MainOfflineEntryMangaIndexRoute
 }
@@ -323,9 +323,9 @@ export interface FileRoutesByTo {
   '/error-test': typeof MainErrorTestRoute
   '/': typeof MainIndexRoute
   '/splashscreen': typeof SplashscreenIndexRoute
-  "/docs": typeof DocsIndexLazyRoute
-  "/issue-report": typeof IssueReportIndexLazyRoute
-  "/scan-log-viewer": typeof ScanLogViewerIndexLazyRoute
+  '/docs': typeof DocsIndexLazyRoute
+  '/issue-report': typeof IssueReportIndexLazyRoute
+  '/scan-log-viewer': typeof ScanLogViewerIndexLazyRoute
   '/custom-sources': typeof MainCustomSourcesIndexRoute
   '/discover': typeof MainDiscoverIndexRoute
   '/entry': typeof MainEntryIndexRoute
@@ -335,21 +335,21 @@ export interface FileRoutesByTo {
   '/offline': typeof MainOfflineIndexRoute
   '/search': typeof MainSearchIndexRoute
   '/settings': typeof MainSettingsIndexRoute
-  "/public/auth": typeof PublicAuthIndexRoute
+  '/public/auth': typeof PublicAuthIndexRoute
   '/splashscreen/crash': typeof SplashscreenCrashIndexRoute
-  "/auto-downloader": typeof MainAutoDownloaderIndexLazyRoute
-  "/debrid": typeof MainDebridIndexLazyRoute
-  "/lists": typeof MainListsIndexLazyRoute
-  "/manga": typeof MainMangaIndexLazyRoute
-  "/qbittorrent": typeof MainQbittorrentIndexLazyRoute
-  "/scan-summaries": typeof MainScanSummariesIndexLazyRoute
-  "/schedule": typeof MainScheduleIndexLazyRoute
-  "/sync": typeof MainSyncIndexLazyRoute
-  "/torrent-list": typeof MainTorrentListIndexLazyRoute
+  '/auto-downloader': typeof MainAutoDownloaderIndexLazyRoute
+  '/debrid': typeof MainDebridIndexLazyRoute
+  '/lists': typeof MainListsIndexLazyRoute
+  '/manga': typeof MainMangaIndexLazyRoute
+  '/qbittorrent': typeof MainQbittorrentIndexLazyRoute
+  '/scan-summaries': typeof MainScanSummariesIndexLazyRoute
+  '/schedule': typeof MainScheduleIndexLazyRoute
+  '/sync': typeof MainSyncIndexLazyRoute
+  '/torrent-list': typeof MainTorrentListIndexLazyRoute
   '/auth/callback': typeof MainAuthCallbackIndexRoute
   '/manga/entry': typeof MainMangaEntryIndexRoute
-  "/extensions/playground": typeof MainExtensionsPlaygroundIndexLazyRoute
-  "/offline/manga": typeof MainOfflineMangaIndexLazyRoute
+  '/extensions/playground': typeof MainExtensionsPlaygroundIndexLazyRoute
+  '/offline/manga': typeof MainOfflineMangaIndexLazyRoute
   '/offline/entry/anime': typeof MainOfflineEntryAnimeIndexRoute
   '/offline/entry/manga': typeof MainOfflineEntryMangaIndexRoute
 }
@@ -359,9 +359,9 @@ export interface FileRoutesById {
   '/_main/error-test': typeof MainErrorTestRoute
   '/_main/': typeof MainIndexRoute
   '/splashscreen/': typeof SplashscreenIndexRoute
-  "/docs/": typeof DocsIndexLazyRoute
-  "/issue-report/": typeof IssueReportIndexLazyRoute
-  "/scan-log-viewer/": typeof ScanLogViewerIndexLazyRoute
+  '/docs/': typeof DocsIndexLazyRoute
+  '/issue-report/': typeof IssueReportIndexLazyRoute
+  '/scan-log-viewer/': typeof ScanLogViewerIndexLazyRoute
   '/_main/custom-sources/': typeof MainCustomSourcesIndexRoute
   '/_main/discover/': typeof MainDiscoverIndexRoute
   '/_main/entry/': typeof MainEntryIndexRoute
@@ -371,21 +371,21 @@ export interface FileRoutesById {
   '/_main/offline/': typeof MainOfflineIndexRoute
   '/_main/search/': typeof MainSearchIndexRoute
   '/_main/settings/': typeof MainSettingsIndexRoute
-  "/public/auth/": typeof PublicAuthIndexRoute
+  '/public/auth/': typeof PublicAuthIndexRoute
   '/splashscreen/crash/': typeof SplashscreenCrashIndexRoute
-  "/_main/auto-downloader/": typeof MainAutoDownloaderIndexLazyRoute
-  "/_main/debrid/": typeof MainDebridIndexLazyRoute
-  "/_main/lists/": typeof MainListsIndexLazyRoute
-  "/_main/manga/": typeof MainMangaIndexLazyRoute
-  "/_main/qbittorrent/": typeof MainQbittorrentIndexLazyRoute
-  "/_main/scan-summaries/": typeof MainScanSummariesIndexLazyRoute
-  "/_main/schedule/": typeof MainScheduleIndexLazyRoute
-  "/_main/sync/": typeof MainSyncIndexLazyRoute
-  "/_main/torrent-list/": typeof MainTorrentListIndexLazyRoute
+  '/_main/auto-downloader/': typeof MainAutoDownloaderIndexLazyRoute
+  '/_main/debrid/': typeof MainDebridIndexLazyRoute
+  '/_main/lists/': typeof MainListsIndexLazyRoute
+  '/_main/manga/': typeof MainMangaIndexLazyRoute
+  '/_main/qbittorrent/': typeof MainQbittorrentIndexLazyRoute
+  '/_main/scan-summaries/': typeof MainScanSummariesIndexLazyRoute
+  '/_main/schedule/': typeof MainScheduleIndexLazyRoute
+  '/_main/sync/': typeof MainSyncIndexLazyRoute
+  '/_main/torrent-list/': typeof MainTorrentListIndexLazyRoute
   '/_main/auth/callback/': typeof MainAuthCallbackIndexRoute
   '/_main/manga/entry/': typeof MainMangaEntryIndexRoute
-  "/_main/extensions/playground/": typeof MainExtensionsPlaygroundIndexLazyRoute
-  "/_main/offline/manga/": typeof MainOfflineMangaIndexLazyRoute
+  '/_main/extensions/playground/': typeof MainExtensionsPlaygroundIndexLazyRoute
+  '/_main/offline/manga/': typeof MainOfflineMangaIndexLazyRoute
   '/_main/offline/entry/anime/': typeof MainOfflineEntryAnimeIndexRoute
   '/_main/offline/entry/manga/': typeof MainOfflineEntryMangaIndexRoute
 }
@@ -394,7 +394,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/error-test'
-      | "/splashscreen/"
+    | '/splashscreen/'
     | '/docs/'
     | '/issue-report/'
     | '/scan-log-viewer/'
@@ -405,21 +405,21 @@ export interface FileRouteTypes {
     | '/medialinks/'
     | '/mediastream/'
     | '/offline/'
-      | "/search/"
-      | "/settings/"
-      | "/public/auth/"
-      | "/splashscreen/crash/"
-      | "/auto-downloader/"
-      | "/debrid/"
-      | "/lists/"
-      | "/manga/"
+    | '/search/'
+    | '/settings/'
+    | '/public/auth/'
+    | '/splashscreen/crash/'
+    | '/auto-downloader/'
+    | '/debrid/'
+    | '/lists/'
+    | '/manga/'
     | '/qbittorrent/'
     | '/scan-summaries/'
     | '/schedule/'
     | '/sync/'
     | '/torrent-list/'
     | '/auth/callback/'
-      | "/manga/entry/"
+    | '/manga/entry/'
     | '/extensions/playground/'
     | '/offline/manga/'
     | '/offline/entry/anime/'
@@ -428,7 +428,7 @@ export interface FileRouteTypes {
   to:
     | '/error-test'
     | '/'
-      | "/splashscreen"
+    | '/splashscreen'
     | '/docs'
     | '/issue-report'
     | '/scan-log-viewer'
@@ -439,14 +439,14 @@ export interface FileRouteTypes {
     | '/medialinks'
     | '/mediastream'
     | '/offline'
-      | "/search"
-      | "/settings"
-      | "/public/auth"
-      | "/splashscreen/crash"
-      | "/auto-downloader"
-      | "/debrid"
-      | "/lists"
-      | "/manga"
+    | '/search'
+    | '/settings'
+    | '/public/auth'
+    | '/splashscreen/crash'
+    | '/auto-downloader'
+    | '/debrid'
+    | '/lists'
+    | '/manga'
     | '/qbittorrent'
     | '/scan-summaries'
     | '/schedule'
@@ -454,7 +454,7 @@ export interface FileRouteTypes {
     | '/torrent-list'
     | '/auth/callback'
     | '/manga/entry'
-      | "/extensions/playground"
+    | '/extensions/playground'
     | '/offline/manga'
     | '/offline/entry/anime'
     | '/offline/entry/manga'
@@ -463,7 +463,7 @@ export interface FileRouteTypes {
     | '/_main'
     | '/_main/error-test'
     | '/_main/'
-      | "/splashscreen/"
+    | '/splashscreen/'
     | '/docs/'
     | '/issue-report/'
     | '/scan-log-viewer/'
@@ -474,14 +474,14 @@ export interface FileRouteTypes {
     | '/_main/medialinks/'
     | '/_main/mediastream/'
     | '/_main/offline/'
-      | "/_main/search/"
-      | "/_main/settings/"
-      | "/public/auth/"
-      | "/splashscreen/crash/"
-      | "/_main/auto-downloader/"
-      | "/_main/debrid/"
-      | "/_main/lists/"
-      | "/_main/manga/"
+    | '/_main/search/'
+    | '/_main/settings/'
+    | '/public/auth/'
+    | '/splashscreen/crash/'
+    | '/_main/auto-downloader/'
+    | '/_main/debrid/'
+    | '/_main/lists/'
+    | '/_main/manga/'
     | '/_main/qbittorrent/'
     | '/_main/scan-summaries/'
     | '/_main/schedule/'
@@ -489,7 +489,7 @@ export interface FileRouteTypes {
     | '/_main/torrent-list/'
     | '/_main/auth/callback/'
     | '/_main/manga/entry/'
-      | "/_main/extensions/playground/"
+    | '/_main/extensions/playground/'
     | '/_main/offline/manga/'
     | '/_main/offline/entry/anime/'
     | '/_main/offline/entry/manga/'
@@ -535,10 +535,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/splashscreen/": {
-      id: "/splashscreen/"
-      path: "/splashscreen"
-      fullPath: "/splashscreen/"
+    '/splashscreen/': {
+      id: '/splashscreen/'
+      path: '/splashscreen'
+      fullPath: '/splashscreen/'
       preLoaderRoute: typeof SplashscreenIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -591,59 +591,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainQbittorrentIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
-    "/_main/manga/": {
-      id: "/_main/manga/"
-      path: "/manga"
-      fullPath: "/manga/"
+    '/_main/manga/': {
+      id: '/_main/manga/'
+      path: '/manga'
+      fullPath: '/manga/'
       preLoaderRoute: typeof MainMangaIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
-    "/_main/lists/": {
-      id: "/_main/lists/"
-      path: "/lists"
-      fullPath: "/lists/"
+    '/_main/lists/': {
+      id: '/_main/lists/'
+      path: '/lists'
+      fullPath: '/lists/'
       preLoaderRoute: typeof MainListsIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
-    "/_main/debrid/": {
-      id: "/_main/debrid/"
-      path: "/debrid"
-      fullPath: "/debrid/"
+    '/_main/debrid/': {
+      id: '/_main/debrid/'
+      path: '/debrid'
+      fullPath: '/debrid/'
       preLoaderRoute: typeof MainDebridIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
-    "/_main/auto-downloader/": {
-      id: "/_main/auto-downloader/"
-      path: "/auto-downloader"
-      fullPath: "/auto-downloader/"
+    '/_main/auto-downloader/': {
+      id: '/_main/auto-downloader/'
+      path: '/auto-downloader'
+      fullPath: '/auto-downloader/'
       preLoaderRoute: typeof MainAutoDownloaderIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
-    "/splashscreen/crash/": {
-      id: "/splashscreen/crash/"
-      path: "/splashscreen/crash"
-      fullPath: "/splashscreen/crash/"
+    '/splashscreen/crash/': {
+      id: '/splashscreen/crash/'
+      path: '/splashscreen/crash'
+      fullPath: '/splashscreen/crash/'
       preLoaderRoute: typeof SplashscreenCrashIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/public/auth/": {
-      id: "/public/auth/"
-      path: "/public/auth"
-      fullPath: "/public/auth/"
+    '/public/auth/': {
+      id: '/public/auth/'
+      path: '/public/auth'
+      fullPath: '/public/auth/'
       preLoaderRoute: typeof PublicAuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/_main/settings/": {
-      id: "/_main/settings/"
-      path: "/settings"
-      fullPath: "/settings/"
+    '/_main/settings/': {
+      id: '/_main/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
       preLoaderRoute: typeof MainSettingsIndexRouteImport
       parentRoute: typeof MainRoute
     }
-    "/_main/search/": {
-      id: "/_main/search/"
-      path: "/search"
-      fullPath: "/search/"
+    '/_main/search/': {
+      id: '/_main/search/'
+      path: '/search'
+      fullPath: '/search/'
       preLoaderRoute: typeof MainSearchIndexRouteImport
       parentRoute: typeof MainRoute
     }
@@ -703,10 +703,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainOfflineMangaIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
-    "/_main/extensions/playground/": {
-      id: "/_main/extensions/playground/"
-      path: "/extensions/playground"
-      fullPath: "/extensions/playground/"
+    '/_main/extensions/playground/': {
+      id: '/_main/extensions/playground/'
+      path: '/extensions/playground'
+      fullPath: '/extensions/playground/'
       preLoaderRoute: typeof MainExtensionsPlaygroundIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
@@ -794,7 +794,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainAuthCallbackIndexRoute: MainAuthCallbackIndexRoute,
   MainMangaEntryIndexRoute: MainMangaEntryIndexRoute,
   MainExtensionsPlaygroundIndexLazyRoute:
-  MainExtensionsPlaygroundIndexLazyRoute,
+    MainExtensionsPlaygroundIndexLazyRoute,
   MainOfflineMangaIndexLazyRoute: MainOfflineMangaIndexLazyRoute,
   MainOfflineEntryAnimeIndexRoute: MainOfflineEntryAnimeIndexRoute,
   MainOfflineEntryMangaIndexRoute: MainOfflineEntryMangaIndexRoute,

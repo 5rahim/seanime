@@ -6,7 +6,7 @@
 
 <h4 align="center">Main interface for web and desktop clients</h4>
 
-React + Vite + Tanstack Router
+React + Rsbuild + Tanstack Router
 
 ```txt
 .

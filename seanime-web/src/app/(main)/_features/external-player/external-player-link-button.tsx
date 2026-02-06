@@ -1,6 +1,6 @@
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "@/lib/navigation.ts"
+import { useRouter } from "@/lib/navigation"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"

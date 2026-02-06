@@ -1,4 +1,4 @@
-import { isMobile } from "@/lib/utils/browser-detection.ts"
+import { isMobile } from "@/lib/utils/browser-detection"
 
 export function useIsCodecSupported() {
     const isCodecSupported = (codec: string) => {

@@ -2,7 +2,7 @@ import { SeaCommandActions } from "@/app/(main)/_features/sea-command/sea-comman
 import { SeaCommandSearch } from "@/app/(main)/_features/sea-command/sea-command-search"
 import { SeaCommand_ParsedCommandProps, useSeaCommand_ParseCommand } from "@/app/(main)/_features/sea-command/utils"
 import { CommandDialog, CommandInput, CommandList } from "@/components/ui/command"
-import { usePathname, useRouter } from "@/lib/navigation.ts"
+import { usePathname, useRouter } from "@/lib/navigation"
 import { atom } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"

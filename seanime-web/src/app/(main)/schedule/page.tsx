@@ -1,5 +1,5 @@
 import { useGetMissingEpisodes } from "@/api/hooks/anime_entries.hooks"
-import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { CustomLibraryBanner } from "@/app/(main)/_features/anime-library/_containers/custom-library-banner"
 import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { MissingEpisodes } from "@/app/(main)/schedule/_components/missing-episodes"
 import { ComingUpNext } from "@/app/(main)/schedule/_containers/coming-up-next"

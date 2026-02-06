@@ -1,7 +1,7 @@
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __mangaLibrary_latestChapterNumbersAtom as __mangaLibrary_currentMangaDataAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { Badge } from "@/components/ui/badge"
-import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { useAtom } from "jotai"
 import React from "react"
 import { IoBookOutline } from "react-icons/io5"

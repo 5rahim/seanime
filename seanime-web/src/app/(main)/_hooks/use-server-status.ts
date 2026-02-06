@@ -3,7 +3,7 @@ import { serverAuthTokenAtom, serverStatusAtom } from "@/app/(main)/_atoms/serve
 import { createNakamaHMACAuth, createServerPasswordHMACAuth } from "@/lib/server/hmac-auth"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { useAtomValue } from "jotai"
-import { useAtom } from "jotai/index"
+import { useAtom } from "jotai"
 import { useSetAtom } from "jotai/react"
 import React from "react"
 import { toast } from "sonner"

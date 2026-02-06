@@ -1,16 +1,14 @@
 import { VideoCore_InSightData } from "@/api/generated/types"
 import { MKVParser_TrackInfo, VideoCore_ClientEventType, VideoCore_PlaybackState, VideoCore_ServerEvent } from "@/api/generated/types"
-import {
-    vc_activePlayerId,
-    vc_anime4kManager,
-    vc_audioManager,
-    vc_mediaCaptionsManager,
-    vc_subtitleManager,
-} from "@/app/(main)/_features/video-core/video-core"
+import { vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_mediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_audioManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_anime4kManager } from "@/app/(main)/_features/video-core/video-core"
 import { Anime4KManagerOptionChangedEvent } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
+import { vc_activePlayerId } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { AudioManagerHlsTrackChangedEvent, AudioManagerTrackChangedEvent } from "@/app/(main)/_features/video-core/video-core-audio"
 import { FullscreenManagerChangedEvent, vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
-import { useVideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight.tsx"
+import { useVideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
 import {
     MediaCaptionsTrackDeselectedEvent,
     MediaCaptionsTrackInfo,

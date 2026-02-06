@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
+import { __scanner_modalIsOpen } from "@/app/(main)/_features/anime-library/_containers/scanner-modal"
 
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"

@@ -3,6 +3,7 @@ import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/vide
 import { VideoCore_VideoPlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai"
+import { derive } from "jotai-derive"
 
 const log = logger("VIDEO CORE PIP")
 
@@ -22,6 +23,7 @@ interface VideoCorePipManagerEventMap {
 
 export const vc_pipElement = atom<HTMLVideoElement | null>(null)
 export const vc_pipManager = atom<VideoCorePipManager | null>(null)
+export const vc_pip = derive([vc_pipElement], (pipElement) => pipElement !== null)
 
 export class VideoCorePipManager extends EventTarget {
     private video: HTMLVideoElement | null = null
@@ -428,3 +430,4 @@ export class VideoCorePipManager extends EventTarget {
         }
     }
 }
+

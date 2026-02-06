@@ -1,7 +1,7 @@
 import { TorrentClientAction_Variables } from "@/api/generated/endpoint.types"
 import { TorrentClient_Torrent } from "@/api/generated/types"
 import { useGetActiveTorrentList, useTorrentClientAction } from "@/api/hooks/torrent_client.hooks"
-import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { CustomLibraryBanner } from "@/app/(main)/_features/anime-library/_containers/custom-library-banner"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SortDirection } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-common-helpers"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
