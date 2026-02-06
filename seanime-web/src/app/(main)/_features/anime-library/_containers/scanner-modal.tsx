@@ -114,14 +114,7 @@ export function ScannerModal() {
                 {/*    className="!mt-0 opacity-30"*/}
                 {/*/>*/}
 
-                {/* <div
-                 data-scanner-modal-top-pattern
-                 className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-40 top-0 left-0 bg-no-repeat bg-right bg-cover"
-                 >
-                 <div
-                 className="w-full absolute top-0 h-full bg-gradient-to-t from-[--background] to-transparent z-[-2]"
-                 />
-                 </div> */}
+
 
                 {serverStatus?.user?.isSimulated && <div className="border border-dashed rounded-md py-2 px-4 !mt-5">
                     Using this feature without an AniList account is not recommended if you have a large library, as it may lead to rate limits and

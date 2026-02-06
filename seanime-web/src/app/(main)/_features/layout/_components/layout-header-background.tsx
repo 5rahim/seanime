@@ -12,7 +12,6 @@ export function LayoutHeaderBackground() {
                 <div
                     data-layout-header-background
                     className={cn(
-                        // "bg-[url(/pattern-3.svg)] bg-[#000] opacity-50 bg-contain bg-center bg-repeat z-[-2] w-full h-[20rem] absolute bottom-0",
                         "bg-[#000] opacity-50 bg-contain bg-center bg-repeat z-[-2] w-full h-[20rem] absolute bottom-0",
                     )}
                 >

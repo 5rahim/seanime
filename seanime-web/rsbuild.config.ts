@@ -67,9 +67,6 @@ export default defineConfig({
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
-            // for some reason we need this
-            "/pattern-2.svg": path.resolve(__dirname, "./public/pattern-2.svg"),
-            "/pattern-3.svg": path.resolve(__dirname, "./public/pattern-3.svg"),
         },
     },
     server: { // dev server
