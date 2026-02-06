@@ -34,7 +34,7 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 		e.Use(middleware.Secure())
 	}
 
-	if !constants.IsViteFrontend {
+	if !constants.IsRspackFrontend {
 		e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 			Filesystem: http.FS(distFS),
 			Browse:     true,
@@ -64,7 +64,9 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 
 				if strings.HasPrefix(cUrl, "/api") ||
 					strings.HasPrefix(cUrl, "/events") ||
-					strings.HasPrefix(cUrl, "/manga-downloads") {
+					strings.HasPrefix(cUrl, "/assets") ||
+					strings.HasPrefix(cUrl, "/manga-downloads") ||
+					strings.HasPrefix(cUrl, "/offline-assets") {
 					return next(c)
 				}
 
