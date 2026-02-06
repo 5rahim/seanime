@@ -1,10 +1,10 @@
-import React from "react"
-import ReactDOM from "react-dom/client"
-import { RouterProvider, createRouter } from "@tanstack/react-router"
-import { routeTree } from "./routeTree.gen"
 import { ClientProviders } from "@/app/client-providers"
 import "./app/globals.css"
-import "@fontsource/inter"
+import { createRouter, RouterProvider } from "@tanstack/react-router"
+import React from "react"
+import ReactDOM from "react-dom/client"
+import { routeTree } from "./routeTree.gen"
+import "@fontsource-variable/inter"
 
 const router = createRouter({ routeTree })
 
