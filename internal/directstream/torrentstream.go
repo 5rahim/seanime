@@ -67,6 +67,7 @@ func (s *TorrentStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err 
 		playbackInfo := nativeplayer.PlaybackInfo{
 			ID:                id,
 			StreamType:        s.Type(),
+			StreamPath:        s.file.Path(),
 			MimeType:          s.LoadContentType(),
 			StreamUrl:         "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id,
 			ContentLength:     s.file.Length(),

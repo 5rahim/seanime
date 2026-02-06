@@ -4299,6 +4299,7 @@ export type Nakama_WatchPartyStreamType = "file" | "torrent" | "debrid" | "onlin
 export type NativePlayer_PlaybackInfo = {
     id: string
     streamType: NativePlayer_StreamType
+    streamPath: string
     /**
      * e.g. "video/mp4", "video/webm"
      */
@@ -5229,6 +5230,10 @@ export type VideoCore_VideoPlaybackInfo = {
     id: string
     playbackType: VideoCore_PlaybackType
     streamUrl: string
+    /**
+     * e.g. /anime/episode 01.mkv
+     */
+    streamPath?: string
     /**
      * NativePlayer only
      */

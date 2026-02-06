@@ -121,6 +121,7 @@ func (s *Nakama) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err error) 
 			ID:                id,
 			StreamType:        s.Type(),
 			MimeType:          contentType,
+			StreamPath:        "",
 			StreamUrl:         "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id,
 			ContentLength:     s.contentLength, // loaded by LoadContentType
 			MkvMetadata:       nil,

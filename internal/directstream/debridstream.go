@@ -30,6 +30,7 @@ type DebridStream struct {
 	BaseStream
 	streamUrl     string
 	contentLength int64
+	filepath      string
 	torrent       *hibiketorrent.AnimeTorrent
 	streamReadyCh chan struct{}        // Closed by the initiator when the stream is ready
 	httpStream    *httputil.FileStream // Shared file-backed cache for multiple readers
@@ -120,6 +121,7 @@ func (s *DebridStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err e
 		playbackInfo := nativeplayer.PlaybackInfo{
 			ID:                id,
 			StreamType:        s.Type(),
+			StreamPath:        s.filepath,
 			MimeType:          contentType,
 			StreamUrl:         "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id,
 			ContentLength:     s.contentLength, // loaded by LoadContentType
@@ -293,7 +295,7 @@ type PlayDebridStreamOptions struct {
 }
 
 // PlayDebridStream is used by a module to load a new debrid stream.
-func (m *Manager) PlayDebridStream(ctx context.Context, opts PlayDebridStreamOptions) error {
+func (m *Manager) PlayDebridStream(ctx context.Context, filepath string, opts PlayDebridStreamOptions) error {
 	m.playbackMu.Lock()
 	defer m.playbackMu.Unlock()
 
@@ -315,6 +317,7 @@ func (m *Manager) PlayDebridStream(ctx context.Context, opts PlayDebridStreamOpt
 	stream := &DebridStream{
 		streamUrl: opts.StreamUrl,
 		torrent:   opts.Torrent,
+		filepath:  filepath,
 		BaseStream: BaseStream{
 			manager:               m,
 			logger:                m.Logger,

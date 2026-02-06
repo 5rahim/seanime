@@ -24222,154 +24222,6 @@
     ]
   },
   {
-    "filepath": "../internal/api/animeofflinedb/animeofflinedb.go",
-    "filename": "animeofflinedb.go",
-    "name": "DatabaseRoot",
-    "formattedName": "DatabaseRoot",
-    "package": "animeofflinedb",
-    "fields": [
-      {
-        "name": "Data",
-        "jsonName": "data",
-        "goType": "[]AnimeEntry",
-        "typescriptType": "Array\u003cAnimeEntry\u003e",
-        "usedTypescriptType": "AnimeEntry",
-        "usedStructName": "animeofflinedb.AnimeEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/animeofflinedb/animeofflinedb.go",
-    "filename": "animeofflinedb.go",
-    "name": "AnimeEntry",
-    "formattedName": "AnimeEntry",
-    "package": "animeofflinedb",
-    "fields": [
-      {
-        "name": "Sources",
-        "jsonName": "sources",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " TV, MOVIE, OVA, ONA, SPECIAL, UNKNOWN"
-        ]
-      },
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " FINISHED, ONGOING, UPCOMING, UNKNOWN"
-        ]
-      },
-      {
-        "name": "AnimeSeason",
-        "jsonName": "animeSeason",
-        "goType": "AnimeSeason",
-        "typescriptType": "AnimeSeason",
-        "usedTypescriptType": "AnimeSeason",
-        "usedStructName": "animeofflinedb.AnimeSeason",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Picture",
-        "jsonName": "picture",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Thumbnail",
-        "jsonName": "thumbnail",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Synonyms",
-        "jsonName": "synonyms",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/animeofflinedb/animeofflinedb.go",
-    "filename": "animeofflinedb.go",
-    "name": "AnimeSeason",
-    "formattedName": "AnimeSeason",
-    "package": "animeofflinedb",
-    "fields": [
-      {
-        "name": "Season",
-        "jsonName": "season",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " SPRING, SUMMER, FALL, WINTER, UNDEFINED"
-        ]
-      },
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/api/anizip/anizip.go",
     "filename": "anizip.go",
     "name": "Episode",
@@ -34751,6 +34603,15 @@
         "jsonName": "contentLength",
         "goType": "int64",
         "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "filepath",
+        "jsonName": "filepath",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": false,
         "comments": []
@@ -51462,6 +51323,72 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library/scanner/efficient_dice.go",
+    "filename": "efficient_dice.go",
+    "name": "EfficientDice",
+    "formattedName": "Scanner_EfficientDice",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "ngramSize",
+        "jsonName": "ngramSize",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "caseSensitive",
+        "jsonName": "caseSensitive",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ngramBufferA",
+        "jsonName": "ngramBufferA",
+        "goType": "[]uint64",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ngramBufferB",
+        "jsonName": "ngramBufferB",
+        "goType": "[]uint64",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ngramCountMapA",
+        "jsonName": "ngramCountMapA",
+        "goType": "map[uint64]int16",
+        "typescriptType": "Record\u003cnumber, number\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ngramCountMapB",
+        "jsonName": "ngramCountMapB",
+        "goType": "map[uint64]int16",
+        "typescriptType": "Record\u003cnumber, number\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " EfficientDice is Sorensen-Dice implementation that minimizes allocs"
+    ]
+  },
+  {
     "filepath": "../internal/library/scanner/hook_events.go",
     "filename": "hook_events.go",
     "name": "ScanStartedEvent",
@@ -52377,8 +52304,8 @@
         "comments": []
       },
       {
-        "name": "UseLegacyEnhanced",
-        "jsonName": "UseLegacyEnhanced",
+        "name": "EnhanceWithOfflineDatabase",
+        "jsonName": "EnhanceWithOfflineDatabase",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -52932,6 +52859,17 @@
         "public": true,
         "comments": [
           " Title without season/part/year info"
+        ]
+      },
+      {
+        "name": "IsMain",
+        "jsonName": "IsMain",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether this title is a main title (romaji,english)"
         ]
       }
     ],
@@ -68011,6 +67949,15 @@
         "typescriptType": "NativePlayer_StreamType",
         "usedTypescriptType": "NativePlayer_StreamType",
         "usedStructName": "nativeplayer.StreamType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamPath",
+        "jsonName": "streamPath",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -83216,6 +83163,17 @@
         ]
       },
       {
+        "name": "AnalysisFile",
+        "jsonName": "AnalysisFile",
+        "goType": "torrent_analyzer.File",
+        "typescriptType": "File",
+        "usedTypescriptType": "File",
+        "usedStructName": "torrent_analyzer.File",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "DebridTorrent",
         "jsonName": "DebridTorrent",
         "goType": "debrid.TorrentInfo",
@@ -89452,6 +89410,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "StreamPath",
+        "jsonName": "streamPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " e.g. /anime/episode 01.mkv"
+        ]
       },
       {
         "name": "MkvMetadata",

@@ -25,6 +25,7 @@ type (
 	PlaybackInfo struct {
 		ID                 string               `json:"id"`
 		StreamType         StreamType           `json:"streamType"`
+		StreamPath         string               `json:"streamPath"`
 		MimeType           string               `json:"mimeType"`                // e.g. "video/mp4", "video/webm"
 		StreamUrl          string               `json:"streamUrl"`               // URL of the stream
 		ContentLength      int64                `json:"contentLength"`           // Size of the stream in bytes

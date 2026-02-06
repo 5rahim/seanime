@@ -143,6 +143,7 @@ export function NativePlayer() {
                 id: state.playbackInfo?.id!,
                 playbackType: state.playbackInfo?.streamType!,
                 streamUrl: state.playbackInfo?.streamUrl!,
+                streamPath: state.playbackInfo?.streamPath,
                 mkvMetadata: state.playbackInfo?.mkvMetadata,
                 media: state.playbackInfo?.media,
                 episode: state.playbackInfo?.episode,

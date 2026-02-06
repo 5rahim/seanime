@@ -87,6 +87,7 @@ import { VideoCoreKeybindingController, VideoCorePreferencesModal } from "@/app/
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
 import { VideoCoreResolutionMenu } from "@/app/(main)/_features/video-core/video-core-resolution-menu"
 import { VideoCoreSettingsMenu } from "@/app/(main)/_features/video-core/video-core-settings-menu"
+import { VideoCoreStatsForNerds } from "@/app/(main)/_features/video-core/video-core-stats"
 import { VideoCoreSubtitleMenu } from "@/app/(main)/_features/video-core/video-core-subtitle-menu"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { vc_timeRangeElement, VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
@@ -98,6 +99,7 @@ import {
     vc_autoSkipOPEDAtom,
     vc_beautifyImageAtom,
     vc_settings,
+    vc_showStatsForNerdsAtom,
     vc_storedMutedAtom,
     vc_storedPlaybackRateAtom,
     vc_storedVolumeAtom,
@@ -311,6 +313,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
     const action = useSetAtom(vc_dispatchAction)
     const [autoPlay] = useAtom(vc_autoPlayVideoAtom)
     const [muted] = useAtom(vc_storedMutedAtom)
+    const showStats = useAtomValue(vc_showStatsForNerdsAtom)
 
     return (
         <>
@@ -363,6 +366,13 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             endingStartTime={aniSkipData?.ed?.interval?.startTime}
                             endingEndTime={aniSkipData?.ed?.interval?.endTime}
                         />
+
+                        {showStats && !isMobile && (
+                            <VideoCoreStatsForNerds
+                                playbackInfo={state.playbackInfo}
+                                videoRef={videoRef}
+                            />
+                        )}
 
                         <VideoCoreOverlayDisplay />
 
@@ -1414,10 +1424,11 @@ export function VideoCore(props: VideoCoreProps) {
     }
 
     const handleContainerMouseEnter = () => {
-        isHoveringContainer.current = true
-        if (videoRef.current && state.active) {
-            videoRef.current.focus()
-        }
+        // don't
+        // isHoveringContainer.current = true
+        // if (videoRef.current && state.active) {
+        //     videoRef.current.focus()
+        // }
     }
 
     const handleContainerMouseLeave = () => {

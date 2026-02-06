@@ -123,6 +123,7 @@ type VideoPlaybackInfo struct {
 	Id           string       `json:"id"`
 	PlaybackType PlaybackType `json:"playbackType"`
 	StreamURL    string       `json:"streamUrl"`
+	StreamPath   string       `json:"streamPath,omitempty"` // e.g. /anime/episode 01.mkv
 	// MkvMetadata is only set for NativePlayer playbacks. Parsed by mkvparser.MetadataParser for directstream.Manager.
 	MkvMetadata *mkvparser.Metadata `json:"mkvMetadata"` // NativePlayer only
 	// LocalFile is only set for local file streams. NativePlayer

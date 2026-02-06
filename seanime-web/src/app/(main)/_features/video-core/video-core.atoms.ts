@@ -120,6 +120,7 @@ export interface VideoCoreKeybindings {
     decreaseSpeed: { key: string; value: number }
     takeScreenshot: { key: string }
     openInSight: { key: string }
+    statsForNerds: { key: string }
 }
 
 export const vc_defaultKeybindings: VideoCoreKeybindings = {
@@ -142,6 +143,7 @@ export const vc_defaultKeybindings: VideoCoreKeybindings = {
     decreaseSpeed: { key: "BracketLeft", value: 0.1 },
     takeScreenshot: { key: "KeyI" },
     openInSight: { key: "KeyH" },
+    statsForNerds: { key: "KeyZ" },
 }
 
 const vc_keybindingsRaw = atomWithStorage<Partial<VideoCoreKeybindings>>("sea-video-core-keybindings",
@@ -174,3 +176,4 @@ export const vc_autoSkipOPEDAtom = atomWithStorage("sea-video-core-auto-skip-op-
 export const vc_storedVolumeAtom = atomWithStorage("sea-video-core-volume", 1, undefined, { getOnInit: true })
 export const vc_storedMutedAtom = atomWithStorage("sea-video-core-muted", false, undefined, { getOnInit: true })
 export const vc_storedPlaybackRateAtom = atomWithStorage("sea-video-core-playback-rate", 1, undefined, { getOnInit: true })
+export const vc_showStatsForNerdsAtom = atomWithStorage("sea-video-core-show-stats-for-nerds", false, undefined, { getOnInit: true })

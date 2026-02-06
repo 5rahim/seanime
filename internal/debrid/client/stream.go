@@ -134,6 +134,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 
 	selectedTorrent := opts.Torrent
 	fileId := opts.FileId
+	filepath := ""
 
 	if opts.AutoSelect {
 
@@ -143,7 +144,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 			Message:     "Selecting best torrent...",
 		})
 
-		st, fi, err := s.repository.findBestTorrent(provider, media, opts.EpisodeNumber)
+		pt, err := s.repository.findBestTorrent(provider, media, opts.EpisodeNumber)
 		if err != nil {
 			if opts.PlaybackType == PlaybackTypeNativePlayer {
 				s.repository.directStreamManager.AbortOpen(opts.ClientId, err)
@@ -156,8 +157,9 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 			s.repository.wsEventManager.SendEvent(events.HideIndefiniteLoader, "debridstream")
 			return fmt.Errorf("debridstream: Failed to start stream: %w", err)
 		}
-		selectedTorrent = st
-		fileId = fi
+		selectedTorrent = pt.torrent
+		fileId = pt.fileId
+		filepath = pt.filepath
 	} else {
 		// Manual selection
 		if selectedTorrent == nil {
@@ -177,7 +179,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 			if opts.FileIndex != nil {
 				chosenFileIndex = opts.FileIndex
 			}
-			st, fi, err := s.repository.findBestTorrentFromManualSelection(provider, selectedTorrent, media, opts.EpisodeNumber, chosenFileIndex)
+			pt, err := s.repository.findBestTorrentFromManualSelection(provider, selectedTorrent, media, opts.EpisodeNumber, chosenFileIndex)
 			if err != nil {
 				if opts.PlaybackType == PlaybackTypeNativePlayer {
 					s.repository.directStreamManager.AbortOpen(opts.ClientId, err)
@@ -190,8 +192,9 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 				s.repository.wsEventManager.SendEvent(events.HideIndefiniteLoader, "debridstream")
 				return fmt.Errorf("debridstream: Failed to analyze torrent: %w", err)
 			}
-			selectedTorrent = st
-			fileId = fi
+			selectedTorrent = pt.torrent
+			fileId = pt.fileId
+			filepath = pt.filepath
 		}
 	}
 
@@ -507,7 +510,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 				Message:     "External player link sent",
 			})
 		case PlaybackTypeNativePlayer:
-			err := s.repository.directStreamManager.PlayDebridStream(ctx, directstream.PlayDebridStreamOptions{
+			err := s.repository.directStreamManager.PlayDebridStream(ctx, filepath, directstream.PlayDebridStreamOptions{
 				StreamUrl:    streamUrl,
 				MediaId:      media.ID,
 				AnidbEpisode: opts.AniDBEpisode,

@@ -175,6 +175,7 @@ func (s *AutoSelect) selectFileFromTorrentClient(
 	return &Result{
 		Torrent:         addedTorrent,
 		File:            tFile,
+		AnalysisFile:    analysisFile,
 		OriginalTorrent: t,
 	}, nil
 }
@@ -242,6 +243,7 @@ func (s *AutoSelect) selectFileFromDebrid(
 	return &Result{
 		DebridTorrent:   info,
 		DebridFileID:    tFile.ID,
+		AnalysisFile:    analysisFile,
 		OriginalTorrent: t,
 	}, nil
 }

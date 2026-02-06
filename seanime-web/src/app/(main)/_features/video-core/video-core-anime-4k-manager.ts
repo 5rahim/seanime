@@ -38,10 +38,18 @@ interface FrameDropState {
     enabled: boolean
     frameDropThreshold: number
     frameDropCount: number
+    totalFrameDrops: number
     lastFrameTime: number
     targetFrameTime: number
     performanceGracePeriod: number
     initTime: number
+}
+
+interface RenderStats {
+    currentFps: number
+    frameTimeSamples: number[]
+    lastRenderTime: number
+    renderCallbackId: number | null
 }
 
 export class VideoCoreAnime4KManager extends EventTarget {
@@ -56,10 +64,17 @@ export class VideoCoreAnime4KManager extends EventTarget {
         enabled: true,
         frameDropThreshold: 5,
         frameDropCount: 0,
+        totalFrameDrops: 0,
         lastFrameTime: 0,
         targetFrameTime: 1000 / 16, // 30fps target
         performanceGracePeriod: 1000,
         initTime: 0,
+    }
+    private _renderStats: RenderStats = {
+        currentFps: 0,
+        frameTimeSamples: [],
+        lastRenderTime: 0,
+        renderCallbackId: null,
     }
     private readonly _onFallback?: (message: string) => void
     private readonly _onOptionChanged?: (option: Anime4KOption) => void
@@ -87,6 +102,17 @@ export class VideoCoreAnime4KManager extends EventTarget {
         this._onOptionChanged = onOptionChanged
 
         log.info("Anime4K manager initialized")
+    }
+
+    getStats() {
+        return {
+            currentOption: this._currentOption,
+            frameDropCount: this._frameDropState.frameDropCount,
+            totalFrameDrops: this._frameDropState.totalFrameDrops,
+            currentFps: this._renderStats.currentFps,
+            targetFrameTime: this._frameDropState.targetFrameTime,
+            lastFrameTime: this._frameDropState.lastFrameTime,
+        }
     }
 
     getCurrentOption(): Anime4KOption {
@@ -239,6 +265,18 @@ export class VideoCoreAnime4KManager extends EventTarget {
 
         this._initialized = false
 
+        if (this._renderStats.renderCallbackId !== null) {
+            this.videoElement.cancelVideoFrameCallback(this._renderStats.renderCallbackId)
+            this._renderStats.renderCallbackId = null
+        }
+
+        this._renderStats = {
+            currentFps: 0,
+            frameTimeSamples: [],
+            lastRenderTime: 0,
+            renderCallbackId: null,
+        }
+
         if (this._initializationTimeout) {
             clearTimeout(this._initializationTimeout)
             this._initializationTimeout = null
@@ -252,6 +290,11 @@ export class VideoCoreAnime4KManager extends EventTarget {
         if (this._renderLoopId) {
             cancelAnimationFrame(this._renderLoopId)
             this._renderLoopId = null
+        }
+
+        if (this._renderStats.renderCallbackId !== null) {
+            this.videoElement.cancelVideoFrameCallback(this._renderStats.renderCallbackId)
+            this._renderStats.renderCallbackId = null
         }
 
         if (this._webgpuResources?.device) {
@@ -286,8 +329,16 @@ export class VideoCoreAnime4KManager extends EventTarget {
         this._frameDropState = {
             ...this._frameDropState,
             frameDropCount: 0,
+            totalFrameDrops: 0,
             initTime: performance.now(),
             lastFrameTime: 0,
+        }
+
+        this._renderStats = {
+            currentFps: 0,
+            frameTimeSamples: [],
+            lastRenderTime: 0,
+            renderCallbackId: null,
         }
 
         // Check WebGPU support, create canvas, and start rendering
@@ -433,6 +484,8 @@ export class VideoCoreAnime4KManager extends EventTarget {
 
                 const event: Anime4KManagerCanvasCreatedEvent = new CustomEvent("canvascreated", { detail: { canvas: this.canvas } })
                 this.dispatchEvent(event)
+
+                this._startRenderFpsTracking()
             }
         }, 100)
 
@@ -505,6 +558,7 @@ export class VideoCoreAnime4KManager extends EventTarget {
 
             if (isFrameDrop) {
                 this._frameDropState.frameDropCount++
+                this._frameDropState.totalFrameDrops++
 
                 if (this._frameDropState.frameDropCount >= this._frameDropState.frameDropThreshold) {
                     log.warning(`Detected ${this._frameDropState.frameDropCount} consecutive frame drops. Falling back to 'off' mode.`)
@@ -583,5 +637,31 @@ export class VideoCoreAnime4KManager extends EventTarget {
 
     private _isCanvasHidden(): boolean {
         return this.canvas ? this.canvas.style.display === "none" : false
+    }
+
+    private _startRenderFpsTracking() {
+        if (!this.videoElement.requestVideoFrameCallback) return
+
+        const trackFrame = (now: number, metadata: VideoFrameCallbackMetadata) => {
+            if (this._renderStats.lastRenderTime > 0) {
+                const frameTime = now - this._renderStats.lastRenderTime
+
+                this._renderStats.frameTimeSamples.push(frameTime)
+                if (this._renderStats.frameTimeSamples.length > 10) {
+                    this._renderStats.frameTimeSamples.shift()
+                }
+
+                const avgFrameTime = this._renderStats.frameTimeSamples.reduce((a, b) => a + b, 0) / this._renderStats.frameTimeSamples.length
+                this._renderStats.currentFps = avgFrameTime > 0 ? 1000 / avgFrameTime : 0
+            }
+
+            this._renderStats.lastRenderTime = now
+
+            if (this._isOptionSelected(this._currentOption)) {
+                this._renderStats.renderCallbackId = this.videoElement.requestVideoFrameCallback(trackFrame)
+            }
+        }
+
+        this._renderStats.renderCallbackId = this.videoElement.requestVideoFrameCallback(trackFrame)
     }
 }

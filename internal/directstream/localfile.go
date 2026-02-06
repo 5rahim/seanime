@@ -104,6 +104,7 @@ func (s *LocalFileStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, er
 		playbackInfo := nativeplayer.PlaybackInfo{
 			ID:                id,
 			StreamType:        s.Type(),
+			StreamPath:        s.localFile.Path,
 			MimeType:          s.LoadContentType(),
 			StreamUrl:         "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id,
 			ContentLength:     size,

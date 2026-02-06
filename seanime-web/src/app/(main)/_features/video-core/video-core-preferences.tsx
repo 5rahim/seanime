@@ -2,9 +2,7 @@ import { useSaveMediaPlayerSettings } from "@/api/hooks/settings.hooks"
 import { vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
 import { vc_mediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core"
 import { vc_audioManager } from "@/app/(main)/_features/video-core/video-core"
-import {
-    VideoCoreChapterCue,
-} from "@/app/(main)/_features/video-core/video-core"
+import { VideoCoreChapterCue } from "@/app/(main)/_features/video-core/video-core"
 import { vc_isMuted } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_volume } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
@@ -19,6 +17,7 @@ import {
     vc_initialSettings,
     vc_keybindingsAtom,
     vc_settings,
+    vc_showStatsForNerdsAtom,
     vc_storedMutedAtom,
     vc_storedVolumeAtom,
     vc_useLibassRendererAtom,
@@ -465,16 +464,6 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                         handleKeyRecord={handleKeyRecord}
                                         formatKeyDisplay={formatKeyDisplay}
                                     />
-                                    <KeybindingRow
-                                        action="Display Characters"
-                                        description="Toggle characters panel"
-                                        actionKey="openInSight"
-                                        editedKeybindings={editedKeybindings}
-                                        setEditedKeybindings={setEditedKeybindings}
-                                        recordingKey={recordingKey}
-                                        handleKeyRecord={handleKeyRecord}
-                                        formatKeyDisplay={formatKeyDisplay}
-                                    />
                                 </div>
                             </div>
 
@@ -519,6 +508,26 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                         action="Cycle Audio"
                                         description="Cycle through audio tracks"
                                         actionKey="cycleAudio"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Display Characters"
+                                        description="Toggle characters panel"
+                                        actionKey="openInSight"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Stats for Nerds"
+                                        description="Toggle stats for nerds"
+                                        actionKey="statsForNerds"
                                         editedKeybindings={editedKeybindings}
                                         setEditedKeybindings={setEditedKeybindings}
                                         recordingKey={recordingKey}
@@ -809,6 +818,8 @@ export function VideoCoreKeybindingController(props: {
     const { toggleOpen: toggleInSight } = useVideoCoreInSight()
     const { showOverlayFeedback } = useVideoCoreOverlayFeedback()
 
+    const setShowStats = useSetAtom(vc_showStatsForNerdsAtom)
+
     const action = useSetAtom(vc_dispatchAction)
 
     const subtitleManager = useAtomValue(vc_subtitleManager)
@@ -1007,6 +1018,15 @@ export function VideoCoreKeybindingController(props: {
         } else if (e.code === keybindings.pictureInPicture.key) {
             e.preventDefault()
             handleTogglePictureInPicture()
+        } else if (e.code === keybindings.takeScreenshot.key) {
+            e.preventDefault()
+            takeScreenshot()
+        } else if (e.code === keybindings.openInSight.key) {
+            e.preventDefault()
+            toggleInSight()
+        } else if (e.code === keybindings.statsForNerds.key) {
+            e.preventDefault()
+            setShowStats(prev => !prev)
         } else if (e.code === keybindings.increaseSpeed.key) {
             e.preventDefault()
             const newRate = Math.min(8, video.playbackRate + keybindings.increaseSpeed.value)
@@ -1017,12 +1037,6 @@ export function VideoCoreKeybindingController(props: {
             const newRate = Math.max(0.20, video.playbackRate - keybindings.decreaseSpeed.value)
             video.playbackRate = newRate
             showOverlayFeedback({ message: `Speed: ${newRate.toFixed(2)}x` })
-        } else if (e.code === keybindings.takeScreenshot.key) {
-            e.preventDefault()
-            takeScreenshot()
-        } else if (e.code === keybindings.openInSight.key) {
-            e.preventDefault()
-            toggleInSight()
         }
         },
         [keybindings, volume, muted, seek, active, fullscreen, pip, showOverlayFeedback, introEndTime, introStartTime, isKeybindingsModalOpen,
