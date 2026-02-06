@@ -485,7 +485,10 @@ function createTray() {
     ])
 
     tray.setToolTip("Seanime")
-    tray.setContextMenu(contextMenu)
+
+    if (process.platform !== "darwin") {
+        tray.setContextMenu(contextMenu)
+    }
 
     tray.on("click", () => {
         if (mainWindow.isVisible()) {
@@ -501,6 +504,12 @@ function createTray() {
             }
         }
     })
+
+    if (process.platform === "darwin") {
+        tray.on("right-click", () => {
+            tray.popUpContextMenu(contextMenu)
+        })
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
