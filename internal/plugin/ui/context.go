@@ -1373,7 +1373,7 @@ func (c *Context) flushEventBatch() {
 	c.eventBatchTimer.Stop()
 
 	// Create a copy of the pending events
-	allEvents := make([]*ServerPluginEvent, 0, len(c.pendingClientEvents))
+	allEvents := make([]*ServerPluginEvent, len(c.pendingClientEvents))
 	copy(allEvents, c.pendingClientEvents)
 
 	// Clear the pending events
