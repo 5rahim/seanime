@@ -55,6 +55,17 @@ query MangaDetailsById ($id: Int) {
     id
     duration
     genres
+    tags {
+      category
+      description
+      id
+      isAdult
+      isGeneralSpoiler
+      isMediaSpoiler
+      name
+      rank
+      userId
+    }
     rankings {
       context
       type
@@ -137,6 +148,7 @@ query ListManga(
   $sort: [MediaSort]
   $status: [MediaStatus]
   $genres: [String]
+  $tags: [String]
   $averageScore_greater: Int
   $startDate_greater: FuzzyDateInt
   $startDate_lesser: FuzzyDateInt
@@ -152,7 +164,7 @@ query ListManga(
       currentPage
       lastPage
     },
-    media(type: MANGA, isAdult: $isAdult, countryOfOrigin: $countryOfOrigin, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL){
+    media(type: MANGA, isAdult: $isAdult, countryOfOrigin: $countryOfOrigin, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, tag_in: $tags, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL){
       ...baseManga
     }
   }
@@ -175,6 +187,17 @@ fragment baseManga on Media {
   meanScore
   description
   genres
+  tags {
+    category
+    description
+    id
+    isAdult
+    isGeneralSpoiler
+    isMediaSpoiler
+    name
+    rank
+    userId
+  }
   title {
     userPreferred
     romaji
