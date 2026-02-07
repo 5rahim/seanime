@@ -29,8 +29,12 @@ import { FiSearch } from "react-icons/fi"
 import { LuCalendar, LuLeaf } from "react-icons/lu"
 import { MdOutlineBook, MdPersonalVideo } from "react-icons/md"
 import { RiSignalTowerLine } from "react-icons/ri"
+<<<<<<< HEAD
 import { TbSwords } from "react-icons/tb"
 import { useMount } from "react-use"
+=======
+import { TbSwords, TbTagsFilled } from "react-icons/tb"
+>>>>>>> a48fc86e (client_test changes and icon for tags)
 import { useUpdateEffect } from "react-use"
 
 export function AdvancedSearchOptions() {
@@ -94,6 +98,7 @@ export function AdvancedSearchOptions() {
                 />
                 <Combobox
                     multiple
+                    leftAddon={<TbTagsFilled className={cn((params.tags !== null && !!params.tags.length) && "text-indigo-300 font-bold text-xl")} />}
                     emptyMessage="No options found"
                     label="Tags" placeholder="All tags" className="w-full"
                     options={ADVANCED_SEARCH_MEDIA_TAGS.map(tag => ({ value: tag.name, label: tag.name, textValue: tag.name }))}

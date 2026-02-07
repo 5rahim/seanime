@@ -172,6 +172,7 @@ func TestListAnime(t *testing.T) {
 		Sort                []*MediaSort
 		Status              []*MediaStatus
 		Genres              []*string
+		Tags                []*string
 		AverageScoreGreater *int
 		Season              *MediaSeason
 		SeasonYear          *int
@@ -187,6 +188,7 @@ func TestListAnime(t *testing.T) {
 			Sort:                []*MediaSort{lo.ToPtr(MediaSortTrendingDesc)},
 			Status:              nil,
 			Genres:              nil,
+			Tags:                nil,
 			AverageScoreGreater: nil,
 			Season:              nil,
 			SeasonYear:          nil,
@@ -208,6 +210,7 @@ func TestListAnime(t *testing.T) {
 				tt.Sort,
 				tt.Status,
 				tt.Genres,
+				tt.Tags,
 				tt.AverageScoreGreater,
 				tt.Season,
 				tt.SeasonYear,
@@ -226,6 +229,7 @@ func TestListAnime(t *testing.T) {
 				tt.Sort,
 				tt.Status,
 				tt.Genres,
+				tt.Tags,
 				tt.AverageScoreGreater,
 				tt.Season,
 				tt.SeasonYear,
