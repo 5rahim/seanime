@@ -42,10 +42,10 @@ export function AdvancedSearchOptions() {
         return !(!params.title?.length &&
             (params.sorting === null || params.sorting?.[0] === "SCORE_DESC") &&
             (params.genre === null || !params.genre.length) &&
+            (params.tags === null || !params.tags.length) &&
             (params.status === null || !params.status.length) &&
             params.format === null && params.season === null && params.year === null && params.isAdult === false && params.minScore === null &&
-            (params.countryOfOrigin === null || params.type === "anime")) &&
-            (params.tags === null || !params.tags.length)
+            (params.countryOfOrigin === null || params.type === "anime"))
     }, [params])
 
     return (
@@ -97,7 +97,14 @@ export function AdvancedSearchOptions() {
                     leftAddon={<TbTagsFilled className={cn((params.tags !== null && !!params.tags.length) && "text-indigo-300 font-bold text-xl")} />}
                     emptyMessage="No options found"
                     label="Tags" placeholder="All tags" className="w-full"
-                    options={ADVANCED_SEARCH_MEDIA_TAGS.map(tag => ({ value: tag.name, label: tag.name, textValue: tag.name }))}
+                    options={ADVANCED_SEARCH_MEDIA_TAGS
+                        .filter(tag => {
+                            if(params.isAdult && serverStatus?.settings?.anilist?.enableAdultContent) {
+                                return true
+                            }
+                            return tag.isAdult === false
+                        })
+                        .map(tag => ({ value: tag.name, label: tag.name, textValue: tag.name }))}
                     value={params.tags ? params.tags : []}
                     onValueChange={v => setParams(draft => {
                         draft.tags = v
