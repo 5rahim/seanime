@@ -98,6 +98,17 @@ query AnimeDetailsById ($id: Int) {
     id
     duration
     genres
+    tags {
+      category
+      description
+      id
+      isAdult
+      isGeneralSpoiler
+      isMediaSpoiler
+      name
+      rank
+      userId
+    }
     averageScore
     popularity
     meanScore
@@ -283,6 +294,17 @@ fragment baseAnime on Media {
   meanScore
   description
   genres
+  tags {
+    category
+    description
+    id
+    isAdult
+    isGeneralSpoiler
+    isMediaSpoiler
+    name
+    rank
+    userId
+  }
   duration
   trailer {
     id

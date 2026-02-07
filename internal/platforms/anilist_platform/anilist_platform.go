@@ -240,6 +240,9 @@ func (ap *AnilistPlatform) GetAnimeDetails(ctx context.Context, mediaID int) (*a
 	}
 
 	media := ret.GetMedia()
+	for _, value := range media.GetTags() {
+		ap.logger.Debug().Msg("Tag name: " + value.GetName())
+	}
 	return ap.helper.TriggerGetAnimeDetailsEvent(media)
 }
 
