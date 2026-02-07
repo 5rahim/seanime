@@ -247,12 +247,7 @@ func (s *AutoSelect) searchFromProvider(
 
 // shouldSearchBatch determines if we should initially attempt to search for batches.
 func (s *AutoSelect) shouldSearchBatch(media *anilist.CompleteAnime) bool {
-	// Search batch if not a movie and finished
-	yearsSinceStart := 999
-	if media.StartDate != nil && *media.StartDate.Year > 0 {
-		yearsSinceStart = time.Now().Year() - *media.StartDate.Year
-	}
-	if !media.IsMovie() && media.IsFinished() && yearsSinceStart > 4 {
+	if !media.IsMovie() && media.IsFinished() {
 		return true
 	}
 	return false
