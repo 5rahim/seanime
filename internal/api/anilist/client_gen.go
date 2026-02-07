@@ -29,7 +29,7 @@ type GithubGraphQLClient interface {
 	SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error)
 	BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error)
 	MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error)
-	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, countryOfOrigin *string, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
+	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, tags []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, countryOfOrigin *string, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
 	ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error)
 	StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error)
 	GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error)
@@ -503,6 +503,7 @@ type BaseManga struct {
 	MeanScore       *int                  "json:\"meanScore,omitempty\" graphql:\"meanScore\""
 	Description     *string               "json:\"description,omitempty\" graphql:\"description\""
 	Genres          []*string             "json:\"genres,omitempty\" graphql:\"genres\""
+	Tags            []*BaseManga_Tags     "json:\"tags,omitempty\" graphql:\"tags\""
 	Title           *BaseManga_Title      "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage      *BaseManga_CoverImage "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate       *BaseManga_StartDate  "json:\"startDate,omitempty\" graphql:\"startDate\""
@@ -604,6 +605,12 @@ func (t *BaseManga) GetGenres() []*string {
 		t = &BaseManga{}
 	}
 	return t.Genres
+}
+func (t *BaseManga) GetTags() []*BaseManga_Tags {
+	if t == nil {
+		t = &BaseManga{}
+	}
+	return t.Tags
 }
 func (t *BaseManga) GetTitle() *BaseManga_Title {
 	if t == nil {
@@ -1738,6 +1745,73 @@ func (t *AnimeSchedule_Upcoming) GetNodes() []*AnimeSchedule_Upcoming_Nodes {
 		t = &AnimeSchedule_Upcoming{}
 	}
 	return t.Nodes
+}
+
+type BaseManga_Tags struct {
+	Category         *string "json:\"category,omitempty\" graphql:\"category\""
+	Description      *string "json:\"description,omitempty\" graphql:\"description\""
+	ID               int     "json:\"id\" graphql:\"id\""
+	IsAdult          *bool   "json:\"isAdult,omitempty\" graphql:\"isAdult\""
+	IsGeneralSpoiler *bool   "json:\"isGeneralSpoiler,omitempty\" graphql:\"isGeneralSpoiler\""
+	IsMediaSpoiler   *bool   "json:\"isMediaSpoiler,omitempty\" graphql:\"isMediaSpoiler\""
+	Name             string  "json:\"name\" graphql:\"name\""
+	Rank             *int    "json:\"rank,omitempty\" graphql:\"rank\""
+	UserID           *int    "json:\"userId,omitempty\" graphql:\"userId\""
+}
+
+func (t *BaseManga_Tags) GetCategory() *string {
+	if t == nil {
+		t = &BaseManga_Tags{}
+	}
+	return t.Category
+}
+func (t *BaseManga_Tags) GetDescription() *string {
+	if t == nil {
+		t = &BaseManga_Tags{}
+	}
+	return t.Description
+}
+func (t *BaseManga_Tags) GetID() int {
+	if t == nil {
+		t = &BaseManga_Tags{}
+	}
+	return t.ID
+}
+func (t *BaseManga_Tags) GetIsAdult() *bool {
+	if t == nil {
+		t = &BaseManga_Tags{}
+	}
+	return t.IsAdult
+}
+func (t *BaseManga_Tags) GetIsGeneralSpoiler() *bool {
+	if t == nil {
+		t = &BaseManga_Tags{}
+	}
+	return t.IsGeneralSpoiler
+}
+func (t *BaseManga_Tags) GetIsMediaSpoiler() *bool {
+	if t == nil {
+		t = &BaseManga_Tags{}
+	}
+	return t.IsMediaSpoiler
+}
+func (t *BaseManga_Tags) GetName() string {
+	if t == nil {
+		t = &BaseManga_Tags{}
+	}
+	return t.Name
+}
+func (t *BaseManga_Tags) GetRank() *int {
+	if t == nil {
+		t = &BaseManga_Tags{}
+	}
+	return t.Rank
+}
+func (t *BaseManga_Tags) GetUserID() *int {
+	if t == nil {
+		t = &BaseManga_Tags{}
+	}
+	return t.UserID
 }
 
 type BaseManga_Title struct {
@@ -6260,6 +6334,73 @@ func (t *MangaCollection_MediaListCollection_Lists_Entries_CompletedAt) GetDay()
 	return t.Day
 }
 
+type MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags struct {
+	Category         *string "json:\"category,omitempty\" graphql:\"category\""
+	Description      *string "json:\"description,omitempty\" graphql:\"description\""
+	ID               int     "json:\"id\" graphql:\"id\""
+	IsAdult          *bool   "json:\"isAdult,omitempty\" graphql:\"isAdult\""
+	IsGeneralSpoiler *bool   "json:\"isGeneralSpoiler,omitempty\" graphql:\"isGeneralSpoiler\""
+	IsMediaSpoiler   *bool   "json:\"isMediaSpoiler,omitempty\" graphql:\"isMediaSpoiler\""
+	Name             string  "json:\"name\" graphql:\"name\""
+	Rank             *int    "json:\"rank,omitempty\" graphql:\"rank\""
+	UserID           *int    "json:\"userId,omitempty\" graphql:\"userId\""
+}
+
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags) GetCategory() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags{}
+	}
+	return t.Category
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags) GetDescription() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags{}
+	}
+	return t.Description
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags) GetID() int {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags{}
+	}
+	return t.ID
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags) GetIsAdult() *bool {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags{}
+	}
+	return t.IsAdult
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags) GetIsGeneralSpoiler() *bool {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags{}
+	}
+	return t.IsGeneralSpoiler
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags) GetIsMediaSpoiler() *bool {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags{}
+	}
+	return t.IsMediaSpoiler
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags) GetName() string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags{}
+	}
+	return t.Name
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags) GetRank() *int {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags{}
+	}
+	return t.Rank
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags) GetUserID() *int {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags{}
+	}
+	return t.UserID
+}
+
 type MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Title struct {
 	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
 	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
@@ -6502,6 +6643,73 @@ func (t *SearchBaseManga_Page_PageInfo) GetHasNextPage() *bool {
 	return t.HasNextPage
 }
 
+type SearchBaseManga_Page_Media_BaseManga_Tags struct {
+	Category         *string "json:\"category,omitempty\" graphql:\"category\""
+	Description      *string "json:\"description,omitempty\" graphql:\"description\""
+	ID               int     "json:\"id\" graphql:\"id\""
+	IsAdult          *bool   "json:\"isAdult,omitempty\" graphql:\"isAdult\""
+	IsGeneralSpoiler *bool   "json:\"isGeneralSpoiler,omitempty\" graphql:\"isGeneralSpoiler\""
+	IsMediaSpoiler   *bool   "json:\"isMediaSpoiler,omitempty\" graphql:\"isMediaSpoiler\""
+	Name             string  "json:\"name\" graphql:\"name\""
+	Rank             *int    "json:\"rank,omitempty\" graphql:\"rank\""
+	UserID           *int    "json:\"userId,omitempty\" graphql:\"userId\""
+}
+
+func (t *SearchBaseManga_Page_Media_BaseManga_Tags) GetCategory() *string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.Category
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Tags) GetDescription() *string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.Description
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Tags) GetID() int {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.ID
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Tags) GetIsAdult() *bool {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.IsAdult
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Tags) GetIsGeneralSpoiler() *bool {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.IsGeneralSpoiler
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Tags) GetIsMediaSpoiler() *bool {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.IsMediaSpoiler
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Tags) GetName() string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.Name
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Tags) GetRank() *int {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.Rank
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Tags) GetUserID() *int {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.UserID
+}
+
 type SearchBaseManga_Page_Media_BaseManga_Title struct {
 	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
 	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
@@ -6634,6 +6842,73 @@ func (t *SearchBaseManga_Page) GetMedia() []*BaseManga {
 	return t.Media
 }
 
+type BaseMangaById_Media_BaseManga_Tags struct {
+	Category         *string "json:\"category,omitempty\" graphql:\"category\""
+	Description      *string "json:\"description,omitempty\" graphql:\"description\""
+	ID               int     "json:\"id\" graphql:\"id\""
+	IsAdult          *bool   "json:\"isAdult,omitempty\" graphql:\"isAdult\""
+	IsGeneralSpoiler *bool   "json:\"isGeneralSpoiler,omitempty\" graphql:\"isGeneralSpoiler\""
+	IsMediaSpoiler   *bool   "json:\"isMediaSpoiler,omitempty\" graphql:\"isMediaSpoiler\""
+	Name             string  "json:\"name\" graphql:\"name\""
+	Rank             *int    "json:\"rank,omitempty\" graphql:\"rank\""
+	UserID           *int    "json:\"userId,omitempty\" graphql:\"userId\""
+}
+
+func (t *BaseMangaById_Media_BaseManga_Tags) GetCategory() *string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Tags{}
+	}
+	return t.Category
+}
+func (t *BaseMangaById_Media_BaseManga_Tags) GetDescription() *string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Tags{}
+	}
+	return t.Description
+}
+func (t *BaseMangaById_Media_BaseManga_Tags) GetID() int {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Tags{}
+	}
+	return t.ID
+}
+func (t *BaseMangaById_Media_BaseManga_Tags) GetIsAdult() *bool {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Tags{}
+	}
+	return t.IsAdult
+}
+func (t *BaseMangaById_Media_BaseManga_Tags) GetIsGeneralSpoiler() *bool {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Tags{}
+	}
+	return t.IsGeneralSpoiler
+}
+func (t *BaseMangaById_Media_BaseManga_Tags) GetIsMediaSpoiler() *bool {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Tags{}
+	}
+	return t.IsMediaSpoiler
+}
+func (t *BaseMangaById_Media_BaseManga_Tags) GetName() string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Tags{}
+	}
+	return t.Name
+}
+func (t *BaseMangaById_Media_BaseManga_Tags) GetRank() *int {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Tags{}
+	}
+	return t.Rank
+}
+func (t *BaseMangaById_Media_BaseManga_Tags) GetUserID() *int {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Tags{}
+	}
+	return t.UserID
+}
+
 type BaseMangaById_Media_BaseManga_Title struct {
 	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
 	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
@@ -6746,6 +7021,73 @@ func (t *BaseMangaById_Media_BaseManga_EndDate) GetDay() *int {
 		t = &BaseMangaById_Media_BaseManga_EndDate{}
 	}
 	return t.Day
+}
+
+type MangaDetailsById_Media_Tags struct {
+	Category         *string "json:\"category,omitempty\" graphql:\"category\""
+	Description      *string "json:\"description,omitempty\" graphql:\"description\""
+	ID               int     "json:\"id\" graphql:\"id\""
+	IsAdult          *bool   "json:\"isAdult,omitempty\" graphql:\"isAdult\""
+	IsGeneralSpoiler *bool   "json:\"isGeneralSpoiler,omitempty\" graphql:\"isGeneralSpoiler\""
+	IsMediaSpoiler   *bool   "json:\"isMediaSpoiler,omitempty\" graphql:\"isMediaSpoiler\""
+	Name             string  "json:\"name\" graphql:\"name\""
+	Rank             *int    "json:\"rank,omitempty\" graphql:\"rank\""
+	UserID           *int    "json:\"userId,omitempty\" graphql:\"userId\""
+}
+
+func (t *MangaDetailsById_Media_Tags) GetCategory() *string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Tags{}
+	}
+	return t.Category
+}
+func (t *MangaDetailsById_Media_Tags) GetDescription() *string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Tags{}
+	}
+	return t.Description
+}
+func (t *MangaDetailsById_Media_Tags) GetID() int {
+	if t == nil {
+		t = &MangaDetailsById_Media_Tags{}
+	}
+	return t.ID
+}
+func (t *MangaDetailsById_Media_Tags) GetIsAdult() *bool {
+	if t == nil {
+		t = &MangaDetailsById_Media_Tags{}
+	}
+	return t.IsAdult
+}
+func (t *MangaDetailsById_Media_Tags) GetIsGeneralSpoiler() *bool {
+	if t == nil {
+		t = &MangaDetailsById_Media_Tags{}
+	}
+	return t.IsGeneralSpoiler
+}
+func (t *MangaDetailsById_Media_Tags) GetIsMediaSpoiler() *bool {
+	if t == nil {
+		t = &MangaDetailsById_Media_Tags{}
+	}
+	return t.IsMediaSpoiler
+}
+func (t *MangaDetailsById_Media_Tags) GetName() string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Tags{}
+	}
+	return t.Name
+}
+func (t *MangaDetailsById_Media_Tags) GetRank() *int {
+	if t == nil {
+		t = &MangaDetailsById_Media_Tags{}
+	}
+	return t.Rank
+}
+func (t *MangaDetailsById_Media_Tags) GetUserID() *int {
+	if t == nil {
+		t = &MangaDetailsById_Media_Tags{}
+	}
+	return t.UserID
 }
 
 type MangaDetailsById_Media_Rankings struct {
@@ -7189,6 +7531,73 @@ func (t *MangaDetailsById_Media_Recommendations) GetEdges() []*MangaDetailsById_
 	return t.Edges
 }
 
+type MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags struct {
+	Category         *string "json:\"category,omitempty\" graphql:\"category\""
+	Description      *string "json:\"description,omitempty\" graphql:\"description\""
+	ID               int     "json:\"id\" graphql:\"id\""
+	IsAdult          *bool   "json:\"isAdult,omitempty\" graphql:\"isAdult\""
+	IsGeneralSpoiler *bool   "json:\"isGeneralSpoiler,omitempty\" graphql:\"isGeneralSpoiler\""
+	IsMediaSpoiler   *bool   "json:\"isMediaSpoiler,omitempty\" graphql:\"isMediaSpoiler\""
+	Name             string  "json:\"name\" graphql:\"name\""
+	Rank             *int    "json:\"rank,omitempty\" graphql:\"rank\""
+	UserID           *int    "json:\"userId,omitempty\" graphql:\"userId\""
+}
+
+func (t *MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags) GetCategory() *string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags{}
+	}
+	return t.Category
+}
+func (t *MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags) GetDescription() *string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags{}
+	}
+	return t.Description
+}
+func (t *MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags) GetID() int {
+	if t == nil {
+		t = &MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags{}
+	}
+	return t.ID
+}
+func (t *MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags) GetIsAdult() *bool {
+	if t == nil {
+		t = &MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags{}
+	}
+	return t.IsAdult
+}
+func (t *MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags) GetIsGeneralSpoiler() *bool {
+	if t == nil {
+		t = &MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags{}
+	}
+	return t.IsGeneralSpoiler
+}
+func (t *MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags) GetIsMediaSpoiler() *bool {
+	if t == nil {
+		t = &MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags{}
+	}
+	return t.IsMediaSpoiler
+}
+func (t *MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags) GetName() string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags{}
+	}
+	return t.Name
+}
+func (t *MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags) GetRank() *int {
+	if t == nil {
+		t = &MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags{}
+	}
+	return t.Rank
+}
+func (t *MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags) GetUserID() *int {
+	if t == nil {
+		t = &MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags{}
+	}
+	return t.UserID
+}
+
 type MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Title struct {
 	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
 	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
@@ -7337,6 +7746,7 @@ type MangaDetailsById_Media struct {
 	ID              int                                     "json:\"id\" graphql:\"id\""
 	Duration        *int                                    "json:\"duration,omitempty\" graphql:\"duration\""
 	Genres          []*string                               "json:\"genres,omitempty\" graphql:\"genres\""
+	Tags            []*MangaDetailsById_Media_Tags          "json:\"tags,omitempty\" graphql:\"tags\""
 	Rankings        []*MangaDetailsById_Media_Rankings      "json:\"rankings,omitempty\" graphql:\"rankings\""
 	Characters      *MangaDetailsById_Media_Characters      "json:\"characters,omitempty\" graphql:\"characters\""
 	Recommendations *MangaDetailsById_Media_Recommendations "json:\"recommendations,omitempty\" graphql:\"recommendations\""
@@ -7366,6 +7776,12 @@ func (t *MangaDetailsById_Media) GetGenres() []*string {
 		t = &MangaDetailsById_Media{}
 	}
 	return t.Genres
+}
+func (t *MangaDetailsById_Media) GetTags() []*MangaDetailsById_Media_Tags {
+	if t == nil {
+		t = &MangaDetailsById_Media{}
+	}
+	return t.Tags
 }
 func (t *MangaDetailsById_Media) GetRankings() []*MangaDetailsById_Media_Rankings {
 	if t == nil {
@@ -7429,6 +7845,73 @@ func (t *ListManga_Page_PageInfo) GetLastPage() *int {
 		t = &ListManga_Page_PageInfo{}
 	}
 	return t.LastPage
+}
+
+type ListManga_Page_Media_BaseManga_Tags struct {
+	Category         *string "json:\"category,omitempty\" graphql:\"category\""
+	Description      *string "json:\"description,omitempty\" graphql:\"description\""
+	ID               int     "json:\"id\" graphql:\"id\""
+	IsAdult          *bool   "json:\"isAdult,omitempty\" graphql:\"isAdult\""
+	IsGeneralSpoiler *bool   "json:\"isGeneralSpoiler,omitempty\" graphql:\"isGeneralSpoiler\""
+	IsMediaSpoiler   *bool   "json:\"isMediaSpoiler,omitempty\" graphql:\"isMediaSpoiler\""
+	Name             string  "json:\"name\" graphql:\"name\""
+	Rank             *int    "json:\"rank,omitempty\" graphql:\"rank\""
+	UserID           *int    "json:\"userId,omitempty\" graphql:\"userId\""
+}
+
+func (t *ListManga_Page_Media_BaseManga_Tags) GetCategory() *string {
+	if t == nil {
+		t = &ListManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.Category
+}
+func (t *ListManga_Page_Media_BaseManga_Tags) GetDescription() *string {
+	if t == nil {
+		t = &ListManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.Description
+}
+func (t *ListManga_Page_Media_BaseManga_Tags) GetID() int {
+	if t == nil {
+		t = &ListManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.ID
+}
+func (t *ListManga_Page_Media_BaseManga_Tags) GetIsAdult() *bool {
+	if t == nil {
+		t = &ListManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.IsAdult
+}
+func (t *ListManga_Page_Media_BaseManga_Tags) GetIsGeneralSpoiler() *bool {
+	if t == nil {
+		t = &ListManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.IsGeneralSpoiler
+}
+func (t *ListManga_Page_Media_BaseManga_Tags) GetIsMediaSpoiler() *bool {
+	if t == nil {
+		t = &ListManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.IsMediaSpoiler
+}
+func (t *ListManga_Page_Media_BaseManga_Tags) GetName() string {
+	if t == nil {
+		t = &ListManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.Name
+}
+func (t *ListManga_Page_Media_BaseManga_Tags) GetRank() *int {
+	if t == nil {
+		t = &ListManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.Rank
+}
+func (t *ListManga_Page_Media_BaseManga_Tags) GetUserID() *int {
+	if t == nil {
+		t = &ListManga_Page_Media_BaseManga_Tags{}
+	}
+	return t.UserID
 }
 
 type ListManga_Page_Media_BaseManga_Title struct {
@@ -9837,6 +10320,17 @@ fragment baseManga on Media {
 	meanScore
 	description
 	genres
+	tags {
+		category
+		description
+		id
+		isAdult
+		isGeneralSpoiler
+		isMediaSpoiler
+		name
+		rank
+		userId
+	}
 	title {
 		userPreferred
 		romaji
@@ -9906,6 +10400,17 @@ fragment baseManga on Media {
 	meanScore
 	description
 	genres
+	tags {
+		category
+		description
+		id
+		isAdult
+		isGeneralSpoiler
+		isMediaSpoiler
+		name
+		rank
+		userId
+	}
 	title {
 		userPreferred
 		romaji
@@ -9974,6 +10479,17 @@ fragment baseManga on Media {
 	meanScore
 	description
 	genres
+	tags {
+		category
+		description
+		id
+		isAdult
+		isGeneralSpoiler
+		isMediaSpoiler
+		name
+		rank
+		userId
+	}
 	title {
 		userPreferred
 		romaji
@@ -10022,6 +10538,17 @@ const MangaDetailsByIDDocument = `query MangaDetailsById ($id: Int) {
 		id
 		duration
 		genres
+		tags {
+			category
+			description
+			id
+			isAdult
+			isGeneralSpoiler
+			isMediaSpoiler
+			name
+			rank
+			userId
+		}
 		rankings {
 			context
 			type
@@ -10134,6 +10661,17 @@ fragment baseManga on Media {
 	meanScore
 	description
 	genres
+	tags {
+		category
+		description
+		id
+		isAdult
+		isGeneralSpoiler
+		isMediaSpoiler
+		name
+		rank
+		userId
+	}
 	title {
 		userPreferred
 		romaji
@@ -10176,7 +10714,7 @@ func (c *Client) MangaDetailsByID(ctx context.Context, id *int, interceptors ...
 	return &res, nil
 }
 
-const ListMangaDocument = `query ListManga ($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $averageScore_greater: Int, $startDate_greater: FuzzyDateInt, $startDate_lesser: FuzzyDateInt, $format: MediaFormat, $countryOfOrigin: CountryCode, $isAdult: Boolean) {
+const ListMangaDocument = `query ListManga ($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $tags: [String], $averageScore_greater: Int, $startDate_greater: FuzzyDateInt, $startDate_lesser: FuzzyDateInt, $format: MediaFormat, $countryOfOrigin: CountryCode, $isAdult: Boolean) {
 	Page(page: $page, perPage: $perPage) {
 		pageInfo {
 			hasNextPage
@@ -10185,7 +10723,7 @@ const ListMangaDocument = `query ListManga ($page: Int, $search: String, $perPag
 			currentPage
 			lastPage
 		}
-		media(type: MANGA, isAdult: $isAdult, countryOfOrigin: $countryOfOrigin, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL) {
+		media(type: MANGA, isAdult: $isAdult, countryOfOrigin: $countryOfOrigin, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, tag_in: $tags, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL) {
 			... baseManga
 		}
 	}
@@ -10207,6 +10745,17 @@ fragment baseManga on Media {
 	meanScore
 	description
 	genres
+	tags {
+		category
+		description
+		id
+		isAdult
+		isGeneralSpoiler
+		isMediaSpoiler
+		name
+		rank
+		userId
+	}
 	title {
 		userPreferred
 		romaji
@@ -10232,7 +10781,7 @@ fragment baseManga on Media {
 }
 `
 
-func (c *Client) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, countryOfOrigin *string, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
+func (c *Client) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, tags []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, countryOfOrigin *string, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
 	vars := map[string]any{
 		"page":                 page,
 		"search":               search,
@@ -10240,6 +10789,7 @@ func (c *Client) ListManga(ctx context.Context, page *int, search *string, perPa
 		"sort":                 sort,
 		"status":               status,
 		"genres":               genres,
+		"tags":                 tags,
 		"averageScore_greater": averageScoreGreater,
 		"startDate_greater":    startDateGreater,
 		"startDate_lesser":     startDateLesser,

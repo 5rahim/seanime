@@ -1043,10 +1043,10 @@ func (c *CacheLayer) MangaDetailsByID(ctx context.Context, id *int, interceptors
 	return result, err
 }
 
-func (c *CacheLayer) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *anilist.MediaFormat, countryOfOrigin *string, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*anilist.ListManga, error) {
-	cacheKey := c.generateCacheKey(page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, countryOfOrigin, isAdult)
+func (c *CacheLayer) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, tags []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *anilist.MediaFormat, countryOfOrigin *string, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*anilist.ListManga, error) {
+	cacheKey := c.generateCacheKey(page, search, perPage, sort, status, genres, tags, averageScoreGreater, startDateGreater, startDateLesser, format, countryOfOrigin, isAdult)
 	return networkFirstGetWithBoundedCache(c, ListMangaBucket, cacheKey, func() (*anilist.ListManga, error) {
-		return c.anilistClientRef.Get().ListManga(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, countryOfOrigin, isAdult, interceptors...)
+		return c.anilistClientRef.Get().ListManga(ctx, page, search, perPage, sort, status, genres, tags, averageScoreGreater, startDateGreater, startDateLesser, format, countryOfOrigin, isAdult, interceptors...)
 	})
 }
 

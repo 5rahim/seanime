@@ -223,6 +223,7 @@ func ListMangaM(
 	Sort []*MediaSort,
 	Status []*MediaStatus,
 	Genres []*string,
+	Tags []*string,
 	AverageScoreGreater *int,
 	Year *int,
 	Format *MediaFormat,
@@ -250,6 +251,9 @@ func ListMangaM(
 	}
 	if Genres != nil {
 		variables["genres"] = Genres
+	}
+	if Tags != nil {
+		variables["tags"] = Tags
 	}
 	if AverageScoreGreater != nil {
 		variables["averageScore_greater"] = *AverageScoreGreater * 10
@@ -424,6 +428,7 @@ func ListMangaCacheKey(
 	Sort []*MediaSort,
 	Status []*MediaStatus,
 	Genres []*string,
+	Tags []*string,
 	AverageScoreGreater *int,
 	Season *MediaSeason,
 	SeasonYear *int,
@@ -450,6 +455,9 @@ func ListMangaCacheKey(
 	}
 	if Genres != nil {
 		key += fmt.Sprintf("_%v", Genres)
+	}
+	if Tags != nil {
+		key += fmt.Sprintf("_%v", Tags)
 	}
 	if AverageScoreGreater != nil {
 		key += fmt.Sprintf("_%d", *AverageScoreGreater)
