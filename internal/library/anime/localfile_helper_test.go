@@ -249,6 +249,40 @@ func TestLocalFile_GetTitleVariations(t *testing.T) {
 
 }
 
+func TestLocalFile_GetTitleVariations_Includes(t *testing.T) {
+
+	tests := []struct {
+		filePath      string
+		libraryPath   string
+		shouldInclude []string
+	}{
+		{
+			filePath:    "E:/ANIME/Boku no Hero Academia FINAL SEASON/My.Hero.Academia.S08E07.From.Aizawa.1080p.NF.WEB-DL.AAC2.0.H.264-VARYG.mkv",
+			libraryPath: "E:/ANIME",
+			shouldInclude: []string{
+				"Boku no Hero Academia FINAL SEASON",
+				"My Hero Academia Season 8",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.filePath, func(t *testing.T) {
+			lf := anime.NewLocalFile(tt.filePath, tt.libraryPath)
+
+			if assert.NotNil(t, lf) {
+				tv := lo.Map(lf.GetTitleVariations(), func(item *string, _ int) string { return *item })
+
+				for _, s := range tt.shouldInclude {
+					assert.Containsf(t, tv, s, "Expected to find %s in %v", s, tv)
+				}
+			}
+
+		})
+	}
+
+}
+
 func TestLocalFile_GetParsedTitle(t *testing.T) {
 
 	tests := []struct {

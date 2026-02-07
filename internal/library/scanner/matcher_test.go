@@ -537,8 +537,6 @@ func TestMatcher3(t *testing.T) {
 
 }
 
-// TestMatcher4 tests complex scenarios like abbreviated titles,
-// series with multiple seasons/parts, and special characters.
 func TestMatcher4(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
@@ -679,6 +677,13 @@ func TestMatcher4(t *testing.T) {
 				"E:/Anime/[Anime Time] Kekkai Sensen (Blood Blockade Battlefront) S01+02+OVA+Extra [Dual Audio][BD][1080p][HEVC 10bit x265][AAC][Eng Sub]/Blood Blockade Battlefront/NC/Blood Blockade Battlefront - NCED.mkv",
 			},
 			expectedMediaId: 20727,
+		},
+		{
+			name: "BnH 8 - 182896",
+			paths: []string{
+				"E:/Anime/Boku no Hero Academia FINAL SEASON/My.Hero.Academia.S08E07.From.Aizawa.1080p.NF.WEB-DL.AAC2.0.H.264-VARYG.mkv",
+			},
+			expectedMediaId: 182896,
 		},
 	}
 

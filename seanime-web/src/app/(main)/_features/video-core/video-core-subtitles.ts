@@ -858,6 +858,9 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     }
 
     private __eventMapKey(event: MKVParser_SubtitleEvent): string {
+        if (event.extraData && event.extraData["_id"]) {
+            return event.extraData["_id"]
+        }
         return JSON.stringify(event)
     }
 

@@ -270,9 +270,12 @@ func (f *LocalFile) GetParsedTitle() string {
 	return ""
 }
 
+// GetFolderTitle returns the parsed title of the closest folder to the file.
+// It will ignore any folder titles that are simply keywords like "specials", "extras", etc.
+// If all is true, it will return the title regardless of whether it's a keyword or not.
 func (f *LocalFile) GetFolderTitle(all ...bool) string {
 	folderTitles := make([]string, 0)
-	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
+	if len(f.ParsedFolderData) > 0 {
 		// Go through each folder data and keep the ones with a title
 		data := lo.Filter(f.ParsedFolderData, func(fpd *LocalFileParsedData, _ int) bool {
 			// remove non-anime titles
@@ -339,11 +342,12 @@ func (f *LocalFile) GetTitleVariations() []*string {
 
 	folderTitle := f.GetFolderTitle()
 
+	// shortcircuit if there are no titles
 	if len(f.ParsedData.Title) == 0 && len(folderTitle) == 0 {
 		return make([]*string, 0)
 	}
 
-	titleVariations := make([]string, 0, 20) // Pre-allocate for efficiency
+	titleVariations := make([]string, 0, 10)
 
 	bothTitles := len(f.ParsedData.Title) > 0 && len(folderTitle) > 0
 	noSeasonsOrParts := folderSeason == 0 && season == 0 && part == 0

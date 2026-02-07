@@ -6,6 +6,7 @@ import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/m
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
+import { upath } from "@/lib/helpers/upath.ts"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { useCallback } from "react"
@@ -83,7 +84,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                 }
             }}
             size="xl"
-            title="Resolve hidden media"
+            title="Hidden Media"
 
         >
             <AppLayoutStack className="mt-4">
@@ -113,7 +114,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                             <div key={group.mediaId} className="pt-4 space-y-2">
                                 <div className="flex items-center w-full justify-between">
                                     <h4 className="font-semibold flex gap-2 items-center">
-                                        <span>{!hasCustomSources ? "AniList" : "Media"} ID:{" "}</span>
+                                        <span>Matched to{" "}</span>
                                         <p
                                             className="underline cursor-pointer text-brand-200 flex gap-1.5 items-center"
                                             onClick={() => { setPreviewModalMediaId(group.mediaId, "anime") }}
@@ -134,6 +135,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                                                 })
                                             }}
                                             leftIcon={<BiPlus />}
+                                            className="rounded-full"
                                         >
                                             Add to {!hasCustomSources ? "AniList" : "collection"}
                                         </Button>
@@ -142,16 +144,21 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                                             intent="warning-subtle"
                                             disabled={isUnmatching}
                                             onClick={() => handleUnmatchMedia(group.mediaId)}
+                                            className="rounded-full"
                                         >
                                             Unmatch
                                         </Button>
                                     </div>
                                 </div>
-                                <div className="bg-gray-900 border p-2 px-2 rounded-[--radius-md] space-y-1 max-h-40 max-w-full overflow-x-auto overflow-y-auto text-sm">
+                                <div className="bg-gray-900 border rounded-[--radius-md] space-y-1 max-h-52 max-w-full overflow-x-auto overflow-y-auto text-sm">
                                     {group.localFiles?.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0))))
                                         .map(lf => {
-                                            return <p key={lf.path} className="text-[--muted] line-clamp-1 tracking-wide">
-                                                {lf.parsedInfo?.original || lf.path}
+                                            return <p
+                                                key={lf.path}
+                                                className="p-2 text-[--muted] line-clamp-2 tracking-wide select-text even:bg-gray-800"
+                                            >
+                                                <span>{upath.dirname(lf.path)}/</span><span className="text-[--foreground]">{lf.parsedInfo?.original || upath.basename(
+                                                lf.path)}</span>
                                             </p>
                                         })}
                                 </div>
