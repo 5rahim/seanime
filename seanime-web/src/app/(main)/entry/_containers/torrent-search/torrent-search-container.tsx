@@ -267,6 +267,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                                 setSmartSearchEpisode(value)
                                             })
                                         }}
+                                        min={0}
                                         formatOptions={{ useGrouping: false }}
                                         // hideControls
                                         size="sm"

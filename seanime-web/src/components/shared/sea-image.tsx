@@ -94,14 +94,21 @@ const Image = forwardRef<HTMLImageElement, _ImageProps>((
         layout,
         objectFit,
         overrideSrc,
+        onLoad,
         ...props
     },
     ref,
 ) => {
+    const [isLoaded, setIsLoaded] = useState(false)
+
     const isStaticImport = typeof src === "object" && src !== null && "src" in src
     const imageSrc = overrideSrc || (isStaticImport ? src.src : src)
 
     const staticBlur = isStaticImport ? src.blurDataURL : undefined
+
+    useEffect(() => {
+        setIsLoaded(false)
+    }, [imageSrc])
 
     const blurUrl = (placeholder && placeholder !== "blur" && placeholder !== "empty")
         ? placeholder
@@ -118,7 +125,7 @@ const Image = forwardRef<HTMLImageElement, _ImageProps>((
         color: "transparent",
     } : {}
 
-    const placeholderStyle: React.CSSProperties = blurUrl ? {
+    const placeholderStyle: React.CSSProperties = (blurUrl && !isLoaded) ? {
         backgroundImage: `url("${blurUrl}")`,
         backgroundSize: objectFit === "contain" ? "contain" : "cover",
         backgroundPosition: "center",
@@ -143,6 +150,10 @@ const Image = forwardRef<HTMLImageElement, _ImageProps>((
                 ...placeholderStyle,
                 ...(objectFit ? { objectFit: objectFit as any } : {}),
                 ...style,
+            }}
+            onLoad={(e) => {
+                setIsLoaded(true)
+                onLoad?.(e)
             }}
             {...props}
         />
