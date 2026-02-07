@@ -4,8 +4,8 @@
   "description": "Self-hosted, user-friendly media server for anime and manga.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0F172A",
-  "theme_color": "#0F172A",
+  "background_color": "#0c0c0c",
+  "theme_color": "#0c0c0c",
   "icons": [
     {
       "src": "/icons/android-chrome-192x192.png",

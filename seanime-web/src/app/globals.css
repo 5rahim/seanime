@@ -79,8 +79,8 @@
 
         --titlebar-h: theme("height.10");
 
-        --foreground: theme('colors.gray.800');
-        --background: white;
+        --foreground: theme('colors.gray.200');
+        --background: #070707;
 
         --brand: theme('colors.brand.300');
         --slate: theme('colors.slate.500');
@@ -112,7 +112,7 @@
         --muted: theme('colors.gray.500');
         --muted-highlight: theme('colors.gray.700');
 
-        --paper: theme('colors.white');
+        --paper: theme('colors.gray.950');
         --subtle: rgba(0, 0, 0, 0.04);
         --subtle-highlight: rgba(0, 0, 0, 0.06);
 

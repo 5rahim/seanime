@@ -782,7 +782,7 @@ function createMainWindow() {
 function createSplashScreen() {
     logStartupEvent("Creating splash screen")
     splashScreen = new BrowserWindow({
-        width: 800, height: 600, frame: false, resizable: false, webPreferences: {
+        width: 800, height: 600, frame: false, resizable: false, backgroundColor: "#0c0c0c", webPreferences: {
             nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, "preload.js")
         }
     })
