@@ -29,12 +29,8 @@ import { FiSearch } from "react-icons/fi"
 import { LuCalendar, LuLeaf } from "react-icons/lu"
 import { MdOutlineBook, MdPersonalVideo } from "react-icons/md"
 import { RiSignalTowerLine } from "react-icons/ri"
-<<<<<<< HEAD
-import { TbSwords } from "react-icons/tb"
-import { useMount } from "react-use"
-=======
 import { TbSwords, TbTagsFilled } from "react-icons/tb"
->>>>>>> a48fc86e (client_test changes and icon for tags)
+import { useMount } from "react-use"
 import { useUpdateEffect } from "react-use"
 
 export function AdvancedSearchOptions() {
