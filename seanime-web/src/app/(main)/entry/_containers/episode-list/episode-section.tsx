@@ -162,6 +162,8 @@ export function EpisodeSection({ entry, details, bottomSection, hideCarousel, ma
                                             length={episode.episodeMetadata?.length}
                                             percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
                                             minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
+                                            fallbackImage={[episode.baseAnime?.bannerImage, episode.baseAnime?.coverImage?.large,
+                                                episode.baseAnime?.coverImage?.extraLarge]}
                                             onClick={() => playMediaFile({
                                                 path: episode.localFile?.path ?? "",
                                                 mediaId: entry.mediaId,

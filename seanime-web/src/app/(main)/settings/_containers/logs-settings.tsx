@@ -1,4 +1,5 @@
 import { useServerQuery } from "@/api/client/requests"
+import { useOpenInExplorer } from "@/api/hooks/explorer.hooks.ts"
 import {
     useDeleteLogs,
     useDownloadCPUProfile,
@@ -9,6 +10,7 @@ import {
     useGetMemoryStats,
 } from "@/api/hooks/status.hooks"
 import { useHandleCopyLatestLogs } from "@/app/(main)/_hooks/logs"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status.ts"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
@@ -18,19 +20,20 @@ import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { upath } from "@/lib/helpers/upath.ts"
 import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 import { BiRefresh } from "react-icons/bi"
 import { FaCopy, FaMemory, FaMicrochip } from "react-icons/fa"
 import { FiDownload, FiTrash2 } from "react-icons/fi"
+import { RiFolderDownloadFill } from "react-icons/ri"
 import { toast } from "sonner"
 import { SettingsCard } from "../_components/settings-card"
 
 type LogsSettingsProps = {}
 
 export function LogsSettings(props: LogsSettingsProps) {
-
-    const {} = props
+    const serverStatus = useServerStatus()
 
     const [selectedFilenames, setSelectedFilenames] = React.useState<{ name: string }[]>([])
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
@@ -58,19 +61,31 @@ export function LogsSettings(props: LogsSettingsProps) {
         },
     ]), [filenamesObj])
 
+    const { mutate: openInExplorer, isPending: isOpening } = useOpenInExplorer()
     const { handleCopyLatestLogs } = useHandleCopyLatestLogs()
 
     return (
         <>
             <SettingsCard>
 
-                <div className="pb-3">
+                <div className="pb-3 flex gap-2">
                     <Button
+                        size="sm"
                         intent="white-subtle"
                         onClick={handleCopyLatestLogs}
                     >
                         Copy current server logs
                     </Button>
+                    {!!serverStatus?.dataDir && <Button
+                        size="sm"
+                        intent="gray-outline"
+                        onClick={() => openInExplorer({
+                            path: upath.joinSafe(serverStatus?.dataDir, "logs"),
+                        })}
+                        leftIcon={<RiFolderDownloadFill className="transition-transform duration-200 group-hover:scale-110" />}
+                    >
+                        Open logs directory
+                    </Button>}
                 </div>
 
                 <Select

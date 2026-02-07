@@ -84,7 +84,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
                     <div className="flex justify-end gap-2 items-center w-full">
                         <IconButton
                             intent="gray-subtle"
-                            size="sm"
+                            size="md"
                             onClick={() => {
                                 // setProvider(row.original.provider)
                                 setSelectedChapterContainer(chapterContainers?.find(c => c.provider === row.original.provider))
@@ -129,7 +129,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
 
     return (
         <>
-            <div className="space-y-4 border rounded-[--radius-md] bg-[--paper] p-4">
+            <div className="space-y-4 rounded-2xl border bg-[--paper] p-4">
 
                 <div className="flex flex-wrap items-center gap-4">
                     <Checkbox
@@ -160,6 +160,9 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
                         ],
                     }}
                     className=""
+                    tableClass="table-fixed lg:table-fixed"
+                    tableBodyClass="border-0"
+                    tdClass="border-[rgba(255,255,255,0.05)]"
                 />
 
                 {(!!selectedChapterContainer) && <ChapterReaderDrawer

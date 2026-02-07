@@ -107,5 +107,6 @@ export function useMangaChapterListRowSelection() {
             setRowSelection({})
             setSelectedChapters([])
         },
+        setSelectedChapters,
     }
 }

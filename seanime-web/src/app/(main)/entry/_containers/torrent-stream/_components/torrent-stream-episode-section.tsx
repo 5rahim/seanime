@@ -96,6 +96,8 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
                                 percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
                                 minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
                                 hasDiscrepancy={episodeCollection?.episodes?.findIndex(e => e.type === "special") !== -1}
+                                fallbackImage={[episode.baseAnime?.bannerImage, episode.baseAnime?.coverImage?.large,
+                                    episode.baseAnime?.coverImage?.extraLarge]}
                                 onClick={() => {
                                     onEpisodeClick(episode)
                                 }}

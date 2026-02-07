@@ -148,9 +148,9 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                     >
                         {actionIcon && actionIcon}
                     </div>}
-                    {(image || media.coverImage?.medium) && <SeaImage
+                    {(image || media.coverImage?.large) && <SeaImage
                         data-episode-grid-item-image
-                        src={getImageUrl(image || media.coverImage?.medium || "")}
+                        src={getImageUrl(image || media.coverImage?.large || "")}
                         alt="episode image"
                         fill
                         quality={60}
@@ -158,7 +158,7 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                         sizes="10rem"
                         className={cn("object-cover object-center transition select-none", {
                             "opacity-25 lg:group-hover/episode-list-item:opacity-100": isWatched && !isSelected,
-                        }, imageClassName)}
+                        }, "lg:group-hover/episode-list-item:scale-105", imageClassName)}
                         data-src={image}
                     />}
 

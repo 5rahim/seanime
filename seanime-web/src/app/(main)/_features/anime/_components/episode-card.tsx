@@ -41,6 +41,7 @@ type EpisodeCardProps = {
     allowAnimeInfo?: boolean
     forceSingleContainer?: boolean
     additionalContextMenuItems?: React.ReactNode
+    fallbackImage?: (string | undefined)[] | undefined
     anime?: {
         id?: number
         image?: string
@@ -78,6 +79,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         anime,
         episode,
         additionalContextMenuItems,
+        fallbackImage,
         ...rest
     } = props
 
@@ -91,6 +93,8 @@ export function EpisodeCard(props: EpisodeCardProps) {
     const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime && allowAnimeInfo
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
     const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
+
+    const missingImage = fallbackImage?.includes(image || "")
 
     const isSingleContainer = ts.useLegacyEpisodeCard || forceSingleContainer
 
@@ -198,7 +202,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             placeholder={imageShimmer(700, 475)}
                             sizes="20rem"
                             className={cn(
-                                "object-cover rounded-xl object-center transition lg:group-hover/episode-card:scale-[1.02] duration-500",
+                                "object-cover rounded-xl object-center transition lg:group-hover/episode-card:scale-[1.02] duration-200",
                                 imageClass,
                             )}
                         /> : <div
@@ -244,6 +248,17 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         >
                             {actionIcon && actionIcon}
                         </div>
+                        {/*{missingImage && <div*/}
+                        {/*    data-episode-card-action-icon*/}
+                        {/*    className={cn(*/}
+                        {/*        "px-6 text-gray-200",*/}
+                        {/*        "cursor-pointer bg-gray-950/80 z-[1] absolute w-[105%] h-[105%] items-center justify-center",*/}
+                        {/*        "hidden md:flex flex-col gap-1",*/}
+                        {/*    )}*/}
+                        {/*>*/}
+                        {/*    <p className="line-clamp-1 text-[--muted]">{topTitle}</p>*/}
+                        {/*    <p className="text-3xl">{title}</p>*/}
+                        {/*</div>}*/}
 
                         {isInvalid &&
                             <p data-episode-card-invalid-metadata className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata
