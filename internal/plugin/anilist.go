@@ -79,8 +79,8 @@ func (a *AppContextImpl) BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, e
 		_ = anilistObj.Set("getStudioDetails", func(studioID int) (*anilist.StudioDetails, error) {
 			return anilistPlatformRef.Get().GetStudioDetails(context.Background(), studioID)
 		})
-		_ = anilistObj.Set("listAnime", func(page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, averageScoreGreater *int, season *anilist.MediaSeason, seasonYear *int, format *anilist.MediaFormat, isAdult *bool) (*anilist.ListAnime, error) {
-			return anilistPlatformRef.Get().GetAnilistClient().ListAnime(context.Background(), page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, isAdult)
+		_ = anilistObj.Set("listAnime", func(page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, tags []*string, averageScoreGreater *int, season *anilist.MediaSeason, seasonYear *int, format *anilist.MediaFormat, isAdult *bool) (*anilist.ListAnime, error) {
+			return anilistPlatformRef.Get().GetAnilistClient().ListAnime(context.Background(), page, search, perPage, sort, status, genres, tags, averageScoreGreater, season, seasonYear, format, isAdult)
 		})
 		_ = anilistObj.Set("listManga", func(page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *anilist.MediaFormat, countryOfOrigin *string, isAdult *bool) (*anilist.ListManga, error) {
 			return anilistPlatformRef.Get().GetAnilistClient().ListManga(context.Background(), page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, countryOfOrigin, isAdult)

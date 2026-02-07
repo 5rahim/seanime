@@ -326,6 +326,7 @@ func (h *Handler) HandleFetchAnimeEntrySuggestions(c echo.Context) error {
 		nil,
 		nil,
 		nil,
+		nil,
 		h.App.Logger,
 		h.App.GetUserAnilistToken(),
 	)
