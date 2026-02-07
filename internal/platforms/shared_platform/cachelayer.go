@@ -885,10 +885,10 @@ func (c *CacheLayer) AnimeDetailsByID(ctx context.Context, id *int, interceptors
 	return result, err
 }
 
-func (c *CacheLayer) ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, averageScoreGreater *int, season *anilist.MediaSeason, seasonYear *int, format *anilist.MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*anilist.ListAnime, error) {
+func (c *CacheLayer) ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, tags []*string, averageScoreGreater *int, season *anilist.MediaSeason, seasonYear *int, format *anilist.MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*anilist.ListAnime, error) {
 	cacheKey := c.generateCacheKey(page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, isAdult)
 	return networkFirstGetWithBoundedCache(c, ListAnimeBucket, cacheKey, func() (*anilist.ListAnime, error) {
-		return c.anilistClientRef.Get().ListAnime(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, isAdult, interceptors...)
+		return c.anilistClientRef.Get().ListAnime(ctx, page, search, perPage, sort, status, genres, tags, averageScoreGreater, season, seasonYear, format, isAdult, interceptors...)
 	})
 }
 

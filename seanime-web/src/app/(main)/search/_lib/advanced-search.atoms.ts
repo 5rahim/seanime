@@ -1,4 +1,4 @@
-import { AL_MediaFormat, AL_MediaSeason, AL_MediaSort, AL_MediaStatus } from "@/api/generated/types"
+import { AL_MediaFormat, AL_MediaSeason, AL_MediaSort, AL_MediaStatus, AL_BaseAnime_Tags } from "@/api/generated/types"
 import { atomWithImmer } from "jotai-immer"
 
 type Params = {
@@ -6,6 +6,7 @@ type Params = {
     title: string | null
     sorting: AL_MediaSort[] | null
     genre: string[] | null
+    tags: string[] | null
     status: AL_MediaStatus[] | null
     format: AL_MediaFormat | null
     season: AL_MediaSeason | null
@@ -22,6 +23,7 @@ export const __advancedSearch_paramsAtom = atomWithImmer<Params>({
     sorting: null,
     status: null,
     genre: null,
+    tags: null,
     format: null,
     season: null,
     year: null,

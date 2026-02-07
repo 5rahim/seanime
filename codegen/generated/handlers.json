@@ -382,6 +382,15 @@
           "descriptions": []
         },
         {
+          "name": "Tags",
+          "jsonName": "tags",
+          "goType": "[]anilist.BaseAnime_Tags",
+          "usedStructType": "anilist.BaseAnime_Tags",
+          "typescriptType": "Array\u003cAL_BaseAnime_Tags\u003e",
+          "required": false,
+          "descriptions": []
+        },
+        {
           "name": "AverageScoreGreater",
           "jsonName": "averageScore_greater",
           "goType": "int",

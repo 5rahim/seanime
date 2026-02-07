@@ -17,7 +17,7 @@ type GithubGraphQLClient interface {
 	SearchBaseAnimeByIds(ctx context.Context, ids []*int, page *int, perPage *int, status []*MediaStatus, inCollection *bool, sort []*MediaSort, season *MediaSeason, year *int, genre *string, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*SearchBaseAnimeByIds, error)
 	CompleteAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteAnimeByID, error)
 	AnimeDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*AnimeDetailsByID, error)
-	ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error)
+	ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, tags []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error)
 	ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, notYetAired *bool, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error)
 	AnimeAiringSchedule(ctx context.Context, ids []*int, season *MediaSeason, seasonYear *int, previousSeason *MediaSeason, previousSeasonYear *int, nextSeason *MediaSeason, nextSeasonYear *int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringSchedule, error)
 	AnimeAiringScheduleRaw(ctx context.Context, ids []*int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringScheduleRaw, error)
@@ -9360,7 +9360,7 @@ func (c *Client) AnimeDetailsByID(ctx context.Context, id *int, interceptors ...
 	return &res, nil
 }
 
-const ListAnimeDocument = `query ListAnime ($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $averageScore_greater: Int, $season: MediaSeason, $seasonYear: Int, $format: MediaFormat, $isAdult: Boolean) {
+const ListAnimeDocument = `query ListAnime ($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $tags: [String], $averageScore_greater: Int, $season: MediaSeason, $seasonYear: Int, $format: MediaFormat, $isAdult: Boolean) {
 	Page(page: $page, perPage: $perPage) {
 		pageInfo {
 			hasNextPage
@@ -9369,7 +9369,7 @@ const ListAnimeDocument = `query ListAnime ($page: Int, $search: String, $perPag
 			currentPage
 			lastPage
 		}
-		media(type: ANIME, search: $search, sort: $sort, status_in: $status, isAdult: $isAdult, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC) {
+		media(type: ANIME, search: $search, sort: $sort, status_in: $status, isAdult: $isAdult, format: $format, genre_in: $genres, tag_in: $tags, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC) {
 			... baseAnime
 		}
 	}
@@ -9438,7 +9438,7 @@ fragment baseAnime on Media {
 }
 `
 
-func (c *Client) ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error) {
+func (c *Client) ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, tags []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error) {
 	vars := map[string]any{
 		"page":                 page,
 		"search":               search,
@@ -9446,6 +9446,7 @@ func (c *Client) ListAnime(ctx context.Context, page *int, search *string, perPa
 		"sort":                 sort,
 		"status":               status,
 		"genres":               genres,
+		"tags":                 tags,
 		"averageScore_greater": averageScoreGreater,
 		"season":               season,
 		"seasonYear":           seasonYear,

@@ -224,6 +224,7 @@ query ListAnime(
   $sort: [MediaSort]
   $status: [MediaStatus]
   $genres: [String]
+  $tags: [String]
   $averageScore_greater: Int
   $season: MediaSeason
   $seasonYear: Int
@@ -246,6 +247,7 @@ query ListAnime(
       isAdult: $isAdult
       format: $format
       genre_in: $genres
+      tag_in: $tags
       averageScore_greater: $averageScore_greater
       season: $season
       seasonYear: $seasonYear

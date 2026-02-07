@@ -27,6 +27,7 @@ export default function Page() {
     const seasonUrlParam = urlParams.get("season")
     const yearUrlParam = urlParams.get("year")
     const typeUrlParam = urlParams.get("type")
+    const tagsUrlParam = urlParams.get("tags")
 
     const setParams = useSetAtom(__advancedSearch_paramsAtom)
 
@@ -34,13 +35,14 @@ export default function Page() {
 
 
     useMount(() => {
-        if (sortingUrlParam || genreUrlParam || statusUrlParam || formatUrlParam || seasonUrlParam || yearUrlParam || typeUrlParam) {
+        if (sortingUrlParam || genreUrlParam || statusUrlParam || formatUrlParam || seasonUrlParam || yearUrlParam || typeUrlParam || tagsUrlParam) {
             setParams({
                 active: true,
                 title: null,
                 sorting: sortingUrlParam ? [sortingUrlParam as AL_MediaSort] : null,
                 status: statusUrlParam ? [statusUrlParam as AL_MediaStatus] : null,
                 genre: genreUrlParam ? [genreUrlParam] : null,
+                tags: tagsUrlParam ? [tagsUrlParam] : null,
                 format: (formatUrlParam as AL_MediaFormat) === "MANGA" ? null : (formatUrlParam as AL_MediaFormat),
                 season: (seasonUrlParam as AL_MediaSeason) || null,
                 year: yearUrlParam || null,

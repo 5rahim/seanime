@@ -22,6 +22,7 @@ export function useAnilistAdvancedSearch() {
                 format: __advancedSearch_getValue(params.format)?.toUpperCase(),
                 search: (params.title === null || params.title === "") ? undefined : params.title,
                 genres: __advancedSearch_getValue(params.genre),
+                tags:   __advancedSearch_getValue(params.tags),
                 season: __advancedSearch_getValue(params.season),
                 seasonYear: __advancedSearch_getValue(params.year),
                 averageScore_greater: __advancedSearch_getValue(params.minScore) !== undefined
@@ -61,6 +62,7 @@ export function useAnilistAdvancedSearch() {
                 perPage: 48,
                 search: (params.title === null || params.title === "") ? undefined : params.title,
                 genres: __advancedSearch_getValue(params.genre),
+                tags:   __advancedSearch_getValue(params.tags),
                 year: __advancedSearch_getValue(params.year),
                 format: __advancedSearch_getValue(params.format)?.toUpperCase(),
                 averageScore_greater: __advancedSearch_getValue(params.minScore) !== undefined

@@ -102,6 +102,7 @@ export type AL_AnimeDetailsById_Media = {
     id: number
     duration?: number
     genres?: Array<string>
+    tags?: Array<AL_AnimeDetailsById_Media_Tags>
     averageScore?: number
     popularity?: number
     meanScore?: number
@@ -353,6 +354,23 @@ export type AL_AnimeDetailsById_Media_Studios_Nodes = {
  * - Filename: client_gen.go
  * - Package: anilist
  */
+export type AL_AnimeDetailsById_Media_Tags = {
+    category?: string
+    description?: string
+    id: number
+    isAdult?: boolean
+    isGeneralSpoiler?: boolean
+    isMediaSpoiler?: boolean
+    name: string
+    rank?: number
+    userId?: number
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
 export type AL_AnimeDetailsById_Media_Trailer = {
     id?: string
     site?: string
@@ -407,6 +425,7 @@ export type AL_BaseAnime = {
     meanScore?: number
     description?: string
     genres?: Array<string>
+    tags?: Array<AL_BaseAnime_Tags>
     duration?: number
     trailer?: AL_BaseAnime_Trailer
     title?: AL_BaseAnime_Title
@@ -459,6 +478,23 @@ export type AL_BaseAnime_StartDate = {
     year?: number
     month?: number
     day?: number
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_BaseAnime_Tags = {
+    category?: string
+    description?: string
+    id: number
+    isAdult?: boolean
+    isGeneralSpoiler?: boolean
+    isMediaSpoiler?: boolean
+    name: string
+    rank?: number
+    userId?: number
 }
 
 /**
@@ -1931,7 +1967,7 @@ export type Continuity_UpdateWatchHistoryItemOptions = {
 }
 
 /**
- * - Filepath: internal/continuity/history.go
+ * - Filepath: ..\internal\continuity\history.go
  * - Filename: history.go
  * - Package: continuity
  */
@@ -3327,7 +3363,7 @@ export type Manga_PageDimension = {
 }
 
 /**
- * - Filepath: internal/manga/download.go
+ * - Filepath: ..\internal\manga\download.go
  * - Filename: download.go
  * - Package: manga
  */
@@ -3785,14 +3821,14 @@ export type Models_HomeItem = {
 }
 
 /**
- * - Filepath: internal/database/models/models.go
+ * - Filepath: ..\internal\database\models\models.go
  * - Filename: models.go
  * - Package: models
  */
 export type Models_IntSlice = Array<number>
 
 /**
- * - Filepath: internal/database/models/models.go
+ * - Filepath: ..\internal\database\models\models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -3978,7 +4014,7 @@ export type Models_SilencedMediaEntry = {
 }
 
 /**
- * - Filepath: internal/database/models/models.go
+ * - Filepath: ..\internal\database\models\models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -4140,7 +4176,7 @@ export type Nakama_NakamaAnimeLibrary = {
 }
 
 /**
- * - Filepath: internal/nakama/share.go
+ * - Filepath: ..\internal\nakama\share.go
  * - Filename: share.go
  * - Package: nakama
  */
