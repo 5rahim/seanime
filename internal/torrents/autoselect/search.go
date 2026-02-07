@@ -252,7 +252,7 @@ func (s *AutoSelect) shouldSearchBatch(media *anilist.CompleteAnime) bool {
 	if media.StartDate != nil && *media.StartDate.Year > 0 {
 		yearsSinceStart = time.Now().Year() - *media.StartDate.Year
 	}
-	if !media.IsMovie() && media.IsFinished() && yearsSinceStart > 4 {
+	if !media.IsMovie() && media.IsFinished()  {
 		return true
 	}
 	return false
