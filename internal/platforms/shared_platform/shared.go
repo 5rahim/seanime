@@ -428,17 +428,14 @@ func (h *PlatformHelper) TriggerUpdateEntryProgressHooks(ctx context.Context, me
 	currentStatus := anilist.MediaListStatusCurrent
 	event.Status = &currentStatus
 
-	err := hook.GlobalHookManager.OnPreUpdateEntryProgress().Trigger(event)
-	if err != nil {
-		return err
-	}
+	_ = hook.GlobalHookManager.OnPreUpdateEntryProgress().Trigger(event)
 
 	if event.DefaultPrevented {
 		return nil
 	}
 
 	// Execute the update
-	err = updateFunc(event)
+	err := updateFunc(event)
 	if err != nil {
 		return err
 	}
@@ -446,7 +443,7 @@ func (h *PlatformHelper) TriggerUpdateEntryProgressHooks(ctx context.Context, me
 	// Trigger post-update hook
 	postEvent := new(platform.PostUpdateEntryProgressEvent)
 	postEvent.MediaID = &mediaID
-	err = hook.GlobalHookManager.OnPostUpdateEntryProgress().Trigger(postEvent)
+	_ = hook.GlobalHookManager.OnPostUpdateEntryProgress().Trigger(postEvent)
 	return err
 }
 

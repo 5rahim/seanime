@@ -49,8 +49,8 @@ import { __discord_pageTypeAtom } from "../../discover/_lib/discover.atoms"
 import { useHandleMangaCollection } from "../../manga/_lib/handle-manga-collection"
 import { MangaLibraryView } from "../../manga/_screens/manga-library-view"
 import { ScheduleCalendar } from "../../schedule/_components/schedule-calendar"
-import { ComingUpNext } from "../../schedule/_containers/coming-up-next"
 import { RecentReleases } from "../../schedule/_containers/recent-releases"
+import { UpcomingEpisodes } from "../../schedule/_containers/upcoming-episodes.tsx"
 import { MediaEntryCard } from "../media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "../media/_components/media-entry-card-skeleton"
 import { MediaEntryPageLoadingDisplay } from "../media/_components/media-entry-page-loading-display"
@@ -710,7 +710,7 @@ function LibraryUpcomingEpisodes(props: { libraryCollectionProps: HandleLibraryC
     if (!hasEntries) return null
 
     return <PageWrapper className="space-y-0 px-4">
-        <ComingUpNext />
+        <UpcomingEpisodes />
     </PageWrapper>
 }
 

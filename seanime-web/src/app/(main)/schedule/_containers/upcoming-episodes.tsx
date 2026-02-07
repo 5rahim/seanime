@@ -1,4 +1,5 @@
 import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
+import { useGetUpcomingEpisodes } from "@/api/hooks/anime_entries.hooks.ts"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -11,33 +12,19 @@ import React from "react"
  * @description
  * Displays a carousel of upcoming episodes based on the user's anime list.
  */
-export function ComingUpNext() {
+export function UpcomingEpisodes() {
     const serverStatus = useServerStatus()
     const router = useRouter()
 
     const { data: animeCollection } = useGetAnimeCollection()
 
-    const media = React.useMemo(() => {
-        // get all media
-        const _media = (animeCollection?.MediaListCollection?.lists?.filter(n => n.status !== "DROPPED")
-            .map(n => n?.entries)
-            .flat() ?? []).map(entry => entry?.media)?.filter(Boolean)
-        // keep media with next airing episodes
-        let ret = _media.filter(item => !!item.nextAiringEpisode?.episode)
-            .sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)
-        if (serverStatus?.settings?.anilist?.enableAdultContent) {
-            return ret
-        } else {
-            // remove adult media
-            return ret.filter(item => !item.isAdult)
-        }
-    }, [animeCollection])
+    const { data } = useGetUpcomingEpisodes()
 
-    if (!media?.length) return null
+    if (!data?.episodes?.length) return null
 
     return (
         <AppLayoutStack>
-            {media.length > 0 && (
+            {data?.episodes.length > 0 && (
                 <>
                     <div>
                         <h2>Upcoming episodes</h2>
@@ -54,28 +41,28 @@ export function ComingUpNext() {
                     >
                         <CarouselDotButtons />
                         <CarouselContent>
-                            {media.map(item => {
+                            {data?.episodes.map(item => {
                                 return (
                                     <CarouselItem
-                                        key={item.id}
+                                        key={item.mediaId}
                                         className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
                                     >
                                         <EpisodeCard
-                                            key={item.id}
-                                            image={item.bannerImage || item.coverImage?.large}
-                                            topTitle={item.title?.userPreferred}
-                                            title={`Episode ${item.nextAiringEpisode?.episode}`}
-                                            meta={formatDistanceToNow(addSeconds(new Date(), item.nextAiringEpisode?.timeUntilAiring!),
+                                            key={item.mediaId}
+                                            image={item.episodeMetadata?.image || item.baseAnime?.bannerImage || item.baseAnime?.coverImage?.large}
+                                            topTitle={item?.baseAnime?.title?.userPreferred}
+                                            title={`Episode ${item.episodeNumber}`}
+                                            meta={formatDistanceToNow(addSeconds(new Date(), item.timeUntilAiring!),
                                                 { addSuffix: true })}
                                             imageClass="opacity-50"
                                             actionIcon={null}
                                             onClick={() => {
-                                                router.push(`/entry?id=${item.id}`)
+                                                router.push(`/entry?id=${item.mediaId}`)
                                             }}
                                             anime={{
-                                                id: item.id,
-                                                image: item.coverImage?.large,
-                                                title: item.title?.userPreferred,
+                                                id: item.mediaId,
+                                                image: item.baseAnime?.coverImage?.large,
+                                                title: item?.baseAnime?.title?.userPreferred,
                                             }}
                                         />
                                     </CarouselItem>

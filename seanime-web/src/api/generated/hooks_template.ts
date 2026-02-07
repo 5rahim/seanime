@@ -265,6 +265,15 @@
 //     })
 // }
 
+// export function useGetUpcomingEpisodes() {
+//     return useServerQuery<Anime_UpcomingEpisodes>({
+//         endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetUpcomingEpisodes.endpoint,
+//         method: API_ENDPOINTS.ANIME_ENTRIES.GetUpcomingEpisodes.methods[0],
+//         queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetUpcomingEpisodes.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useGetAnimeEntrySilenceStatus(id: number) {
 //     return useServerQuery<Models_SilencedMediaEntry>({
 //         endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntrySilenceStatus.endpoint.replace("{id}", String(id)),

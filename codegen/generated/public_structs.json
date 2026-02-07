@@ -43658,6 +43658,24 @@
         "comments": []
       },
       {
+        "name": "onUpcomingEpisodesRequested",
+        "jsonName": "onUpcomingEpisodesRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onUpcomingEpisodes",
+        "jsonName": "onUpcomingEpisodes",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "onAnimeEntryDownloadInfoRequested",
         "jsonName": "onAnimeEntryDownloadInfoRequested",
         "goType": "",
@@ -47158,6 +47176,81 @@
   {
     "filepath": "../internal/library/anime/hook_events.go",
     "filename": "hook_events.go",
+    "name": "UpcomingEpisodesRequestedEvent",
+    "formattedName": "Anime_UpcomingEpisodesRequestedEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpcomingEpisodes",
+        "jsonName": "upcomingEpisodes",
+        "goType": "UpcomingEpisodes",
+        "typescriptType": "Anime_UpcomingEpisodes",
+        "usedTypescriptType": "Anime_UpcomingEpisodes",
+        "usedStructName": "anime.UpcomingEpisodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " UpcomingEpisodesRequestedEvent is triggered when the user requests upcoming episodes.",
+      " Prevent default to skip the default process and return the modified upcoming episodes."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "UpcomingEpisodesEvent",
+    "formattedName": "Anime_UpcomingEpisodesEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "UpcomingEpisodes",
+        "jsonName": "upcomingEpisodes",
+        "goType": "UpcomingEpisodes",
+        "typescriptType": "Anime_UpcomingEpisodes",
+        "usedTypescriptType": "Anime_UpcomingEpisodes",
+        "usedStructName": "anime.UpcomingEpisodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " UpcomingEpisodesEvent is triggered when the upcoming episodes are being returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
     "name": "AnimeLibraryCollectionRequestedEvent",
     "formattedName": "Anime_AnimeLibraryCollectionRequestedEvent",
     "package": "anime",
@@ -48592,6 +48685,125 @@
         "usedTypescriptType": "Anime_LocalFileType",
         "usedStructName": "anime.LocalFileType",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/upcoming_episodes.go",
+    "filename": "upcoming_episodes.go",
+    "name": "UpcomingEpisodes",
+    "formattedName": "Anime_UpcomingEpisodes",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]UpcomingEpisode",
+        "typescriptType": "Array\u003cAnime_UpcomingEpisode\u003e",
+        "usedTypescriptType": "Anime_UpcomingEpisode",
+        "usedStructName": "anime.UpcomingEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/upcoming_episodes.go",
+    "filename": "upcoming_episodes.go",
+    "name": "UpcomingEpisode",
+    "formattedName": "Anime_UpcomingEpisode",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BaseAnime",
+        "jsonName": "baseAnime",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeMetadata",
+        "jsonName": "episodeMetadata",
+        "goType": "EpisodeMetadata",
+        "typescriptType": "Anime_EpisodeMetadata",
+        "usedTypescriptType": "Anime_EpisodeMetadata",
+        "usedStructName": "anime.EpisodeMetadata",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/upcoming_episodes.go",
+    "filename": "upcoming_episodes.go",
+    "name": "NewUpcomingEpisodesOptions",
+    "formattedName": "Anime_NewUpcomingEpisodesOptions",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProviderRef",
+        "jsonName": "MetadataProviderRef",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
         "public": true,
         "comments": []
       }

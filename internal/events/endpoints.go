@@ -126,6 +126,7 @@ const (
 	GetTorrentstreamBatchHistoryEndpoint               = "TORRENTSTREAM-get-torrentstream-batch-history"
 	GetTorrentstreamSettingsEndpoint                   = "TORRENTSTREAM-get-torrentstream-settings"
 	GetTorrentstreamTorrentFilePreviewsEndpoint        = "TORRENTSTREAM-get-torrentstream-torrent-file-previews"
+	GetUpcomingEpisodesEndpoint                        = "ANIME-ENTRIES-get-upcoming-episodes"
 	GettingStartedEndpoint                             = "SETTINGS-getting-started"
 	GrantPluginPermissionsEndpoint                     = "EXTENSIONS-grant-plugin-permissions"
 	ImportLocalFilesEndpoint                           = "LOCALFILES-import-local-files"

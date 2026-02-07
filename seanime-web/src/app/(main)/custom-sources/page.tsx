@@ -107,9 +107,9 @@ export default function Page() {
             <CustomLibraryBanner discrete />
             <PageWrapper data-search-page-container className="space-y-6 px-4 md:p-8 pt-0 pb-10">
                 <div className="flex items-center gap-4">
-                    <SeaLink href={`/discover`}>
+                    <SeaLink href={`/search`}>
                         <Button leftIcon={<AiOutlineArrowLeft />} rounded intent="gray-outline" size="md">
-                            Discover
+                            Search
                         </Button>
                     </SeaLink>
                     {/*<h3>Discover</h3>*/}

@@ -78,10 +78,9 @@ function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
     const totalItems = pageType === "anime" ? animeTotalItems : mangaTotalItems
     const setCurrentIndex = pageType === "anime" ? setAnimeRandomNumber : setMangaRandomNumber
 
-    // Don't render if there are no items or only one item
-    if (totalItems <= 1) return null
-
     const maxDots = Math.min(totalItems, 12)
+    // Don't render if there are no items or only one item
+    if (totalItems <= 1 || pageType === "schedule") return null
 
     return (
         <div
@@ -227,7 +226,7 @@ function MediaMetadata({ media, pageType, isTransitioning, onHoverChange }: Medi
     const ts = useThemeSettings()
     const { setPreviewModalMediaId } = useMediaPreviewModal()
 
-    if (!media) return null
+    if (!media || pageType === "schedule") return null
 
     return (
         <motion.div

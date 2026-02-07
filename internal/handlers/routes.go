@@ -246,6 +246,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Library.GET("/scan-summaries", h.HandleGetScanSummaries)
 
 	v1Library.GET("/missing-episodes", h.HandleGetMissingEpisodes)
+	v1Library.GET("/upcoming-episodes", h.HandleGetUpcomingEpisodes)
 
 	v1Library.GET("/anime-entry/:id", h.HandleGetAnimeEntry)
 	v1Library.POST("/anime-entry/suggestions", h.HandleFetchAnimeEntrySuggestions)

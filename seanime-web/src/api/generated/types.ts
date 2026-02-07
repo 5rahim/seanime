@@ -1839,6 +1839,29 @@ export type Anime_UnmatchedGroup = {
 }
 
 /**
+ * - Filepath: internal/library/anime/upcoming_episodes.go
+ * - Filename: upcoming_episodes.go
+ * - Package: anime
+ */
+export type Anime_UpcomingEpisode = {
+    mediaId: number
+    episodeNumber: number
+    airingAt: number
+    timeUntilAiring: number
+    baseAnime?: AL_BaseAnime
+    episodeMetadata?: Anime_EpisodeMetadata
+}
+
+/**
+ * - Filepath: internal/library/anime/upcoming_episodes.go
+ * - Filename: upcoming_episodes.go
+ * - Package: anime
+ */
+export type Anime_UpcomingEpisodes = {
+    episodes?: Array<Anime_UpcomingEpisode>
+}
+
+/**
  * - Filepath: internal/library/anime/playlist.go
  * - Filename: playlist.go
  * - Package: anime

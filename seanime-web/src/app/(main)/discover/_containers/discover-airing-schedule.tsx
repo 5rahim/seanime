@@ -91,7 +91,7 @@ export function DiscoverAiringSchedule() {
 
     return (
         <div className="space-y-4 z-[5] relative" data-discover-airing-schedule-container>
-            <h2 className="text-center">Airing schedule</h2>
+            <h2 className="text-center">Airing Schedule</h2>
             <div className="space-y-6">
                 {days.map((day, index) => {
                     if (day.events.length === 0) return null

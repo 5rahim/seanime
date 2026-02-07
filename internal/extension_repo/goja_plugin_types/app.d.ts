@@ -220,6 +220,39 @@ declare namespace $app {
     }
 
     /**
+     * @event UpcomingEpisodesRequestedEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * UpcomingEpisodesRequestedEvent is triggered when the user requests upcoming episodes.
+     * Prevent default to skip the default process and return the modified upcoming episodes.
+     */
+    function onUpcomingEpisodesRequested(cb: (event: UpcomingEpisodesRequestedEvent) => void): void;
+
+    interface UpcomingEpisodesRequestedEvent {
+        animeCollection?: AL_AnimeCollection;
+        localFiles?: Array<Anime_LocalFile>;
+        upcomingEpisodes?: Anime_UpcomingEpisodes;
+
+        next(): void;
+
+        preventDefault(): void;
+    }
+
+    /**
+     * @event UpcomingEpisodesEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * UpcomingEpisodesEvent is triggered when the upcoming episodes are being returned.
+     */
+    function onUpcomingEpisodes(cb: (event: UpcomingEpisodesEvent) => void): void;
+
+    interface UpcomingEpisodesEvent {
+        upcomingEpisodes?: Anime_UpcomingEpisodes;
+
+        next(): void;
+    }
+
+    /**
      * @event AnimeLibraryCollectionRequestedEvent
      * @file internal/library/anime/hook_events.go
      * @description
@@ -3370,6 +3403,25 @@ declare namespace $app {
         dir: string;
         localFiles?: Array<Anime_LocalFile>;
         suggestions?: Array<AL_BaseAnime>;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/upcoming_episodes.go
+     */
+    interface Anime_UpcomingEpisode {
+        mediaId: number;
+        episodeNumber: number;
+        airingAt: number;
+        timeUntilAiring: number;
+        baseAnime?: AL_BaseAnime;
+        episodeMetadata?: Anime_EpisodeMetadata;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/upcoming_episodes.go
+     */
+    interface Anime_UpcomingEpisodes {
+        episodes?: Array<Anime_UpcomingEpisode>;
     }
 
     /**

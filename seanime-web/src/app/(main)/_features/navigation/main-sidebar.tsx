@@ -194,6 +194,17 @@ function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean
             href: "/discover",
             isCurrent: pathname === "/discover",
         },
+        {
+            id: "search",
+            iconType: FiSearch,
+            name: "Search",
+            href: "/search",
+            isCurrent: pathname === "/search",
+            // onClick: () => {
+            //     ctx.setOpen(false)
+            //     setGlobalSearchIsOpen(true)
+            // },
+        },
         ...(
             serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
             && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
@@ -237,15 +248,6 @@ function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean
                 intent="alert-solid"
             >{autoDownloaderQueueCount}</Badge> : undefined,
         }] : [],
-        {
-            id: "search",
-            iconType: FiSearch,
-            name: "Search",
-            onClick: () => {
-                ctx.setOpen(false)
-                setGlobalSearchIsOpen(true)
-            },
-        },
     ], [
         pathname,
         missingEpisodeCount,

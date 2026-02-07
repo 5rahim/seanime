@@ -70,7 +70,7 @@ export function DiscoverTrending() {
     const firedRef = React.useRef(false)
     React.useEffect(() => {
         if (!firedRef.current && data) {
-            const mediaItems = data?.Page?.media?.filter(Boolean) || []
+            const mediaItems = data?.Page?.media?.filter(Boolean)?.filter(n => n.status !== "NOT_YET_RELEASED") || []
             setAnimeTotalItems(mediaItems.length)
             const random = mediaItems[randomNumber]
             if (random) {
@@ -82,7 +82,7 @@ export function DiscoverTrending() {
 
     React.useEffect(() => {
         if (firedRef.current) {
-            const mediaItems = data?.Page?.media?.filter(Boolean) || []
+            const mediaItems = data?.Page?.media?.filter(Boolean)?.filter(n => n.status !== "NOT_YET_RELEASED") || []
             const random = mediaItems[randomNumber]
             if (random) {
                 setRandomTrendingAtom(random)

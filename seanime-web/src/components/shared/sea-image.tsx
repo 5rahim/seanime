@@ -41,6 +41,11 @@ export const SeaImage = forwardRef<HTMLImageElement, ImageProps & { isExternal?:
 
         const effectiveOverride = (blocked || hasError) ? "/no-cover.png" : props.overrideSrc
 
+        function handleError() {
+            setHasError(true)
+            console.warn(`Error loading image ${props.src}`)
+        }
+
         return <Image
             ref={ref}
             {...props}
@@ -50,7 +55,7 @@ export const SeaImage = forwardRef<HTMLImageElement, ImageProps & { isExternal?:
             priority={priority}
             placeholder={placeholder}
             overrideSrc={effectiveOverride}
-            onError={() => setHasError(true)}
+            onError={handleError}
         />
     },
 )

@@ -46,6 +46,9 @@ type Manager interface {
 	OnMissingEpisodesRequested() *Hook[hook_resolver.Resolver]
 	OnMissingEpisodes() *Hook[hook_resolver.Resolver]
 
+	OnUpcomingEpisodesRequested() *Hook[hook_resolver.Resolver]
+	OnUpcomingEpisodes() *Hook[hook_resolver.Resolver]
+
 	OnAnimeEntryDownloadInfoRequested() *Hook[hook_resolver.Resolver]
 	OnAnimeEntryDownloadInfo() *Hook[hook_resolver.Resolver]
 
@@ -184,6 +187,8 @@ type ManagerImpl struct {
 	onAnimeEntryManualMatchBeforeSave *Hook[hook_resolver.Resolver]
 	onMissingEpisodesRequested        *Hook[hook_resolver.Resolver]
 	onMissingEpisodes                 *Hook[hook_resolver.Resolver]
+	onUpcomingEpisodesRequested       *Hook[hook_resolver.Resolver]
+	onUpcomingEpisodes                *Hook[hook_resolver.Resolver]
 	onAnimeEntryDownloadInfoRequested *Hook[hook_resolver.Resolver]
 	onAnimeEntryDownloadInfo          *Hook[hook_resolver.Resolver]
 	onAnimeEpisodeCollectionRequested *Hook[hook_resolver.Resolver]
@@ -326,6 +331,8 @@ func (m *ManagerImpl) initHooks() {
 	m.onAnimeEntryManualMatchBeforeSave = &Hook[hook_resolver.Resolver]{}
 	m.onMissingEpisodesRequested = &Hook[hook_resolver.Resolver]{}
 	m.onMissingEpisodes = &Hook[hook_resolver.Resolver]{}
+	m.onUpcomingEpisodesRequested = &Hook[hook_resolver.Resolver]{}
+	m.onUpcomingEpisodes = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeEntryDownloadInfoRequested = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeEntryDownloadInfo = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeEpisodeCollectionRequested = &Hook[hook_resolver.Resolver]{}
@@ -617,6 +624,20 @@ func (m *ManagerImpl) OnMissingEpisodes() *Hook[hook_resolver.Resolver] {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onMissingEpisodes
+}
+
+func (m *ManagerImpl) OnUpcomingEpisodesRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onUpcomingEpisodesRequested
+}
+
+func (m *ManagerImpl) OnUpcomingEpisodes() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onUpcomingEpisodes
 }
 
 func (m *ManagerImpl) OnAnimeEntryDownloadInfoRequested() *Hook[hook_resolver.Resolver] {

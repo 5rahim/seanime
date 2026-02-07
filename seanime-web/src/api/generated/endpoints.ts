@@ -252,6 +252,17 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/library/missing-episodes",
         },
+        /**
+         *  @description
+         *  Route returns a list of upcoming episodes based on the user's anime collection
+         *  It uses the AniList 'next airing episode' data to determine upcoming episodes.
+         *  This route can be called multiple times, as it does not bypass the cache.
+         */
+        GetUpcomingEpisodes: {
+            key: "ANIME-ENTRIES-get-upcoming-episodes",
+            methods: ["GET"],
+            endpoint: "/api/v1/library/upcoming-episodes",
+        },
         GetAnimeEntrySilenceStatus: {
             key: "ANIME-ENTRIES-get-anime-entry-silence-status",
             methods: ["GET"],
