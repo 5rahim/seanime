@@ -41,7 +41,7 @@ export function PluginManager() {
         if (!isMainTabRef.current) return
         sendScreenChangedEvent({
             pathname: pathname,
-            query: window.location.search,
+            query: searchParams.size > 0 ? "?" + searchParams.toString() : "",
         })
     }, [pathname, searchParams])
 
@@ -49,7 +49,7 @@ export function PluginManager() {
         if (!isMainTabRef.current) return
         sendScreenChangedEvent({
             pathname: pathname,
-            query: window.location.search,
+            query: searchParams.size > 0 ? "?" + searchParams.toString() : "",
         }, extensionId)
     }, "") // Listen to all plugins
 

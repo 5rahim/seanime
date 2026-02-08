@@ -7,7 +7,7 @@ const searchSchema = z.object({
     status: z.string().optional(),
     format: z.string().optional(),
     season: z.string().optional(),
-    year: z.string().optional(),
+    year: z.coerce.number().optional(),
     type: z.string().optional(),
 })
 

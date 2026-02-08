@@ -8,6 +8,7 @@ import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/c
 import { useRouter } from "@/lib/navigation"
 import React from "react"
 import { AiOutlineDownload } from "react-icons/ai"
+import { HiDownload } from "react-icons/hi"
 import { IoLibrary } from "react-icons/io5"
 import { LuBellOff } from "react-icons/lu"
 
@@ -52,7 +53,7 @@ export function MissingEpisodes({ isLoading, data }: {
                                             topTitle={episode.baseAnime?.title?.userPreferred}
                                             title={episode.displayTitle}
                                             meta={episode.episodeMetadata?.airDate ?? undefined}
-                                            actionIcon={hasTorrentProvider ? <AiOutlineDownload className="opacity-50" /> : null}
+                                            actionIcon={hasTorrentProvider ? <HiDownload className="opacity-50" /> : null}
                                             isInvalid={episode.isInvalid}
                                             onClick={() => {
                                                 if (hasTorrentProvider) {

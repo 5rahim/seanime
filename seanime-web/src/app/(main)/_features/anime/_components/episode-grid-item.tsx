@@ -8,7 +8,8 @@ import { ProgressBar } from "@/components/ui/progress-bar"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
-import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
+import { AiFillWarning } from "react-icons/ai"
+import { FaCirclePlay } from "react-icons/fa6"
 
 type EpisodeGridItemProps = {
     media: AL_BaseAnime,
@@ -60,7 +61,7 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
         disabled,
         isFiller,
         length,
-        actionIcon = props.actionIcon !== null ? <AiFillPlayCircle data-episode-grid-item-action-icon className="opacity-70 text-4xl" /> : undefined,
+        actionIcon = props.actionIcon !== null ? <FaCirclePlay data-episode-grid-item-action-icon className="opacity-70 text-4xl" /> : undefined,
         episodeTitleClassName,
         percentageComplete,
         minutesRemaining,
@@ -103,6 +104,7 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                     data-episode-grid-item-filler-badge
                     className={cn(
                         "font-semibold absolute top-3 left-0 z-[5] text-white bg-orange-800 !bg-opacity-100 rounded-[--radius-md] text-base rounded-bl-none rounded-tr-none",
+                        "lg:group-hover/episode-list-item:scale-105 lg:group-hover/episode-list-item:-translate-x-0.5 lg:group-hover/episode-list-item:-translate-y-0.5 transition-transform",
                         !!ts.libraryScreenCustomBackgroundImage && ts.libraryScreenCustomBackgroundOpacity > 5 && "top-3  left-3",
                     )}
                     intent="gray"
@@ -123,6 +125,8 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                         (ts.hideEpisodeCardDescription) && "w-36 h-28 lg:w-40 lg:h-28",
                         "flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden",
                         "group/ep-item-img-container",
+                        "lg:group-hover/episode-list-item:scale-105 transition-transform",
+                        // onClick && "hover:ring-1 ring-[rgba(255,255,255,0.1)] ring-offset-transparent ring-offset-2",
                         onClick && "cursor-pointer",
                         {
                             "border-2 border-red-700": isInvalid,
@@ -158,7 +162,7 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                         sizes="10rem"
                         className={cn("object-cover object-center transition select-none", {
                             "opacity-25 lg:group-hover/episode-list-item:opacity-100": isWatched && !isSelected,
-                        }, "lg:group-hover/episode-list-item:scale-105", imageClassName)}
+                        }, "", imageClassName)}
                         data-src={image}
                     />}
 
@@ -172,8 +176,8 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                     {isInvalid && <p data-episode-grid-item-invalid-metadata className="flex gap-2 text-red-300 items-center"><AiFillWarning
                         className="text-lg text-red-500"
                     /> Unidentified</p>}
-                    {isInvalid &&
-                        <p data-episode-grid-item-invalid-metadata className="flex gap-2 text-red-200 text-sm items-center">No metadata found</p>}
+                    {/*{isInvalid &&*/}
+                    {/*    <p data-episode-grid-item-invalid-metadata className="flex gap-2 text-red-200 text-sm items-center">No metadata found</p>}*/}
 
                     <p
                         className={cn(

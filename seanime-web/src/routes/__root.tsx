@@ -3,10 +3,17 @@ import Template from "@/app/template"
 import { AppErrorBoundary } from "@/components/shared/app-error-boundary"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { NotFound } from "@/components/shared/not-found"
-import { createRootRoute, Outlet } from "@tanstack/react-router"
+
+import { QueryClient } from "@tanstack/react-query"
+import { createRootRouteWithContext, Outlet } from "@tanstack/react-router"
+
+import { createStore } from "jotai"
 import React from "react"
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+    queryClient: QueryClient
+    store: ReturnType<typeof createStore>
+}>()({
     component: () => (
         <Template>
             <CustomBackgroundImage />

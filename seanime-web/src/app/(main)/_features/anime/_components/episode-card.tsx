@@ -13,8 +13,8 @@ import { usePathname, useRouter } from "@/lib/navigation"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
-import { AiFillPlayCircle } from "react-icons/ai"
 import { BiAddToQueue } from "react-icons/bi"
+import { FaCirclePlay } from "react-icons/fa6"
 import { LuDock, LuEye } from "react-icons/lu"
 import { PluginEpisodeCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
@@ -54,7 +54,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
 
     const {
         children,
-        actionIcon = props.actionIcon !== null ? <AiFillPlayCircle className="opacity-50" /> : undefined,
+        actionIcon = props.actionIcon !== null ? <FaCirclePlay className="opacity-50" /> : undefined,
         image,
         onClick,
         topTitle,
@@ -174,7 +174,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 <div
                     ref={mRef}
                     className={cn(
-                        "rounded-xl overflow-hidden space-y-2 flex-none group/episode-card cursor-pointer",
+                        "rounded-xl space-y-2 flex-none group/episode-card cursor-pointer",
                         "select-none",
                         type === "carousel" && "w-full",
                         type === "grid" && "aspect-[4/2] w-72 lg:w-[26rem]",
@@ -191,7 +191,11 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 >
                     <div
                         data-episode-card-image-container
-                        className="w-full h-full rounded-xl overflow-hidden z-[1] aspect-[4/2] relative bg-[--background]"
+                        className={cn(
+                            "w-full h-full rounded-xl overflow-hidden z-[1] aspect-[4/2] relative bg-[--background]",
+                            // "lg:group-hover/episode-card:scale-[1.02] lg:group-hover/episode-card:translate-y-1  transition-transform
+                            // duration-200",
+                        )}
                     >
                         {!!image ? <SeaImage
                             data-episode-card-image

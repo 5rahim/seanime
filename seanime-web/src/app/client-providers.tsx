@@ -1,4 +1,3 @@
-
 import { WebsocketProvider } from "@/app/websocket-provider"
 import { CustomCSSProvider } from "@/components/shared/custom-css-provider"
 import { CustomThemeProvider } from "@/components/shared/custom-theme-provider"
@@ -14,7 +13,7 @@ interface ClientProvidersProps {
     children?: React.ReactNode
 }
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
             refetchOnWindowFocus: false,
@@ -23,8 +22,9 @@ const queryClient = new QueryClient({
     },
 })
 
+export const store = createStore()
+
 export const ClientProviders: React.FC<ClientProvidersProps> = ({ children }) => {
-    const [store] = React.useState(createStore())
 
     return (
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme={"dark"}>
