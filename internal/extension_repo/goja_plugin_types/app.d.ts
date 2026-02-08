@@ -229,13 +229,13 @@ declare namespace $app {
     function onUpcomingEpisodesRequested(cb: (event: UpcomingEpisodesRequestedEvent) => void): void;
 
     interface UpcomingEpisodesRequestedEvent {
-        animeCollection?: AL_AnimeCollection;
-        localFiles?: Array<Anime_LocalFile>;
-        upcomingEpisodes?: Anime_UpcomingEpisodes;
-
         next(): void;
 
         preventDefault(): void;
+
+        animeCollection?: AL_AnimeCollection;
+        localFiles?: Array<Anime_LocalFile>;
+        upcomingEpisodes?: Anime_UpcomingEpisodes;
     }
 
     /**
@@ -247,9 +247,9 @@ declare namespace $app {
     function onUpcomingEpisodes(cb: (event: UpcomingEpisodesEvent) => void): void;
 
     interface UpcomingEpisodesEvent {
-        upcomingEpisodes?: Anime_UpcomingEpisodes;
-
         next(): void;
+
+        upcomingEpisodes?: Anime_UpcomingEpisodes;
     }
 
     /**
@@ -2317,6 +2317,7 @@ declare namespace $app {
         meanScore?: number;
         description?: string;
         genres?: Array<string>;
+        tags?: Array<AL_BaseManga_Tags>;
         title?: AL_BaseManga_Title;
         coverImage?: AL_BaseManga_CoverImage;
         startDate?: AL_BaseManga_StartDate;
@@ -2349,6 +2350,21 @@ declare namespace $app {
         year?: number;
         month?: number;
         day?: number;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_BaseManga_Tags {
+        category?: string;
+        description?: string;
+        id: number;
+        isAdult?: boolean;
+        isGeneralSpoiler?: boolean;
+        isMediaSpoiler?: boolean;
+        name: string;
+        rank?: number;
+        userId?: number;
     }
 
     /**
@@ -2635,6 +2651,7 @@ declare namespace $app {
         id: number;
         duration?: number;
         genres?: Array<string>;
+        tags?: Array<AL_MangaDetailsById_Media_Tags>;
         rankings?: Array<AL_MangaDetailsById_Media_Rankings>;
         characters?: AL_MangaDetailsById_Media_Characters;
         recommendations?: AL_MangaDetailsById_Media_Recommendations;
@@ -2768,6 +2785,21 @@ declare namespace $app {
     interface AL_MangaDetailsById_Media_Relations_Edges {
         relationType?: AL_MediaRelation;
         node?: AL_BaseManga;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_MangaDetailsById_Media_Tags {
+        category?: string;
+        description?: string;
+        id: number;
+        isAdult?: boolean;
+        isGeneralSpoiler?: boolean;
+        isMediaSpoiler?: boolean;
+        name: string;
+        rank?: number;
+        userId?: number;
     }
 
     /**

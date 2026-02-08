@@ -875,6 +875,17 @@
         "comments": []
       },
       {
+        "name": "Tags",
+        "jsonName": "tags",
+        "goType": "[]BaseManga_Tags",
+        "typescriptType": "Array\u003cAL_BaseManga_Tags\u003e",
+        "usedTypescriptType": "AL_BaseManga_Tags",
+        "usedStructName": "anilist.BaseManga_Tags",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Title",
         "jsonName": "title",
         "goType": "BaseManga_Title",
@@ -2532,6 +2543,97 @@
         "typescriptType": "Array\u003cAL_AnimeSchedule_Upcoming_Nodes\u003e",
         "usedTypescriptType": "AL_AnimeSchedule_Upcoming_Nodes",
         "usedStructName": "anilist.AnimeSchedule_Upcoming_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "BaseManga_Tags",
+    "formattedName": "AL_BaseManga_Tags",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Category",
+        "jsonName": "category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsGeneralSpoiler",
+        "jsonName": "isGeneralSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMediaSpoiler",
+        "jsonName": "isMediaSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rank",
+        "jsonName": "rank",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserID",
+        "jsonName": "userId",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -9308,6 +9410,97 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags",
+    "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Tags",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Category",
+        "jsonName": "category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsGeneralSpoiler",
+        "jsonName": "isGeneralSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMediaSpoiler",
+        "jsonName": "isMediaSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rank",
+        "jsonName": "rank",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserID",
+        "jsonName": "userId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Title",
     "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Title",
     "package": "anilist",
@@ -9672,6 +9865,97 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "SearchBaseManga_Page_Media_BaseManga_Tags",
+    "formattedName": "AL_SearchBaseManga_Page_Media_BaseManga_Tags",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Category",
+        "jsonName": "category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsGeneralSpoiler",
+        "jsonName": "isGeneralSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMediaSpoiler",
+        "jsonName": "isMediaSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rank",
+        "jsonName": "rank",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserID",
+        "jsonName": "userId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "SearchBaseManga_Page_Media_BaseManga_Title",
     "formattedName": "AL_SearchBaseManga_Page_Media_BaseManga_Title",
     "package": "anilist",
@@ -9870,6 +10154,97 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "BaseMangaById_Media_BaseManga_Tags",
+    "formattedName": "AL_BaseMangaById_Media_BaseManga_Tags",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Category",
+        "jsonName": "category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsGeneralSpoiler",
+        "jsonName": "isGeneralSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMediaSpoiler",
+        "jsonName": "isMediaSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rank",
+        "jsonName": "rank",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserID",
+        "jsonName": "userId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "BaseMangaById_Media_BaseManga_Title",
     "formattedName": "AL_BaseMangaById_Media_BaseManga_Title",
     "package": "anilist",
@@ -10024,6 +10399,97 @@
       {
         "name": "Day",
         "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Tags",
+    "formattedName": "AL_MangaDetailsById_Media_Tags",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Category",
+        "jsonName": "category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsGeneralSpoiler",
+        "jsonName": "isGeneralSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMediaSpoiler",
+        "jsonName": "isMediaSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rank",
+        "jsonName": "rank",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserID",
+        "jsonName": "userId",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -10705,6 +11171,97 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags",
+    "formattedName": "AL_MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Tags",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Category",
+        "jsonName": "category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsGeneralSpoiler",
+        "jsonName": "isGeneralSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMediaSpoiler",
+        "jsonName": "isMediaSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rank",
+        "jsonName": "rank",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserID",
+        "jsonName": "userId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Title",
     "formattedName": "AL_MangaDetailsById_Media_Relations_Edges_Node_BaseManga_Title",
     "package": "anilist",
@@ -10965,6 +11522,17 @@
         "comments": []
       },
       {
+        "name": "Tags",
+        "jsonName": "tags",
+        "goType": "[]MangaDetailsById_Media_Tags",
+        "typescriptType": "Array\u003cAL_MangaDetailsById_Media_Tags\u003e",
+        "usedTypescriptType": "AL_MangaDetailsById_Media_Tags",
+        "usedStructName": "anilist.MangaDetailsById_Media_Tags",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Rankings",
         "jsonName": "rankings",
         "goType": "[]MangaDetailsById_Media_Rankings",
@@ -11057,6 +11625,97 @@
       {
         "name": "LastPage",
         "jsonName": "lastPage",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "ListManga_Page_Media_BaseManga_Tags",
+    "formattedName": "AL_ListManga_Page_Media_BaseManga_Tags",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Category",
+        "jsonName": "category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsGeneralSpoiler",
+        "jsonName": "isGeneralSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMediaSpoiler",
+        "jsonName": "isMediaSpoiler",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rank",
+        "jsonName": "rank",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserID",
+        "jsonName": "userId",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
