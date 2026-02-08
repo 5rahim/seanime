@@ -590,6 +590,7 @@ export type AL_BaseManga = {
     meanScore?: number
     description?: string
     genres?: Array<string>
+    tags?: Array<AL_BaseManga_Tags>
     title?: AL_BaseManga_Title
     coverImage?: AL_BaseManga_CoverImage
     startDate?: AL_BaseManga_StartDate
@@ -628,6 +629,23 @@ export type AL_BaseManga_StartDate = {
     year?: number
     month?: number
     day?: number
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_BaseManga_Tags = {
+    category?: string
+    description?: string
+    id: number
+    isAdult?: boolean
+    isGeneralSpoiler?: boolean
+    isMediaSpoiler?: boolean
+    name: string
+    rank?: number
+    userId?: number
 }
 
 /**
@@ -887,6 +905,7 @@ export type AL_MangaDetailsById_Media = {
     id: number
     duration?: number
     genres?: Array<string>
+    tags?: Array<AL_MangaDetailsById_Media_Tags>
     rankings?: Array<AL_MangaDetailsById_Media_Rankings>
     characters?: AL_MangaDetailsById_Media_Characters
     recommendations?: AL_MangaDetailsById_Media_Recommendations
@@ -1046,6 +1065,23 @@ export type AL_MangaDetailsById_Media_Relations = {
 export type AL_MangaDetailsById_Media_Relations_Edges = {
     relationType?: AL_MediaRelation
     node?: AL_BaseManga
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MangaDetailsById_Media_Tags = {
+    category?: string
+    description?: string
+    id: number
+    isAdult?: boolean
+    isGeneralSpoiler?: boolean
+    isMediaSpoiler?: boolean
+    name: string
+    rank?: number
+    userId?: number
 }
 
 /**

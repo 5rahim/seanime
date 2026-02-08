@@ -384,9 +384,9 @@
         {
           "name": "Tags",
           "jsonName": "tags",
-          "goType": "[]anilist.BaseAnime_Tags",
-          "usedStructType": "anilist.BaseAnime_Tags",
-          "typescriptType": "Array\u003cAL_BaseAnime_Tags\u003e",
+          "goType": "[]string",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cstring\u003e",
           "required": false,
           "descriptions": []
         },
@@ -5904,6 +5904,15 @@
         {
           "name": "Genres",
           "jsonName": "genres",
+          "goType": "[]string",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cstring\u003e",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Tags",
+          "jsonName": "tags",
           "goType": "[]string",
           "usedStructType": "",
           "typescriptType": "Array\u003cstring\u003e",

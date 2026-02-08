@@ -3,7 +3,6 @@
 import type {
     AL_AiringSort,
     AL_BaseAnime,
-    AL_BaseAnime_Tags,
     AL_FuzzyDateInput,
     AL_MediaFormat,
     AL_MediaListStatus,
@@ -120,7 +119,7 @@ export type AnilistListAnime_Variables = {
     sort?: Array<AL_MediaSort>
     status?: Array<AL_MediaStatus>
     genres?: Array<string>
-    tags?: Array<AL_BaseAnime_Tags>
+    tags?: Array<string>
     averageScore_greater?: number
     season?: AL_MediaSeason
     seasonYear?: number
@@ -1226,6 +1225,7 @@ export type AnilistListManga_Variables = {
     sort?: Array<AL_MediaSort>
     status?: Array<AL_MediaStatus>
     genres?: Array<string>
+    tags?: Array<string>
     averageScore_greater?: number
     year?: number
     countryOfOrigin?: string
