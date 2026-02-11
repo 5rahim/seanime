@@ -86,7 +86,8 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 
 	// ------------------------------------------
 
-	// Legacy stuff
+	// Legacy stuff (used for legacy matching)
+	// should've been maps instead of slices
 	engTitles := make([]*string, 0, len(mc.NormalizedMedia))
 	romTitles := make([]*string, 0, len(mc.NormalizedMedia))
 	synonymsSlice := make([]*string, 0, len(mc.NormalizedMedia)*2)
@@ -116,8 +117,8 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	if mc.ScanLogger != nil {
 		mc.ScanLogger.LogMediaContainer(zerolog.InfoLevel).
 			Any("mediaCount", len(mc.NormalizedMedia)).
-			Any("titles", len(mc.engTitles)+len(mc.romTitles)+len(mc.synonyms)).
-			Any("indexSize", len(mc.TokenIndex)).
+			Any("legacyTitleCount", len(mc.engTitles)+len(mc.romTitles)+len(mc.synonyms)).
+			Any("tokenIndexSize", len(mc.TokenIndex)).
 			Msg("Created media container")
 	}
 

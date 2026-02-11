@@ -97,7 +97,8 @@ type LibrarySettings struct {
 	// v3+
 	UseFallbackMetadataProvider bool `gorm:"column:use_fallback_metadata_provider" json:"useFallbackMetadataProvider"`
 	// v3.5+
-	ScannerUseLegacyMatching bool `gorm:"column:scanner_use_legacy_matching" json:"scannerUseLegacyMatching"`
+	ScannerUseLegacyMatching bool   `gorm:"column:scanner_use_legacy_matching" json:"scannerUseLegacyMatching"`
+	ScannerConfig            string `gorm:"column:scanner_config" json:"scannerConfig"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {

@@ -327,6 +327,7 @@ export default function Page() {
                                         autoSaveCurrentMediaOffline: data.autoSaveCurrentMediaOffline ?? false,
                                         useFallbackMetadataProvider: data.useFallbackMetadataProvider ?? false,
                                         scannerUseLegacyMatching: data.scannerUseLegacyMatching ?? false,
+                                        scannerConfig: data.scannerConfig ?? "",
                                     },
                                     nakama: {
                                         enabled: data.nakamaEnabled ?? false,
@@ -493,6 +494,7 @@ export default function Page() {
                                 vcTranslateProvider: status?.settings?.mediaPlayer?.vcTranslateProvider ?? "",
                                 vcTranslateTargetLanguage: status?.settings?.mediaPlayer?.vcTranslateTargetLanguage ?? "",
                                 scannerUseLegacyMatching: status?.settings?.library?.scannerUseLegacyMatching ?? false,
+                                scannerConfig: status?.settings?.library?.scannerConfig ?? "",
                             }}
                             stackClass="space-y-0 relative"
                         >

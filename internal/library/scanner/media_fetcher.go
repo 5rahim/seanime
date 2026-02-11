@@ -74,9 +74,11 @@ func NewMediaFetcher(ctx context.Context, opts *MediaFetcherOptions) (ret *Media
 
 	// Invoke ScanMediaFetcherStarted hook
 	event := &ScanMediaFetcherStartedEvent{
-		Enhanced: opts.Enhanced,
+		Enhanced:                   opts.Enhanced,
+		EnhanceWithOfflineDatabase: opts.EnhanceWithOfflineDatabase,
+		DisableAnimeCollection:     opts.DisableAnimeCollection,
 	}
-	hook.GlobalHookManager.OnScanMediaFetcherStarted().Trigger(event)
+	_ = hook.GlobalHookManager.OnScanMediaFetcherStarted().Trigger(event)
 	opts.Enhanced = event.Enhanced
 
 	// +---------------------+

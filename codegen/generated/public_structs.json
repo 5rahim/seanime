@@ -29479,6 +29479,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ScannerConfig",
+        "jsonName": "scannerConfig",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -51535,6 +51544,254 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library/scanner/config.go",
+    "filename": "config.go",
+    "name": "Config",
+    "formattedName": "Scanner_Config",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "Matching",
+        "jsonName": "matching",
+        "goType": "MatchingConfig",
+        "typescriptType": "Scanner_MatchingConfig",
+        "usedTypescriptType": "Scanner_MatchingConfig",
+        "usedStructName": "scanner.MatchingConfig",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hydration",
+        "jsonName": "hydration",
+        "goType": "HydrationConfig",
+        "typescriptType": "Scanner_HydrationConfig",
+        "usedTypescriptType": "Scanner_HydrationConfig",
+        "usedStructName": "scanner.HydrationConfig",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logs",
+        "jsonName": "logs",
+        "goType": "LogsConfig",
+        "typescriptType": "Scanner_LogsConfig",
+        "usedTypescriptType": "Scanner_LogsConfig",
+        "usedStructName": "scanner.LogsConfig",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/scanner/config.go",
+    "filename": "config.go",
+    "name": "LogsConfig",
+    "formattedName": "Scanner_LogsConfig",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "Verbose",
+        "jsonName": "verbose",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/scanner/config.go",
+    "filename": "config.go",
+    "name": "MatchingConfig",
+    "formattedName": "Scanner_MatchingConfig",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "Rules",
+        "jsonName": "rules",
+        "goType": "[]MatchingRule",
+        "typescriptType": "Array\u003cScanner_MatchingRule\u003e",
+        "usedTypescriptType": "Scanner_MatchingRule",
+        "usedStructName": "scanner.MatchingRule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/scanner/config.go",
+    "filename": "config.go",
+    "name": "MatchingRule",
+    "formattedName": "Scanner_MatchingRule",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "Pattern",
+        "jsonName": "pattern",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MatchingRule defines a rule for matching a filename or folder name to a Media ID",
+      "",
+      "\tExample:",
+      "\t\t{",
+      "\t\t\t\"pattern\": \"/(.*)\\/(Mob Psycho)\\/(Season 1)/\"",
+      "\t\t\t\"mediaId\": 12345",
+      "\t\t}"
+    ]
+  },
+  {
+    "filepath": "../internal/library/scanner/config.go",
+    "filename": "config.go",
+    "name": "HydrationConfig",
+    "formattedName": "Scanner_HydrationConfig",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "Rules",
+        "jsonName": "rules",
+        "goType": "[]HydrationRule",
+        "typescriptType": "Array\u003cScanner_HydrationRule\u003e",
+        "usedTypescriptType": "Scanner_HydrationRule",
+        "usedStructName": "scanner.HydrationRule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/scanner/config.go",
+    "filename": "config.go",
+    "name": "HydrationRule",
+    "formattedName": "Scanner_HydrationRule",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "Pattern",
+        "jsonName": "pattern",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]HydrationFileRule",
+        "typescriptType": "Array\u003cScanner_HydrationFileRule\u003e",
+        "usedTypescriptType": "Scanner_HydrationFileRule",
+        "usedStructName": "scanner.HydrationFileRule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " HydrationRule defines a rule for attaching metadata to local files.",
+      "",
+      "\tExample:",
+      "\t\t\"hydration\": [{",
+      "\t\t\t\"mediaId\": 12345,",
+      "\t\t\t\"files\": [",
+      "\t\t\t\t{",
+      "\t\t\t\t\t\"path\": \"/Mob Psycho - (\\d+) - (.*)$/\",",
+      "\t\t\t\t\t\"episode\": \"calc($1-12)\",",
+      "\t\t\t\t\t\"aniDbEpisode\": \"$1\",",
+      "\t\t\t\t\t\"type\": \"main\",",
+      "\t\t\t\t},",
+      "\t\t\t\t{",
+      "\t\t\t\t\t\"path\": \"/Mob Psycho - NCOP(\\d+) - (.*)$/\",",
+      "\t\t\t\t\t\"episode\": \"$1\",",
+      "\t\t\t\t\t\"aniDbEpisode\": \"$1\",",
+      "\t\t\t\t\t\"type\": \"nc\",",
+      "\t\t\t\t}",
+      "\t\t\t]",
+      "\t\t}]"
+    ]
+  },
+  {
+    "filepath": "../internal/library/scanner/config.go",
+    "filename": "config.go",
+    "name": "HydrationFileRule",
+    "formattedName": "Scanner_HydrationFileRule",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AniDbEpisode",
+        "jsonName": "aniDbEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "anime.LocalFileType",
+        "typescriptType": "Anime_LocalFileType",
+        "usedTypescriptType": "Anime_LocalFileType",
+        "usedStructName": "anime.LocalFileType",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/library/scanner/efficient_dice.go",
     "filename": "efficient_dice.go",
     "name": "EfficientDice",
@@ -51774,6 +52031,24 @@
       {
         "name": "Enhanced",
         "jsonName": "enhanced",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EnhanceWithOfflineDatabase",
+        "jsonName": "enhanceWithOfflineDatabase",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableAnimeCollection",
+        "jsonName": "disableAnimeCollection",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -52307,6 +52582,17 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Config",
+        "jsonName": "Config",
+        "goType": "Config",
+        "typescriptType": "Scanner_Config",
+        "usedTypescriptType": "Scanner_Config",
+        "usedStructName": "scanner.Config",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -52949,6 +53235,17 @@
         "typescriptType": "Array\u003cAnime_LocalFile\u003e",
         "usedTypescriptType": "Anime_LocalFile",
         "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Config",
+        "jsonName": "Config",
+        "goType": "Config",
+        "typescriptType": "Scanner_Config",
+        "usedTypescriptType": "Scanner_Config",
+        "usedStructName": "scanner.Config",
         "required": false,
         "public": true,
         "comments": []

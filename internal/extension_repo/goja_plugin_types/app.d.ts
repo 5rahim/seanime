@@ -229,13 +229,13 @@ declare namespace $app {
     function onUpcomingEpisodesRequested(cb: (event: UpcomingEpisodesRequestedEvent) => void): void;
 
     interface UpcomingEpisodesRequestedEvent {
-        animeCollection?: AL_AnimeCollection;
-        localFiles?: Array<Anime_LocalFile>;
-        upcomingEpisodes?: Anime_UpcomingEpisodes;
-
         next(): void;
 
         preventDefault(): void;
+
+        animeCollection?: AL_AnimeCollection;
+        localFiles?: Array<Anime_LocalFile>;
+        upcomingEpisodes?: Anime_UpcomingEpisodes;
     }
 
     /**
@@ -247,9 +247,9 @@ declare namespace $app {
     function onUpcomingEpisodes(cb: (event: UpcomingEpisodesEvent) => void): void;
 
     interface UpcomingEpisodesEvent {
-        upcomingEpisodes?: Anime_UpcomingEpisodes;
-
         next(): void;
+
+        upcomingEpisodes?: Anime_UpcomingEpisodes;
     }
 
     /**
@@ -1628,6 +1628,8 @@ declare namespace $app {
         next(): void;
 
         enhanced: boolean;
+        enhanceWithOfflineDatabase: boolean;
+        disableAnimeCollection: boolean;
     }
 
     /**

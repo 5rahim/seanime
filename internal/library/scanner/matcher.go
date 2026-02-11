@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"regexp"
 	"runtime"
-	"runtime/debug"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/summary"
@@ -42,6 +42,13 @@ type Matcher struct {
 	Threshold         float64
 	Debug             bool
 	UseLegacyMatching bool
+	Config            *Config
+	matchingRules     map[string]*compiledMatchingRule
+}
+
+type compiledMatchingRule struct {
+	regex *regexp.Regexp
+	rule  *MatchingRule
 }
 
 var (
@@ -107,6 +114,8 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 	}
 
 	m.Logger.Debug().Msg("matcher: Starting matching process")
+
+	m.precompileRules()
 
 	// Invoke ScanMatchingStarted hook
 	event := &ScanMatchingStartedEvent{
@@ -195,23 +204,26 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 // It uses multi-layer approach: exact, normalized, token-based, and fuzzy.
 // It also considers year, season, and part information for accurate differentiation.
 func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
-	defer func() {
-		if r := recover(); r != nil {
-			if m.ScanLogger != nil {
-				m.ScanLogger.LogMatcher(zerolog.ErrorLevel).
-					Str("filename", lf.Name).
-					Msgf("Panic occurred in matchLocalFile: %v", r)
-			}
-			m.ScanSummaryLogger.LogPanic(lf, string(debug.Stack()))
+	defer util.HandlePanicInModuleThenS("library/scanner/matchLocalFile", func(s string) {
+		if m.ScanLogger != nil {
+			m.ScanLogger.LogMatcher(zerolog.ErrorLevel).
+				Str("filename", lf.Name).
+				Msgf("Panic occurred in matchLocalFile: %v", s)
 		}
-	}()
+		m.ScanSummaryLogger.LogPanic(lf, s)
+	})
 
 	// Check if the local file has already been matched
 	if lf.MediaId != 0 {
 		return
 	}
 
-	// Check if the local file has a title
+	if m.applyMatcingRule(lf) {
+		return
+	}
+
+	// Check if the local file or any of its folders have a parsed title.
+	// If not, we skip it,
 	if lf.GetParsedTitle() == "" {
 		if m.ScanLogger != nil {
 			m.ScanLogger.LogMatcher(zerolog.ErrorLevel).
@@ -222,6 +234,7 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 		return
 	}
 
+	// Get title variations for the file
 	titleVariations := lf.GetTitleVariations()
 
 	if len(titleVariations) == 0 {
@@ -348,7 +361,7 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 	defer PutEfficientDice(sd)
 
 	// Process candidates serially
-	// devnote: optimization to save memory. even though it's slower
+	// devnote: slower than doing it concurrently but we won't abuse goroutines
 	for _, media := range candidates {
 		currentScore := 0.0
 
@@ -387,30 +400,35 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 		if titleScore > 5.0 || currentScore > 8.0 {
 			if m.Debug {
 				m.Logger.Debug().
-					Str("file", lf.Name).
-					Str("media", media.GetTitleSafe()).
-					Float64("totalScore", currentScore).
-					Float64("titleScore", titleScore).
-					Float64("baseTitleScore", baseTitleScore).
-					Float64("seasonPartScore", seasonPartScore).
-					Float64("yearScore", yearScore).
-					Int("fileSeason", fileSeason).
-					Int("mediaSeason", mediaSeason).
-					Msg("matcher: debug")
-			}
-			if m.ScanLogger != nil {
-				m.ScanLogger.LogMatcher(zerolog.DebugLevel).
 					Str("filename", lf.Name).
+					Int("id", media.ID).
 					Str("match", media.GetTitleSafe()).
 					Float64("score", currentScore).
 					Float64("titleScore", titleScore).
 					Float64("baseTitleScore", baseTitleScore).
 					Float64("seasonPartScore", seasonPartScore).
 					Float64("yearScore", yearScore).
-					Int("mediaSeason", mediaSeason).
-					Int("mediaPart", mediaPart).
-					Interface("mediaTitles", normalizedMediaTitles).
-					Msg("Comparison")
+					Int("season", mediaSeason).
+					Int("part", mediaPart).
+					Interface("titles", normalizedMediaTitles).
+					Msg("matcher: debug")
+			}
+			if m.Config != nil && m.Config.Logs.Verbose {
+				if m.ScanLogger != nil {
+					m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+						Str("filename", lf.Name).
+						Int("id", media.ID).
+						Str("match", media.GetTitleSafe()).
+						Float64("score", currentScore).
+						Float64("titleScore", titleScore).
+						Float64("baseTitleScore", baseTitleScore).
+						Float64("seasonPartScore", seasonPartScore).
+						Float64("yearScore", yearScore).
+						Int("season", mediaSeason).
+						Int("part", mediaPart).
+						Interface("titles", normalizedMediaTitles).
+						Msg("Comparison")
+				}
 			}
 		}
 
@@ -465,6 +483,7 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 			m.ScanLogger.LogMatcher(zerolog.DebugLevel).
 				Str("filename", lf.Name).
 				Str("match", bestMedia.GetTitleSafe()).
+				Int("id", bestMedia.ID).
 				Float64("score", bestScore).
 				Msg("Best match found")
 		}
@@ -805,6 +824,10 @@ func calculateSeasonPartScore(fileSeason, filePart, mediaSeason, mediaPart int) 
 	} else if fileSeason == 1 && mediaSeason <= 0 {
 		// File is season 1, media doesn't specify, this is fine
 		score += 1.0
+	} else if fileSeason <= 0 && mediaSeason > 1 {
+		// File has no season indicator but media is explicitly season 2+
+		// Add a penalty
+		score += scoreSeasonImplicitPenalty
 	}
 
 	// Part scoring
@@ -905,7 +928,64 @@ func (m *Matcher) getLogVariations(titleVariations []*string) string {
 	return buf.String()
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (m *Matcher) precompileRules() {
+	defer util.HandlePanicInModuleThenS("scanner/matcher/precompileRules", func(stackTrace string) {
+		if m.ScanLogger != nil {
+			m.ScanLogger.LogMatcher(zerolog.ErrorLevel).
+				Msg("Panic occurred, when compiling matching rules")
+		}
+	})
+
+	if m.Config == nil || len(m.Config.Matching.Rules) == 0 {
+		return
+	}
+
+	for _, rule := range m.Config.Matching.Rules {
+		if rule.Pattern == "" || rule.MediaID == 0 {
+			continue
+		}
+
+		rgx, err := regexp.Compile(rule.Pattern)
+		if err != nil {
+			if m.ScanLogger != nil {
+				m.ScanLogger.LogMatcher(zerolog.WarnLevel).
+					Str("pattern", rule.Pattern).
+					Msg("Config: Invalid regex pattern")
+			}
+			continue
+		}
+		rgx.Longest()
+
+		m.matchingRules[rule.Pattern] = &compiledMatchingRule{
+			regex: rgx,
+			rule:  rule,
+		}
+	}
+}
+
+func (m *Matcher) applyMatcingRule(lf *anime.LocalFile) bool {
+	defer util.HandlePanicInModuleThenS("scanner/matcher/applyMatcingRule", func(stackTrace string) {
+		if m.ScanLogger != nil {
+			m.ScanLogger.LogMatcher(zerolog.ErrorLevel).
+				Str("filename", lf.Name).
+				Msg("Panic occurred when applying matching rule")
+		}
+		m.ScanSummaryLogger.LogPanic(lf, stackTrace)
+	})
+
+	for _, rule := range m.matchingRules {
+		if rule.regex.MatchString(lf.Path) {
+			lf.MediaId = rule.rule.MediaID
+			return true
+		}
+	}
+
+	return false
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // matchLocalFileLegacy finds the best match for the local file (legacy implementation)
 // If the best match is above a certain threshold, set the local file's mediaId to the best match's id

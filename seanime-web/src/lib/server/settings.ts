@@ -117,6 +117,7 @@ export const settingsSchema = z.object({
     vcTranslateProvider: z.string().optional().default(""),
     vcTranslateTargetLanguage: z.string().optional().default(""),
     scannerUseLegacyMatching: z.boolean().optional().default(false),
+    scannerConfig: z.string().optional().default(""),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
@@ -147,6 +148,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         autoSaveCurrentMediaOffline: false,
         useFallbackMetadataProvider: false,
         scannerUseLegacyMatching: false,
+        scannerConfig: "",
     },
     nakama: {
         enabled: false,

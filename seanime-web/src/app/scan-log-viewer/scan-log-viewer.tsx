@@ -1,5 +1,3 @@
-
-
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -12,11 +10,11 @@ import { Virtuoso } from "react-virtuoso"
 
 
 export function ScanLogViewer({ content }: { content: string }) {
-    const [lines, setLines] = useState<string[]>([])
+    const [lines, setLines] = useState<{ id: number; text: string }[]>([])
 
     React.useEffect(() => {
         if (content) {
-            setLines(content.split("\n"))
+            setLines(content.split("\n").map((line, index) => ({ id: index, text: line })))
         }
     }, [content])
 
@@ -24,7 +22,7 @@ export function ScanLogViewer({ content }: { content: string }) {
 
     const linesDisplayed = React.useMemo(() => {
         if (!selected?.length) return lines
-        return lines.filter((line) => line.includes(selected))
+        return lines.filter((line) => line.text.toLowerCase().includes(selected.toLowerCase()))
     }, [lines, selected])
 
     return (
@@ -39,15 +37,16 @@ export function ScanLogViewer({ content }: { content: string }) {
                     Clear selection
                 </Button>
             )}
-            <Accordion type={selected ? "multiple" : "single"} collapsible={selected ? undefined : true}>
+            <Accordion type="multiple">
                 {linesDisplayed.length > 0 && (
                     <div className="h-[calc(100vh-150px)]">
                         <Virtuoso
                             data={linesDisplayed}
-                            itemContent={(index, line) => (
+                            itemContent={(index, item) => (
                                 <Line
-                                    index={index}
-                                    line={line}
+                                    key={item.id}
+                                    index={item.id} // Pass original ID as index/value
+                                    line={item.text}
                                     onFileSelect={(file) => setSelected(file)}
                                 />
                             )}
@@ -68,16 +67,14 @@ interface LineProps {
 
 function Line({ line, index, onFileSelect }: LineProps) {
 
-    const [data, setData] = React.useState<Record<string, any> | null>(null)
-
-    React.useEffect(() => {
+    const data = React.useMemo(() => {
         try {
-            setData(JSON.parse(line) as any)
+            return JSON.parse(line) as any
         }
         catch (e) {
-            console.log("Not a JSON", e)
+            return null
         }
-    }, [])
+    }, [line])
 
     const isParsedFileLine = data && data.path && data.filename
     const isMediaFetcher = data && data.context === "MediaFetcher"
@@ -203,7 +200,15 @@ function Line({ line, index, onFileSelect }: LineProps) {
                         </AccordionTrigger>
                         <AccordionContent className="space-y-2">
                             {data.filename && (
-                                <Button intent="white" size="xs" onClick={() => onFileSelect(data.filename)}>
+                                <Button
+                                    intent="white"
+                                    size="xs"
+                                    onClick={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        onFileSelect(data.filename)
+                                    }}
+                                >
                                     Select file
                                 </Button>
                             )}
@@ -218,7 +223,21 @@ function Line({ line, index, onFileSelect }: LineProps) {
                                     })}
                                 </div>
                             )}
-                            {<pre className="text-sm">{json2toml(data, { newlineAfterSection: true, indent: 2 })}</pre>}
+                            <pre className="text-sm">
+                                {(() => {
+                                    try {
+                                        // json2toml crashes on null values, so we remove them
+                                        const cleanData = JSON.parse(JSON.stringify(data, (key, value) => {
+                                            if (value === null) return undefined
+                                            return value
+                                        }))
+                                        return json2toml(cleanData as any, { newlineAfterSection: true, indent: 2 })
+                                    }
+                                    catch (e) {
+                                        return JSON.stringify(data, null, 2)
+                                    }
+                                })()}
+                            </pre>
                         </AccordionContent>
 
                     </div>

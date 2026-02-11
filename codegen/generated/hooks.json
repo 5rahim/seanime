@@ -4343,6 +4343,24 @@
           "comments": []
         },
         {
+          "name": "EnhanceWithOfflineDatabase",
+          "jsonName": "enhanceWithOfflineDatabase",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "DisableAnimeCollection",
+          "jsonName": "disableAnimeCollection",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
           "name": "next",
           "jsonName": "next",
           "goType": "",

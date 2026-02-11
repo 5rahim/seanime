@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"os"
 	"runtime"
@@ -46,7 +47,9 @@ type Scanner struct {
 	// If true, locked files whose library path doesn't exist will be put aside
 	WithShelving         bool
 	ExistingShelvedFiles []*anime.LocalFile
-	ShelvedLocalFiles    []*anime.LocalFile
+	shelvedLocalFiles    []*anime.LocalFile
+	Config               *Config
+	ConfigAsString       string
 }
 
 // Scan will scan the directory and return a list of anime.LocalFile.
@@ -65,6 +68,13 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 
 	if scn.ScanSummaryLogger == nil {
 		scn.ScanSummaryLogger = summary.NewScanSummaryLogger()
+	}
+
+	if scn.ConfigAsString != "" && scn.Config == nil {
+		scn.Config, _ = ToConfig(scn.ConfigAsString)
+	}
+	if scn.Config == nil {
+		scn.Config = &Config{}
 	}
 
 	scn.Logger.Debug().Msg("scanner: Starting scan")
@@ -280,7 +290,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 				if filesystem.FileExists(sf.Path) { // Verify that the file still exists
 					localFiles = append(localFiles, sf)
 				} else if scn.WithShelving && sf.IsLocked() { // If the file is locked and shelving is enabled, shelve it
-					scn.ShelvedLocalFiles = append(scn.ShelvedLocalFiles, sf)
+					scn.shelvedLocalFiles = append(scn.shelvedLocalFiles, sf)
 				}
 			}
 		}
@@ -362,6 +372,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 		Algorithm:         scn.MatchingAlgorithm,
 		Threshold:         scn.MatchingThreshold,
 		UseLegacyMatching: scn.UseLegacyMatching,
+		Config:            scn.Config,
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 60)
@@ -395,6 +406,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 		Logger:              scn.Logger,
 		ScanLogger:          scn.ScanLogger,
 		ScanSummaryLogger:   scn.ScanSummaryLogger,
+		Config:              scn.Config,
 	}
 	hydrator.HydrateMetadata()
 
@@ -441,7 +453,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 					mu.Unlock()
 				} else if scn.WithShelving && skippedLf.IsLocked() { // If the file is locked and shelving is enabled, shelve it
 					mu.Lock()
-					scn.ShelvedLocalFiles = append(scn.ShelvedLocalFiles, skippedLf)
+					scn.shelvedLocalFiles = append(scn.shelvedLocalFiles, skippedLf)
 					mu.Unlock()
 				}
 			}(skippedLf)
@@ -483,7 +495,7 @@ func (scn *Scanner) InLibrariesOnly(lfs []*anime.LocalFile) {
 }
 
 func (scn *Scanner) GetShelvedLocalFiles() []*anime.LocalFile {
-	return scn.ShelvedLocalFiles
+	return scn.shelvedLocalFiles
 }
 
 func (scn *Scanner) addRemainingShelvedFiles(skippedLfs map[string]*anime.LocalFile, sortedLibraryPaths []string) {
@@ -532,8 +544,23 @@ func (scn *Scanner) addRemainingShelvedFiles(skippedLfs map[string]*anime.LocalF
 			}
 
 			if keepShelved {
-				scn.ShelvedLocalFiles = append(scn.ShelvedLocalFiles, shelvedLf)
+				scn.shelvedLocalFiles = append(scn.shelvedLocalFiles, shelvedLf)
 			}
 		}
 	}
+}
+
+func ToConfig(c string) (*Config, error) {
+	marshaled, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+
+	var ret Config
+	err = json.Unmarshal(marshaled, &ret)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ret, nil
 }

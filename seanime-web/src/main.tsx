@@ -9,7 +9,7 @@ import "@fontsource-variable/inter"
 const router = createRouter({
     routeTree,
     // defaultPreload: import.meta.env.PROD ? "intent" : false,
-    defaultPreload: "intent",
+    defaultPreload: false, // anilist rate limits
     context: {
         queryClient,
         store,

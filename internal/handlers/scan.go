@@ -93,9 +93,9 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 	if err != nil {
 		if errors.Is(err, scanner.ErrNoLocalFiles) {
 			return h.RespondWithData(c, []interface{}{})
-		} else {
-			return h.RespondWithError(c, err)
 		}
+
+		return h.RespondWithError(c, err)
 	}
 
 	// Insert the local files

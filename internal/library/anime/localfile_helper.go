@@ -2,6 +2,7 @@ package anime
 
 import (
 	"bytes"
+	"cmp"
 	"fmt"
 	"path/filepath"
 	"seanime/internal/util"
@@ -261,13 +262,7 @@ func (f *LocalFile) GetParsedData() *LocalFileParsedData {
 
 // GetParsedTitle returns the parsed title of the LocalFile. Falls back to the folder title if the file title is empty.
 func (f *LocalFile) GetParsedTitle() string {
-	if len(f.ParsedData.Title) > 0 {
-		return f.ParsedData.Title
-	}
-	if len(f.GetFolderTitle()) > 0 {
-		return f.GetFolderTitle()
-	}
-	return ""
+	return cmp.Or(f.ParsedData.Title, f.GetFolderTitle())
 }
 
 // GetFolderTitle returns the parsed title of the closest folder to the file.
@@ -301,7 +296,7 @@ func (f *LocalFile) GetFolderTitle(all ...bool) string {
 	return ""
 }
 
-// GetTitleVariations is used for matching.
+// GetTitleVariations returns title variations for the local file.
 func (f *LocalFile) GetTitleVariations() []*string {
 
 	folderSeason := 0

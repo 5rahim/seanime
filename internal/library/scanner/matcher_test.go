@@ -138,13 +138,6 @@ func TestMatcher2(t *testing.T) {
 			},
 			expectedMediaId: 21699,
 		},
-		//{
-		//	name: "Demon Slayer: Kimetsu no Yaiba Entertainment District Arc - 142329",
-		//	paths: []string{
-		//		"E:/Anime/Kimetsu no Yaiba Yuukaku-hen/[Salieri] Demon Slayer - Kimetsu No Yaiba - S3 - Entertainment District - BD (1080P) (HDR) [Dual-Audio]/[Salieri] Demon Slayer S3 - Kimetsu No Yaiba- Entertainment District - 03 (1080P) (HDR) [Dual-Audio].mkv",
-		//	},
-		//	expectedMediaId: 142329, // mislabeled?
-		//},
 		{
 			name: "KnY 145139",
 			paths: []string{
@@ -685,6 +678,89 @@ func TestMatcher4(t *testing.T) {
 			},
 			expectedMediaId: 182896,
 		},
+		{
+			name: "Frieren NCED",
+			paths: []string{
+				"E:/Anime/Sousou no Frieren/Frieren Beyond Journey's End (BD Remux 1080p AVC FLAC AAC) [Dual Audio] [PMR]/Extras/NCED 02 (BD Remux 1080p AVC FLAC) [PMR].mkv",
+			},
+			expectedMediaId: 154587,
+		},
+		// Extras
+		{
+			name: "NCED in Extras folder, should match base series (Violet Evergarden)",
+			paths: []string{
+				"E:/Anime/Violet Evergarden/Violet Evergarden (BD 1080p)/Extras/NCED 01 (BD 1080p).mkv",
+			},
+			expectedMediaId: 21827, // Violet Evergarden (base series)
+		},
+		{
+			name: "NCOP in Extras folder, should match base series (Flying Witch)",
+			paths: []string{
+				"E:/Anime/Flying Witch/Flying Witch BD/Extras/NCOP (BD 1080p).mkv",
+			},
+			expectedMediaId: 21284, // Flying Witch
+		},
+		{
+			name: "Ending file in Extras, should match base series (Durarara)",
+			paths: []string{
+				"E:/Anime/Durarara/Durarara BD/Extras/Ending 01.mkv",
+			},
+			expectedMediaId: 6746, // Durarara!!
+		},
+		// Parts
+		{
+			name: "86 Eighty Six Part 2 explicit",
+			paths: []string{
+				"E:/Anime/86 Eighty Six Part 2/[SubsPlease] 86 - Eighty Six - 20 (1080p).mkv",
+			},
+			expectedMediaId: 131586, // 86: Eighty Six Part 2
+		},
+		// Shortened name
+		{
+			name: "Bunny Girl Senpai",
+			paths: []string{
+				"E:/Anime/Bunny Girl/Bunny.Girl.Senpai.E01.mkv",
+			},
+			expectedMediaId: 101291, // Seishun Buta Yarou wa Bunny Girl Senpai no Yume wo Minai
+		},
+		// Year
+		{
+			name: "Year in filename - Flying Witch (2016)",
+			paths: []string{
+				"E:/Anime/Flying Witch (2016)/Flying.Witch.2016.E01.1080p.BluRay.mkv",
+			},
+			expectedMediaId: 21284, // Flying Witch
+		},
+		{
+			name: "Year in path - Evangelion rebuild (2007)",
+			paths: []string{
+				"E:/Anime/Evangelion Rebuild/Evangelion.1.0.You.Are.Not.Alone.2007.1080p.BluRay.mkv",
+			},
+			expectedMediaId: 2759, // Evangelion Shin Movie: Jo
+		},
+		// Movies and specials
+		{
+			name: "Movie - Violet Evergarden Gaiden",
+			paths: []string{
+				"E:/Anime/Violet Evergarden Gaiden/Violet.Evergarden.Gaiden.2019.1080p.BluRay.mkv",
+			},
+			expectedMediaId: 109190, // Violet Evergarden Gaiden: Eien to Jidou Shuki Ningyou
+		},
+		{
+			name: "Movie - Bunny Girl Senpai Movie (Dreaming Girl)",
+			paths: []string{
+				"E:/Anime/Seishun Buta Yarou/Seishun.Buta.Yarou.wa.Yumemiru.Shoujo.no.Yume.wo.Minai.2019.1080p.BluRay.mkv",
+			},
+			expectedMediaId: 104157, // Seishun Buta Yarou wa Yumemiru Shoujo no Yume wo Minai
+		},
+		{
+			name: "Danmachi IV Part 2",
+			paths: []string{
+				"E:/Anime/Re Zero/Danmachi S04P02 1080p Dual Audio BDRip 10 bits DD x265-EMBER/S04E12-Amphisbaena A Song of Despair [080E734C].mkv",
+			},
+			expectedMediaId: 155211,
+			otherMediaIds:   []int{},
+		},
 	}
 
 	for _, tt := range tests {
@@ -758,6 +834,479 @@ func TestMatcher4(t *testing.T) {
 		})
 	}
 
+}
+
+func TestMatcherComplexCases(t *testing.T) {
+	t.Skip()
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt, "")
+	animeCollection, err := anilistClient.AnimeCollectionWithRelations(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	dir := "E:/Anime"
+
+	tests := []struct {
+		name            string
+		paths           []string
+		expectedMediaId int
+		otherMediaIds   []int
+	}{
+		{
+			name: "DanMachi S5 - Ryuu release with full romaji title",
+			paths: []string{
+				"E:/Anime/DanMachi/[Ryuu] Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka - S05E11 (WEB 1080p HEVC x265 10-bit EAC-3) [Dual-Audio].mkv",
+			},
+			expectedMediaId: 170732,
+			otherMediaIds:   []int{20920, 101167, 116006},
+		},
+		{
+			name: "DanMachi S5 - SubsPlus English title format",
+			paths: []string{
+				"E:/Anime/Is It Wrong to Try to Pick Up Girls in a Dungeon/[SubsPlus+] Is It Wrong to Try to Pick Up Girls in a Dungeon - S05E14 (CR WEB-DL 1080p AVC EAC3).mkv",
+			},
+			expectedMediaId: 170732,
+			otherMediaIds:   []int{20920, 101167},
+		},
+		{
+			name: "DanMachi S4 - EMBER release with abbreviated title",
+			paths: []string{
+				"E:/Anime/DanMachi/[EMBER] Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka (DanMachi) S05E13 [1080p] [HEVC WEBRip DDP].mkv",
+			},
+			expectedMediaId: 170732,
+			otherMediaIds:   []int{20920, 142861},
+		},
+		{
+			name: "DanMachi S4 BD batch with complex naming",
+			paths: []string{
+				"E:/Anime/DanMachi IV/[Anipakku] DanMachi (S04) [BD 1080p x265 OPUS][PT-BR]/[Anipakku] DanMachi - S04E01.mkv",
+			},
+			expectedMediaId: 142861,
+			otherMediaIds:   []int{20920, 170732},
+		},
+		{
+			name: "DanMachi S1 no season indicator",
+			paths: []string{
+				"E:/Anime/DanMachi/[HorribleSubs] DanMachi - 01 [1080p].mkv",
+			},
+			expectedMediaId: 20920,
+			otherMediaIds:   []int{101167, 116006, 170732},
+		},
+		{
+			name: "Oregairu S2 - Senjou BD release with Zoku",
+			paths: []string{
+				"E:/Anime/Oregairu/[Senjou] Yahari Ore no Seishun Lovecome wa Machigatte Iru. Zoku (My Teen Romantic Comedy SNAFU TOO!) (Oregairu) [BDRip 1920x1080 x264 FLAC]/[Senjou] Oregairu Zoku - 01.mkv",
+			},
+			expectedMediaId: 23847,
+			otherMediaIds:   []int{14813, 108489},
+		},
+		{
+			name: "Oregairu complete batch - EMBER release",
+			paths: []string{
+				"E:/Anime/Oregairu/[EMBER] Oregairu-My Teen Romantic Comedy SNAFU (2013-2020) (Season 1+2+3+OVA) [BDRip] [1080p Dual Audio HEVC 10 bits]/Season 1/[EMBER] Oregairu S01E01.mkv",
+			},
+			expectedMediaId: 14813,
+			otherMediaIds:   []int{23847, 108489},
+		},
+		{
+			name: "Oregairu S3 Climax - EMBER release with Kan",
+			paths: []string{
+				"E:/Anime/Oregairu/[EMBER] Oregairu-My Teen Romantic Comedy SNAFU Climax! (2020) (Season 3) [BDRip] [1080p Dual Audio HEVC 10 bits DDP]/[EMBER] Oregairu Kan - 01.mkv",
+			},
+			expectedMediaId: 108489,
+			otherMediaIds:   []int{14813, 23847},
+		},
+		{
+			name: "Oregairu S3 - MTBB BD release",
+			paths: []string{
+				"E:/Anime/Oregairu/[MTBB] My Teen Romantic Comedy SNAFU Climax (BD 1080p)/[MTBB] My Teen Romantic Comedy SNAFU Climax - 01.mkv",
+			},
+			expectedMediaId: 108489,
+			otherMediaIds:   []int{14813, 23847},
+		},
+		{
+			name: "Oregairu S2 - MTBB BD release with TOO",
+			paths: []string{
+				"E:/Anime/Oregairu/[MTBB] My Teen Romantic Comedy SNAFU TOO! (BD 1080p)/[MTBB] My Teen Romantic Comedy SNAFU TOO - 01.mkv",
+			},
+			expectedMediaId: 23847,
+			otherMediaIds:   []int{14813, 108489},
+		},
+		{
+			name: "Oregairu S3 - Judas release with explicit Season 3",
+			paths: []string{
+				"E:/Anime/Oregairu/[Judas] Yahari Ore no Seishun Love Come wa Machigatteiru (Season 3 \"Kan\") [1080p][HEVC x265 10bit][Multi-Subs]/[Judas] Oregairu Kan - 01.mkv",
+			},
+			expectedMediaId: 108489,
+			otherMediaIds:   []int{14813, 23847},
+		},
+		{
+			name: "AoT Final Season - Yameii S04E30 with Final Chapters",
+			paths: []string{
+				"E:/Anime/Attack on Titan/[Yameii] Attack on Titan - S04E30 [English Dub] [AS WEB-DL 1080p] [19ED00C6].mkv",
+			},
+			expectedMediaId: 162314,
+			otherMediaIds:   []int{16498, 110277, 131681},
+		},
+		{
+			name: "AoT Final Season Part 4 - Rapta release",
+			paths: []string{
+				"E:/Anime/Attack on Titan/Attack.on.Titan.Shingeki.no.Kyojin.The.Final.Season.Part.4.The.Final.Chapters.Special.2.1080p.CR.WEBRip.10bits.x265-Rapta.mkv",
+			},
+			expectedMediaId: 162314,
+			otherMediaIds:   []int{110277, 131681},
+		},
+		{
+			name: "AoT Final Season - EMBER Season 4 Part 04 batch",
+			paths: []string{
+				"E:/Anime/Attack on Titan/[EMBER] Shingeki no Kyojin (2023) (Season 4 Part 04) [1080p] [HEVC WEBRip DDP]/[EMBER] Shingeki no Kyojin S04P04E01.mkv",
+			},
+			expectedMediaId: 162314,
+			otherMediaIds:   []int{110277, 131681},
+		},
+		{
+			name: "AoT Final Season - Anime Time Part 3 Part 2",
+			paths: []string{
+				"E:/Anime/Attack on Titan/[Anime Time] Shingeki no Kyojin - The Final Season Part 3 - Part 2 (Season 04 - 32-36) [1080p][HEVC 10bit x265][AAC][Multi Sub]/[Anime Time] Shingeki no Kyojin S04E35.mkv",
+			},
+			expectedMediaId: 162314,
+			otherMediaIds:   []int{110277, 131681, 163263},
+		},
+		{
+			name: "AoT Season 1 - no indicator in simple filename",
+			paths: []string{
+				"E:/Anime/Shingeki no Kyojin/[HorribleSubs] Shingeki no Kyojin - 01 [1080p].mkv",
+			},
+			expectedMediaId: 16498,
+			otherMediaIds:   []int{20958, 110277},
+		},
+		{
+			name: "Fate/Zero S01 - Prof BD release",
+			paths: []string{
+				"E:/Anime/Fate Zero/Fate Zero (2011) S01 [1080p x265 HEVC 10bit BluRay Dual Audio AAC] [Prof]/[Prof] Fate Zero - S01E01.mkv",
+			},
+			expectedMediaId: 10087,
+			otherMediaIds:   []int{11741},
+		},
+		{
+			name: "Fate/Zero S02 - Prof BD release",
+			paths: []string{
+				"E:/Anime/Fate Zero/Fate Zero (2012) S02 [1080p x265 HEVC 10bit BluRay Dual Audio AAC] [Prof]/[Prof] Fate Zero - S02E01.mkv",
+			},
+			expectedMediaId: 11741,
+			otherMediaIds:   []int{10087},
+		},
+		{
+			name: "Fate/Zero - DragsterPS multi-audio S02",
+			paths: []string{
+				"E:/Anime/Fate Zero/[DragsterPS] Fate Zero S02 [1080p] [Multi-Audio] [Multi-Subs]/[DragsterPS] Fate Zero S02E01.mkv",
+			},
+			expectedMediaId: 11741,
+			otherMediaIds:   []int{10087},
+		},
+		{
+			name: "Fate/Zero - UTW classic release no season",
+			paths: []string{
+				"E:/Anime/Fate Zero/[UTW] Fate Zero - 01-25 + Specials [BD][h264-720p_AC3]/[UTW] Fate Zero - 01 [BD][h264-720p][AC3].mkv",
+			},
+			expectedMediaId: 10087,
+			otherMediaIds:   []int{11741},
+		},
+		{
+			name: "Fate/Zero - Coalgirls classic release",
+			paths: []string{
+				"E:/Anime/Fate Zero/[Coalgirls]_Fate_Zero_(1920x1080_Blu-ray_FLAC)/[Coalgirls]_Fate_Zero_-_01_(1920x1080_Blu-ray_FLAC).mkv",
+			},
+			expectedMediaId: 10087,
+			otherMediaIds:   []int{11741},
+		},
+		{
+			name: "KonoSuba S03 - ToonsHub with full English title",
+			paths: []string{
+				"E:/Anime/KonoSuba/[ToonsHub] KONOSUBA -Gods blessing on this wonderful world S03E12 1080p CR WEB-DL AAC2.0 H.264.mkv",
+			},
+			expectedMediaId: 136804,
+			otherMediaIds:   []int{21202, 21699},
+		},
+		{
+			name: "KonoSuba S03 - fig BD remux with season indicator",
+			paths: []string{
+				"E:/Anime/KonoSuba/[fig] Konosuba S03 (BluRay Remux 1080p AVC FLAC AAC) [Dual-Audio]/[fig] Konosuba S03E01.mkv",
+			},
+			expectedMediaId: 136804,
+			otherMediaIds:   []int{21202, 21699},
+		},
+		{
+			name: "KonoSuba S02 - fig BD with Season 2 in folder",
+			paths: []string{
+				"E:/Anime/KonoSuba/[fig] Konosuba S02 (BluRay Remux 1080p AVC FLAC) [Dual-Audio] (Season 2 + OVA)/[fig] Konosuba S02E01.mkv",
+			},
+			expectedMediaId: 21699,
+			otherMediaIds:   []int{21202, 136804},
+		},
+		{
+			name: "KonoSuba S01 - fig BD with Season 1 in folder",
+			paths: []string{
+				"E:/Anime/KonoSuba/[fig] Konosuba S01 (BluRay Remux 1080p AVC FLAC) [Dual-Audio] (Season 1 + OVA)/[fig] Konosuba S01E01.mkv",
+			},
+			expectedMediaId: 21202,
+			otherMediaIds:   []int{21699, 136804},
+		},
+		{
+			name: "KonoSuba - EMBER S3 batch with Japanese title",
+			paths: []string{
+				"E:/Anime/KonoSuba/[EMBER] Kono Subarashii Sekai ni Shukufuku wo! (2024) (Season 3) [1080p] [Dual Audio HEVC WEBRip DDP]/[EMBER] Kono Subarashii Sekai ni Shukufuku wo! - S03E01.mkv",
+			},
+			expectedMediaId: 136804,
+			otherMediaIds:   []int{21202, 21699},
+		},
+		{
+			name: "KonoSuba no season - should match S1",
+			paths: []string{
+				"E:/Anime/KonoSuba/[HorribleSubs] Kono Subarashii Sekai ni Shukufuku wo! - 01 [1080p].mkv",
+			},
+			expectedMediaId: 21202,
+			otherMediaIds:   []int{21699, 136804},
+		},
+		{
+			name: "SAO Alicization WoU Part 2 - Lulu BD release",
+			paths: []string{
+				"E:/Anime/Sword Art Online/[Lulu] Sword Art Online Alicization - War of Underworld Part 2 (BD 1080p HEVC FLAC)[Dual-Audio]/[Lulu] SAO Alicization WoU Part 2 - 01.mkv",
+			},
+			expectedMediaId: 114308,
+			otherMediaIds:   []int{100182, 108759},
+		},
+		{
+			name: "SAO Alicization WoU Part 1 - Lulu BD release",
+			paths: []string{
+				"E:/Anime/Sword Art Online/[Lulu] Sword Art Online Alicization - War of Underworld Part 1 (BD 1080p Hi10 FLAC)[Dual-Audio]/[Lulu] SAO Alicization WoU - 01.mkv",
+			},
+			expectedMediaId: 108759,
+			otherMediaIds:   []int{100182, 114308},
+		},
+		{
+			name: "SAO complete - Tenrai-Sensei mega batch",
+			paths: []string{
+				"E:/Anime/Sword Art Online/[Tenrai-Sensei] Sword Art Online S1+S2+S3+S4+The Movie+OVAs [BD][1080p][HEVC 10bit x265][Dual Audio]/S1/[Tenrai-Sensei] SAO - S01E01.mkv",
+			},
+			expectedMediaId: 11757,
+			otherMediaIds:   []int{21881, 100182},
+		},
+		{
+			name: "SAO Alicization - HorribleRips release",
+			paths: []string{
+				"E:/Anime/Sword Art Online/[HorribleRips] Sword Art Online Alicization [1080p]/[HorribleRips] Sword Art Online Alicization - 01 [1080p].mkv",
+			},
+			expectedMediaId: 100182,
+			otherMediaIds:   []int{11757, 108759},
+		},
+		{
+			name: "SAO Alicization WoU - HorribleRips release",
+			paths: []string{
+				"E:/Anime/Sword Art Online/[HorribleRips] Sword Art Online Alicization - War of Underworld [1080p]/[HorribleRips] SAO Alicization WoU - 01 [1080p].mkv",
+			},
+			expectedMediaId: 108759,
+			otherMediaIds:   []int{100182, 114308},
+		},
+		{
+			name: "Mob Psycho S3 - SubsPlease release",
+			paths: []string{
+				"E:/Anime/Mob Psycho 100/[SubsPlease] Mob Psycho 100 S3 - 12 (1080p) [E5058D7B].mkv",
+			},
+			expectedMediaId: 140439,
+			otherMediaIds:   []int{21507, 101338},
+		},
+		{
+			name: "Mob Psycho III - EMBER batch release",
+			paths: []string{
+				"E:/Anime/Mob Psycho 100/[EMBER] Mob Psycho 100 (2022) (Season 3) [1080p] [Dual Audio HEVC WEBRip]/[EMBER] Mob Psycho 100 III - 01.mkv",
+			},
+			expectedMediaId: 140439,
+			otherMediaIds:   []int{21507, 101338},
+		},
+		{
+			name: "Mob Psycho III - Judas batch",
+			paths: []string{
+				"E:/Anime/Mob Psycho 100/[Judas] Mob Psycho 100 (Season 3) [1080p][HEVC x265 10bit][Multi-Subs]/[Judas] Mob Psycho 100 III - 01.mkv",
+			},
+			expectedMediaId: 140439,
+			otherMediaIds:   []int{21507, 101338},
+		},
+		{
+			name: "Mob Psycho III - scoot WEB release",
+			paths: []string{
+				"E:/Anime/Mob Psycho 100/[scoot] Mob Psycho 100 III [WEB 1080p HEVC]/[scoot] Mob Psycho 100 III - 01.mkv",
+			},
+			expectedMediaId: 140439,
+			otherMediaIds:   []int{21507, 101338},
+		},
+		{
+			name: "Mob Psycho 100 base - no season indicator",
+			paths: []string{
+				"E:/Anime/Mob Psycho 100/[HorribleSubs] Mob Psycho 100 - 01 [1080p].mkv",
+			},
+			expectedMediaId: 21507,
+			otherMediaIds:   []int{101338, 140439},
+		},
+		{
+			name: "Index III - Gremlin BD release",
+			paths: []string{
+				"E:/Anime/Toaru Majutsu no Index/[Gremlin] Toaru Majutsu no Index III [BD][1080p]/[Gremlin] Toaru Majutsu no Index III - 01.mkv",
+			},
+			expectedMediaId: 36432,
+			otherMediaIds:   []int{4654, 8937},
+		},
+		{
+			name: "Index II - Erai-raws batch",
+			paths: []string{
+				"E:/Anime/Toaru Majutsu no Index/[Erai-raws] Toaru Majutsu no Index II - 01 ~ 24 [1080p][Multiple Subtitle]/[Erai-raws] Toaru Majutsu no Index II - 01.mkv",
+			},
+			expectedMediaId: 8937,
+			otherMediaIds:   []int{4654, 36432},
+		},
+		{
+			name: "Index base - Erai-raws batch no numeral",
+			paths: []string{
+				"E:/Anime/Toaru Majutsu no Index/[Erai-raws] Toaru Majutsu no Index - 01 ~ 24 [1080p][Multiple Subtitle]/[Erai-raws] Toaru Majutsu no Index - 01.mkv",
+			},
+			expectedMediaId: 4654,
+			otherMediaIds:   []int{8937, 36432},
+		},
+		{
+			name: "Index III - HorribleSubs weekly",
+			paths: []string{
+				"E:/Anime/Toaru Majutsu no Index III/[HorribleSubs] Toaru Majutsu no Index III - 26 [1080p].mkv",
+			},
+			expectedMediaId: 36432,
+			otherMediaIds:   []int{4654, 8937},
+		},
+		{
+			name: "Index III - English title alternative",
+			paths: []string{
+				"E:/Anime/A Certain Magical Index/[Cleo] A Certain Magical Index III [Dual Audio 10bit 720p][HEVC-x265]/[Cleo] A Certain Magical Index III - 01.mkv",
+			},
+			expectedMediaId: 36432,
+			otherMediaIds:   []int{4654, 8937},
+		},
+		{
+			name: "Re:Zero S3 - EMBER batch",
+			paths: []string{
+				"E:/Anime/Re Zero/[EMBER] Re Zero kara Hajimeru Isekai Seikatsu (2025) (Season 3) [1080p] [Dual Audio HEVC WEBRip DDP]/[EMBER] Re Zero S03E01.mkv",
+			},
+			expectedMediaId: 163134,
+			otherMediaIds:   []int{21355, 108632},
+		},
+		{
+			name: "Re:Zero S3 - Judas batch with colon",
+			paths: []string{
+				"E:/Anime/Re Zero/[Judas] Re Zero kara Hajimeru Isekai Seikatsu (Re Zero - Starting Life in Another World) (Season 03) [1080p][HEVC x265 10bit][Dual-Audio][Multi-Subs]/[Judas] ReZero S03E01.mkv",
+			},
+			expectedMediaId: 163134,
+			otherMediaIds:   []int{21355, 108632},
+		},
+		{
+			name: "Re:Zero S3 - FLE release with various aliases",
+			paths: []string{
+				"E:/Anime/Re Zero/[FLE] Re ZERO Starting Life in Another World - S03 (WEB 1080p H.264 E-AC-3) [Dual Audio]/[FLE] Re ZERO - S03E01.mkv",
+			},
+			expectedMediaId: 163134,
+			otherMediaIds:   []int{21355, 108632},
+		},
+		{
+			name: "Re:Zero S2 - Golumpa dub release",
+			paths: []string{
+				"E:/Anime/Re Zero/[Golumpa] Re ZERO -Starting Life in Another World- S02 [English Dub] [CR WEB-DL 720p]/[Golumpa] ReZero S02E01.mkv",
+			},
+			expectedMediaId: 108632,
+			otherMediaIds:   []int{21355, 163134},
+		},
+		{
+			name: "Re:Zero no season - should match base",
+			paths: []string{
+				"E:/Anime/Re Zero/[HorribleSubs] Re Zero kara Hajimeru Isekai Seikatsu - 01 [1080p].mkv",
+			},
+			expectedMediaId: 21355,
+			otherMediaIds:   []int{108632, 163134},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Ensure all required media is in the collection
+			allMedia := animeCollection.GetAllAnime()
+
+			// Add expected media
+			hasMedia := false
+			for _, media := range allMedia {
+				if media.ID == tt.expectedMediaId {
+					hasMedia = true
+					break
+				}
+			}
+			if !hasMedia {
+				anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, tt.expectedMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: lo.ToPtr(anilist.MediaListStatusCurrent)}, anilistClient)
+				allMedia = animeCollection.GetAllAnime()
+			}
+
+			// Add other competing media
+			for _, id := range tt.otherMediaIds {
+				hasOther := false
+				for _, media := range allMedia {
+					if media.ID == id {
+						hasOther = true
+						break
+					}
+				}
+				if !hasOther {
+					anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, id, anilist.TestModifyAnimeCollectionEntryInput{Status: lo.ToPtr(anilist.MediaListStatusCurrent)}, anilistClient)
+					allMedia = animeCollection.GetAllAnime()
+				}
+			}
+
+			scanLogger, err := NewConsoleScanLogger()
+			if err != nil {
+				t.Fatal("expected result, got error:", err.Error())
+			}
+
+			// Create local files
+			var lfs []*anime.LocalFile
+			for _, path := range tt.paths {
+				lf := anime.NewLocalFile(path, dir)
+				lfs = append(lfs, lf)
+			}
+
+			// Create MediaContainer
+			mc := NewMediaContainer(&MediaContainerOptions{
+				AllMedia:   NormalizedMediaFromAnilistComplete(allMedia),
+				ScanLogger: scanLogger,
+			})
+
+			// Run matcher
+			matcher := &Matcher{
+				LocalFiles:        lfs,
+				MediaContainer:    mc,
+				Logger:            util.NewLogger(),
+				ScanLogger:        scanLogger,
+				ScanSummaryLogger: nil,
+				Debug:             true,
+			}
+
+			err = matcher.MatchLocalFilesWithMedia()
+
+			if assert.NoError(t, err, "Error while matching local files") {
+				for _, lf := range lfs {
+					if lf.MediaId != tt.expectedMediaId {
+						t.Errorf("FAILED [%s]: expected media id %d, got %d for file %s",
+							tt.name, tt.expectedMediaId, lf.MediaId, lf.Name)
+					} else {
+						t.Logf("SUCCESS: %s -> media id: %d", lf.Name, lf.MediaId)
+					}
+				}
+			}
+		})
+	}
 }
 
 // TestMatcherWithOfflineDB tests matching using the anime-offline-database.

@@ -3828,6 +3828,7 @@ export type Models_LibrarySettings = {
     autoSaveCurrentMediaOffline: boolean
     useFallbackMetadataProvider: boolean
     scannerUseLegacyMatching: boolean
+    scannerConfig: string
 }
 
 /**
