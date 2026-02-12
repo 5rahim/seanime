@@ -551,13 +551,8 @@ func (scn *Scanner) addRemainingShelvedFiles(skippedLfs map[string]*anime.LocalF
 }
 
 func ToConfig(c string) (*Config, error) {
-	marshaled, err := json.Marshal(c)
-	if err != nil {
-		return nil, err
-	}
-
 	var ret Config
-	err = json.Unmarshal(marshaled, &ret)
+	err := json.Unmarshal([]byte(c), &ret)
 	if err != nil {
 		return nil, err
 	}

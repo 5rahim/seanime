@@ -86,10 +86,11 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(ep string) (ret metadata.EpisodeM
 	//
 
 	episode := mo.None[*metadata.EpisodeMetadata]()
-	if aw.metadata.IsAbsent() {
+	am, ok := aw.metadata.Get()
+	if !ok || am == nil {
 		ret.Image = aw.baseAnime.GetBannerImageSafe()
 	} else {
-		episodeF, found := aw.metadata.MustGet().FindEpisode(ep)
+		episodeF, found := am.FindEpisode(ep)
 		if found {
 			episode = mo.Some(episodeF)
 		}

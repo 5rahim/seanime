@@ -86,6 +86,7 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 		UseLegacyMatching:          h.App.Settings.GetLibrary().ScannerUseLegacyMatching,
 		WithShelving:               true,
 		ExistingShelvedFiles:       existingShelvedLfs,
+		ConfigAsString:             h.App.Settings.GetLibrary().ScannerConfig,
 	}
 
 	// Scan the library

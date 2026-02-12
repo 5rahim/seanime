@@ -248,6 +248,7 @@ func (as *AutoScanner) scan() {
 		MatchingAlgorithm:    as.settings.ScannerMatchingAlgorithm,
 		WithShelving:         true,
 		ExistingShelvedFiles: existingShelvedLfs,
+		ConfigAsString:       as.settings.ScannerConfig,
 	}
 
 	allLfs, err := sc.Scan(context.Background())
