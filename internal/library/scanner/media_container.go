@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"seanime/internal/library/anime"
+	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"strings"
 
@@ -76,6 +77,9 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 		}
 		if m.Synonyms != nil {
 			for _, syn := range m.Synonyms {
+				if !util.IsMostlyLatinString(*syn) {
+					continue
+				}
 				addTitle(syn, false)
 			}
 		}

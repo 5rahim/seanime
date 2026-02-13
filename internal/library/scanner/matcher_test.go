@@ -1548,3 +1548,87 @@ func TestMatcherWithOfflineDB(t *testing.T) {
 		})
 	}
 }
+
+func TestIgnoredSynonyms(t *testing.T) {
+	tests := []struct {
+		name                     string
+		candidates               []*anime.NormalizedMedia
+		singularizedSynonym      string
+		singularizedSynonymForId int
+	}{
+		{
+			name: "Common synonym 'MS' should be kept for shortest title",
+			candidates: []*anime.NormalizedMedia{
+				{
+					ID: 33,
+					Title: &anime.NormalizedMediaTitle{
+						English: lo.ToPtr("MultiSet Iterator"),
+					},
+					Synonyms: []*string{lo.ToPtr("MS")},
+				},
+				{
+					ID: 44,
+					Title: &anime.NormalizedMediaTitle{
+						English: lo.ToPtr("MultiSet Iterator II"),
+					},
+					Synonyms: []*string{lo.ToPtr("MultiSet 2"), lo.ToPtr("MS")},
+				},
+				{
+					ID: 55,
+					Title: &anime.NormalizedMediaTitle{
+						English: lo.ToPtr("MultiSet Iterator III"),
+					},
+					Synonyms: []*string{lo.ToPtr("MultiSet 3"), lo.ToPtr("MS")},
+				},
+			},
+			singularizedSynonym:      "MS",
+			singularizedSynonymForId: 33,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			matcher := &Matcher{
+				MediaContainer: &MediaContainer{
+					NormalizedTitlesCache: map[int][]*NormalizedTitle{
+						33: {
+							{Original: "MultiSet Iterator", Normalized: "MultiSet Iterator", IsMain: true},
+							{Original: "MS", Normalized: "MS", IsMain: false},
+						},
+						44: {
+							{Original: "MultiSet Iterator II", Normalized: "MultiSet Iterator II", IsMain: true},
+							{Original: "MultiSet 2", Normalized: "MultiSet", IsMain: false},
+							{Original: "MS", Normalized: "MS", IsMain: false},
+						},
+						55: {
+							{Original: "MultiSet Iterator III", Normalized: "MultiSet Iterator III", IsMain: true},
+							{Original: "MultiSet 3", Normalized: "MultiSet", IsMain: false},
+							{Original: "MS", Normalized: "MS", IsMain: false},
+						},
+					},
+				},
+			}
+
+			is := matcher.getIgnoredSynonyms(tt.candidates)
+
+			for _, candidate := range tt.candidates {
+				ignored, hasEntry := is[candidate.ID]
+
+				if candidate.ID == tt.singularizedSynonymForId {
+					// candidate should keep the synonym
+					// if it has an entry, it shouldn't contain the singularized synonym
+					if hasEntry {
+						_, contains := ignored[tt.singularizedSynonym]
+						assert.Falsef(t, contains, "Synonym '%s' should not be ignored for media %d (it has the shortest title)", tt.singularizedSynonym, candidate.ID)
+					}
+				} else {
+					// This candidate should have the synonym ignored
+					if assert.Truef(t, hasEntry, "Media %d should have ignored synonyms entry", candidate.ID) {
+						_, contains := ignored[tt.singularizedSynonym]
+						assert.Truef(t, contains, "Synonym '%s' should be ignored for media %d", tt.singularizedSynonym, candidate.ID)
+					}
+				}
+			}
+		})
+	}
+}

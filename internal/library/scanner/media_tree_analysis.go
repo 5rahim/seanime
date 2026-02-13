@@ -74,7 +74,7 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 			// discrepancy: "seasonNumber":1,"episodeNumber":12,"absoluteEpisodeNumber":13,
 			// this happens when the media has a separate entry but is technically the same season
 			// when we detect this, we should use the "episodeNumber" as the absoluteEpisodeNumber
-			// this is a hacky fix, but it works for the cases I've seen so far
+			// this is a hacky fix, but it works for the cases seen so far
 			usePartEpisodeNumber := firstEp.EpisodeNumber > 1 && firstEp.AbsoluteEpisodeNumber-firstEp.EpisodeNumber > 1
 			partAbsoluteEpisodeNumber := 0
 			maxPartAbsoluteEpisodeNumber := 0

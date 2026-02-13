@@ -6,6 +6,7 @@ type Config struct {
 	Matching  MatchingConfig  `json:"matching"`
 	Hydration HydrationConfig `json:"hydration"`
 	Logs      LogsConfig      `json:"logs"`
+	//Ignore    []string        `json:"ignore"`
 }
 
 type LogsConfig struct {

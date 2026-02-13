@@ -530,11 +530,11 @@ func (fh *FileHydrator) logFileHydration(level zerolog.Level, lf *anime.LocalFil
 	return fh.ScanLogger.LogFileHydrator(level).
 		Str("filename", lf.Name).
 		Int("mediaId", mId).
-		Dict("vars", zerolog.Dict().
+		Dict("parsed", zerolog.Dict().
 			Str("parsedEpisode", lf.ParsedData.Episode).
 			Int("episode", episode),
 		).
-		Dict("metadata", zerolog.Dict().
+		Dict("hydrated", zerolog.Dict().
 			Int("episode", lf.Metadata.Episode).
 			Str("aniDBEpisode", lf.Metadata.AniDBEpisode))
 }

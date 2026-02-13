@@ -227,9 +227,9 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 		if _, ok := skippedLfs[util.NormalizePath(path)]; !ok {
 			// Create a new local file
 			return anime.NewLocalFileS(path, libraryPaths)
-		} else {
-			return nil
 		}
+
+		return nil
 	})
 
 	// Remove nil values

@@ -255,7 +255,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         {/*{missingImage && <div*/}
                         {/*    data-episode-card-action-icon*/}
                         {/*    className={cn(*/}
-                        {/*        "px-6 text-gray-200",*/}
+                        {/*        "px-12 text-gray-200",*/}
                         {/*        "cursor-pointer bg-gray-950/80 z-[1] absolute w-[105%] h-[105%] items-center justify-center",*/}
                         {/*        "hidden md:flex flex-col gap-1",*/}
                         {/*    )}*/}

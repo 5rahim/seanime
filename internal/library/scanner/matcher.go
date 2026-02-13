@@ -32,6 +32,18 @@ var seenCandidatesPool = sync.Pool{
 	},
 }
 
+var synonymOwnersPool = sync.Pool{
+	New: func() interface{} {
+		return make(map[string][]*anime.NormalizedMedia, 500)
+	},
+}
+
+var ignoredSynonymsPool = sync.Pool{
+	New: func() interface{} {
+		return make(map[int]map[string]struct{}, 500)
+	},
+}
+
 type Matcher struct {
 	LocalFiles        []*anime.LocalFile
 	MediaContainer    *MediaContainer
@@ -213,6 +225,10 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 		m.ScanSummaryLogger.LogPanic(lf, s)
 	})
 
+	if lf.Path == "/Volumes/Seagate Portable Drive/ANIME/Dead Dead Demon's Dededededestruction/[SubsPlease] Dead Dead Demons Dededede Destruction - 05 (1080p) [1907A350].mkv" {
+		fmt.Println("here")
+	}
+
 	// Check if the local file has already been matched
 	if lf.MediaId != 0 {
 		return
@@ -360,15 +376,40 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 	sd := GetEfficientDice()
 	defer PutEfficientDice(sd)
 
+	ignoredSynonyms := m.getIgnoredSynonyms(candidates)
+	defer func() {
+		// Clear map
+		for k := range ignoredSynonyms {
+			delete(ignoredSynonyms, k)
+		}
+		ignoredSynonymsPool.Put(ignoredSynonyms)
+	}()
+
 	// Process candidates serially
 	// devnote: slower than doing it concurrently but we won't abuse goroutines
 	for _, media := range candidates {
 		currentScore := 0.0
 
 		// use cached normalized titles
-		normalizedMediaTitles, ok := m.MediaContainer.NormalizedTitlesCache[media.ID]
-		if !ok || len(normalizedMediaTitles) == 0 {
+		originalMediaTitles, ok := m.MediaContainer.NormalizedTitlesCache[media.ID]
+		if !ok || len(originalMediaTitles) == 0 {
 			continue
+		}
+
+		// Filter out ignored synonyms
+		var normalizedMediaTitles []*NormalizedTitle
+		if ignored, ok := ignoredSynonyms[media.ID]; ok {
+			normalizedMediaTitles = make([]*NormalizedTitle, 0, len(originalMediaTitles))
+			for _, t := range originalMediaTitles {
+				if !t.IsMain {
+					if _, isIgnored := ignored[t.Normalized]; isIgnored {
+						continue
+					}
+				}
+				normalizedMediaTitles = append(normalizedMediaTitles, t)
+			}
+		} else {
+			normalizedMediaTitles = originalMediaTitles
 		}
 
 		// 1. Title matching (highest prio)
@@ -457,6 +498,8 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 				m.ScanLogger.LogMatcher(zerolog.DebugLevel).
 					Str("filename", lf.Name).
 					Int("id", bestMedia.ID).
+					Str("match", bestMedia.GetTitleSafe()).
+					Float64("score", bestScore).
 					Msg("Hook overrode match")
 			} else {
 				m.ScanLogger.LogMatcher(zerolog.DebugLevel).
@@ -978,11 +1021,89 @@ func (m *Matcher) applyMatcingRule(lf *anime.LocalFile) bool {
 	for _, rule := range m.matchingRules {
 		if rule.regex.MatchString(lf.Path) {
 			lf.MediaId = rule.rule.MediaID
+
+			if m.ScanLogger != nil {
+				var title string
+				for _, media := range m.MediaContainer.NormalizedMedia {
+					if media.ID == rule.rule.MediaID {
+						title = media.GetTitleSafe()
+						break
+					}
+				}
+				m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+					Str("filename", lf.Name).
+					Int("id", rule.rule.MediaID).
+					Str("match", title).
+					Str("rule", rule.rule.Pattern).
+					Msg("Matched by rule")
+			}
+			if m.ScanSummaryLogger != nil {
+				m.ScanSummaryLogger.LogSuccessfullyMatched(lf, rule.rule.MediaID)
+			}
 			return true
 		}
 	}
 
 	return false
+}
+
+func (m *Matcher) getIgnoredSynonyms(candidates []*anime.NormalizedMedia) map[int]map[string]struct{} {
+	// Filter out synonyms that are shared between multiple candidates
+	// We keep the synonym only for the candidate with the shortest main title
+	// This helps avoiding false positives when a synonym is overly generic or shared
+	synonymOwners := synonymOwnersPool.Get().(map[string][]*anime.NormalizedMedia)
+	defer func() {
+		// Clear map
+		for k := range synonymOwners {
+			delete(synonymOwners, k)
+		}
+		synonymOwnersPool.Put(synonymOwners)
+	}()
+	for _, media := range candidates {
+		if titles, ok := m.MediaContainer.NormalizedTitlesCache[media.ID]; ok {
+			for _, t := range titles {
+				if !t.IsMain && len(t.Normalized) > 0 {
+					synonymOwners[t.Normalized] = append(synonymOwners[t.Normalized], media)
+				}
+			}
+		}
+	}
+
+	ignoredSynonyms := ignoredSynonymsPool.Get().(map[int]map[string]struct{})
+
+	for synonym, owners := range synonymOwners {
+		if len(owners) > 1 {
+			var bestCandidate *anime.NormalizedMedia
+			shortestTitleLen := 99999
+
+			for _, owner := range owners {
+				titleLen := len(owner.GetTitleSafe())
+				if titleLen < shortestTitleLen {
+					shortestTitleLen = titleLen
+					bestCandidate = owner
+				} else if titleLen == shortestTitleLen {
+					if bestCandidate == nil || owner.ID < bestCandidate.ID {
+						bestCandidate = owner
+					}
+				}
+			}
+
+			if bestCandidate == nil {
+				bestCandidate = owners[0]
+			}
+
+			for _, owner := range owners {
+				if owner.ID != bestCandidate.ID {
+					if _, ok := ignoredSynonyms[owner.ID]; !ok {
+						ignoredSynonyms[owner.ID] = make(map[string]struct{})
+					}
+					ignoredSynonyms[owner.ID][synonym] = struct{}{}
+				}
+			}
+		}
+	}
+
+	return ignoredSynonyms
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
