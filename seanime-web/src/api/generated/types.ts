@@ -4552,14 +4552,33 @@ export type Report_IssueReport = {
     appVersion: string
     os: string
     arch: string
+    description?: string
     clickLogs?: Array<Report_ClickLog>
     networkLogs?: Array<Report_NetworkLog>
     reactQueryLogs?: Array<Report_ReactQueryLog>
     consoleLogs?: Array<Report_ConsoleLog>
+    navigationLogs?: Array<Report_NavigationLog>
+    screenshots?: Array<Report_Screenshot>
+    websocketLogs?: Array<Report_WebSocketLog>
+    rrwebEvents?: Array<Record<string, any>>
     unlockedLocalFiles?: Array<Report_UnlockedLocalFile>
     scanLogs?: Array<string>
     serverLogs?: string
     status?: string
+    viewportWidth?: number
+    viewportHeight?: number
+    recordingDurationMs?: number
+}
+
+/**
+ * - Filepath: internal/report/report.go
+ * - Filename: report.go
+ * - Package: report
+ */
+export type Report_NavigationLog = {
+    from: string
+    to: string
+    timestamp?: string
 }
 
 /**
@@ -4600,9 +4619,41 @@ export type Report_ReactQueryLog = {
  * - Filename: report.go
  * - Package: report
  */
+export type Report_Screenshot = {
+    /**
+     * base64 encoded image
+     */
+    data: string
+    caption?: string
+    pageUrl: string
+    timestamp?: string
+}
+
+/**
+ * - Filepath: internal/report/report.go
+ * - Filename: report.go
+ * - Package: report
+ */
 export type Report_UnlockedLocalFile = {
     path: string
     mediaId: number
+}
+
+/**
+ * - Filepath: internal/report/report.go
+ * - Filename: report.go
+ * - Package: report
+ * @description
+ *  WebSocketLog represents a captured WebSocket message during recording
+ */
+export type Report_WebSocketLog = {
+    /**
+     * "incoming" or "outgoing"
+     */
+    direction: string
+    eventType: string
+    payload?: Record<string, any>
+    timestamp?: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

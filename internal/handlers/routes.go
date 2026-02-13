@@ -543,6 +543,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1.POST("/report/issue", h.HandleSaveIssueReport)
 	v1.GET("/report/issue/download", h.HandleDownloadIssueReport)
+	v1.POST("/report/issue/decompress", h.HandleDecompressIssueReport)
 
 	//
 	// Nakama

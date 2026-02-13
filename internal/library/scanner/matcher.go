@@ -225,10 +225,6 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 		m.ScanSummaryLogger.LogPanic(lf, s)
 	})
 
-	if lf.Path == "/Volumes/Seagate Portable Drive/ANIME/Dead Dead Demon's Dededededestruction/[SubsPlease] Dead Dead Demons Dededede Destruction - 05 (1080p) [1907A350].mkv" {
-		fmt.Println("here")
-	}
-
 	// Check if the local file has already been matched
 	if lf.MediaId != 0 {
 		return

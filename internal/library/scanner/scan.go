@@ -83,6 +83,21 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 
 	startTime := time.Now()
 
+	if scn.ScanLogger != nil {
+		scn.ScanLogger.logger.Info().
+			Time("startTime", startTime).
+			Msg("Scanning started")
+
+		defer func() {
+			now := time.Now()
+			scn.ScanLogger.logger.Info().
+				Time("endTime", time.Now()).
+				Str("duration", now.Sub(startTime).String()).
+				Int("localFilesCount", len(lfs)).
+				Msg("Ended")
+		}()
+	}
+
 	// Invoke ScanStarted hook
 	event := &ScanStartedEvent{
 		LibraryPath:       scn.DirPath,

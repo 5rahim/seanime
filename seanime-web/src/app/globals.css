@@ -995,3 +995,37 @@ media-preview-chapter-display {
     border-radius: .6rem;
     font-weight: 700;
 }
+
+/* rrweb player styles */
+.rr-player {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    background: black !important;
+}
+
+.rr-player .replayer-wrapper {
+    flex: 1 !important;
+    overflow: hidden !important;
+}
+
+.rr-player .rr-controller {
+    flex-shrink: 0 !important;
+    position: relative !important;
+    z-index: 10 !important;
+    background: black !important;
+}
+
+.rr-timeline__time {
+    color: white !important;
+}
+
+.rr-controller__btns button {
+    fill: white !important;
+}
+
+.rr-progress {
+    border-top-color: black !important;
+    border-bottom-color: black !important;
+    background: #3a3a3a !important;
+}

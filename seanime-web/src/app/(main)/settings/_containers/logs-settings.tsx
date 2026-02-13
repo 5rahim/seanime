@@ -10,7 +10,7 @@ import {
     useGetMemoryStats,
 } from "@/api/hooks/status.hooks"
 import { useHandleCopyLatestLogs } from "@/app/(main)/_hooks/logs"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status.ts"
+import { useServerDisabledFeatures, useServerStatus } from "@/app/(main)/_hooks/use-server-status.ts"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
@@ -21,18 +21,23 @@ import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { upath } from "@/lib/helpers/upath.ts"
+import { useRouter } from "@/lib/navigation"
 import { RowSelectionState } from "@tanstack/react-table"
+import { useSetAtom } from "jotai"
 import React from "react"
 import { BiRefresh } from "react-icons/bi"
 import { FaCopy, FaMemory, FaMicrochip } from "react-icons/fa"
 import { FiDownload, FiTrash2 } from "react-icons/fi"
 import { RiFolderDownloadFill } from "react-icons/ri"
+import { VscDebugAlt } from "react-icons/vsc"
 import { toast } from "sonner"
+import { __issueReport_overlayOpenAtom } from "../../_features/issue-report/issue-report"
 import { SettingsCard } from "../_components/settings-card"
 
 type LogsSettingsProps = {}
 
 export function LogsSettings(props: LogsSettingsProps) {
+    const router = useRouter()
     const serverStatus = useServerStatus()
 
     const [selectedFilenames, setSelectedFilenames] = React.useState<{ name: string }[]>([])
@@ -64,6 +69,17 @@ export function LogsSettings(props: LogsSettingsProps) {
     const { mutate: openInExplorer, isPending: isOpening } = useOpenInExplorer()
     const { handleCopyLatestLogs } = useHandleCopyLatestLogs()
 
+    const setIssueRecorderOpen = useSetAtom(__issueReport_overlayOpenAtom)
+
+    const { isFeatureDisabled, showFeatureWarning } = useServerDisabledFeatures()
+
+    function handleOpenIssueRecorder() {
+        if (isFeatureDisabled("UpdateSettings")) return showFeatureWarning()
+
+        setIssueRecorderOpen(true)
+        router.push("/")
+    }
+
     return (
         <>
             <SettingsCard>
@@ -71,7 +87,7 @@ export function LogsSettings(props: LogsSettingsProps) {
                 <div className="pb-3 flex gap-2">
                     <Button
                         size="sm"
-                        intent="white-subtle"
+                        intent="gray-glass"
                         onClick={handleCopyLatestLogs}
                     >
                         Copy current server logs
@@ -86,6 +102,15 @@ export function LogsSettings(props: LogsSettingsProps) {
                     >
                         Open logs directory
                     </Button>}
+                    <Button
+                        size="sm"
+                        intent="warning-glass"
+                        onClick={handleOpenIssueRecorder}
+                        leftIcon={<VscDebugAlt className="transition-transform duration-200 group-hover:scale-110" />}
+                        className="transition-all duration-200 hover:scale-105 hover:shadow-md group"
+                    >
+                        Record an issue
+                    </Button>
                 </div>
 
                 <Select

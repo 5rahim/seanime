@@ -9007,6 +9007,15 @@
       "params": [],
       "bodyFields": [
         {
+          "name": "Description",
+          "jsonName": "description",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "ClickLogs",
           "jsonName": "clickLogs",
           "goType": "[]report.ClickLog",
@@ -9043,11 +9052,74 @@
           "descriptions": []
         },
         {
+          "name": "NavigationLogs",
+          "jsonName": "navigationLogs",
+          "goType": "[]report.NavigationLog",
+          "usedStructType": "report.NavigationLog",
+          "typescriptType": "Array\u003cReport_NavigationLog\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Screenshots",
+          "jsonName": "screenshots",
+          "goType": "[]report.Screenshot",
+          "usedStructType": "report.Screenshot",
+          "typescriptType": "Array\u003cReport_Screenshot\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "WebSocketLogs",
+          "jsonName": "websocketLogs",
+          "goType": "[]report.WebSocketLog",
+          "usedStructType": "report.WebSocketLog",
+          "typescriptType": "Array\u003cReport_WebSocketLog\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "RRWebEvents",
+          "jsonName": "rrwebEvents",
+          "goType": "[]json.RawMessage",
+          "usedStructType": "json.RawMessage",
+          "typescriptType": "Array\u003cRawMessage\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "IsAnimeLibraryIssue",
           "jsonName": "isAnimeLibraryIssue",
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ViewportWidth",
+          "jsonName": "viewportWidth",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ViewportHeight",
+          "jsonName": "viewportHeight",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "RecordingDurationMs",
+          "jsonName": "recordingDurationMs",
+          "goType": "int64",
+          "usedStructType": "",
+          "typescriptType": "number",
           "required": true,
           "descriptions": []
         }
@@ -9076,6 +9148,33 @@
       "endpoint": "/api/v1/report/issue/download",
       "methods": [
         "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "report.IssueReport",
+      "returnGoType": "report.IssueReport",
+      "returnTypescriptType": "Report_IssueReport"
+    }
+  },
+  {
+    "name": "HandleDecompressIssueReport",
+    "trimmedName": "DecompressIssueReport",
+    "comments": [
+      "HandleDecompressIssueReport",
+      "",
+      "\t@summary accepts a zip file, decompresses it and returns the issue report JSON.",
+      "\t@route /api/v1/report/issue/decompress [POST]",
+      "\t@returns report.IssueReport",
+      ""
+    ],
+    "filepath": "internal/handlers/report.go",
+    "filename": "report.go",
+    "api": {
+      "summary": "accepts a zip file, decompresses it and returns the issue report JSON.",
+      "descriptions": [],
+      "endpoint": "/api/v1/report/issue/decompress",
+      "methods": [
+        "POST"
       ],
       "params": [],
       "bodyFields": [],

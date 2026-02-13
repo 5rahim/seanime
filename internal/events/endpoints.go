@@ -26,6 +26,7 @@ const (
 	DebridGetTorrentInfoEndpoint                       = "DEBRID-debrid-get-torrent-info"
 	DebridGetTorrentsEndpoint                          = "DEBRID-debrid-get-torrents"
 	DebridStartStreamEndpoint                          = "DEBRID-debrid-start-stream"
+	DecompressIssueReportEndpoint                      = "REPORT-decompress-issue-report"
 	DeleteAnilistListEntryEndpoint                     = "ANILIST-delete-anilist-list-entry"
 	DeleteAutoDownloaderItemEndpoint                   = "AUTO-DOWNLOADER-delete-auto-downloader-item"
 	DeleteAutoDownloaderProfileEndpoint                = "AUTO-DOWNLOADER-delete-auto-downloader-profile"

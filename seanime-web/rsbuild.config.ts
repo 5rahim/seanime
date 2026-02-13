@@ -96,6 +96,7 @@ export default defineConfig({
         chunkSplit: {
             forceSplitting: {
                 "hls": /hls\.js/,
+                "rrweb": /rrweb/,
             },
         },
     },
@@ -105,7 +106,8 @@ export default defineConfig({
         // },
         rspack: {
             experiments: {
-                outputModule: true,
+                // breaks rrweb
+                // outputModule: true,
             },
             output: { // redundant?
                 chunkFilename: "static/js/async/[name].[contenthash:8].js",
@@ -121,6 +123,11 @@ export default defineConfig({
                 }),
                 process.env.RSDOCTOR && new RsdoctorRspackPlugin({}),
             ].filter(Boolean),
+            resolve: {
+                fallback: {
+                    module: false,
+                },
+            },
             module: {
                 rules: [
                     { // stops circular deps warning

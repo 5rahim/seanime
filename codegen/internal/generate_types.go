@@ -283,6 +283,7 @@ func writeTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[string
 			}
 
 			typeText := field.TypescriptType
+			typeText = strings.ReplaceAll(typeText, "RawMessage", "Record<string, any>")
 			//if !field.Required {
 			//	switch typeText {
 			//	case "string", "number", "boolean":

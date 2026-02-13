@@ -1,6 +1,7 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import { SaveIssueReport_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { Report_IssueReport } from "@/api/generated/types"
 
 export function useSaveIssueReport() {
     return useServerMutation<boolean, SaveIssueReport_Variables>({
@@ -19,5 +20,13 @@ export function useDownloadIssueReport() {
         method: API_ENDPOINTS.REPORT.DownloadIssueReport.methods[0],
         queryKey: [API_ENDPOINTS.REPORT.DownloadIssueReport.key],
         enabled: true,
+    })
+}
+
+export function useDecompressIssueReport() {
+    return useServerMutation<Report_IssueReport, FormData>({
+        endpoint: API_ENDPOINTS.REPORT.DecompressIssueReport.endpoint,
+        method: API_ENDPOINTS.REPORT.DecompressIssueReport.methods[0],
+        mutationKey: [API_ENDPOINTS.REPORT.DecompressIssueReport.key],
     })
 }

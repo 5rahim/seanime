@@ -449,7 +449,11 @@ function SystemLogLine({ line }: { line: ParsedLogLine }) {
             {d.context && <span className="text-indigo-400 flex-shrink-0">[{d.context}]</span>}
             <span className="break-all">{d.message}</span>
             {d.count !== undefined && <span className="text-gray-500 flex-shrink-0">count={d.count}</span>}
-            {d.ms !== undefined && <span className="text-gray-500 flex-shrink-0">{d.ms}ms</span>}
+            {d.startTime !== undefined &&
+                <span className="text-gray-500 flex-shrink-0">start=<span className="text-white">{d.startTime}</span></span>}
+            {d.duration !== undefined &&
+                <span className="text-gray-500 flex-shrink-0">duration=<span className="text-white">{d.duration}</span></span>}
+            {d.ms !== undefined && <span className="text-white flex-shrink-0">{d.ms}ms</span>}
         </div>
     )
 }

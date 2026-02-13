@@ -38,8 +38,11 @@ import type {
     Nakama_WatchPartySessionSettings,
     Report_ClickLog,
     Report_ConsoleLog,
+    Report_NavigationLog,
     Report_NetworkLog,
     Report_ReactQueryLog,
+    Report_Screenshot,
+    Report_WebSocketLog,
     RunPlaygroundCodeParams,
     Torrentstream_PlaybackType,
 } from "@/api/generated/types.ts"
@@ -1737,11 +1740,19 @@ export type InstallLatestUpdate_Variables = {
  * Route saves the issue report in memory.
  */
 export type SaveIssueReport_Variables = {
+    description: string
     clickLogs: Array<Report_ClickLog>
     networkLogs: Array<Report_NetworkLog>
     reactQueryLogs: Array<Report_ReactQueryLog>
     consoleLogs: Array<Report_ConsoleLog>
+    navigationLogs: Array<Report_NavigationLog>
+    screenshots: Array<Report_Screenshot>
+    websocketLogs: Array<Report_WebSocketLog>
+    rrwebEvents: Array<Record<string, any>>
     isAnimeLibraryIssue: boolean
+    viewportWidth: number
+    viewportHeight: number
+    recordingDurationMs: number
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

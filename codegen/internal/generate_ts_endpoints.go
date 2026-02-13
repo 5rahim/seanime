@@ -436,6 +436,7 @@ func writeParamField(f *os.File, handler *RouteHandler, param *RouteHandlerParam
 	if !param.Required {
 		fieldSuffix = "?"
 	}
+	param.TypescriptType = strings.ReplaceAll(param.TypescriptType, "RawMessage", "Record<string, any>")
 	writeLine(f, fmt.Sprintf("\t%s%s: %s", param.JsonName, fieldSuffix, param.TypescriptType))
 }
 

@@ -1897,6 +1897,11 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/report/issue/download",
         },
+        DecompressIssueReport: {
+            key: "REPORT-decompress-issue-report",
+            methods: ["POST"],
+            endpoint: "/api/v1/report/issue/decompress",
+        },
     },
     SCAN: {
         /**

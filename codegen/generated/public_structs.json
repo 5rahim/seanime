@@ -51657,7 +51657,7 @@
       "",
       "\tExample:",
       "\t\t{",
-      "\t\t\t\"pattern\": \"/(.*)\\/(Mob Psycho)\\/(Season 1)/\"",
+      "\t\t\t\"pattern\": \"(?i)(.*)/(Mob Psycho)/(Season 1)\"",
       "\t\t\t\"mediaId\": 12345",
       "\t\t}"
     ]
@@ -51728,13 +51728,13 @@
       "\t\t\t\"mediaId\": 12345,",
       "\t\t\t\"files\": [",
       "\t\t\t\t{",
-      "\t\t\t\t\t\"path\": \"/Mob Psycho - (\\d+) - (.*)$/\",",
+      "\t\t\t\t\t\"pattern\": \"Mob Psycho - (\\d+) - (.*)$\",",
       "\t\t\t\t\t\"episode\": \"calc($1-12)\",",
       "\t\t\t\t\t\"aniDbEpisode\": \"$1\",",
       "\t\t\t\t\t\"type\": \"main\",",
       "\t\t\t\t},",
       "\t\t\t\t{",
-      "\t\t\t\t\t\"path\": \"/Mob Psycho - NCOP(\\d+) - (.*)$/\",",
+      "\t\t\t\t\t\"pattern\": \"Mob Psycho - NCOP(\\d+)$\",",
       "\t\t\t\t\t\"episode\": \"$1\",",
       "\t\t\t\t\t\"aniDbEpisode\": \"$1\",",
       "\t\t\t\t\t\"type\": \"nc\",",
@@ -51751,10 +51751,19 @@
     "package": "scanner",
     "fields": [
       {
-        "name": "Path",
-        "jsonName": "path",
+        "name": "Filename",
+        "jsonName": "filename",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsRegex",
+        "jsonName": "isRegex",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -52478,6 +52487,28 @@
         "comments": [
           " optional - force all local files to have this media ID"
         ]
+      },
+      {
+        "name": "Config",
+        "jsonName": "Config",
+        "goType": "Config",
+        "typescriptType": "Scanner_Config",
+        "usedTypescriptType": "Scanner_Config",
+        "usedStructName": "scanner.Config",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "hydrationRules",
+        "jsonName": "hydrationRules",
+        "goType": "map[string]compiledHydrationRule",
+        "typescriptType": "Record\u003cstring, Scanner_compiledHydrationRule\u003e",
+        "usedTypescriptType": "Scanner_compiledHydrationRule",
+        "usedStructName": "scanner.compiledHydrationRule",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -52594,6 +52625,17 @@
         "usedStructName": "scanner.Config",
         "required": false,
         "public": true,
+        "comments": []
+      },
+      {
+        "name": "matchingRules",
+        "jsonName": "matchingRules",
+        "goType": "map[string]compiledMatchingRule",
+        "typescriptType": "Record\u003cstring, Scanner_compiledMatchingRule\u003e",
+        "usedTypescriptType": "Scanner_compiledMatchingRule",
+        "usedStructName": "scanner.compiledMatchingRule",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -53229,14 +53271,14 @@
         "comments": []
       },
       {
-        "name": "ShelvedLocalFiles",
-        "jsonName": "ShelvedLocalFiles",
+        "name": "shelvedLocalFiles",
+        "jsonName": "shelvedLocalFiles",
         "goType": "[]anime.LocalFile",
         "typescriptType": "Array\u003cAnime_LocalFile\u003e",
         "usedTypescriptType": "Anime_LocalFile",
         "usedStructName": "anime.LocalFile",
         "required": false,
-        "public": true,
+        "public": false,
         "comments": []
       },
       {
@@ -53247,6 +53289,15 @@
         "usedTypescriptType": "Scanner_Config",
         "usedStructName": "scanner.Config",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ConfigAsString",
+        "jsonName": "ConfigAsString",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -53292,11 +53343,54 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
       " ScanLogger is a custom logger struct for scanning operations."
     ]
+  },
+  {
+    "filepath": "../internal/library/scanner/scan_logger.go",
+    "filename": "scan_logger.go",
+    "name": "ThreadSafeWriteSyncer",
+    "formattedName": "Scanner_ThreadSafeWriteSyncer",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "w",
+        "jsonName": "w",
+        "goType": "bytes.Buffer",
+        "typescriptType": "Buffer",
+        "usedTypescriptType": "Buffer",
+        "usedStructName": "bytes.Buffer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/library/scanner/title_normalization.go",
@@ -78082,6 +78176,146 @@
   {
     "filepath": "../internal/report/report.go",
     "filename": "report.go",
+    "name": "NavigationLog",
+    "formattedName": "Report_NavigationLog",
+    "package": "report",
+    "fields": [
+      {
+        "name": "From",
+        "jsonName": "from",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "To",
+        "jsonName": "to",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/report/report.go",
+    "filename": "report.go",
+    "name": "Screenshot",
+    "formattedName": "Report_Screenshot",
+    "package": "report",
+    "fields": [
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " base64 encoded image"
+        ]
+      },
+      {
+        "name": "Caption",
+        "jsonName": "caption",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageURL",
+        "jsonName": "pageUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/report/report.go",
+    "filename": "report.go",
+    "name": "WebSocketLog",
+    "formattedName": "Report_WebSocketLog",
+    "package": "report",
+    "fields": [
+      {
+        "name": "Direction",
+        "jsonName": "direction",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"incoming\" or \"outgoing\""
+        ]
+      },
+      {
+        "name": "EventType",
+        "jsonName": "eventType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Payload",
+        "jsonName": "payload",
+        "goType": "json.RawMessage",
+        "typescriptType": "RawMessage",
+        "usedTypescriptType": "RawMessage",
+        "usedStructName": "json.RawMessage",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " WebSocketLog represents a captured WebSocket message during recording"
+    ]
+  },
+  {
+    "filepath": "../internal/report/report.go",
+    "filename": "report.go",
     "name": "IssueReport",
     "formattedName": "Report_IssueReport",
     "package": "report",
@@ -78133,6 +78367,15 @@
         "comments": []
       },
       {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ClickLogs",
         "jsonName": "clickLogs",
         "goType": "[]ClickLog",
@@ -78177,6 +78420,50 @@
         "comments": []
       },
       {
+        "name": "NavigationLogs",
+        "jsonName": "navigationLogs",
+        "goType": "[]NavigationLog",
+        "typescriptType": "Array\u003cReport_NavigationLog\u003e",
+        "usedTypescriptType": "Report_NavigationLog",
+        "usedStructName": "report.NavigationLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Screenshots",
+        "jsonName": "screenshots",
+        "goType": "[]Screenshot",
+        "typescriptType": "Array\u003cReport_Screenshot\u003e",
+        "usedTypescriptType": "Report_Screenshot",
+        "usedStructName": "report.Screenshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WebSocketLogs",
+        "jsonName": "websocketLogs",
+        "goType": "[]WebSocketLog",
+        "typescriptType": "Array\u003cReport_WebSocketLog\u003e",
+        "usedTypescriptType": "Report_WebSocketLog",
+        "usedStructName": "report.WebSocketLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RRWebEvents",
+        "jsonName": "rrwebEvents",
+        "goType": "[]json.RawMessage",
+        "typescriptType": "Array\u003cRawMessage\u003e",
+        "usedTypescriptType": "RawMessage",
+        "usedStructName": "json.RawMessage",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "UnlockedLocalFiles",
         "jsonName": "unlockedLocalFiles",
         "goType": "[]UnlockedLocalFile",
@@ -78210,6 +78497,33 @@
         "jsonName": "status",
         "goType": "string",
         "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ViewportWidth",
+        "jsonName": "viewportWidth",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ViewportHeight",
+        "jsonName": "viewportHeight",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RecordingDurationMs",
+        "jsonName": "recordingDurationMs",
+        "goType": "int64",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -78273,6 +78587,15 @@
         "comments": []
       },
       {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ClickLogs",
         "jsonName": "clickLogs",
         "goType": "[]ClickLog",
@@ -78312,6 +78635,50 @@
         "typescriptType": "Array\u003cReport_ConsoleLog\u003e",
         "usedTypescriptType": "Report_ConsoleLog",
         "usedStructName": "report.ConsoleLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NavigationLogs",
+        "jsonName": "navigationLogs",
+        "goType": "[]NavigationLog",
+        "typescriptType": "Array\u003cReport_NavigationLog\u003e",
+        "usedTypescriptType": "Report_NavigationLog",
+        "usedStructName": "report.NavigationLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Screenshots",
+        "jsonName": "screenshots",
+        "goType": "[]Screenshot",
+        "typescriptType": "Array\u003cReport_Screenshot\u003e",
+        "usedTypescriptType": "Report_Screenshot",
+        "usedStructName": "report.Screenshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WebSocketLogs",
+        "jsonName": "websocketLogs",
+        "goType": "[]WebSocketLog",
+        "typescriptType": "Array\u003cReport_WebSocketLog\u003e",
+        "usedTypescriptType": "Report_WebSocketLog",
+        "usedStructName": "report.WebSocketLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RRWebEvents",
+        "jsonName": "rrwebEvents",
+        "goType": "[]json.RawMessage",
+        "typescriptType": "Array\u003cRawMessage\u003e",
+        "usedTypescriptType": "RawMessage",
+        "usedStructName": "json.RawMessage",
         "required": false,
         "public": true,
         "comments": []
@@ -78363,6 +78730,33 @@
         "jsonName": "serverStatus",
         "goType": "",
         "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ViewportWidth",
+        "jsonName": "viewportWidth",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ViewportHeight",
+        "jsonName": "viewportHeight",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RecordingDurationMs",
+        "jsonName": "recordingDurationMs",
+        "goType": "int64",
+        "typescriptType": "number",
         "required": true,
         "public": true,
         "comments": []
