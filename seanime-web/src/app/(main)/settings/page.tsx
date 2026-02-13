@@ -712,6 +712,7 @@ export default function Page() {
                                                         <Field.Text
                                                             name="qbittorrentPassword"
                                                             label="Password"
+                                                            type="password"
                                                         />
                                                         <Field.Number
                                                             name="qbittorrentPort"
@@ -755,6 +756,7 @@ export default function Page() {
                                                         <Field.Text
                                                             name="transmissionPassword"
                                                             label="Password"
+                                                            type="password"
                                                         />
                                                         <Field.Number
                                                             name="transmissionPort"

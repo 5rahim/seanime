@@ -753,6 +753,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                             placeholder="Enter your API key"
                                             onKeyDown={(e) => e.stopPropagation()}
                                             onInput={(e) => e.stopPropagation()}
+                                            type="password"
                                         />
                                     </div>
                                 </div>

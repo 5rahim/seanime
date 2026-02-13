@@ -121,6 +121,7 @@ export function DebridSettings(props: DebridSettingsProps) {
                             <Field.Text
                                 name="apiKey"
                                 label="API Key"
+                                type="password"
                             />
                         </SettingsCard>
 

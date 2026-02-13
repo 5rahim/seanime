@@ -389,7 +389,7 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <Field.Text name="vlcUsername" label="Username" />
-                                    <Field.Text name="vlcPassword" label="Password" />
+                                    <Field.Text name="vlcPassword" label="Password" type="password" />
                                 </div>
                                 <Field.Text name="vlcPath" label="VLC Executable Path" />
                             </motion.div>
