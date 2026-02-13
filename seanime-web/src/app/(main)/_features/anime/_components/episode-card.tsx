@@ -94,13 +94,14 @@ export function EpisodeCard(props: EpisodeCardProps) {
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
     const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
 
-    const missingImage = fallbackImage?.includes(image || "")
+    // const missingImage = fallbackImage?.includes(image || "")
+    const missingImage = false
 
     const isSingleContainer = ts.useLegacyEpisodeCard || forceSingleContainer
 
     const Meta = () => (
         <div data-episode-card-info-container className="relative z-[3] w-full space-y-0">
-            <p
+            {topTitle !== title && <p
                 data-episode-card-title
                 className={cn(
                     "w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold",
@@ -108,7 +109,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 )}
             >
                 {topTitle?.replaceAll("`", "'")}
-            </p>
+            </p>}
             <div data-episode-card-info-content className="w-full justify-between flex flex-none items-center">
                 <p data-episode-card-subtitle className="line-clamp-1 flex items-center">
                     <span className="flex-none text-base md:text-xl font-medium">{title}{showTotalEpisodes ?
@@ -252,17 +253,19 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         >
                             {actionIcon && actionIcon}
                         </div>
-                        {/*{missingImage && <div*/}
-                        {/*    data-episode-card-action-icon*/}
-                        {/*    className={cn(*/}
-                        {/*        "px-12 text-gray-200",*/}
-                        {/*        "cursor-pointer bg-gray-950/80 z-[1] absolute w-[105%] h-[105%] items-center justify-center",*/}
-                        {/*        "hidden md:flex flex-col gap-1",*/}
-                        {/*    )}*/}
-                        {/*>*/}
-                        {/*    <p className="line-clamp-1 text-[--muted]">{topTitle}</p>*/}
-                        {/*    <p className="text-3xl">{title}</p>*/}
-                        {/*</div>}*/}
+                        {missingImage && !topTitle?.toLowerCase?.()?.includes?.("movie") && <div
+                            data-episode-card-action-icon
+                            className={cn(
+                                "px-12 text-gray-200",
+                                "cursor-pointer bg-gray-900/50 z-[1] absolute w-[105%] h-[105%] items-center justify-center",
+                                "hidden md:flex flex-col gap-1",
+                            )}
+                        >
+                            <div className="bg-gray-900/70 px-3 py-2 rounded-lg text-center">
+                                {/*{topTitle !== title && <p className="line-clamp-1 text-[--muted]">{topTitle}</p>}*/}
+                                <p className="text-2xl tracking-wide">{title}</p>
+                            </div>
+                        </div>}
 
                         {isInvalid &&
                             <p data-episode-card-invalid-metadata className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata

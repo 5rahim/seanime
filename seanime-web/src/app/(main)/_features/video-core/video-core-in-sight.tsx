@@ -173,7 +173,7 @@ export function VideoCoreInSight() {
         if (!open) return
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && document.activeElement === searchInputRef.current) {
+            if (e.key === "Escape" && open) {
                 e.preventDefault()
                 e.stopPropagation()
                 toggleOpen(false)

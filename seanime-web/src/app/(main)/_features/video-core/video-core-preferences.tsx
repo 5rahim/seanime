@@ -12,6 +12,7 @@ import { useVideoCoreInSight } from "@/app/(main)/_features/video-core/video-cor
 import { useVideoCoreOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { vc_pip } from "@/app/(main)/_features/video-core/video-core-pip"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
+import { useVideoCorePlaylist } from "@/app/(main)/_features/video-core/video-core-playlist"
 import {
     vc_defaultKeybindings,
     vc_initialSettings,
@@ -829,6 +830,8 @@ export function VideoCoreKeybindingController(props: {
     const fullscreenManager = useAtomValue(vc_fullscreenManager)
     const pipManager = useAtomValue(vc_pipManager)
 
+    const { playEpisode, hasNextEpisode, hasPreviousEpisode } = useVideoCorePlaylist()
+
     // Rate limiting for seeking operations
     const lastSeekTime = useRef(0)
     const SEEK_THROTTLE_MS = 100 // Minimum time between seek operations
@@ -1198,14 +1201,26 @@ export function VideoCoreKeybindingController(props: {
     const log = logger("VideoCoreKeybindings")
 
     const handleNextEpisode = useCallback(() => {
-        // Placeholder for next episode functionality
-        log.info("Next episode shortcut pressed - not implemented yet")
-    }, [])
+        if (!hasNextEpisode) {
+            showOverlayFeedback({ message: "No next episode" })
+            log.info("No next episode available")
+            return
+        }
+
+        log.info("Playing next episode")
+        playEpisode("next")
+    }, [hasNextEpisode, playEpisode, showOverlayFeedback])
 
     const handlePreviousEpisode = useCallback(() => {
-        // Placeholder for previous episode functionality
-        log.info("Previous episode shortcut pressed - not implemented yet")
-    }, [])
+        if (!hasPreviousEpisode) {
+            showOverlayFeedback({ message: "No previous episode" })
+            log.info("No previous episode available")
+            return
+        }
+
+        log.info("Playing previous episode")
+        playEpisode("previous")
+    }, [hasPreviousEpisode, playEpisode, showOverlayFeedback])
 
     const handleToggleFullscreen = useCallback(() => {
         fullscreenManager?.toggleFullscreen()
