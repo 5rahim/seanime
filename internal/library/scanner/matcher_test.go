@@ -694,6 +694,14 @@ func TestMatcher3(t *testing.T) {
 			expectedMediaId: 113024,
 			otherMediaIds:   []int{},
 		},
+		{
+			name: "ReZero 3",
+			paths: []string{
+				"E:/Anime/Re Zero kara Hajimeru Isekai Seikatsu 3rd Season (Batch + OVAs)/ReZero S03 1080p Dual Audio WEBRip DD+ x265-EMBER/S03E01-Theatrical Malice [4AB8AF98].mkv",
+			},
+			expectedMediaId: 163134,
+			otherMediaIds:   []int{},
+		},
 	}
 
 	for _, tt := range tests {

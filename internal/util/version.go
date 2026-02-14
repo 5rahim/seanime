@@ -7,7 +7,9 @@ import (
 	"github.com/Masterminds/semver/v3"
 )
 
-func IsValidVersion(version string) bool {
+// IsValidBasicSemver
+// e.g. "1.2.3" but not "1.2.3-beta" or "1.2"
+func IsValidBasicSemver(version string) bool {
 	parts := strings.Split(version, ".")
 	if len(parts) != 3 {
 		return false

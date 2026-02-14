@@ -66,6 +66,18 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 						seenTokens[token] = struct{}{}
 					}
 				}
+				// Also index compound tokens (adjacent pairs concatenated)
+				// e.g. "re" + "zero" -> "rezero" so that "ReZero" can find "Re Zero kara..."
+				for i := 0; i < len(tokens)-1; i++ {
+					// only concatenate short tokens to avoid too much noise
+					if len(tokens[i]) <= 5 && len(tokens[i+1]) <= 5 {
+						compound := tokens[i] + tokens[i+1]
+						if _, ok := seenTokens[compound]; !ok {
+							mc.TokenIndex[compound] = append(mc.TokenIndex[compound], m)
+							seenTokens[compound] = struct{}{}
+						}
+					}
+				}
 			}
 		}
 

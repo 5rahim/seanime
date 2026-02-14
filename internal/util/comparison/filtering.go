@@ -48,7 +48,7 @@ var (
 	}
 
 	IgnoredFilenames = map[string]struct{}{
-		"extras": {}, "ova": {}, "ovas": {}, "ona": {}, "onas": {}, "oad": {}, "oads": {}, "others": {}, "specials": {}, "movies": {}, "seasons": {}, "batch": {},
+		"extra": {}, "extras": {}, "ova": {}, "ovas": {}, "ona": {}, "onas": {}, "oad": {}, "oads": {}, "other": {}, "others": {}, "special": {}, "specials": {}, "movie": {}, "movies": {}, "season": {}, "seasons": {}, "batch": {},
 		"complete": {}, "complete series": {}, "nc": {}, "music": {}, "mv": {}, "trailer": {}, "promo": {}, "pv": {}, "commercial": {}, "ad": {}, "opening": {}, "ending": {},
 		"op": {}, "ed": {}, "ncop": {}, "nced": {}, "creditless": {},
 	}

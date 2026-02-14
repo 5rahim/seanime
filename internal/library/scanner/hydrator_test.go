@@ -90,6 +90,14 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			expectedMediaId: 113024,
 			expectedType:    anime.LocalFileTypeMain,
 		},
+		{
+			name: "Kimetsu no Yaiba Hashira Geiko-hen",
+			paths: []string{
+				"E:/Anime/Kimetsu no Yaiba Hashira Geiko-hen/[Judas] Kimetsu no Yaiba (Demon Slayer) (Season 05) [1080p][HEVC x265 10bit][Dual-Audio][Multi-Subs]/[Judas] Kimetsu no Yaiba - S05E01v2.mkv",
+			},
+			expectedMediaId: 166240,
+			expectedType:    anime.LocalFileTypeMain,
+		},
 	}
 
 	for _, tt := range tests {

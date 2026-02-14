@@ -279,6 +279,10 @@ func (f *LocalFile) GetFolderTitle(all ...bool) string {
 				if _, ok := comparison.IgnoredFilenames[cleanTitle]; ok {
 					return false
 				}
+				// Also check the original folder name for ignored keywords
+				if comparison.ValueContainsIgnoredKeywords(fpd.Original) {
+					return false
+				}
 			}
 			return len(cleanTitle) > 0
 		})
@@ -294,6 +298,29 @@ func (f *LocalFile) GetFolderTitle(all ...bool) string {
 	}
 
 	return ""
+}
+
+// getAllFolderTitles returns all valid folder titles (not just the closest one).
+func (f *LocalFile) getAllFolderTitles() []string {
+	if len(f.ParsedFolderData) == 0 {
+		return nil
+	}
+	titles := make([]string, 0, len(f.ParsedFolderData))
+	for _, fpd := range f.ParsedFolderData {
+		cleanTitle := strings.TrimSpace(strings.ToLower(fpd.Title))
+		if len(cleanTitle) == 0 {
+			continue
+		}
+		if _, ok := comparison.IgnoredFilenames[cleanTitle]; ok {
+			continue
+		}
+		// Also check the original folder name for ignored keywords
+		if comparison.ValueContainsIgnoredKeywords(fpd.Original) {
+			continue
+		}
+		titles = append(titles, fpd.Title)
+	}
+	return titles
 }
 
 // GetTitleVariations returns title variations for the local file.
@@ -337,8 +364,13 @@ func (f *LocalFile) GetTitleVariations() []*string {
 
 	folderTitle := f.GetFolderTitle()
 
+	// Collect all valid folder titles (not just the closest one)
+	// This ensures parent folder titles like "Re Zero kara Hajimeru Isekai Seikatsu" are used
+	// for token-based candidate matching even when the closest folder has a shorter name like "ReZero"
+	allFolderTitles := f.getAllFolderTitles()
+
 	// shortcircuit if there are no titles
-	if len(f.ParsedData.Title) == 0 && len(folderTitle) == 0 {
+	if len(f.ParsedData.Title) == 0 && len(folderTitle) == 0 && len(allFolderTitles) == 0 {
 		return make([]*string, 0)
 	}
 
@@ -357,6 +389,19 @@ func (f *LocalFile) GetTitleVariations() []*string {
 	}
 	if len(folderTitle) > 0 && folderTitle != f.ParsedData.Title {
 		baseTitles = append(baseTitles, folderTitle)
+	}
+	// Add other folder titles that aren't already in baseTitles
+	for _, ft := range allFolderTitles {
+		alreadyAdded := false
+		for _, bt := range baseTitles {
+			if ft == bt {
+				alreadyAdded = true
+				break
+			}
+		}
+		if !alreadyAdded {
+			baseTitles = append(baseTitles, ft)
+		}
 	}
 
 	// Always add the raw base titles
