@@ -270,6 +270,11 @@ func (a *App) initModulesOnce() {
 		AutoDownloader:      a.AutoDownloader,
 		MetadataProviderRef: a.MetadataProviderRef,
 		LogsDir:             a.Config.Logs.Dir,
+		OnRefreshCollection: func() {
+			go func() {
+				_, _ = a.RefreshAnimeCollection()
+			}()
+		},
 	})
 
 	// This is run in a goroutine

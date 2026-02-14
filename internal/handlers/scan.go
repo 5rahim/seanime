@@ -116,6 +116,8 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 
 	go h.App.AutoDownloader.CleanUpDownloadedItems()
 
+	go h.App.RefreshAnimeCollection()
+
 	return h.RespondWithData(c, lfs)
 
 }

@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"regexp"
+	"seanime/internal/library/anime"
 	"seanime/internal/util/comparison"
 	"strconv"
 	"strings"
@@ -20,6 +21,8 @@ var noiseWords = map[string]struct{}{
 	"anime": {}, "ova": {}, "ona": {}, "oad": {}, "tv": {}, "movie": {},
 	"nc": {}, "nced": {}, "ncop": {},
 	"extras": {}, "ending": {}, "opening": {}, "preview": {},
+	"special": {}, "specials": {}, "sp": {}, "finale": {},
+	"season": {}, "uncensored": {}, "censored": {}, "bluray": {},
 }
 
 var ordinalToNumber = map[string]int{
@@ -34,6 +37,21 @@ var ordinalToNumber = map[string]int{
 	"ninth": 9, "9th": 9,
 	"tenth": 10, "10th": 10,
 }
+
+type fileFormatType int
+
+const (
+	fileFormatUnknown fileFormatType = iota
+	fileFormatOVA
+	fileFormatSpecial
+	fileFormatMovie
+	fileFormatNC
+)
+
+var fileOVARegex = regexp.MustCompile(`(?i)(?:\b|_|\d)(?:OVA|OAD|OAV)\s*\d*(?:\b|_)`)
+var fileSpecialRegex = regexp.MustCompile(`(?i)(?:\b|_)(?:SP|Specials?)\s*\d*(?:\b|_)`)
+var fileMovieRegex = regexp.MustCompile(`(?i)(?:\b|_)(?:Movie|Film|Gekijouban|Gekijō|Gekijyou)(?:\b|_)`)
+var extrasFolderRegex = regexp.MustCompile(`(?i)(?:^|[/\\])(Extras?|Specials?)(?:[/\\]|$)`)
 
 // Roman numerals
 // Note: skip I and X bc they are ambiguous
@@ -470,6 +488,8 @@ func WeightedTokenMatchRatio(tokensA, tokensB []string) float64 {
 		weight := 1.0
 		if IsNoiseWord(t) {
 			weight = 0.3 // Noise words contribute less
+		} else if isYearToken(t) {
+			weight = 0.5 // Years contribute less
 		}
 		totalWeight += weight
 
@@ -483,6 +503,18 @@ func WeightedTokenMatchRatio(tokensA, tokensB []string) float64 {
 	}
 
 	return matchedWeight / totalWeight
+}
+
+func isYearToken(token string) bool {
+	if len(token) != 4 {
+		return false
+	}
+	// simple check for 19xx or 20xx
+	if (strings.HasPrefix(token, "19") || strings.HasPrefix(token, "20")) &&
+		unicode.IsDigit(rune(token[2])) && unicode.IsDigit(rune(token[3])) {
+		return true
+	}
+	return false
 }
 
 // ContainsAllTokens returns true if all tokens from subset are in superset
@@ -516,4 +548,52 @@ func RemoveNonAlphanumeric(s string) string {
 		}
 	}
 	return result.String()
+}
+
+// HasStrongMatch returns true if there is a match between tokens that is not a year token or a noise word.
+func HasStrongMatch(tokensA, tokensB []string) bool {
+	if len(tokensA) == 0 || len(tokensB) == 0 {
+		return false
+	}
+
+	setB := getTokenSet()
+	defer putTokenSet(setB)
+	for _, t := range tokensB {
+		setB[t] = struct{}{}
+	}
+
+	for _, t := range tokensA {
+		if IsNoiseWord(t) || isYearToken(t) {
+			continue
+		}
+		if _, found := setB[t]; found {
+			return true
+		}
+	}
+	return false
+}
+
+// getFileFormatType detects the content format type from the filename and folder path.
+// Only the filename bc folder names are too unreliable
+func getFileFormatType(lf *anime.LocalFile) fileFormatType {
+	name := lf.Name
+	path := lf.Path
+
+	if comparison.ValueContainsNC(name) {
+		return fileFormatNC
+	}
+	if fileOVARegex.MatchString(name) {
+		return fileFormatOVA
+	}
+	if fileSpecialRegex.MatchString(name) {
+		return fileFormatSpecial
+	}
+	if fileMovieRegex.MatchString(name) {
+		return fileFormatMovie
+	}
+	if extrasFolderRegex.MatchString(path) {
+		return fileFormatSpecial
+	}
+
+	return fileFormatUnknown
 }

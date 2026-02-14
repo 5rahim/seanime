@@ -71,6 +71,13 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 				return nil, errors.New("no first episode")
 			}
 
+			mainEpisodeCount := animeMetadata.GetMainEpisodeCount()
+			// discrepancy check: if anidb has 1 main episode but anilist has more than 1 (e.g. movie split into parts)
+			// use the anilist episode count
+			if mainEpisodeCount == 1 && rel.GetCurrentEpisodeCount() > mainEpisodeCount {
+				mainEpisodeCount = rel.GetCurrentEpisodeCount()
+			}
+
 			// discrepancy: "seasonNumber":1,"episodeNumber":12,"absoluteEpisodeNumber":13,
 			// this happens when the media has a separate entry but is technically the same season
 			// when we detect this, we should use the "episodeNumber" as the absoluteEpisodeNumber
@@ -80,7 +87,7 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 			maxPartAbsoluteEpisodeNumber := 0
 			if usePartEpisodeNumber {
 				partAbsoluteEpisodeNumber = firstEp.EpisodeNumber
-				maxPartAbsoluteEpisodeNumber = partAbsoluteEpisodeNumber + animeMetadata.GetMainEpisodeCount() - 1
+				maxPartAbsoluteEpisodeNumber = partAbsoluteEpisodeNumber + mainEpisodeCount - 1
 			}
 
 			// If the first episode exists and has a valid absolute episode number, create a new MediaTreeAnalysisBranch
@@ -94,8 +101,8 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 					// The max absolute episode number is the first episode's absolute episode number plus the total episode count minus 1
 					// We subtract 1 because the first episode's absolute episode number is already included in the total episode count
 					// e.g, if the first episode's absolute episode number is 13 and the total episode count is 12, the max absolute episode number is 24
-					maxAbsoluteEpisode:      firstEp.AbsoluteEpisodeNumber + (animeMetadata.GetMainEpisodeCount() - 1),
-					totalEpisodeCount:       animeMetadata.GetMainEpisodeCount(),
+					maxAbsoluteEpisode:      firstEp.AbsoluteEpisodeNumber + (mainEpisodeCount - 1),
+					totalEpisodeCount:       mainEpisodeCount,
 					noAbsoluteEpisodesFound: firstEp.AbsoluteEpisodeNumber == 0,
 				}, nil
 			}

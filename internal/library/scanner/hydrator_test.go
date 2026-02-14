@@ -71,6 +71,25 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			expectedMediaId: 155211, // Danmachi IV Part 2
 			expectedType:    anime.LocalFileTypeMain,
 		},
+		{
+			// anidb lists 1 main episode but anilist lists 5
+			// the media tree analysis should use the anilist episode count so normalize the episode numbers
+			name: "Muri ja Nakatta!",
+			paths: []string{
+				"E:/Anime/Watashi ga Koibito ni Nareru Wake Naijan, Murimuri! (※Muri ja Nakatta! ) Next Shine!/Theres.No.Freaking.Way.Ill.Be.Your.Lover.Unless.S01E13.1080p.AMZN.WEB-DL.JPN.DDP2.0.H.264.MSubs-ToonsHub.mkv",
+				"E:/Anime/Watashi ga Koibito ni Nareru Wake Naijan, Murimuri! (※Muri ja Nakatta! ) Next Shine!/Theres.No.Freaking.Way.Ill.Be.Your.Lover.Unless.S01E14.1080p.AMZN.WEB-DL.JPN.DDP2.0.H.264.MSubs-ToonsHub.mkv",
+			},
+			expectedMediaId: 199112,
+			expectedType:    anime.LocalFileTypeMain,
+		},
+		{
+			name: "Revue Starlight Movie",
+			paths: []string{
+				"E:/Anime/Shoujo Kageki Revue Starlight/[neoHEVC] Revue Starlight [Season 1 + Specials + Movie] [BD 1080p x265 HEVC AAC] [Dual Audio]/Specials/Revue Starlight - S00E05 - (S1M1 - Movie).mkv",
+			},
+			expectedMediaId: 113024,
+			expectedType:    anime.LocalFileTypeMain,
+		},
 	}
 
 	for _, tt := range tests {

@@ -832,7 +832,7 @@ const VirtualizedTreeNode = memo(({
     const nonIgnoredFileNodes = fileNodes?.filter(n => !n.localFile?.ignored)
     const matchedFileNodes = nonIgnoredFileNodes?.filter(n => !!n.localFile?.mediaId)
 
-    const fileCount = nonIgnoredFileNodes?.length ?? 0
+    const nonIgnoredFileCount = nonIgnoredFileNodes?.length ?? 0
     const matchedFileCount = matchedFileNodes?.length ?? 0
 
     const allFileMatched = nonIgnoredFileNodes?.every(n => !!n.localFile?.mediaId) ?? false
@@ -1007,7 +1007,13 @@ const VirtualizedTreeNode = memo(({
                         >
                             <FaRegEdit /> Super update
                         </ContextMenuItem>
-                        {(isDirectory && !!fileCount) && <>
+                        {(isDirectory && allFileIgnored) && <ContextMenuItem
+                            onClick={handleUnignoreDirectory}
+                            className={cn("text-purple-300", isPending && "opacity-50 pointer-events-none")}
+                        >
+                            <LuClipboardPlus className="text-lg" /> Un-ignore files
+                        </ContextMenuItem>}
+                        {(isDirectory && !!nonIgnoredFileCount) && <>
                             {allFileMatched && <ContextMenuItem
                                 onClick={handleUnmatchDirectory}
                                 className={cn("text-[--orange]", isPending && "opacity-50 pointer-events-none")}
@@ -1025,12 +1031,6 @@ const VirtualizedTreeNode = memo(({
                                 className={cn("", isPending && "opacity-50 pointer-events-none")}
                             >
                                 <LuClipboardX className="text-lg" /> Ignore files
-                            </ContextMenuItem>}
-                            {allFileIgnored && <ContextMenuItem
-                                onClick={handleUnignoreDirectory}
-                                className={cn("text-purple-300", isPending && "opacity-50 pointer-events-none")}
-                            >
-                                <LuClipboardPlus className="text-lg" /> Un-ignore files
                             </ContextMenuItem>}
                         </>}
                         {(!isDirectory && isScannedFile) && <>
@@ -1069,7 +1069,7 @@ const VirtualizedTreeNode = memo(({
                         <ContextMenuSub
                             triggerContent="More"
                         >
-                            {isDirectory && !!fileCount && <ContextMenuItem
+                            {isDirectory && !!nonIgnoredFileCount && <ContextMenuItem
                                 onClick={handleDeleteDirectory}
                                 className={cn("text-[--red]")}
                             >
@@ -1179,16 +1179,16 @@ const VirtualizedTreeNode = memo(({
                             </span>
                         </div>
 
-                        {isDirectory && !!fileCount && !allFileIgnored && (
+                        {isDirectory && !!nonIgnoredFileCount && !allFileIgnored && (
                             <Tooltip
                                 trigger={<span
                                     className={cn(
                                         "text-xs bg-green-500/20 text-[--green] px-2 py-0.5 rounded-full",
-                                        fileCount !== matchedFileCount && "bg-orange-500/20 text-[--orange]",
+                                        nonIgnoredFileCount !== matchedFileCount && "bg-orange-500/20 text-[--orange]",
                                         !allFileScanned && "bg-red-500/20 text-[--red]",
                                     )}
                                 >
-                                    {matchedFileCount} / {fileCount}
+                                    {matchedFileCount} / {nonIgnoredFileCount}
                                 </span>}
                             >
                                 Matched files

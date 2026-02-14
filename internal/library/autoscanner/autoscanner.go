@@ -39,6 +39,7 @@ type (
 		metadataProviderRef *util.Ref[metadata_provider.Provider]
 		logsDir             string
 		scanning            atomic.Bool
+		onRefreshCollection func()
 	}
 	NewAutoScannerOptions struct {
 		Database            *db.Database
@@ -50,6 +51,7 @@ type (
 		WaitTime            time.Duration
 		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 		LogsDir             string
+		OnRefreshCollection func()
 	}
 )
 
@@ -74,6 +76,7 @@ func New(opts *NewAutoScannerOptions) *AutoScanner {
 		autoDownloader:      opts.AutoDownloader,
 		metadataProviderRef: opts.MetadataProviderRef,
 		logsDir:             opts.LogsDir,
+		onRefreshCollection: opts.OnRefreshCollection,
 	}
 }
 
@@ -289,6 +292,10 @@ func (as *AutoScanner) scan() {
 
 	// Refresh the queue
 	go as.autoDownloader.CleanUpDownloadedItems()
+
+	if as.onRefreshCollection != nil {
+		go as.onRefreshCollection()
+	}
 
 	notifier.GlobalNotifier.Notify(notifier.AutoScanner, "Your library has been scanned.")
 

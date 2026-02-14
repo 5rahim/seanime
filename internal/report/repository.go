@@ -139,8 +139,9 @@ func (r *Repository) Anonymize(opts AnonymizeOptions) string {
 	}
 
 	// Remove empty strings to avoid infinite replacements
+	// don't redact "seanime"
 	toRedact = lo.Filter(toRedact, func(s string, _ int) bool {
-		return s != ""
+		return s != "" && s != "seanime" && s != "Seanime"
 	})
 
 	content := opts.Content

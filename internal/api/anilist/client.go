@@ -315,7 +315,9 @@ func (ac *AnilistClientImpl) customDoFunc(ctx context.Context, req *http.Request
 		if err == nil {
 			ac.logger.Warn().Msgf("anilist: Rate limited, retrying in %d seconds", rlRetryAfter+1)
 			if time.Since(sentRateLimitWarningTime) > 10*time.Second {
-				events.GlobalWSEventManager.SendEvent(events.WarningToast, "anilist: Rate limited, retrying in "+strconv.Itoa(rlRetryAfter+1)+" seconds")
+				if events.GlobalWSEventManager != nil {
+					events.GlobalWSEventManager.SendEvent(events.WarningToast, "anilist: Rate limited, retrying in "+strconv.Itoa(rlRetryAfter+1)+" seconds")
+				}
 				sentRateLimitWarningTime = time.Now()
 			}
 			select {

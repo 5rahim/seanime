@@ -11,6 +11,7 @@ import (
 	"seanime/internal/library/summary"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
+	"seanime/internal/util/comparison"
 	"seanime/internal/util/limiter"
 	"strconv"
 	"strings"
@@ -89,15 +90,19 @@ func (fh *FileHydrator) HydrateMetadata() {
 			Msg("Starting metadata hydration process")
 	}
 
-	// Process each group in parallel
+	const maxConcurrentGroups = 100
+	sem := make(chan struct{}, maxConcurrentGroups)
 	var wg sync.WaitGroup
 	for mId, files := range groups {
+		if len(files) == 0 {
+			continue
+		}
 		wg.Add(1)
+		sem <- struct{}{} // Acquire semaphore
 		go func(mId int, files []*anime.LocalFile) {
 			defer wg.Done()
-			if len(files) > 0 {
-				fh.hydrateGroupMetadata(mId, files, rateLimiter)
-			}
+			defer func() { <-sem }() // Release semaphore
+			fh.hydrateGroupMetadata(mId, files, rateLimiter)
 		}(mId, files)
 	}
 	wg.Wait()
@@ -136,9 +141,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 	// Tree analysis used for episode normalization
 	var mediaTreeAnalysis *MediaTreeAnalysis
 	treeFetched := false
+	mediaTreeAnalysisMu := sync.Mutex{}
 
 	// Process each local file in the group sequentially
-	lo.ForEach(lfs, func(lf *anime.LocalFile, index int) {
+	lop.ForEach(lfs, func(lf *anime.LocalFile, index int) {
 
 		defer util.HandlePanicInModuleThenS("scanner/hydrator/hydrateGroupMetadata", func(stackTrace string) {
 			lf.MediaId = 0
@@ -206,6 +212,15 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			lf.Metadata.AniDBEpisode = ""
 			lf.Metadata.Type = anime.LocalFileTypeNC
 
+			if episode > -1 {
+				lf.Metadata.Episode = episode
+				// Parse OP/ED type from the filename and set AniDBEpisode for better tracking
+				// e.g. "OP1", "ED2", etc.
+				if ncType, ok := comparison.ExtractNCType(lf.Name); ok {
+					lf.Metadata.AniDBEpisode = ncType + strconv.Itoa(episode)
+				}
+			}
+
 			/*Log */
 			if fh.ScanLogger != nil {
 				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
@@ -218,7 +233,13 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		// Special metadata
 		if lf.IsProbablySpecial() {
 			lf.Metadata.Type = anime.LocalFileTypeSpecial
-			if episode > -1 {
+			// Sometimes a movie filename could be written as a special episode of the main series
+			// anidb rarely if ever adds relevant specials to movie entries
+			if *media.Format == anilist.MediaFormatMovie {
+				lf.Metadata.Episode = 1
+				lf.Metadata.AniDBEpisode = "1"
+				lf.Metadata.Type = anime.LocalFileTypeMain
+			} else if episode > -1 {
 				// ep14 (13 original) -> ep1 s1
 				if episode > media.GetCurrentEpisodeCount() {
 					lf.Metadata.Episode = episode - media.GetCurrentEpisodeCount()
@@ -256,11 +277,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 		// No absolute episode count
 		// "media.GetTotalEpisodeCount() == -1" is a fix for media with unknown episode count, we will just assume that the episode number is correct
-		// TODO: We might want to fetch the media when the episode count is unknown in order to get the correct episode count
+		// devnote(don't know if this is still revelant): We might want to fetch the media when the episode count is unknown in order to get the correct episode count
 		if episode > -1 && (episode <= media.GetCurrentEpisodeCount() || media.GetTotalEpisodeCount() == -1) {
 			// Episode 0 - Might be a special
 			// By default, we will assume that AniDB doesn't include Episode 0 as part of the main episodes (which is often the case)
-			// If this proves to be wrong, media_entry.go will offset the AniDBEpisode by 1 and treat "S1" as "1" when it is a main episode
 			if episode == 0 {
 				// Leave episode number as 0, assuming that the client will handle tracking correctly
 				lf.Metadata.Episode = 0
@@ -321,6 +341,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 		// Still no episode number and the media has more than 1 episode and is not a movie
 		// We will mark it as a special episode
+		// devnote: Mark as NC?
 		if episode == -1 {
 			lf.Metadata.Type = anime.LocalFileTypeSpecial
 			lf.Metadata.Episode = 1
@@ -358,6 +379,8 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				return
 			}
 
+			mediaTreeAnalysisMu.Lock()
+			defer mediaTreeAnalysisMu.Unlock()
 			if !treeFetched {
 
 				mediaTreeFetchStart := time.Now()

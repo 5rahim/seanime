@@ -17,7 +17,7 @@ var (
 	romanPattern1Regex    = regexp.MustCompile(`[\s.](i{1,3}|iv|vi?i?i?|ix|x)(?:\s|$|[:,.]|['\'])`)
 	romanPattern2Regex    = regexp.MustCompile(`[\s.](i{1,3}|iv|vi?i?i?|ix|x)[.\s]*(?:s\d|e\d|part)`)
 	seasonTrailingNumRe   = regexp.MustCompile(`(?:^|\s)(\d{1,2})\s*$`)
-	seasonPartCourRegex   = regexp.MustCompile(`(?:part|cour)\s*\d{1,2}\s*$`)
+	seasonPartCourRegex   = regexp.MustCompile(`(?:part|cour|specials?|sp|movie|ova|ona|oad)\s*\d{1,2}\s*$`)
 	seasonJapaneseRegex   = regexp.MustCompile(`(?:第)?(\d+)\s*期`)
 
 	// ValueContainsSpecial regexes
@@ -185,4 +185,43 @@ func ValueContainsNC(val string) bool {
 	}
 
 	return false
+}
+
+// ExtractNCType parses a filename to determine the NC (non-content) type and returns the AniDB episode prefix.
+// Returns the prefix (e.g. "OP", "ED") and true if found
+func ExtractNCType(val string) (string, bool) {
+	// OP-type regexes OP|NCOP|OPED, CREDITLESS|NCOP|NCED|OP|ED
+	for _, re := range []*regexp.Regexp{ncRegex1, ncRegex6} {
+		matches := re.FindStringSubmatch(val)
+		if len(matches) > 0 {
+			keyword := strings.ToUpper(matches[3])
+			switch keyword {
+			case "OP", "NCOP", "OPED", "CREDITLESS":
+				if keyword == "CREDITLESS" {
+					// can't determine OP vs ED from "CREDITLESS" alone, skip
+					continue
+				}
+				return "OP", true
+			case "ED", "NCED":
+				return "ED", true
+			}
+		}
+	}
+
+	// ED|NCED
+	if ncRegex2.MatchString(val) {
+		return "ED", true
+	}
+
+	if matches := ncRegex7.FindStringSubmatch(val); len(matches) > 0 {
+		keyword := strings.ToLower(matches[1])
+		if keyword == "opening" {
+			return "OP", true
+		}
+		if keyword == "ending" {
+			return "ED", true
+		}
+	}
+
+	return "", false
 }

@@ -6,6 +6,7 @@ import (
 	"math"
 	"regexp"
 	"runtime"
+	"seanime/internal/api/anilist"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/summary"
@@ -87,6 +88,10 @@ const (
 	scoreSeasonImplicitPenalty = -3.0 // file has season > 1 but media doesn't indicate season
 	scorePartExactMatch        = 3.0  // part numbers match exactly
 	scorePartMismatch          = -5.0 // part numbers explicitly don't match
+
+	// format type scoring (OVA/Special/Movie detection)
+	scoreFormatMatch    = 5.0  // file indicates OVA/Special and media format matches
+	scoreFormatMismatch = -5.0 // file indicates OVA/Special but media is regular TV
 
 	// year matching
 	scoreYearExactMatch = 4.0   // years match exactly
@@ -289,6 +294,7 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 	fileSeason := getFileSeason(lf)
 	filePart := getFilePart(lf)
 	fileYear := getFileYear(lf)
+	fileFormatType := getFileFormatType(lf)
 
 	// Also try to extract from title variations
 	for _, nv := range normalizedVariations {
@@ -372,14 +378,16 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 	sd := GetEfficientDice()
 	defer PutEfficientDice(sd)
 
-	ignoredSynonyms := m.getIgnoredSynonyms(candidates)
-	defer func() {
-		// Clear map
-		for k := range ignoredSynonyms {
-			delete(ignoredSynonyms, k)
-		}
-		ignoredSynonymsPool.Put(ignoredSynonyms)
-	}()
+	// devnote: causes lower title scoring on some seasons with long titles
+	//ignoredSynonyms := m.getIgnoredSynonyms(candidates)
+	//defer func() {
+	//	// Clear map
+	//	for k := range ignoredSynonyms {
+	//		delete(ignoredSynonyms, k)
+	//	}
+	//	ignoredSynonymsPool.Put(ignoredSynonyms)
+	//}()
+	ignoredSynonyms := map[int]map[string]struct{}{}
 
 	// Process candidates serially
 	// devnote: slower than doing it concurrently but we won't abuse goroutines
@@ -419,13 +427,13 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 		currentScore += titleScore
 
 		// 2. Season/Part matching
-		mediaSeason := getMediaSeason(media, normalizedMediaTitles)
-		mediaPart := getMediaPart(normalizedMediaTitles)
-		seasonPartScore := calculateSeasonPartScore(fileSeason, filePart, mediaSeason, mediaPart)
+		mediaSeason, mediaSeasonExplicit, mediaSeasonConfidence := getMediaSeason(media, normalizedMediaTitles)
+		mediaPart, mediaPartExplicit := getMediaPart(normalizedMediaTitles)
+		seasonPartScore := calculateSeasonPartScore(fileSeason, filePart, mediaSeason, mediaSeasonExplicit, mediaSeasonConfidence, mediaPart, mediaPartExplicit)
 		currentScore += seasonPartScore
 
 		// 3. Year comparison
-		yearScore := calculateYearScore(fileYear, media)
+		yearScore := calculateYearScore(fileYear, media, titleScore)
 		currentScore += yearScore
 
 		// 4. Base title matching bonus
@@ -434,22 +442,27 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 			currentScore += baseTitleScore
 		}
 
-		if titleScore > 5.0 || currentScore > 8.0 {
-			if m.Debug {
-				m.Logger.Debug().
-					Str("filename", lf.Name).
-					Int("id", media.ID).
-					Str("match", media.GetTitleSafe()).
-					Float64("score", currentScore).
-					Float64("titleScore", titleScore).
-					Float64("baseTitleScore", baseTitleScore).
-					Float64("seasonPartScore", seasonPartScore).
-					Float64("yearScore", yearScore).
-					Int("season", mediaSeason).
-					Int("part", mediaPart).
-					Interface("titles", normalizedMediaTitles).
-					Msg("matcher: debug")
-			}
+		// 5. Format type matching (OVA/Special/Movie detection)
+		formatScore := calculateFormatScore(fileFormatType, media)
+		currentScore += formatScore
+
+		if m.Debug {
+			m.Logger.Debug().
+				Str("filename", lf.Name).
+				Int("id", media.ID).
+				Str("match", media.GetTitleSafe()).
+				Float64("score", currentScore).
+				Float64("titleScore", titleScore).
+				Float64("baseTitleScore", baseTitleScore).
+				Float64("seasonPartScore", seasonPartScore).
+				Float64("yearScore", yearScore).
+				Float64("formatScore", formatScore).
+				Int("season", mediaSeason).
+				Int("part", mediaPart).
+				Interface("titles", normalizedMediaTitles).
+				Msg("matcher: debug")
+		}
+		if titleScore > 2.0 {
 			if m.Config != nil && m.Config.Logs.Verbose {
 				if m.ScanLogger != nil {
 					m.ScanLogger.LogMatcher(zerolog.DebugLevel).
@@ -461,6 +474,7 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 						Float64("baseTitleScore", baseTitleScore).
 						Float64("seasonPartScore", seasonPartScore).
 						Float64("yearScore", yearScore).
+						Float64("formatScore", formatScore).
 						Int("season", mediaSeason).
 						Int("part", mediaPart).
 						Interface("titles", normalizedMediaTitles).
@@ -631,6 +645,50 @@ func getFileYear(lf *anime.LocalFile) int {
 	return -1
 }
 
+// calculateFormatScore returns a score adjustment based on whether the file's detected format type
+// matches the media's format.
+// i.e. differentiate main series from specials when the file clearly indicates it's a special.
+func calculateFormatScore(fileFormat fileFormatType, media *anime.NormalizedMedia) float64 {
+	if fileFormat == fileFormatUnknown || media.Format == nil {
+		return 0
+	}
+
+	mediaFormat := *media.Format
+
+	switch fileFormat {
+	case fileFormatOVA:
+		if mediaFormat == anilist.MediaFormatOva || mediaFormat == anilist.MediaFormatSpecial {
+			return scoreFormatMatch
+		}
+		if mediaFormat == anilist.MediaFormatTv || mediaFormat == anilist.MediaFormatTvShort {
+			return scoreFormatMismatch
+		}
+
+	case fileFormatSpecial:
+		if mediaFormat == anilist.MediaFormatSpecial || mediaFormat == anilist.MediaFormatOva {
+			return scoreFormatMatch
+		}
+		if mediaFormat == anilist.MediaFormatTv || mediaFormat == anilist.MediaFormatTvShort {
+			return scoreFormatMismatch
+		}
+
+	case fileFormatMovie:
+		if mediaFormat == anilist.MediaFormatMovie {
+			return scoreFormatMatch
+		}
+		if mediaFormat == anilist.MediaFormatTv || mediaFormat == anilist.MediaFormatTvShort {
+			return scoreFormatMismatch
+		}
+
+	case fileFormatNC:
+		// NC content typically belongs to the main series, don't penalize
+		return 0
+	default:
+	}
+
+	return 0
+}
+
 // getMediaTitlesExpanded returns all titles for a media, including synonyms
 func getMediaTitlesExpanded(media *anime.NormalizedMedia) []string {
 	titles := make([]string, 0, 10)
@@ -642,38 +700,80 @@ func getMediaTitlesExpanded(media *anime.NormalizedMedia) []string {
 	return titles
 }
 
-func getMediaSeason(media *anime.NormalizedMedia, normalizedTitles []*NormalizedTitle) int {
+// getMediaSeason returns the media's season number, whether it's explicit (from main title),
+// and a confidence level 0-1 indicating how strongly the synonyms agree on the season.
+// 1 = main/explicit seasons, <1 = ratio of agreeing synonyms.
+func getMediaSeason(media *anime.NormalizedMedia, normalizedTitles []*NormalizedTitle) (int, bool, float64) {
 	// Check from media
-	// This check is stricter because it filters out synonyms that don't explicitly mention a season
+	// This check is stricter because it filters out synonyms that don't explicitly mention a season keyword
 	// e.g. "KonoSuba 3" will be ignored but other checks below can detect it
 	if season := media.GetPossibleSeasonNumber(); season > 0 {
-		return season
+		return season, true, 1.0
 	}
 
-	// Check from normalized titles
+	// Check from normalized titles (main titles first)
 	for _, nt := range normalizedTitles {
-		if nt.Season > 0 {
-			return nt.Season
+		if nt.IsMain && nt.Season > 0 {
+			return nt.Season, true, 1.0
 		}
 	}
 
-	// Check from all media titles
-	for _, title := range getMediaTitlesExpanded(media) {
-		if season := comparison.ExtractSeasonNumber(title); season > 0 {
-			return season
+	// Check non-main synonyms with confidence based on agreement
+	// e.g. Brotherhood has "FMA 2" (season 2) but 35+ other synonyms without season → low confidence
+	// e.g. KnY S3 "Katanakaji no Sato-hen" has "KnY 3" → similar low count but still useful for matching
+	nonMainTotal := 0
+	nonMainWithSeason := 0
+	nonMainSeason := -1
+	for _, nt := range normalizedTitles {
+		if !nt.IsMain {
+			nonMainTotal++
+			if nt.Season > 0 {
+				nonMainWithSeason++
+				if nonMainSeason == -1 {
+					nonMainSeason = nt.Season
+				}
+			}
+		}
+	}
+	if nonMainWithSeason > 0 && nonMainTotal > 0 {
+		confidence := float64(nonMainWithSeason) / float64(nonMainTotal)
+		return nonMainSeason, false, confidence
+	}
+
+	// Check from all media titles (fallback using ExtractSeasonNumber)
+	allTitles := getMediaTitlesExpanded(media)
+	if len(allTitles) > 0 {
+		titlesWithSeason := 0
+		firstSeason := -1
+		for _, title := range allTitles {
+			if season := comparison.ExtractSeasonNumber(title); season > 0 {
+				titlesWithSeason++
+				if firstSeason == -1 {
+					firstSeason = season
+				}
+			}
+		}
+		if titlesWithSeason > 0 {
+			confidence := float64(titlesWithSeason) / float64(len(allTitles))
+			return firstSeason, false, confidence
 		}
 	}
 
-	return -1
+	return -1, false, 0.0
 }
 
-func getMediaPart(normalizedTitles []*NormalizedTitle) int {
+func getMediaPart(normalizedTitles []*NormalizedTitle) (int, bool) {
 	for _, nt := range normalizedTitles {
-		if nt.Part > 0 {
-			return nt.Part
+		if nt.IsMain && nt.Part > 0 {
+			return nt.Part, true
 		}
 	}
-	return -1
+	for _, nt := range normalizedTitles {
+		if !nt.IsMain && nt.Part > 0 {
+			return nt.Part, false
+		}
+	}
+	return -1, false
 }
 
 func calculateTitleScore(
@@ -762,8 +862,13 @@ func compareTitles(file, media *NormalizedTitle, sd *EfficientDice) float64 {
 		}
 		return tokenScore
 	}
+	// Fallback to fuzzy match
+	// Only add the main title bonus if the fuzzy match is decent or if we had a strong token match
+	// This prevents cases where a very low fuzzy score (random words) + bonus results in a misleading score
 	if media.IsMain {
-		return scaledFuzzy + scoreTitleMainBonus
+		if scaledFuzzy > 2.5 || HasStrongMatch(file.Tokens, media.Tokens) {
+			return scaledFuzzy + scoreTitleMainBonus
+		}
 	}
 	return scaledFuzzy
 }
@@ -819,6 +924,13 @@ func compareTokens(fileTokens, mediaTokens []string) float64 {
 
 	// Token overlap
 	ratio := WeightedTokenMatchRatio(fileSig, mediaSig)
+
+	// If the ratio is non-zero, check if we have at least one strong match (non-year, non-noise)
+	// This prevents matches based solely on year, which can lead to false positives
+	if ratio > 0 && !HasStrongMatch(fileSig, mediaSig) {
+		return 0.0
+	}
+
 	if ratio >= thresholdTokenHigh {
 		return scoreTitleTokenHigh
 	}
@@ -846,7 +958,7 @@ func getComplexityBonusFromSlice(sigTokens []string) float64 {
 	return 0.0
 }
 
-func calculateSeasonPartScore(fileSeason, filePart, mediaSeason, mediaPart int) float64 {
+func calculateSeasonPartScore(fileSeason, filePart, mediaSeason int, mediaSeasonExplicit bool, mediaSeasonConfidence float64, mediaPart int, mediaPartExplicit bool) float64 {
 	score := 0.0
 
 	// Season scoring
@@ -854,7 +966,14 @@ func calculateSeasonPartScore(fileSeason, filePart, mediaSeason, mediaPart int) 
 		if fileSeason == mediaSeason {
 			score += scoreSeasonExactMatch
 		} else {
-			score += scoreSeasonMismatch // Heavy penalty for season mismatch
+			if mediaSeasonExplicit {
+				score += scoreSeasonMismatch // Heavy penalty for season mismatch
+			} else {
+				// scale the mismatch penalty by confidence
+				// e.g. Brotherhood "FMA 2" is 5/40 synonyms (confidence=0.125) → penalty = -8 * 0.125 = -1
+				// vs a media where most synonyms agree on a season → higher penalty
+				score += scoreSeasonMismatch * mediaSeasonConfidence
+			}
 		}
 	} else if fileSeason > 1 && mediaSeason <= 0 {
 		// File has explicit season > 1 but media doesn't indicate a season
@@ -865,8 +984,11 @@ func calculateSeasonPartScore(fileSeason, filePart, mediaSeason, mediaPart int) 
 		score += 1.0
 	} else if fileSeason <= 0 && mediaSeason > 1 {
 		// File has no season indicator but media is explicitly season 2+
-		// Add a penalty
-		score += scoreSeasonImplicitPenalty
+
+		if mediaSeasonExplicit {
+			// Main title implies season, so file should have it
+			score += scoreSeasonImplicitPenalty
+		}
 	}
 
 	// Part scoring
@@ -874,7 +996,11 @@ func calculateSeasonPartScore(fileSeason, filePart, mediaSeason, mediaPart int) 
 		if filePart == mediaPart {
 			score += scorePartExactMatch
 		} else {
-			score += scorePartMismatch
+			if mediaPartExplicit {
+				score += scorePartMismatch
+			} else {
+				score += scorePartMismatch / 2.0
+			}
 		}
 	} else if filePart > 0 && mediaPart <= 0 {
 		// File has part but media doesn't, slight penalty
@@ -883,13 +1009,17 @@ func calculateSeasonPartScore(fileSeason, filePart, mediaSeason, mediaPart int) 
 		// File has no part but media does, penalty since we prefer matching
 		// to media without explicit part when file doesn't specify one.
 		// This prevents "Title S2" from matching "Title II Part 2" over "Title II"
-		score -= 2.0
+		if mediaPartExplicit {
+			score -= 2.0
+		} else {
+			score -= 1.0
+		}
 	}
 
 	return score
 }
 
-func calculateYearScore(fileYear int, media *anime.NormalizedMedia) float64 {
+func calculateYearScore(fileYear int, media *anime.NormalizedMedia, titleScore float64) float64 {
 	if fileYear <= 0 {
 		return 0.0
 	}
@@ -901,10 +1031,15 @@ func calculateYearScore(fileYear int, media *anime.NormalizedMedia) float64 {
 	mediaYear := *media.StartDate.Year
 
 	if fileYear == mediaYear {
-		return scoreYearExactMatch
+		// Scale the bonus based on title score confidence
+		// Max bonus is scoreYearExactMatch
+		scale := math.Min(1.0, titleScore/thresholdMatch)
+		return scoreYearExactMatch * scale
 	}
 	if math.Abs(float64(fileYear-mediaYear)) <= 1 {
-		return scoreYearCloseMatch
+		// Scale the bonus based on title score confidence
+		scale := math.Min(1.0, titleScore/thresholdMatch)
+		return scoreYearCloseMatch * scale
 	}
 	return scoreYearMismatch
 }
