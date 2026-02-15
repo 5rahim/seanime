@@ -204,14 +204,30 @@ func NormalizeMedia(extensionIdentifier int, extId string, obj interface{}) {
 	case *anilist.BaseAnime:
 		v.ID = GenerateMediaId(extensionIdentifier, v.ID)
 		v.SiteURL = formatSiteUrl(extId, v.SiteURL)
-		if v.Title != nil && v.Title.UserPreferred == nil {
+		if v.Title != nil && v.Title.UserPreferred == nil && v.Title.English != nil {
 			v.Title.UserPreferred = v.Title.English
+		}
+		if v.Title == nil {
+			v.Title = &anilist.BaseAnime_Title{
+				UserPreferred: lo.ToPtr("???"),
+				English:       lo.ToPtr("???"),
+				Romaji:        nil,
+				Native:        nil,
+			}
 		}
 	case *anilist.CompleteAnime:
 		v.ID = GenerateMediaId(extensionIdentifier, v.ID)
 		v.SiteURL = formatSiteUrl(extId, v.SiteURL)
-		if v.Title != nil && v.Title.UserPreferred == nil {
+		if v.Title != nil && v.Title.UserPreferred == nil && v.Title.English != nil {
 			v.Title.UserPreferred = v.Title.English
+		}
+		if v.Title == nil {
+			v.Title = &anilist.CompleteAnime_Title{
+				UserPreferred: lo.ToPtr("???"),
+				English:       lo.ToPtr("???"),
+				Romaji:        nil,
+				Native:        nil,
+			}
 		}
 		if v.Relations != nil {
 			for _, edge := range v.Relations.Edges {
@@ -229,6 +245,14 @@ func NormalizeMedia(extensionIdentifier int, extId string, obj interface{}) {
 		v.SiteURL = formatSiteUrl(extId, v.SiteURL)
 		if v.Title != nil && v.Title.UserPreferred == nil {
 			v.Title.UserPreferred = v.Title.English
+		}
+		if v.Title == nil {
+			v.Title = &anilist.BaseManga_Title{
+				UserPreferred: lo.ToPtr("???"),
+				English:       lo.ToPtr("???"),
+				Romaji:        nil,
+				Native:        nil,
+			}
 		}
 	case *anilist.AnimeDetailsById_Media:
 		v.ID = GenerateMediaId(extensionIdentifier, v.ID)

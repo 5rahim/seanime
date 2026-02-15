@@ -205,10 +205,6 @@ export class MediaCaptionsManager extends EventTarget {
         this._onSelectedTrackChanged = callback
     }
 
-    private _setSubtitleDelay(delay: number) {
-        this.subtitleDelay = delay
-    }
-
     public getTracks(): MediaCaptionsTrack[] {
         return this.loadedTracks.map((loadedTrack, index) => {
             return {
@@ -275,8 +271,9 @@ export class MediaCaptionsManager extends EventTarget {
             isTranslated = true
         }
 
-        this.tracks.push(track)
         const index = this.tracks.length - 1
+        track.index = index
+        this.tracks.push(track)
         this.loadedTracks.push({
             index: index,
             metadata: track,
@@ -288,6 +285,7 @@ export class MediaCaptionsManager extends EventTarget {
                 if (track.content && track.type === "vtt") return await parseText(track.content)
                 const vttContent = await this.fetchAndConvertToVTT(track.src, track.content)
                 if (!vttContent) return null
+                track.content = vttContent
                 return await parseText(vttContent)
             },
         })
@@ -438,6 +436,47 @@ export class MediaCaptionsManager extends EventTarget {
         return this.currentTrackIndex
     }
 
+    getTrackContent(idx: number): string | null {
+        return this.loadedTracks?.[idx]?.metadata?.content || null
+    }
+
+    public destroy() {
+        log.info("Destroying media-captions manager")
+
+        if (this.timeUpdateListener) {
+            this.videoElement.removeEventListener("timeupdate", this.timeUpdateListener)
+            this.timeUpdateListener = null
+        }
+
+        if (this.renderer) {
+            this.renderer.destroy()
+            this.renderer = null
+        }
+
+        if (this.overlayElement) {
+            this.overlayElement.remove()
+            this.overlayElement = null
+        }
+
+        if (this.wrapperElement) {
+            this.wrapperElement.remove()
+            this.wrapperElement = null
+        }
+
+        this.loadedTracks = []
+        this.tracks = []
+        this.currentTrackIndex = NO_TRACK_IDX
+
+        const event: MediaCaptionsDestroyedEvent = new CustomEvent("destroyed")
+        this.dispatchEvent(event)
+    }
+
+    private _setSubtitleDelay(delay: number) {
+        this.subtitleDelay = delay
+    }
+
+    // Adds a new subtitle track and selects it AFTER initialization
+
     private applyCaptionStyles() {
         if (!this.overlayElement) return
 
@@ -505,8 +544,6 @@ export class MediaCaptionsManager extends EventTarget {
         }
     }
 
-    // Adds a new subtitle track and selects it AFTER initialization
-
     // Called after selecting a non-translated file and shouldTranslate is true.
     private _translateFileTrack(trackNumber: number) {
         if (!this.shouldTranslate) return
@@ -549,37 +586,6 @@ export class MediaCaptionsManager extends EventTarget {
         // Send server translate request
         this.sendTranslateRequest(undefined, { index: trackNumber, ...trackToTranslate })
         log.info("Sent translate request for track", trackNumber, this.shouldTranslate)
-    }
-
-    public destroy() {
-        log.info("Destroying media-captions manager")
-
-        if (this.timeUpdateListener) {
-            this.videoElement.removeEventListener("timeupdate", this.timeUpdateListener)
-            this.timeUpdateListener = null
-        }
-
-        if (this.renderer) {
-            this.renderer.destroy()
-            this.renderer = null
-        }
-
-        if (this.overlayElement) {
-            this.overlayElement.remove()
-            this.overlayElement = null
-        }
-
-        if (this.wrapperElement) {
-            this.wrapperElement.remove()
-            this.wrapperElement = null
-        }
-
-        this.loadedTracks = []
-        this.tracks = []
-        this.currentTrackIndex = NO_TRACK_IDX
-
-        const event: MediaCaptionsDestroyedEvent = new CustomEvent("destroyed")
-        this.dispatchEvent(event)
     }
 
     private async init() {
@@ -633,6 +639,7 @@ export class MediaCaptionsManager extends EventTarget {
                         if (track.content && track.type === "vtt") return await parseText(track.content)
                         const vttContent = await this.fetchAndConvertToVTT(track.src, track.content)
                         if (!vttContent) return null
+                        track.content = vttContent
                         return await parseText(vttContent)
                     },
                 })

@@ -16,7 +16,9 @@ export function UpdateChangelogBody(props: UpdateChangelogBodyProps) {
         ...rest
     } = props
 
-    const { data: changelog } = useGetChangelog(updateData?.release?.version!, updateData?.current_version!, !!updateData?.release?.version! && !!updateData?.current_version)
+    const { data: changelog } = useGetChangelog(updateData?.release?.version!,
+        updateData?.current_version!,
+        !!updateData?.release?.version! && !!updateData?.current_version)
 
     const { body } = useUpdateChangelogBody(updateData)
 

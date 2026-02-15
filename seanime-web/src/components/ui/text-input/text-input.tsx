@@ -2,6 +2,7 @@ import { cn } from "../core/styling"
 import * as React from "react"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
 import { extractInputPartProps, InputAddon, InputAnatomy, InputContainer, InputIcon, InputStyling } from "../input"
+import { BiHide, BiShow } from "react-icons/bi"
 
 /* -------------------------------------------------------------------------------------------------
  * TextInput
@@ -30,6 +31,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>((pro
         className,
         onValueChange,
         onChange,
+        type,
         ...rest
     }, {
         inputContainerProps,
@@ -47,10 +49,25 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>((pro
         rightIcon: props1.rightIcon,
     })
 
+    const [showPassword, setShowPassword] = React.useState(false)
+    const isPasswordInput = type === "password"
+    const actualType = isPasswordInput ? (showPassword ? "text" : "password") : type
+
     const handleOnChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         onValueChange?.(e.target.value)
         onChange?.(e)
     }, [])
+
+    const togglePasswordVisibility = React.useCallback(() => {
+        setShowPassword(prev => !prev)
+    }, [])
+
+    const finalRightAddon = isPasswordInput
+        ? (showPassword ? <BiHide className="cursor-pointer" onClick={togglePasswordVisibility} /> : <BiShow
+            className="cursor-pointer"
+            onClick={togglePasswordVisibility}
+        />)
+        : rightAddon
 
     return (
         <BasicField{...basicFieldProps}>
@@ -61,6 +78,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>((pro
                 <input
                     id={basicFieldProps.id}
                     name={basicFieldProps.name}
+                    type={actualType}
                     className={cn(
                         "form-input",
                         InputAnatomy.root({
@@ -69,7 +87,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>((pro
                             hasError: !!basicFieldProps.error,
                             isDisabled: !!basicFieldProps.disabled,
                             isReadonly: !!basicFieldProps.readonly,
-                            hasRightAddon: !!rightAddon,
+                            hasRightAddon: !!rightAddon || isPasswordInput,
                             hasRightIcon: !!rightIcon,
                             hasLeftAddon: !!leftAddon,
                             hasLeftIcon: !!leftIcon,
@@ -86,7 +104,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>((pro
                     ref={ref}
                 />
 
-                <InputAddon {...rightAddonProps} />
+                <InputAddon {...rightAddonProps} addon={finalRightAddon} />
                 <InputIcon {...rightIconProps} />
             </InputContainer>
         </BasicField>

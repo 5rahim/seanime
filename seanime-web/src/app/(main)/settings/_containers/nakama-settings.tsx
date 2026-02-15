@@ -120,6 +120,7 @@ export function NakamaSettings(props: Props) {
                             label="Passcode"
                             name="nakamaHostPassword"
                             placeholder="Passcode"
+                            type="password"
                             help="Set a passcode to secure your host mode and room. This passcode should be different than your server password."
                         />
 
@@ -172,6 +173,7 @@ export function NakamaSettings(props: Props) {
                                 name="nakamaRemoteServerPassword"
                                 placeholder="Passcode"
                                 help="The passcode to connect to the Nakama host."
+                                type="password"
                             />
                         </div>
                     </SettingsCard>

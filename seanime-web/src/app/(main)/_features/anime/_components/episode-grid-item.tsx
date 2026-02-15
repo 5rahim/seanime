@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { getImageUrl } from "@/lib/server/assets"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
-import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
+import { AiFillWarning } from "react-icons/ai"
+import { FaCirclePlay } from "react-icons/fa6"
 
 type EpisodeGridItemProps = {
     media: AL_BaseAnime,
@@ -60,7 +61,7 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
         disabled,
         isFiller,
         length,
-        actionIcon = props.actionIcon !== null ? <AiFillPlayCircle data-episode-grid-item-action-icon className="opacity-70 text-4xl" /> : undefined,
+        actionIcon = props.actionIcon !== null ? <FaCirclePlay data-episode-grid-item-action-icon className="opacity-70 text-4xl" /> : undefined,
         episodeTitleClassName,
         percentageComplete,
         minutesRemaining,
@@ -71,6 +72,9 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
 
     const serverStatus = useServerStatus()
     const ts = useThemeSettings()
+
+    // const missingImage = [media?.bannerImage, media?.coverImage?.large, media?.coverImage?.extraLarge]?.filter(Boolean)?.includes(image || "")
+    const missingImage = false
 
     return <>
         <div
@@ -103,6 +107,7 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                     data-episode-grid-item-filler-badge
                     className={cn(
                         "font-semibold absolute top-3 left-0 z-[5] text-white bg-orange-800 !bg-opacity-100 rounded-[--radius-md] text-base rounded-bl-none rounded-tr-none",
+                        "lg:group-hover/episode-list-item:scale-105 lg:group-hover/episode-list-item:-translate-x-0.5 lg:group-hover/episode-list-item:-translate-y-0.5 transition-transform",
                         !!ts.libraryScreenCustomBackgroundImage && ts.libraryScreenCustomBackgroundOpacity > 5 && "top-3  left-3",
                     )}
                     intent="gray"
@@ -123,6 +128,8 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                         (ts.hideEpisodeCardDescription) && "w-36 h-28 lg:w-40 lg:h-28",
                         "flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden",
                         "group/ep-item-img-container",
+                        "lg:group-hover/episode-list-item:scale-105 transition-transform",
+                        // onClick && "hover:ring-1 ring-[rgba(255,255,255,0.1)] ring-offset-transparent ring-offset-2",
                         onClick && "cursor-pointer",
                         {
                             "border-2 border-red-700": isInvalid,
@@ -142,23 +149,40 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                     {!!onClick && <div
                         data-episode-grid-item-action-overlay
                         className={cn(
-                            "absolute inset-0 bg-gray-950 bg-opacity-60 z-[1] flex items-center justify-center",
+                            "absolute inset-0 bg-gray-950 bg-opacity-60 z-[2] flex items-center justify-center",
                             "transition-opacity opacity-0 group-hover/ep-item-img-container:opacity-100",
                         )}
                     >
                         {actionIcon && actionIcon}
                     </div>}
-                    {(image || media.coverImage?.medium) && <SeaImage
+
+                    {missingImage && !title?.toLowerCase?.()?.includes?.("movie") && <div
+                        data-episode-card-action-icon
+                        className={cn(
+                            "px-6 text-gray-200",
+                            "cursor-pointer bg-gray-900/50 z-[1] absolute w-[105%] h-[105%] items-center justify-center",
+                            "hidden md:flex flex-col gap-1",
+                        )}
+                    >
+                        <div className="bg-gray-900/70 px-3 py-2 rounded-lg text-center">
+                            {/*{topTitle !== title && <p className="line-clamp-1 text-[--muted]">{topTitle}</p>}*/}
+                            <p className="text-md tracking-wide line-clamp-1">{title}</p>
+                        </div>
+                    </div>}
+
+                    {(image || media.coverImage?.large) && <SeaImage
                         data-episode-grid-item-image
-                        src={getImageUrl(image || media.coverImage?.medium || "")}
+                        src={getImageUrl(image || media.coverImage?.large || "")}
                         alt="episode image"
                         fill
                         quality={60}
                         placeholder={imageShimmer(700, 475)}
                         sizes="10rem"
                         className={cn("object-cover object-center transition select-none", {
-                            "opacity-25 lg:group-hover/episode-list-item:opacity-100": isWatched && !isSelected,
-                        }, imageClassName)}
+                                "opacity-25 lg:group-hover/episode-list-item:opacity-100": isWatched && !isSelected,
+                            },
+                            // missingImage && "opacity-50",
+                            "", imageClassName)}
                         data-src={image}
                     />}
 
@@ -172,8 +196,8 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                     {isInvalid && <p data-episode-grid-item-invalid-metadata className="flex gap-2 text-red-300 items-center"><AiFillWarning
                         className="text-lg text-red-500"
                     /> Unidentified</p>}
-                    {isInvalid &&
-                        <p data-episode-grid-item-invalid-metadata className="flex gap-2 text-red-200 text-sm items-center">No metadata found</p>}
+                    {/*{isInvalid &&*/}
+                    {/*    <p data-episode-grid-item-invalid-metadata className="flex gap-2 text-red-200 text-sm items-center">No metadata found</p>}*/}
 
                     <p
                         className={cn(
@@ -190,10 +214,10 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                             )}
                         >
                             {title?.replaceAll("`", "'")}</span>{(!!episodeTitle && !!length) &&
-                                <span className="ml-4">{length}m</span>}
+                        <span className="ml-4">{length}m</span>}
                     </p>
 
-                    {!!episodeTitle &&
+                    {!!episodeTitle && episodeTitle !== title &&
                         <p
                             data-episode-grid-item-episode-title
                             className={cn("text-md font-medium lg:text-lg text-gray-300 line-clamp-2 lg:!leading-6",
@@ -204,7 +228,8 @@ export const EpisodeGridItem = React.memo((props: EpisodeGridItemProps & React.C
                     {!!description && !ts.hideEpisodeCardDescription &&
                         <p data-episode-grid-item-episode-description className="text-sm text-[--muted] line-clamp-2">{description.replaceAll("`",
                             "'")}</p>}
-                    {!!fileName && !ts.hideDownloadedEpisodeCardFilename && <p data-episode-grid-item-filename className="text-xs tracking-wider opacity-75 line-clamp-1 mt-1">{fileName}</p>}
+                    {!!fileName && !ts.hideDownloadedEpisodeCardFilename &&
+                        <p data-episode-grid-item-filename className="text-xs tracking-wider opacity-75 line-clamp-1 mt-1">{fileName}</p>}
                     {children && children}
                 </div>
             </div>

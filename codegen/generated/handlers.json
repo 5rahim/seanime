@@ -1075,6 +1075,38 @@
     }
   },
   {
+    "name": "HandleGetUpcomingEpisodes",
+    "trimmedName": "GetUpcomingEpisodes",
+    "comments": [
+      "HandleGetUpcomingEpisodes",
+      "",
+      "\t@summary returns a list of upcoming episodes based on the user's anime collection",
+      "\t@desc It uses the AniList 'next airing episode' data to determine upcoming episodes.",
+      "\t@desc This route can be called multiple times, as it does not bypass the cache.",
+      "\t@route /api/v1/library/upcoming-episodes [GET]",
+      "\t@returns anime.UpcomingEpisodes",
+      ""
+    ],
+    "filepath": "internal/handlers/anime_entries.go",
+    "filename": "anime_entries.go",
+    "api": {
+      "summary": "returns a list of upcoming episodes based on the user's anime collection",
+      "descriptions": [
+        "It uses the AniList 'next airing episode' data to determine upcoming episodes.",
+        "This route can be called multiple times, as it does not bypass the cache."
+      ],
+      "endpoint": "/api/v1/library/upcoming-episodes",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "anime.UpcomingEpisodes",
+      "returnGoType": "anime.UpcomingEpisodes",
+      "returnTypescriptType": "Anime_UpcomingEpisodes"
+    }
+  },
+  {
     "name": "HandleGetAnimeEntrySilenceStatus",
     "trimmedName": "GetAnimeEntrySilenceStatus",
     "comments": [
@@ -8975,6 +9007,15 @@
       "params": [],
       "bodyFields": [
         {
+          "name": "Description",
+          "jsonName": "description",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "ClickLogs",
           "jsonName": "clickLogs",
           "goType": "[]report.ClickLog",
@@ -9011,11 +9052,74 @@
           "descriptions": []
         },
         {
+          "name": "NavigationLogs",
+          "jsonName": "navigationLogs",
+          "goType": "[]report.NavigationLog",
+          "usedStructType": "report.NavigationLog",
+          "typescriptType": "Array\u003cReport_NavigationLog\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Screenshots",
+          "jsonName": "screenshots",
+          "goType": "[]report.Screenshot",
+          "usedStructType": "report.Screenshot",
+          "typescriptType": "Array\u003cReport_Screenshot\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "WebSocketLogs",
+          "jsonName": "websocketLogs",
+          "goType": "[]report.WebSocketLog",
+          "usedStructType": "report.WebSocketLog",
+          "typescriptType": "Array\u003cReport_WebSocketLog\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "RRWebEvents",
+          "jsonName": "rrwebEvents",
+          "goType": "[]json.RawMessage",
+          "usedStructType": "json.RawMessage",
+          "typescriptType": "Array\u003cRawMessage\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "IsAnimeLibraryIssue",
           "jsonName": "isAnimeLibraryIssue",
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ViewportWidth",
+          "jsonName": "viewportWidth",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ViewportHeight",
+          "jsonName": "viewportHeight",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "RecordingDurationMs",
+          "jsonName": "recordingDurationMs",
+          "goType": "int64",
+          "usedStructType": "",
+          "typescriptType": "number",
           "required": true,
           "descriptions": []
         }
@@ -9044,6 +9148,33 @@
       "endpoint": "/api/v1/report/issue/download",
       "methods": [
         "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "report.IssueReport",
+      "returnGoType": "report.IssueReport",
+      "returnTypescriptType": "Report_IssueReport"
+    }
+  },
+  {
+    "name": "HandleDecompressIssueReport",
+    "trimmedName": "DecompressIssueReport",
+    "comments": [
+      "HandleDecompressIssueReport",
+      "",
+      "\t@summary accepts a zip file, decompresses it and returns the issue report JSON.",
+      "\t@route /api/v1/report/issue/decompress [POST]",
+      "\t@returns report.IssueReport",
+      ""
+    ],
+    "filepath": "internal/handlers/report.go",
+    "filename": "report.go",
+    "api": {
+      "summary": "accepts a zip file, decompresses it and returns the issue report JSON.",
+      "descriptions": [],
+      "endpoint": "/api/v1/report/issue/decompress",
+      "methods": [
+        "POST"
       ],
       "params": [],
       "bodyFields": [],
@@ -9082,6 +9213,15 @@
         {
           "name": "Enhanced",
           "jsonName": "enhanced",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EnhanceWithOfflineDatabase",
+          "jsonName": "enhanceWithOfflineDatabase",
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
@@ -10905,6 +11045,46 @@
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleVideoCoreInSightGetCharacterDetails",
+    "trimmedName": "VideoCoreInSightGetCharacterDetails",
+    "comments": [
+      "HandleVideoCoreInSightGetCharacterDetails",
+      "",
+      "\t@summary returns the character details.",
+      "\t@param malId - int - true - \"The MAL character ID\"",
+      "\t@returns videocore.InSightCharacterDetails",
+      "\t@route /api/v1/videocore/insight/character/{malId} [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/videocore.go",
+    "filename": "videocore.go",
+    "api": {
+      "summary": "returns the character details.",
+      "descriptions": [],
+      "endpoint": "/api/v1/videocore/insight/character/{malId}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "malId",
+          "jsonName": "malId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "The MAL character ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "videocore.InSightCharacterDetails",
+      "returnGoType": "videocore.InSightCharacterDetails",
+      "returnTypescriptType": "VideoCore_InSightCharacterDetails"
     }
   },
   {

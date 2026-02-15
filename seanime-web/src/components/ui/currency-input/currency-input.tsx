@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import CurrencyInputPrimitive from "react-currency-input-field"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"

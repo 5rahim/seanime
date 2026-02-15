@@ -4,9 +4,11 @@ import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { openTab } from "@/lib/helpers/browser"
 import capitalize from "lodash/capitalize"
 import React from "react"
-import { FaLink } from "react-icons/fa"
+import { FaFileAlt, FaLink } from "react-icons/fa"
+import { FaArrowRight } from "react-icons/fa6"
 
 type ExtensionDetailsProps = {
     extension: Extension_Extension
@@ -92,6 +94,17 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
                 {(!!extension.manifestURI && !isBuiltin) && <p className="text-sm w-full tracking-wide">
                     <span className="text-[--muted]">Manifest URL:</span> <span className="select-all break-all">{extension.manifestURI}</span>
                 </p>}
+
+                {!!extension.readme && <div className="">
+                    <Button
+                        intent="gray-glass"
+                        leftIcon={<FaFileAlt />}
+                        rightIcon={<FaArrowRight />}
+                        onClick={() => openTab(extension.readme)}
+                    >
+                        Documentation
+                    </Button>
+                </div>}
 
                 {(!!extension.notes) && <div className="text-md w-full tracking-wide space-y-1 py-2">
                     <p className="text-[--muted] text-sm">Notes:</p>

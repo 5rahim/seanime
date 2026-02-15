@@ -25,7 +25,7 @@ export const logger = (prefix: string, silence?: boolean) => {
             console.log(chalk.red(`[${prefix}]`) + " ", ...data)
         },
         trace: (...data: any[]) => {
-            if (silence || process.env.NODE_ENV !== "development") return
+            if (silence || import.meta.env.MODE !== "development") return
             console.log(chalk.bgGray(`[${prefix}]`) + " ", ...data)
         },
     }

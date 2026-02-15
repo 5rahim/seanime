@@ -1,10 +1,8 @@
-"use client"
-import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { CustomLibraryBanner } from "@/app/(main)/_features/anime-library/_containers/custom-library-banner"
 import { AutoDownloaderPage } from "@/app/(main)/auto-downloader/_containers/autodownloader-page"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import React from "react"
 
-export const dynamic = "force-static"
 
 export default function Page() {
 

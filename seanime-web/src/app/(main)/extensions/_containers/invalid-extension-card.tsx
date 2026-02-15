@@ -189,7 +189,7 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
         onMessage: (message: string) => {
             // message format: {extensionId}$$${code}
             if (message.startsWith(extension.extension?.id) && shouldGrantPluginPermissions.includes(extension.extension?.id ?? "")) {
-                setShouldGrantPluginPermissions(p => p.filter(id => id !== extension.extension?.id ?? ""))
+                setShouldGrantPluginPermissions(p => p.filter(id => id !== (extension.extension?.id ?? "")))
                 grantPluginPermissions({ id: extension.extension?.id ?? "", clientId: "CODE:" + message.split("$$$")?.[1] || "" })
             }
         },

@@ -1,115 +1,147 @@
 package scanner
 
 import (
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
-	"seanime/internal/api/anilist"
 	"seanime/internal/library/anime"
+	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"strings"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
 type (
 	MediaContainerOptions struct {
-		AllMedia   []*anilist.CompleteAnime
+		AllMedia   []*anime.NormalizedMedia
 		ScanLogger *ScanLogger
 	}
 
+	// MediaContainer holds all the NormalizedMedia that will be used by the Matcher.
+	// It creates an inverted index for fast candidate lookup based on title tokens.
+	// Note: It doesn't care that the NormalizedMedia are not fully fetched.
+	// Before v3.5, it was used to flatten relations into NormalizedMedia.
 	MediaContainer struct {
-		NormalizedMedia []*anime.NormalizedMedia
-		ScanLogger      *ScanLogger
-		engTitles       []*string
-		romTitles       []*string
-		synonyms        []*string
-		allMedia        []*anilist.CompleteAnime
+		NormalizedMedia       []*anime.NormalizedMedia
+		NormalizedTitlesCache map[int][]*NormalizedTitle // mediaId -> normalized titles
+		ScanLogger            *ScanLogger
+		// Inverted Index for fast candidate lookup
+		// Token -> media that contain this token in their title
+		TokenIndex map[string][]*anime.NormalizedMedia
+		engTitles  []*string // legacy
+		romTitles  []*string // legacy
+		synonyms   []*string // legacy
 	}
 )
 
-// NewMediaContainer will create a list of all English titles, Romaji titles, and synonyms from all anilist.BaseAnime (used by Matcher).
-//
-// The list will include all anilist.BaseAnime and their relations (prequels, sequels, spin-offs, etc...) as NormalizedMedia.
-//
-// It also provides helper functions to get a NormalizedMedia from a title or synonym (used by FileHydrator).
+// NewMediaContainer creates a new MediaContainer from a list of NormalizedMedia that will be used by the Matcher.
 func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc := new(MediaContainer)
 	mc.ScanLogger = opts.ScanLogger
 
-	mc.NormalizedMedia = make([]*anime.NormalizedMedia, 0)
+	mc.NormalizedMedia = opts.AllMedia
 
-	normalizedMediaMap := make(map[int]*anime.NormalizedMedia)
+	// pre-compute normalized titles for all media
+	mc.NormalizedTitlesCache = make(map[int][]*NormalizedTitle, len(mc.NormalizedMedia))
 
-	for _, m := range opts.AllMedia {
-		normalizedMediaMap[m.ID] = anime.NewNormalizedMedia(m.ToBaseAnime())
-		if m.Relations != nil && m.Relations.Edges != nil && len(m.Relations.Edges) > 0 {
-			for _, edgeM := range m.Relations.Edges {
-				if edgeM.Node == nil || edgeM.Node.Format == nil || edgeM.RelationType == nil {
+	// Initialize token index
+	mc.TokenIndex = make(map[string][]*anime.NormalizedMedia)
+
+	for _, m := range mc.NormalizedMedia {
+		normalized := make([]*NormalizedTitle, 0)
+
+		// Keep track of which tokens this media has been added to to avoid duplicates
+		seenTokens := make(map[string]struct{})
+
+		addTitle := func(t *string, isMain bool) {
+			if t != nil && *t != "" {
+				norm := NormalizeTitle(*t)
+				norm.IsMain = isMain
+				normalized = append(normalized, norm)
+
+				// Populate index
+				tokens := GetSignificantTokens(norm.Tokens)
+				for _, token := range tokens {
+					if _, ok := seenTokens[token]; !ok {
+						mc.TokenIndex[token] = append(mc.TokenIndex[token], m)
+						seenTokens[token] = struct{}{}
+					}
+				}
+				// Also index compound tokens (adjacent pairs concatenated)
+				// e.g. "re" + "zero" -> "rezero" so that "ReZero" can find "Re Zero kara..."
+				for i := 0; i < len(tokens)-1; i++ {
+					// only concatenate short tokens to avoid too much noise
+					if len(tokens[i]) <= 5 && len(tokens[i+1]) <= 5 {
+						compound := tokens[i] + tokens[i+1]
+						if _, ok := seenTokens[compound]; !ok {
+							mc.TokenIndex[compound] = append(mc.TokenIndex[compound], m)
+							seenTokens[compound] = struct{}{}
+						}
+					}
+				}
+			}
+		}
+
+		if m.Title != nil {
+			addTitle(m.Title.Romaji, true)
+			addTitle(m.Title.English, true)
+			addTitle(m.Title.Native, false)
+			addTitle(m.Title.UserPreferred, true)
+		}
+		if m.Synonyms != nil {
+			for _, syn := range m.Synonyms {
+				if !util.IsMostlyLatinString(*syn) {
 					continue
 				}
-				if *edgeM.Node.Format != anilist.MediaFormatMovie &&
-					*edgeM.Node.Format != anilist.MediaFormatOva &&
-					*edgeM.Node.Format != anilist.MediaFormatSpecial &&
-					*edgeM.Node.Format != anilist.MediaFormatTv {
-					continue
-				}
-				if *edgeM.RelationType != anilist.MediaRelationPrequel &&
-					*edgeM.RelationType != anilist.MediaRelationSequel &&
-					*edgeM.RelationType != anilist.MediaRelationSpinOff &&
-					*edgeM.RelationType != anilist.MediaRelationAlternative &&
-					*edgeM.RelationType != anilist.MediaRelationParent {
-					continue
-				}
-				// DEVNOTE: Edges fetched from the AniList AnimeCollection query do not contain NextAiringEpisode
-				// Make sure we don't overwrite the original media in the map that contains NextAiringEpisode
-				if _, found := normalizedMediaMap[edgeM.Node.ID]; !found {
-					normalizedMediaMap[edgeM.Node.ID] = anime.NewNormalizedMedia(edgeM.Node)
+				addTitle(syn, false)
+			}
+		}
+
+		mc.NormalizedTitlesCache[m.ID] = normalized
+		seenTokens = nil
+	}
+
+	// ------------------------------------------
+
+	// Legacy stuff (used for legacy matching)
+	// should've been maps instead of slices
+	engTitles := make([]*string, 0, len(mc.NormalizedMedia))
+	romTitles := make([]*string, 0, len(mc.NormalizedMedia))
+	synonymsSlice := make([]*string, 0, len(mc.NormalizedMedia)*2)
+
+	for _, m := range mc.NormalizedMedia {
+		if m.Title.English != nil && len(*m.Title.English) > 0 {
+			engTitles = append(engTitles, m.Title.English)
+		}
+		if m.Title.Romaji != nil && len(*m.Title.Romaji) > 0 {
+			romTitles = append(romTitles, m.Title.Romaji)
+		}
+		if m.Synonyms != nil {
+			for _, syn := range m.Synonyms {
+				if syn != nil && comparison.ValueContainsSeason(*syn) {
+					synonymsSlice = append(synonymsSlice, syn)
 				}
 			}
 		}
 	}
-	for _, m := range normalizedMediaMap {
-		mc.NormalizedMedia = append(mc.NormalizedMedia, m)
-	}
-
-	engTitles := lop.Map(mc.NormalizedMedia, func(m *anime.NormalizedMedia, index int) *string {
-		if m.Title.English != nil {
-			return m.Title.English
-		}
-		return new(string)
-	})
-	romTitles := lop.Map(mc.NormalizedMedia, func(m *anime.NormalizedMedia, index int) *string {
-		if m.Title.Romaji != nil {
-			return m.Title.Romaji
-		}
-		return new(string)
-	})
-	_synonymsArr := lop.Map(mc.NormalizedMedia, func(m *anime.NormalizedMedia, index int) []*string {
-		if m.Synonyms != nil {
-			return m.Synonyms
-		}
-		return make([]*string, 0)
-	})
-	synonyms := lo.Flatten(_synonymsArr)
-	engTitles = lo.Filter(engTitles, func(s *string, i int) bool { return s != nil && len(*s) > 0 })
-	romTitles = lo.Filter(romTitles, func(s *string, i int) bool { return s != nil && len(*s) > 0 })
-	synonyms = lo.Filter(synonyms, func(s *string, i int) bool { return comparison.ValueContainsSeason(*s) })
 
 	mc.engTitles = engTitles
 	mc.romTitles = romTitles
-	mc.synonyms = synonyms
-	mc.allMedia = opts.AllMedia
+	mc.synonyms = synonymsSlice
+
+	// ------------------------------------------
 
 	if mc.ScanLogger != nil {
 		mc.ScanLogger.LogMediaContainer(zerolog.InfoLevel).
-			Any("inputCount", len(opts.AllMedia)).
 			Any("mediaCount", len(mc.NormalizedMedia)).
-			Any("titles", len(mc.engTitles)+len(mc.romTitles)+len(mc.synonyms)).
+			Any("legacyTitleCount", len(mc.engTitles)+len(mc.romTitles)+len(mc.synonyms)).
+			Any("tokenIndexSize", len(mc.TokenIndex)).
 			Msg("Created media container")
 	}
 
 	return mc
 }
 
+// Legacy helper function
 func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*anime.NormalizedMedia, bool) {
 	if title == nil {
 		return nil, false
@@ -132,15 +164,5 @@ func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*anime.Norm
 		return false
 	})
 
-	return res, found
-}
-
-func (mc *MediaContainer) GetMediaFromId(id int) (*anime.NormalizedMedia, bool) {
-	res, found := lo.Find(mc.NormalizedMedia, func(m *anime.NormalizedMedia) bool {
-		if m.ID == id {
-			return true
-		}
-		return false
-	})
 	return res, found
 }

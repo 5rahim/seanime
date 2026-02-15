@@ -220,6 +220,39 @@ declare namespace $app {
     }
 
     /**
+     * @event UpcomingEpisodesRequestedEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * UpcomingEpisodesRequestedEvent is triggered when the user requests upcoming episodes.
+     * Prevent default to skip the default process and return the modified upcoming episodes.
+     */
+    function onUpcomingEpisodesRequested(cb: (event: UpcomingEpisodesRequestedEvent) => void): void;
+
+    interface UpcomingEpisodesRequestedEvent {
+        next(): void;
+
+        preventDefault(): void;
+
+        animeCollection?: AL_AnimeCollection;
+        localFiles?: Array<Anime_LocalFile>;
+        upcomingEpisodes?: Anime_UpcomingEpisodes;
+    }
+
+    /**
+     * @event UpcomingEpisodesEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * UpcomingEpisodesEvent is triggered when the upcoming episodes are being returned.
+     */
+    function onUpcomingEpisodes(cb: (event: UpcomingEpisodesEvent) => void): void;
+
+    interface UpcomingEpisodesEvent {
+        next(): void;
+
+        upcomingEpisodes?: Anime_UpcomingEpisodes;
+    }
+
+    /**
      * @event AnimeLibraryCollectionRequestedEvent
      * @file internal/library/anime/hook_events.go
      * @description
@@ -1595,6 +1628,8 @@ declare namespace $app {
         next(): void;
 
         enhanced: boolean;
+        enhanceWithOfflineDatabase: boolean;
+        disableAnimeCollection: boolean;
     }
 
     /**
@@ -1610,7 +1645,7 @@ declare namespace $app {
     interface ScanMediaFetcherCompletedEvent {
         next(): void;
 
-        allMedia?: Array<AL_CompleteAnime>;
+        allMedia?: Array<Anime_NormalizedMedia>;
         unknownMediaIds?: Array<number>;
     }
 
@@ -3278,29 +3313,58 @@ declare namespace $app {
      * - Filepath: internal/library/anime/normalized_media.go
      */
     interface Anime_NormalizedMedia {
-        id: number;
-        idMal?: number;
-        siteUrl?: string;
-        status?: AL_MediaStatus;
-        season?: AL_MediaSeason;
-        type?: AL_MediaType;
-        format?: AL_MediaFormat;
-        seasonYear?: number;
-        bannerImage?: string;
-        episodes?: number;
-        synonyms?: Array<string>;
-        isAdult?: boolean;
-        countryOfOrigin?: string;
-        meanScore?: number;
-        description?: string;
-        genres?: Array<string>;
-        duration?: number;
-        trailer?: AL_BaseAnime_Trailer;
-        title?: AL_BaseAnime_Title;
-        coverImage?: AL_BaseAnime_CoverImage;
-        startDate?: AL_BaseAnime_StartDate;
-        endDate?: AL_BaseAnime_EndDate;
-        nextAiringEpisode?: AL_BaseAnime_NextAiringEpisode;
+        ID: number;
+        IdMal?: number;
+        Title?: Anime_NormalizedMediaTitle;
+        Synonyms?: Array<string>;
+        Format?: AL_MediaFormat;
+        Status?: AL_MediaStatus;
+        Season?: AL_MediaSeason;
+        Year?: number;
+        StartDate?: Anime_NormalizedMediaDate;
+        Episodes?: number;
+        BannerImage?: string;
+        CoverImage?: Anime_NormalizedMediaCoverImage;
+        NextAiringEpisode?: Anime_NormalizedMediaNextAiringEpisode;
+        fetched: boolean;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/normalized_media.go
+     */
+    interface Anime_NormalizedMediaCoverImage {
+        ExtraLarge?: string;
+        Large?: string;
+        Medium?: string;
+        Color?: string;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/normalized_media.go
+     */
+    interface Anime_NormalizedMediaDate {
+        Year?: number;
+        Month?: number;
+        Day?: number;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/normalized_media.go
+     */
+    interface Anime_NormalizedMediaNextAiringEpisode {
+        AiringAt: number;
+        TimeUntilAiring: number;
+        Episode: number;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/normalized_media.go
+     */
+    interface Anime_NormalizedMediaTitle {
+        Romaji?: string;
+        English?: string;
+        Native?: string;
+        UserPreferred?: string;
     }
 
     /**
@@ -3341,6 +3405,25 @@ declare namespace $app {
         dir: string;
         localFiles?: Array<Anime_LocalFile>;
         suggestions?: Array<AL_BaseAnime>;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/upcoming_episodes.go
+     */
+    interface Anime_UpcomingEpisode {
+        mediaId: number;
+        episodeNumber: number;
+        airingAt: number;
+        timeUntilAiring: number;
+        baseAnime?: AL_BaseAnime;
+        episodeMetadata?: Anime_EpisodeMetadata;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/upcoming_episodes.go
+     */
+    interface Anime_UpcomingEpisodes {
+        episodes?: Array<Anime_UpcomingEpisode>;
     }
 
     /**

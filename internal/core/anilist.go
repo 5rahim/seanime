@@ -95,6 +95,8 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	// Save the collection to LibraryExplorer
 	a.LibraryExplorer.SetAnimeCollection(ret)
 
+	a.AutoScanner.SetAnimeCollection(ret)
+
 	//a.SyncAnilistToSimulatedCollection()
 
 	a.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, nil)

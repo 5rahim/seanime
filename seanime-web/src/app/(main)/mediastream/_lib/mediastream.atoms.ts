@@ -16,19 +16,6 @@ export function useMediastreamCurrentFile() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const __mediastream_jassubOffscreenRender = atomWithStorage<boolean>("sea-mediastream-jassub-offscreen-render", false, undefined, { getOnInit: true })
-
-export function useMediastreamJassubOffscreenRender() {
-    const [jassubOffscreenRender, setJassubOffscreenRender] = useAtom(__mediastream_jassubOffscreenRender)
-
-    return {
-        jassubOffscreenRender,
-        setJassubOffscreenRender,
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /**
  * Whether media streaming should be done on this device
  */

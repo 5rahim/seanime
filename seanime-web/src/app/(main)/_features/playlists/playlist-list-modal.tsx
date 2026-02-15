@@ -5,7 +5,6 @@ import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/it
 import { PlaylistEditorModal } from "@/app/(main)/_features/playlists/_components/playlist-editor-modal"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaImage } from "@/components/shared/sea-image"
 import { Button } from "@/components/ui/button"
@@ -13,6 +12,7 @@ import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/c
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
 import { BiEditAlt } from "react-icons/bi"
 import { FaCirclePlay } from "react-icons/fa6"
@@ -20,10 +20,8 @@ import { LuPlus } from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { toast } from "sonner"
 
-// todo: select checkbox, group actions
-
 export function PlaylistListModal() {
-    const serverStatus = useServerStatus()
+    const ts = useThemeSettings()
     const { isModalOpen, setModalOpen, setSelectedMedia, selectedMedia } = usePlaylistEditorManager()
 
     const { data: _data, isLoading: isLibraryLoading } = useGetLibraryCollection()
@@ -89,7 +87,10 @@ export function PlaylistListModal() {
                 }}
                 size="lg"
                 side="bottom"
-                contentClass=""
+                contentClass={cn(
+                    ts.enableBlurringEffects && "bg-gray-950 bg-opacity-95 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none",
+                )}
+                overlayClass={cn(ts.enableBlurringEffects && "bg-gray-950/70 backdrop-blur-sm")}
             >
 
                 <div className="space-y-6">

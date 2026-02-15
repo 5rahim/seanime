@@ -70,11 +70,16 @@ export class VideoCoreAudioManager extends EventTarget {
         this._selectDefaultTrack()
     }
 
+    public get isHLS() {
+        return this.hlsSetAudioTrack !== null && this.hlsAudioTracks.length > 0
+    }
+
     addEventListener<K extends keyof VideoCoreAudioManagerEventMap>(
         type: K,
         listener: (this: VideoCoreAudioManager, ev: VideoCoreAudioManagerEventMap[K]) => any,
         options?: boolean | AddEventListenerOptions,
     ): void
+
     addEventListener(
         type: string,
         listener: EventListenerOrEventListenerObject,
@@ -94,6 +99,7 @@ export class VideoCoreAudioManager extends EventTarget {
         listener: (this: VideoCoreAudioManager, ev: VideoCoreAudioManagerEventMap[K]) => any,
         options?: boolean | EventListenerOptions,
     ): void
+
     removeEventListener(
         type: string,
         listener: EventListenerOrEventListenerObject,
@@ -209,10 +215,6 @@ export class VideoCoreAudioManager extends EventTarget {
 
         const event: AudioManagerTrackChangedEvent = new CustomEvent("trackchanged", { detail: { trackNumber } })
         this.dispatchEvent(event)
-    }
-
-    public get isHLS() {
-        return this.hlsSetAudioTrack !== null && this.hlsAudioTracks.length > 0
     }
 
     getSelectedTrackNumberOrNull(): number | null {

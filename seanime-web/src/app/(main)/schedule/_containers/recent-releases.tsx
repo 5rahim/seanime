@@ -1,4 +1,3 @@
-"use client"
 import { useAnilistListRecentAiringAnime } from "@/api/hooks/anilist.hooks"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"

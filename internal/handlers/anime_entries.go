@@ -527,6 +527,48 @@ func (h *Handler) HandleGetMissingEpisodes(c echo.Context) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+var upcomingEpisodesCache *anime.UpcomingEpisodes
+
+// HandleGetUpcomingEpisodes
+//
+//	@summary returns a list of upcoming episodes based on the user's anime collection
+//	@desc It uses the AniList 'next airing episode' data to determine upcoming episodes.
+//	@desc This route can be called multiple times, as it does not bypass the cache.
+//	@route /api/v1/library/upcoming-episodes [GET]
+//	@returns anime.UpcomingEpisodes
+func (h *Handler) HandleGetUpcomingEpisodes(c echo.Context) error {
+	h.App.AddOnRefreshAnilistCollectionFunc("HandleGetUpcomingEpisodes", func() {
+		upcomingEpisodesCache = nil
+	})
+
+	if upcomingEpisodesCache != nil {
+		return h.RespondWithData(c, upcomingEpisodesCache)
+	}
+
+	// Get the user's anilist collection
+	animeCollection, err := h.App.GetAnimeCollection(false)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	upcomingEps := anime.NewUpcomingEpisodes(&anime.NewUpcomingEpisodesOptions{
+		AnimeCollection:     animeCollection,
+		MetadataProviderRef: h.App.MetadataProviderRef,
+	})
+
+	event := new(anime.UpcomingEpisodesEvent)
+	event.UpcomingEpisodes = upcomingEps
+	err = hook.GlobalHookManager.OnUpcomingEpisodes().Trigger(event)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	upcomingEpisodesCache = event.UpcomingEpisodes
+
+	return h.RespondWithData(c, event.UpcomingEpisodes)
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 // HandleGetAnimeEntrySilenceStatus
 //
 //	@summary returns the silence status of a media entry.

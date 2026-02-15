@@ -5,7 +5,8 @@ import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_compo
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
-import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core"
+
+import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
@@ -17,11 +18,11 @@ import { OnlinestreamPage } from "@/app/(main)/onlinestream/_containers/onlinest
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { cn } from "@/components/ui/core/styling"
 import { StaticTabs } from "@/components/ui/tabs"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { usePathname, useRouter, useSearchParams } from "@/lib/navigation"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { AnimatePresence } from "motion/react"
-import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { FiGlobe } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
@@ -159,11 +160,15 @@ export function AnimeEntryPage() {
 
     }, [animeEntry, animeEntryLoading, mediaId, searchParams, serverStatus, currentView, tab])
 
+    const pathname = usePathname()
+
     React.useEffect(() => {
+        if (!pathname.startsWith("/entry")) return
+
         if (!mediaId || (!animeEntryLoading && !animeEntry)) {
             router.push("/")
         }
-    }, [animeEntry, animeEntryLoading])
+    }, [animeEntry, animeEntryLoading, pathname, mediaId])
 
     // Reset view when unmounting
     useUnmount(() => {
@@ -336,11 +341,6 @@ export function AnimeEntryPage() {
                                     hideBackButton
                                 />
                                 <PluginWebviewSlot slot="after-anime-entry-episode-list" />
-                                {/*<LegacyOnlinestreamPage*/}
-                                {/*    animeEntry={animeEntry}*/}
-                                {/*    animeEntryLoading={animeEntryLoading}*/}
-                                {/*    hideBackButton*/}
-                                {/*/>*/}
                                 <MediaEntryCharactersSection details={animeDetails} />
                                 <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                             </div>

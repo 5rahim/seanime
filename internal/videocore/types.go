@@ -10,28 +10,44 @@ import (
 type ClientEventType string
 
 const (
-	PlayerEventVideoLoaded                ClientEventType = "video-loaded"
-	PlayerEventVideoLoadedMetadata        ClientEventType = "video-loaded-metadata"
-	PlayerEventVideoCanPlay               ClientEventType = "video-can-play"
-	PlayerEventVideoPaused                ClientEventType = "video-paused"
-	PlayerEventVideoResumed               ClientEventType = "video-resumed"
-	PlayerEventVideoStatus                ClientEventType = "video-status"
-	PlayerEventVideoCompleted             ClientEventType = "video-completed"
-	PlayerEventVideoFullscreen            ClientEventType = "video-fullscreen"
-	PlayerEventVideoPip                   ClientEventType = "video-pip"
-	PlayerEventVideoSubtitleTrack         ClientEventType = "video-subtitle-track"
-	PlayerEventMediaCaptionTrack          ClientEventType = "video-media-caption-track"
-	PlayerEventAnime4K                    ClientEventType = "video-anime-4k"
-	PlayerEventVideoAudioTrack            ClientEventType = "video-audio-track"
-	PlayerEventVideoEnded                 ClientEventType = "video-ended"
-	PlayerEventVideoSeeked                ClientEventType = "video-seeked"
-	PlayerEventVideoError                 ClientEventType = "video-error"
-	PlayerEventVideoTerminated            ClientEventType = "video-terminated"
-	PlayerEventVideoPlaybackState         ClientEventType = "video-playback-state"
-	PlayerEventSubtitleFileUploaded       ClientEventType = "subtitle-file-uploaded"
-	PlayerEventVideoPlaylist              ClientEventType = "video-playlist"
-	PlayerEventVideoTextTracks            ClientEventType = "video-text-tracks"
-	PlayerEventTranslateText              ClientEventType = "translate-text"
+	// Player is mounted, playback is about to start
+	PlayerEventVideoLoaded ClientEventType = "video-loaded"
+	// Player loaded metadata for playback
+	PlayerEventVideoLoadedMetadata ClientEventType = "video-loaded-metadata"
+	// Player is ready to play
+	PlayerEventVideoCanPlay    ClientEventType = "video-can-play"
+	PlayerEventVideoPaused     ClientEventType = "video-paused"
+	PlayerEventVideoResumed    ClientEventType = "video-resumed"
+	PlayerEventVideoStatus     ClientEventType = "video-status"
+	PlayerEventVideoCompleted  ClientEventType = "video-completed"
+	PlayerEventVideoFullscreen ClientEventType = "video-fullscreen"
+	PlayerEventVideoPip        ClientEventType = "video-pip"
+	// Subtitle track is selected
+	PlayerEventVideoSubtitleTrack ClientEventType = "video-subtitle-track"
+	// Caption track is selected
+	PlayerEventMediaCaptionTrack ClientEventType = "video-media-caption-track"
+	// Subtitle track content is sent
+	PlayerEventVideoSubtitleTrackContent ClientEventType = "video-subtitle-track-content"
+	// Anime4K option is changed
+	PlayerEventAnime4K ClientEventType = "video-anime-4k"
+	// Audio track is selected
+	PlayerEventVideoAudioTrack ClientEventType = "video-audio-track"
+	// Playback reached the end
+	PlayerEventVideoEnded  ClientEventType = "video-ended"
+	PlayerEventVideoSeeked ClientEventType = "video-seeked"
+	PlayerEventVideoError  ClientEventType = "video-error"
+	// Player unmounted (gracefully or fatal)
+	PlayerEventVideoTerminated ClientEventType = "video-terminated"
+	// Player sent type and playback info
+	PlayerEventVideoPlaybackState ClientEventType = "video-playback-state"
+	// Subtitle file was uploaded
+	PlayerEventSubtitleFileUploaded ClientEventType = "subtitle-file-uploaded"
+	PlayerEventVideoPlaylist        ClientEventType = "video-playlist"
+	// Player sent all text tracks
+	PlayerEventVideoTextTracks ClientEventType = "video-text-tracks"
+	// Request to translate text
+	PlayerEventTranslateText ClientEventType = "translate-text"
+	// Request to translate subtitle file track
 	PlayerEventTranslateSubtitleFileTrack ClientEventType = "translate-subtitle-file-track"
 )
 
@@ -63,6 +79,11 @@ type VideoSubtitleTrack struct {
 	Type              *string `json:"type"` // "srt" | "vtt" | "ass" | "ssa"
 	Default           *bool   `json:"default"`
 	UseLibassRenderer *bool   `json:"useLibassRenderer"`
+}
+
+type VideoLibassFont struct {
+	Name *string `json:"name,omitempty"`
+	Src  string  `json:"src"`
 }
 
 type VideoTextTrack struct {
@@ -102,6 +123,7 @@ type VideoPlaybackInfo struct {
 	Id           string       `json:"id"`
 	PlaybackType PlaybackType `json:"playbackType"`
 	StreamURL    string       `json:"streamUrl"`
+	StreamPath   string       `json:"streamPath,omitempty"` // e.g. /anime/episode 01.mkv
 	// MkvMetadata is only set for NativePlayer playbacks. Parsed by mkvparser.MetadataParser for directstream.Manager.
 	MkvMetadata *mkvparser.Metadata `json:"mkvMetadata"` // NativePlayer only
 	// LocalFile is only set for local file streams. NativePlayer
@@ -109,6 +131,7 @@ type VideoPlaybackInfo struct {
 	// Set by WebPlayer when online stream starts. Used for Nakama watch parties.
 	OnlinestreamParams             *OnlinestreamParams   `json:"onlinestreamParams"`
 	SubtitleTracks                 []*VideoSubtitleTrack `json:"subtitleTracks"`
+	LibassFonts                    []*VideoLibassFont    `json:"libassFonts"`
 	VideoSources                   []*VideoSource        `json:"videoSources"`
 	SelectedVideoSource            *int                  `json:"selectedVideoSource"` // index of VideoSource
 	PlaylistExternalEpisodeNumbers []int                 `json:"playlistExternalEpisodeNumbers"`
@@ -182,7 +205,12 @@ type (
 	}
 	clientVideoSubtitleTrackPayload struct {
 		TrackNumber int    `json:"trackNumber"`
-		Kind        string `json:"kind"`
+		Kind        string `json:"kind"` // file | event
+	}
+	clientVideoSubtitleTrackContentPayload struct {
+		TrackNumber int    `json:"trackNumber"`
+		Content     string `json:"content"`
+		Type        string `json:"type"`
 	}
 	clientVideoMediaCaptionTrackPayload struct {
 		TrackIndex int `json:"trackIndex"`
@@ -338,6 +366,12 @@ type (
 		TrackNumber int    `json:"trackNumber"`
 		Kind        string `json:"kind"` // "file" | "event"
 	}
+	VideoSubtitleTrackContentEvent struct {
+		BaseVideoEvent
+		TrackNumber int    `json:"trackNumber"`
+		Content     string `json:"content"`
+		Type        string `json:"type"`
+	}
 	VideoMediaCaptionTrackEvent struct {
 		BaseVideoEvent
 		TrackIndex int `json:"trackIndex"`
@@ -392,13 +426,15 @@ const (
 	ServerEventGetTextTracks               ServerEvent = "get-text-tracks"
 	ServerEventRequestPlayEpisode          ServerEvent = "request-play-episode"
 	ServerEventTranslatedText              ServerEvent = "translated-text"
+	ServerEventInSightData                 ServerEvent = "in-sight-data"
 	// State requests
-	ServerEventGetFullscreen        ServerEvent = "get-fullscreen"
-	ServerEventGetPip               ServerEvent = "get-pip"
-	ServerEventGetAnime4K           ServerEvent = "get-anime-4k"
-	ServerEventGetSubtitleTrack     ServerEvent = "get-subtitle-track"
-	ServerEventGetAudioTrack        ServerEvent = "get-audio-track"
-	ServerEventGetMediaCaptionTrack ServerEvent = "get-media-caption-track"
-	ServerEventGetPlaybackState     ServerEvent = "get-playback-state"
-	ServerEventGetPlaylist          ServerEvent = "get-playlist"
+	ServerEventGetFullscreen           ServerEvent = "get-fullscreen"
+	ServerEventGetPip                  ServerEvent = "get-pip"
+	ServerEventGetAnime4K              ServerEvent = "get-anime-4k"
+	ServerEventGetSubtitleTrack        ServerEvent = "get-subtitle-track"
+	ServerEventGetSubtitleTrackContent ServerEvent = "get-subtitle-track-content"
+	ServerEventGetAudioTrack           ServerEvent = "get-audio-track"
+	ServerEventGetMediaCaptionTrack    ServerEvent = "get-media-caption-track"
+	ServerEventGetPlaybackState        ServerEvent = "get-playback-state"
+	ServerEventGetPlaylist             ServerEvent = "get-playlist"
 )

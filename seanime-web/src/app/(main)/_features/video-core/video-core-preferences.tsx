@@ -1,29 +1,30 @@
 import { useSaveMediaPlayerSettings } from "@/api/hooks/settings.hooks"
-import {
-    vc_audioManager,
-    vc_containerElement,
-    vc_dispatchAction,
-    vc_isFullscreen,
-    vc_isMuted,
-    vc_mediaCaptionsManager,
-    vc_pip,
-    vc_subtitleManager,
-    vc_volume,
-    VideoCoreChapterCue,
-} from "@/app/(main)/_features/video-core/video-core"
+import { vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_mediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_audioManager } from "@/app/(main)/_features/video-core/video-core"
+import { VideoCoreChapterCue } from "@/app/(main)/_features/video-core/video-core"
+import { vc_isMuted } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_volume } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_containerElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
+import { useVideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
 import { useVideoCoreOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
+import { vc_pip } from "@/app/(main)/_features/video-core/video-core-pip"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
+import { useVideoCorePlaylist } from "@/app/(main)/_features/video-core/video-core-playlist"
 import {
     vc_defaultKeybindings,
     vc_initialSettings,
     vc_keybindingsAtom,
     vc_settings,
+    vc_showStatsForNerdsAtom,
     vc_storedMutedAtom,
     vc_storedVolumeAtom,
     vc_useLibassRendererAtom,
     VideoCoreKeybindings,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
 import { AlphaBadge } from "@/components/shared/beta-badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -514,6 +515,26 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                         handleKeyRecord={handleKeyRecord}
                                         formatKeyDisplay={formatKeyDisplay}
                                     />
+                                    <KeybindingRow
+                                        action="Display Characters"
+                                        description="Toggle characters panel"
+                                        actionKey="openInSight"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
+                                    <KeybindingRow
+                                        action="Stats for Nerds"
+                                        description="Toggle stats for nerds"
+                                        actionKey="statsForNerds"
+                                        editedKeybindings={editedKeybindings}
+                                        setEditedKeybindings={setEditedKeybindings}
+                                        recordingKey={recordingKey}
+                                        handleKeyRecord={handleKeyRecord}
+                                        formatKeyDisplay={formatKeyDisplay}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -667,54 +688,59 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                             label="Target Language"
                                             name="vcTranslateTargetLanguage"
                                             options={[
-                                                { value: "en", label: "English" },
+                                                // DeepL
+                                                { value: "en-US", label: "English (US)" },
+                                                { value: "en-GB", label: "English (UK)" },
                                                 { value: "es", label: "Spanish" },
                                                 { value: "fr", label: "French" },
                                                 { value: "de", label: "German" },
                                                 { value: "it", label: "Italian" },
-                                                { value: "pt", label: "Portuguese" },
+                                                { value: "pt-BR", label: "Portuguese (BR)" },
+                                                { value: "pt-PT", label: "Portuguese (PT)" },
                                                 { value: "ru", label: "Russian" },
                                                 { value: "ja", label: "Japanese" },
                                                 { value: "ko", label: "Korean" },
-                                                { value: "zh", label: "Chinese" },
+                                                { value: "zh-hans", label: "Chinese (Simplified)" },
+                                                { value: "zh-hant", label: "Chinese (Traditional)" },
                                                 { value: "ar", label: "Arabic" },
-                                                { value: "hi", label: "Hindi" },
                                                 { value: "tr", label: "Turkish" },
                                                 { value: "pl", label: "Polish" },
                                                 { value: "nl", label: "Dutch" },
                                                 { value: "sv", label: "Swedish" },
-                                                { value: "no", label: "Norwegian" },
+                                                { value: "nb", label: "Norwegian" },
                                                 { value: "da", label: "Danish" },
                                                 { value: "fi", label: "Finnish" },
                                                 { value: "el", label: "Greek" },
                                                 { value: "cs", label: "Czech" },
                                                 { value: "hu", label: "Hungarian" },
                                                 { value: "ro", label: "Romanian" },
-                                                { value: "th", label: "Thai" },
-                                                { value: "vi", label: "Vietnamese" },
                                                 { value: "id", label: "Indonesian" },
-                                                { value: "ms", label: "Malay" },
                                                 { value: "uk", label: "Ukrainian" },
                                                 { value: "bg", label: "Bulgarian" },
-                                                { value: "hr", label: "Croatian" },
-                                                { value: "sr", label: "Serbian" },
                                                 { value: "sk", label: "Slovak" },
                                                 { value: "sl", label: "Slovenian" },
                                                 { value: "et", label: "Estonian" },
                                                 { value: "lv", label: "Latvian" },
                                                 { value: "lt", label: "Lithuanian" },
-                                                { value: "he", label: "Hebrew" },
-                                                { value: "fa", label: "Persian" },
+                                                // Not currently supported by DeepL
+                                                { value: "hi", label: "Hindi" },
                                                 { value: "bn", label: "Bengali" },
-                                                { value: "ur", label: "Urdu" },
                                                 { value: "ta", label: "Tamil" },
                                                 { value: "te", label: "Telugu" },
                                                 { value: "mr", label: "Marathi" },
                                                 { value: "kn", label: "Kannada" },
                                                 { value: "ml", label: "Malayalam" },
                                                 { value: "pa", label: "Punjabi" },
+                                                { value: "fa", label: "Persian" },
+                                                { value: "ur", label: "Urdu" },
                                                 { value: "sw", label: "Swahili" },
                                                 { value: "af", label: "Afrikaans" },
+                                                { value: "ms", label: "Malay" },
+                                                { value: "hr", label: "Croatian" },
+                                                { value: "sr", label: "Serbian" },
+                                                { value: "he", label: "Hebrew" },
+                                                { value: "th", label: "Thai" },
+                                                { value: "vi", label: "Vietnamese" },
                                             ]}
                                             contentClass="z-[999]"
                                             help="Select the language you want subtitles to be translated to"
@@ -728,6 +754,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                             placeholder="Enter your API key"
                                             onKeyDown={(e) => e.stopPropagation()}
                                             onInput={(e) => e.stopPropagation()}
+                                            type="password"
                                         />
                                     </div>
                                 </div>
@@ -790,7 +817,10 @@ export function VideoCoreKeybindingController(props: {
     const setVolume = useSetAtom(vc_storedVolumeAtom)
     const muted = useAtomValue(vc_isMuted)
     const setMuted = useSetAtom(vc_storedMutedAtom)
+    const { toggleOpen: toggleInSight } = useVideoCoreInSight()
     const { showOverlayFeedback } = useVideoCoreOverlayFeedback()
+
+    const setShowStats = useSetAtom(vc_showStatsForNerdsAtom)
 
     const action = useSetAtom(vc_dispatchAction)
 
@@ -799,6 +829,8 @@ export function VideoCoreKeybindingController(props: {
     const audioManager = useAtomValue(vc_audioManager)
     const fullscreenManager = useAtomValue(vc_fullscreenManager)
     const pipManager = useAtomValue(vc_pipManager)
+
+    const { playEpisode, hasNextEpisode, hasPreviousEpisode } = useVideoCorePlaylist()
 
     // Rate limiting for seeking operations
     const lastSeekTime = useRef(0)
@@ -990,6 +1022,15 @@ export function VideoCoreKeybindingController(props: {
         } else if (e.code === keybindings.pictureInPicture.key) {
             e.preventDefault()
             handleTogglePictureInPicture()
+        } else if (e.code === keybindings.takeScreenshot.key) {
+            e.preventDefault()
+            takeScreenshot()
+        } else if (e.code === keybindings.openInSight.key) {
+            e.preventDefault()
+            toggleInSight()
+        } else if (e.code === keybindings.statsForNerds.key) {
+            e.preventDefault()
+            setShowStats(prev => !prev)
         } else if (e.code === keybindings.increaseSpeed.key) {
             e.preventDefault()
             const newRate = Math.min(8, video.playbackRate + keybindings.increaseSpeed.value)
@@ -1000,11 +1041,10 @@ export function VideoCoreKeybindingController(props: {
             const newRate = Math.max(0.20, video.playbackRate - keybindings.decreaseSpeed.value)
             video.playbackRate = newRate
             showOverlayFeedback({ message: `Speed: ${newRate.toFixed(2)}x` })
-        } else if (e.code === keybindings.takeScreenshot.key) {
-            e.preventDefault()
-            takeScreenshot()
         }
-    }, [keybindings, volume, muted, seek, active, fullscreen, pip, showOverlayFeedback, introEndTime, introStartTime, isKeybindingsModalOpen])
+        },
+        [keybindings, volume, muted, seek, active, fullscreen, pip, showOverlayFeedback, introEndTime, introStartTime, isKeybindingsModalOpen,
+            toggleInSight])
 
     // Keyboard shortcut handlers
     const handleNextChapter = useCallback(() => {
@@ -1161,14 +1201,26 @@ export function VideoCoreKeybindingController(props: {
     const log = logger("VideoCoreKeybindings")
 
     const handleNextEpisode = useCallback(() => {
-        // Placeholder for next episode functionality
-        log.info("Next episode shortcut pressed - not implemented yet")
-    }, [])
+        if (!hasNextEpisode) {
+            showOverlayFeedback({ message: "No next episode" })
+            log.info("No next episode available")
+            return
+        }
+
+        log.info("Playing next episode")
+        playEpisode("next")
+    }, [hasNextEpisode, playEpisode, showOverlayFeedback])
 
     const handlePreviousEpisode = useCallback(() => {
-        // Placeholder for previous episode functionality
-        log.info("Previous episode shortcut pressed - not implemented yet")
-    }, [])
+        if (!hasPreviousEpisode) {
+            showOverlayFeedback({ message: "No previous episode" })
+            log.info("No previous episode available")
+            return
+        }
+
+        log.info("Playing previous episode")
+        playEpisode("previous")
+    }, [hasPreviousEpisode, playEpisode, showOverlayFeedback])
 
     const handleToggleFullscreen = useCallback(() => {
         fullscreenManager?.toggleFullscreen()

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { LoadingSpinner, Spinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { WSEvents } from "@/lib/server/ws-events"
-import { atom } from "jotai/index"
+import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { HiOutlineServerStack } from "react-icons/hi2"
@@ -117,7 +117,7 @@ export function DebridStreamOverlay() {
     return (
         <>
 
-        {minimized && (
+            {minimized && (
                 <div className="fixed z-[100] bottom-8 w-full h-fit flex justify-center">
                     <div
                         className="shadow-2xl p-4 bg-gray-900 border text-white rounded-3xl cursor-pointer hover:border-gray-600"

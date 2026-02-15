@@ -1,5 +1,3 @@
-"use client"
-
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button } from "@/components/ui/button"
 import React from "react"

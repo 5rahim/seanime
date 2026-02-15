@@ -1,6 +1,5 @@
-"use client"
-
 import { cn } from "@/components/ui/core/styling"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import * as React from "react"
 import { Drawer as VaulPrimitive } from "vaul"
@@ -26,11 +25,14 @@ const VaulOverlay = React.forwardRef<
     React.ElementRef<typeof VaulPrimitive.Overlay>,
     React.ComponentPropsWithoutRef<typeof VaulPrimitive.Overlay>
 >(({ className, ...props }, ref) => {
+    const ts = useThemeSettings()
     return (
         <VaulPrimitive.Overlay
             ref={ref}
-            className={cn("fixed inset-0 z-50 bg-black/80", className)}
-            // className={cn("fixed inset-0 z-50 bg-gray-950/70 backdrop-blur-sm", className)}
+            className={cn(
+                "fixed inset-0 z-50 bg-black/80",
+                ts.enableBlurringEffects && "bg-gray-950/70 backdrop-blur-sm firefox:backdrop-blur-none",
+                className)}
             {...props}
         />
     )

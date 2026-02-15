@@ -1,6 +1,6 @@
 import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "@/lib/navigation"
 import React from "react"
 
 export function usePlayNextVideoOnMount({ onPlay }: { onPlay: () => void }, enabled: boolean = true) {

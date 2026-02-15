@@ -1428,7 +1428,7 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 
 	// Add the absolute offset
 	if rule.CustomEpisodeNumberAbsoluteOffset > 0 {
-		episode = episode + rule.CustomEpisodeNumberAbsoluteOffset
+		episode = episode - rule.CustomEpisodeNumberAbsoluteOffset
 		hasAbsoluteEpisode = true
 	} else {
 		// Handle absolute episode numbers from metadata

@@ -164,62 +164,62 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
         <>
             {(!!allTimeHighestRated || !!seasonMostPopular) &&
                 <div className="Sea-AnimeEntryRankings__container flex-wrap gap-2 hidden md:flex" data-anime-entry-rankings>
-                {allTimeHighestRated && <Link
-                    href={`/search?sorting=SCORE_DESC${allTimeHighestRated.format ? `&format=${allTimeHighestRated.format}` : ""}`}
-                    data-anime-entry-rankings-item
-                    data-anime-entry-rankings-item-all-time-highest-rated
-                >
-                    <Badge
-                        size="lg"
-                        intent="gray"
-                        leftIcon={<AiFillStar className="text-lg" />}
-                        iconClass="text-yellow-500"
-                        className="opacity-75 transition-all hover:opacity-100 rounded-full bg-transparent border-transparent px-0 hover:bg-transparent hover:text-white"
+                    {allTimeHighestRated && <Link
+                        href={`/search?sorting=SCORE_DESC${allTimeHighestRated.format ? `&format=${allTimeHighestRated.format}` : ""}`}
+                        data-anime-entry-rankings-item
+                        data-anime-entry-rankings-item-all-time-highest-rated
                     >
-                        #{String(allTimeHighestRated.rank)} Highest
-                        Rated {formatFormat(allTimeHighestRated.format)} of All
-                        Time
-                    </Badge>
-                </Link>}
-                {seasonHighestRated && <Link
-                    href={`/search?sorting=SCORE_DESC${seasonHighestRated.format
-                        ? `&format=${seasonHighestRated.format}`
-                        : ""}${seasonHighestRated.season ? `&season=${seasonHighestRated.season}` : ""}&year=${seasonHighestRated.year}`}
-                    data-anime-entry-rankings-item
-                    data-anime-entry-rankings-item-season-highest-rated
-                >
-                    <Badge
-                        size="lg"
-                        intent="gray"
-                        leftIcon={<AiOutlineStar />}
-                        iconClass="text-yellow-500"
-                        className="opacity-75 transition-all hover:opacity-100 rounded-full border-transparent bg-transparent px-0 hover:bg-transparent hover:text-white"
+                        <Badge
+                            size="lg"
+                            intent="gray"
+                            leftIcon={<AiFillStar className="text-lg" />}
+                            iconClass="text-yellow-500"
+                            className="opacity-75 transition-all hover:opacity-100 rounded-full bg-transparent border-transparent px-0 hover:bg-transparent hover:text-white"
+                        >
+                            #{String(allTimeHighestRated.rank)} Highest
+                            Rated {formatFormat(allTimeHighestRated.format)} of All
+                            Time
+                        </Badge>
+                    </Link>}
+                    {seasonHighestRated && <Link
+                        href={`/search?sorting=SCORE_DESC${seasonHighestRated.format
+                            ? `&format=${seasonHighestRated.format}`
+                            : ""}${seasonHighestRated.season ? `&season=${seasonHighestRated.season}` : ""}&year=${seasonHighestRated.year}`}
+                        data-anime-entry-rankings-item
+                        data-anime-entry-rankings-item-season-highest-rated
                     >
-                        #{String(seasonHighestRated.rank)} Highest
-                        Rated {formatFormat(seasonHighestRated.format)} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
-                    </Badge>
-                </Link>}
-                {seasonMostPopular && <Link
-                    href={`/search?sorting=POPULARITY_DESC${seasonMostPopular.format
-                        ? `&format=${seasonMostPopular.format}`
-                        : ""}${seasonMostPopular.year ? `&year=${seasonMostPopular.year}` : ""}${seasonMostPopular.season
-                        ? `&season=${seasonMostPopular.season}`
-                        : ""}`}
-                    data-anime-entry-rankings-item
-                    data-anime-entry-rankings-item-season-most-popular
-                >
-                    <Badge
-                        size="lg"
-                        intent="gray"
-                        leftIcon={<AiOutlineHeart />}
-                        iconClass="text-pink-500"
-                        className="opacity-75 transition-all hover:opacity-100 rounded-full border-transparent bg-transparent px-0 hover:bg-transparent hover:text-white"
+                        <Badge
+                            size="lg"
+                            intent="gray"
+                            leftIcon={<AiOutlineStar />}
+                            iconClass="text-yellow-500"
+                            className="opacity-75 transition-all hover:opacity-100 rounded-full border-transparent bg-transparent px-0 hover:bg-transparent hover:text-white"
+                        >
+                            #{String(seasonHighestRated.rank)} Highest
+                            Rated {formatFormat(seasonHighestRated.format)} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
+                        </Badge>
+                    </Link>}
+                    {seasonMostPopular && <Link
+                        href={`/search?sorting=POPULARITY_DESC${seasonMostPopular.format
+                            ? `&format=${seasonMostPopular.format}`
+                            : ""}${seasonMostPopular.year ? `&year=${seasonMostPopular.year}` : ""}${seasonMostPopular.season
+                            ? `&season=${seasonMostPopular.season}`
+                            : ""}`}
+                        data-anime-entry-rankings-item
+                        data-anime-entry-rankings-item-season-most-popular
                     >
-                        #{(String(seasonMostPopular.rank))} Most
-                        Popular {formatFormat(seasonMostPopular.format)} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}
-                    </Badge>
-                </Link>}
-            </div>}
+                        <Badge
+                            size="lg"
+                            intent="gray"
+                            leftIcon={<AiOutlineHeart />}
+                            iconClass="text-pink-500"
+                            className="opacity-75 transition-all hover:opacity-100 rounded-full border-transparent bg-transparent px-0 hover:bg-transparent hover:text-white"
+                        >
+                            #{(String(seasonMostPopular.rank))} Most
+                            Popular {formatFormat(seasonMostPopular.format)} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}
+                        </Badge>
+                    </Link>}
+                </div>}
         </>
     )
 }

@@ -25,6 +25,7 @@ import {
     ResolutionsField,
     TextArrayField,
 } from "@/app/(main)/auto-downloader/_containers/autodownloader-shared-fields"
+import { SeaImage as Image } from "@/components/shared/sea-image"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { cn } from "@/components/ui/core/styling"
@@ -34,9 +35,8 @@ import { Separator } from "@/components/ui/separator"
 import { upath } from "@/lib/helpers/upath"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
-import { uniq } from "lodash"
 import capitalize from "lodash/capitalize"
-import Image from "next/image"
+import uniq from "lodash/uniq"
 import React, { useMemo, useRef, useState } from "react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { FcFolder } from "react-icons/fc"

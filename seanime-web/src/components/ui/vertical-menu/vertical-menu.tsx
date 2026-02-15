@@ -1,5 +1,3 @@
-"use client"
-
 import { SeaLink } from "@/components/shared/sea-link"
 import { cva, VariantProps } from "class-variance-authority"
 import * as React from "react"
@@ -132,6 +130,7 @@ export const VerticalMenuAnatomy = defineStyleAnatomy({
 const __VerticalMenuContext = React.createContext<Pick<VerticalMenuProps, "onAnyItemClick" | "onLinkItemClick"> & { collapsed?: boolean }>({})
 
 export type VerticalMenuItem = {
+    id?: string
     name: string
     href?: string | null | undefined
     iconType?: React.ElementType
@@ -225,6 +224,7 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
     const ItemContent = React.useCallback((item: VerticalMenuItem) => (
         <ItemContentWrapper name={item.name}>
             <div
+                data-vertical-menu-item-id={item.id}
                 data-vertical-menu-item={item.name}
                 className={cn(
                     VerticalMenuAnatomy.itemContent({ size, collapsed, isSidebar }),

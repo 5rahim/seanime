@@ -11,7 +11,7 @@ import { IconButton } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { ContextMenuItem } from "@/components/ui/context-menu"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React, { useMemo } from "react"
 import { BiDotsHorizontal } from "react-icons/bi"
 import { LuTvMinimalPlay } from "react-icons/lu"
@@ -96,6 +96,8 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
                                 percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
                                 minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
                                 hasDiscrepancy={episodeCollection?.episodes?.findIndex(e => e.type === "special") !== -1}
+                                fallbackImage={[episode.baseAnime?.bannerImage, episode.baseAnime?.coverImage?.large,
+                                    episode.baseAnime?.coverImage?.extraLarge]}
                                 onClick={() => {
                                     onEpisodeClick(episode)
                                 }}

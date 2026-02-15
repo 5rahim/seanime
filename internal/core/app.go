@@ -166,6 +166,10 @@ type (
 		PlaylistManager *playlist.Manager
 		LibraryExplorer *library_explorer.LibraryExplorer
 		NakamaManager   *nakama.Manager
+
+		// Show this version's tour on the frontend
+		// Hydrated by migrations.go when there's a version change
+		ShowTour string
 	}
 )
 

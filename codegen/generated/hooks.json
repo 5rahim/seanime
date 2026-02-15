@@ -2300,6 +2300,141 @@
     "goStruct": {
       "filepath": "../internal/library/anime/hook_events.go",
       "filename": "hook_events.go",
+      "name": "UpcomingEpisodesRequestedEvent",
+      "formattedName": "Anime_UpcomingEpisodesRequestedEvent",
+      "package": "anime",
+      "fields": [
+        {
+          "name": "AnimeCollection",
+          "jsonName": "animeCollection",
+          "goType": "anilist.AnimeCollection",
+          "typescriptType": "AL_AnimeCollection",
+          "usedTypescriptType": "AL_AnimeCollection",
+          "usedStructName": "anilist.AnimeCollection",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "LocalFiles",
+          "jsonName": "localFiles",
+          "goType": "[]LocalFile",
+          "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+          "usedTypescriptType": "Anime_LocalFile",
+          "usedStructName": "anime.LocalFile",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "UpcomingEpisodes",
+          "jsonName": "upcomingEpisodes",
+          "goType": "UpcomingEpisodes",
+          "typescriptType": "Anime_UpcomingEpisodes",
+          "usedTypescriptType": "Anime_UpcomingEpisodes",
+          "usedStructName": "anime.UpcomingEpisodes",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " UpcomingEpisodesRequestedEvent is triggered when the user requests upcoming episodes.",
+        " Prevent default to skip the default process and return the modified upcoming episodes."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "anime",
+    "goStruct": {
+      "filepath": "../internal/library/anime/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "UpcomingEpisodesEvent",
+      "formattedName": "Anime_UpcomingEpisodesEvent",
+      "package": "anime",
+      "fields": [
+        {
+          "name": "UpcomingEpisodes",
+          "jsonName": "upcomingEpisodes",
+          "goType": "UpcomingEpisodes",
+          "typescriptType": "Anime_UpcomingEpisodes",
+          "usedTypescriptType": "Anime_UpcomingEpisodes",
+          "usedStructName": "anime.UpcomingEpisodes",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " UpcomingEpisodesEvent is triggered when the upcoming episodes are being returned."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "anime",
+    "goStruct": {
+      "filepath": "../internal/library/anime/hook_events.go",
+      "filename": "hook_events.go",
       "name": "AnimeLibraryCollectionRequestedEvent",
       "formattedName": "Anime_AnimeLibraryCollectionRequestedEvent",
       "package": "anime",
@@ -4208,6 +4343,24 @@
           "comments": []
         },
         {
+          "name": "EnhanceWithOfflineDatabase",
+          "jsonName": "enhanceWithOfflineDatabase",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "DisableAnimeCollection",
+          "jsonName": "disableAnimeCollection",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
           "name": "next",
           "jsonName": "next",
           "goType": "",
@@ -4255,10 +4408,10 @@
         {
           "name": "AllMedia",
           "jsonName": "allMedia",
-          "goType": "[]anilist.CompleteAnime",
-          "typescriptType": "Array\u003cAL_CompleteAnime\u003e",
-          "usedTypescriptType": "AL_CompleteAnime",
-          "usedStructName": "anilist.CompleteAnime",
+          "goType": "[]anime.NormalizedMedia",
+          "typescriptType": "Array\u003cAnime_NormalizedMedia\u003e",
+          "usedTypescriptType": "Anime_NormalizedMedia",
+          "usedStructName": "anime.NormalizedMedia",
           "required": false,
           "public": true,
           "comments": []

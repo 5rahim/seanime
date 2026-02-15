@@ -191,6 +191,10 @@ func (f *File) GetIndex() int {
 	return f.index
 }
 
+func (f *File) GetPath() string {
+	return f.path
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // scanFiles scans the files and matches them with the media.
@@ -213,7 +217,7 @@ func (a *Analyzer) scanFiles() error {
 	allMedia := tree.Values()
 
 	mc := scanner.NewMediaContainer(&scanner.MediaContainerOptions{
-		AllMedia: allMedia,
+		AllMedia: scanner.NormalizedMediaFromAnilistComplete(allMedia),
 	})
 
 	//scanLogger, _ := scanner.NewScanLogger("./logs")
@@ -223,12 +227,11 @@ func (a *Analyzer) scanFiles() error {
 	// +---------------------+
 
 	matcher := &scanner.Matcher{
-		LocalFiles:         lfs,
-		MediaContainer:     mc,
-		CompleteAnimeCache: completeAnimeCache,
-		Logger:             util.NewLogger(),
-		ScanLogger:         nil,
-		ScanSummaryLogger:  nil,
+		LocalFiles:        lfs,
+		MediaContainer:    mc,
+		Logger:            util.NewLogger(),
+		ScanLogger:        nil,
+		ScanSummaryLogger: nil,
 	}
 
 	err := matcher.MatchLocalFilesWithMedia()

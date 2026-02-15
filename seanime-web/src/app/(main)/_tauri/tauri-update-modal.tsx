@@ -1,4 +1,3 @@
-"use client"
 import { useGetLatestUpdate } from "@/api/hooks/releases.hooks"
 import { UpdateChangelogBody } from "@/app/(main)/_features/update/update-helper"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"

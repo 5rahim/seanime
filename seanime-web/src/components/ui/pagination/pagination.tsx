@@ -1,5 +1,3 @@
-"use client"
-
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 import * as React from "react"
 import { cva } from "class-variance-authority"

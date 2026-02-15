@@ -1,7 +1,6 @@
-"use client"
 import { useCustomSourceListAnime, useCustomSourceListManga } from "@/api/hooks/custom_source.hooks"
 import { useListCustomSourceExtensions } from "@/api/hooks/extensions.hooks"
-import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { CustomLibraryBanner } from "@/app/(main)/_features/anime-library/_containers/custom-library-banner"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { __customSources_paramsAtom } from "@/app/(main)/custom-sources/custom-sources.atom"
@@ -15,8 +14,8 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Pagination, PaginationEllipsis, PaginationItem, PaginationTrigger } from "@/components/ui/pagination"
 import { Select } from "@/components/ui/select"
 import { TextInput } from "@/components/ui/text-input"
+import { useSearchParams } from "@/lib/navigation"
 import { useAtom } from "jotai/react"
-import { useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { FiSearch } from "react-icons/fi"
@@ -108,9 +107,9 @@ export default function Page() {
             <CustomLibraryBanner discrete />
             <PageWrapper data-search-page-container className="space-y-6 px-4 md:p-8 pt-0 pb-10">
                 <div className="flex items-center gap-4">
-                    <SeaLink href={`/discover`}>
+                    <SeaLink href={`/search`}>
                         <Button leftIcon={<AiOutlineArrowLeft />} rounded intent="gray-outline" size="md">
-                            Discover
+                            Search
                         </Button>
                     </SeaLink>
                     {/*<h3>Discover</h3>*/}

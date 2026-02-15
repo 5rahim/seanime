@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"errors"
+	"regexp"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
@@ -10,21 +11,24 @@ import (
 	"seanime/internal/library/summary"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
+	"seanime/internal/util/comparison"
 	"seanime/internal/util/limiter"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/sourcegraph/conc/pool"
 )
 
 // FileHydrator hydrates the metadata of all (matched) LocalFiles.
 // LocalFiles should already have their media ID hydrated.
 type FileHydrator struct {
-	LocalFiles          []*anime.LocalFile       // Local files to hydrate
-	AllMedia            []*anime.NormalizedMedia // All media used to hydrate local files
+	LocalFiles []*anime.LocalFile       // Local files to hydrate
+	AllMedia   []*anime.NormalizedMedia // All media used to hydrate local files
+	// Used by media tree analysis
 	CompleteAnimeCache  *anilist.CompleteAnimeCache
 	PlatformRef         *util.Ref[platform.Platform]
 	MetadataProviderRef *util.Ref[metadata_provider.Provider]
@@ -33,6 +37,19 @@ type FileHydrator struct {
 	ScanLogger          *ScanLogger                // optional
 	ScanSummaryLogger   *summary.ScanSummaryLogger // optional
 	ForceMediaId        int                        // optional - force all local files to have this media ID
+	Config              *Config
+	hydrationRules      map[string]*compiledHydrationRule
+}
+
+type compiledHydrationRule struct {
+	regex        *regexp.Regexp
+	rule         *HydrationRule
+	fileRulesRgx map[string]*compiledHydrationFileRule
+}
+
+type compiledHydrationFileRule struct {
+	regex *regexp.Regexp
+	rule  *HydrationFileRule
 }
 
 // HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseAnime.
@@ -42,6 +59,8 @@ func (fh *FileHydrator) HydrateMetadata() {
 	rateLimiter := limiter.NewLimiter(5*time.Second, 20)
 
 	fh.Logger.Debug().Msg("hydrator: Starting metadata hydration")
+
+	fh.precompileRules()
 
 	// Invoke ScanHydrationStarted hook
 	event := &ScanHydrationStartedEvent{
@@ -71,16 +90,22 @@ func (fh *FileHydrator) HydrateMetadata() {
 			Msg("Starting metadata hydration process")
 	}
 
-	// Process each group in parallel
-	p := pool.New()
+	const maxConcurrentGroups = 100
+	sem := make(chan struct{}, maxConcurrentGroups)
+	var wg sync.WaitGroup
 	for mId, files := range groups {
-		p.Go(func() {
-			if len(files) > 0 {
-				fh.hydrateGroupMetadata(mId, files, rateLimiter)
-			}
-		})
+		if len(files) == 0 {
+			continue
+		}
+		wg.Add(1)
+		sem <- struct{}{} // Acquire semaphore
+		go func(mId int, files []*anime.LocalFile) {
+			defer wg.Done()
+			defer func() { <-sem }() // Release semaphore
+			fh.hydrateGroupMetadata(mId, files, rateLimiter)
+		}(mId, files)
 	}
-	p.Wait()
+	wg.Wait()
 
 	if fh.ScanLogger != nil {
 		fh.ScanLogger.LogFileHydrator(zerolog.InfoLevel).
@@ -108,14 +133,18 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		return
 	}
 
+	// Make sure the media is fetched
+	_ = anime.FetchNormalizedMedia(fh.PlatformRef.Get().GetAnilistClient(), fh.AnilistRateLimiter, fh.CompleteAnimeCache, media)
+
 	// Tree contains media relations
 	tree := anilist.NewCompleteAnimeRelationTree()
 	// Tree analysis used for episode normalization
 	var mediaTreeAnalysis *MediaTreeAnalysis
 	treeFetched := false
+	mediaTreeAnalysisMu := sync.Mutex{}
 
 	// Process each local file in the group sequentially
-	lo.ForEach(lfs, func(lf *anime.LocalFile, index int) {
+	lop.ForEach(lfs, func(lf *anime.LocalFile, index int) {
 
 		defer util.HandlePanicInModuleThenS("scanner/hydrator/hydrateGroupMetadata", func(stackTrace string) {
 			lf.MediaId = 0
@@ -163,6 +192,11 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			return
 		}
 
+		// Apply hydration rule to the file
+		if fh.applyHydrationRule(lf) {
+			return
+		}
+
 		lf.Metadata.Type = anime.LocalFileTypeMain
 
 		// Get episode number
@@ -178,6 +212,15 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			lf.Metadata.AniDBEpisode = ""
 			lf.Metadata.Type = anime.LocalFileTypeNC
 
+			if episode > -1 {
+				lf.Metadata.Episode = episode
+				// Parse OP/ED type from the filename and set AniDBEpisode for better tracking
+				// e.g. "OP1", "ED2", etc.
+				if ncType, ok := comparison.ExtractNCType(lf.Name); ok {
+					lf.Metadata.AniDBEpisode = ncType + strconv.Itoa(episode)
+				}
+			}
+
 			/*Log */
 			if fh.ScanLogger != nil {
 				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
@@ -190,7 +233,13 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		// Special metadata
 		if lf.IsProbablySpecial() {
 			lf.Metadata.Type = anime.LocalFileTypeSpecial
-			if episode > -1 {
+			// Sometimes a movie filename could be written as a special episode of the main series
+			// anidb rarely if ever adds relevant specials to movie entries
+			if *media.Format == anilist.MediaFormatMovie {
+				lf.Metadata.Episode = 1
+				lf.Metadata.AniDBEpisode = "1"
+				lf.Metadata.Type = anime.LocalFileTypeMain
+			} else if episode > -1 {
 				// ep14 (13 original) -> ep1 s1
 				if episode > media.GetCurrentEpisodeCount() {
 					lf.Metadata.Episode = episode - media.GetCurrentEpisodeCount()
@@ -228,11 +277,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 		// No absolute episode count
 		// "media.GetTotalEpisodeCount() == -1" is a fix for media with unknown episode count, we will just assume that the episode number is correct
-		// TODO: We might want to fetch the media when the episode count is unknown in order to get the correct episode count
+		// devnote(don't know if this is still revelant): We might want to fetch the media when the episode count is unknown in order to get the correct episode count
 		if episode > -1 && (episode <= media.GetCurrentEpisodeCount() || media.GetTotalEpisodeCount() == -1) {
 			// Episode 0 - Might be a special
 			// By default, we will assume that AniDB doesn't include Episode 0 as part of the main episodes (which is often the case)
-			// If this proves to be wrong, media_entry.go will offset the AniDBEpisode by 1 and treat "S1" as "1" when it is a main episode
 			if episode == 0 {
 				// Leave episode number as 0, assuming that the client will handle tracking correctly
 				lf.Metadata.Episode = 0
@@ -293,6 +341,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 		// Still no episode number and the media has more than 1 episode and is not a movie
 		// We will mark it as a special episode
+		// devnote: Mark as NC?
 		if episode == -1 {
 			lf.Metadata.Type = anime.LocalFileTypeSpecial
 			lf.Metadata.Episode = 1
@@ -309,6 +358,29 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 		// Absolute episode count
 		if episode > media.GetCurrentEpisodeCount() && fh.ForceMediaId == 0 {
+
+			// Try part-relative normalization before expensive media tree analysis.
+			// This handles cases where filenames use numbering relative to a previous part of the same season
+			// (e.g., S04E12 for the first episode of Part 2, where Part 1 had 11 episodes).
+			if relativeEp, ok := fh.tryPartRelativeNormalization(lf, episode, mId, rateLimiter); ok {
+				lf.Metadata.Episode = relativeEp
+				lf.Metadata.AniDBEpisode = strconv.Itoa(relativeEp)
+
+				/*Log */
+				if fh.ScanLogger != nil {
+					fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+						Dict("partRelativeNormalization", zerolog.Dict().
+							Bool("normalized", true).
+							Int("relativeEpisode", relativeEp),
+						).
+						Msg("File normalized via part-relative detection")
+				}
+				fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
+				return
+			}
+
+			mediaTreeAnalysisMu.Lock()
+			defer mediaTreeAnalysisMu.Unlock()
 			if !treeFetched {
 
 				mediaTreeFetchStart := time.Now()
@@ -481,13 +553,79 @@ func (fh *FileHydrator) logFileHydration(level zerolog.Level, lf *anime.LocalFil
 	return fh.ScanLogger.LogFileHydrator(level).
 		Str("filename", lf.Name).
 		Int("mediaId", mId).
-		Dict("vars", zerolog.Dict().
+		Dict("parsed", zerolog.Dict().
 			Str("parsedEpisode", lf.ParsedData.Episode).
 			Int("episode", episode),
 		).
-		Dict("metadata", zerolog.Dict().
+		Dict("hydrated", zerolog.Dict().
 			Int("episode", lf.Metadata.Episode).
 			Str("aniDBEpisode", lf.Metadata.AniDBEpisode))
+}
+
+// tryPartRelativeNormalization detects and normalizes "part-relative absolute" episode numbers.
+//
+// Some release groups number episodes from a second cour relative to the start of a season rather than the first season.
+// e.g., a file named "S04E12" in a folder for "Danmachi IV Part 2" means episode 12 relative to S04, not S01.
+//
+// This is detected by fetching the matched media's metadata and checking if its first episode has
+// an episodeNumber > 1, which indicates the metadata provider recognizes it as a continuation.
+// If the file's episode number falls within the range [firstEp.EpisodeNumber, firstEp.EpisodeNumber + episodeCount - 1],
+// we can directly compute the relative episode number without the full media tree analysis.
+func (fh *FileHydrator) tryPartRelativeNormalization(
+	lf *anime.LocalFile,
+	episode int, // parsed episode number (e.g. 12)
+	mediaId int, // matched media ID
+	rateLimiter *limiter.Limiter,
+) (int, bool) {
+	if fh.MetadataProviderRef == nil {
+		return 0, false
+	}
+
+	rateLimiter.Wait()
+
+	animeMetadata, err := fh.MetadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
+	if err != nil {
+		return 0, false
+	}
+
+	firstEp, ok := animeMetadata.Episodes["1"]
+	if !ok {
+		return 0, false
+	}
+
+	// If the first episode's episodeNumber is > 1 and differs significantly from its absoluteEpisodeNumber,
+	// the media is a "Part 2" (or later) that continues from a previous part of the same season.
+	// The episodeNumber represents the part-relative continuation number.
+	if firstEp.EpisodeNumber <= 1 || firstEp.AbsoluteEpisodeNumber-firstEp.EpisodeNumber <= 1 {
+		return 0, false
+	}
+
+	minPartEp := firstEp.EpisodeNumber
+	mainEpCount := animeMetadata.GetMainEpisodeCount()
+	maxPartEp := minPartEp + mainEpCount - 1
+
+	// Check if the file's episode falls within the part-relative range
+	if episode < minPartEp || episode > maxPartEp {
+		return 0, false
+	}
+
+	relativeEp := episode - (minPartEp - 1)
+	if relativeEp < 1 {
+		return 0, false
+	}
+
+	if fh.ScanLogger != nil {
+		fh.ScanLogger.LogFileHydrator(zerolog.DebugLevel).
+			Str("filename", lf.Name).
+			Int("mediaId", mediaId).
+			Int("parsedEpisode", episode).
+			Int("partMinEp", minPartEp).
+			Int("partMaxEp", maxPartEp).
+			Int("relativeEp", relativeEp).
+			Msg("Detected part-relative absolute numbering")
+	}
+
+	return relativeEp, true
 }
 
 // normalizeEpisodeNumberAndHydrate will normalize the episode number and hydrate the metadata of the LocalFile.
@@ -522,4 +660,181 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 	lf.Metadata.AniDBEpisode = strconv.Itoa(relativeEp)
 	lf.MediaId = mediaId
 	return nil
+}
+
+func (fh *FileHydrator) precompileRules() {
+	defer util.HandlePanicInModuleThenS("scanner/matcher/precompileRules", func(stackTrace string) {
+		if fh.ScanLogger != nil {
+			fh.ScanLogger.LogMatcher(zerolog.ErrorLevel).
+				Msg("Panic occurred, when compiling matching rules")
+		}
+	})
+
+	if fh.Config == nil || len(fh.Config.Matching.Rules) == 0 {
+		return
+	}
+
+	for _, rule := range fh.Config.Hydration.Rules {
+		// we accept either a patterh or media id
+		if rule.Pattern == "" && rule.MediaID == 0 {
+			continue
+		}
+
+		r := &compiledHydrationRule{
+			regex:        nil,
+			rule:         rule,
+			fileRulesRgx: map[string]*compiledHydrationFileRule{},
+		}
+
+		if rule.Pattern != "" {
+			rgx, err := regexp.Compile(rule.Pattern)
+			if err != nil {
+				if fh.ScanLogger != nil {
+					fh.ScanLogger.LogMatcher(zerolog.WarnLevel).
+						Str("pattern", rule.Pattern).
+						Msg("Config: Invalid hydration regex pattern")
+				}
+				continue
+			}
+			rgx.Longest()
+			r.regex = rgx
+		}
+
+		for _, fr := range rule.Files {
+			if fr.IsRegex {
+				rgx, err := regexp.Compile(fr.Filename)
+				if err != nil {
+					if fh.ScanLogger != nil {
+						fh.ScanLogger.LogMatcher(zerolog.WarnLevel).
+							Str("filename", fr.Filename).
+							Str("pattern", rule.Pattern).
+							Msg("Config: Invalid hydration regex pattern")
+					}
+					continue
+				}
+				rgx.Longest()
+				r.fileRulesRgx[fr.Filename] = &compiledHydrationFileRule{
+					regex: rgx,
+					rule:  fr,
+				}
+			} else {
+				r.fileRulesRgx[fr.Filename] = &compiledHydrationFileRule{
+					regex: nil,
+					rule:  fr,
+				}
+			}
+		}
+
+		fh.hydrationRules[rule.Pattern] = r
+	}
+}
+
+func (fh *FileHydrator) applyHydrationRule(lf *anime.LocalFile) bool {
+	defer util.HandlePanicInModuleThenS("scanner/matcher/applyMatcingRule", func(stackTrace string) {
+		if fh.ScanLogger != nil {
+			fh.ScanLogger.LogMatcher(zerolog.ErrorLevel).
+				Str("filename", lf.Name).
+				Msg("Panic occurred when applying matching rule")
+		}
+		fh.ScanSummaryLogger.LogPanic(lf, stackTrace)
+	})
+
+	for _, rule := range fh.hydrationRules {
+		if rule.regex == nil && rule.rule.MediaID == 0 {
+			continue
+		}
+		// skip if the regex doesn't match
+		if rule.regex != nil && !rule.regex.MatchString(lf.Name) {
+			continue
+		}
+		// skip if the media ids don't match
+		if rule.rule.MediaID != 0 && lf.MediaId != rule.rule.MediaID {
+			continue
+		}
+
+		for _, fileRule := range rule.fileRulesRgx {
+			ok := false
+			if fileRule.regex != nil && fileRule.regex.MatchString(lf.Name) {
+				ok = true
+			}
+			if !ok && util.NormalizePath(fileRule.rule.Filename) == util.NormalizePath(lf.Name) {
+				ok = true
+			}
+			if !ok {
+				continue
+			}
+
+			// Apply metadata from the file rule
+			episode := fileRule.rule.Episode
+			aniDbEpisode := fileRule.rule.AniDbEpisode
+			fileType := fileRule.rule.Type
+
+			// Handle regex substitutions for capture groups ($1, $2, etc)
+			if fileRule.regex != nil {
+				matches := fileRule.regex.FindStringSubmatch(lf.Name)
+				if len(matches) > 1 {
+					// Replace $1, $2, etc with captured groups
+					for i := 1; i < len(matches); i++ {
+						placeholder := "$" + strconv.Itoa(i)
+						episode = strings.ReplaceAll(episode, placeholder, matches[i])
+						aniDbEpisode = strings.ReplaceAll(aniDbEpisode, placeholder, matches[i])
+					}
+				}
+			}
+
+			// Evaluate {calc(...)} expressions in aniDbEpisode
+			// e.g. "S{calc($1-11)}"
+			aniDbEpisode = fh.evaluateCalcExpressions(aniDbEpisode)
+
+			// Set the metadata
+			if episode != "" {
+				value, err := util.EvaluateSimpleExpression(episode)
+				if err == nil {
+					lf.Metadata.Episode = value
+				} else {
+					if ep, ok := util.StringToInt(episode); ok {
+						lf.Metadata.Episode = ep
+					}
+				}
+			}
+			if aniDbEpisode != "" {
+				lf.Metadata.AniDBEpisode = aniDbEpisode
+			}
+			if fileType != "" {
+				lf.Metadata.Type = fileType
+			}
+
+			return true
+		}
+
+	}
+
+	return false
+}
+
+// evaluateCalcExpressions finds and evaluates {calc(...)} expressions in a string
+// e.g. "S{calc(12-11)}" -> "S1"
+func (fh *FileHydrator) evaluateCalcExpressions(input string) string {
+	// Find all {calc(...)} patterns
+	re := regexp.MustCompile(`\{calc\(([^)]+)\)}`)
+
+	result := re.ReplaceAllStringFunc(input, func(match string) string {
+		// extract the expression inside calc()
+		submatches := re.FindStringSubmatch(match)
+		if len(submatches) < 2 {
+			return match
+		}
+
+		expression := submatches[1]
+
+		value, err := util.EvaluateSimpleExpression(expression)
+		if err != nil {
+			// return the original match
+			return match
+		}
+
+		return strconv.Itoa(value)
+	})
+
+	return result
 }

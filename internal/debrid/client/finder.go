@@ -16,7 +16,15 @@ import (
 	"github.com/samber/lo"
 )
 
-func (r *Repository) findBestTorrent(provider debrid.Provider, media *anilist.CompleteAnime, episodeNumber int) (selectedTorrent *hibiketorrent.AnimeTorrent, fileId string, err error) {
+type (
+	playbackTorrent struct {
+		torrent  *hibiketorrent.AnimeTorrent
+		fileId   string
+		filepath string
+	}
+)
+
+func (r *Repository) findBestTorrent(provider debrid.Provider, media *anilist.CompleteAnime, episodeNumber int) (ret *playbackTorrent, err error) {
 
 	defer util.HandlePanicInModuleWithError("debridstream/findBestTorrent", &err)
 
@@ -75,27 +83,30 @@ func (r *Repository) findBestTorrent(provider debrid.Provider, media *anilist.Co
 	if err != nil {
 		r.logger.Error().Err(err).Msg("debridstream: Auto-select failed")
 		if err.Error() == "no torrents found" {
-			return nil, "", fmt.Errorf("no torrents found, please select manually")
+			return nil, fmt.Errorf("no torrents found, please select manually")
 		}
-		return nil, "", err
+		return nil, err
 	}
 
 	if result.DebridTorrent == nil {
-		return nil, "", fmt.Errorf("failed to find torrent")
+		return nil, fmt.Errorf("failed to find torrent")
 	}
 
 	// Log success
 	r.logger.Info().Msgf("debridstream: Auto-selected torrent: %s", result.OriginalTorrent.Name)
 	r.logger.Debug().Msgf("debridstream: Selected file ID: %s", result.DebridFileID)
 
-	selectedTorrent = result.OriginalTorrent
-	fileId = result.DebridFileID
+	ret = &playbackTorrent{
+		torrent:  result.OriginalTorrent,
+		fileId:   result.DebridFileID,
+		filepath: result.AnalysisFile.GetPath(),
+	}
 
-	return selectedTorrent, fileId, nil
+	return ret, nil
 }
 
 // findBestTorrentFromManualSelection is like findBestTorrent but for a pre-selected torrent
-func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider, t *hibiketorrent.AnimeTorrent, media *anilist.CompleteAnime, episodeNumber int, chosenFileIndex *int) (selectedTorrent *hibiketorrent.AnimeTorrent, fileId string, err error) {
+func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider, t *hibiketorrent.AnimeTorrent, media *anilist.CompleteAnime, episodeNumber int, chosenFileIndex *int) (ret *playbackTorrent, err error) {
 
 	r.logger.Debug().Msgf("debridstream: Analyzing torrent from %s for %s", t.Link, media.GetTitleSafe())
 
@@ -103,7 +114,7 @@ func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider
 	providerExtension, ok := r.torrentRepository.GetAnimeProviderExtension(t.Provider)
 	if !ok {
 		r.logger.Error().Str("provider", t.Provider).Msg("debridstream: provider extension not found")
-		return nil, "", fmt.Errorf("provider extension not found")
+		return nil, fmt.Errorf("provider extension not found")
 	}
 
 	// Check if the torrent is cached
@@ -119,7 +130,7 @@ func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider
 	magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(t)
 	if err != nil {
 		r.logger.Error().Err(err).Msgf("debridstream: Error scraping magnet link for %s", t.Link)
-		return nil, "", fmt.Errorf("could not get magnet link from %s", t.Link)
+		return nil, fmt.Errorf("could not get magnet link from %s", t.Link)
 	}
 
 	// Set the magnet link
@@ -132,12 +143,12 @@ func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider
 	})
 	if err != nil {
 		r.logger.Error().Err(err).Msgf("debridstream: Error adding torrent %s", t.Link)
-		return nil, "", err
+		return nil, err
 	}
 
 	// If the torrent has only one file, return it
 	if len(info.Files) == 1 {
-		return t, info.Files[0].ID, nil
+		return &playbackTorrent{torrent: t, fileId: info.Files[0].ID, filepath: info.Files[0].Path}, nil
 	}
 
 	var fileIndex int
@@ -153,7 +164,7 @@ func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider
 
 		if len(filepaths) == 0 {
 			r.logger.Error().Msg("debridstream: No files found in the torrent")
-			return nil, "", fmt.Errorf("no files found in the torrent")
+			return nil, fmt.Errorf("no files found in the torrent")
 		}
 
 		// Create a new Torrent Analyzer
@@ -170,14 +181,14 @@ func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider
 		analysis, err := analyzer.AnalyzeTorrentFiles()
 		if err != nil {
 			r.logger.Warn().Err(err).Msg("debridstream: Error analyzing torrent files")
-			return nil, "", err
+			return nil, err
 		}
 
 		analysisFile, found := analysis.GetFileByAniDBEpisode(strconv.Itoa(episodeNumber))
 		// Check if analyzer found the episode
 		if !found {
 			r.logger.Error().Msgf("debridstream: Failed to auto-select episode from torrent %s", t.Name)
-			return nil, "", fmt.Errorf("could not find episode %d in torrent", episodeNumber)
+			return nil, fmt.Errorf("could not find episode %d in torrent", episodeNumber)
 		}
 
 		r.logger.Debug().Msgf("debridstream: Found corresponding file for episode %s: %s", strconv.Itoa(episodeNumber), analysisFile.GetLocalFile().Name)
@@ -189,5 +200,5 @@ func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider
 	r.logger.Debug().Str("file", util.SpewT(tFile)).Msgf("debridstream: Selected file %s", tFile.Name)
 	r.logger.Debug().Msgf("debridstream: Selected torrent %s", t.Name)
 
-	return t, tFile.ID, nil
+	return &playbackTorrent{torrent: t, fileId: tFile.ID, filepath: tFile.Path}, nil
 }

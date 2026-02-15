@@ -265,6 +265,15 @@
 //     })
 // }
 
+// export function useGetUpcomingEpisodes() {
+//     return useServerQuery<Anime_UpcomingEpisodes>({
+//         endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetUpcomingEpisodes.endpoint,
+//         method: API_ENDPOINTS.ANIME_ENTRIES.GetUpcomingEpisodes.methods[0],
+//         queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetUpcomingEpisodes.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useGetAnimeEntrySilenceStatus(id: number) {
 //     return useServerQuery<Models_SilencedMediaEntry>({
 //         endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntrySilenceStatus.endpoint.replace("{id}", String(id)),
@@ -2330,6 +2339,17 @@
 //     })
 // }
 
+// export function useDecompressIssueReport() {
+//     return useServerMutation<Report_IssueReport>({
+//         endpoint: API_ENDPOINTS.REPORT.DecompressIssueReport.endpoint,
+//         method: API_ENDPOINTS.REPORT.DecompressIssueReport.methods[0],
+//         mutationKey: [API_ENDPOINTS.REPORT.DecompressIssueReport.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // scan
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2738,6 +2758,19 @@
 //         onSuccess: async () => {
 // 
 //         },
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// videocore
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useVideoCoreInSightGetCharacterDetails(malId: number) {
+//     return useServerQuery<VideoCore_InSightCharacterDetails>({
+//         endpoint: API_ENDPOINTS.VIDEOCORE.VideoCoreInSightGetCharacterDetails.endpoint.replace("{malId}", String(malId)),
+//         method: API_ENDPOINTS.VIDEOCORE.VideoCoreInSightGetCharacterDetails.methods[0],
+//         queryKey: [API_ENDPOINTS.VIDEOCORE.VideoCoreInSightGetCharacterDetails.key],
+//         enabled: true,
 //     })
 // }
 

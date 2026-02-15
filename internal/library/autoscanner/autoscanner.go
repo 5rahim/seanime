@@ -3,6 +3,7 @@ package autoscanner
 import (
 	"context"
 	"errors"
+	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
@@ -39,6 +40,8 @@ type (
 		metadataProviderRef *util.Ref[metadata_provider.Provider]
 		logsDir             string
 		scanning            atomic.Bool
+		onRefreshCollection func()
+		animeCollection     *anilist.AnimeCollection
 	}
 	NewAutoScannerOptions struct {
 		Database            *db.Database
@@ -50,6 +53,7 @@ type (
 		WaitTime            time.Duration
 		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 		LogsDir             string
+		OnRefreshCollection func()
 	}
 )
 
@@ -74,7 +78,12 @@ func New(opts *NewAutoScannerOptions) *AutoScanner {
 		autoDownloader:      opts.AutoDownloader,
 		metadataProviderRef: opts.MetadataProviderRef,
 		logsDir:             opts.LogsDir,
+		onRefreshCollection: opts.OnRefreshCollection,
 	}
+}
+
+func (as *AutoScanner) SetAnimeCollection(ac *anilist.AnimeCollection) {
+	as.animeCollection = ac
 }
 
 // Notify is used to notify the AutoScanner that a file action has occurred.
@@ -248,6 +257,8 @@ func (as *AutoScanner) scan() {
 		MatchingAlgorithm:    as.settings.ScannerMatchingAlgorithm,
 		WithShelving:         true,
 		ExistingShelvedFiles: existingShelvedLfs,
+		ConfigAsString:       as.settings.ScannerConfig,
+		AnimeCollection:      as.animeCollection,
 	}
 
 	allLfs, err := sc.Scan(context.Background())
@@ -288,6 +299,10 @@ func (as *AutoScanner) scan() {
 
 	// Refresh the queue
 	go as.autoDownloader.CleanUpDownloadedItems()
+
+	if as.onRefreshCollection != nil {
+		go as.onRefreshCollection()
+	}
 
 	notifier.GlobalNotifier.Notify(notifier.AutoScanner, "Your library has been scanned.")
 

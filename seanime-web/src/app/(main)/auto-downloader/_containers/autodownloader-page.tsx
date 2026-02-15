@@ -140,7 +140,7 @@ export function AutoDownloaderPage() {
                                 <Card className="p-4 space-y-4">
                                     <ul className="text-base text-[--muted]">
                                         <li>Rules allow you to programmatically download new episodes based on the
-                                                                                     parameters you set.
+                                            parameters you set.
                                         </li>
                                     </ul>
 

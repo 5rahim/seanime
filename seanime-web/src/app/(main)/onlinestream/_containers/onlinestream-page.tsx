@@ -6,7 +6,8 @@ import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episod
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import { useNakamaStatus, useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
-import { useSkipData } from "@/app/(main)/_features/sea-media-player/aniskip"
+import { EpisodePillsGrid } from "@/app/(main)/_features/video-core/_components/episode-pills-grid"
+import { useSkipData } from "@/app/(main)/_features/video-core/_lib/aniskip"
 import { VideoCore, VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
 import { isHLSSrc, isNativeVideoExtension, isProbablyHls } from "@/app/(main)/_features/video-core/video-core-hls"
 import {
@@ -16,7 +17,6 @@ import {
 } from "@/app/(main)/_features/video-core/video-core-inline-helpers"
 import { vc_useLibassRendererAtom, VideoCore_VideoPlaybackInfo, VideoCore_VideoSource } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
-import { EpisodePillsGrid } from "@/app/(main)/onlinestream/_components/episode-pills-grid"
 import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
@@ -34,19 +34,18 @@ import { Popover, PopoverProps } from "@/components/ui/popover"
 import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { logger, useLatestFunction } from "@/lib/helpers/debug"
+import { usePathname, useRouter, useSearchParams } from "@/lib/navigation"
 import { useWindowSize } from "@uidotdev/usehooks"
 import { AxiosError } from "axios"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
-import { uniq, uniqBy } from "lodash"
+import uniq from "lodash/uniq"
+import uniqBy from "lodash/uniqBy"
 import { AnimatePresence, motion } from "motion/react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { BsFillGrid3X3GapFill } from "react-icons/bs"
 import { CgMediaPodcast } from "react-icons/cg"
 import { FaSearch } from "react-icons/fa"
-import "@/app/vidstack-theme.css"
-import "@vidstack/react/player/styles/default/layouts/video.css"
 import { HiOutlineCog6Tooth } from "react-icons/hi2"
 import { LuSpeech } from "react-icons/lu"
 import { MdOutlineSubtitles } from "react-icons/md"
@@ -286,23 +285,25 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 } else {
                     _url = videoSource.url
                 }
-                React.startTransition(async () => {
-                    // If the video source is unknown or we can't determine if it's a native video from the url,
-                    // send a HEAD request to determine the content type
-                    if (videoSource.type === "unknown" || !isValidVideoSourceType(videoSource.type) || (videoSource.type === "mp4" && !isNativeVideoExtension(
-                        _url)) || (videoSource.type === "m3u8" && !isHLSSrc(_url))) {
-                        log.warning("Verifying original video source type", videoSource)
-                        if (await isProbablyHls(_url) === "hls") {
-                            log.info("Detected HLS source type")
-                            setOverrideStreamType("hls")
-                        } else {
-                            setOverrideStreamType(!isValidVideoSourceType(videoSource.type) ? "native" : null)
+                React.startTransition(() => {
+                    (async () => {
+                        // If the video source is unknown or we can't determine if it's a native video from the url,
+                        // send a HEAD request to determine the content type
+                        if (videoSource.type === "unknown" || !isValidVideoSourceType(videoSource.type) || (videoSource.type === "mp4" && !isNativeVideoExtension(
+                            _url)) || (videoSource.type === "m3u8" && !isHLSSrc(_url))) {
+                            log.warning("Verifying original video source type", videoSource)
+                            if (await isProbablyHls(_url) === "hls") {
+                                log.info("Detected HLS source type")
+                                setOverrideStreamType("hls")
+                            } else {
+                                setOverrideStreamType(!isValidVideoSourceType(videoSource.type) ? "native" : null)
+                            }
                         }
-                    }
-                    React.startTransition(() => {
-                        log.info("Setting stream URL", { url: _url, quality, server, dubbed, provider })
-                        setUrl(_url)
-                    })
+                        React.startTransition(() => {
+                            log.info("Setting stream URL", { url: _url, quality, server, dubbed, provider })
+                            setUrl(_url)
+                        })
+                    })()
                 })
             }
         })()
@@ -713,6 +714,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                             <EpisodePillsGrid
                                 key="grid-view"
                                 episodes={episodes?.map(ep => ({
+                                    id: String(ep.number),
                                     number: ep.number,
                                     title: ep.title,
                                     isFiller: ep.isFiller,

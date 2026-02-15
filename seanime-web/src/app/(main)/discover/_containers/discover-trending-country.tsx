@@ -6,7 +6,7 @@ import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_components
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
 import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/advanced-search-constants"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
-import { atom } from "jotai/index"
+import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useEffect, useState } from "react"
 

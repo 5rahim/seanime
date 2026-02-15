@@ -1,21 +1,18 @@
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
-import {
-    vc_containerElement,
-    vc_dispatchAction,
-    vc_isFullscreen,
-    vc_isMobile,
-    vc_mediaCaptionsManager,
-    vc_miniPlayer,
-    vc_playbackRate,
-    vc_subtitleManager,
-} from "@/app/(main)/_features/video-core/video-core"
+import { vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_mediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core"
 import { anime4kOptions, getAnime4KOptionByValue, vc_anime4kOption } from "@/app/(main)/_features/video-core/video-core-anime-4k"
 import { Anime4KOption } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
+import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_menuSectionOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_menuSubSectionOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isMobile } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_playbackRate } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_containerElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { VideoCoreControlButtonIcon } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import {
-    vc_menuOpen,
-    vc_menuSectionOpen,
-    vc_menuSubSectionOpen,
     VideoCoreMenu,
     VideoCoreMenuOption,
     VideoCoreMenuSectionBody,
@@ -39,6 +36,7 @@ import {
     vc_storedPlaybackRateAtom,
     VideoCoreSettings,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"

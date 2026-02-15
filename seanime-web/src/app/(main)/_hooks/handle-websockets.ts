@@ -214,7 +214,8 @@ export function useWebsocketSender() {
             if (successfulMessages.length > 0) {
                 // Create a new array without the successfully sent messages
                 messageQueue.current = queueCopy.filter((_, index) => !successfulMessages.includes(index))
-                // logger("WebsocketSender").info(`Sent ${successfulMessages.length}/${queueCopy.length} queued messages, ${messageQueue.current.length} remaining`)
+                // logger("WebsocketSender").info(`Sent ${successfulMessages.length}/${queueCopy.length} queued messages,
+                // ${messageQueue.current.length} remaining`)
             }
         } else {
             // const reason = !currentSocket ? "no socket" :
@@ -254,7 +255,7 @@ export function useWebsocketSender() {
                 flushPluginEventBatch()
             }
         }
-    }, [isConnected]);
+    }, [isConnected])
 
     return {
         sendMessage,

@@ -5,7 +5,7 @@ import {
     libraryExplorer_superUpdateDrawerOpenAtom,
 } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import { Button } from "@/components/ui/button"
-import { useAtom } from "jotai/index"
+import { useAtom } from "jotai"
 import React from "react"
 import { FaRegEdit } from "react-icons/fa"
 

@@ -77,6 +77,10 @@ func (m *OnlinestreamProviderExtensionImpl) GetWebsite() string {
 	return m.ext.Website
 }
 
+func (m *OnlinestreamProviderExtensionImpl) GetReadme() string {
+	return m.ext.Readme
+}
+
 func (m *OnlinestreamProviderExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }

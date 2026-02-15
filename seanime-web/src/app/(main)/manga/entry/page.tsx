@@ -1,4 +1,3 @@
-"use client"
 import { useGetMangaEntry, useGetMangaEntryDetails } from "@/api/hooks/manga.hooks"
 import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
@@ -8,13 +7,14 @@ import { MetaSection } from "@/app/(main)/manga/_components/meta-section"
 import { ChapterList } from "@/app/(main)/manga/_containers/chapter-list/chapter-list"
 import { useHandleMangaDownloadData } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { PageWrapper } from "@/components/shared/page-wrapper"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname } from "@/lib/navigation"
+import { useRouter, useSearchParams } from "@/lib/navigation"
 import React from "react"
 
-export const dynamic = "force-static"
 
 export default function Page() {
     const router = useRouter()
+    const pathname = usePathname()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
     const { data: mangaEntry, isLoading: mangaEntryLoading } = useGetMangaEntry(mediaId)
@@ -26,12 +26,13 @@ export default function Page() {
     const { downloadData, downloadDataLoading } = useHandleMangaDownloadData(mediaId)
 
     React.useEffect(() => {
+        if (!pathname.startsWith("/manga/entry")) return
         if (!mediaId) {
             router.push("/")
         } else if ((!mangaEntryLoading && !mangaEntry)) {
             router.push("/")
         }
-    }, [mangaEntry, mangaEntryLoading])
+    }, [mangaEntry, pathname, mangaEntryLoading])
 
     React.useEffect(() => {
         try {

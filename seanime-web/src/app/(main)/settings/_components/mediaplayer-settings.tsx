@@ -99,6 +99,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                                 <Field.Text
                                     name="vlcPassword"
                                     label="Password"
+                                    type="password"
                                 />
                                 <Field.Number
                                     name="vlcPort"

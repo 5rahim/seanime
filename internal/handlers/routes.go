@@ -246,6 +246,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Library.GET("/scan-summaries", h.HandleGetScanSummaries)
 
 	v1Library.GET("/missing-episodes", h.HandleGetMissingEpisodes)
+	v1Library.GET("/upcoming-episodes", h.HandleGetUpcomingEpisodes)
 
 	v1Library.GET("/anime-entry/:id", h.HandleGetAnimeEntry)
 	v1Library.POST("/anime-entry/suggestions", h.HandleFetchAnimeEntrySuggestions)
@@ -449,6 +450,11 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.POST("/directstream/subs/convert-subs", h.HandleDirectstreamConvertSubs)
 
 	//
+	// VideoCore
+	//
+	v1.GET("/videocore/insight/character/:malId", h.HandleVideoCoreInSightGetCharacterDetails)
+
+	//
 	// Torrent stream
 	//
 	v1.GET("/torrentstream/settings", h.HandleGetTorrentstreamSettings)
@@ -537,6 +543,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1.POST("/report/issue", h.HandleSaveIssueReport)
 	v1.GET("/report/issue/download", h.HandleDownloadIssueReport)
+	v1.POST("/report/issue/decompress", h.HandleDecompressIssueReport)
 
 	//
 	// Nakama

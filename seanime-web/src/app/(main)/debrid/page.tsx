@@ -1,7 +1,6 @@
-"use client"
 import { Debrid_TorrentItem } from "@/api/generated/types"
 import { useDebridCancelDownload, useDebridDeleteTorrent, useDebridDownloadTorrent, useDebridGetTorrents } from "@/api/hooks/debrid.hooks"
-import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { CustomLibraryBanner } from "@/app/(main)/_features/anime-library/_containers/custom-library-banner"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -29,7 +28,6 @@ import { FiDownload } from "react-icons/fi"
 import { HiFolderDownload } from "react-icons/hi"
 import { toast } from "sonner"
 
-export const dynamic = "force-static"
 
 function getServiceName(provider: string) {
     switch (provider) {
@@ -104,8 +102,8 @@ function Content() {
             <p className="max-w-md">Failed to connect to the Debrid service, verify your settings.</p>
             <Button
                 intent="primary-subtle" onClick={() => {
-                    setEnabled(true)
-                }}
+                setEnabled(true)
+            }}
             >Retry</Button>
         </div>
     </LuffyError>

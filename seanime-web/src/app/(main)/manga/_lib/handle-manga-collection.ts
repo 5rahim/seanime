@@ -2,11 +2,11 @@ import { Manga_Collection, Manga_MangaLatestChapterNumberItem } from "@/api/gene
 import { useListMangaProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useGetMangaCollection, useGetMangaLatestChapterNumbersMap } from "@/api/hooks/manga.hooks"
 import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries, filterMangaCollectionEntries } from "@/lib/helpers/filtering"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { useRouter } from "@/lib/navigation"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
-import { useRouter } from "next/navigation"
 import React from "react"
 import { MangaEntryFilters, useStoredMangaFilters, useStoredMangaProviders } from "./handle-manga-selected-provider"
 

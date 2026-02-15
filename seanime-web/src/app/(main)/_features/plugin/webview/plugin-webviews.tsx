@@ -15,10 +15,10 @@ import { useIsMainTab, useIsMainTabRef } from "@/app/websocket-provider"
 import { cn } from "@/components/ui/core/styling"
 import { useMeasureElement } from "@/hooks/use-measure-element"
 import { logger } from "@/lib/helpers/debug"
+import { usePathname, useSearchParams } from "@/lib/navigation"
 import { WSEvents } from "@/lib/server/ws-events"
 import { Portal } from "@radix-ui/react-portal"
 import { useMap } from "@uidotdev/usehooks"
-import { usePathname, useSearchParams } from "next/navigation"
 import React from "react"
 import { useMount, useUnmount } from "react-use"
 
@@ -640,6 +640,7 @@ function WebviewIframe({ webview, onUpdatePosition, onClose }: WebviewIframeProp
                     (isDragging) && "pointer-events-none",
                     options.className,
                 )}
+                {...({ credentialless: "true" } as any)}
             />
         </div>
     )

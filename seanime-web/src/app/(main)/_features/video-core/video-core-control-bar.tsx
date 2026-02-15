@@ -1,26 +1,25 @@
-import {
-    vc_containerElement,
-    vc_currentTime,
-    vc_cursorBusy,
-    vc_dispatchAction,
-    vc_duration,
-    vc_isFullscreen,
-    vc_isMobile,
-    vc_isMuted,
-    vc_isSwiping,
-    vc_miniPlayer,
-    vc_paused,
-    vc_pip,
-    vc_seeking,
-    vc_volume,
-    VIDEOCORE_DEBUG_ELEMENTS,
-} from "@/app/(main)/_features/video-core/video-core"
+import { VIDEOCORE_DEBUG_ELEMENTS } from "@/app/(main)/_features/video-core/video-core"
+import { vc_hoveringControlBar } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isMobile } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isSwiping } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_duration } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_currentTime } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isMuted } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_volume } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_seeking } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_paused } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_cursorBusy } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_containerElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
+import { vc_pip } from "@/app/(main)/_features/video-core/video-core-pip"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import { vc_storedMutedAtom, vc_storedVolumeAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
 import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
-import { atom, useAtomValue } from "jotai"
+import { useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { AnimatePresence, motion } from "motion/react"
@@ -32,8 +31,6 @@ import { TbPictureInPicture, TbPictureInPictureOff } from "react-icons/tb"
 
 const VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT = 48
 const VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT_MINI = 28
-
-export const vc_hoveringControlBar = atom(false)
 
 type VideoCoreControlBarType = "default" | "classic"
 const VIDEOCORE_CONTROL_BAR_TYPE: VideoCoreControlBarType = "default"

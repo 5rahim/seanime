@@ -55,20 +55,49 @@ type UnlockedLocalFile struct {
 	MediaId int    `json:"mediaId"`
 }
 
+type NavigationLog struct {
+	From      string    `json:"from"`
+	To        string    `json:"to"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
+type Screenshot struct {
+	Data      string    `json:"data"` // base64 encoded image
+	Caption   string    `json:"caption,omitempty"`
+	PageURL   string    `json:"pageUrl"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// WebSocketLog represents a captured WebSocket message during recording
+type WebSocketLog struct {
+	Direction string          `json:"direction"` // "incoming" or "outgoing"
+	EventType string          `json:"eventType"`
+	Payload   json.RawMessage `json:"payload"`
+	Timestamp time.Time       `json:"timestamp"`
+}
+
 type IssueReport struct {
-	CreatedAt          time.Time            `json:"createdAt"`
-	UserAgent          string               `json:"userAgent"`
-	AppVersion         string               `json:"appVersion"`
-	OS                 string               `json:"os"`
-	Arch               string               `json:"arch"`
-	ClickLogs          []*ClickLog          `json:"clickLogs,omitempty"`
-	NetworkLogs        []*NetworkLog        `json:"networkLogs,omitempty"`
-	ReactQueryLogs     []*ReactQueryLog     `json:"reactQueryLogs,omitempty"`
-	ConsoleLogs        []*ConsoleLog        `json:"consoleLogs,omitempty"`
-	UnlockedLocalFiles []*UnlockedLocalFile `json:"unlockedLocalFiles,omitempty"`
-	ScanLogs           []string             `json:"scanLogs,omitempty"`
-	ServerLogs         string               `json:"serverLogs,omitempty"`
-	ServerStatus       string               `json:"status,omitempty"`
+	CreatedAt           time.Time            `json:"createdAt"`
+	UserAgent           string               `json:"userAgent"`
+	AppVersion          string               `json:"appVersion"`
+	OS                  string               `json:"os"`
+	Arch                string               `json:"arch"`
+	Description         string               `json:"description,omitempty"`
+	ClickLogs           []*ClickLog          `json:"clickLogs,omitempty"`
+	NetworkLogs         []*NetworkLog        `json:"networkLogs,omitempty"`
+	ReactQueryLogs      []*ReactQueryLog     `json:"reactQueryLogs,omitempty"`
+	ConsoleLogs         []*ConsoleLog        `json:"consoleLogs,omitempty"`
+	NavigationLogs      []*NavigationLog     `json:"navigationLogs,omitempty"`
+	Screenshots         []*Screenshot        `json:"screenshots,omitempty"`
+	WebSocketLogs       []*WebSocketLog      `json:"websocketLogs,omitempty"`
+	RRWebEvents         []json.RawMessage    `json:"rrwebEvents,omitempty"`
+	UnlockedLocalFiles  []*UnlockedLocalFile `json:"unlockedLocalFiles,omitempty"`
+	ScanLogs            []string             `json:"scanLogs,omitempty"`
+	ServerLogs          string               `json:"serverLogs,omitempty"`
+	ServerStatus        string               `json:"status,omitempty"`
+	ViewportWidth       int                  `json:"viewportWidth,omitempty"`
+	ViewportHeight      int                  `json:"viewportHeight,omitempty"`
+	RecordingDurationMs int64                `json:"recordingDurationMs,omitempty"`
 }
 
 func NewIssueReport(userAgent, appVersion, _os, arch string, logsDir string, isAnimeLibraryIssue bool, serverStatus interface{}, toRedact []string) (ret *IssueReport, err error) {
@@ -82,6 +111,10 @@ func NewIssueReport(userAgent, appVersion, _os, arch string, logsDir string, isA
 		NetworkLogs:        make([]*NetworkLog, 0),
 		ReactQueryLogs:     make([]*ReactQueryLog, 0),
 		ConsoleLogs:        make([]*ConsoleLog, 0),
+		NavigationLogs:     make([]*NavigationLog, 0),
+		Screenshots:        make([]*Screenshot, 0),
+		WebSocketLogs:      make([]*WebSocketLog, 0),
+		RRWebEvents:        make([]json.RawMessage, 0),
 		UnlockedLocalFiles: make([]*UnlockedLocalFile, 0),
 		ScanLogs:           make([]string, 0),
 		ServerLogs:         "",

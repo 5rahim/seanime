@@ -1,14 +1,14 @@
+import { VideoCore_InSightData } from "@/api/generated/types"
 import { MKVParser_TrackInfo, VideoCore_ClientEventType, VideoCore_PlaybackState, VideoCore_ServerEvent } from "@/api/generated/types"
-import {
-    vc_activePlayerId,
-    vc_anime4kManager,
-    vc_audioManager,
-    vc_mediaCaptionsManager,
-    vc_subtitleManager,
-} from "@/app/(main)/_features/video-core/video-core"
+import { vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_mediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_audioManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_anime4kManager } from "@/app/(main)/_features/video-core/video-core"
 import { Anime4KManagerOptionChangedEvent } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
+import { vc_activePlayerId } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { AudioManagerHlsTrackChangedEvent, AudioManagerTrackChangedEvent } from "@/app/(main)/_features/video-core/video-core-audio"
 import { FullscreenManagerChangedEvent, vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
+import { useVideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
 import {
     MediaCaptionsTrackDeselectedEvent,
     MediaCaptionsTrackInfo,
@@ -100,6 +100,7 @@ export function useVideoCoreSetupEvents(id: string,
     const autoNext = useAtomValue(vc_autoNextAtom)
     const showOverlayFeedback = useSetAtom(vc_showOverlayFeedback)
     const { playEpisode: playPlaylistEpisode, playlistState } = useVideoCorePlaylist()
+    const { toggleOpen: toggleInSight, setData: setInSightData } = useVideoCoreInSight()
 
     // React.useEffect(() => {
     //     log.trace(activePlayer, id)
@@ -574,7 +575,7 @@ export function useVideoCoreSetupEvents(id: string,
                         }
                     }
                     break
-                case "add-subtitle-track":
+                case "add-subtitle-track": // not used
                     log.info("Add subtitle track event received", payload)
                     const subtitleTrack = payload as MKVParser_TrackInfo
                     if (subtitleManager) {
@@ -587,7 +588,7 @@ export function useVideoCoreSetupEvents(id: string,
                     if (subtitleManager) {
                         subtitleManager.addFileTrack(fileTrack)
                     } else if (mediaCaptionsManager) {
-                        mediaCaptionsManager.addCaptionTrack(fileTrack)
+                        mediaCaptionsManager.addCaptionTrack({ ...fileTrack })
                     }
                     showOverlayFeedback({ message: `Subtitle track added: ${fileTrack.label}`, type: "message", duration: 1500 })
                     break
@@ -602,7 +603,7 @@ export function useVideoCoreSetupEvents(id: string,
                         }
                     }
                     break
-                case "add-media-caption-track":
+                case "add-media-caption-track": // not used
                     log.info("Add media caption track event received", payload)
                     const track = payload as MediaCaptionsTrackInfo
                     if (mediaCaptionsManager) {
@@ -630,6 +631,25 @@ export function useVideoCoreSetupEvents(id: string,
                     log.info("Get audio track event received")
                     const trackNumber = audioManager?.getSelectedTrackNumberOrNull() ?? -1
                     sendEvent<VideoCoreAudioTrackEventPayload>("video-audio-track", { trackNumber: trackNumber, isHLS: audioManager?.isHLS ?? false })
+                    break
+                case "get-subtitle-track-content":
+                    log.info("Get subtitle track content event received")
+                    const number = payload as number
+                    if (subtitleManager) {
+                        const content = subtitleManager.getTrackContent(number)
+                        sendEvent("video-subtitle-track-content", {
+                            trackNumber: number,
+                            content: content ?? "",
+                            type: "ass",
+                        })
+                    } else if (mediaCaptionsManager) {
+                        const content = mediaCaptionsManager.getTrackContent(number)
+                        sendEvent("video-subtitle-track-content", {
+                            trackNumber: number,
+                            content: content ?? "",
+                            type: "vtt",
+                        })
+                    }
                     break
                 case "get-subtitle-track":
                     log.info("Get subtitle track event received")
@@ -707,6 +727,10 @@ export function useVideoCoreSetupEvents(id: string,
                 case "translated-text":
                     const p = payload as { original: string, translated: string }
                     subtitleManager?.processEventTranslationQueue?.(p.original, p.translated)
+                    break
+                case "in-sight-data":
+                    log.info("In-sight data event received", payload)
+                    setInSightData((payload ?? null) as VideoCore_InSightData | null)
                     break
                 default:
                     log.warn("Unknown event received", type)

@@ -1,3 +1,5 @@
+import { AL_BaseManga_Title } from "@/api/generated/types"
+import { AL_BaseAnime_Title } from "@/api/generated/types"
 import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
 import { ElectronYoutubeEmbed } from "@/app/(main)/_electron/electron-embed"
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
@@ -9,12 +11,11 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
 import { getImageUrl } from "@/lib/server/assets"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { __isElectronDesktop__ } from "@/types/constants"
 import { addSeconds, formatDistanceToNow } from "date-fns"
-import { atom, useAtom } from "jotai/index"
+import { atom, useAtom } from "jotai"
 import capitalize from "lodash/capitalize"
-import startCase from "lodash/startCase"
 import React, { memo } from "react"
 import { BiCalendarAlt } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
@@ -217,6 +218,7 @@ export function MediaEntryCardHoverPopupFooter(props: MediaEntryCardHoverPopupFo
 type MediaEntryCardHoverPopupTitleSectionProps = {
     link: string
     title: string
+    allTitles?: AL_BaseAnime_Title | AL_BaseManga_Title | undefined
     season?: string
     year?: number
     format?: string
@@ -230,6 +232,7 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
     const {
         link,
         title,
+        allTitles,
         season,
         year,
         format,
@@ -238,6 +241,10 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
         onHoverLeave,
         ...rest
     } = props
+
+    const otherTitle = (!allTitles || allTitles?.english?.toUpperCase() === allTitles?.romaji?.toUpperCase()) ? undefined :
+        (title.toUpperCase() === allTitles.english?.toUpperCase() && !!allTitles.romaji) ? allTitles.romaji : allTitles.english
+
 
     return (
         <>
@@ -249,18 +256,22 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
             >
                 <SeaLink
                     href={!onClick ? link : undefined}
-                    className="text-center text-pretty font-medium text-sm lg:text-base px-4 leading-0 line-clamp-2 hover:text-brand-100"
+                    className="block text-center text-pretty font-medium text-sm lg:text-base px-2 leading-none line-clamp-2 hover:text-brand-100"
                     onClick={onClick}
                 >
                     {title}
                 </SeaLink>
+                {!!otherTitle && <p className="text-xs text-[--muted] text-center px-4 line-clamp-1">
+                    {otherTitle}
+                </p>}
             </div>
             {!!year && <div>
                 <p
                     data-media-entry-card-hover-popup-title-section-year-season
                     className="justify-center text-sm text-[--muted] flex w-full gap-1 items-center"
                 >
-                    {startCase(format || "")} - <BiCalendarAlt /> {capitalize(season ?? "")} {year}
+                    {/*{startCase(format || "")} - <BiCalendarAlt /> {capitalize(season ?? "")} {year}*/}
+                    <BiCalendarAlt /> {capitalize(season ?? "")} {year}{(format !== "TV" && format !== "MANGA") && ` - ${format || ""}`}
                 </p>
             </div>}
         </>
@@ -585,6 +596,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                 />}
                 {!__isElectronDesktop__ && <iframe
                     data-media-entry-card-hover-popup-banner-trailer
+                    {...({ credentialless: "true" } as any)}
                     src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&vq=medium&playlist=${trailerId}&cc_lang_pref=ja&enablejsapi=true`}
                     className={cn(
                         "aspect-video w-full absolute left-0 h-[calc(100%+120px)] top-[50%] -translate-y-1/2",

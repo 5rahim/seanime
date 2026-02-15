@@ -1,9 +1,4 @@
-import {
-    VideoCore_PlaybackType,
-    VideoCore_VideoPlaybackInfo,
-    VideoCore_VideoSource,
-    VideoCore_VideoSubtitleTrack,
-} from "@/api/generated/types"
+import { VideoCore_PlaybackType, VideoCore_VideoPlaybackInfo, VideoCore_VideoSource, VideoCore_VideoSubtitleTrack } from "@/api/generated/types"
 import { atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
@@ -124,6 +119,8 @@ export interface VideoCoreKeybindings {
     increaseSpeed: { key: string; value: number }
     decreaseSpeed: { key: string; value: number }
     takeScreenshot: { key: string }
+    openInSight: { key: string }
+    statsForNerds: { key: string }
 }
 
 export const vc_defaultKeybindings: VideoCoreKeybindings = {
@@ -145,9 +142,28 @@ export const vc_defaultKeybindings: VideoCoreKeybindings = {
     increaseSpeed: { key: "BracketRight", value: 0.1 },
     decreaseSpeed: { key: "BracketLeft", value: 0.1 },
     takeScreenshot: { key: "KeyI" },
+    openInSight: { key: "KeyH" },
+    statsForNerds: { key: "KeyZ" },
 }
 
-export const vc_keybindingsAtom = atomWithStorage("sea-video-core-keybindings", vc_defaultKeybindings, undefined, { getOnInit: true })
+const vc_keybindingsRaw = atomWithStorage<Partial<VideoCoreKeybindings>>("sea-video-core-keybindings",
+    vc_defaultKeybindings,
+    undefined,
+    { getOnInit: true })
+
+export const vc_keybindingsAtom = atom(
+    (get) => {
+        const stored = get(vc_keybindingsRaw)
+        // Merge stored with defaults
+        return {
+            ...vc_defaultKeybindings,
+            ...stored,
+        } as VideoCoreKeybindings
+    },
+    (get, set, update: VideoCoreKeybindings) => {
+        set(vc_keybindingsRaw, update)
+    },
+)
 
 export const vc_useLibassRendererAtom = atomWithStorage("sea-video-core-use-libass-renderer", true, undefined, { getOnInit: true })
 
@@ -160,3 +176,4 @@ export const vc_autoSkipOPEDAtom = atomWithStorage("sea-video-core-auto-skip-op-
 export const vc_storedVolumeAtom = atomWithStorage("sea-video-core-volume", 1, undefined, { getOnInit: true })
 export const vc_storedMutedAtom = atomWithStorage("sea-video-core-muted", false, undefined, { getOnInit: true })
 export const vc_storedPlaybackRateAtom = atomWithStorage("sea-video-core-playback-rate", 1, undefined, { getOnInit: true })
+export const vc_showStatsForNerdsAtom = atomWithStorage("sea-video-core-show-stats-for-nerds", false, undefined, { getOnInit: true })

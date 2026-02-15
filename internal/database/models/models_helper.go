@@ -88,7 +88,7 @@ func (s *Settings) GetSensitiveValues() []string {
 }
 
 func (s *DebridSettings) GetSensitiveValues() []string {
-	if s == nil {
+	if s == nil || s.ApiKey == "" {
 		return []string{}
 	}
 	return []string{

@@ -8,7 +8,10 @@ import("strip-ansi").then(module => {
     stripAnsi = module.default
 })
 const { autoUpdater } = require("electron-updater")
-const log = require("electron-log")
+const log = require("electron-log/main")
+log.initialize()
+
+const _isRsbuildFrontend = true
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Chromium flags
@@ -19,7 +22,6 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch("bypasscsp-schemes")
     app.commandLine.appendSwitch("no-sandbox")
     app.commandLine.appendSwitch("no-zygote")
-
 
     app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required")
     app.commandLine.appendSwitch("force_high_performance_gpu")
@@ -176,50 +178,87 @@ function setupCustomProtocol() {
 // call before app.whenReady
 setupCustomProtocol()
 
-// Sets up the app protocol to serve the next.js static files from web-denshi/
+// Sets up the app protocol to serve the static files
 function setupAppProtocol() {
     if (_development) return
 
     const webPath = path.join(__dirname, "../web-denshi")
 
-    protocol.handle("app", (request) => {
-        const requestUrl = new URL(request.url)
-        let urlPath = requestUrl.pathname
+    if (!_isRsbuildFrontend) {
+        protocol.handle("app", (request) => {
+            const requestUrl = new URL(request.url)
+            let urlPath = requestUrl.pathname
 
-        // next.js ssg: add .html to path
-        if (!urlPath.endsWith(".html") && path.extname(urlPath) === "") {
-            urlPath = urlPath + ".html"
-        }
-
-        // might not happen?
-        if (urlPath === "/.html") {
-            urlPath = "/index.html"
-        }
-
-        let filePath = path.join(webPath, urlPath)
-
-        const resolvedPath = path.resolve(filePath)
-        const resolvedWebPath = path.resolve(webPath)
-        if (!resolvedPath.startsWith(resolvedWebPath)) {
-            filePath = path.join(webPath, "index.html")
-        }
-
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-            return net.fetch(`file://${filePath}`)
-        }
-
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-            const indexPath = path.join(filePath, "index.html")
-            if (fs.existsSync(indexPath)) {
-                return net.fetch(`file://${indexPath}`)
+            // next.js ssg: add .html to path
+            if (!urlPath.endsWith(".html") && path.extname(urlPath) === "") {
+                urlPath = urlPath + ".html"
             }
-        }
 
-        // fallback to root index.html
-        log.warn(`[Protocol] Fallback for ${request.url}, serving index.html`) // Added a log
-        const fallbackPath = path.join(webPath, "index.html")
-        return net.fetch(`file://${fallbackPath}`)
-    })
+            // might not happen?
+            if (urlPath === "/.html") {
+                urlPath = "/index.html"
+            }
+
+            let filePath = path.join(webPath, urlPath)
+
+            const resolvedPath = path.resolve(filePath)
+            const resolvedWebPath = path.resolve(webPath)
+            if (!resolvedPath.startsWith(resolvedWebPath)) {
+                filePath = path.join(webPath, "index.html")
+            }
+
+            if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+                return net.fetch(`file://${filePath}`)
+            }
+
+            if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+                const indexPath = path.join(filePath, "index.html")
+                if (fs.existsSync(indexPath)) {
+                    return net.fetch(`file://${indexPath}`)
+                }
+            }
+
+            // fallback to root index.html
+            log.warn(`[Protocol] Fallback for ${request.url}, serving index.html`) // Added a log
+            const fallbackPath = path.join(webPath, "index.html")
+            return net.fetch(`file://${fallbackPath}`)
+        })
+    } else {
+        protocol.handle("app", async (request) => {
+            const requestUrl = new URL(request.url)
+            const urlPath = requestUrl.pathname
+            let filePath = path.join(webPath, urlPath)
+
+            if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+                const response = await net.fetch(`file://${filePath}`)
+                const newHeaders = new Headers(response.headers)
+                newHeaders.set("Cross-Origin-Opener-Policy", "same-origin")
+                newHeaders.set("Cross-Origin-Embedder-Policy", "credentialless")
+                return new Response(response.body, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: newHeaders,
+                })
+            }
+
+            const ext = path.extname(urlPath)
+            if (!ext || ext === ".html") {
+                const fallbackPath = path.join(webPath, "index.html")
+                const response = await net.fetch(`file://${fallbackPath}`)
+                const newHeaders = new Headers(response.headers)
+                newHeaders.set("Cross-Origin-Opener-Policy", "same-origin")
+                newHeaders.set("Cross-Origin-Embedder-Policy", "credentialless")
+                return new Response(response.body, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: newHeaders,
+                })
+            }
+
+            console.error(`[App Protocol] 404 Not Found: ${urlPath}`)
+            return new Response("Not Found", { status: 404 })
+        })
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -447,15 +486,31 @@ function createTray() {
     ])
 
     tray.setToolTip("Seanime")
-    tray.setContextMenu(contextMenu)
+
+    if (process.platform !== "darwin") {
+        tray.setContextMenu(contextMenu)
+    }
 
     tray.on("click", () => {
-        mainWindow.show()
-        mainWindow.focus()
-        if (process.platform === "darwin") {
-            app.dock.show()
+        if (mainWindow.isVisible()) {
+            mainWindow.hide()
+            if (process.platform === "darwin") {
+                app.dock.hide()
+            }
+        } else {
+            mainWindow.show()
+            mainWindow.focus()
+            if (process.platform === "darwin") {
+                app.dock.show()
+            }
         }
     })
+
+    if (process.platform === "darwin") {
+        tray.on("right-click", () => {
+            tray.popUpContextMenu(contextMenu)
+        })
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -628,6 +683,7 @@ function createMainWindow() {
     const windowOptions = {
         width: 800, height: 600, show: false,
         backgroundColor: "#111111",
+        acceptFirstMouse: false,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
@@ -726,7 +782,7 @@ function createMainWindow() {
 function createSplashScreen() {
     logStartupEvent("Creating splash screen")
     splashScreen = new BrowserWindow({
-        width: 800, height: 600, frame: false, resizable: false, webPreferences: {
+        width: 800, height: 600, frame: false, resizable: false, backgroundColor: "#0c0c0c", webPreferences: {
             nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, "preload.js")
         }
     })

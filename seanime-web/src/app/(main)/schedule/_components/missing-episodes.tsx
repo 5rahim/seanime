@@ -1,4 +1,3 @@
-"use client"
 import { Anime_MissingEpisodes } from "@/api/generated/types"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { useHasTorrentProvider } from "@/app/(main)/_hooks/use-server-status"
@@ -6,9 +5,10 @@ import { useHandleMissingEpisodes } from "@/app/(main)/schedule/_lib/handle-miss
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/lib/navigation"
 import React from "react"
 import { AiOutlineDownload } from "react-icons/ai"
+import { HiDownload } from "react-icons/hi"
 import { IoLibrary } from "react-icons/io5"
 import { LuBellOff } from "react-icons/lu"
 
@@ -53,7 +53,7 @@ export function MissingEpisodes({ isLoading, data }: {
                                             topTitle={episode.baseAnime?.title?.userPreferred}
                                             title={episode.displayTitle}
                                             meta={episode.episodeMetadata?.airDate ?? undefined}
-                                            actionIcon={hasTorrentProvider ? <AiOutlineDownload className="opacity-50" /> : null}
+                                            actionIcon={hasTorrentProvider ? <HiDownload className="opacity-50" /> : null}
                                             isInvalid={episode.isInvalid}
                                             onClick={() => {
                                                 if (hasTorrentProvider) {

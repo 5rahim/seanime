@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"seanime/internal/api/anilist"
 	"seanime/internal/hook_resolver"
 	"seanime/internal/library/anime"
 )
@@ -57,6 +56,11 @@ type ScanMediaFetcherStartedEvent struct {
 	// Enhanced scanning will fetch media from AniList based on the local files' titles,
 	// and use the metadata to match the local files.
 	Enhanced bool `json:"enhanced"`
+	// Whether enhanced scanning will use Anime Offline Database as matching data.
+	// If false, enhanced scanning will use titles parsed from the local files.
+	EnhanceWithOfflineDatabase bool `json:"enhanceWithOfflineDatabase"`
+	// If true, the anime collection will not be used as matching data.
+	DisableAnimeCollection bool `json:"disableAnimeCollection"`
 }
 
 // ScanMediaFetcherCompletedEvent is triggered when the media fetcher completes.
@@ -65,7 +69,7 @@ type ScanMediaFetcherStartedEvent struct {
 type ScanMediaFetcherCompletedEvent struct {
 	hook_resolver.Event
 	// All media fetched from AniList, to be matched against the local files.
-	AllMedia []*anilist.CompleteAnime `json:"allMedia"`
+	AllMedia []*anime.NormalizedMedia `json:"allMedia"`
 	// Media IDs that are not in the user's collection.
 	UnknownMediaIds []int `json:"unknownMediaIds"`
 }
@@ -75,13 +79,15 @@ type ScanMediaFetcherCompletedEvent struct {
 type ScanMatchingStartedEvent struct {
 	hook_resolver.Event
 	// Local files to be matched.
-	// If default is prevented, these local files will be used.
+	// If default is prevented, these local files will be returned.
 	LocalFiles []*anime.LocalFile `json:"localFiles"`
 	// Media to be matched against the local files.
 	NormalizedMedia []*anime.NormalizedMedia `json:"normalizedMedia"`
-	// Matching algorithm.
+	// Legacy matching algorithm.
+	// Only used when the legacy matching system is enabled.
 	Algorithm string `json:"algorithm"`
-	// Matching threshold.
+	// Legacy matching threshold.
+	// Only used when the legacy matching system is enabled.
 	Threshold float64 `json:"threshold"`
 }
 

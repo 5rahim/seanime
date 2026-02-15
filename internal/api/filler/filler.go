@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"seanime/internal/util"
 	"strings"
+	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/adrg/strutil/metrics"
-	"github.com/gocolly/colly"
+	"github.com/imroc/req/v3"
 	"github.com/rs/zerolog"
 )
 
@@ -34,17 +36,19 @@ type (
 
 type (
 	AnimeFillerList struct {
-		baseUrl   string
-		userAgent string
-		logger    *zerolog.Logger
+		baseUrl string
+		client  *req.Client
+		logger  *zerolog.Logger
 	}
 )
 
 func NewAnimeFillerList(logger *zerolog.Logger) *AnimeFillerList {
 	return &AnimeFillerList{
-		baseUrl:   "https://www.animefillerlist.com",
-		userAgent: util.GetRandomUserAgent(),
-		logger:    logger,
+		baseUrl: "https://www.animefillerlist.com",
+		client: req.C().
+			SetTimeout(10 * time.Second).
+			ImpersonateChrome(),
+		logger: logger,
 	}
 }
 
@@ -52,23 +56,25 @@ func (af *AnimeFillerList) Search(opts SearchOptions) (result *SearchResult, err
 
 	defer util.HandlePanicInModuleWithError("api/metadata/filler/Search", &err)
 
-	c := colly.NewCollector(
-		colly.UserAgent(af.userAgent),
-	)
-
 	ret := make([]*SearchResult, 0)
 
-	c.OnHTML("div.Group > ul > li > a", func(e *colly.HTMLElement) {
-		ret = append(ret, &SearchResult{
-			Slug:  e.Attr("href"),
-			Title: e.Text,
-		})
-	})
-
-	err = c.Visit(fmt.Sprintf("%s/shows", af.baseUrl))
+	resp, err := af.client.R().Get(fmt.Sprintf("%s/shows", af.baseUrl))
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	doc.Find("div.Group > ul > li > a").Each(func(i int, s *goquery.Selection) {
+		ret = append(ret, &SearchResult{
+			Slug:  s.AttrOr("href", ""),
+			Title: s.Text(),
+		})
+	})
 
 	if len(ret) == 0 {
 		return nil, fmt.Errorf("no results found")
@@ -161,23 +167,25 @@ func (af *AnimeFillerList) FindFillerData(slug string) (ret *Data, err error) {
 
 	defer util.HandlePanicInModuleWithError("api/metadata/filler/FindFillerEpisodes", &err)
 
-	c := colly.NewCollector(
-		colly.UserAgent(af.userAgent),
-	)
-
 	ret = &Data{
 		FillerEpisodes: make([]string, 0),
 	}
 
-	fillerEps := make([]string, 0)
-	c.OnHTML("tr.filler", func(e *colly.HTMLElement) {
-		fillerEps = append(fillerEps, e.ChildText("td.Number"))
-	})
-
-	err = c.Visit(fmt.Sprintf("%s%s", af.baseUrl, slug))
+	resp, err := af.client.R().Get(fmt.Sprintf("%s%s", af.baseUrl, slug))
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	fillerEps := make([]string, 0)
+	doc.Find("tr.filler").Each(func(i int, s *goquery.Selection) {
+		fillerEps = append(fillerEps, s.Find("td.Number").Text())
+	})
 
 	ret.FillerEpisodes = fillerEps
 

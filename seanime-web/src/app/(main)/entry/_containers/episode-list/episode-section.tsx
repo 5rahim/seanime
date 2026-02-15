@@ -1,4 +1,3 @@
-"use client"
 import { AL_AnimeDetailsById_Media, Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
@@ -16,7 +15,7 @@ import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { ContextMenuItem } from "@/components/ui/context-menu"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
 import { IoLibrarySharp } from "react-icons/io5"
 import { LuTvMinimalPlay } from "react-icons/lu"
@@ -163,6 +162,8 @@ export function EpisodeSection({ entry, details, bottomSection, hideCarousel, ma
                                             length={episode.episodeMetadata?.length}
                                             percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
                                             minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
+                                            fallbackImage={[episode.baseAnime?.bannerImage, episode.baseAnime?.coverImage?.large,
+                                                episode.baseAnime?.coverImage?.extraLarge]}
                                             onClick={() => playMediaFile({
                                                 path: episode.localFile?.path ?? "",
                                                 mediaId: entry.mediaId,

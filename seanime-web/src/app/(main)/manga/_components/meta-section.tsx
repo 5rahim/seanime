@@ -1,4 +1,3 @@
-"use client"
 import { AL_MangaDetailsById_Media, Manga_Entry } from "@/api/generated/types"
 import {
     AnimeEntryRankings,
@@ -17,7 +16,7 @@ import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
 import { getCustomSourceExtensionId, getCustomSourceMediaSiteUrl, isCustomSource } from "@/lib/server/utils"
-import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
 import { BiExtension } from "react-icons/bi"
 import { LuExternalLink } from "react-icons/lu"

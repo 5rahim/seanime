@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"crypto/tls"
 	"io"
 	"net/http"
 	url2 "net/url"
@@ -13,22 +12,15 @@ import (
 
 	"github.com/5rahim/hls-m3u8/m3u8"
 	"github.com/goccy/go-json"
+	"github.com/imroc/req/v3"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
 
-var proxyUA = util.GetRandomUserAgent()
-
-var videoProxyClient2 = &http.Client{
-	Transport: &http.Transport{
-		MaxIdleConns:        100,
-		MaxIdleConnsPerHost: 10,
-		IdleConnTimeout:     90 * time.Second,
-		ForceAttemptHTTP2:   false, // Fixes issues on Linux
-		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
-	},
-	Timeout: 60 * time.Second,
-}
+var videoProxyClient2 = req.C().
+	SetTimeout(60 * time.Second).
+	EnableInsecureSkipVerify().
+	ImpersonateChrome()
 
 func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	defer util.HandlePanicInModuleWithError("util/VideoProxy", &err)
@@ -37,12 +29,7 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	headers := c.QueryParam("headers")
 	authToken := c.QueryParam("token")
 
-	// Always use GET request internally, even for HEAD requests
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		log.Error().Err(err).Msg("proxy: Error creating request")
-		return echo.NewHTTPError(http.StatusInternalServerError)
-	}
+	r := videoProxyClient2.R()
 
 	var headerMap map[string]string
 	if headers != "" {
@@ -51,17 +38,17 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for key, value := range headerMap {
-			req.Header.Set(key, value)
+			r.SetHeader(key, value)
 		}
 	}
 
-	req.Header.Set("User-Agent", proxyUA)
-	req.Header.Set("Accept", "*/*")
+	r.SetHeader("Accept", "*/*")
 	if rangeHeader := c.Request().Header.Get("Range"); rangeHeader != "" {
-		req.Header.Set("Range", rangeHeader)
+		r.SetHeader("Range", rangeHeader)
 	}
 
-	resp, err := videoProxyClient2.Do(req)
+	// Always use GET request internally, even for HEAD requests
+	resp, err := r.Get(url)
 
 	if err != nil {
 		log.Error().Err(err).Msg("proxy: Error sending request")

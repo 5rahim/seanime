@@ -78,6 +78,9 @@ func (m *AnimeMetadata) GetMappings() *AnimeMappings {
 }
 
 func (m *AnimeMetadata) FindEpisode(ep string) (*EpisodeMetadata, bool) {
+	if m == nil {
+		return nil, false
+	}
 	if m.Episodes == nil {
 		return nil, false
 	}

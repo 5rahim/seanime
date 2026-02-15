@@ -39,7 +39,7 @@ export function SeaCommandInjectables() {
                         item.showBasedOnInput === "startsWith" ?
                             item.value.toLowerCase().startsWith(input.toLowerCase()) :
                             true,
-            )
+                )
 
             items.forEach(item => {
                 const heading = item.heading || "Custom"

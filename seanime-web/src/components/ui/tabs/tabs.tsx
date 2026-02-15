@@ -1,5 +1,3 @@
-"use client"
-
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 import { cva } from "class-variance-authority"
 import * as React from "react"
@@ -105,6 +103,7 @@ export const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>
     return (
         <TabsPrimitive.Trigger
             ref={ref}
+            data-tab-trigger={rest.value}
             className={cn(TabsAnatomy.trigger(), triggerClass, className)}
             {...rest}
         />

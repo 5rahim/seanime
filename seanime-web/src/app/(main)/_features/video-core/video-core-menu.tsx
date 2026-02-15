@@ -1,19 +1,18 @@
-import { vc_containerElement, vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core"
+import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_menuSectionOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_menuSubSectionOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_containerElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { Popover } from "@/components/ui/popover"
 import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
-import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import { motion } from "motion/react"
 import React, { useRef } from "react"
 import { AiFillInfoCircle } from "react-icons/ai"
 import { LuCheck, LuChevronLeft, LuChevronRight } from "react-icons/lu"
-
-export const vc_menuOpen = atom<string | null>(null)
-export const vc_menuSectionOpen = atom<string | null>(null)
-export const vc_menuSubSectionOpen = atom<string | null>(null)
 
 type VideoCoreMenuProps = {
     name: string
@@ -378,17 +377,17 @@ export function VideoCoreSettingSelect(props: VideoCoreSettingSelectProps) {
                         <span className="flex-1" data-vc-element="setting-select-option-separator"></span>
                         {(option.moreInfo || option.description) &&
                             <div className="w-fit flex-none ml-2 flex gap-2 items-center" data-vc-element="setting-select-option-description">
-                            {option.moreInfo && <span className="text-xs font-medium tracking-wide text-[--muted]">
-                                {option.moreInfo}
-                            </span>}
-                            {option.description && <Tooltip
-                                trigger={<AiFillInfoCircle className="text-sm" />}
-                                portalContainer={isFullscreen ? containerElement || undefined : undefined}
-                                className="z-[150]"
-                            >
-                                {option.description}
-                            </Tooltip>}
-                        </div>}
+                                {option.moreInfo && <span className="text-xs font-medium tracking-wide text-[--muted]">
+                                    {option.moreInfo}
+                                </span>}
+                                {option.description && <Tooltip
+                                    trigger={<AiFillInfoCircle className="text-sm" />}
+                                    portalContainer={isFullscreen ? containerElement || undefined : undefined}
+                                    className="z-[150]"
+                                >
+                                    {option.description}
+                                </Tooltip>}
+                            </div>}
                     </div>
 
                 </div>

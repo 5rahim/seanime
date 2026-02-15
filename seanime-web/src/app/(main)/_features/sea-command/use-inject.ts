@@ -1,6 +1,6 @@
 import { SeaCommandContextProps } from "@/app/(main)/_features/sea-command/sea-command"
 import { useAtomValue } from "jotai"
-import { atom, useSetAtom } from "jotai/index"
+import { atom, useSetAtom } from "jotai"
 import React from "react"
 
 export type SeaCommandInjectableItem = {

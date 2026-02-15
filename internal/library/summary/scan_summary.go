@@ -134,10 +134,10 @@ func (l *ScanSummaryLogger) GenerateSummary() *ScanSummary {
 		mediaIsInCollection := false
 		for _, m := range l.AllMedia {
 			if m.ID == mediaId {
-				mediaTitle = m.GetPreferredTitle()
+				mediaTitle = m.GetTitleSafe()
 				mediaImage = ""
-				if m.GetCoverImage() != nil && m.GetCoverImage().GetLarge() != nil {
-					mediaImage = *m.GetCoverImage().GetLarge()
+				if m.CoverImage != nil && m.CoverImage.Large != nil {
+					mediaImage = *m.CoverImage.Large
 				}
 				break
 			}

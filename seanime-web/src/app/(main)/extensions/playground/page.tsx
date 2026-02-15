@@ -1,7 +1,5 @@
-"use client"
-
 import { Extension_Language, Extension_Type } from "@/api/generated/types"
-import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { CustomLibraryBanner } from "@/app/(main)/_features/anime-library/_containers/custom-library-banner"
 import { ExtensionPlayground } from "@/app/(main)/extensions/playground/_containers/extension-playground"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import React from "react"

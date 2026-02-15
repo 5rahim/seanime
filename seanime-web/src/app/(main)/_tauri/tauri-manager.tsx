@@ -1,5 +1,3 @@
-"use client"
-
 import { listen } from "@tauri-apps/api/event"
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow"
 import { Window } from "@tauri-apps/api/window"

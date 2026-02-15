@@ -1,4 +1,4 @@
-"use client"
+
 
 import { ElectronCrashScreenError } from "@/app/(main)/_electron/electron-crash-screen"
 import { TauriCrashScreenError } from "@/app/(main)/_tauri/tauri-crash-screen-error"

@@ -1,5 +1,3 @@
-"use client"
-
 import { cva } from "class-variance-authority"
 import { format, Locale } from "date-fns"
 import * as React from "react"

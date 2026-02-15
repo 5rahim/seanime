@@ -1,11 +1,11 @@
-"use client"
+
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from "@tanstack/react-query"
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
 import { useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
-import { usePathname } from "next/navigation"
+import { useLocation } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { toast } from "sonner"
 
@@ -132,7 +132,7 @@ export function useServerQuery<R, V = any>(
         ...options
     }: ServerQueryProps<R | undefined, V>) {
 
-    const pathname = usePathname()
+    const pathname = useLocation().pathname
     const [password, setPassword] = useAtom(serverAuthTokenAtom)
 
     const props = useQuery<R | undefined, SeaError>({

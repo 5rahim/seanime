@@ -12,7 +12,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip } from "@/components/ui/tooltip"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/lib/navigation"
 import React from "react"
 import { FiSearch } from "react-icons/fi"
 

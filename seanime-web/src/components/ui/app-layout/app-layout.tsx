@@ -1,4 +1,3 @@
-"use client"
 import { ElectronSidebarPaddingMacOS } from "@/app/(main)/_electron/electron-padding"
 import { TauriSidebarPaddingMacOS } from "@/app/(main)/_tauri/tauri-padding"
 import { __isDesktop__, __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"

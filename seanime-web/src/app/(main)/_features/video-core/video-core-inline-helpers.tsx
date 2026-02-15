@@ -243,7 +243,7 @@ export function VideoCoreInlineLayout(props: VideoCoreInlineLayoutProps) {
 
     return (
         <div data-vc-element="inline-layout" className="space-y-4">
-            <div data-vc-element="inline-layout-header" className="flex flex-col lg:flex-row gap-2 w-full justify-between">
+            <div data-vc-element="inline-layout-header" className="flex flex-col lg:flex-row w-full justify-between">
                 {!hideBackButton && <div data-vc-element="inline-layout-go-back" className="flex w-full gap-4 items-center relative">
                     <SeaLink href={`/entry?id=${mediaId}`}>
                         <IconButton icon={<AiOutlineArrowLeft />} rounded intent="gray-outline" size="sm" />
@@ -288,12 +288,12 @@ export function VideoCoreInlineLayout(props: VideoCoreInlineLayoutProps) {
                     viewportRef={episodeListViewportRef}
                     data-vc-element="inline-layout-episode-list-container"
                     className={cn(
-                        "2xl:max-w-[450px] w-full relative 2xl:sticky overflow-y-auto pr-4 pt-0",
+                        "2xl:max-w-[450px] w-full relative 2xl:sticky overflow-y-auto pt-0",
                         theaterMode ? "2xl:max-w-full h-[75dvh]" : "h-[75dvh] 2xl:h-auto",
                     )}
                     style={!theaterMode ? { height: "var(--player-height, 75dvh)" } as React.CSSProperties : undefined}
                 >
-                    <div data-vc-element="inline-layout-episode-list-body" className="space-y-3">
+                    <div data-vc-element="inline-layout-episode-list-body" className="space-y-3 px-4 pb-2 pt-0 -mx-2">
                         {episodeList}
                     </div>
                 </ScrollArea>

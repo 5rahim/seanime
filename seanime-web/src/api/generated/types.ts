@@ -1839,6 +1839,29 @@ export type Anime_UnmatchedGroup = {
 }
 
 /**
+ * - Filepath: internal/library/anime/upcoming_episodes.go
+ * - Filename: upcoming_episodes.go
+ * - Package: anime
+ */
+export type Anime_UpcomingEpisode = {
+    mediaId: number
+    episodeNumber: number
+    airingAt: number
+    timeUntilAiring: number
+    baseAnime?: AL_BaseAnime
+    episodeMetadata?: Anime_EpisodeMetadata
+}
+
+/**
+ * - Filepath: internal/library/anime/upcoming_episodes.go
+ * - Filename: upcoming_episodes.go
+ * - Package: anime
+ */
+export type Anime_UpcomingEpisodes = {
+    episodes?: Array<Anime_UpcomingEpisode>
+}
+
+/**
  * - Filepath: internal/library/anime/playlist.go
  * - Filename: playlist.go
  * - Package: anime
@@ -2272,6 +2295,7 @@ export type Extension_Extension = {
     author: string
     icon: string
     website: string
+    readme: string
     notes?: string
     lang: string
     /**
@@ -2860,6 +2884,7 @@ export type Status = {
     disabledFeatures?: Array<INTERNAL_FeatureKey>
     serverReady: boolean
     serverHasPassword: boolean
+    showChangelogTour: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3804,6 +3829,8 @@ export type Models_LibrarySettings = {
     autoSyncToLocalAccount: boolean
     autoSaveCurrentMediaOffline: boolean
     useFallbackMetadataProvider: boolean
+    scannerUseLegacyMatching: boolean
+    scannerConfig: string
 }
 
 /**
@@ -4011,6 +4038,7 @@ export type Models_Theme = {
     mobileCustomCSS: string
     unpinnedMenuItems: Models_StringSlice
     homeItems?: Array<string>
+    enableBlurringEffects: boolean
     id: number
     createdAt?: string
     updatedAt?: string
@@ -4297,6 +4325,7 @@ export type Nakama_WatchPartyStreamType = "file" | "torrent" | "debrid" | "onlin
 export type NativePlayer_PlaybackInfo = {
     id: string
     streamType: NativePlayer_StreamType
+    streamPath: string
     /**
      * e.g. "video/mp4", "video/webm"
      */
@@ -4525,14 +4554,33 @@ export type Report_IssueReport = {
     appVersion: string
     os: string
     arch: string
+    description?: string
     clickLogs?: Array<Report_ClickLog>
     networkLogs?: Array<Report_NetworkLog>
     reactQueryLogs?: Array<Report_ReactQueryLog>
     consoleLogs?: Array<Report_ConsoleLog>
+    navigationLogs?: Array<Report_NavigationLog>
+    screenshots?: Array<Report_Screenshot>
+    websocketLogs?: Array<Report_WebSocketLog>
+    rrwebEvents?: Array<Record<string, any>>
     unlockedLocalFiles?: Array<Report_UnlockedLocalFile>
     scanLogs?: Array<string>
     serverLogs?: string
     status?: string
+    viewportWidth?: number
+    viewportHeight?: number
+    recordingDurationMs?: number
+}
+
+/**
+ * - Filepath: internal/report/report.go
+ * - Filename: report.go
+ * - Package: report
+ */
+export type Report_NavigationLog = {
+    from: string
+    to: string
+    timestamp?: string
 }
 
 /**
@@ -4573,9 +4621,41 @@ export type Report_ReactQueryLog = {
  * - Filename: report.go
  * - Package: report
  */
+export type Report_Screenshot = {
+    /**
+     * base64 encoded image
+     */
+    data: string
+    caption?: string
+    pageUrl: string
+    timestamp?: string
+}
+
+/**
+ * - Filepath: internal/report/report.go
+ * - Filename: report.go
+ * - Package: report
+ */
 export type Report_UnlockedLocalFile = {
     path: string
     mediaId: number
+}
+
+/**
+ * - Filepath: internal/report/report.go
+ * - Filename: report.go
+ * - Package: report
+ * @description
+ *  WebSocketLog represents a captured WebSocket message during recording
+ */
+export type Report_WebSocketLog = {
+    /**
+     * "incoming" or "outgoing"
+     */
+    direction: string
+    eventType: string
+    payload?: Record<string, any>
+    timestamp?: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5031,6 +5111,7 @@ export type VideoCore_ClientEventType = "video-loaded" |
     "video-pip" |
     "video-subtitle-track" |
     "video-media-caption-track" |
+    "video-subtitle-track-content" |
     "video-anime-4k" |
     "video-audio-track" |
     "video-ended" |
@@ -5043,6 +5124,77 @@ export type VideoCore_ClientEventType = "video-loaded" |
     "video-text-tracks" |
     "translate-text" |
     "translate-subtitle-file-track"
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightCharacter = {
+    mal_id: number
+    url: string
+    images: VideoCore_InSightCharacter_Images
+    name: string
+    role: string
+    favorites: number
+}
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightCharacterDetails = {
+    mal_id: number
+    url: string
+    images: VideoCore_InSightCharacterDetails_Images
+    name: string
+    name_kanji: string
+    nicknames?: Array<string>
+    favorites: number
+    about: string
+}
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightCharacterDetails_Images = {
+    jpg: { image_url: string; }
+    webp: { image_url: string; small_image_url: string; }
+}
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightCharacter_Images = {
+    jpg: { image_url: string; }
+    webp: { image_url: string; small_image_url: string; }
+}
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightData = {
+    characters?: Array<VideoCore_InSightCharacter>
+    suggestions?: Array<VideoCore_InSightSegment>
+}
+
+/**
+ * - Filepath: internal/videocore/insight.go
+ * - Filename: insight.go
+ * - Package: videocore
+ */
+export type VideoCore_InSightSegment = {
+    characterId: number
+    startTime: number
+    endTime: number
+}
 
 /**
  * - Filepath: internal/videocore/types.go
@@ -5110,10 +5262,12 @@ export type VideoCore_ServerEvent = "pause" |
     "get-text-tracks" |
     "request-play-episode" |
     "translated-text" |
+    "in-sight-data" |
     "get-fullscreen" |
     "get-pip" |
     "get-anime-4k" |
     "get-subtitle-track" |
+    "get-subtitle-track-content" |
     "get-audio-track" |
     "get-media-caption-track" |
     "get-playback-state" |
@@ -5135,6 +5289,16 @@ export type VideoCore_VideoInitialState = {
  * - Filepath: internal/videocore/types.go
  * - Filename: types.go
  * - Package: videocore
+ */
+export type VideoCore_VideoLibassFont = {
+    name?: string
+    src: string
+}
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
  * @description
  *  VideoPlaybackInfo contains detailed information about the currently played media.
  *  It is filled by the client, passed to the player and sent to the server during playback.
@@ -5144,12 +5308,17 @@ export type VideoCore_VideoPlaybackInfo = {
     playbackType: VideoCore_PlaybackType
     streamUrl: string
     /**
+     * e.g. /anime/episode 01.mkv
+     */
+    streamPath?: string
+    /**
      * NativePlayer only
      */
     mkvMetadata?: MKVParser_Metadata
     localFile?: Anime_LocalFile
     onlinestreamParams?: VideoCore_OnlinestreamParams
     subtitleTracks?: Array<VideoCore_VideoSubtitleTrack>
+    libassFonts?: Array<VideoCore_VideoLibassFont>
     videoSources?: Array<VideoCore_VideoSource>
     /**
      * index of VideoSource

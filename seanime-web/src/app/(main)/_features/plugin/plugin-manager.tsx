@@ -1,8 +1,8 @@
 import { useListExtensionData } from "@/api/hooks/extensions.hooks"
 import { useIsMainTabRef } from "@/app/websocket-provider"
 import { useDebounce } from "@/hooks/use-debounce"
+import { usePathname, useRouter, useSearchParams } from "@/lib/navigation"
 import { WSEvents } from "@/lib/server/ws-events"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { startTransition, useEffect, useState } from "react"
 import { useWindowSize } from "react-use"
 import { useWebsocketMessageListener } from "../../_hooks/handle-websockets"
@@ -41,7 +41,7 @@ export function PluginManager() {
         if (!isMainTabRef.current) return
         sendScreenChangedEvent({
             pathname: pathname,
-            query: window.location.search,
+            query: searchParams.size > 0 ? "?" + searchParams.toString() : "",
         })
     }, [pathname, searchParams])
 
@@ -49,7 +49,7 @@ export function PluginManager() {
         if (!isMainTabRef.current) return
         sendScreenChangedEvent({
             pathname: pathname,
-            query: window.location.search,
+            query: searchParams.size > 0 ? "?" + searchParams.toString() : "",
         }, extensionId)
     }, "") // Listen to all plugins
 

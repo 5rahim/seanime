@@ -1,5 +1,3 @@
-"use client"
-
 import { __isDesktop__ } from "@/types/constants"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"

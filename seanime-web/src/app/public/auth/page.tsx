@@ -1,4 +1,4 @@
-"use client"
+
 
 import { ServerAuth } from "./server-auth"
 

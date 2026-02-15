@@ -1,9 +1,4 @@
-build-web-only:
-	rm -rf ../web
-	npm run build
-	cp -r out ../web
-
-build-web:
+build-all:
 	rm -rf ../web
 	rm -rf ../web-denshi
 	npm run build
@@ -12,6 +7,11 @@ build-web:
 	cp -r out-denshi ../web-denshi
 	rm -rf ../seanime-denshi/web-denshi
 	cp -r ../web-denshi ../seanime-denshi/web-denshi
+
+build-web:
+	rm -rf ../web
+	npm run build
+	cp -r out ../web
 
 build-denshi:
 	rm -rf ../web-denshi
@@ -20,4 +20,4 @@ build-denshi:
 	rm -rf ../seanime-denshi/web-denshi
 	cp -r ../web-denshi ../seanime-denshi/web-denshi
 
-.PHONY: build-web build-denshi
+.PHONY: build-all build-web build-denshi

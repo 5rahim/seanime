@@ -1,6 +1,6 @@
 import { Anime_LibraryCollection } from "@/api/generated/types"
+import { atom } from "jotai"
 import { derive } from "jotai-derive"
-import { atom } from "jotai/index"
 
 export const animeLibraryCollectionAtom = atom<Anime_LibraryCollection | undefined>(undefined)
 export const animeLibraryCollectionWithoutStreamsAtom = derive([animeLibraryCollectionAtom], (animeLibraryCollection) => {

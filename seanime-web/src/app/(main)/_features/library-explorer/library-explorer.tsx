@@ -2,9 +2,9 @@ import { useGetLibraryExplorerFileTree, useRefreshLibraryExplorerFileTree } from
 import { AL_BaseAnime, Anime_LocalFile, Anime_LocalFileType, LibraryExplorer_FileTreeNodeJSON } from "@/api/generated/types"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useDeleteLocalFiles, useUpdateLocalFileData, useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
-import { __unknownMedia_drawerIsOpen, UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media-manager"
-import { __unmatchedFileManagerIsOpen, UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { __unknownMedia_drawerIsOpen, UnknownMediaManager } from "@/app/(main)/_features/anime-library/_containers/unknown-media-manager"
+import { __unmatchedFileManagerIsOpen, UnmatchedFileManager } from "@/app/(main)/_features/anime-library/_containers/unmatched-file-manager"
 import { LibraryExplorerSuperUpdate } from "@/app/(main)/_features/library-explorer/library-explorer-super-update"
 import { LibraryExplorerSuperUpdateDrawer } from "@/app/(main)/_features/library-explorer/library-explorer-super-update-drawer"
 import {
@@ -832,7 +832,7 @@ const VirtualizedTreeNode = memo(({
     const nonIgnoredFileNodes = fileNodes?.filter(n => !n.localFile?.ignored)
     const matchedFileNodes = nonIgnoredFileNodes?.filter(n => !!n.localFile?.mediaId)
 
-    const fileCount = nonIgnoredFileNodes?.length ?? 0
+    const nonIgnoredFileCount = nonIgnoredFileNodes?.length ?? 0
     const matchedFileCount = matchedFileNodes?.length ?? 0
 
     const allFileMatched = nonIgnoredFileNodes?.every(n => !!n.localFile?.mediaId) ?? false
@@ -1007,7 +1007,13 @@ const VirtualizedTreeNode = memo(({
                         >
                             <FaRegEdit /> Super update
                         </ContextMenuItem>
-                        {(isDirectory && !!fileCount) && <>
+                        {(isDirectory && allFileIgnored) && <ContextMenuItem
+                            onClick={handleUnignoreDirectory}
+                            className={cn("text-purple-300", isPending && "opacity-50 pointer-events-none")}
+                        >
+                            <LuClipboardPlus className="text-lg" /> Un-ignore files
+                        </ContextMenuItem>}
+                        {(isDirectory && !!nonIgnoredFileCount) && <>
                             {allFileMatched && <ContextMenuItem
                                 onClick={handleUnmatchDirectory}
                                 className={cn("text-[--orange]", isPending && "opacity-50 pointer-events-none")}
@@ -1025,12 +1031,6 @@ const VirtualizedTreeNode = memo(({
                                 className={cn("", isPending && "opacity-50 pointer-events-none")}
                             >
                                 <LuClipboardX className="text-lg" /> Ignore files
-                            </ContextMenuItem>}
-                            {allFileIgnored && <ContextMenuItem
-                                onClick={handleUnignoreDirectory}
-                                className={cn("text-purple-300", isPending && "opacity-50 pointer-events-none")}
-                            >
-                                <LuClipboardPlus className="text-lg" /> Un-ignore files
                             </ContextMenuItem>}
                         </>}
                         {(!isDirectory && isScannedFile) && <>
@@ -1069,7 +1069,7 @@ const VirtualizedTreeNode = memo(({
                         <ContextMenuSub
                             triggerContent="More"
                         >
-                            {isDirectory && !!fileCount && <ContextMenuItem
+                            {isDirectory && !!nonIgnoredFileCount && <ContextMenuItem
                                 onClick={handleDeleteDirectory}
                                 className={cn("text-[--red]")}
                             >
@@ -1179,16 +1179,16 @@ const VirtualizedTreeNode = memo(({
                             </span>
                         </div>
 
-                        {isDirectory && !!fileCount && !allFileIgnored && (
+                        {isDirectory && !!nonIgnoredFileCount && !allFileIgnored && (
                             <Tooltip
                                 trigger={<span
                                     className={cn(
                                         "text-xs bg-green-500/20 text-[--green] px-2 py-0.5 rounded-full",
-                                        fileCount !== matchedFileCount && "bg-orange-500/20 text-[--orange]",
+                                        nonIgnoredFileCount !== matchedFileCount && "bg-orange-500/20 text-[--orange]",
                                         !allFileScanned && "bg-red-500/20 text-[--red]",
                                     )}
                                 >
-                                    {matchedFileCount} / {fileCount}
+                                    {matchedFileCount} / {nonIgnoredFileCount}
                                 </span>}
                             >
                                 Matched files

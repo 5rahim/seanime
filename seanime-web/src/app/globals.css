@@ -79,8 +79,8 @@
 
         --titlebar-h: theme("height.10");
 
-        --foreground: theme('colors.gray.800');
-        --background: white;
+        --foreground: theme('colors.gray.200');
+        --background: #070707;
 
         --brand: theme('colors.brand.300');
         --slate: theme('colors.slate.500');
@@ -112,7 +112,7 @@
         --muted: theme('colors.gray.500');
         --muted-highlight: theme('colors.gray.700');
 
-        --paper: theme('colors.white');
+        --paper: theme('colors.gray.950');
         --subtle: rgba(0, 0, 0, 0.04);
         --subtle-highlight: rgba(0, 0, 0, 0.06);
 
@@ -170,6 +170,10 @@
 html {
     background-color: var(--background);
     color: var(--foreground);
+}
+
+body {
+    background-color: transparent !important;
 }
 
 html * {
@@ -453,7 +457,9 @@ media-controller[mediaisfullscreen] {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAACqCAYAAABsziWkAAAAAXNSR0IArs4c6QAAAQVJREFUOE9lyNdHBQAAhfHb3nvvuu2997jNe29TJJEkkkgSSSSJJJJEEkkiifRH5jsP56Xz8PM5gcC/xfDEmjhKxEOCSaREEiSbFEqkQppJpzJMJiWyINvkUCIX8kw+JQqg0BRRxaaEEqVQZsopUQGVpooS1VBjglStqaNEPTSYRko0QbNpoUQrtJl2qsN0UqILuk0PJXqhz/RTYgAGzRA1bEYoMQpjZpwSExAyk5SYgmkzQ82aOUqEIWKilJiHBbNIiSVYhhVYhTVYhw3YhC3Yhh3YhT3YhwM4hCM4hhM4hTM4hwu4hCu4hhu4hTu4hwd4hCd4hhd4hTd4hw/4hC/4hh/4/QM2/id28uIEJAAAAABJRU5ErkJggg==');
 }
 
-media-settings-menu, media-audio-track-menu, media-captions-menu {
+media-settings-menu,
+media-audio-track-menu,
+media-captions-menu {
     position: absolute;
     border-radius: 8px;
     border: 1px solid var(--border);
@@ -486,11 +492,14 @@ media-settings-menu {
     /* flex-wrap: wrap; */
 }
 
-media-audio-track-menu, media-captions-menu {
+media-audio-track-menu,
+media-captions-menu {
     max-height: 300px;
 }
 
-media-settings-menu:not([hidden]), media-audio-track-menu:not([hidden]), media-captions-menu:not([hidden]) {
+media-settings-menu:not([hidden]),
+media-audio-track-menu:not([hidden]),
+media-captions-menu:not([hidden]) {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
@@ -499,7 +508,9 @@ media-settings-menu:not([hidden]), media-audio-track-menu:not([hidden]), media-c
     visibility 0s linear 0s !important;
 }
 
-[mediaisfullscreen] media-settings-menu, [mediaisfullscreen] media-audio-track-menu, [mediaisfullscreen] media-captions-menu {
+[mediaisfullscreen] media-settings-menu,
+[mediaisfullscreen] media-audio-track-menu,
+[mediaisfullscreen] media-captions-menu {
     --media-settings-menu-min-width: 320px;
     right: 24px;
     bottom: 70px;
@@ -853,16 +864,21 @@ media-settings-menu-button[aria-expanded='true'] svg {
     transform: rotateZ(30deg) translateY(-2px) scale(1.1);
 }
 
-media-audio-track-menu-button svg, media-captions-menu-button svg {
+media-audio-track-menu-button svg,
+media-captions-menu-button svg {
     transition: all 0.1s cubic-bezier(0.4, 0, 1, 1);
     transform: translateY(0px);
 }
 
-media-audio-track-menu-button[aria-expanded='true'] svg, media-captions-menu-button[aria-expanded='true'] svg {
+media-audio-track-menu-button[aria-expanded='true'] svg,
+media-captions-menu-button[aria-expanded='true'] svg {
     transform: translateY(-2px) scale(1.1);
 }
 
-media-settings-menu-button:hover svg, media-audio-track-menu-button:hover svg, media-captions-menu-button:hover svg, media-pip-button:hover svg {
+media-settings-menu-button:hover svg,
+media-audio-track-menu-button:hover svg,
+media-captions-menu-button:hover svg,
+media-pip-button:hover svg {
     opacity: 0.8;
 }
 
@@ -940,6 +956,7 @@ media-preview-thumbnail {
 
 media-preview-chapter-display {
     display: block !important;
+
     margin-bottom: 5px;
     padding: 0px !important;
     background: transparent !important;
@@ -977,4 +994,38 @@ media-preview-chapter-display {
 :where([data-part="captions"] [data-part="cue"]) {
     border-radius: .6rem;
     font-weight: 700;
+}
+
+/* rrweb player styles */
+.rr-player {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    background: black !important;
+}
+
+.rr-player .replayer-wrapper {
+    flex: 1 !important;
+    overflow: hidden !important;
+}
+
+.rr-player .rr-controller {
+    flex-shrink: 0 !important;
+    position: relative !important;
+    z-index: 10 !important;
+    background: black !important;
+}
+
+.rr-timeline__time {
+    color: white !important;
+}
+
+.rr-controller__btns button {
+    fill: white !important;
+}
+
+.rr-progress {
+    border-top-color: black !important;
+    border-bottom-color: black !important;
+    background: #3a3a3a !important;
 }

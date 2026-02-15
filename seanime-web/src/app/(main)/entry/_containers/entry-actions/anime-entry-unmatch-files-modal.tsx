@@ -4,7 +4,7 @@ import { FilepathSelector } from "@/app/(main)/_features/media/_components/filep
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
-import { atom } from "jotai/index"
+import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 

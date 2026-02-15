@@ -247,15 +247,23 @@ func (s *AutoSelect) searchFromProvider(
 
 // shouldSearchBatch determines if we should initially attempt to search for batches.
 func (s *AutoSelect) shouldSearchBatch(media *anilist.CompleteAnime) bool {
-	// Search batch if not a movie and finished
-	yearsSinceStart := 999
-	if media.StartDate != nil && *media.StartDate.Year > 0 {
-		yearsSinceStart = time.Now().Year() - *media.StartDate.Year
+	if media.IsMovie() || !media.IsFinished() {
+		return false
 	}
-	if !media.IsMovie() && media.IsFinished() && yearsSinceStart > 4 {
-		return true
+
+	// Check if 2 weeks have passed since the anime ended
+	// This helps avoid unnecessary batch searches for recently ended series to maximize results
+	endDate := media.GetEndDate()
+	if endDate != nil && endDate.GetYear() != nil && endDate.GetMonth() != nil && endDate.GetDay() != nil {
+		endTime := time.Date(*endDate.GetYear(), time.Month(*endDate.GetMonth()), *endDate.GetDay(), 0, 0, 0, 0, time.UTC)
+		twoWeeksAgo := time.Now().UTC().AddDate(0, 0, -14)
+
+		if endTime.After(twoWeeksAgo) {
+			return false
+		}
 	}
-	return false
+
+	return true
 }
 
 // buildSearchOptions constructs the search options based on the provider capabilities and resolution.

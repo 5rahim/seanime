@@ -9,12 +9,12 @@ import { SeaImage } from "@/components/shared/sea-image"
 import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
+import { usePathname, useRouter } from "@/lib/navigation"
 import { getImageUrl } from "@/lib/server/assets"
-import { useThemeSettings } from "@/lib/theme/hooks"
-import { usePathname, useRouter } from "next/navigation"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
-import { AiFillPlayCircle } from "react-icons/ai"
 import { BiAddToQueue } from "react-icons/bi"
+import { FaCirclePlay } from "react-icons/fa6"
 import { LuDock, LuEye } from "react-icons/lu"
 import { PluginEpisodeCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
@@ -41,6 +41,7 @@ type EpisodeCardProps = {
     allowAnimeInfo?: boolean
     forceSingleContainer?: boolean
     additionalContextMenuItems?: React.ReactNode
+    fallbackImage?: (string | undefined)[] | undefined
     anime?: {
         id?: number
         image?: string
@@ -53,7 +54,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
 
     const {
         children,
-        actionIcon = props.actionIcon !== null ? <AiFillPlayCircle className="opacity-50" /> : undefined,
+        actionIcon = props.actionIcon !== null ? <FaCirclePlay className="opacity-50" /> : undefined,
         image,
         onClick,
         topTitle,
@@ -78,6 +79,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         anime,
         episode,
         additionalContextMenuItems,
+        fallbackImage,
         ...rest
     } = props
 
@@ -92,11 +94,14 @@ export function EpisodeCard(props: EpisodeCardProps) {
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
     const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
 
+    // const missingImage = fallbackImage?.includes(image || "")
+    const missingImage = false
+
     const isSingleContainer = ts.useLegacyEpisodeCard || forceSingleContainer
 
     const Meta = () => (
         <div data-episode-card-info-container className="relative z-[3] w-full space-y-0">
-            <p
+            {topTitle !== title && <p
                 data-episode-card-title
                 className={cn(
                     "w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold",
@@ -104,7 +109,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 )}
             >
                 {topTitle?.replaceAll("`", "'")}
-            </p>
+            </p>}
             <div data-episode-card-info-content className="w-full justify-between flex flex-none items-center">
                 <p data-episode-card-subtitle className="line-clamp-1 flex items-center">
                     <span className="flex-none text-base md:text-xl font-medium">{title}{showTotalEpisodes ?
@@ -170,7 +175,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 <div
                     ref={mRef}
                     className={cn(
-                        "rounded-xl overflow-hidden space-y-2 flex-none group/episode-card cursor-pointer",
+                        "rounded-xl space-y-2 flex-none group/episode-card cursor-pointer",
                         "select-none",
                         type === "carousel" && "w-full",
                         type === "grid" && "aspect-[4/2] w-72 lg:w-[26rem]",
@@ -187,7 +192,11 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 >
                     <div
                         data-episode-card-image-container
-                        className="w-full h-full rounded-xl overflow-hidden z-[1] aspect-[4/2] relative bg-[--background]"
+                        className={cn(
+                            "w-full h-full rounded-xl overflow-hidden z-[1] aspect-[4/2] relative bg-[--background]",
+                            // "lg:group-hover/episode-card:scale-[1.02] lg:group-hover/episode-card:translate-y-1  transition-transform
+                            // duration-200",
+                        )}
                     >
                         {!!image ? <SeaImage
                             data-episode-card-image
@@ -198,7 +207,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             placeholder={imageShimmer(700, 475)}
                             sizes="20rem"
                             className={cn(
-                                "object-cover rounded-xl object-center transition lg:group-hover/episode-card:scale-[1.02] duration-500",
+                                "object-cover rounded-xl object-center transition lg:group-hover/episode-card:scale-[1.02] duration-200",
                                 imageClass,
                             )}
                         /> : <div
@@ -244,10 +253,23 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         >
                             {actionIcon && actionIcon}
                         </div>
+                        {missingImage && !topTitle?.toLowerCase?.()?.includes?.("movie") && <div
+                            data-episode-card-action-icon
+                            className={cn(
+                                "px-12 text-gray-200",
+                                "cursor-pointer bg-gray-900/50 z-[1] absolute w-[105%] h-[105%] items-center justify-center",
+                                "hidden md:flex flex-col gap-1",
+                            )}
+                        >
+                            <div className="bg-gray-900/70 px-3 py-2 rounded-lg text-center">
+                                {/*{topTitle !== title && <p className="line-clamp-1 text-[--muted]">{topTitle}</p>}*/}
+                                <p className="text-2xl tracking-wide">{title}</p>
+                            </div>
+                        </div>}
 
-                        {isInvalid &&
-                            <p data-episode-card-invalid-metadata className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata
-                                                                                                                                     found</p>}
+                        {/*{isInvalid &&*/}
+                        {/*    <p data-episode-card-invalid-metadata className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata*/}
+                        {/*                                                                                                             found</p>}*/}
                     </div>
                     {(showAnimeInfo && !isSingleContainer) ? <div data-episode-card-anime-info-container className="flex gap-3 items-center">
                         <div

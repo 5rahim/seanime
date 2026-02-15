@@ -58,7 +58,7 @@ func manifestSanityCheck(ext *extension.Extension) error {
 		return fmt.Errorf("extension author is too long")
 	}
 
-	if !util.IsValidVersion(ext.Version) {
+	if !util.IsValidBasicSemver(ext.Version) {
 		return fmt.Errorf("invalid version: %v", ext.Version)
 	}
 

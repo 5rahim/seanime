@@ -543,6 +543,10 @@ func fieldTypeToTypescriptType(fieldType ast.Expr, usedStructPkgName string) str
 			return "string"
 		case "nil":
 			return "null"
+		case "json.RawMessage":
+			return "Record<string, any>"
+		case "RawMessage":
+			return "Record<string, any>"
 		default:
 			return getTypePrefix(usedStructPkgName) + t.Name
 		}
@@ -584,6 +588,10 @@ func stringGoTypeToTypescriptType(goType string) string {
 		return "boolean"
 	case "time.Time":
 		return "string"
+	case "json.RawMessage":
+		return "Record<string, any>"
+	case "RawMessage":
+		return "Record<string, any>"
 	}
 
 	if strings.HasPrefix(goType, "[]") {

@@ -2,6 +2,7 @@ package anime
 
 import (
 	"bytes"
+	"cmp"
 	"fmt"
 	"path/filepath"
 	"seanime/internal/util"
@@ -261,21 +262,29 @@ func (f *LocalFile) GetParsedData() *LocalFileParsedData {
 
 // GetParsedTitle returns the parsed title of the LocalFile. Falls back to the folder title if the file title is empty.
 func (f *LocalFile) GetParsedTitle() string {
-	if len(f.ParsedData.Title) > 0 {
-		return f.ParsedData.Title
-	}
-	if len(f.GetFolderTitle()) > 0 {
-		return f.GetFolderTitle()
-	}
-	return ""
+	return cmp.Or(f.ParsedData.Title, f.GetFolderTitle())
 }
 
-func (f *LocalFile) GetFolderTitle() string {
+// GetFolderTitle returns the parsed title of the closest folder to the file.
+// It will ignore any folder titles that are simply keywords like "specials", "extras", etc.
+// If all is true, it will return the title regardless of whether it's a keyword or not.
+func (f *LocalFile) GetFolderTitle(all ...bool) string {
 	folderTitles := make([]string, 0)
-	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
+	if len(f.ParsedFolderData) > 0 {
 		// Go through each folder data and keep the ones with a title
 		data := lo.Filter(f.ParsedFolderData, func(fpd *LocalFileParsedData, _ int) bool {
-			return len(fpd.Title) > 0
+			// remove non-anime titles
+			cleanTitle := strings.TrimSpace(strings.ToLower(fpd.Title))
+			if len(all) == 0 || !all[0] {
+				if _, ok := comparison.IgnoredFilenames[cleanTitle]; ok {
+					return false
+				}
+				// Also check the original folder name for ignored keywords
+				if comparison.ValueContainsIgnoredKeywords(fpd.Original) {
+					return false
+				}
+			}
+			return len(cleanTitle) > 0
 		})
 		if len(data) == 0 {
 			return ""
@@ -291,13 +300,36 @@ func (f *LocalFile) GetFolderTitle() string {
 	return ""
 }
 
-// GetTitleVariations is used for matching.
+// getAllFolderTitles returns all valid folder titles (not just the closest one).
+func (f *LocalFile) getAllFolderTitles() []string {
+	if len(f.ParsedFolderData) == 0 {
+		return nil
+	}
+	titles := make([]string, 0, len(f.ParsedFolderData))
+	for _, fpd := range f.ParsedFolderData {
+		cleanTitle := strings.TrimSpace(strings.ToLower(fpd.Title))
+		if len(cleanTitle) == 0 {
+			continue
+		}
+		if _, ok := comparison.IgnoredFilenames[cleanTitle]; ok {
+			continue
+		}
+		// Also check the original folder name for ignored keywords
+		if comparison.ValueContainsIgnoredKeywords(fpd.Original) {
+			continue
+		}
+		titles = append(titles, fpd.Title)
+	}
+	return titles
+}
+
+// GetTitleVariations returns title variations for the local file.
 func (f *LocalFile) GetTitleVariations() []*string {
 
 	folderSeason := 0
 
 	// Get the season from the folder data
-	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
+	if len(f.ParsedFolderData) > 0 {
 		v, found := lo.Find(f.ParsedFolderData, func(fpd *LocalFileParsedData) bool {
 			return len(fpd.Season) > 0
 		})
@@ -319,141 +351,126 @@ func (f *LocalFile) GetTitleVariations() []*string {
 	part := 0
 
 	// Get the part from the folder data
-	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
+	if len(f.ParsedFolderData) > 0 {
 		v, found := lo.Find(f.ParsedFolderData, func(fpd *LocalFileParsedData) bool {
 			return len(fpd.Part) > 0
 		})
 		if found {
-			if res, ok := util.StringToInt(v.Season); ok {
+			if res, ok := util.StringToInt(v.Part); ok {
 				part = res
 			}
 		}
 	}
 
-	// Devnote: This causes issues when an episode title contains "Part"
-	//// Get the part from the filename
-	//if len(f.ParsedData.Part) > 0 {
-	//	if res, ok := util.StringToInt(f.ParsedData.Part); ok {
-	//		part = res
-	//	}
-	//}
-
 	folderTitle := f.GetFolderTitle()
 
-	if comparison.ValueContainsIgnoredKeywords(folderTitle) {
-		folderTitle = ""
-	}
+	// Collect all valid folder titles (not just the closest one)
+	// This ensures parent folder titles like "Re Zero kara Hajimeru Isekai Seikatsu" are used
+	// for token-based candidate matching even when the closest folder has a shorter name like "ReZero"
+	allFolderTitles := f.getAllFolderTitles()
 
-	if len(f.ParsedData.Title) == 0 && len(folderTitle) == 0 {
+	// shortcircuit if there are no titles
+	if len(f.ParsedData.Title) == 0 && len(folderTitle) == 0 && len(allFolderTitles) == 0 {
 		return make([]*string, 0)
 	}
 
-	titleVariations := make([]string, 0)
+	titleVariations := make([]string, 0, 10)
 
-	bothTitles := len(f.ParsedData.Title) > 0 && len(folderTitle) > 0                    // Both titles are present (filename and folder)
-	noSeasonsOrParts := folderSeason == 0 && season == 0 && part == 0                    // No seasons or parts are present
-	bothTitlesSimilar := bothTitles && strings.Contains(folderTitle, f.ParsedData.Title) // The folder title contains the filename title
-	eitherSeason := folderSeason > 0 || season > 0                                       // Either season is present
-	eitherSeasonFirst := folderSeason == 1 || season == 1                                // Either season is 1
+	bothTitles := len(f.ParsedData.Title) > 0 && len(folderTitle) > 0
+	noSeasonsOrParts := folderSeason == 0 && season == 0 && part == 0
+	bothTitlesSimilar := bothTitles && strings.Contains(folderTitle, f.ParsedData.Title)
+	eitherSeason := folderSeason > 0 || season > 0
+	eitherSeasonFirst := folderSeason == 1 || season == 1
 
-	// Part
+	// Collect base titles to use
+	baseTitles := make([]string, 0, 4)
+	if len(f.ParsedData.Title) > 0 {
+		baseTitles = append(baseTitles, f.ParsedData.Title)
+	}
+	if len(folderTitle) > 0 && folderTitle != f.ParsedData.Title {
+		baseTitles = append(baseTitles, folderTitle)
+	}
+	// Add other folder titles that aren't already in baseTitles
+	for _, ft := range allFolderTitles {
+		alreadyAdded := false
+		for _, bt := range baseTitles {
+			if ft == bt {
+				alreadyAdded = true
+				break
+			}
+		}
+		if !alreadyAdded {
+			baseTitles = append(baseTitles, ft)
+		}
+	}
+
+	// Always add the raw base titles
+	for _, t := range baseTitles {
+		titleVariations = append(titleVariations, t)
+	}
+
+	// Part variations
 	if part > 0 {
-		if len(folderTitle) > 0 {
+		for _, t := range baseTitles {
 			titleVariations = append(titleVariations,
-				buildTitle(folderTitle, "Part", strconv.Itoa(part)),
-				buildTitle(folderTitle, "Part", util.IntegerToOrdinal(part)),
-				buildTitle(folderTitle, "Cour", strconv.Itoa(part)),
-				buildTitle(folderTitle, "Cour", util.IntegerToOrdinal(part)),
+				buildTitle(t, "Part", strconv.Itoa(part)),
+				buildTitle(t, "Part", util.IntegerToOrdinal(part)),
+				buildTitle(t, "Cour", strconv.Itoa(part)),
 			)
-		}
-		if len(f.ParsedData.Title) > 0 {
-			titleVariations = append(titleVariations,
-				buildTitle(f.ParsedData.Title, "Part", strconv.Itoa(part)),
-				buildTitle(f.ParsedData.Title, "Part", util.IntegerToOrdinal(part)),
-				buildTitle(f.ParsedData.Title, "Cour", strconv.Itoa(part)),
-				buildTitle(f.ParsedData.Title, "Cour", util.IntegerToOrdinal(part)),
-			)
-		}
-	}
-
-	// Title, no seasons, no parts, or season 1
-	// e.g. "Bungou Stray Dogs"
-	// e.g. "Bungou Stray Dogs Season 1"
-	if noSeasonsOrParts || eitherSeasonFirst {
-		if len(f.ParsedData.Title) > 0 { // Add filename title
-			titleVariations = append(titleVariations, f.ParsedData.Title)
-		}
-		if len(folderTitle) > 0 { // Both titles are present and similar, add folder title
-			titleVariations = append(titleVariations, folderTitle)
-		}
-	}
-
-	// Part & Season
-	// e.g. "Spy x Family Season 1 Part 2"
-	if part > 0 && eitherSeason {
-		if len(folderTitle) > 0 {
-			if season > 0 {
-				titleVariations = append(titleVariations,
-					buildTitle(folderTitle, "Season", strconv.Itoa(season), "Part", strconv.Itoa(part)),
-				)
-			} else if folderSeason > 0 {
-				titleVariations = append(titleVariations,
-					buildTitle(folderTitle, "Season", strconv.Itoa(folderSeason), "Part", strconv.Itoa(part)),
-				)
-			}
-		}
-		if len(f.ParsedData.Title) > 0 {
-			if season > 0 {
-				titleVariations = append(titleVariations,
-					buildTitle(f.ParsedData.Title, "Season", strconv.Itoa(season), "Part", strconv.Itoa(part)),
-				)
-			} else if folderSeason > 0 {
-				titleVariations = append(titleVariations,
-					buildTitle(f.ParsedData.Title, "Season", strconv.Itoa(folderSeason), "Part", strconv.Itoa(part)),
-				)
+			// Roman numerals for parts 1-3
+			if partRoman := intToRoman(part); partRoman != "" {
+				titleVariations = append(titleVariations, buildTitle(t, "Part", partRoman))
 			}
 		}
 	}
 
-	// Season is present
+	// Season variations
 	if eitherSeason {
-		arr := make([]string, 0)
-
-		seas := folderSeason // Default to folder parsed season
-		if season > 0 {      // Use filename parsed season if present
+		seas := folderSeason
+		if season > 0 {
 			seas = season
 		}
 
-		// Both titles are present
-		if bothTitles {
-			// Add both titles
-			arr = append(arr, f.ParsedData.Title)
-			arr = append(arr, folderTitle)
-			if !bothTitlesSimilar { // Combine both titles if they are not similar
-				arr = append(arr, fmt.Sprintf("%s %s", folderTitle, f.ParsedData.Title))
-			}
-		} else if len(folderTitle) > 0 { // Only folder title is present
-
-			arr = append(arr, folderTitle)
-
-		} else if len(f.ParsedData.Title) > 0 { // Only filename title is present
-
-			arr = append(arr, f.ParsedData.Title)
-
+		for _, t := range baseTitles {
+			// Standard formats
+			titleVariations = append(titleVariations,
+				buildTitle(t, "Season", strconv.Itoa(seas)),          // "Title Season 2"
+				buildTitle(t, "S"+strconv.Itoa(seas)),                // "Title S2"
+				buildTitle(t, fmt.Sprintf("S%02d", seas)),            // "Title S02"
+				buildTitle(t, util.IntegerToOrdinal(seas), "Season"), // "Title 2nd Season"
+				fmt.Sprintf("%s %d", t, seas),                        // "Title 2" (common pattern)
+			)
 		}
 
-		for _, t := range arr {
-			titleVariations = append(titleVariations,
-				buildTitle(t, "Season", strconv.Itoa(seas)),
-				buildTitle(t, "S"+strconv.Itoa(seas)),
-				buildTitle(t, util.IntegerToOrdinal(seas), "Season"),
-			)
+		// Combined with part
+		if part > 0 {
+			for _, t := range baseTitles {
+				titleVariations = append(titleVariations,
+					buildTitle(t, "Season", strconv.Itoa(seas), "Part", strconv.Itoa(part)),
+					buildTitle(t, fmt.Sprintf("S%d", seas), fmt.Sprintf("Part %d", part)),
+				)
+			}
 		}
 	}
 
+	// Season 1 or no season info. base titles already added
+	if noSeasonsOrParts || eitherSeasonFirst {
+		// Already added base titles above
+		// For season 1, also add without the "Season 1" suffix as many first seasons
+		// don't have season indicators in their official titles
+	}
+
+	// Combined folder + filename title variations
+	// e.g. "Anime/S02/Episode.mkv"
+	if bothTitles && !bothTitlesSimilar {
+		combined := fmt.Sprintf("%s %s", folderTitle, f.ParsedData.Title)
+		titleVariations = append(titleVariations, combined)
+	}
+
+	// Deduplicate
 	titleVariations = lo.Uniq(titleVariations)
 
-	// If there are no title variations, use the folder title or the parsed title
+	// If there are still no title variations, fall back to raw titles
 	if len(titleVariations) == 0 {
 		if len(folderTitle) > 0 {
 			titleVariations = append(titleVariations, folderTitle)
@@ -464,5 +481,16 @@ func (f *LocalFile) GetTitleVariations() []*string {
 	}
 
 	return lo.ToSlicePtr(titleVariations)
+}
 
+// intToRoman converts small integers (1-10) to Roman numerals
+func intToRoman(n int) string {
+	romans := map[int]string{
+		1: "I", 2: "II", 3: "III", 4: "IV", 5: "V",
+		6: "VI", 7: "VII", 8: "VIII", 9: "IX", 10: "X",
+	}
+	if r, ok := romans[n]; ok {
+		return r
+	}
+	return ""
 }

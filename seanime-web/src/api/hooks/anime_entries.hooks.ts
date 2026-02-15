@@ -9,7 +9,7 @@ import {
     UpdateAnimeEntryRepeat_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { AL_BaseAnime, Anime_Entry, Anime_LocalFile, Anime_MissingEpisodes, Nullish } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_Entry, Anime_LocalFile, Anime_MissingEpisodes, Anime_UpcomingEpisodes, Nullish } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -143,5 +143,14 @@ export function useUpdateAnimeEntryRepeat(id: Nullish<string | number>) {
             // }
             // toast.success("Updated successfully")
         },
+    })
+}
+
+export function useGetUpcomingEpisodes() {
+    return useServerQuery<Anime_UpcomingEpisodes>({
+        endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetUpcomingEpisodes.endpoint,
+        method: API_ENDPOINTS.ANIME_ENTRIES.GetUpcomingEpisodes.methods[0],
+        queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetUpcomingEpisodes.key],
+        enabled: true,
     })
 }

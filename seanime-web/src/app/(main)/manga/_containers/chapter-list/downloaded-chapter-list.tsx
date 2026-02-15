@@ -109,7 +109,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
 
                         {row.original.downloaded && <IconButton
                             intent="gray-subtle"
-                            size="sm"
+                            size="md"
                             onClick={() => {
                                 /**
                                  * Set the provider to the one of the selected chapter
@@ -174,7 +174,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
         <>
             <h3 className="pt-8">Downloaded chapters</h3>
 
-            <div data-downloaded-chapter-list-container className="space-y-4 border rounded-[--radius-md] bg-[--paper] p-4">
+            <div data-downloaded-chapter-list-container className="space-y-4 rounded-2xl border bg-[--paper] p-4">
 
                 <div className="flex flex-wrap items-center gap-4">
                     <Checkbox
@@ -237,6 +237,9 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                     onRowSelect={onSelectChange}
                     onRowSelectionChange={setRowSelection}
                     className=""
+                    tableClass="table-fixed lg:table-fixed"
+                    tableBodyClass="border-0"
+                    tdClass="border-[rgba(255,255,255,0.05)]"
                 />
             </div>
         </>

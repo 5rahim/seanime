@@ -77,13 +77,13 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                 onSubmit={data => {
                     if (settings) {
                         mutate({
-                            settings: {
-                                ...settings,
-                                ...data,
-                                preTranscodeLibraryDir: "",
-                                preTranscodeEnabled: false,
-                                transcodeThreads: 0,
-                            },
+                                settings: {
+                                    ...settings,
+                                    ...data,
+                                    preTranscodeLibraryDir: "",
+                                    preTranscodeEnabled: false,
+                                    transcodeThreads: 0,
+                                },
                             },
                             {
                                 onSuccess: () => {

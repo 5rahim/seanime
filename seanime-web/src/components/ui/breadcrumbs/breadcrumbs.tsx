@@ -1,5 +1,3 @@
-"use client"
-
 import { SeaLink } from "@/components/shared/sea-link"
 import { cva } from "class-variance-authority"
 import * as React from "react"

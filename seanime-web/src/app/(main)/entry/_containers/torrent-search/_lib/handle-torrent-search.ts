@@ -72,7 +72,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     // const [smartSearchEpisode, setSmartSearchEpisode] = React.useState<number>(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1)
     const [smartSearchResolution, setSmartSearchResolution] = React.useState("")
     const [smartSearchBest, setSmartSearchBest] = React.useState(false)
-    const [smartSearchEpisode, debouncedSmartSearchEpisode, setSmartSearchEpisode] = useDebounceWithSet(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1,
+    const [smartSearchEpisode, debouncedSmartSearchEpisode, setSmartSearchEpisode] = useDebounceWithSet(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber ?? 1,
         500)
 
     const warnings = {
@@ -121,8 +121,8 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
      * Fetch torrent search data
      */
     const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSearchTorrent({
-            query: debouncedGlobalFilter.trim().toLowerCase(),
-            episodeNumber: debouncedSmartSearchEpisode,
+        query: debouncedGlobalFilter.trim().toLowerCase(),
+        episodeNumber: debouncedSmartSearchEpisode,
             batch: smartSearchBatch,
             media: entry?.media,
             absoluteOffset: downloadInfo?.absoluteOffset || 0,
@@ -130,7 +130,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
             type: searchType,
             provider: selectedProviderExtension?.id!,
             bestRelease: searchType === Torrent_SearchType.SMART && smartSearchBest,
-            includeSpecialProviders: true,
+        includeSpecialProviders: true,
         },
         !(searchType === Torrent_SearchType.SIMPLE && debouncedGlobalFilter.length === 0) // If simple search, user input must not be empty
         && !warnings.noProvider

@@ -1,6 +1,6 @@
-import { OfflineTopMenu } from "@/app/(main)/(offline)/offline/_components/offline-top-menu"
 import { LayoutHeaderBackground } from "@/app/(main)/_features/layout/_components/layout-header-background"
 import { TopMenu } from "@/app/(main)/_features/navigation/top-menu"
+import { OfflineTopMenu } from "@/app/(main)/_features/offline/_components/offline-top-menu"
 import { ManualProgressTrackingButton } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTrackingButton } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -9,10 +9,10 @@ import { __manga_chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_co
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
 import { cn } from "@/components/ui/core/styling"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { usePathname } from "@/lib/navigation"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { __isDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai/react"
-import { usePathname } from "next/navigation"
 import React from "react"
 import { LuFolderDown } from "react-icons/lu"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
@@ -85,7 +85,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
     const openDownloadQueue = useSetAtom(__manga_chapterDownloadsDrawerIsOpenAtom)
     const isMangaPage = pathname.startsWith("/manga")
 
-    if (!ts.hideTopNavbar && process.env.NEXT_PUBLIC_PLATFORM !== "desktop") return null
+    if (!ts.hideTopNavbar && import.meta.env.SEA_PUBLIC_PLATFORM !== "desktop") return null
 
     return (
         <div data-sidebar-navbar className="flex flex-col gap-1">

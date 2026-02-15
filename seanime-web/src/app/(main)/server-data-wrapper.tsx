@@ -9,12 +9,11 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { logger } from "@/lib/helpers/debug"
+import { usePathname, useRouter } from "@/lib/navigation"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
 import { __isDesktop__ } from "@/types/constants"
 import { useAtomValue } from "jotai"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { useWebsocketMessageListener } from "./_hooks/handle-websockets"
 
@@ -166,9 +165,10 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
                             <img src="/seanime-logo.png" alt="logo" className="w-24 h-auto" />
                         </div>
                         <h3>Welcome!</h3>
-                        <Link
+                        <a
                             href={ANILIST_PIN_URL}
                             target="_blank"
+                            rel="noopener noreferrer"
                         >
                             <Button
                                 leftIcon={<svg
@@ -182,7 +182,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
                                 intent="white"
                                 size="md"
                             >Get AniList token</Button>
-                        </Link>
+                        </a>
 
                         <Form
                             schema={defineSchema(({ z }) => z.object({

@@ -26,6 +26,7 @@ const (
 	DebridGetTorrentInfoEndpoint                       = "DEBRID-debrid-get-torrent-info"
 	DebridGetTorrentsEndpoint                          = "DEBRID-debrid-get-torrents"
 	DebridStartStreamEndpoint                          = "DEBRID-debrid-start-stream"
+	DecompressIssueReportEndpoint                      = "REPORT-decompress-issue-report"
 	DeleteAnilistListEntryEndpoint                     = "ANILIST-delete-anilist-list-entry"
 	DeleteAutoDownloaderItemEndpoint                   = "AUTO-DOWNLOADER-delete-auto-downloader-item"
 	DeleteAutoDownloaderProfileEndpoint                = "AUTO-DOWNLOADER-delete-auto-downloader-profile"
@@ -126,6 +127,7 @@ const (
 	GetTorrentstreamBatchHistoryEndpoint               = "TORRENTSTREAM-get-torrentstream-batch-history"
 	GetTorrentstreamSettingsEndpoint                   = "TORRENTSTREAM-get-torrentstream-settings"
 	GetTorrentstreamTorrentFilePreviewsEndpoint        = "TORRENTSTREAM-get-torrentstream-torrent-file-previews"
+	GetUpcomingEpisodesEndpoint                        = "ANIME-ENTRIES-get-upcoming-episodes"
 	GettingStartedEndpoint                             = "SETTINGS-getting-started"
 	GrantPluginPermissionsEndpoint                     = "EXTENSIONS-grant-plugin-permissions"
 	ImportLocalFilesEndpoint                           = "LOCALFILES-import-local-files"
@@ -247,4 +249,5 @@ const (
 	UpdateMangaProgressEndpoint                        = "MANGA-update-manga-progress"
 	UpdatePlaylistEndpoint                             = "PLAYLIST-update-playlist"
 	UpdateThemeEndpoint                                = "THEME-update-theme"
+	VideoCoreInSightGetCharacterDetailsEndpoint        = "VIDEOCORE-video-core-in-sight-get-character-details"
 )

@@ -2,8 +2,11 @@ package scanner
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"os"
+	"runtime"
+	"runtime/debug"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/events"
@@ -25,24 +28,30 @@ import (
 )
 
 type Scanner struct {
-	DirPath             string
-	OtherDirPaths       []string
-	Enhanced            bool
-	PlatformRef         *util.Ref[platform.Platform]
-	Logger              *zerolog.Logger
-	WSEventManager      events.WSEventManagerInterface
-	ExistingLocalFiles  []*anime.LocalFile
-	SkipLockedFiles     bool
-	SkipIgnoredFiles    bool
-	ScanSummaryLogger   *summary.ScanSummaryLogger
-	ScanLogger          *ScanLogger
-	MetadataProviderRef *util.Ref[metadata_provider.Provider]
-	MatchingThreshold   float64
-	MatchingAlgorithm   string
+	DirPath                    string
+	OtherDirPaths              []string
+	Enhanced                   bool
+	EnhanceWithOfflineDatabase bool
+	PlatformRef                *util.Ref[platform.Platform]
+	Logger                     *zerolog.Logger
+	WSEventManager             events.WSEventManagerInterface
+	ExistingLocalFiles         []*anime.LocalFile
+	SkipLockedFiles            bool
+	SkipIgnoredFiles           bool
+	ScanSummaryLogger          *summary.ScanSummaryLogger
+	ScanLogger                 *ScanLogger
+	MetadataProviderRef        *util.Ref[metadata_provider.Provider]
+	UseLegacyMatching          bool
+	MatchingThreshold          float64 // only used by legacy
+	MatchingAlgorithm          string  // only used by legacy
 	// If true, locked files whose library path doesn't exist will be put aside
 	WithShelving         bool
 	ExistingShelvedFiles []*anime.LocalFile
-	ShelvedLocalFiles    []*anime.LocalFile
+	shelvedLocalFiles    []*anime.LocalFile
+	Config               *Config
+	ConfigAsString       string
+	// Optional, used to add custom sources
+	AnimeCollection *anilist.AnimeCollection
 }
 
 // Scan will scan the directory and return a list of anime.LocalFile.
@@ -63,11 +72,33 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 		scn.ScanSummaryLogger = summary.NewScanSummaryLogger()
 	}
 
+	if scn.ConfigAsString != "" && scn.Config == nil {
+		scn.Config, _ = ToConfig(scn.ConfigAsString)
+	}
+	if scn.Config == nil {
+		scn.Config = &Config{}
+	}
+
 	scn.Logger.Debug().Msg("scanner: Starting scan")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 10)
 	scn.WSEventManager.SendEvent(events.EventScanStatus, "Retrieving local files...")
 
 	startTime := time.Now()
+
+	if scn.ScanLogger != nil {
+		scn.ScanLogger.logger.Info().
+			Time("startTime", startTime).
+			Msg("Scanning started")
+
+		defer func() {
+			now := time.Now()
+			scn.ScanLogger.logger.Info().
+				Time("endTime", time.Now()).
+				Str("duration", now.Sub(startTime).String()).
+				Int("localFilesCount", len(lfs)).
+				Msg("Ended")
+		}()
+	}
 
 	// Invoke ScanStarted hook
 	event := &ScanStartedEvent{
@@ -213,9 +244,9 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 		if _, ok := skippedLfs[util.NormalizePath(path)]; !ok {
 			// Create a new local file
 			return anime.NewLocalFileS(path, libraryPaths)
-		} else {
-			return nil
 		}
+
+		return nil
 	})
 
 	// Remove nil values
@@ -276,7 +307,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 				if filesystem.FileExists(sf.Path) { // Verify that the file still exists
 					localFiles = append(localFiles, sf)
 				} else if scn.WithShelving && sf.IsLocked() { // If the file is locked and shelving is enabled, shelve it
-					scn.ShelvedLocalFiles = append(scn.ShelvedLocalFiles, sf)
+					scn.shelvedLocalFiles = append(scn.shelvedLocalFiles, sf)
 				}
 			}
 		}
@@ -301,7 +332,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 40)
 	if scn.Enhanced {
-		scn.WSEventManager.SendEvent(events.EventScanStatus, "Fetching media detected from file titles...")
+		scn.WSEventManager.SendEvent(events.EventScanStatus, "Fetching additional matching data...")
 	} else {
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Fetching media...")
 	}
@@ -312,15 +343,17 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 
 	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(ctx, &MediaFetcherOptions{
-		Enhanced:               scn.Enhanced,
-		PlatformRef:            scn.PlatformRef,
-		MetadataProviderRef:    scn.MetadataProviderRef,
-		LocalFiles:             localFiles,
-		CompleteAnimeCache:     completeAnimeCache,
-		Logger:                 scn.Logger,
-		AnilistRateLimiter:     anilistRateLimiter,
-		DisableAnimeCollection: false,
-		ScanLogger:             scn.ScanLogger,
+		Enhanced:                   scn.Enhanced,
+		EnhanceWithOfflineDatabase: scn.EnhanceWithOfflineDatabase,
+		PlatformRef:                scn.PlatformRef,
+		MetadataProviderRef:        scn.MetadataProviderRef,
+		LocalFiles:                 localFiles,
+		CompleteAnimeCache:         completeAnimeCache,
+		Logger:                     scn.Logger,
+		AnilistRateLimiter:         anilistRateLimiter,
+		DisableAnimeCollection:     false,
+		ScanLogger:                 scn.ScanLogger,
+		OptionalAnimeCollection:    scn.AnimeCollection,
 	})
 	if err != nil {
 		return nil, err
@@ -349,14 +382,15 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 
 	// Create a new matcher
 	matcher := &Matcher{
-		LocalFiles:         localFiles,
-		MediaContainer:     mc,
-		CompleteAnimeCache: completeAnimeCache,
-		Logger:             scn.Logger,
-		ScanLogger:         scn.ScanLogger,
-		ScanSummaryLogger:  scn.ScanSummaryLogger,
-		Algorithm:          scn.MatchingAlgorithm,
-		Threshold:          scn.MatchingThreshold,
+		LocalFiles:        localFiles,
+		MediaContainer:    mc,
+		Logger:            scn.Logger,
+		ScanLogger:        scn.ScanLogger,
+		ScanSummaryLogger: scn.ScanSummaryLogger,
+		Algorithm:         scn.MatchingAlgorithm,
+		Threshold:         scn.MatchingThreshold,
+		UseLegacyMatching: scn.UseLegacyMatching,
+		Config:            scn.Config,
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 60)
@@ -390,6 +424,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 		Logger:              scn.Logger,
 		ScanLogger:          scn.ScanLogger,
 		ScanSummaryLogger:   scn.ScanSummaryLogger,
+		Config:              scn.Config,
 	}
 	hydrator.HydrateMetadata()
 
@@ -436,7 +471,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 					mu.Unlock()
 				} else if scn.WithShelving && skippedLf.IsLocked() { // If the file is locked and shelving is enabled, shelve it
 					mu.Lock()
-					scn.ShelvedLocalFiles = append(scn.ShelvedLocalFiles, skippedLf)
+					scn.shelvedLocalFiles = append(scn.shelvedLocalFiles, skippedLf)
 					mu.Unlock()
 				}
 			}(skippedLf)
@@ -466,6 +501,9 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 	hook.GlobalHookManager.OnScanCompleted().Trigger(completedEvent)
 	localFiles = completedEvent.LocalFiles
 
+	runtime.GC()
+	debug.FreeOSMemory()
+
 	return localFiles, nil
 }
 
@@ -475,7 +513,7 @@ func (scn *Scanner) InLibrariesOnly(lfs []*anime.LocalFile) {
 }
 
 func (scn *Scanner) GetShelvedLocalFiles() []*anime.LocalFile {
-	return scn.ShelvedLocalFiles
+	return scn.shelvedLocalFiles
 }
 
 func (scn *Scanner) addRemainingShelvedFiles(skippedLfs map[string]*anime.LocalFile, sortedLibraryPaths []string) {
@@ -524,8 +562,18 @@ func (scn *Scanner) addRemainingShelvedFiles(skippedLfs map[string]*anime.LocalF
 			}
 
 			if keepShelved {
-				scn.ShelvedLocalFiles = append(scn.ShelvedLocalFiles, shelvedLf)
+				scn.shelvedLocalFiles = append(scn.shelvedLocalFiles, shelvedLf)
 			}
 		}
 	}
+}
+
+func ToConfig(c string) (*Config, error) {
+	var ret Config
+	err := json.Unmarshal([]byte(c), &ret)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ret, nil
 }

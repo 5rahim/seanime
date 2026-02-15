@@ -96,62 +96,62 @@ export function AnimeEntryMetadataManager(props: AnimeEntryMetadataManagerProps)
                         </p>
                     </div>
 
-            {isLoading ? <LoadingSpinner /> : (
-                <>
-                    <div className="flex gap-2 flex-col lg:flex-row">
-                        <NumberInput
-                            leftAddon="AniList ID"
-                            addonClass="justify-center text-center font-semibold"
-                            hideControls
-                            value={metadataParentId ?? ""}
-                            onValueChange={setMetadataParentId}
-                            formatOptions={{ useGrouping: false }}
-                            rightAddon={(!!parentId && metadataParentId !== parentId) ? <Button
-                                size="xs" intent="gray-link"
-                                onClick={() => setMetadataParentId(parentId)}
-                            >
-                                Select parent
-                            </Button> : undefined}
-                        />
+                    {isLoading ? <LoadingSpinner /> : (
+                        <>
+                            <div className="flex gap-2 flex-col lg:flex-row">
+                                <NumberInput
+                                    leftAddon="AniList ID"
+                                    addonClass="justify-center text-center font-semibold"
+                                    hideControls
+                                    value={metadataParentId ?? ""}
+                                    onValueChange={setMetadataParentId}
+                                    formatOptions={{ useGrouping: false }}
+                                    rightAddon={(!!parentId && metadataParentId !== parentId) ? <Button
+                                        size="xs" intent="gray-link"
+                                        onClick={() => setMetadataParentId(parentId)}
+                                    >
+                                        Select parent
+                                    </Button> : undefined}
+                                />
 
-                        <NumberInput
-                            leftAddon="Special Offset"
-                            value={specialOffset ?? ""}
-                            onValueChange={setSpecialOffset}
-                            addonClass="text-center font-semibold"
-                            hideControls
-                            placeholder="0 = S1, 1 = S2, etc."
-                        />
-                    </div>
+                                <NumberInput
+                                    leftAddon="Special Offset"
+                                    value={specialOffset ?? ""}
+                                    onValueChange={setSpecialOffset}
+                                    addonClass="text-center font-semibold"
+                                    hideControls
+                                    placeholder="0 = S1, 1 = S2, etc."
+                                />
+                            </div>
 
-                    <div className="flex gap-2">
-                        <Button
-                            className="w-full"
-                            intent="primary-subtle"
-                            loading={isSavingMetadataParent}
-                            onClick={() => {
-                                if (!metadataParentId) return
-                                saveMetadataParent({
-                                    mediaId: entry.mediaId,
-                                    parentId: metadataParentId,
-                                    specialOffset: specialOffset || 0,
-                                })
-                            }}
-                            disabled={isSavingMetadataParent || isDeletingMetadataParent}
-                        >
-                            Save
-                        </Button>
-                        {!!metadataParentData?.id && <Button
-                            className="w-full"
-                            intent="gray-subtle"
-                            loading={isDeletingMetadataParent || isSavingMetadataParent}
-                            onClick={() => deleteMetadataParent({ mediaId: entry.mediaId })}
-                        >
-                            Remove
-                        </Button>}
-                    </div>
-                </>
-            )}
+                            <div className="flex gap-2">
+                                <Button
+                                    className="w-full"
+                                    intent="primary-subtle"
+                                    loading={isSavingMetadataParent}
+                                    onClick={() => {
+                                        if (!metadataParentId) return
+                                        saveMetadataParent({
+                                            mediaId: entry.mediaId,
+                                            parentId: metadataParentId,
+                                            specialOffset: specialOffset || 0,
+                                        })
+                                    }}
+                                    disabled={isSavingMetadataParent || isDeletingMetadataParent}
+                                >
+                                    Save
+                                </Button>
+                                {!!metadataParentData?.id && <Button
+                                    className="w-full"
+                                    intent="gray-subtle"
+                                    loading={isDeletingMetadataParent || isSavingMetadataParent}
+                                    onClick={() => deleteMetadataParent({ mediaId: entry.mediaId })}
+                                >
+                                    Remove
+                                </Button>}
+                            </div>
+                        </>
+                    )}
 
                 </>
             )}

@@ -8,7 +8,7 @@ import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/advanced-
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
-import { atom } from "jotai/index"
+import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React from "react"
 import { FiSearch } from "react-icons/fi"

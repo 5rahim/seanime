@@ -1,4 +1,3 @@
-"use client"
 import {
     __manga_doublePageOffsetAtom,
     __manga_entryReaderSettings,

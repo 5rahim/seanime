@@ -66,7 +66,7 @@ export const TorrentTable = memo((
 
     return (
         <>
-            {(isLoading || isFetching) ? <div className="space-y-2">
+            {isLoading ? <div className="space-y-2">
                 <Skeleton className="h-[96px]" />
                 <Skeleton className="h-[96px]" />
                 <Skeleton className="h-[96px]" />

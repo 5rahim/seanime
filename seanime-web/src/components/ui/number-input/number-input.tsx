@@ -1,5 +1,3 @@
-"use client"
-
 import type { IntlTranslations } from "@zag-js/number-input"
 import * as numberInput from "@zag-js/number-input"
 import { normalizeProps, useMachine } from "@zag-js/react"
@@ -193,7 +191,8 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
         name: basicFieldProps.name,
         disabled: basicFieldProps.disabled,
         readOnly: basicFieldProps.readonly,
-        value: controlledValue ? String(controlledValue) : (defaultValue ? String(defaultValue) : undefined),
+        value: (controlledValue !== undefined && controlledValue !== null) ? String(controlledValue) : undefined,
+        defaultValue: (defaultValue !== undefined && defaultValue !== null) ? String(defaultValue) : undefined,
         min,
         max,
         step,
@@ -209,21 +208,6 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     })
 
     const api = numberInput.connect(service, normalizeProps)
-
-    const isFirst = React.useRef(true)
-
-    React.useEffect(() => {
-        if (!isFirst.current) {
-            if (typeof controlledValue === "string" && !isNaN(Number(controlledValue))) {
-                api.setValue(Number(controlledValue))
-            } else if (typeof controlledValue === "number") {
-                api.setValue(controlledValue)
-            } else if (controlledValue === undefined) {
-                api.setValue(min)
-            }
-        }
-        isFirst.current = false
-    }, [controlledValue])
 
     return (
         <BasicField

@@ -12,12 +12,12 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useSetAtom } from "jotai/react"
 import { toast } from "sonner"
 
-export function useGetSettings() {
+export function useGetSettings(options?: { enabled?: boolean }) {
     return useServerQuery<Models_Settings>({
         endpoint: API_ENDPOINTS.SETTINGS.GetSettings.endpoint,
         method: API_ENDPOINTS.SETTINGS.GetSettings.methods[0],
         queryKey: [API_ENDPOINTS.SETTINGS.GetSettings.key],
-        enabled: true,
+        enabled: options?.enabled ?? true,
     })
 }
 
@@ -68,12 +68,14 @@ export function useSaveAutoDownloaderSettings() {
 }
 
 export function useSaveMediaPlayerSettings() {
+    const queryClient = useQueryClient()
     return useServerMutation<boolean, SaveMediaPlayerSettings_Variables>({
         endpoint: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.endpoint,
         method: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.methods[0],
         mutationKey: [API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.key],
         onSuccess: async () => {
-
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SETTINGS.GetSettings.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
         },
     })
 }

@@ -24,7 +24,7 @@ import (
 )
 
 type (
-	// VideoCore allows to interact with the built-in HTML5 video player in Seanime.
+	// VideoCore represents the built-in HTML5 video player.
 	// It can be the NativePlayer (Seanime Denshi player) or the WebPlayer.
 	VideoCore struct {
 		wsEventManager              events.WSEventManagerInterface
@@ -39,10 +39,13 @@ type (
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		isOfflineRef               *util.Ref[bool]
 
-		playbackStatusMu sync.RWMutex
-		playbackStatus   *PlaybackStatus
-		playbackStateMu  sync.RWMutex
-		playbackState    *PlaybackState
+		playbackStatusMu  sync.RWMutex
+		playbackStatus    *PlaybackStatus
+		playbackStateMu   sync.RWMutex
+		playbackState     *PlaybackState
+		playbackMkvEvents *result.Map[uint64, []*mkvparser.SubtitleEvent]
+
+		inSight *InSight
 
 		subscribers *result.Map[string, *Subscriber]
 
@@ -90,8 +93,11 @@ func New(opts NewVideoCoreOptions) *VideoCore {
 		logger:                      opts.Logger,
 		eventBus:                    make(chan VideoEvent, 100),
 		dispatcherStop:              make(chan struct{}),
+		playbackMkvEvents:           result.NewMap[uint64, []*mkvparser.SubtitleEvent](),
 	}
 	vc.Start()
+	vc.inSight = NewInSight(opts.Logger, vc)
+	vc.inSight.Start()
 	return vc
 }
 
@@ -338,6 +344,8 @@ func (vc *VideoCore) GetCurrentPlaybackType() (PlaybackType, bool) {
 func (vc *VideoCore) clearPlayback() {
 	vc.setPlaybackStatus(nil)
 	vc.setPlaybackState(nil)
+	vc.playbackMkvEvents.Clear()
+	vc.inSight.Clear()
 }
 
 func (vc *VideoCore) setPlaybackState(state *PlaybackState) {
@@ -533,6 +541,15 @@ func (vc *VideoCore) PlayPlaylistEpisode(which string) {
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventPlayPlaylistEpisode), which)
 }
 
+// SendInSightData sends InSight data for a playback session.
+func (vc *VideoCore) SendInSightData(data *InSightData) {
+	state, ok := vc.GetPlaybackState()
+	if !ok {
+		return
+	}
+	vc.sendPlayerEventTo(state.ClientId, string(ServerEventInSightData), data)
+}
+
 // Terminate sends a terminate command to the video player and clears the playback state.
 // The video player should stop on the client.
 func (vc *VideoCore) Terminate() {
@@ -594,6 +611,15 @@ func (vc *VideoCore) SendGetSubtitleTrack() {
 		return
 	}
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetSubtitleTrack), nil)
+}
+
+// SendGetSubtitleTrackContent sends a get-subtitle-track-content request to the video player.
+func (vc *VideoCore) SendGetSubtitleTrackContent() {
+	state, ok := vc.GetPlaybackState()
+	if !ok {
+		return
+	}
+	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetSubtitleTrackContent), nil)
 }
 
 // SendGetAudioTrack sends a get-audio-track request to the video player.
@@ -698,292 +724,310 @@ func (vc *VideoCore) PullStatus() (ret VideoStatusEvent, ok bool) {
 	return ret, true
 }
 
+func (vc *VideoCore) RecordEvent(event *mkvparser.SubtitleEvent) {
+	// todo
+	//track, found := vc.playbackMkvEvents.Get(event.TrackNumber)
+	//if !found {
+	//	vc.playbackMkvEvents.Set(event.TrackNumber, []*mkvparser.SubtitleEvent{event})
+	//	return
+	//}
+	//track = append(track, event)
+	//vc.playbackMkvEvents.Set(event.TrackNumber, track)
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (vc *VideoCore) listenToClientEvents() {
 	// Start a goroutine to listen to video core events
 	go func() {
-		for {
-			select {
-			// Listen to video core events from the client
-			case clientEvent := <-vc.clientPlayerEventSubscriber.Channel:
-				playerEvent := &ClientEvent{}
-				marshaled, _ := json.Marshal(clientEvent.Payload)
-				// Unmarshal the player event
-				if err := json.Unmarshal(marshaled, &playerEvent); err == nil {
-					// Validate that the event is from the current client
-					currentState, hasState := vc.GetPlaybackState()
-					if hasState && clientEvent.ClientID != "" && clientEvent.ClientID != currentState.ClientId {
-						continue
+		// Listen to video core events from the client
+		for clientEvent := range vc.clientPlayerEventSubscriber.Channel {
+			playerEvent := &ClientEvent{}
+			marshaled, _ := json.Marshal(clientEvent.Payload)
+			// Unmarshal the player event
+			if err := json.Unmarshal(marshaled, &playerEvent); err == nil {
+				// Validate that the event is from the current client
+				currentState, hasState := vc.GetPlaybackState()
+				if hasState && clientEvent.ClientID != "" && clientEvent.ClientID != currentState.ClientId {
+					continue
+				}
+
+				// Handle events
+				switch playerEvent.Type {
+				case PlayerEventVideoLoaded:
+					payload := &clientVideoLoadedPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.setPlaybackState(&payload.State)
+						vc.PushEvent(&VideoLoadedEvent{
+							State: payload.State,
+						})
 					}
-
-					// Handle events
-					switch playerEvent.Type {
-					case PlayerEventVideoLoaded:
-						payload := &clientVideoLoadedPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.setPlaybackState(&payload.State)
-							vc.PushEvent(&VideoLoadedEvent{
-								State: payload.State,
-							})
+				case PlayerEventVideoPlaybackState:
+					payload := &clientVideoLoadedPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.setPlaybackState(&payload.State)
+						vc.PushEvent(&VideoPlaybackStateEvent{
+							State: payload.State,
+						})
+					}
+				case PlayerEventVideoLoadedMetadata:
+					payload := &clientVideoStatusPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						ps, ok := vc.GetPlaybackState()
+						if !ok {
+							continue
 						}
-					case PlayerEventVideoPlaybackState:
-						payload := &clientVideoLoadedPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.setPlaybackState(&payload.State)
-							vc.PushEvent(&VideoPlaybackStateEvent{
-								State: payload.State,
-							})
-						}
-					case PlayerEventVideoLoadedMetadata:
-						payload := &clientVideoStatusPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							ps, ok := vc.GetPlaybackState()
+						vc.playbackMkvEvents.Clear()
+						vc.setPlaybackStatus(&PlaybackStatus{
+							Id:          ps.PlaybackInfo.Id,
+							ClientId:    ps.ClientId,
+							CurrentTime: payload.CurrentTime,
+							Duration:    payload.Duration,
+							Paused:      payload.Paused,
+						})
+						vc.PushEvent(&VideoLoadedMetadataEvent{
+							CurrentTime: payload.CurrentTime,
+							Duration:    payload.Duration,
+							Paused:      payload.Paused,
+						})
+					}
+				case PlayerEventVideoCanPlay:
+					payload := &clientVideoStatusPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.updatePlaybackStatusFn(func() {
+							vc.playbackStatus.Duration = payload.Duration
+							vc.playbackStatus.CurrentTime = payload.CurrentTime
+							vc.playbackStatus.Paused = payload.Paused
+						})
+						vc.PushEvent(&VideoCanPlayEvent{
+							CurrentTime: payload.CurrentTime,
+							Duration:    payload.Duration,
+							Paused:      payload.Paused,
+						})
+					}
+				case PlayerEventVideoSeeked:
+					payload := &clientVideoStatusPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.updatePlaybackStatusFn(func() {
+							vc.playbackStatus.Duration = payload.Duration
+							vc.playbackStatus.CurrentTime = payload.CurrentTime
+							vc.playbackStatus.Paused = payload.Paused
+						})
+						vc.PushEvent(&VideoSeekedEvent{
+							CurrentTime: payload.CurrentTime,
+							Duration:    payload.Duration,
+							Paused:      payload.Paused,
+						})
+					}
+				case PlayerEventVideoPaused:
+					payload := &clientVideoStatusPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.updatePlaybackStatusFn(func() {
+							vc.playbackStatus.Duration = payload.Duration
+							vc.playbackStatus.CurrentTime = payload.CurrentTime
+							vc.playbackStatus.Paused = true
+						})
+						vc.PushEvent(&VideoPausedEvent{
+							CurrentTime: payload.CurrentTime,
+							Duration:    payload.Duration,
+						})
+					}
+				case PlayerEventVideoResumed:
+					payload := &clientVideoStatusPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.updatePlaybackStatusFn(func() {
+							vc.playbackStatus.Duration = payload.Duration
+							vc.playbackStatus.CurrentTime = payload.CurrentTime
+							vc.playbackStatus.Paused = false
+						})
+						vc.PushEvent(&VideoResumedEvent{
+							CurrentTime: payload.CurrentTime,
+							Duration:    payload.Duration,
+						})
+					}
+				case PlayerEventVideoEnded:
+					payload := &clientVideoEndedPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.updatePlaybackStatusFn(func() {
+							vc.playbackStatus.CurrentTime = vc.playbackStatus.Duration
+							vc.playbackStatus.Paused = true
+						})
+						vc.PushEvent(&VideoEndedEvent{
+							AutoNext: payload.AutoNext,
+						})
+					}
+				case PlayerEventVideoStatus:
+					payload := &clientVideoStatusPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.updatePlaybackStatusFn(func() {
+							vc.playbackStatus.Duration = payload.Duration
+							vc.playbackStatus.CurrentTime = payload.CurrentTime
+							vc.playbackStatus.Paused = payload.Paused
+						})
+					}
+				case PlayerEventVideoCompleted:
+					payload := &clientVideoStatusPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.updatePlaybackStatusFn(func() {
+							vc.playbackStatus.Duration = payload.Duration
+							vc.playbackStatus.CurrentTime = payload.CurrentTime
+							vc.playbackStatus.Paused = payload.Paused
+						})
+						vc.PushEvent(&VideoCompletedEvent{
+							CurrentTime: payload.CurrentTime,
+							Duration:    payload.Duration,
+						})
+					}
+				case PlayerEventVideoFullscreen:
+					payload := &clientVideoFullscreenPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.PushEvent(&VideoFullscreenEvent{
+							Fullscreen: payload.Fullscreen,
+						})
+					}
+				case PlayerEventVideoSubtitleTrack:
+					payload := &clientVideoSubtitleTrackPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.PushEvent(&VideoSubtitleTrackEvent{
+							TrackNumber: payload.TrackNumber,
+							Kind:        payload.Kind,
+						})
+					}
+				case PlayerEventVideoSubtitleTrackContent:
+					payload := &clientVideoSubtitleTrackContentPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.PushEvent(&VideoSubtitleTrackContentEvent{
+							TrackNumber: payload.TrackNumber,
+							Content:     payload.Content,
+							Type:        payload.Type,
+						})
+					}
+				case PlayerEventMediaCaptionTrack:
+					payload := &clientVideoMediaCaptionTrackPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.PushEvent(&VideoMediaCaptionTrackEvent{
+							TrackIndex: payload.TrackIndex,
+						})
+					}
+				case PlayerEventVideoAudioTrack:
+					payload := &clientVideoAudioTrackPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.PushEvent(&VideoAudioTrackEvent{
+							TrackNumber: payload.TrackNumber,
+							IsHls:       payload.IsHls,
+						})
+					}
+				case PlayerEventAnime4K:
+					payload := &clientVideoAnime4KPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.PushEvent(&VideoAnime4KEvent{
+							Option: payload.Option,
+						})
+					}
+				case PlayerEventVideoPip:
+					payload := &clientVideoPipPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.PushEvent(&VideoPipEvent{
+							Pip: payload.Pip,
+						})
+					}
+				case PlayerEventVideoError:
+					payload := &clientVideoErrorPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.PushEvent(&VideoErrorEvent{
+							Error: payload.Error,
+						})
+					}
+				case PlayerEventVideoTerminated:
+					// No payload
+					vc.PushEvent(&VideoTerminatedEvent{})
+					vc.clearPlayback()
+				case PlayerEventSubtitleFileUploaded:
+					payload := &clientSubtitleFileUploadedPayload{}
+					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						vc.PushEvent(&SubtitleFileUploadedEvent{
+							Filename: payload.Filename,
+							Content:  payload.Content,
+						})
+					}
+				case PlayerEventVideoPlaylist:
+					payload := &clientVideoPlaylistPayload{}
+					if err := playerEvent.UnmarshalAs(payload); err == nil {
+						vc.PushEvent(&VideoPlaylistEvent{
+							Playlist: &payload.Playlist,
+						})
+					}
+				case PlayerEventVideoTextTracks:
+					payload := &clientVideoTextTracksPayload{}
+					if err := playerEvent.UnmarshalAs(payload); err == nil {
+						vc.PushEvent(&VideoTextTracksEvent{
+							TextTracks: payload.TextTracks,
+						})
+					}
+				case PlayerEventTranslateText:
+					payload := &clientTranslateTextPayload{}
+					if err := playerEvent.UnmarshalAs(payload); err == nil {
+						// Translate in a goroutine
+						go func() {
+							state, ok := vc.GetPlaybackState()
 							if !ok {
-								continue
+								return
 							}
-							vc.setPlaybackStatus(&PlaybackStatus{
-								Id:          ps.PlaybackInfo.Id,
-								ClientId:    ps.ClientId,
-								CurrentTime: payload.CurrentTime,
-								Duration:    payload.Duration,
-								Paused:      payload.Paused,
-							})
-							vc.PushEvent(&VideoLoadedMetadataEvent{
-								CurrentTime: payload.CurrentTime,
-								Duration:    payload.Duration,
-								Paused:      payload.Paused,
-							})
-						}
-					case PlayerEventVideoCanPlay:
-						payload := &clientVideoStatusPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.updatePlaybackStatusFn(func() {
-								vc.playbackStatus.Duration = payload.Duration
-								vc.playbackStatus.CurrentTime = payload.CurrentTime
-								vc.playbackStatus.Paused = payload.Paused
-							})
-							vc.PushEvent(&VideoCanPlayEvent{
-								CurrentTime: payload.CurrentTime,
-								Duration:    payload.Duration,
-								Paused:      payload.Paused,
-							})
-						}
-					case PlayerEventVideoSeeked:
-						payload := &clientVideoStatusPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.updatePlaybackStatusFn(func() {
-								vc.playbackStatus.Duration = payload.Duration
-								vc.playbackStatus.CurrentTime = payload.CurrentTime
-								vc.playbackStatus.Paused = payload.Paused
-							})
-							vc.PushEvent(&VideoSeekedEvent{
-								CurrentTime: payload.CurrentTime,
-								Duration:    payload.Duration,
-								Paused:      payload.Paused,
-							})
-						}
-					case PlayerEventVideoPaused:
-						payload := &clientVideoStatusPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.updatePlaybackStatusFn(func() {
-								vc.playbackStatus.Duration = payload.Duration
-								vc.playbackStatus.CurrentTime = payload.CurrentTime
-								vc.playbackStatus.Paused = true
-							})
-							vc.PushEvent(&VideoPausedEvent{
-								CurrentTime: payload.CurrentTime,
-								Duration:    payload.Duration,
-							})
-						}
-					case PlayerEventVideoResumed:
-						payload := &clientVideoStatusPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.updatePlaybackStatusFn(func() {
-								vc.playbackStatus.Duration = payload.Duration
-								vc.playbackStatus.CurrentTime = payload.CurrentTime
-								vc.playbackStatus.Paused = false
-							})
-							vc.PushEvent(&VideoResumedEvent{
-								CurrentTime: payload.CurrentTime,
-								Duration:    payload.Duration,
-							})
-						}
-					case PlayerEventVideoEnded:
-						payload := &clientVideoEndedPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.updatePlaybackStatusFn(func() {
-								vc.playbackStatus.CurrentTime = vc.playbackStatus.Duration
-								vc.playbackStatus.Paused = true
-							})
-							vc.PushEvent(&VideoEndedEvent{
-								AutoNext: payload.AutoNext,
-							})
-						}
-					case PlayerEventVideoStatus:
-						payload := &clientVideoStatusPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.updatePlaybackStatusFn(func() {
-								vc.playbackStatus.Duration = payload.Duration
-								vc.playbackStatus.CurrentTime = payload.CurrentTime
-								vc.playbackStatus.Paused = payload.Paused
-							})
-						}
-					case PlayerEventVideoCompleted:
-						payload := &clientVideoStatusPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.updatePlaybackStatusFn(func() {
-								vc.playbackStatus.Duration = payload.Duration
-								vc.playbackStatus.CurrentTime = payload.CurrentTime
-								vc.playbackStatus.Paused = payload.Paused
-							})
-							vc.PushEvent(&VideoCompletedEvent{
-								CurrentTime: payload.CurrentTime,
-								Duration:    payload.Duration,
-							})
-						}
-					case PlayerEventVideoFullscreen:
-						payload := &clientVideoFullscreenPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.PushEvent(&VideoFullscreenEvent{
-								Fullscreen: payload.Fullscreen,
-							})
-						}
-					case PlayerEventVideoSubtitleTrack:
-						payload := &clientVideoSubtitleTrackPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.PushEvent(&VideoSubtitleTrackEvent{
-								TrackNumber: payload.TrackNumber,
-								Kind:        payload.Kind,
-							})
-						}
-					case PlayerEventMediaCaptionTrack:
-						payload := &clientVideoMediaCaptionTrackPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.PushEvent(&VideoMediaCaptionTrackEvent{
-								TrackIndex: payload.TrackIndex,
-							})
-						}
-					case PlayerEventVideoAudioTrack:
-						payload := &clientVideoAudioTrackPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.PushEvent(&VideoAudioTrackEvent{
-								TrackNumber: payload.TrackNumber,
-								IsHls:       payload.IsHls,
-							})
-						}
-					case PlayerEventAnime4K:
-						payload := &clientVideoAnime4KPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.PushEvent(&VideoAnime4KEvent{
-								Option: payload.Option,
-							})
-						}
-					case PlayerEventVideoPip:
-						payload := &clientVideoPipPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.PushEvent(&VideoPipEvent{
-								Pip: payload.Pip,
-							})
-						}
-					case PlayerEventVideoError:
-						payload := &clientVideoErrorPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.PushEvent(&VideoErrorEvent{
-								Error: payload.Error,
-							})
-						}
-					case PlayerEventVideoTerminated:
-						// No payload
-						vc.PushEvent(&VideoTerminatedEvent{})
-						vc.clearPlayback()
-					case PlayerEventSubtitleFileUploaded:
-						payload := &clientSubtitleFileUploadedPayload{}
-						if err := playerEvent.UnmarshalAs(&payload); err == nil {
-							vc.PushEvent(&SubtitleFileUploadedEvent{
-								Filename: payload.Filename,
-								Content:  payload.Content,
-							})
-						}
-					case PlayerEventVideoPlaylist:
-						payload := &clientVideoPlaylistPayload{}
-						if err := playerEvent.UnmarshalAs(payload); err == nil {
-							vc.PushEvent(&VideoPlaylistEvent{
-								Playlist: &payload.Playlist,
-							})
-						}
-					case PlayerEventVideoTextTracks:
-						payload := &clientVideoTextTracksPayload{}
-						if err := playerEvent.UnmarshalAs(payload); err == nil {
-							vc.PushEvent(&VideoTextTracksEvent{
-								TextTracks: payload.TextTracks,
-							})
-						}
-					case PlayerEventTranslateText:
-						payload := &clientTranslateTextPayload{}
-						if err := playerEvent.UnmarshalAs(payload); err == nil {
-							// Translate in a goroutine
-							go func() {
-								state, ok := vc.GetPlaybackState()
-								if !ok {
+							translated := vc.TranslateText(context.Background(), payload.Text)
+							// Send the result
+							vc.sendPlayerEventTo(state.ClientId, string(ServerEventTranslatedText), struct {
+								Original   string `json:"original"`
+								Translated string `json:"translated"`
+							}{
+								Original:   payload.Text,
+								Translated: translated,
+							}, true)
+						}()
+					}
+				case PlayerEventTranslateSubtitleFileTrack:
+					payload := &VideoSubtitleTrack{}
+					if err := playerEvent.UnmarshalAs(payload); err == nil {
+						// Translate in a goroutine
+						go func() {
+							vc.logger.Trace().Msgf("videocore: Received subtitle track translation request")
+							state, ok := vc.GetPlaybackState()
+							if !ok {
+								return
+							}
+							var translated string
+							if payload.Src != nil && len(*payload.Src) > 0 {
+								client := req.C()
+								client.SetTimeout(30 * time.Second)
+								resp := client.Get(*payload.Src).Do()
+
+								if resp.IsErrorState() {
+									vc.logger.Error().Err(resp.Err).Msgf("videocore: Failed to download subtitle file %s", *payload.Src)
 									return
 								}
-								translated := vc.TranslateText(context.Background(), payload.Text)
+
+								content := resp.String()
+
+								from := mkvparser.DetectSubtitleType(content)
+								translated = vc.TranslateContent(context.Background(), content, from)
+
+							} else if payload.Content != nil && len(*payload.Content) > 0 {
+								content := *payload.Content
+								from := mkvparser.DetectSubtitleType(content)
+								translated = vc.TranslateContent(context.Background(), content, from)
+							}
+							if translated != "" {
+								// Modify the payload but keep the same index
+								payload.Content = &translated
+								payload.Src = nil
+								payload.Label = payload.Label + " (translated)"
+								payload.Language = strings.ToLower(vc.GetTranslationTargetLanguage())
 								// Send the result
-								vc.sendPlayerEventTo(state.ClientId, string(ServerEventTranslatedText), struct {
-									Original   string `json:"original"`
-									Translated string `json:"translated"`
-								}{
-									Original:   payload.Text,
-									Translated: translated,
-								}, true)
-							}()
-						}
-					case PlayerEventTranslateSubtitleFileTrack:
-						payload := &VideoSubtitleTrack{}
-						if err := playerEvent.UnmarshalAs(payload); err == nil {
-							// Translate in a goroutine
-							go func() {
-								vc.logger.Trace().Msgf("videocore: Received subtitle track translation request")
-								state, ok := vc.GetPlaybackState()
-								if !ok {
-									return
-								}
-								var translated string
-								if payload.Src != nil && len(*payload.Src) > 0 {
-									client := req.C()
-									client.SetTimeout(30 * time.Second)
-									resp := client.Get(*payload.Src).Do()
-
-									if resp.IsErrorState() {
-										vc.logger.Error().Err(resp.Err).Msgf("videocore: Failed to download subtitle file %s", *payload.Src)
-										return
-									}
-
-									content := resp.String()
-
-									from := mkvparser.DetectSubtitleType(content)
-									translated = vc.TranslateContent(context.Background(), content, from)
-
-								} else if payload.Content != nil && len(*payload.Content) > 0 {
-									content := *payload.Content
-									from := mkvparser.DetectSubtitleType(content)
-									translated = vc.TranslateContent(context.Background(), content, from)
-								}
-								if translated != "" {
-									// Modify the payload but keep the same index
-									payload.Content = &translated
-									payload.Src = nil
-									payload.Label = payload.Label + " (translated)"
-									payload.Language = strings.ToLower(vc.GetTranslationTargetLanguage())
-									// Send the result
-									vc.logger.Debug().Str("clientId", state.ClientId).Int("length", len(*payload.Content)).Msgf("videocore: Sending translated subtitle track")
-									vc.sendPlayerEventTo(state.ClientId, string(ServerEventAddExternalSubtitleTrack), payload, true)
-								} else {
-									vc.logger.Error().Msgf("videocore: Failed to translate subtitle track")
-								}
-							}()
-						}
+								vc.logger.Debug().Str("clientId", state.ClientId).Int("length", len(*payload.Content)).Msgf("videocore: Sending translated subtitle track")
+								vc.sendPlayerEventTo(state.ClientId, string(ServerEventAddExternalSubtitleTrack), payload, true)
+							} else {
+								vc.logger.Error().Msgf("videocore: Failed to translate subtitle track")
+							}
+						}()
 					}
 				}
 			}

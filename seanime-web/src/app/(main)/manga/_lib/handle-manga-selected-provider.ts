@@ -4,7 +4,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { withImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
-import { sortBy } from "lodash"
+import sortBy from "lodash/sortBy"
 import React from "react"
 
 /**
@@ -167,7 +167,7 @@ export function useSelectedMangaProvider(mId: Nullish<string | number>) {
                     [String(mId)]: provider,
                 }
             })
-        }
+        },
     }
 }
 

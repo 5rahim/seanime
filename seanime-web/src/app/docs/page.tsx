@@ -1,5 +1,3 @@
-"use client"
-
 import { useGetDocs } from "@/api/hooks/docs.hooks"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"

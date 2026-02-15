@@ -1,33 +1,30 @@
 import { useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
-import {
-    vc_closestBufferedTime,
-    vc_currentTime,
-    vc_dispatchAction,
-    vc_duration,
-    vc_isMobile,
-    vc_isSwiping,
-    vc_lastKnownProgress,
-    vc_miniPlayer,
-    vc_previewManager,
-    vc_previousPausedState,
-    vc_seeking,
-    vc_seekingTargetProgress,
-    vc_skipEndingTime,
-    vc_skipOpeningTime,
-    vc_swipeSeekTime,
-    vc_videoElement,
-    VIDEOCORE_DEBUG_ELEMENTS,
-    VideoCoreChapterCue,
-} from "@/app/(main)/_features/video-core/video-core"
+import { vc_previewManager } from "@/app/(main)/_features/video-core/video-core"
+import { VIDEOCORE_DEBUG_ELEMENTS, VideoCoreChapterCue } from "@/app/(main)/_features/video-core/video-core"
+import { vc_isMobile } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_isSwiping } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_swipeSeekTime } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_duration } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_currentTime } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_seeking } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_seekingTargetProgress } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_closestBufferedTime } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_previousPausedState } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_lastKnownProgress } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_skipOpeningTime } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_skipEndingTime } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_showOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS, VIDEOCORE_PREVIEW_THUMBNAIL_SIZE } from "@/app/(main)/_features/video-core/video-core-preview"
 import { vc_autoSkipOPEDAtom, vc_highlightOPEDChaptersAtom, vc_showChapterMarkersAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
 import { vc_formatTime, vc_getChapterType, vc_getOPEDChapters } from "@/app/(main)/_features/video-core/video-core.utils"
+import { SeaImage as Image } from "@/components/shared/sea-image"
 import { cn } from "@/components/ui/core/styling"
 import { logger } from "@/lib/helpers/debug"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
-import Image from "next/image"
 import React from "react"
 import { FaDiamond } from "react-icons/fa6"
 

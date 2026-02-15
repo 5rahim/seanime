@@ -59,12 +59,12 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 onSubmit={data => {
                     if (settings) {
                         mutate({
-                            settings: {
-                                ...settings,
-                                ...data,
-                                preferredResolution: data.preferredResolution === "-" ? "" : data.preferredResolution,
+                                settings: {
+                                    ...settings,
+                                    ...data,
+                                    preferredResolution: data.preferredResolution === "-" ? "" : data.preferredResolution,
+                                },
                             },
-                        },
                             {
                                 onSuccess: () => {
                                     formRef.current?.reset(formRef.current.getValues())

@@ -158,20 +158,22 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
      */
     const lastUpdatedChapterRef = React.useRef<string | null>(null)
     React.useEffect(() => {
-        if (
-            serverStatus?.settings?.manga?.mangaAutoUpdateProgress
-            && currentChapter?.chapterId
-            && shouldUpdateProgress
-            && !pageContainerLoading
-            && !pageContainerError
-            && isLastPage
-        ) {
-            if (lastUpdatedChapterRef.current !== currentChapter?.chapterId) {
-                handleUpdateProgress(false)
-                lastUpdatedChapterRef.current = currentChapter?.chapterId
+            if (
+                serverStatus?.settings?.manga?.mangaAutoUpdateProgress
+                && currentChapter?.chapterId
+                && shouldUpdateProgress
+                && !pageContainerLoading
+                && !pageContainerError
+                && isLastPage
+            ) {
+                if (lastUpdatedChapterRef.current !== currentChapter?.chapterId) {
+                    handleUpdateProgress(false)
+                    lastUpdatedChapterRef.current = currentChapter?.chapterId
+                }
             }
-        }
-    }, [currentChapter, serverStatus?.settings?.manga?.mangaAutoUpdateProgress, shouldUpdateProgress, isLastPage, pageContainerError, pageContainerLoading])
+        },
+        [currentChapter, serverStatus?.settings?.manga?.mangaAutoUpdateProgress, shouldUpdateProgress, isLastPage, pageContainerError,
+            pageContainerLoading])
 
     /**
      * Reset the current page index when the pageContainer or chapterContainer changes

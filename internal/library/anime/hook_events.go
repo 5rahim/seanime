@@ -83,6 +83,22 @@ type MissingEpisodesEvent struct {
 	MissingEpisodes *MissingEpisodes `json:"missingEpisodes"`
 }
 
+// UpcomingEpisodesRequestedEvent is triggered when the user requests upcoming episodes.
+// Prevent default to skip the default process and return the modified upcoming episodes.
+type UpcomingEpisodesRequestedEvent struct {
+	hook_resolver.Event
+	AnimeCollection *anilist.AnimeCollection `json:"animeCollection"`
+	LocalFiles      []*LocalFile             `json:"localFiles"`
+	// Empty upcoming episodes object, will be used if the hook prevents the default behavior
+	UpcomingEpisodes *UpcomingEpisodes `json:"upcomingEpisodes"`
+}
+
+// UpcomingEpisodesEvent is triggered when the upcoming episodes are being returned.
+type UpcomingEpisodesEvent struct {
+	hook_resolver.Event
+	UpcomingEpisodes *UpcomingEpisodes `json:"upcomingEpisodes"`
+}
+
 /////////////////////////////
 // Anime Collection Events
 /////////////////////////////

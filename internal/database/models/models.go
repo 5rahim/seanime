@@ -96,6 +96,9 @@ type LibrarySettings struct {
 	AutoSaveCurrentMediaOffline bool `gorm:"column:auto_save_current_media_offline" json:"autoSaveCurrentMediaOffline"`
 	// v3+
 	UseFallbackMetadataProvider bool `gorm:"column:use_fallback_metadata_provider" json:"useFallbackMetadataProvider"`
+	// v3.5+
+	ScannerUseLegacyMatching bool   `gorm:"column:scanner_use_legacy_matching" json:"scannerUseLegacyMatching"`
+	ScannerConfig            string `gorm:"column:scanner_config" json:"scannerConfig"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {
@@ -374,6 +377,8 @@ type Theme struct {
 
 	// v3+
 	HomeItems []byte `gorm:"column:home_items;type:text" json:"homeItems"`
+	// v3.5+
+	EnableBlurringEffects bool `gorm:"column:enable_blurring_effects" json:"enableBlurringEffects"`
 }
 
 type HomeItem struct {

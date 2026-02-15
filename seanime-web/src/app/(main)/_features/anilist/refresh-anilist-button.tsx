@@ -1,4 +1,3 @@
-"use client"
 import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { Button } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"

@@ -10,19 +10,19 @@ import { __mangaLibraryHeaderImageAtom, __mangaLibraryHeaderMangaAtom } from "@/
 import { __mangaLibrary_paramsAtom, __mangaLibrary_paramsInputAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaLink } from "@/components/shared/sea-link"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Button, IconButton } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { useDebounce } from "@/hooks/use-debounce"
+import { useRouter } from "@/lib/navigation"
 import { getMangaCollectionTitle } from "@/lib/server/utils"
-import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/theme-hooks"
 import { useSetAtom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import { AnimatePresence } from "motion/react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
 import React, { memo } from "react"
 import { BiDotsVertical } from "react-icons/bi"
 import { LuBookOpenCheck, LuRefreshCcw } from "react-icons/lu"
@@ -77,11 +77,11 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
                             </p>
 
                             <div className="!mt-4">
-                                <Link href="/discover?type=manga">
+                                <SeaLink href="/discover?type=manga">
                                     <Button intent="white-outline" rounded>
                                         Browse manga
                                     </Button>
-                                </Link>
+                                </SeaLink>
                             </div>
                         </div>
                     </LuffyError>}

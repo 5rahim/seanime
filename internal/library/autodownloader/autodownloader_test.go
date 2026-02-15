@@ -279,6 +279,7 @@ func TestIsEpisodeAlreadyHandled(t *testing.T) {
 		{MediaId: 1, Metadata: &anime.LocalFileMetadata{Episode: 5, Type: anime.LocalFileTypeMain}},
 		{MediaId: 1, Metadata: &anime.LocalFileMetadata{Episode: 6, Type: anime.LocalFileTypeMain}},
 		{MediaId: 2, Metadata: &anime.LocalFileMetadata{Episode: 1, Type: anime.LocalFileTypeMain}},
+		{MediaId: 21, Metadata: &anime.LocalFileMetadata{Episode: 1, Type: anime.LocalFileTypeMain}},
 	}
 	lfWrapper := anime.NewLocalFileWrapper(localFiles)
 
@@ -288,11 +289,14 @@ func TestIsEpisodeAlreadyHandled(t *testing.T) {
 		{RuleID: 1, MediaID: 1, Episode: 8},
 		{RuleID: 2, MediaID: 1, Episode: 8},
 		{RuleID: 1, MediaID: 10, Episode: 42, IsDelayed: true},
+		{RuleID: 3, MediaID: 20, Episode: 13},
+		{RuleID: 5, MediaID: 20, Episode: 1},
 	}
 
 	tests := []struct {
 		name     string
 		episode  int
+		offset   int
 		ruleID   uint
 		mediaId  int
 		expected bool
@@ -339,11 +343,51 @@ func TestIsEpisodeAlreadyHandled(t *testing.T) {
 			mediaId:  10,
 			expected: false,
 		},
+		{
+			name:     "absolute offset handled",
+			episode:  13, // -> 1
+			offset:   12,
+			ruleID:   1,
+			mediaId:  2,
+			expected: true,
+		},
+		{
+			name:     "absolute offset handled - found in queue",
+			episode:  13, // the one found in the queue has the same episode number
+			offset:   12,
+			ruleID:   3,
+			mediaId:  20,
+			expected: true,
+		},
+		{
+			name:     "absolute offset handled - not found in queue",
+			episode:  14, // -> 2
+			offset:   12,
+			ruleID:   3,
+			mediaId:  20,
+			expected: false,
+		},
+		{
+			name:     "absolute offset handled - found in local files",
+			episode:  13, // the local file has episode 1
+			offset:   12,
+			ruleID:   4,
+			mediaId:  21,
+			expected: true,
+		},
+		{
+			name:     "absolute offset handled - non-offset episode in queue",
+			episode:  13, // the queue has episode 1
+			offset:   12,
+			ruleID:   5,
+			mediaId:  20,
+			expected: true,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ad.isEpisodeAlreadyHandled(tt.episode, tt.ruleID, tt.mediaId, lfWrapper, queuedItems)
+			result := ad.isEpisodeAlreadyHandled(tt.episode, tt.offset, tt.ruleID, tt.mediaId, lfWrapper, queuedItems)
 			assert.Equal(t, tt.expected, result)
 		})
 	}

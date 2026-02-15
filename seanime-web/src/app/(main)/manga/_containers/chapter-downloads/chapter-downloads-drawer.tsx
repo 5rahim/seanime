@@ -1,4 +1,3 @@
-"use client"
 import { Manga_Collection } from "@/api/generated/types"
 import { useGetMangaCollection } from "@/api/hooks/manga.hooks"
 import { useGetMangaDownloadsList } from "@/api/hooks/manga_download.hooks"
@@ -93,53 +92,53 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                     {(!downloadQueueLoading && !downloadQueueError) &&
                         <div className="flex gap-2 items-center" data-chapter-download-queue-header-actions>
 
-                        {!!downloadQueue?.find(n => n.status === "errored") && <Button
-                            intent="warning-outline"
-                            size="sm"
-                            disabled={isMutating}
-                            onClick={() => resetErroredChapters()}
-                            loading={isResettingErroredChapters}
-                        >
-                            Reset errored chapters
-                        </Button>}
+                            {!!downloadQueue?.find(n => n.status === "errored") && <Button
+                                intent="warning-outline"
+                                size="sm"
+                                disabled={isMutating}
+                                onClick={() => resetErroredChapters()}
+                                loading={isResettingErroredChapters}
+                            >
+                                Reset errored chapters
+                            </Button>}
 
-                        {!!downloadQueue?.find(n => n.status === "downloading") ? (
-                            <>
-                                <Button
-                                    intent="alert-subtle"
-                                    size="sm"
-                                    onClick={() => stopDownloadQueue()}
-                                    loading={isStoppingDownloadQueue}
-                                >
-                                    Stop
-                                </Button>
-                            </>
-                        ) : (
-                            <>
-                                {!!downloadQueue?.length && <Button
-                                    intent="alert-subtle"
-                                    size="sm"
-                                    disabled={isMutating}
-                                    onClick={() => clearDownloadQueue()}
-                                    leftIcon={<MdClear className="text-xl" />}
-                                    loading={isClearingDownloadQueue}
-                                >
-                                    Clear all
-                                </Button>}
+                            {!!downloadQueue?.find(n => n.status === "downloading") ? (
+                                <>
+                                    <Button
+                                        intent="alert-subtle"
+                                        size="sm"
+                                        onClick={() => stopDownloadQueue()}
+                                        loading={isStoppingDownloadQueue}
+                                    >
+                                        Stop
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    {!!downloadQueue?.length && <Button
+                                        intent="alert-subtle"
+                                        size="sm"
+                                        disabled={isMutating}
+                                        onClick={() => clearDownloadQueue()}
+                                        leftIcon={<MdClear className="text-xl" />}
+                                        loading={isClearingDownloadQueue}
+                                    >
+                                        Clear all
+                                    </Button>}
 
-                                {(!!downloadQueue?.length && !!downloadQueue?.find(n => n.status === "not_started")) && <Button
-                                    intent="success"
-                                    size="sm"
-                                    disabled={isMutating}
-                                    onClick={() => startDownloadQueue()}
-                                    leftIcon={<TbWorldDownload className="text-xl" />}
-                                    loading={isStartingDownloadQueue}
-                                >
-                                    Start
-                                </Button>}
-                            </>
-                        )}
-                    </div>}
+                                    {(!!downloadQueue?.length && !!downloadQueue?.find(n => n.status === "not_started")) && <Button
+                                        intent="success"
+                                        size="sm"
+                                        disabled={isMutating}
+                                        onClick={() => startDownloadQueue()}
+                                        leftIcon={<TbWorldDownload className="text-xl" />}
+                                        loading={isStartingDownloadQueue}
+                                    >
+                                        Start
+                                    </Button>}
+                                </>
+                            )}
+                        </div>}
                 </div>
 
                 <Card className="p-4 space-y-2" data-chapter-download-queue-card>

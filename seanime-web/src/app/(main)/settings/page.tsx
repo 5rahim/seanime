@@ -1,9 +1,8 @@
-"use client"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
-import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { CustomLibraryBanner } from "@/app/(main)/_features/anime-library/_containers/custom-library-banner"
 import { __issueReport_overlayOpenAtom } from "@/app/(main)/_features/issue-report/issue-report"
 import { useServerDisabledFeatures, useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ExternalPlayerLinkSettings, MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplayer-settings"
@@ -28,12 +27,12 @@ import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useRouter, useSearchParams } from "@/lib/navigation"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
-import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { BiDonateHeart } from "react-icons/bi"
@@ -63,10 +62,9 @@ import { LocalSettings } from "./_containers/local-settings"
 import { NakamaSettings } from "./_containers/nakama-settings"
 
 const tabContentClass = cn(
-    "space-y-4 animate-in fade-in-0 duration-300",
+    "space-y-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
 )
 
-export const dynamic = "force-static"
 
 export default function Page() {
     const status = useServerStatus()
@@ -328,6 +326,8 @@ export default function Page() {
                                         autoSyncToLocalAccount: data.autoSyncToLocalAccount ?? false,
                                         autoSaveCurrentMediaOffline: data.autoSaveCurrentMediaOffline ?? false,
                                         useFallbackMetadataProvider: data.useFallbackMetadataProvider ?? false,
+                                        scannerUseLegacyMatching: data.scannerUseLegacyMatching ?? false,
+                                        scannerConfig: data.scannerConfig ?? "",
                                     },
                                     nakama: {
                                         enabled: data.nakamaEnabled ?? false,
@@ -493,6 +493,8 @@ export default function Page() {
                                 vcTranslateApiKey: status?.settings?.mediaPlayer?.vcTranslateApiKey ?? "",
                                 vcTranslateProvider: status?.settings?.mediaPlayer?.vcTranslateProvider ?? "",
                                 vcTranslateTargetLanguage: status?.settings?.mediaPlayer?.vcTranslateTargetLanguage ?? "",
+                                scannerUseLegacyMatching: status?.settings?.library?.scannerUseLegacyMatching ?? false,
+                                scannerConfig: status?.settings?.library?.scannerConfig ?? "",
                             }}
                             stackClass="space-y-0 relative"
                         >
@@ -526,6 +528,7 @@ export default function Page() {
                                                 onClick={handleOpenIssueRecorder}
                                                 leftIcon={<VscDebugAlt className="transition-transform duration-200 group-hover:scale-110" />}
                                                 className="transition-all duration-200 hover:scale-105 hover:shadow-md group"
+                                                data-open-issue-recorder-button
                                             >
                                                 Record an issue
                                             </Button>
@@ -710,6 +713,7 @@ export default function Page() {
                                                         <Field.Text
                                                             name="qbittorrentPassword"
                                                             label="Password"
+                                                            type="password"
                                                         />
                                                         <Field.Number
                                                             name="qbittorrentPort"
@@ -753,6 +757,7 @@ export default function Page() {
                                                         <Field.Text
                                                             name="transmissionPassword"
                                                             label="Password"
+                                                            type="password"
                                                         />
                                                         <Field.Number
                                                             name="transmissionPort"

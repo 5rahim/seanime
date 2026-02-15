@@ -14,7 +14,7 @@ export function Help(props: HelpProps) {
     return (
         <Popover
             className={cn("text-sm", className)}
-            trigger={<AiOutlineExclamationCircle className={cn("transition-opacity opacity-45 hover:opacity-90", triggerClass)} />}
+            trigger={<span><AiOutlineExclamationCircle className={cn("transition-opacity opacity-45 hover:opacity-90", triggerClass)} /></span>}
         >
             {content}
         </Popover>

@@ -3,6 +3,7 @@ import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/vide
 import { VideoCore_VideoPlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai"
+import { derive } from "jotai-derive"
 
 const log = logger("VIDEO CORE PIP")
 
@@ -22,6 +23,7 @@ interface VideoCorePipManagerEventMap {
 
 export const vc_pipElement = atom<HTMLVideoElement | null>(null)
 export const vc_pipManager = atom<VideoCorePipManager | null>(null)
+export const vc_pip = derive([vc_pipElement], (pipElement) => pipElement !== null)
 
 export class VideoCorePipManager extends EventTarget {
     private video: HTMLVideoElement | null = null
@@ -34,7 +36,6 @@ export class VideoCorePipManager extends EventTarget {
     private isSyncingFromMain = false
     private isSyncingFromPip = false
     private playbackInfo: VideoCore_VideoPlaybackInfo | null = null
-    private _isPip = false
 
     constructor(onPipElementChange: (element: HTMLVideoElement | null) => void) {
         super()
@@ -56,11 +57,18 @@ export class VideoCorePipManager extends EventTarget {
         // }, { signal: this.controller.signal })
     }
 
+    private _isPip = false
+
+    get isPip(): boolean {
+        return this._isPip
+    }
+
     addEventListener<K extends keyof VideoCorePipManagerEventMap>(
         type: K,
         listener: (this: VideoCorePipManager, ev: VideoCorePipManagerEventMap[K]) => any,
         options?: boolean | AddEventListenerOptions,
     ): void
+
     addEventListener(
         type: string,
         listener: EventListenerOrEventListenerObject,
@@ -80,6 +88,7 @@ export class VideoCorePipManager extends EventTarget {
         listener: (this: VideoCorePipManager, ev: VideoCorePipManagerEventMap[K]) => any,
         options?: boolean | EventListenerOptions,
     ): void
+
     removeEventListener(
         type: string,
         listener: EventListenerOrEventListenerObject,
@@ -114,10 +123,6 @@ export class VideoCorePipManager extends EventTarget {
 
     setMediaCaptionsManager(mediaCaptionsManager: MediaCaptionsManager) {
         this.mediaCaptionsManager = mediaCaptionsManager
-    }
-
-    get isPip(): boolean {
-        return this._isPip
     }
 
     togglePip(enable?: boolean) {
@@ -228,7 +233,6 @@ export class VideoCorePipManager extends EventTarget {
     }
 
 
-
     private renderToCanvas = (
         pipVideo: HTMLVideoElement,
         context: CanvasRenderingContext2D,
@@ -308,7 +312,7 @@ export class VideoCorePipManager extends EventTarget {
         canvas.height = this.video.videoHeight
 
         if (this.subtitleManager?.libassRenderer) {
-            this.subtitleManager.libassRenderer.resize(this.video.videoWidth, this.video.videoHeight)
+            await this.subtitleManager.libassRenderer.resize(true, this.video.videoWidth, this.video.videoHeight)
         }
 
         this.canvasController = new AbortController()
@@ -348,7 +352,7 @@ export class VideoCorePipManager extends EventTarget {
             context.drawImage(pgsCanvas, 0, 0, canvas.width, canvas.height)
         }
         if (this.mediaCaptionsManager) {
-            this.mediaCaptionsManager.renderToCanvas(context, canvas.width, canvas.height, this.video.currentTime)
+            await this.mediaCaptionsManager.renderToCanvas(context, canvas.width, canvas.height, this.video.currentTime)
         }
 
         // wait for metadata
@@ -413,7 +417,7 @@ export class VideoCorePipManager extends EventTarget {
                 if (isNaN(width) || isNaN(height) || !isFinite(width) || !isFinite(height)) {
                     return
                 }
-                this.subtitleManager?.libassRenderer?.resize(width, height)
+                this.subtitleManager?.libassRenderer?.resize(true, width, height)
                 this.subtitleManager?.pgsRenderer?.resize()
             }, { signal: this.canvasController.signal })
 
@@ -426,3 +430,4 @@ export class VideoCorePipManager extends EventTarget {
         }
     }
 }
+

@@ -86,13 +86,18 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(ep string) (ret metadata.EpisodeM
 	//
 
 	episode := mo.None[*metadata.EpisodeMetadata]()
-	if aw.metadata.IsAbsent() {
+	am, ok := aw.metadata.Get()
+	if !ok || am == nil {
 		ret.Image = aw.baseAnime.GetBannerImageSafe()
 	} else {
-		episodeF, found := aw.metadata.MustGet().FindEpisode(ep)
+		episodeF, found := am.FindEpisode(ep)
 		if found {
 			episode = mo.Some(episodeF)
 		}
+	}
+
+	if ret.Overview == "" && ret.Summary == "" {
+		ret.Overview = getDefaultOverview(aw.baseAnime, ep, epNumber)
 	}
 
 	// If we don't have Animap metadata, just return the metadata containing the image
@@ -113,6 +118,10 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(ep string) (ret metadata.EpisodeM
 		}
 	}
 
+	if ret.Overview == "" && ret.Summary == "" {
+		ret.Overview = getDefaultOverview(aw.baseAnime, ep, epNumber)
+	}
+
 	// Event
 	event := &metadata.AnimeEpisodeMetadataEvent{
 		EpisodeMetadata: &ret,
@@ -127,6 +136,56 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(ep string) (ret metadata.EpisodeM
 	ret = *event.EpisodeMetadata
 
 	return ret
+}
+
+func getDefaultOverview(baseAnime *anilist.BaseAnime, ep string, epNumber int) string {
+	if ep == "" {
+		return ""
+	}
+	if regexp.MustCompile(`[A-Za-z]`).MatchString(ep) {
+		return "Episode " + ep + " of " + baseAnime.GetTitleSafe() + "."
+	}
+
+	title := baseAnime.GetTitleSafe()
+	ordinal := getOrdinal(epNumber)
+
+	return ordinal + " episode of " + title + "."
+}
+
+func getOrdinal(n int) string {
+	if n <= 0 {
+		return ""
+	}
+
+	ordinals := map[int]string{
+		1: "First", 2: "Second", 3: "Third", 4: "Fourth", 5: "Fifth",
+		6: "Sixth", 7: "Seventh", 8: "Eighth", 9: "Ninth", 10: "Tenth",
+		11: "Eleventh", 12: "Twelfth", 13: "Thirteenth", 14: "Fourteenth", 15: "Fifteenth",
+		16: "Sixteenth", 17: "Seventeenth", 18: "Eighteenth", 19: "Nineteenth", 20: "Twentieth",
+		21: "Twenty-first", 22: "Twenty-second", 23: "Twenty-third", 24: "Twenty-fourth",
+	}
+
+	if word, ok := ordinals[n]; ok {
+		return word
+	}
+
+	suffix := "th"
+	switch n % 10 {
+	case 1:
+		if n%100 != 11 {
+			suffix = "st"
+		}
+	case 2:
+		if n%100 != 12 {
+			suffix = "nd"
+		}
+	case 3:
+		if n%100 != 13 {
+			suffix = "rd"
+		}
+	}
+
+	return strconv.Itoa(n) + suffix
 }
 
 func ExtractEpisodeInteger(s string) (int, bool) {

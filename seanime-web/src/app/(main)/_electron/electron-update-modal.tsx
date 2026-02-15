@@ -1,4 +1,3 @@
-"use client"
 import { useDownloadMacDenshiUpdate } from "@/api/hooks/download.hooks"
 import { useGetLatestUpdate } from "@/api/hooks/releases.hooks"
 import { UpdateChangelogBody } from "@/app/(main)/_features/update/update-helper"
@@ -160,7 +159,7 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
                         asset.name.includes("denshi")
                         && asset.name.includes("MacOS")
                         && asset.name.includes("arm64")
-                        && asset.name.endsWith(".zip")
+                        && asset.name.endsWith(".zip"),
                     )
 
                     if (!macAsset) {

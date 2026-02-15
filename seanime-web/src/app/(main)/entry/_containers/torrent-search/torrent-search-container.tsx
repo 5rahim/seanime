@@ -149,6 +149,14 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
     const { torrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
 
+    const providerOptions = React.useMemo(() => [
+        ...(providerExtensions?.map(ext => ({
+            label: ext.name,
+            value: ext.id,
+        })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
+        { label: "None", value: TORRENT_PROVIDER.NONE },
+    ], [providerExtensions])
+
 
     return (
         <>
@@ -195,13 +203,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                 value={selectedProviderExtension?.id ?? TORRENT_PROVIDER.NONE}
                                 onValueChange={setSelectedProviderExtensionId}
                                 leftIcon={<LuFileSearch />}
-                                options={[
-                                    ...(providerExtensions?.map(ext => ({
-                                        label: ext.name,
-                                        value: ext.id,
-                                    })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
-                                    { label: "None", value: TORRENT_PROVIDER.NONE },
-                                ]}
+                                options={providerOptions}
                             />
                         </div>
 
@@ -213,8 +215,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                 // side="right"
                                 label="Smart search"
                                 moreHelp={selectedProviderExtension?.settings?.canSmartSearch
-                                    ? "Automatically search based on given parameters"
-                                    : "This provider does not support smart search"}
+                                    ? "Automated search based on given parameters."
+                                    : "This provider does not support smart search."}
                                 value={searchType === Torrent_SearchType.SMART}
                                 onValueChange={v => setSearchType(v ? Torrent_SearchType.SMART : Torrent_SearchType.SIMPLE)}
                                 disabled={!selectedProviderExtension?.settings?.canSmartSearch}
@@ -265,6 +267,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                                 setSmartSearchEpisode(value)
                                             })
                                         }}
+                                        min={0}
                                         formatOptions={{ useGrouping: false }}
                                         // hideControls
                                         size="sm"
@@ -390,7 +393,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     <TorrentPreviewList
                                         entry={entry}
                                         previews={previews}
-                                        isLoading={isLoading || isFetching}
+                                        isLoading={isLoading}
                                         selectedTorrents={selectedTorrents}
                                         onToggleTorrent={handleToggleTorrent}
                                         debridInstantAvailability={debridInstantAvailability}

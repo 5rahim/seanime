@@ -6,10 +6,10 @@ import { SeaLink } from "@/components/shared/sea-link"
 import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Separator } from "@/components/ui/separator"
+import { useRouter } from "@/lib/navigation"
 import { format, isSameMonth, isToday, subDays } from "date-fns"
 import { addDays } from "date-fns/addDays"
 import { isSameDay } from "date-fns/isSameDay"
-import { useRouter } from "next/navigation"
 import React from "react"
 import { LuDock, LuEye } from "react-icons/lu"
 
@@ -37,11 +37,11 @@ export function DiscoverAiringSchedule() {
         && item?.media?.countryOfOrigin === "JP"
         && item?.media?.format !== "TV_SHORT",
     ).filter(Boolean) || []),
-    ...(data2?.Page?.airingSchedules?.filter(item => item?.media?.isAdult === false
-        && item?.media?.type === "ANIME"
-        && item?.media?.countryOfOrigin === "JP"
-        && item?.media?.format !== "TV_SHORT",
-    ).filter(Boolean) || []),
+        ...(data2?.Page?.airingSchedules?.filter(item => item?.media?.isAdult === false
+            && item?.media?.type === "ANIME"
+            && item?.media?.countryOfOrigin === "JP"
+            && item?.media?.format !== "TV_SHORT",
+        ).filter(Boolean) || []),
     ], [isLoading, isLoading2])
 
     const router = useRouter()
@@ -91,7 +91,7 @@ export function DiscoverAiringSchedule() {
 
     return (
         <div className="space-y-4 z-[5] relative" data-discover-airing-schedule-container>
-            <h2 className="text-center">Airing schedule</h2>
+            <h2 className="text-center">Airing Schedule</h2>
             <div className="space-y-6">
                 {days.map((day, index) => {
                     if (day.events.length === 0) return null
@@ -128,7 +128,8 @@ export function DiscoverAiringSchedule() {
                                                     </ContextMenuGroup>}
                                                 >
                                                     <ContextMenuTrigger>
-                                                        <div key={String(`${event.id}${index}`)}
+                                                        <div
+                                                            key={String(`${event.id}${index}`)}
                                                             className="flex gap-3 bg-[--background] rounded-[--radius-md] p-2"
                                                         >
                                                             <div

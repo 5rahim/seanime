@@ -34,6 +34,7 @@ var additionalStructNames = []string{
 	"videocore.PlaybackState",
 	"plugin_ui.WebviewSlot",
 	"plugin_ui.WebviewOptions",
+	"videocore.InSightData",
 }
 
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.
@@ -282,6 +283,7 @@ func writeTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[string
 			}
 
 			typeText := field.TypescriptType
+			typeText = strings.ReplaceAll(typeText, "RawMessage", "Record<string, any>")
 			//if !field.Required {
 			//	switch typeText {
 			//	case "string", "number", "boolean":

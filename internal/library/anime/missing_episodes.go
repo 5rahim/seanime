@@ -9,11 +9,11 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/sourcegraph/conc/pool"
 )
 
 type (
@@ -61,32 +61,38 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 	groupedLfs := GroupLocalFilesByMediaID(opts.LocalFiles)
 
 	rateLimiter := limiter.NewLimiter(time.Second, 20)
-	p := pool.NewWithResults[[]*EntryDownloadEpisode]()
+	var epsToDownload [][]*EntryDownloadEpisode
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
 	for mId, lfs := range groupedLfs {
-		p.Go(func() []*EntryDownloadEpisode {
+		wg.Add(1)
+		go func(mId int, lfs []*LocalFile) {
+			defer wg.Done()
+
 			entry, found := opts.AnimeCollection.GetListEntryFromAnimeId(mId)
 			if !found {
-				return nil
+				return
 			}
 
 			// Skip if the status is nil, dropped or completed
 			if entry.Status == nil || *entry.Status == anilist.MediaListStatusDropped || *entry.Status == anilist.MediaListStatusCompleted {
-				return nil
+				return
 			}
 
 			latestLf, found := FindLatestLocalFileFromGroup(lfs)
 			if !found {
-				return nil
+				return
 			}
 			//If the latest local file is the same or higher than the current episode count, skip
 			if entry.Media.GetCurrentEpisodeCount() == -1 || entry.Media.GetCurrentEpisodeCount() <= latestLf.GetEpisodeNumber() {
-				return nil
+				return
 			}
 			rateLimiter.Wait()
 			// Fetch anime metadata
 			animeMetadata, err := opts.MetadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, entry.Media.ID)
 			if err != nil {
-				return nil
+				return
 			}
 
 			// Get download info
@@ -99,7 +105,7 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 				MetadataProviderRef: opts.MetadataProviderRef,
 			})
 			if err != nil {
-				return nil
+				return
 			}
 
 			episodes := downloadInfo.EpisodesToDownload
@@ -115,10 +121,14 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 					episodes[0].Episode.DisplayTitle = episodes[0].Episode.DisplayTitle + fmt.Sprintf(" & %d more", len(downloadInfo.EpisodesToDownload)-1)
 				}
 			}
-			return episodes
-		})
+
+			mu.Lock()
+			epsToDownload = append(epsToDownload, episodes)
+			mu.Unlock()
+		}(mId, lfs)
 	}
-	epsToDownload := p.Wait()
+	wg.Wait()
+
 	epsToDownload = lo.Filter(epsToDownload, func(item []*EntryDownloadEpisode, _ int) bool {
 		return item != nil
 	})

@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
-	"seanime/internal/events"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/util"
@@ -296,8 +295,7 @@ func (h *Handler) HandleTorrentClientDownload(c echo.Context) error {
 			if err != nil {
 				h.App.Logger.Error().Err(err).Msg("anilist: Failed to add media to collection")
 			}
-			ac, _ := h.App.RefreshAnimeCollection()
-			h.App.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, ac)
+			_, _ = h.App.RefreshAnimeCollection()
 		}
 	}()
 

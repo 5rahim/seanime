@@ -1,5 +1,3 @@
-"use client"
-
 import { SeaLink } from "@/components/shared/sea-link"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva, VariantProps } from "class-variance-authority"

@@ -252,6 +252,17 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/library/missing-episodes",
         },
+        /**
+         *  @description
+         *  Route returns a list of upcoming episodes based on the user's anime collection
+         *  It uses the AniList 'next airing episode' data to determine upcoming episodes.
+         *  This route can be called multiple times, as it does not bypass the cache.
+         */
+        GetUpcomingEpisodes: {
+            key: "ANIME-ENTRIES-get-upcoming-episodes",
+            methods: ["GET"],
+            endpoint: "/api/v1/library/upcoming-episodes",
+        },
         GetAnimeEntrySilenceStatus: {
             key: "ANIME-ENTRIES-get-anime-entry-silence-status",
             methods: ["GET"],
@@ -1886,6 +1897,11 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/report/issue/download",
         },
+        DecompressIssueReport: {
+            key: "REPORT-decompress-issue-report",
+            methods: ["POST"],
+            endpoint: "/api/v1/report/issue/decompress",
+        },
     },
     SCAN: {
         /**
@@ -2246,6 +2262,13 @@ export const API_ENDPOINTS = {
             key: "TORRENTSTREAM-get-torrentstream-batch-history",
             methods: ["POST"],
             endpoint: "/api/v1/torrentstream/batch-history",
+        },
+    },
+    VIDEOCORE: {
+        VideoCoreInSightGetCharacterDetails: {
+            key: "VIDEOCORE-video-core-in-sight-get-character-details",
+            methods: ["GET"],
+            endpoint: "/api/v1/videocore/insight/character/{malId}",
         },
     },
 } satisfies ApiEndpoints

@@ -1,9 +1,8 @@
-"use client"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useMALAuth } from "@/api/hooks/mal.hooks"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
+import { useRouter } from "@/lib/navigation"
 import { useQueryClient } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
 import React from "react"
 
 export default function _page() {

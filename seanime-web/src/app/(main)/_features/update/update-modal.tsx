@@ -1,4 +1,3 @@
-"use client"
 import { Updater_Release } from "@/api/generated/types"
 import { useDownloadRelease } from "@/api/hooks/download.hooks"
 import { useGetLatestUpdate, useInstallLatestUpdate } from "@/api/hooks/releases.hooks"
@@ -93,13 +92,7 @@ export function UpdateModal(props: UpdateModalProps) {
                 contentClass="max-w-3xl"
             >
                 <Downloader release={updateData.release} />
-                {/*<div*/}
-                {/*    className="bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-60 left-0 bg-no-repeat bg-right bg-cover"*/}
-                {/*>*/}
-                {/*    <div*/}
-                {/*        className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-[--background] to-transparent z-[-2]"*/}
-                {/*    />*/}
-                {/*</div>*/}
+
                 <div className="space-y-2">
                     <h3 className="text-center">A new update is available!</h3>
                     <h4 className="font-bold flex gap-2 text-center items-center justify-center">
