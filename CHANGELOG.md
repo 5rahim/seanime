@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.5.0
+
+- ✨ New Library Scanner
+  - Context-aware matching that no longer relies solely on fuzzy matching
+  - Improved accuracy for title variations, smarter parsing and comparisons
+  - Better handling of multi-season anime, movies and specials
+- ✨ Scanner: Configuration
+  - Add rules to fully customize matching and hydration behavior
+- ✨ Improved Issue Recorder
+  - Issue Recorder now records the UI, allowing to reproduce issues more easily
+  - Ability to attach screenshots and notes to recordings
+- ⚡️ Scanner: Added support for Anime Offline Database
+  - Enhanced matching will now use the Anime Offline Database to improve accuracy
+- ⚡️ New Transcoding/Direct Play media player
+  - Video playback using transcoding/direct play will now use Seanime's custom player (VideoCore)
+- ⚡️ Updated LibASS Renderer (Jassub)
+- ⚡️ Theming: Added toggle for restoring blur effects
+- ⚡️ Improved filename parser
+- ⚡️ Super Update: Added 'start=' enumeration support
+- ⚡️ VideoCore: Stats for nerds
+  - View file path, codecs, playback info with the keybind 'Z'
+- ⚡️ VideoCore: Character Lookup
+  - Quickly lookup characters while watching with the keybind 'H'
+- ⚡️ Sidebar: 'Search' button now redirects to the search page
+  - Use 's' keybind for quick search access
+- ⚡️ Denshi: Click on tray icon to toggle visibility #599
+- ⚡️ Password inputs are now masked by default
+- ⚡️ Internal: Revamped Scan Log Viewer
+- ⚡️ Internal: Revamped Issue Log Analyzer
+  - Added Session Replays for easier debugging
+- 🦺 Auto Downloader: Fixed handling of custom episode offsets
+- 🦺 Auto-select: Removed year filter for batch searches #612
+- 🦺 Manga: Disable 'Continue Reading' button when next chapter is unavailable
+- 🦺 VideoCore: Fixed previous/next episode keybinds
+- 🦺 Scanner: Fixed episode normalization when AniList has more episodes than AniDB
+- 🦺 Scanner: Refresh anime collection after scanning
+- 🦺 Library Explorer: Fixed bulk un-ignore option not showing up
+- 🏗️ UI: Decreased internal AniList rate limiter burst size
+- 🏗️ Server: Decreased internal AniList rate limiter burst size
+- 🏗️ TorBox: Seeding option is no longer overridden
+- 🏗️ (BREAKING): Migrated Frontend from Next.js to Tanstack Router+Rsbuild/Rspack
+  - 10x faster build times
+  - Up to 3x faster hot reloading on heavy components
+- ⬆️ Updated dependencies
+- ⬆️ Updated Go to 1.26
+
 ## v3.4.2
 
 - 🦺 Auto Downloader: Skip watched episodes (regression)

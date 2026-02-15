@@ -726,11 +726,11 @@ export function UISettings() {
                                     name="useLegacyEpisodeCard"
                                 />
 
-                                <Field.Switch
-                                    side="right"
-                                    label="Show anime info"
-                                    name="showEpisodeCardAnimeInfo"
-                                />
+                                {/*<Field.Switch*/}
+                                {/*    side="right"*/}
+                                {/*    label="Show anime info"*/}
+                                {/*    name="showEpisodeCardAnimeInfo"*/}
+                                {/*/>*/}
 
                                 <Field.Switch
                                     side="right"

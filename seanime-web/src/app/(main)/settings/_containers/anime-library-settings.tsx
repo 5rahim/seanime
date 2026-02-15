@@ -83,7 +83,7 @@ export function AnimeLibrarySettings(props: LibrarySettingsProps) {
                     <AccordionContent className="space-y-4">
                         {!useLegacyMatching && <div className="space-y-4">
                             <div>
-                                <h3 className="font-semibold mb-2">Scanner Configuration</h3>
+                                <p className="font-semibold text-lg mb-2">Scanner Configuration</p>
                                 <p className="text-sm text-[--muted] mb-4">
                                     Configure advanced scanner rules in JSON format. This allows you to define custom matching and hydration rules for
                                     your library.

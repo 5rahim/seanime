@@ -46,38 +46,6 @@ TODO-priv.md
 seanime-parser/.git
 
 ##
-## Next.js
-##
-# legacy
-seanime-web-legacy/node_modules
-seanime-web-legacy/out
-seanime-web-legacy/out-desktop
-seanime-web-legacy/out-denshi
-seanime-web-legacy/web
-seanime-web-legacy/.next
-seanime-web-legacy/.idea
-seanime-web-legacy/.pnp
-seanime-web-legacy/.pnp.js
-seanime-web-legacy/.yarn/install-state.gz
-seanime-web-legacy/coverage
-seanime-web-legacy/build
-seanime-web-legacy/.DS_Store
-seanime-web-legacy/*.pem
-seanime-web-legacy/npm-debug.log*
-seanime-web-legacy/yarn-debug.log*
-seanime-web-legacy/yarn-error.log*
-seanime-web-legacy/.env*.local
-seanime-web-legacy/.vercel
-seanime-web-legacy/*.tsbuildinfo
-seanime-web-legacy/next-env.d.ts
-seanime-web-legacy/snapshot
-seanime-web-legacy/logs
-seanime-web-legacy/analyze
-seanime-web-legacy/TODO-priv.md
-seanime-web-legacy/CHANGELOG-priv.md
-seanime-web-legacy/public/test*
-
-##
 ## Web App
 ##
 seanime-web/node_modules
