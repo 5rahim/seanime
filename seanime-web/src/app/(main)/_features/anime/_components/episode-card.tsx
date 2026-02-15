@@ -267,9 +267,9 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             </div>
                         </div>}
 
-                        {isInvalid &&
-                            <p data-episode-card-invalid-metadata className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata
-                                                                                                                                     found</p>}
+                        {/*{isInvalid &&*/}
+                        {/*    <p data-episode-card-invalid-metadata className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata*/}
+                        {/*                                                                                                             found</p>}*/}
                     </div>
                     {(showAnimeInfo && !isSingleContainer) ? <div data-episode-card-anime-info-container className="flex gap-3 items-center">
                         <div

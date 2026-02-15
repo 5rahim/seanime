@@ -50,6 +50,7 @@ export const SeaLink = React.forwardRef<HTMLAnchorElement, SeaLinkProps>((props,
             search={Object.keys(searchParams).length > 0 ? () => searchParams : undefined}
             className={cn("cursor-pointer", className)}
             resetScroll={resetScroll}
+            onClick={onClick}
             {...rest}
         >
             {children}
