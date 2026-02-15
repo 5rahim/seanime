@@ -29,7 +29,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useRouter, useSearchParams } from "@/lib/navigation"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
-import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
@@ -160,13 +160,9 @@ export default function Page() {
                                                 {status?.version} {status?.versionName}
                                             </p>
                                             <p className="text-[--muted] text-sm text-center w-full">
-                                                {capitalize(status?.os)}{__isTauriDesktop__ &&
-                                                <span className="font-medium"> - Tauri</span>}{__isElectronDesktop__ &&
+                                                {capitalize(status?.os)}{__isElectronDesktop__ &&
                                                 <span className="font-medium"> - Denshi</span>}
                                             </p>
-                                            {/* <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {__isTauriDesktop__ &&
-                                             <span className="font-medium">- Tauri</span>}{__isElectronDesktop__ &&
-                                             <span className="font-medium">- Denshi</span>}</p> */}
                                         </div>
                                     </div>
                                 </Card>

@@ -8,7 +8,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
-import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { useAtom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
@@ -25,7 +25,7 @@ export function Announcements() {
 
     function handleCheckForAnnouncements() {
         getAnnouncements({
-            platform: __isElectronDesktop__ ? "denshi" : __isTauriDesktop__ ? "tauri" : "web",
+            platform: __isElectronDesktop__ ? "denshi" : "web",
         })
     }
 

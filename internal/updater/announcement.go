@@ -38,7 +38,7 @@ type AnnouncementAction struct {
 
 type AnnouncementConditions struct {
 	OS       []string `json:"os,omitempty"`       // ["windows", "darwin", "linux"]
-	Platform []string `json:"platform,omitempty"` // ["tauri", "web", "denshi"]
+	Platform []string `json:"platform,omitempty"` // ["web", "denshi"]
 	// FeatureFlags      []string `json:"featureFlags,omitempty"`      // Required feature flags
 	VersionConstraint string   `json:"versionConstraint,omitempty"` // e.g. "<= 2.9.0", "2.9.0"
 	UserSettingsPath  string   `json:"userSettingsPath,omitempty"`  // JSON path to check in user settings

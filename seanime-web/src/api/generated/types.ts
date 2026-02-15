@@ -2348,7 +2348,7 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Package: extension
  * @description
  *  PluginAllowlist is a list of system permissions that the plugin is asking for.
- *  
+ *
  *  The user must acknowledge these permissions before the plugin can be loaded.
  */
 export type Extension_PluginAllowlist = {
@@ -4964,7 +4964,7 @@ export type Updater_AnnouncementConditions = {
      */
     os?: Array<string>
     /**
-     * ["tauri", "web", "denshi"]
+     * ["web", "denshi"]
      */
     platform?: Array<string>
     /**

@@ -12,7 +12,6 @@ import { useAutoDownloaderQueueCount } from "@/app/(main)/_hooks/autodownloader-
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useCurrentUser, useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { TauriUpdateModal } from "@/app/(main)/_tauri/tauri-update-modal"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { SeaLink } from "@/components/shared/sea-link"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
@@ -31,7 +30,7 @@ import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useThemeSettings } from "@/lib/theme/theme-hooks"
-import { __isDesktop__, __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
+import { __isDesktop__, __isElectronDesktop__ } from "@/types/constants"
 import { useAtom } from "jotai"
 import React from "react"
 import { BiChevronRight, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
@@ -435,9 +434,8 @@ function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean
 function SidebarUpdates({ isCollapsed }: { isCollapsed: boolean }) {
     return (
         !__isDesktop__ ? <UpdateModal collapsed={isCollapsed} /> :
-            __isTauriDesktop__ ? <TauriUpdateModal collapsed={isCollapsed} /> :
-                __isElectronDesktop__ ? <ElectronUpdateModal collapsed={isCollapsed} /> :
-                    null
+            __isElectronDesktop__ ? <ElectronUpdateModal collapsed={isCollapsed} /> :
+                null
     )
 }
 

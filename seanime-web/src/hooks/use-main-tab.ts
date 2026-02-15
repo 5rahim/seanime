@@ -1,13 +1,13 @@
 import { websocketAtom } from "@/app/(main)/_atoms/websocket.atoms"
 import { logger } from "@/lib/helpers/debug"
-import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { useAtomValue } from "jotai"
 import { useEffect, useRef, useState } from "react"
 
 const log = logger("TAB")
 const CHANNEL_NAME = "main-tab-election"
 const TAB_ID = `${Date.now()}-${Math.random().toString(36).slice(2)}`
-const IS_DESKTOP = __isElectronDesktop__ || __isTauriDesktop__
+const IS_DESKTOP = __isElectronDesktop__
 
 export function useMainTab(): boolean {
     const [isMainTab, setIsMainTab] = useState(false)

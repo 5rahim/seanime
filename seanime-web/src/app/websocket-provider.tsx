@@ -1,11 +1,10 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { websocketAtom, WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { ElectronRestartServerPrompt } from "@/app/(main)/_electron/electron-restart-server-prompt"
-import { TauriRestartServerPrompt } from "@/app/(main)/_tauri/tauri-restart-server-prompt"
 import { __openDrawersAtom } from "@/components/ui/drawer"
 import { useMainTab } from "@/hooks/use-main-tab"
 import { logger } from "@/lib/helpers/debug"
-import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai"
 import React, { useRef } from "react"
 import { useCookies } from "react-cookie"
@@ -51,7 +50,6 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
         <>
             <WebsocketManagement />
             <ManageOpenDrawers />
-            {__isTauriDesktop__ && <TauriRestartServerPrompt />}
             {__isElectronDesktop__ && <ElectronRestartServerPrompt />}
             <WebSocketContext.Provider value={socket}>
                 {!isConnected && <div

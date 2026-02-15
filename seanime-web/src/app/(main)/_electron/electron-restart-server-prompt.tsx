@@ -1,4 +1,4 @@
-import { isUpdateInstalledAtom, isUpdatingAtom } from "@/app/(main)/_tauri/tauri-update-modal"
+import { isUpdateInstalledAtom, isUpdatingAtom } from "@/app/(main)/_electron/electron-update-modal"
 import { websocketConnectedAtom, websocketConnectionErrorCountAtom } from "@/app/websocket-provider"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button } from "@/components/ui/button"
