@@ -1,1 +1,0 @@
-source (jellyfin/jellyfin-vue)[https://github.com/jellyfin/jellyfin-vue/tree/master/frontend/src/utils/playback-profiles]
