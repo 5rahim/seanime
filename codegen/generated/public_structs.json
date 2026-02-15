@@ -37894,6 +37894,15 @@
         "comments": []
       },
       {
+        "name": "Readme",
+        "jsonName": "readme",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Notes",
         "jsonName": "notes",
         "goType": "string",

@@ -2295,6 +2295,7 @@ export type Extension_Extension = {
     author: string
     icon: string
     website: string
+    readme: string
     notes?: string
     lang: string
     /**

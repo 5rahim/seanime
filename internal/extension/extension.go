@@ -46,6 +46,8 @@ type Extension struct {
 	Icon string `json:"icon"`
 	// Website is the URL to the extension website
 	Website string `json:"website"`
+	// Readme is the URL to the extension readme
+	Readme string `json:"readme"`
 	// Notes is an arbitrary string that can be used to show additional information about the extension (guide, changelog).
 	Notes string `json:"notes,omitempty"`
 	// ISO 639-1 language code.
@@ -91,6 +93,7 @@ type BaseExtension interface {
 	GetLang() string
 	GetIcon() string
 	GetWebsite() string
+	GetReadme() string
 	GetPermissions() []string
 	GetUserConfig() *UserConfig
 	GetSavedUserConfig() *SavedUserConfig
@@ -114,6 +117,7 @@ func ToExtensionData(ext BaseExtension) *Extension {
 		Author:          ext.GetAuthor(),
 		Icon:            ext.GetIcon(),
 		Website:         ext.GetWebsite(),
+		Readme:          ext.GetReadme(),
 		Notes:           ext.GetNotes(),
 		Lang:            GetExtensionLang(ext.GetLang()),
 		Permissions:     ext.GetPermissions(),

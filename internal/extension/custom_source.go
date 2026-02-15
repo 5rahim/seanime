@@ -88,6 +88,10 @@ func (m *CustomSourceExtensionImpl) GetWebsite() string {
 	return m.ext.Website
 }
 
+func (m *CustomSourceExtensionImpl) GetReadme() string {
+	return m.ext.Readme
+}
+
 func (m *CustomSourceExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }

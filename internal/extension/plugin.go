@@ -540,6 +540,10 @@ func (m *PluginExtensionImpl) GetWebsite() string {
 	return m.ext.Website
 }
 
+func (m *PluginExtensionImpl) GetReadme() string {
+	return m.ext.Readme
+}
+
 func (m *PluginExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }

@@ -77,6 +77,10 @@ func (m *MangaProviderExtensionImpl) GetWebsite() string {
 	return m.ext.Website
 }
 
+func (m *MangaProviderExtensionImpl) GetReadme() string {
+	return m.ext.Readme
+}
+
 func (m *MangaProviderExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }

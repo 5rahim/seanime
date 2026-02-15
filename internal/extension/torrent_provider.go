@@ -77,6 +77,10 @@ func (m *AnimeTorrentProviderExtensionImpl) GetWebsite() string {
 	return m.ext.Website
 }
 
+func (m *AnimeTorrentProviderExtensionImpl) GetReadme() string {
+	return m.ext.Readme
+}
+
 func (m *AnimeTorrentProviderExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }
