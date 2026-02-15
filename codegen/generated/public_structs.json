@@ -27854,6 +27854,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ShowTour",
+        "jsonName": "ShowTour",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -42881,6 +42890,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ShowChangelogTour",
+        "jsonName": "showChangelogTour",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
@@ -49750,6 +49768,15 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "onRefreshCollection",
+        "jsonName": "onRefreshCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -49848,6 +49875,15 @@
         "jsonName": "LogsDir",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnRefreshCollection",
+        "jsonName": "OnRefreshCollection",
+        "goType": "",
+        "typescriptType": "any",
         "required": true,
         "public": true,
         "comments": []

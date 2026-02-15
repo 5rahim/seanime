@@ -77,7 +77,7 @@ export function AnimeLibrarySettings(props: LibrarySettingsProps) {
                 defaultValue={(useLegacyMatching) ? "more" : undefined}
             >
                 <AccordionItem value="more">
-                    <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]">
+                    <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]" data-settings-anime-library="advanced-accordion-trigger">
                         Advanced
                     </AccordionTrigger>
                     <AccordionContent className="space-y-4">

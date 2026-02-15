@@ -296,7 +296,6 @@ const config: Config = {
     plugins: [
         require("@tailwindcss/typography"),
         require("@tailwindcss/forms"),
-        require("@headlessui/tailwindcss"),
         require("tailwind-scrollbar-hide"),
         require("tailwindcss-animate"),
         addVariablesForColors,

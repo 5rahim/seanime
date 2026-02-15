@@ -12,7 +12,7 @@ import (
 // Tours represents all version tours available to highlight changes
 var Tours = map[string][]string{
 	// Tour version -> [previous version, current version]
-	"3.5.0": {"< 3.5.0", ">= 3.5.0, < 3.6.0"},
+	"3.5.0": {"< 3.5.0", "< 3.6.0, >= 3.5.0"},
 }
 
 // runMigrations checks the previous version and runs any necessary migrations based on the version difference.
@@ -56,7 +56,8 @@ func (a *App) runMigrations() {
 					if err != nil {
 						continue
 					}
-					if fromC.Check(previousVersion) && toC.Check(previousVersion) {
+					if fromC.Check(previousVersion) && toC.Check(currVersion) {
+						a.Logger.Debug().Msgf("app: Tour for %s", tourVersion)
 						a.ShowTour = tourVersion
 					}
 				}

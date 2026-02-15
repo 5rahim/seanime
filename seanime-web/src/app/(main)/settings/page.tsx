@@ -528,6 +528,7 @@ export default function Page() {
                                                 onClick={handleOpenIssueRecorder}
                                                 leftIcon={<VscDebugAlt className="transition-transform duration-200 group-hover:scale-110" />}
                                                 className="transition-all duration-200 hover:scale-105 hover:shadow-md group"
+                                                data-open-issue-recorder-button
                                             >
                                                 Record an issue
                                             </Button>

@@ -34,6 +34,7 @@ import { Route as MainOfflineEntryAnimeIndexRouteImport } from './routes/_main/o
 const ScanLogViewerIndexLazyRouteImport = createFileRoute('/scan-log-viewer/')()
 const IssueReportIndexLazyRouteImport = createFileRoute('/issue-report/')()
 const DocsIndexLazyRouteImport = createFileRoute('/docs/')()
+const MainWebviewIndexLazyRouteImport = createFileRoute('/_main/webview/')()
 const MainTorrentListIndexLazyRouteImport = createFileRoute(
   '/_main/torrent-list/',
 )()
@@ -96,6 +97,13 @@ const MainErrorTestRoute = MainErrorTestRouteImport.update({
   path: '/error-test',
   getParentRoute: () => MainRoute,
 } as any)
+const MainWebviewIndexLazyRoute = MainWebviewIndexLazyRouteImport.update({
+  id: '/webview/',
+  path: '/webview/',
+  getParentRoute: () => MainRoute,
+} as any).lazy(() =>
+  import('./routes/_main/webview/index.lazy').then((d) => d.Route),
+)
 const MainTorrentListIndexLazyRoute =
   MainTorrentListIndexLazyRouteImport.update({
     id: '/torrent-list/',
@@ -312,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/schedule/': typeof MainScheduleIndexLazyRoute
   '/sync/': typeof MainSyncIndexLazyRoute
   '/torrent-list/': typeof MainTorrentListIndexLazyRoute
+  '/webview/': typeof MainWebviewIndexLazyRoute
   '/auth/callback/': typeof MainAuthCallbackIndexRoute
   '/manga/entry/': typeof MainMangaEntryIndexRoute
   '/extensions/playground/': typeof MainExtensionsPlaygroundIndexLazyRoute
@@ -346,6 +355,7 @@ export interface FileRoutesByTo {
   '/schedule': typeof MainScheduleIndexLazyRoute
   '/sync': typeof MainSyncIndexLazyRoute
   '/torrent-list': typeof MainTorrentListIndexLazyRoute
+  '/webview': typeof MainWebviewIndexLazyRoute
   '/auth/callback': typeof MainAuthCallbackIndexRoute
   '/manga/entry': typeof MainMangaEntryIndexRoute
   '/extensions/playground': typeof MainExtensionsPlaygroundIndexLazyRoute
@@ -382,6 +392,7 @@ export interface FileRoutesById {
   '/_main/schedule/': typeof MainScheduleIndexLazyRoute
   '/_main/sync/': typeof MainSyncIndexLazyRoute
   '/_main/torrent-list/': typeof MainTorrentListIndexLazyRoute
+  '/_main/webview/': typeof MainWebviewIndexLazyRoute
   '/_main/auth/callback/': typeof MainAuthCallbackIndexRoute
   '/_main/manga/entry/': typeof MainMangaEntryIndexRoute
   '/_main/extensions/playground/': typeof MainExtensionsPlaygroundIndexLazyRoute
@@ -418,6 +429,7 @@ export interface FileRouteTypes {
     | '/schedule/'
     | '/sync/'
     | '/torrent-list/'
+    | '/webview/'
     | '/auth/callback/'
     | '/manga/entry/'
     | '/extensions/playground/'
@@ -452,6 +464,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/sync'
     | '/torrent-list'
+    | '/webview'
     | '/auth/callback'
     | '/manga/entry'
     | '/extensions/playground'
@@ -487,6 +500,7 @@ export interface FileRouteTypes {
     | '/_main/schedule/'
     | '/_main/sync/'
     | '/_main/torrent-list/'
+    | '/_main/webview/'
     | '/_main/auth/callback/'
     | '/_main/manga/entry/'
     | '/_main/extensions/playground/'
@@ -554,6 +568,13 @@ declare module '@tanstack/react-router' {
       path: '/error-test'
       fullPath: '/error-test'
       preLoaderRoute: typeof MainErrorTestRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/webview/': {
+      id: '/_main/webview/'
+      path: '/webview'
+      fullPath: '/webview/'
+      preLoaderRoute: typeof MainWebviewIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
     '/_main/torrent-list/': {
@@ -762,6 +783,7 @@ interface MainRouteChildren {
   MainScheduleIndexLazyRoute: typeof MainScheduleIndexLazyRoute
   MainSyncIndexLazyRoute: typeof MainSyncIndexLazyRoute
   MainTorrentListIndexLazyRoute: typeof MainTorrentListIndexLazyRoute
+  MainWebviewIndexLazyRoute: typeof MainWebviewIndexLazyRoute
   MainAuthCallbackIndexRoute: typeof MainAuthCallbackIndexRoute
   MainMangaEntryIndexRoute: typeof MainMangaEntryIndexRoute
   MainExtensionsPlaygroundIndexLazyRoute: typeof MainExtensionsPlaygroundIndexLazyRoute
@@ -791,6 +813,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainScheduleIndexLazyRoute: MainScheduleIndexLazyRoute,
   MainSyncIndexLazyRoute: MainSyncIndexLazyRoute,
   MainTorrentListIndexLazyRoute: MainTorrentListIndexLazyRoute,
+  MainWebviewIndexLazyRoute: MainWebviewIndexLazyRoute,
   MainAuthCallbackIndexRoute: MainAuthCallbackIndexRoute,
   MainMangaEntryIndexRoute: MainMangaEntryIndexRoute,
   MainExtensionsPlaygroundIndexLazyRoute:

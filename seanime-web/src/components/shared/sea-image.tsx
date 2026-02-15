@@ -9,10 +9,11 @@ type ImageProps = React.ImgHTMLAttributes<HTMLImageElement> & {
     placeholder?: string
     blurDataURL?: string
     sizes?: string
+    allowGif?: boolean
 }
 
 export const SeaImage = forwardRef<HTMLImageElement, ImageProps & { isExternal?: boolean }>(
-    ({ isExternal, fill, priority, quality, placeholder, sizes, ...props }, ref) => {
+    ({ isExternal, fill, priority, quality, placeholder, sizes, allowGif, ...props }, ref) => {
         const [hasError, setHasError] = useState(false)
 
         useEffect(() => {
@@ -37,6 +38,7 @@ export const SeaImage = forwardRef<HTMLImageElement, ImageProps & { isExternal?:
             || props.src.endsWith(".avif")
             || props.src.endsWith(".webp")
             || props.src.endsWith(".ico")
+            || (allowGif && props.src.endsWith(".gif"))
         )
 
         const effectiveOverride = (blocked || hasError) ? "/no-cover.png" : props.overrideSrc

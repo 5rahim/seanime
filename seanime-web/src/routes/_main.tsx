@@ -1,12 +1,13 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router"
 import { MainLayout } from "@/app/(main)/_features/layout/main-layout"
 import { OfflineLayout } from "@/app/(main)/_features/layout/offline-layout"
 import { TopNavbar } from "@/app/(main)/_features/layout/top-navbar"
+import { TourOverlay } from "@/app/(main)/_features/tour/tour-overlay"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ServerDataWrapper } from "@/app/(main)/server-data-wrapper"
+import { AppErrorBoundary } from "@/components/shared/app-error-boundary"
+import { createFileRoute, Outlet } from "@tanstack/react-router"
 import React from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { AppErrorBoundary } from "@/components/shared/app-error-boundary"
 
 export const Route = createFileRoute("/_main")({
     component: Layout,
@@ -47,6 +48,7 @@ function Layout() {
                     </div>
                 </div>
             </MainLayout>
+            <TourOverlay />
         </ServerDataWrapper>
     )
 }

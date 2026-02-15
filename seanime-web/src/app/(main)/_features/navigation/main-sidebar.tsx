@@ -4,7 +4,6 @@ import { useGetExtensionUpdateData as useGetExtensionUpdateData, usePluginWithIs
 import { isLoginModalOpenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useSyncIsActive } from "@/app/(main)/_atoms/sync.atoms"
 import { ElectronUpdateModal } from "@/app/(main)/_electron/electron-update-modal"
-import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/global-search"
 import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
 import { usePluginSidebarItems } from "@/app/(main)/_features/plugin/webview/plugin-sidebar"
 import { useSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
@@ -33,7 +32,7 @@ import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { __isDesktop__, __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
-import { useAtom, useSetAtom } from "jotai"
+import { useAtom } from "jotai"
 import React from "react"
 import { BiChevronRight, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
 import { FiLogIn, FiSearch } from "react-icons/fi"
@@ -128,7 +127,6 @@ function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean
 
     // Commands
     const { setSeaCommandOpen } = useSeaCommand()
-    const setGlobalSearchIsOpen = useSetAtom(__globalSearch_isOpenAtom)
 
     // Data
     const missingEpisodeCount = useMissingEpisodeCount()
