@@ -8,6 +8,7 @@ import (
 	"seanime/internal/api/mal"
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
+	"seanime/internal/customsource"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/platform"
@@ -42,6 +43,8 @@ type MediaFetcherOptions struct {
 	AnilistRateLimiter         *limiter.Limiter
 	DisableAnimeCollection     bool
 	ScanLogger                 *ScanLogger
+	// used for adding custom sources
+	OptionalAnimeCollection *anilist.AnimeCollection
 }
 
 // NewMediaFetcher
@@ -107,6 +110,22 @@ func NewMediaFetcher(ctx context.Context, opts *MediaFetcherOptions) (ret *Media
 				// +---------------------+
 				// We assume the CompleteAnimeCache is empty. Add media to cache.
 				opts.CompleteAnimeCache.Set(entry.GetMedia().ID, entry.GetMedia())
+			}
+		}
+		// Handle custom sources
+		// Devnote: For now we just get them from opts.AnimeCollection but in the future we could introduce a new method for custom sources to return many CompleteAnime at once
+		// right now custom source media wont have any relations data
+		if opts.OptionalAnimeCollection != nil {
+			for _, list := range opts.OptionalAnimeCollection.GetMediaListCollection().GetLists() {
+				if list == nil {
+					continue
+				}
+				for _, entry := range list.GetEntries() {
+					if entry == nil || entry.GetMedia() == nil || !customsource.IsExtensionId(entry.GetMedia().GetID()) {
+						continue
+					}
+					allCompleteAnime = append(allCompleteAnime, entry.GetMedia().ToCompleteAnime())
+				}
 			}
 		}
 	}

@@ -50,6 +50,8 @@ type Scanner struct {
 	shelvedLocalFiles    []*anime.LocalFile
 	Config               *Config
 	ConfigAsString       string
+	// Optional, used to add custom sources
+	AnimeCollection *anilist.AnimeCollection
 }
 
 // Scan will scan the directory and return a list of anime.LocalFile.
@@ -351,6 +353,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 		AnilistRateLimiter:         anilistRateLimiter,
 		DisableAnimeCollection:     false,
 		ScanLogger:                 scn.ScanLogger,
+		OptionalAnimeCollection:    scn.AnimeCollection,
 	})
 	if err != nil {
 		return nil, err

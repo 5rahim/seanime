@@ -3,6 +3,7 @@ package autoscanner
 import (
 	"context"
 	"errors"
+	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
@@ -40,6 +41,7 @@ type (
 		logsDir             string
 		scanning            atomic.Bool
 		onRefreshCollection func()
+		animeCollection     *anilist.AnimeCollection
 	}
 	NewAutoScannerOptions struct {
 		Database            *db.Database
@@ -78,6 +80,10 @@ func New(opts *NewAutoScannerOptions) *AutoScanner {
 		logsDir:             opts.LogsDir,
 		onRefreshCollection: opts.OnRefreshCollection,
 	}
+}
+
+func (as *AutoScanner) SetAnimeCollection(ac *anilist.AnimeCollection) {
+	as.animeCollection = ac
 }
 
 // Notify is used to notify the AutoScanner that a file action has occurred.
@@ -252,6 +258,7 @@ func (as *AutoScanner) scan() {
 		WithShelving:         true,
 		ExistingShelvedFiles: existingShelvedLfs,
 		ConfigAsString:       as.settings.ScannerConfig,
+		AnimeCollection:      as.animeCollection,
 	}
 
 	allLfs, err := sc.Scan(context.Background())

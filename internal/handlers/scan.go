@@ -66,6 +66,8 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 	}
 	defer scanLogger.Done()
 
+	ac, _ := h.App.GetAnimeCollection(false)
+
 	// Create a new scanner
 	sc := scanner.Scanner{
 		DirPath:                    libraryPath,
@@ -87,6 +89,7 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 		WithShelving:               true,
 		ExistingShelvedFiles:       existingShelvedLfs,
 		ConfigAsString:             h.App.Settings.GetLibrary().ScannerConfig,
+		AnimeCollection:            ac,
 	}
 
 	// Scan the library
