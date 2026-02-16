@@ -9,6 +9,7 @@ import {
     ADVANCED_SEARCH_SORTING_MANGA,
     ADVANCED_SEARCH_STATUS,
     ADVANCED_SEARCH_TYPE,
+    ADVANCED_SEARCH_MEDIA_TAGS
 } from "@/app/(main)/search/_lib/advanced-search-constants"
 import { __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/advanced-search.atoms"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -28,7 +29,7 @@ import { FiSearch } from "react-icons/fi"
 import { LuCalendar, LuLeaf } from "react-icons/lu"
 import { MdOutlineBook, MdPersonalVideo } from "react-icons/md"
 import { RiSignalTowerLine } from "react-icons/ri"
-import { TbSwords } from "react-icons/tb"
+import { TbSwords, TbTagsFilled } from "react-icons/tb"
 import { useMount } from "react-use"
 import { useUpdateEffect } from "react-use"
 
@@ -41,6 +42,7 @@ export function AdvancedSearchOptions() {
         return !(!params.title?.length &&
             (params.sorting === null || params.sorting?.[0] === "SCORE_DESC") &&
             (params.genre === null || !params.genre.length) &&
+            (params.tags === null || !params.tags.length) &&
             (params.status === null || !params.status.length) &&
             params.format === null && params.season === null && params.year === null && params.isAdult === false && params.minScore === null &&
             (params.countryOfOrigin === null || params.type === "anime"))
@@ -86,6 +88,26 @@ export function AdvancedSearchOptions() {
                     value={params.genre ? params.genre : []}
                     onValueChange={v => setParams(draft => {
                         draft.genre = v
+                        return
+                    })}
+                    fieldLabelClass="hidden"
+                />
+                <Combobox
+                    multiple
+                    leftAddon={<TbTagsFilled className={cn((params.tags !== null && !!params.tags.length) && "text-indigo-300 font-bold text-xl")} />}
+                    emptyMessage="No options found"
+                    label="Tags" placeholder="All tags" className="w-full"
+                    options={ADVANCED_SEARCH_MEDIA_TAGS
+                        .filter(tag => {
+                            if(params.isAdult && serverStatus?.settings?.anilist?.enableAdultContent) {
+                                return true
+                            }
+                            return tag.isAdult === false
+                        })
+                        .map(tag => ({ value: tag.name, label: tag.name, textValue: tag.name }))}
+                    value={params.tags ? params.tags : []}
+                    onValueChange={v => setParams(draft => {
+                        draft.tags = v
                         return
                     })}
                     fieldLabelClass="hidden"
@@ -192,6 +214,7 @@ export function AdvancedSearchOptions() {
                         sorting: null,
                         status: null,
                         genre: null,
+                        tags: null,
                         format: null,
                         season: null,
                         year: null,

@@ -351,6 +351,7 @@ func (h *Handler) HandleAnilistListManga(c echo.Context) error {
 		Sort                []*anilist.MediaSort   `json:"sort,omitempty"`
 		Status              []*anilist.MediaStatus `json:"status,omitempty"`
 		Genres              []*string              `json:"genres,omitempty"`
+		Tags                []*string              `json:"tags,omitempty"`
 		AverageScoreGreater *int                   `json:"averageScore_greater,omitempty"`
 		Year                *int                   `json:"year,omitempty"`
 		CountryOfOrigin     *string                `json:"countryOfOrigin,omitempty"`
@@ -380,6 +381,7 @@ func (h *Handler) HandleAnilistListManga(c echo.Context) error {
 		p.Sort,
 		p.Status,
 		p.Genres,
+		p.Tags,
 		p.AverageScoreGreater,
 		nil,
 		p.Year,
@@ -401,6 +403,7 @@ func (h *Handler) HandleAnilistListManga(c echo.Context) error {
 		p.Sort,
 		p.Status,
 		p.Genres,
+		p.Tags,
 		p.AverageScoreGreater,
 		p.Year,
 		p.Format,

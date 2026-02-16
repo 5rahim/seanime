@@ -15,9 +15,9 @@ import type {
     Anime_PlaylistEpisode,
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
-    Debrid_TorrentItem,
     DebridClient_CancelStreamOptions,
     DebridClient_StreamPlaybackType,
+    Debrid_TorrentItem,
     HibikeTorrent_AnimeTorrent,
     HibikeTorrent_BatchEpisodeFiles,
     LibraryExplorer_SuperUpdateFileOptions,
@@ -122,6 +122,7 @@ export type AnilistListAnime_Variables = {
     sort?: Array<AL_MediaSort>
     status?: Array<AL_MediaStatus>
     genres?: Array<string>
+    tags?: Array<string>
     averageScore_greater?: number
     season?: AL_MediaSeason
     seasonYear?: number
@@ -1227,6 +1228,7 @@ export type AnilistListManga_Variables = {
     sort?: Array<AL_MediaSort>
     status?: Array<AL_MediaStatus>
     genres?: Array<string>
+    tags?: Array<string>
     averageScore_greater?: number
     year?: number
     countryOfOrigin?: string
@@ -1972,7 +1974,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 export type SearchTorrent_Variables = {
     /**
      *  "smart" or "simple"
-     *
+     *  
      *  "smart" or "simple"
      */
     type?: string
@@ -2045,7 +2047,7 @@ export type TorrentstreamStartStream_Variables = {
     batchEpisodeFiles?: HibikeTorrent_BatchEpisodeFiles
     /**
      *  Preload is true if the stream should only be prepared.
-     *
+     *  
      *  Preload is true if the stream should only be prepared.
      */
     preload?: boolean

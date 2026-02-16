@@ -382,6 +382,15 @@
           "descriptions": []
         },
         {
+          "name": "Tags",
+          "jsonName": "tags",
+          "goType": "[]string",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cstring\u003e",
+          "required": false,
+          "descriptions": []
+        },
+        {
           "name": "AverageScoreGreater",
           "jsonName": "averageScore_greater",
           "goType": "int",
@@ -5895,6 +5904,15 @@
         {
           "name": "Genres",
           "jsonName": "genres",
+          "goType": "[]string",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cstring\u003e",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Tags",
+          "jsonName": "tags",
           "goType": "[]string",
           "usedStructType": "",
           "typescriptType": "Array\u003cstring\u003e",
