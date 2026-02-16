@@ -191,7 +191,7 @@ func TestGetRuleProfiles(t *testing.T) {
 	}{
 		{
 			name: "1 specific profile + 2, 3 globals",
-			rule: &anime.AutoDownloaderRule{ProfileID: lo.ToPtr(uint(1))},
+			rule: &anime.AutoDownloaderRule{ProfileID: new(uint(1))},
 			profiles: []*anime.AutoDownloaderProfile{
 				{DbID: 1, Global: false},
 				{DbID: 2, Global: true},
@@ -213,7 +213,7 @@ func TestGetRuleProfiles(t *testing.T) {
 		},
 		{
 			name:     "1 specific profile (which is global) + 1, 2 global profiles",
-			rule:     &anime.AutoDownloaderRule{ProfileID: lo.ToPtr(uint(2))},
+			rule:     &anime.AutoDownloaderRule{ProfileID: new(uint(2))},
 			expected: []uint{2, 3},
 			profiles: []*anime.AutoDownloaderProfile{
 				{DbID: 1, Global: false},
@@ -1014,7 +1014,7 @@ func TestIntegration(t *testing.T) {
 				Enabled:             true,
 				MediaId:             154587,
 				Destination:         "/media/anime/frieren",
-				ProfileID:           lo.ToPtr(uint(2)),
+				ProfileID:           new(uint(2)),
 				ReleaseGroups:       []string{"SubsPlease", "Erai-raws"},
 				EpisodeType:         anime.AutoDownloaderRuleEpisodeRecent,
 				ComparisonTitle:     "Sousou no Frieren",
@@ -1092,7 +1092,7 @@ func TestIntegration(t *testing.T) {
 				Enabled:             true,
 				MediaId:             154587,
 				Destination:         "/media/anime/frieren",
-				ProfileID:           lo.ToPtr(uint(2)),
+				ProfileID:           new(uint(2)),
 				ReleaseGroups:       []string{"SubsPlease", "Erai-raws"},
 				EpisodeType:         anime.AutoDownloaderRuleEpisodeRecent,
 				ComparisonTitle:     "Sousou no Frieren",
@@ -1153,7 +1153,7 @@ func TestIntegration(t *testing.T) {
 			// Set user progress
 			listEntry, found := animeCollection.GetListEntryFromAnimeId(tt.mediaId)
 			require.True(t, found)
-			listEntry.Progress = lo.ToPtr(tt.userProgress)
+			listEntry.Progress = new(tt.userProgress)
 
 			// Add profiles and rule to the database
 			for _, profile := range tt.profiles {
@@ -1340,7 +1340,7 @@ func TestDelayIntegration(t *testing.T) {
 			// Setup Rule/Profile
 			_ = db_bridge.InsertAutoDownloaderProfile(ad.database, tt.profile)
 			_ = db_bridge.InsertAutoDownloaderRule(ad.database, &anime.AutoDownloaderRule{
-				DbID: 1, Enabled: true, MediaId: mediaId, ProfileID: lo.ToPtr(uint(1)),
+				DbID: 1, Enabled: true, MediaId: mediaId, ProfileID: new(uint(1)),
 				EpisodeType: anime.AutoDownloaderRuleEpisodeRecent, ComparisonTitle: "Sousou no Frieren", TitleComparisonType: anime.AutoDownloaderRuleTitleComparisonLikely,
 			})
 

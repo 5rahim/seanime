@@ -12,7 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 )
 
@@ -76,8 +75,8 @@ func TestSync2(t *testing.T) {
 	}
 
 	anilist.TestModifyAnimeCollectionEntry(animeCollection, 130003, anilist.TestModifyAnimeCollectionEntryInput{
-		Status:   lo.ToPtr(anilist.MediaListStatusCompleted),
-		Progress: lo.ToPtr(12), // Mock progress
+		Status:   new(anilist.MediaListStatusCompleted),
+		Progress: new(12), // Mock progress
 	})
 
 	fmt.Println("================================================================================================")

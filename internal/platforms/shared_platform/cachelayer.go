@@ -66,7 +66,7 @@ func init() {
 				IsWorking.Store(true)
 				continue
 			}
-			_, err := anilistClient.BaseAnimeByID(context.Background(), lo.ToPtr(1))
+			_, err := anilistClient.BaseAnimeByID(context.Background(), new(1))
 			if err != nil {
 				IsWorking.Store(false)
 			} else {

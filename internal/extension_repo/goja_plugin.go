@@ -20,7 +20,6 @@ import (
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +121,7 @@ func NewGojaPlugin(
 	wsEventManager events.WSEventManagerInterface,
 	onCrash func(reason string),
 ) (*GojaPlugin, GojaExtension, error) {
-	logger := lo.ToPtr(mLogger.With().Str("id", ext.ID).Logger())
+	logger := new(mLogger.With().Str("id", ext.ID).Logger())
 	defer util.HandlePanicInModuleThen("extension_repo/NewGojaPlugin", func() {
 		logger.Error().Msg("extensions: Failed to create Goja plugin")
 	})

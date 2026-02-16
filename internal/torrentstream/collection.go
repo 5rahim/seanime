@@ -54,9 +54,9 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 		if *list.Status == anilist.MediaListStatusCurrent || *list.Status == anilist.MediaListStatusRepeating {
 			if currentlyWatching == nil {
 				currentlyWatching = &anilist.AnimeCollection_MediaListCollection_Lists{
-					Status:       lo.ToPtr(anilist.MediaListStatusCurrent),
-					Name:         lo.ToPtr("CURRENT"),
-					IsCustomList: lo.ToPtr(false),
+					Status:       new(anilist.MediaListStatusCurrent),
+					Name:         new("CURRENT"),
+					IsCustomList: new(false),
 					Entries:      make([]*anilist.AnimeCollection_MediaListCollection_Lists_Entries, 0),
 				}
 			}
@@ -72,9 +72,9 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 		//if *list.Status == anilist.MediaListStatusPaused {
 		//	if pausedList == nil {
 		//		pausedList = &anilist.AnimeCollection_MediaListCollection_Lists{
-		//			Status:       lo.ToPtr(anilist.MediaListStatusPaused),
-		//			Name:         lo.ToPtr("PAUSED"),
-		//			IsCustomList: lo.ToPtr(false),
+		//			Status:       new(anilist.MediaListStatusPaused),
+		//			Name:         new("PAUSED"),
+		//			IsCustomList: new(false),
 		//			Entries:      make([]*anilist.AnimeCollection_MediaListCollection_Lists_Entries, 0),
 		//		}
 		//	}
@@ -84,9 +84,9 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 		//if *list.Status == anilist.MediaListStatusPlanning {
 		//	if planningList == nil {
 		//		planningList = &anilist.AnimeCollection_MediaListCollection_Lists{
-		//			Status:       lo.ToPtr(anilist.MediaListStatusPlanning),
-		//			Name:         lo.ToPtr("PLANNING"),
-		//			IsCustomList: lo.ToPtr(false),
+		//			Status:       new(anilist.MediaListStatusPlanning),
+		//			Name:         new("PLANNING"),
+		//			IsCustomList: new(false),
 		//			Entries:      make([]*anilist.AnimeCollection_MediaListCollection_Lists_Entries, 0),
 		//		}
 		//	}

@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 	"github.com/samber/mo"
 )
 
@@ -433,10 +432,8 @@ func (ap *AnilistPlatform) refreshAnimeCollection(ctx context.Context) error {
 	ap.helper.MergeCustomSourceAnimeEntries(collection)
 
 	// Save the raw collection to App (retains the lists with no status)
-	collectionCopy := *collection
-	ap.rawAnimeCollection = mo.Some(&collectionCopy)
-	listCollectionCopy := *collection.MediaListCollection
-	ap.rawAnimeCollection.MustGet().MediaListCollection = &listCollectionCopy
+	ap.rawAnimeCollection = mo.Some(new(*collection))
+	ap.rawAnimeCollection.MustGet().MediaListCollection = new(*collection.MediaListCollection)
 	listsCopy := make([]*anilist.AnimeCollection_MediaListCollection_Lists, len(collection.MediaListCollection.Lists))
 	copy(listsCopy, collection.MediaListCollection.Lists)
 	ap.rawAnimeCollection.MustGet().MediaListCollection.Lists = listsCopy
@@ -574,10 +571,8 @@ func (ap *AnilistPlatform) refreshMangaCollection(ctx context.Context) error {
 	ap.helper.MergeCustomSourceMangaEntries(collection)
 
 	// Save the raw collection to App (retains the lists with no status)
-	collectionCopy := *collection
-	ap.rawMangaCollection = mo.Some(&collectionCopy)
-	listCollectionCopy := *collection.MediaListCollection
-	ap.rawMangaCollection.MustGet().MediaListCollection = &listCollectionCopy
+	ap.rawMangaCollection = mo.Some(new(*collection))
+	ap.rawMangaCollection.MustGet().MediaListCollection = new(*collection.MediaListCollection)
 	listsCopy := make([]*anilist.MangaCollection_MediaListCollection_Lists, len(collection.MediaListCollection.Lists))
 	copy(listsCopy, collection.MediaListCollection.Lists)
 	ap.rawMangaCollection.MustGet().MediaListCollection.Lists = listsCopy
@@ -614,9 +609,9 @@ func (ap *AnilistPlatform) AddMediaToCollection(ctx context.Context, mIds []int)
 			if customsource.IsExtensionId(id) {
 				_, err := ap.helper.HandleCustomSourceUpdateEntry(ctx,
 					id,
-					lo.ToPtr(anilist.MediaListStatusPlanning),
-					lo.ToPtr(0),
-					lo.ToPtr(0),
+					new(anilist.MediaListStatusPlanning),
+					new(0),
+					new(0),
 					nil,
 					nil,
 				)
@@ -629,9 +624,9 @@ func (ap *AnilistPlatform) AddMediaToCollection(ctx context.Context, mIds []int)
 			_, err := ap.anilistClient.UpdateMediaListEntry(
 				ctx,
 				&id,
-				lo.ToPtr(anilist.MediaListStatusPlanning),
-				lo.ToPtr(0),
-				lo.ToPtr(0),
+				new(anilist.MediaListStatusPlanning),
+				new(0),
+				new(0),
 				nil,
 				nil,
 			)

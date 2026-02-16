@@ -6,7 +6,6 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 )
 
 func ListMissedSequels(
@@ -251,8 +250,8 @@ func ListMangaM(
 		variables["averageScore_greater"] = *AverageScoreGreater * 10
 	}
 	if Year != nil {
-		variables["startDate_greater"] = lo.ToPtr(fmt.Sprintf("%d0000", *Year))
-		variables["startDate_lesser"] = lo.ToPtr(fmt.Sprintf("%d0000", *Year+1))
+		variables["startDate_greater"] = new(fmt.Sprintf("%d0000", *Year))
+		variables["startDate_lesser"] = new(fmt.Sprintf("%d0000", *Year+1))
 	}
 	if Format != nil {
 		variables["format"] = *Format
@@ -324,7 +323,7 @@ func ListRecentAiringAnimeM(
 	if Sort != nil {
 		variables["sort"] = Sort
 	} else {
-		variables["sort"] = []*AiringSort{lo.ToPtr(AiringSortTimeDesc)}
+		variables["sort"] = []*AiringSort{new(AiringSortTimeDesc)}
 	}
 
 	requestBody, err := json.Marshal(map[string]interface{}{

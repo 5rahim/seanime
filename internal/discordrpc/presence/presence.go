@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 )
 
 type Presence struct {
@@ -325,12 +324,12 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	}
 
 	activity.Timestamps.Start.Time = startTime
-	event.StartTimestamp = lo.ToPtr(startTime.Unix())
+	event.StartTimestamp = new(startTime.Unix())
 	endTime := startTime.Add(time.Duration(a.Duration) * time.Second)
 	activity.Timestamps.End = &discordrpc_client.Epoch{
 		Time: endTime,
 	}
-	event.EndTimestamp = lo.ToPtr(endTime.Unix())
+	event.EndTimestamp = new(endTime.Unix())
 
 	// Hide the end timestamp if the anime is paused
 	if a.Paused {
@@ -583,7 +582,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 
 	now := time.Now()
 	activity.Timestamps.Start.Time = now
-	event.StartTimestamp = lo.ToPtr(now.Unix())
+	event.StartTimestamp = new(now.Unix())
 	activity.Timestamps.End = nil
 	event.EndTimestamp = nil
 	activity.Buttons = make([]*discordrpc_client.Button, 0)

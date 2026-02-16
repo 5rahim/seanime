@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -181,10 +180,10 @@ func TestListAnime(t *testing.T) {
 	}{
 		{
 			name:                "Popular",
-			Page:                lo.ToPtr(1),
+			Page:                new(1),
 			Search:              nil,
-			PerPage:             lo.ToPtr(20),
-			Sort:                []*MediaSort{lo.ToPtr(MediaSortTrendingDesc)},
+			PerPage:             new(20),
+			Sort:                []*MediaSort{new(MediaSortTrendingDesc)},
 			Status:              nil,
 			Genres:              nil,
 			AverageScoreGreater: nil,

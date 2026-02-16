@@ -13,7 +13,6 @@ import (
 	"seanime/internal/util/limiter"
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -168,7 +167,7 @@ func TestMatcher2(t *testing.T) {
 				}
 			}
 			if !hasExpectedMediaId {
-				anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, tt.expectedMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: lo.ToPtr(anilist.MediaListStatusCurrent)}, anilistClient)
+				anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, tt.expectedMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: new(anilist.MediaListStatusCurrent)}, anilistClient)
 				allMedia = animeCollection.GetAllAnime()
 			}
 
@@ -181,7 +180,7 @@ func TestMatcher2(t *testing.T) {
 					}
 				}
 				if !hasOtherMediaId {
-					anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, otherMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: lo.ToPtr(anilist.MediaListStatusCurrent)}, anilistClient)
+					anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, otherMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: new(anilist.MediaListStatusCurrent)}, anilistClient)
 					allMedia = animeCollection.GetAllAnime()
 				}
 			}
@@ -720,7 +719,7 @@ func TestMatcher3(t *testing.T) {
 				}
 			}
 			if !hasMedia {
-				anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, tt.expectedMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: lo.ToPtr(anilist.MediaListStatusCurrent)}, anilistClient)
+				anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, tt.expectedMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: new(anilist.MediaListStatusCurrent)}, anilistClient)
 				allMedia = animeCollection.GetAllAnime()
 			}
 
@@ -734,7 +733,7 @@ func TestMatcher3(t *testing.T) {
 					}
 				}
 				if !hasMedia {
-					anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, id, anilist.TestModifyAnimeCollectionEntryInput{Status: lo.ToPtr(anilist.MediaListStatusCurrent)}, anilistClient)
+					anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, id, anilist.TestModifyAnimeCollectionEntryInput{Status: new(anilist.MediaListStatusCurrent)}, anilistClient)
 					allMedia = animeCollection.GetAllAnime()
 				}
 			}
@@ -1052,23 +1051,23 @@ func TestIgnoredSynonyms(t *testing.T) {
 				{
 					ID: 33,
 					Title: &anime.NormalizedMediaTitle{
-						English: lo.ToPtr("MultiSet Iterator"),
+						English: new("MultiSet Iterator"),
 					},
-					Synonyms: []*string{lo.ToPtr("MS")},
+					Synonyms: []*string{new("MS")},
 				},
 				{
 					ID: 44,
 					Title: &anime.NormalizedMediaTitle{
-						English: lo.ToPtr("MultiSet Iterator II"),
+						English: new("MultiSet Iterator II"),
 					},
-					Synonyms: []*string{lo.ToPtr("MultiSet 2"), lo.ToPtr("MS")},
+					Synonyms: []*string{new("MultiSet 2"), new("MS")},
 				},
 				{
 					ID: 55,
 					Title: &anime.NormalizedMediaTitle{
-						English: lo.ToPtr("MultiSet Iterator III"),
+						English: new("MultiSet Iterator III"),
 					},
-					Synonyms: []*string{lo.ToPtr("MultiSet 3"), lo.ToPtr("MS")},
+					Synonyms: []*string{new("MultiSet 3"), new("MS")},
 				},
 			},
 			singularizedSynonym:      "MS",

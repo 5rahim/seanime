@@ -16,7 +16,6 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 )
 
 const (
@@ -180,12 +179,12 @@ func ExtractExtensionData(mediaId int) (extensionIdentifier int, localId int) {
 
 func formatSiteUrl(extId string, siteUrl *string) *string {
 	if siteUrl == nil {
-		return lo.ToPtr("ext_custom_source_" + extId)
+		return new("ext_custom_source_" + extId)
 	}
 	if strings.HasPrefix(*siteUrl, "https://anilist.co") {
 		return siteUrl
 	}
-	return lo.ToPtr("ext_custom_source_" + extId + "|END|" + *siteUrl)
+	return new("ext_custom_source_" + extId + "|END|" + *siteUrl)
 }
 
 func GetCustomSourceExtensionIdFromSiteUrl(siteUrl *string) (string, bool) {
@@ -209,8 +208,8 @@ func NormalizeMedia(extensionIdentifier int, extId string, obj interface{}) {
 		}
 		if v.Title == nil {
 			v.Title = &anilist.BaseAnime_Title{
-				UserPreferred: lo.ToPtr("???"),
-				English:       lo.ToPtr("???"),
+				UserPreferred: new("???"),
+				English:       new("???"),
 				Romaji:        nil,
 				Native:        nil,
 			}
@@ -223,8 +222,8 @@ func NormalizeMedia(extensionIdentifier int, extId string, obj interface{}) {
 		}
 		if v.Title == nil {
 			v.Title = &anilist.CompleteAnime_Title{
-				UserPreferred: lo.ToPtr("???"),
-				English:       lo.ToPtr("???"),
+				UserPreferred: new("???"),
+				English:       new("???"),
 				Romaji:        nil,
 				Native:        nil,
 			}
@@ -248,8 +247,8 @@ func NormalizeMedia(extensionIdentifier int, extId string, obj interface{}) {
 		}
 		if v.Title == nil {
 			v.Title = &anilist.BaseManga_Title{
-				UserPreferred: lo.ToPtr("???"),
-				English:       lo.ToPtr("???"),
+				UserPreferred: new("???"),
+				English:       new("???"),
 				Romaji:        nil,
 				Native:        nil,
 			}
@@ -517,7 +516,7 @@ func (m *Manager) UpdateEntry(ctx context.Context, mediaID int, status *anilist.
 					entry.Status = status
 				}
 				if scoreRaw != nil {
-					entry.Score = lo.ToPtr(float64(*scoreRaw))
+					entry.Score = new(float64(*scoreRaw))
 				}
 				if progress != nil {
 					entry.Progress = progress
@@ -553,7 +552,7 @@ func (m *Manager) UpdateEntry(ctx context.Context, mediaID int, status *anilist.
 					entry.Status = status
 				}
 				if scoreRaw != nil {
-					entry.Score = lo.ToPtr(float64(*scoreRaw))
+					entry.Score = new(float64(*scoreRaw))
 				}
 				if progress != nil {
 					entry.Progress = progress
@@ -598,7 +597,7 @@ func (m *Manager) UpdateEntry(ctx context.Context, mediaID int, status *anilist.
 			Media:    media[0],
 		}
 		if scoreRaw != nil {
-			newEntry.Score = lo.ToPtr(float64(*scoreRaw))
+			newEntry.Score = new(float64(*scoreRaw))
 		}
 		if startedAt != nil {
 			newEntry.StartedAt = &anilist.AnimeCollection_MediaListCollection_Lists_Entries_StartedAt{
@@ -636,7 +635,7 @@ func (m *Manager) UpdateEntry(ctx context.Context, mediaID int, status *anilist.
 			Media:    mangaMedia[0],
 		}
 		if scoreRaw != nil {
-			newEntry.Score = lo.ToPtr(float64(*scoreRaw))
+			newEntry.Score = new(float64(*scoreRaw))
 		}
 		if startedAt != nil {
 			newEntry.StartedAt = &anilist.MangaCollection_MediaListCollection_Lists_Entries_StartedAt{

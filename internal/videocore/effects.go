@@ -6,8 +6,6 @@ import (
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/mkvparser"
-
-	"github.com/samber/lo"
 )
 
 func (vc *VideoCore) setupEffects() {
@@ -141,8 +139,8 @@ func (vc *VideoCore) setupOnlinestreamEffects() {
 					Content:           &mkvTrack.CodecPrivate,
 					Label:             mkvTrack.Name,
 					Language:          mkvTrack.Language,
-					Type:              lo.ToPtr("ass"),
-					Default:           lo.ToPtr(false),
+					Type:              new("ass"),
+					Default:           new(false),
 					UseLibassRenderer: nil,
 				}
 				vc.AddExternalSubtitleTrack(track)

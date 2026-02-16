@@ -1331,9 +1331,9 @@ func (ad *AutoDownloader) isTitleMatch(torrentParsedData *habari.Metadata, torre
 			if season > 1 {
 				// If the torrent has a season number, add it to the variations
 				torrentTitleVariations = []*string{
-					lo.ToPtr(fmt.Sprintf("%s Season %s", torrentParsedData.Title, torrentParsedData.SeasonNumber[0])),
-					lo.ToPtr(fmt.Sprintf("%s S%s", torrentParsedData.Title, torrentParsedData.SeasonNumber[0])),
-					lo.ToPtr(fmt.Sprintf("%s %s Season", torrentParsedData.Title, util.IntegerToOrdinal(util.StringToIntMust(torrentParsedData.SeasonNumber[0])))),
+					new(fmt.Sprintf("%s Season %s", torrentParsedData.Title, torrentParsedData.SeasonNumber[0])),
+					new(fmt.Sprintf("%s S%s", torrentParsedData.Title, torrentParsedData.SeasonNumber[0])),
+					new(fmt.Sprintf("%s %s Season", torrentParsedData.Title, util.IntegerToOrdinal(util.StringToIntMust(torrentParsedData.SeasonNumber[0])))),
 				}
 			}
 		}
