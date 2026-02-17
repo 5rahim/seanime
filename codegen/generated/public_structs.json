@@ -1409,24 +1409,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -1443,6 +1425,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -1454,6 +1454,15 @@
     "formattedName": "AL_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -1480,15 +1489,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -1501,8 +1501,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -1519,8 +1519,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -1538,8 +1538,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -1556,8 +1556,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -1584,8 +1584,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -1593,8 +1593,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -1649,24 +1649,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -1683,6 +1665,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -1694,6 +1694,15 @@
     "formattedName": "AL_CompleteAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -1720,15 +1729,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -1741,8 +1741,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -1759,8 +1759,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -1778,8 +1778,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -1796,8 +1796,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -1824,8 +1824,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -1833,8 +1833,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -1889,24 +1889,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -1923,6 +1905,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -1934,6 +1934,15 @@
     "formattedName": "AL_CompleteAnime_Relations_Edges_Node_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -1960,15 +1969,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -1981,8 +1981,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -1999,8 +1999,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2018,8 +2018,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2036,8 +2036,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2064,8 +2064,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -2073,8 +2073,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -2092,23 +2092,23 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedTypescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Node",
         "jsonName": "node",
         "goType": "BaseAnime",
         "typescriptType": "AL_BaseAnime",
         "usedTypescriptType": "AL_BaseAnime",
         "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RelationType",
+        "jsonName": "relationType",
+        "goType": "MediaRelation",
+        "typescriptType": "AL_MediaRelation",
+        "usedTypescriptType": "AL_MediaRelation",
+        "usedStructName": "anilist.MediaRelation",
         "required": false,
         "public": true,
         "comments": []
@@ -2145,8 +2145,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2163,8 +2163,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2182,6 +2182,15 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "Alternative",
+        "jsonName": "alternative",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Full",
         "jsonName": "full",
         "goType": "string",
@@ -2195,15 +2204,6 @@
         "jsonName": "native",
         "goType": "string",
         "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Alternative",
-        "jsonName": "alternative",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -2247,8 +2247,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -2256,8 +2256,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -2305,8 +2305,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -2314,8 +2314,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -2354,24 +2354,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -2388,6 +2370,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -2399,6 +2399,15 @@
     "formattedName": "AL_BaseManga_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -2425,15 +2434,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -2446,8 +2446,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2464,8 +2464,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2483,8 +2483,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2501,8 +2501,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2529,19 +2529,19 @@
         "comments": []
       },
       {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "IsAnimationStudio",
+        "jsonName": "isAnimationStudio",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "IsAnimationStudio",
-        "jsonName": "isAnimationStudio",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -2557,8 +2557,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2575,8 +2575,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2594,8 +2594,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2612,8 +2612,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2668,24 +2668,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -2702,6 +2684,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -2713,6 +2713,15 @@
     "formattedName": "AL_AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -2739,15 +2748,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -2760,8 +2760,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2778,8 +2778,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2797,8 +2797,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2815,8 +2815,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -2843,8 +2843,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -2852,8 +2852,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -2871,6 +2871,17 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "CompletedAt",
+        "jsonName": "completedAt",
+        "goType": "AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt",
+        "typescriptType": "AL_AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt",
+        "usedTypescriptType": "AL_AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt",
+        "usedStructName": "anilist.AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ID",
         "jsonName": "id",
         "goType": "int",
@@ -2880,30 +2891,12 @@
         "comments": []
       },
       {
-        "name": "Score",
-        "jsonName": "score",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Progress",
-        "jsonName": "progress",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "MediaListStatus",
-        "typescriptType": "AL_MediaListStatus",
-        "usedTypescriptType": "AL_MediaListStatus",
-        "usedStructName": "anilist.MediaListStatus",
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
         "required": false,
         "public": true,
         "comments": []
@@ -2918,6 +2911,24 @@
         "comments": []
       },
       {
+        "name": "Private",
+        "jsonName": "private",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Repeat",
         "jsonName": "repeat",
         "goType": "int",
@@ -2927,10 +2938,10 @@
         "comments": []
       },
       {
-        "name": "Private",
-        "jsonName": "private",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "float64",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -2947,23 +2958,12 @@
         "comments": []
       },
       {
-        "name": "CompletedAt",
-        "jsonName": "completedAt",
-        "goType": "AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt",
-        "typescriptType": "AL_AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt",
-        "usedTypescriptType": "AL_AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt",
-        "usedStructName": "anilist.AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedTypescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedTypescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
         "required": false,
         "public": true,
         "comments": []
@@ -2979,21 +2979,12 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "MediaListStatus",
-        "typescriptType": "AL_MediaListStatus",
-        "usedTypescriptType": "AL_MediaListStatus",
-        "usedStructName": "anilist.MediaListStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "Entries",
+        "jsonName": "entries",
+        "goType": "[]AnimeCollection_MediaListCollection_Lists_Entries",
+        "typescriptType": "Array\u003cAL_AnimeCollection_MediaListCollection_Lists_Entries\u003e",
+        "usedTypescriptType": "AL_AnimeCollection_MediaListCollection_Lists_Entries",
+        "usedStructName": "anilist.AnimeCollection_MediaListCollection_Lists_Entries",
         "required": false,
         "public": true,
         "comments": []
@@ -3008,12 +2999,21 @@
         "comments": []
       },
       {
-        "name": "Entries",
-        "jsonName": "entries",
-        "goType": "[]AnimeCollection_MediaListCollection_Lists_Entries",
-        "typescriptType": "Array\u003cAL_AnimeCollection_MediaListCollection_Lists_Entries\u003e",
-        "usedTypescriptType": "AL_AnimeCollection_MediaListCollection_Lists_Entries",
-        "usedStructName": "anilist.AnimeCollection_MediaListCollection_Lists_Entries",
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedTypescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
         "required": false,
         "public": true,
         "comments": []
@@ -3050,8 +3050,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3068,8 +3068,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3087,8 +3087,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3105,8 +3105,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3161,24 +3161,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -3195,6 +3177,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -3206,6 +3206,15 @@
     "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -3232,15 +3241,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -3253,8 +3253,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3271,8 +3271,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3290,8 +3290,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3308,8 +3308,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3336,8 +3336,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -3345,8 +3345,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -3401,24 +3401,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -3435,6 +3417,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -3446,6 +3446,15 @@
     "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteAnime_Relations_Edges_Node_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -3472,15 +3481,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -3493,8 +3493,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3511,8 +3511,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3530,8 +3530,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3548,8 +3548,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3576,8 +3576,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -3585,8 +3585,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -3604,23 +3604,23 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedTypescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Node",
         "jsonName": "node",
         "goType": "BaseAnime",
         "typescriptType": "AL_BaseAnime",
         "usedTypescriptType": "AL_BaseAnime",
         "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RelationType",
+        "jsonName": "relationType",
+        "goType": "MediaRelation",
+        "typescriptType": "AL_MediaRelation",
+        "usedTypescriptType": "AL_MediaRelation",
+        "usedStructName": "anilist.MediaRelation",
         "required": false,
         "public": true,
         "comments": []
@@ -3657,6 +3657,17 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "CompletedAt",
+        "jsonName": "completedAt",
+        "goType": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
+        "typescriptType": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
+        "usedTypescriptType": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
+        "usedStructName": "anilist.AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ID",
         "jsonName": "id",
         "goType": "int",
@@ -3666,30 +3677,12 @@
         "comments": []
       },
       {
-        "name": "Score",
-        "jsonName": "score",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Progress",
-        "jsonName": "progress",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "MediaListStatus",
-        "typescriptType": "AL_MediaListStatus",
-        "usedTypescriptType": "AL_MediaListStatus",
-        "usedStructName": "anilist.MediaListStatus",
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "CompleteAnime",
+        "typescriptType": "AL_CompleteAnime",
+        "usedTypescriptType": "AL_CompleteAnime",
+        "usedStructName": "anilist.CompleteAnime",
         "required": false,
         "public": true,
         "comments": []
@@ -3704,6 +3697,24 @@
         "comments": []
       },
       {
+        "name": "Private",
+        "jsonName": "private",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Repeat",
         "jsonName": "repeat",
         "goType": "int",
@@ -3713,10 +3724,10 @@
         "comments": []
       },
       {
-        "name": "Private",
-        "jsonName": "private",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "float64",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -3733,23 +3744,12 @@
         "comments": []
       },
       {
-        "name": "CompletedAt",
-        "jsonName": "completedAt",
-        "goType": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
-        "typescriptType": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
-        "usedTypescriptType": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
-        "usedStructName": "anilist.AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "CompleteAnime",
-        "typescriptType": "AL_CompleteAnime",
-        "usedTypescriptType": "AL_CompleteAnime",
-        "usedStructName": "anilist.CompleteAnime",
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedTypescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
         "required": false,
         "public": true,
         "comments": []
@@ -3765,21 +3765,12 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "MediaListStatus",
-        "typescriptType": "AL_MediaListStatus",
-        "usedTypescriptType": "AL_MediaListStatus",
-        "usedStructName": "anilist.MediaListStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "Entries",
+        "jsonName": "entries",
+        "goType": "[]AnimeCollectionWithRelations_MediaListCollection_Lists_Entries",
+        "typescriptType": "Array\u003cAL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries\u003e",
+        "usedTypescriptType": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries",
+        "usedStructName": "anilist.AnimeCollectionWithRelations_MediaListCollection_Lists_Entries",
         "required": false,
         "public": true,
         "comments": []
@@ -3794,12 +3785,21 @@
         "comments": []
       },
       {
-        "name": "Entries",
-        "jsonName": "entries",
-        "goType": "[]AnimeCollectionWithRelations_MediaListCollection_Lists_Entries",
-        "typescriptType": "Array\u003cAL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries\u003e",
-        "usedTypescriptType": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries",
-        "usedStructName": "anilist.AnimeCollectionWithRelations_MediaListCollection_Lists_Entries",
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedTypescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
         "required": false,
         "public": true,
         "comments": []
@@ -3873,24 +3873,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -3907,6 +3889,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -3918,6 +3918,15 @@
     "formattedName": "AL_BaseAnimeByMalId_Media_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -3944,15 +3953,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -3965,8 +3965,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -3983,8 +3983,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4002,8 +4002,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4020,8 +4020,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4048,8 +4048,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -4057,8 +4057,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -4113,24 +4113,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -4147,6 +4129,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -4158,6 +4158,15 @@
     "formattedName": "AL_BaseAnimeById_Media_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -4184,15 +4193,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -4205,8 +4205,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4223,8 +4223,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4242,8 +4242,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4260,8 +4260,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4288,8 +4288,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -4297,8 +4297,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -4372,24 +4372,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -4406,6 +4388,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -4417,6 +4417,15 @@
     "formattedName": "AL_SearchBaseAnimeByIds_Page_Media_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -4443,15 +4452,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -4464,8 +4464,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4482,8 +4482,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4501,8 +4501,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4519,8 +4519,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4547,8 +4547,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -4556,8 +4556,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -4575,23 +4575,23 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "PageInfo",
-        "jsonName": "pageInfo",
-        "goType": "SearchBaseAnimeByIds_Page_PageInfo",
-        "typescriptType": "AL_SearchBaseAnimeByIds_Page_PageInfo",
-        "usedTypescriptType": "AL_SearchBaseAnimeByIds_Page_PageInfo",
-        "usedStructName": "anilist.SearchBaseAnimeByIds_Page_PageInfo",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Media",
         "jsonName": "media",
         "goType": "[]BaseAnime",
         "typescriptType": "Array\u003cAL_BaseAnime\u003e",
         "usedTypescriptType": "AL_BaseAnime",
         "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageInfo",
+        "jsonName": "pageInfo",
+        "goType": "SearchBaseAnimeByIds_Page_PageInfo",
+        "typescriptType": "AL_SearchBaseAnimeByIds_Page_PageInfo",
+        "usedTypescriptType": "AL_SearchBaseAnimeByIds_Page_PageInfo",
+        "usedStructName": "anilist.SearchBaseAnimeByIds_Page_PageInfo",
         "required": false,
         "public": true,
         "comments": []
@@ -4644,24 +4644,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -4678,6 +4660,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -4689,6 +4689,15 @@
     "formattedName": "AL_CompleteAnimeById_Media_CompleteAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -4715,15 +4724,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -4736,8 +4736,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4754,8 +4754,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4773,8 +4773,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4791,8 +4791,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4819,8 +4819,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -4828,8 +4828,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -4884,24 +4884,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -4918,6 +4900,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -4929,6 +4929,15 @@
     "formattedName": "AL_CompleteAnimeById_Media_CompleteAnime_Relations_Edges_Node_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -4955,15 +4964,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -4976,8 +4976,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -4994,8 +4994,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5013,8 +5013,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5031,8 +5031,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5059,8 +5059,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -5068,8 +5068,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -5087,23 +5087,23 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedTypescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Node",
         "jsonName": "node",
         "goType": "BaseAnime",
         "typescriptType": "AL_BaseAnime",
         "usedTypescriptType": "AL_BaseAnime",
         "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RelationType",
+        "jsonName": "relationType",
+        "goType": "MediaRelation",
+        "typescriptType": "AL_MediaRelation",
+        "usedTypescriptType": "AL_MediaRelation",
+        "usedStructName": "anilist.MediaRelation",
         "required": false,
         "public": true,
         "comments": []
@@ -5177,8 +5177,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5195,8 +5195,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5214,8 +5214,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5232,8 +5232,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5251,19 +5251,19 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
         "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -5300,8 +5300,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5318,8 +5318,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5337,6 +5337,15 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "Alternative",
+        "jsonName": "alternative",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Full",
         "jsonName": "full",
         "goType": "string",
@@ -5350,15 +5359,6 @@
         "jsonName": "native",
         "goType": "string",
         "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Alternative",
-        "jsonName": "alternative",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -5402,17 +5402,6 @@
         "comments": []
       },
       {
-        "name": "Role",
-        "jsonName": "role",
-        "goType": "CharacterRole",
-        "typescriptType": "AL_CharacterRole",
-        "usedTypescriptType": "AL_CharacterRole",
-        "usedStructName": "anilist.CharacterRole",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Name",
         "jsonName": "name",
         "goType": "string",
@@ -5428,6 +5417,17 @@
         "typescriptType": "AL_BaseCharacter",
         "usedTypescriptType": "AL_BaseCharacter",
         "usedStructName": "anilist.BaseCharacter",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Role",
+        "jsonName": "role",
+        "goType": "CharacterRole",
+        "typescriptType": "AL_CharacterRole",
+        "usedTypescriptType": "AL_CharacterRole",
+        "usedStructName": "anilist.CharacterRole",
         "required": false,
         "public": true,
         "comments": []
@@ -5483,6 +5483,15 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Name",
         "jsonName": "name",
         "goType": "AnimeDetailsById_Media_Staff_Edges_Node_Name",
@@ -5490,15 +5499,6 @@
         "usedTypescriptType": "AL_AnimeDetailsById_Media_Staff_Edges_Node_Name",
         "usedStructName": "anilist.AnimeDetailsById_Media_Staff_Edges_Node_Name",
         "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
         "public": true,
         "comments": []
       }
@@ -5513,21 +5513,21 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Role",
-        "jsonName": "role",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Node",
         "jsonName": "node",
         "goType": "AnimeDetailsById_Media_Staff_Edges_Node",
         "typescriptType": "AL_AnimeDetailsById_Media_Staff_Edges_Node",
         "usedTypescriptType": "AL_AnimeDetailsById_Media_Staff_Edges_Node",
         "usedStructName": "anilist.AnimeDetailsById_Media_Staff_Edges_Node",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Role",
+        "jsonName": "role",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
@@ -5564,40 +5564,20 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "AllTime",
+        "jsonName": "allTime",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Context",
         "jsonName": "context",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "MediaRankType",
-        "typescriptType": "AL_MediaRankType",
-        "usedTypescriptType": "AL_MediaRankType",
-        "usedStructName": "anilist.MediaRankType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Rank",
-        "jsonName": "rank",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
         "public": true,
         "comments": []
       },
@@ -5613,11 +5593,11 @@
         "comments": []
       },
       {
-        "name": "AllTime",
-        "jsonName": "allTime",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
+        "name": "Rank",
+        "jsonName": "rank",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -5628,6 +5608,26 @@
         "typescriptType": "AL_MediaSeason",
         "usedTypescriptType": "AL_MediaSeason",
         "usedStructName": "anilist.MediaSeason",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "MediaRankType",
+        "typescriptType": "AL_MediaRankType",
+        "usedTypescriptType": "AL_MediaRankType",
+        "usedStructName": "anilist.MediaRankType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -5680,8 +5680,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5698,8 +5698,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -5716,6 +5716,15 @@
     "formattedName": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -5742,15 +5751,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -5763,15 +5763,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -5783,6 +5774,15 @@
       {
         "name": "Native",
         "jsonName": "native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
@@ -5809,26 +5809,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IDMal",
-        "jsonName": "idMal",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SiteURL",
-        "jsonName": "siteUrl",
+        "name": "BannerImage",
+        "jsonName": "bannerImage",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
@@ -5836,63 +5818,12 @@
         "comments": []
       },
       {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "MediaStatus",
-        "typescriptType": "AL_MediaStatus",
-        "usedTypescriptType": "AL_MediaStatus",
-        "usedStructName": "anilist.MediaStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsAdult",
-        "jsonName": "isAdult",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Season",
-        "jsonName": "season",
-        "goType": "MediaSeason",
-        "typescriptType": "AL_MediaSeason",
-        "usedTypescriptType": "AL_MediaSeason",
-        "usedStructName": "anilist.MediaSeason",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "MediaType",
-        "typescriptType": "AL_MediaType",
-        "usedTypescriptType": "AL_MediaType",
-        "usedStructName": "anilist.MediaType",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Format",
-        "jsonName": "format",
-        "goType": "MediaFormat",
-        "typescriptType": "AL_MediaFormat",
-        "usedTypescriptType": "AL_MediaFormat",
-        "usedStructName": "anilist.MediaFormat",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MeanScore",
-        "jsonName": "meanScore",
-        "goType": "int",
-        "typescriptType": "number",
+        "name": "CoverImage",
+        "jsonName": "coverImage",
+        "goType": "AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage",
+        "typescriptType": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage",
+        "usedTypescriptType": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage",
+        "usedStructName": "anilist.AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage",
         "required": false,
         "public": true,
         "comments": []
@@ -5916,12 +5847,68 @@
         "comments": []
       },
       {
-        "name": "Trailer",
-        "jsonName": "trailer",
-        "goType": "AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer",
-        "typescriptType": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer",
-        "usedTypescriptType": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer",
-        "usedStructName": "anilist.AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer",
+        "name": "Format",
+        "jsonName": "format",
+        "goType": "MediaFormat",
+        "typescriptType": "AL_MediaFormat",
+        "usedTypescriptType": "AL_MediaFormat",
+        "usedStructName": "anilist.MediaFormat",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IDMal",
+        "jsonName": "idMal",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Season",
+        "jsonName": "season",
+        "goType": "MediaSeason",
+        "typescriptType": "AL_MediaSeason",
+        "usedTypescriptType": "AL_MediaSeason",
+        "usedStructName": "anilist.MediaSeason",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SiteURL",
+        "jsonName": "siteUrl",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
@@ -5938,21 +5925,12 @@
         "comments": []
       },
       {
-        "name": "CoverImage",
-        "jsonName": "coverImage",
-        "goType": "AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage",
-        "typescriptType": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage",
-        "usedTypescriptType": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage",
-        "usedStructName": "anilist.AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BannerImage",
-        "jsonName": "bannerImage",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaStatus",
+        "typescriptType": "AL_MediaStatus",
+        "usedTypescriptType": "AL_MediaStatus",
+        "usedStructName": "anilist.MediaStatus",
         "required": false,
         "public": true,
         "comments": []
@@ -5964,6 +5942,28 @@
         "typescriptType": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
         "usedTypescriptType": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
         "usedStructName": "anilist.AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Trailer",
+        "jsonName": "trailer",
+        "goType": "AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer",
+        "typescriptType": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer",
+        "usedTypescriptType": "AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer",
+        "usedStructName": "anilist.AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "MediaType",
+        "typescriptType": "AL_MediaType",
+        "usedTypescriptType": "AL_MediaType",
+        "usedStructName": "anilist.MediaType",
         "required": false,
         "public": true,
         "comments": []
@@ -6079,24 +6079,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -6113,6 +6095,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -6124,6 +6124,15 @@
     "formattedName": "AL_AnimeDetailsById_Media_Relations_Edges_Node_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -6150,15 +6159,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -6171,8 +6171,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6189,8 +6189,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6208,8 +6208,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6226,8 +6226,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6254,8 +6254,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -6263,8 +6263,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -6282,23 +6282,23 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedTypescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Node",
         "jsonName": "node",
         "goType": "BaseAnime",
         "typescriptType": "AL_BaseAnime",
         "usedTypescriptType": "AL_BaseAnime",
         "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RelationType",
+        "jsonName": "relationType",
+        "goType": "MediaRelation",
+        "typescriptType": "AL_MediaRelation",
+        "usedTypescriptType": "AL_MediaRelation",
+        "usedStructName": "anilist.MediaRelation",
         "required": false,
         "public": true,
         "comments": []
@@ -6335,117 +6335,10 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "SiteURL",
-        "jsonName": "siteUrl",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "duration",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Genres",
-        "jsonName": "genres",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "AverageScore",
         "jsonName": "averageScore",
         "goType": "int",
         "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Popularity",
-        "jsonName": "popularity",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MeanScore",
-        "jsonName": "meanScore",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Description",
-        "jsonName": "description",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Trailer",
-        "jsonName": "trailer",
-        "goType": "AnimeDetailsById_Media_Trailer",
-        "typescriptType": "AL_AnimeDetailsById_Media_Trailer",
-        "usedTypescriptType": "AL_AnimeDetailsById_Media_Trailer",
-        "usedStructName": "anilist.AnimeDetailsById_Media_Trailer",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StartDate",
-        "jsonName": "startDate",
-        "goType": "AnimeDetailsById_Media_StartDate",
-        "typescriptType": "AL_AnimeDetailsById_Media_StartDate",
-        "usedTypescriptType": "AL_AnimeDetailsById_Media_StartDate",
-        "usedStructName": "anilist.AnimeDetailsById_Media_StartDate",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EndDate",
-        "jsonName": "endDate",
-        "goType": "AnimeDetailsById_Media_EndDate",
-        "typescriptType": "AL_AnimeDetailsById_Media_EndDate",
-        "usedTypescriptType": "AL_AnimeDetailsById_Media_EndDate",
-        "usedStructName": "anilist.AnimeDetailsById_Media_EndDate",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Studios",
-        "jsonName": "studios",
-        "goType": "AnimeDetailsById_Media_Studios",
-        "typescriptType": "AL_AnimeDetailsById_Media_Studios",
-        "usedTypescriptType": "AL_AnimeDetailsById_Media_Studios",
-        "usedStructName": "anilist.AnimeDetailsById_Media_Studios",
         "required": false,
         "public": true,
         "comments": []
@@ -6462,12 +6355,66 @@
         "comments": []
       },
       {
-        "name": "Staff",
-        "jsonName": "staff",
-        "goType": "AnimeDetailsById_Media_Staff",
-        "typescriptType": "AL_AnimeDetailsById_Media_Staff",
-        "usedTypescriptType": "AL_AnimeDetailsById_Media_Staff",
-        "usedStructName": "anilist.AnimeDetailsById_Media_Staff",
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EndDate",
+        "jsonName": "endDate",
+        "goType": "AnimeDetailsById_Media_EndDate",
+        "typescriptType": "AL_AnimeDetailsById_Media_EndDate",
+        "usedTypescriptType": "AL_AnimeDetailsById_Media_EndDate",
+        "usedStructName": "anilist.AnimeDetailsById_Media_EndDate",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Genres",
+        "jsonName": "genres",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Popularity",
+        "jsonName": "popularity",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -6504,6 +6451,59 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SiteURL",
+        "jsonName": "siteUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Staff",
+        "jsonName": "staff",
+        "goType": "AnimeDetailsById_Media_Staff",
+        "typescriptType": "AL_AnimeDetailsById_Media_Staff",
+        "usedTypescriptType": "AL_AnimeDetailsById_Media_Staff",
+        "usedStructName": "anilist.AnimeDetailsById_Media_Staff",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartDate",
+        "jsonName": "startDate",
+        "goType": "AnimeDetailsById_Media_StartDate",
+        "typescriptType": "AL_AnimeDetailsById_Media_StartDate",
+        "usedTypescriptType": "AL_AnimeDetailsById_Media_StartDate",
+        "usedStructName": "anilist.AnimeDetailsById_Media_StartDate",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Studios",
+        "jsonName": "studios",
+        "goType": "AnimeDetailsById_Media_Studios",
+        "typescriptType": "AL_AnimeDetailsById_Media_Studios",
+        "usedTypescriptType": "AL_AnimeDetailsById_Media_Studios",
+        "usedStructName": "anilist.AnimeDetailsById_Media_Studios",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Trailer",
+        "jsonName": "trailer",
+        "goType": "AnimeDetailsById_Media_Trailer",
+        "typescriptType": "AL_AnimeDetailsById_Media_Trailer",
+        "usedTypescriptType": "AL_AnimeDetailsById_Media_Trailer",
+        "usedStructName": "anilist.AnimeDetailsById_Media_Trailer",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -6516,6 +6516,15 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "CurrentPage",
+        "jsonName": "currentPage",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "HasNextPage",
         "jsonName": "hasNextPage",
         "goType": "bool",
@@ -6525,8 +6534,8 @@
         "comments": []
       },
       {
-        "name": "Total",
-        "jsonName": "total",
+        "name": "LastPage",
+        "jsonName": "lastPage",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6543,17 +6552,8 @@
         "comments": []
       },
       {
-        "name": "CurrentPage",
-        "jsonName": "currentPage",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LastPage",
-        "jsonName": "lastPage",
+        "name": "Total",
+        "jsonName": "total",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6608,24 +6608,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -6642,6 +6624,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -6653,6 +6653,15 @@
     "formattedName": "AL_ListAnime_Page_Media_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -6679,15 +6688,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -6700,8 +6700,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6718,8 +6718,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6737,8 +6737,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6755,8 +6755,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6783,8 +6783,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -6792,8 +6792,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -6811,23 +6811,23 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "PageInfo",
-        "jsonName": "pageInfo",
-        "goType": "ListAnime_Page_PageInfo",
-        "typescriptType": "AL_ListAnime_Page_PageInfo",
-        "usedTypescriptType": "AL_ListAnime_Page_PageInfo",
-        "usedStructName": "anilist.ListAnime_Page_PageInfo",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Media",
         "jsonName": "media",
         "goType": "[]BaseAnime",
         "typescriptType": "Array\u003cAL_BaseAnime\u003e",
         "usedTypescriptType": "AL_BaseAnime",
         "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageInfo",
+        "jsonName": "pageInfo",
+        "goType": "ListAnime_Page_PageInfo",
+        "typescriptType": "AL_ListAnime_Page_PageInfo",
+        "usedTypescriptType": "AL_ListAnime_Page_PageInfo",
+        "usedStructName": "anilist.ListAnime_Page_PageInfo",
         "required": false,
         "public": true,
         "comments": []
@@ -6843,6 +6843,15 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "CurrentPage",
+        "jsonName": "currentPage",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "HasNextPage",
         "jsonName": "hasNextPage",
         "goType": "bool",
@@ -6852,8 +6861,8 @@
         "comments": []
       },
       {
-        "name": "Total",
-        "jsonName": "total",
+        "name": "LastPage",
+        "jsonName": "lastPage",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6870,17 +6879,8 @@
         "comments": []
       },
       {
-        "name": "CurrentPage",
-        "jsonName": "currentPage",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LastPage",
-        "jsonName": "lastPage",
+        "name": "Total",
+        "jsonName": "total",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -6935,24 +6935,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -6969,6 +6951,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -6980,6 +6980,15 @@
     "formattedName": "AL_ListRecentAnime_Page_AiringSchedules_Media_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -7006,15 +7015,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -7027,8 +7027,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -7045,8 +7045,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -7064,8 +7064,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -7082,8 +7082,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -7110,8 +7110,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7119,8 +7119,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7137,15 +7137,6 @@
     "formattedName": "AL_ListRecentAnime_Page_AiringSchedules",
     "package": "anilist",
     "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
       {
         "name": "AiringAt",
         "jsonName": "airingAt",
@@ -7165,8 +7156,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "ID",
+        "jsonName": "id",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7183,6 +7174,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -7195,23 +7195,23 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "PageInfo",
-        "jsonName": "pageInfo",
-        "goType": "ListRecentAnime_Page_PageInfo",
-        "typescriptType": "AL_ListRecentAnime_Page_PageInfo",
-        "usedTypescriptType": "AL_ListRecentAnime_Page_PageInfo",
-        "usedStructName": "anilist.ListRecentAnime_Page_PageInfo",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "AiringSchedules",
         "jsonName": "airingSchedules",
         "goType": "[]ListRecentAnime_Page_AiringSchedules",
         "typescriptType": "Array\u003cAL_ListRecentAnime_Page_AiringSchedules\u003e",
         "usedTypescriptType": "AL_ListRecentAnime_Page_AiringSchedules",
         "usedStructName": "anilist.ListRecentAnime_Page_AiringSchedules",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageInfo",
+        "jsonName": "pageInfo",
+        "goType": "ListRecentAnime_Page_PageInfo",
+        "typescriptType": "AL_ListRecentAnime_Page_PageInfo",
+        "usedTypescriptType": "AL_ListRecentAnime_Page_PageInfo",
+        "usedStructName": "anilist.ListRecentAnime_Page_PageInfo",
         "required": false,
         "public": true,
         "comments": []
@@ -7236,8 +7236,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7245,8 +7245,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7294,8 +7294,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7303,8 +7303,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7373,8 +7373,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7382,8 +7382,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7431,8 +7431,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7440,8 +7440,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7510,8 +7510,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7519,8 +7519,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7568,8 +7568,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7577,8 +7577,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7647,8 +7647,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7656,8 +7656,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7705,8 +7705,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7714,8 +7714,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7784,8 +7784,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7793,8 +7793,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7842,8 +7842,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7851,8 +7851,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7921,8 +7921,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7930,8 +7930,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7979,8 +7979,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -7988,8 +7988,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -8125,8 +8125,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8143,8 +8143,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8162,8 +8162,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8180,8 +8180,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8199,24 +8199,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -8233,6 +8215,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -8244,6 +8244,15 @@
     "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -8270,15 +8279,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -8291,8 +8291,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8309,8 +8309,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8328,8 +8328,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8346,8 +8346,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8365,6 +8365,17 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "CompletedAt",
+        "jsonName": "completedAt",
+        "goType": "MangaCollection_MediaListCollection_Lists_Entries_CompletedAt",
+        "typescriptType": "AL_MangaCollection_MediaListCollection_Lists_Entries_CompletedAt",
+        "usedTypescriptType": "AL_MangaCollection_MediaListCollection_Lists_Entries_CompletedAt",
+        "usedStructName": "anilist.MangaCollection_MediaListCollection_Lists_Entries_CompletedAt",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ID",
         "jsonName": "id",
         "goType": "int",
@@ -8374,30 +8385,12 @@
         "comments": []
       },
       {
-        "name": "Score",
-        "jsonName": "score",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Progress",
-        "jsonName": "progress",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "MediaListStatus",
-        "typescriptType": "AL_MediaListStatus",
-        "usedTypescriptType": "AL_MediaListStatus",
-        "usedStructName": "anilist.MediaListStatus",
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "BaseManga",
+        "typescriptType": "AL_BaseManga",
+        "usedTypescriptType": "AL_BaseManga",
+        "usedStructName": "anilist.BaseManga",
         "required": false,
         "public": true,
         "comments": []
@@ -8412,6 +8405,24 @@
         "comments": []
       },
       {
+        "name": "Private",
+        "jsonName": "private",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Repeat",
         "jsonName": "repeat",
         "goType": "int",
@@ -8421,10 +8432,10 @@
         "comments": []
       },
       {
-        "name": "Private",
-        "jsonName": "private",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "float64",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -8441,23 +8452,12 @@
         "comments": []
       },
       {
-        "name": "CompletedAt",
-        "jsonName": "completedAt",
-        "goType": "MangaCollection_MediaListCollection_Lists_Entries_CompletedAt",
-        "typescriptType": "AL_MangaCollection_MediaListCollection_Lists_Entries_CompletedAt",
-        "usedTypescriptType": "AL_MangaCollection_MediaListCollection_Lists_Entries_CompletedAt",
-        "usedStructName": "anilist.MangaCollection_MediaListCollection_Lists_Entries_CompletedAt",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "BaseManga",
-        "typescriptType": "AL_BaseManga",
-        "usedTypescriptType": "AL_BaseManga",
-        "usedStructName": "anilist.BaseManga",
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedTypescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
         "required": false,
         "public": true,
         "comments": []
@@ -8473,21 +8473,12 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "MediaListStatus",
-        "typescriptType": "AL_MediaListStatus",
-        "usedTypescriptType": "AL_MediaListStatus",
-        "usedStructName": "anilist.MediaListStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "Entries",
+        "jsonName": "entries",
+        "goType": "[]MangaCollection_MediaListCollection_Lists_Entries",
+        "typescriptType": "Array\u003cAL_MangaCollection_MediaListCollection_Lists_Entries\u003e",
+        "usedTypescriptType": "AL_MangaCollection_MediaListCollection_Lists_Entries",
+        "usedStructName": "anilist.MangaCollection_MediaListCollection_Lists_Entries",
         "required": false,
         "public": true,
         "comments": []
@@ -8502,12 +8493,21 @@
         "comments": []
       },
       {
-        "name": "Entries",
-        "jsonName": "entries",
-        "goType": "[]MangaCollection_MediaListCollection_Lists_Entries",
-        "typescriptType": "Array\u003cAL_MangaCollection_MediaListCollection_Lists_Entries\u003e",
-        "usedTypescriptType": "AL_MangaCollection_MediaListCollection_Lists_Entries",
-        "usedStructName": "anilist.MangaCollection_MediaListCollection_Lists_Entries",
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedTypescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
         "required": false,
         "public": true,
         "comments": []
@@ -8563,8 +8563,17 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
+        "name": "English",
+        "jsonName": "english",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "native",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
@@ -8581,17 +8590,8 @@
         "comments": []
       },
       {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
@@ -8609,6 +8609,15 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
         "goType": "string",
@@ -8629,15 +8638,6 @@
       {
         "name": "Medium",
         "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
@@ -8655,8 +8655,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8673,8 +8673,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8692,8 +8692,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8710,8 +8710,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8729,23 +8729,23 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "PageInfo",
-        "jsonName": "pageInfo",
-        "goType": "SearchBaseManga_Page_PageInfo",
-        "typescriptType": "AL_SearchBaseManga_Page_PageInfo",
-        "usedTypescriptType": "AL_SearchBaseManga_Page_PageInfo",
-        "usedStructName": "anilist.SearchBaseManga_Page_PageInfo",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Media",
         "jsonName": "media",
         "goType": "[]BaseManga",
         "typescriptType": "Array\u003cAL_BaseManga\u003e",
         "usedTypescriptType": "AL_BaseManga",
         "usedStructName": "anilist.BaseManga",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageInfo",
+        "jsonName": "pageInfo",
+        "goType": "SearchBaseManga_Page_PageInfo",
+        "typescriptType": "AL_SearchBaseManga_Page_PageInfo",
+        "usedTypescriptType": "AL_SearchBaseManga_Page_PageInfo",
+        "usedStructName": "anilist.SearchBaseManga_Page_PageInfo",
         "required": false,
         "public": true,
         "comments": []
@@ -8760,24 +8760,6 @@
     "formattedName": "AL_BaseMangaById_Media_BaseManga_Title",
     "package": "anilist",
     "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
       {
         "name": "English",
         "jsonName": "english",
@@ -8795,6 +8777,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -8806,6 +8806,15 @@
     "formattedName": "AL_BaseMangaById_Media_BaseManga_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -8832,15 +8841,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -8853,8 +8853,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8871,8 +8871,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8890,8 +8890,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8908,8 +8908,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -8927,40 +8927,20 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "AllTime",
+        "jsonName": "allTime",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Context",
         "jsonName": "context",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "MediaRankType",
-        "typescriptType": "AL_MediaRankType",
-        "usedTypescriptType": "AL_MediaRankType",
-        "usedStructName": "anilist.MediaRankType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Rank",
-        "jsonName": "rank",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
         "public": true,
         "comments": []
       },
@@ -8976,11 +8956,11 @@
         "comments": []
       },
       {
-        "name": "AllTime",
-        "jsonName": "allTime",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
+        "name": "Rank",
+        "jsonName": "rank",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -8991,6 +8971,26 @@
         "typescriptType": "AL_MediaSeason",
         "usedTypescriptType": "AL_MediaSeason",
         "usedStructName": "anilist.MediaSeason",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "MediaRankType",
+        "typescriptType": "AL_MediaRankType",
+        "usedTypescriptType": "AL_MediaRankType",
+        "usedStructName": "anilist.MediaRankType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -9006,8 +9006,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9024,8 +9024,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9043,6 +9043,15 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "Alternative",
+        "jsonName": "alternative",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Full",
         "jsonName": "full",
         "goType": "string",
@@ -9056,15 +9065,6 @@
         "jsonName": "native",
         "goType": "string",
         "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Alternative",
-        "jsonName": "alternative",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -9108,17 +9108,6 @@
         "comments": []
       },
       {
-        "name": "Role",
-        "jsonName": "role",
-        "goType": "CharacterRole",
-        "typescriptType": "AL_CharacterRole",
-        "usedTypescriptType": "AL_CharacterRole",
-        "usedStructName": "anilist.CharacterRole",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Name",
         "jsonName": "name",
         "goType": "string",
@@ -9134,6 +9123,17 @@
         "typescriptType": "AL_BaseCharacter",
         "usedTypescriptType": "AL_BaseCharacter",
         "usedStructName": "anilist.BaseCharacter",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Role",
+        "jsonName": "role",
+        "goType": "CharacterRole",
+        "typescriptType": "AL_CharacterRole",
+        "usedTypescriptType": "AL_CharacterRole",
+        "usedStructName": "anilist.CharacterRole",
         "required": false,
         "public": true,
         "comments": []
@@ -9170,24 +9170,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -9204,6 +9186,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -9215,6 +9215,15 @@
     "formattedName": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -9241,15 +9250,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -9262,8 +9262,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9280,8 +9280,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9299,8 +9299,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9317,8 +9317,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9335,77 +9335,6 @@
     "formattedName": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation",
     "package": "anilist",
     "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IDMal",
-        "jsonName": "idMal",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SiteURL",
-        "jsonName": "siteUrl",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "MediaStatus",
-        "typescriptType": "AL_MediaStatus",
-        "usedTypescriptType": "AL_MediaStatus",
-        "usedStructName": "anilist.MediaStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Season",
-        "jsonName": "season",
-        "goType": "MediaSeason",
-        "typescriptType": "AL_MediaSeason",
-        "usedTypescriptType": "AL_MediaSeason",
-        "usedStructName": "anilist.MediaSeason",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "MediaType",
-        "typescriptType": "AL_MediaType",
-        "usedTypescriptType": "AL_MediaType",
-        "usedStructName": "anilist.MediaType",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Format",
-        "jsonName": "format",
-        "goType": "MediaFormat",
-        "typescriptType": "AL_MediaFormat",
-        "usedTypescriptType": "AL_MediaFormat",
-        "usedStructName": "anilist.MediaFormat",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
       {
         "name": "BannerImage",
         "jsonName": "bannerImage",
@@ -9425,66 +9354,10 @@
         "comments": []
       },
       {
-        "name": "Volumes",
-        "jsonName": "volumes",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Synonyms",
-        "jsonName": "synonyms",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsAdult",
-        "jsonName": "isAdult",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "CountryOfOrigin",
         "jsonName": "countryOfOrigin",
         "goType": "string",
         "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MeanScore",
-        "jsonName": "meanScore",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Description",
-        "jsonName": "description",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
-        "typescriptType": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
-        "usedTypescriptType": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
-        "usedStructName": "anilist.MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
         "required": false,
         "public": true,
         "comments": []
@@ -9501,12 +9374,10 @@
         "comments": []
       },
       {
-        "name": "StartDate",
-        "jsonName": "startDate",
-        "goType": "MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate",
-        "typescriptType": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate",
-        "usedTypescriptType": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate",
-        "usedStructName": "anilist.MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate",
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
@@ -9518,6 +9389,135 @@
         "typescriptType": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_EndDate",
         "usedTypescriptType": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_EndDate",
         "usedStructName": "anilist.MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_EndDate",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Format",
+        "jsonName": "format",
+        "goType": "MediaFormat",
+        "typescriptType": "AL_MediaFormat",
+        "usedTypescriptType": "AL_MediaFormat",
+        "usedStructName": "anilist.MediaFormat",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IDMal",
+        "jsonName": "idMal",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Season",
+        "jsonName": "season",
+        "goType": "MediaSeason",
+        "typescriptType": "AL_MediaSeason",
+        "usedTypescriptType": "AL_MediaSeason",
+        "usedStructName": "anilist.MediaSeason",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SiteURL",
+        "jsonName": "siteUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartDate",
+        "jsonName": "startDate",
+        "goType": "MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate",
+        "typescriptType": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate",
+        "usedTypescriptType": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate",
+        "usedStructName": "anilist.MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaStatus",
+        "typescriptType": "AL_MediaStatus",
+        "usedTypescriptType": "AL_MediaStatus",
+        "usedStructName": "anilist.MediaStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Synonyms",
+        "jsonName": "synonyms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
+        "typescriptType": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
+        "usedTypescriptType": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
+        "usedStructName": "anilist.MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "MediaType",
+        "typescriptType": "AL_MediaType",
+        "usedTypescriptType": "AL_MediaType",
+        "usedStructName": "anilist.MediaType",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Volumes",
+        "jsonName": "volumes",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -9596,24 +9596,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -9630,6 +9612,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -9641,6 +9641,15 @@
     "formattedName": "AL_MangaDetailsById_Media_Relations_Edges_Node_BaseManga_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -9667,15 +9676,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -9688,8 +9688,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9706,8 +9706,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9725,8 +9725,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9743,8 +9743,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9762,23 +9762,23 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedTypescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Node",
         "jsonName": "node",
         "goType": "BaseManga",
         "typescriptType": "AL_BaseManga",
         "usedTypescriptType": "AL_BaseManga",
         "usedStructName": "anilist.BaseManga",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RelationType",
+        "jsonName": "relationType",
+        "goType": "MediaRelation",
+        "typescriptType": "AL_MediaRelation",
+        "usedTypescriptType": "AL_MediaRelation",
+        "usedStructName": "anilist.MediaRelation",
         "required": false,
         "public": true,
         "comments": []
@@ -9815,20 +9815,13 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "SiteURL",
-        "jsonName": "siteUrl",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "Characters",
+        "jsonName": "characters",
+        "goType": "MangaDetailsById_Media_Characters",
+        "typescriptType": "AL_MangaDetailsById_Media_Characters",
+        "usedTypescriptType": "AL_MangaDetailsById_Media_Characters",
+        "usedStructName": "anilist.MangaDetailsById_Media_Characters",
         "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
         "public": true,
         "comments": []
       },
@@ -9851,23 +9844,21 @@
         "comments": []
       },
       {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Rankings",
         "jsonName": "rankings",
         "goType": "[]MangaDetailsById_Media_Rankings",
         "typescriptType": "Array\u003cAL_MangaDetailsById_Media_Rankings\u003e",
         "usedTypescriptType": "AL_MangaDetailsById_Media_Rankings",
         "usedStructName": "anilist.MangaDetailsById_Media_Rankings",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Characters",
-        "jsonName": "characters",
-        "goType": "MangaDetailsById_Media_Characters",
-        "typescriptType": "AL_MangaDetailsById_Media_Characters",
-        "usedTypescriptType": "AL_MangaDetailsById_Media_Characters",
-        "usedStructName": "anilist.MangaDetailsById_Media_Characters",
         "required": false,
         "public": true,
         "comments": []
@@ -9893,6 +9884,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SiteURL",
+        "jsonName": "siteUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -9905,6 +9905,15 @@
     "package": "anilist",
     "fields": [
       {
+        "name": "CurrentPage",
+        "jsonName": "currentPage",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "HasNextPage",
         "jsonName": "hasNextPage",
         "goType": "bool",
@@ -9914,8 +9923,8 @@
         "comments": []
       },
       {
-        "name": "Total",
-        "jsonName": "total",
+        "name": "LastPage",
+        "jsonName": "lastPage",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9932,17 +9941,8 @@
         "comments": []
       },
       {
-        "name": "CurrentPage",
-        "jsonName": "currentPage",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LastPage",
-        "jsonName": "lastPage",
+        "name": "Total",
+        "jsonName": "total",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -9960,24 +9960,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -9994,6 +9976,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -10005,6 +10005,15 @@
     "formattedName": "AL_ListManga_Page_Media_BaseManga_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -10031,15 +10040,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -10052,8 +10052,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -10070,8 +10070,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -10089,8 +10089,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -10107,8 +10107,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -10126,23 +10126,23 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "PageInfo",
-        "jsonName": "pageInfo",
-        "goType": "ListManga_Page_PageInfo",
-        "typescriptType": "AL_ListManga_Page_PageInfo",
-        "usedTypescriptType": "AL_ListManga_Page_PageInfo",
-        "usedStructName": "anilist.ListManga_Page_PageInfo",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Media",
         "jsonName": "media",
         "goType": "[]BaseManga",
         "typescriptType": "Array\u003cAL_BaseManga\u003e",
         "usedTypescriptType": "AL_BaseManga",
         "usedStructName": "anilist.BaseManga",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageInfo",
+        "jsonName": "pageInfo",
+        "goType": "ListManga_Page_PageInfo",
+        "typescriptType": "AL_ListManga_Page_PageInfo",
+        "usedTypescriptType": "AL_ListManga_Page_PageInfo",
+        "usedStructName": "anilist.ListManga_Page_PageInfo",
         "required": false,
         "public": true,
         "comments": []
@@ -10167,19 +10167,19 @@
         "comments": []
       },
       {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "IsAnimationStudio",
+        "jsonName": "isAnimationStudio",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "IsAnimationStudio",
-        "jsonName": "isAnimationStudio",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -10204,27 +10204,9 @@
         "comments": []
       },
       {
-        "name": "MinutesWatched",
-        "jsonName": "minutesWatched",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "EpisodesWatched",
         "jsonName": "episodesWatched",
         "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MeanScore",
-        "jsonName": "meanScore",
-        "goType": "float64",
         "typescriptType": "number",
         "required": true,
         "public": true,
@@ -10253,23 +10235,30 @@
         "comments": []
       },
       {
-        "name": "Statuses",
-        "jsonName": "statuses",
-        "goType": "[]UserStatusStats",
-        "typescriptType": "Array\u003cAL_UserStatusStats\u003e",
-        "usedTypescriptType": "AL_UserStatusStats",
-        "usedStructName": "anilist.UserStatusStats",
-        "required": false,
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "Studios",
-        "jsonName": "studios",
-        "goType": "[]UserStudioStats",
-        "typescriptType": "Array\u003cAL_UserStudioStats\u003e",
-        "usedTypescriptType": "AL_UserStudioStats",
-        "usedStructName": "anilist.UserStudioStats",
+        "name": "MinutesWatched",
+        "jsonName": "minutesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseYears",
+        "jsonName": "releaseYears",
+        "goType": "[]UserReleaseYearStats",
+        "typescriptType": "Array\u003cAL_UserReleaseYearStats\u003e",
+        "usedTypescriptType": "AL_UserReleaseYearStats",
+        "usedStructName": "anilist.UserReleaseYearStats",
         "required": false,
         "public": true,
         "comments": []
@@ -10297,12 +10286,23 @@
         "comments": []
       },
       {
-        "name": "ReleaseYears",
-        "jsonName": "releaseYears",
-        "goType": "[]UserReleaseYearStats",
-        "typescriptType": "Array\u003cAL_UserReleaseYearStats\u003e",
-        "usedTypescriptType": "AL_UserReleaseYearStats",
-        "usedStructName": "anilist.UserReleaseYearStats",
+        "name": "Statuses",
+        "jsonName": "statuses",
+        "goType": "[]UserStatusStats",
+        "typescriptType": "Array\u003cAL_UserStatusStats\u003e",
+        "usedTypescriptType": "AL_UserStatusStats",
+        "usedStructName": "anilist.UserStatusStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Studios",
+        "jsonName": "studios",
+        "goType": "[]UserStudioStats",
+        "typescriptType": "Array\u003cAL_UserStudioStats\u003e",
+        "usedTypescriptType": "AL_UserStudioStats",
+        "usedStructName": "anilist.UserStudioStats",
         "required": false,
         "public": true,
         "comments": []
@@ -10327,19 +10327,19 @@
         "comments": []
       },
       {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "IsAnimationStudio",
+        "jsonName": "isAnimationStudio",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "IsAnimationStudio",
-        "jsonName": "isAnimationStudio",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -10355,15 +10355,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Count",
-        "jsonName": "count",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "ChaptersRead",
         "jsonName": "chaptersRead",
         "goType": "int",
@@ -10373,9 +10364,9 @@
         "comments": []
       },
       {
-        "name": "MeanScore",
-        "jsonName": "meanScore",
-        "goType": "float64",
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
         "typescriptType": "number",
         "required": true,
         "public": true,
@@ -10404,23 +10395,21 @@
         "comments": []
       },
       {
-        "name": "Statuses",
-        "jsonName": "statuses",
-        "goType": "[]UserStatusStats",
-        "typescriptType": "Array\u003cAL_UserStatusStats\u003e",
-        "usedTypescriptType": "AL_UserStatusStats",
-        "usedStructName": "anilist.UserStatusStats",
-        "required": false,
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "Studios",
-        "jsonName": "studios",
-        "goType": "[]UserStudioStats",
-        "typescriptType": "Array\u003cAL_UserStudioStats\u003e",
-        "usedTypescriptType": "AL_UserStudioStats",
-        "usedStructName": "anilist.UserStudioStats",
+        "name": "ReleaseYears",
+        "jsonName": "releaseYears",
+        "goType": "[]UserReleaseYearStats",
+        "typescriptType": "Array\u003cAL_UserReleaseYearStats\u003e",
+        "usedTypescriptType": "AL_UserReleaseYearStats",
+        "usedStructName": "anilist.UserReleaseYearStats",
         "required": false,
         "public": true,
         "comments": []
@@ -10448,12 +10437,23 @@
         "comments": []
       },
       {
-        "name": "ReleaseYears",
-        "jsonName": "releaseYears",
-        "goType": "[]UserReleaseYearStats",
-        "typescriptType": "Array\u003cAL_UserReleaseYearStats\u003e",
-        "usedTypescriptType": "AL_UserReleaseYearStats",
-        "usedStructName": "anilist.UserReleaseYearStats",
+        "name": "Statuses",
+        "jsonName": "statuses",
+        "goType": "[]UserStatusStats",
+        "typescriptType": "Array\u003cAL_UserStatusStats\u003e",
+        "usedTypescriptType": "AL_UserStatusStats",
+        "usedStructName": "anilist.UserStatusStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Studios",
+        "jsonName": "studios",
+        "goType": "[]UserStudioStats",
+        "typescriptType": "Array\u003cAL_UserStudioStats\u003e",
+        "usedTypescriptType": "AL_UserStudioStats",
+        "usedStructName": "anilist.UserStudioStats",
         "required": false,
         "public": true,
         "comments": []
@@ -10559,24 +10559,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "English",
         "jsonName": "english",
         "goType": "string",
@@ -10593,6 +10575,24 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -10604,6 +10604,15 @@
     "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BaseAnime_CoverImage",
     "package": "anilist",
     "fields": [
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "ExtraLarge",
         "jsonName": "extraLarge",
@@ -10630,15 +10639,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -10651,8 +10651,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -10669,8 +10669,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -10688,8 +10688,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Year",
-        "jsonName": "year",
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -10706,8 +10706,8 @@
         "comments": []
       },
       {
-        "name": "Day",
-        "jsonName": "day",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -10734,8 +10734,8 @@
         "comments": []
       },
       {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
+        "name": "Episode",
+        "jsonName": "episode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -10743,8 +10743,8 @@
         "comments": []
       },
       {
-        "name": "Episode",
-        "jsonName": "episode",
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -10801,15 +10801,6 @@
         "comments": []
       },
       {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Media",
         "jsonName": "media",
         "goType": "StudioDetails_Studio_Media",
@@ -10817,6 +10808,15 @@
         "usedTypescriptType": "AL_StudioDetails_Studio_Media",
         "usedStructName": "anilist.StudioDetails_Studio_Media",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -10859,8 +10859,8 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "DisplayAdultContent",
-        "jsonName": "displayAdultContent",
+        "name": "AiringNotifications",
+        "jsonName": "airingNotifications",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": false,
@@ -10868,8 +10868,8 @@
         "comments": []
       },
       {
-        "name": "AiringNotifications",
-        "jsonName": "airingNotifications",
+        "name": "DisplayAdultContent",
+        "jsonName": "displayAdultContent",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": false,
@@ -10896,15 +10896,6 @@
     "package": "anilist",
     "fields": [
       {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Avatar",
         "jsonName": "avatar",
         "goType": "GetViewer_Viewer_Avatar",
@@ -10930,6 +10921,15 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -49786,6 +49786,17 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -52978,6 +52989,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "OptionalAnimeCollection",
+        "jsonName": "OptionalAnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -53343,6 +53365,17 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -86679,7 +86712,7 @@
         "required": false,
         "public": true,
         "comments": [
-          " [\"tauri\", \"web\", \"denshi\"]"
+          " [\"web\", \"denshi\"]"
         ]
       },
       {

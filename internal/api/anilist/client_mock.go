@@ -7,8 +7,8 @@ import (
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 
-	"github.com/Yamashou/gqlgenc/clientv2"
 	"github.com/goccy/go-json"
+	"github.com/gqlgo/gqlgenc/clientv2"
 	"github.com/rs/zerolog"
 )
 

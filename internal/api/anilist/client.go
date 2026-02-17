@@ -13,9 +13,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Yamashou/gqlgenc/clientv2"
-	"github.com/Yamashou/gqlgenc/graphqljson"
 	"github.com/goccy/go-json"
+	"github.com/gqlgo/gqlgenc/clientv2"
+	"github.com/gqlgo/gqlgenc/graphqljson"
 	"github.com/rs/zerolog"
 )
 

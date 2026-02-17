@@ -156,13 +156,13 @@ The project integrates with the AniList GraphQL API:
    If you modify the GraphQL schema, run these commands:
 
 ```bash
-go get github.com/Yamashou/gqlgenc@v0.25.4
+go get github.com/gqlgo/gqlgenc@v0.33.1
 ```
 ```bash
 cd internal/api/anilist
 ```
 ```bash
-go run github.com/Yamashou/gqlgenc
+go run github.com/gqlgo/gqlgenc
 ```
 ```bash
 cd ../../..
