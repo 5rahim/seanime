@@ -421,7 +421,7 @@ autoUpdater.on("error", (err) => {
 // Single instance
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const gotTheLock = app.requestSingleInstanceLock({ development: _development })
+const gotTheLock = _development ? true : app.requestSingleInstanceLock({ development: _development })
 
 /**
  * Force single instance
@@ -581,9 +581,15 @@ async function launchSeanimeServer(isRestart) {
         const args = []
 
         // Development mode
-        if (_development && process.env.TEST_DATADIR) {
-            console.log("[Main] TEST_DATADIR", process.env.TEST_DATADIR)
-            args.push("-datadir", process.env.TEST_DATADIR)
+        if (_development) {
+            args.push("-port", "43000")
+            if (process.env.TEST_DATADIR) {
+                console.log("[Main] TEST_DATADIR", process.env.TEST_DATADIR)
+                args.push("-datadir", process.env.TEST_DATADIR)
+            } else {
+                const devDataDir = path.join(app.getPath("appData"), "Seanime-dev")
+                args.push("-datadir", devDataDir)
+            }
         }
 
         args.push("-desktop-sidecar", "true")
