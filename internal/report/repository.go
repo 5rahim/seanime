@@ -123,6 +123,7 @@ type AnonymizeOptions struct {
 	Content        []byte `json:"content"`
 	Settings       *models.Settings
 	DebridSettings *models.DebridSettings
+	Username       string
 }
 
 func (r *Repository) Anonymize(opts AnonymizeOptions) string {
@@ -146,6 +147,9 @@ func (r *Repository) Anonymize(opts AnonymizeOptions) string {
 
 	content := opts.Content
 
+	if opts.Username != "" {
+		content = bytes.ReplaceAll(content, []byte(opts.Username), []byte("[REDACTED]"))
+	}
 	content = userPathPattern.ReplaceAll(content, []byte("${1}[REDACTED]"))
 	content = urlSensitivePattern.ReplaceAll(content, []byte("${1}[REDACTED]"))
 

@@ -178,6 +178,7 @@ func (h *Handler) HandleGetLogContent(c echo.Context) error {
 		Content:        contentB,
 		Settings:       h.App.Settings,
 		DebridSettings: h.App.SecondarySettings.Debrid,
+		Username:       h.App.GetUsername(),
 	})
 
 	return h.RespondWithData(c, content)
@@ -329,6 +330,7 @@ func (h *Handler) HandleGetLatestLogContent(c echo.Context) error {
 		Content:        contentB,
 		Settings:       h.App.Settings,
 		DebridSettings: h.App.SecondarySettings.Debrid,
+		Username:       h.App.GetUsername(),
 	})
 
 	return h.RespondWithData(c, content)

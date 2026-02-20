@@ -16,6 +16,17 @@ func (a *App) GetUser() *user.User {
 	return a.user
 }
 
+// GetUsername returns the username of the currently logged-in user
+func (a *App) GetUsername() string {
+	if a.user == nil {
+		return ""
+	}
+	if a.user.Viewer == nil {
+		return ""
+	}
+	return a.user.Viewer.GetName()
+}
+
 func (a *App) GetUserAnilistToken() string {
 	if a.user == nil || a.user.Token == user.SimulatedUserToken {
 		return ""
