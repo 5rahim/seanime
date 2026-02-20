@@ -49,6 +49,7 @@ type SaveIssueReportOptions struct {
 	ViewportWidth       int                    `json:"viewportWidth"`
 	ViewportHeight      int                    `json:"viewportHeight"`
 	RecordingDurationMs int64                  `json:"recordingDurationMs"`
+	Username            string                 `json:"username"`
 }
 
 func (r *Repository) SaveIssueReport(opts SaveIssueReportOptions) error {
@@ -59,6 +60,9 @@ func (r *Repository) SaveIssueReport(opts SaveIssueReportOptions) error {
 	}
 	if opts.DebridSettings != nil {
 		toRedact = append(toRedact, opts.DebridSettings.GetSensitiveValues()...)
+	}
+	if opts.Username != "" {
+		toRedact = append(toRedact, opts.Username)
 	}
 	toRedact = lo.Filter(toRedact, func(s string, _ int) bool {
 		return s != ""
