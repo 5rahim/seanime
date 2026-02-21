@@ -609,15 +609,44 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                             <label className="text-sm font-medium text-muted-foreground">
                                 Default Subtitle Delay (seconds)
                             </label>
-                            <NumberInput
-                                value={editedSubtitleDelay}
-                                onValueChange={(v) => setEditedSubtitleDelay(v ?? 0)}
-                                step={0.1}
-                                placeholder="0"
-                                onKeyDown={(e) => e.stopPropagation()}
-                                onInput={(e) => e.stopPropagation()}
-                                help="Positive values delay subtitles, negative values advance them. This value is applied when the player starts."
-                            />
+                            <p className="text-xs text-muted-foreground">Positive values delay subtitles, negative values advance them.</p>
+                            <div className="flex gap-1.5 items-center">
+                                <Button
+                                    intent="gray-glass"
+                                    size="sm"
+                                    className="flex-1 font-bold text-base"
+                                    onClick={() => setEditedSubtitleDelay(v => parseFloat((v - 0.5).toFixed(1)))}
+                                >
+                                    −0.5
+                                </Button>
+                                <Button
+                                    intent="gray-glass"
+                                    size="sm"
+                                    className="flex-1 text-sm"
+                                    onClick={() => setEditedSubtitleDelay(v => parseFloat((v - 0.1).toFixed(1)))}
+                                >
+                                    −0.1
+                                </Button>
+                                <span className="text-sm text-muted-foreground px-2 tabular-nums shrink-0 min-w-[3.5rem] text-center">
+                                    {editedSubtitleDelay.toFixed(1)}s
+                                </span>
+                                <Button
+                                    intent="gray-glass"
+                                    size="sm"
+                                    className="flex-1 text-sm"
+                                    onClick={() => setEditedSubtitleDelay(v => parseFloat((v + 0.1).toFixed(1)))}
+                                >
+                                    +0.1
+                                </Button>
+                                <Button
+                                    intent="gray-glass"
+                                    size="sm"
+                                    className="flex-1 font-bold text-base"
+                                    onClick={() => setEditedSubtitleDelay(v => parseFloat((v + 0.5).toFixed(1)))}
+                                >
+                                    +0.5
+                                </Button>
+                            </div>
                         </div>
                     </div>
 
