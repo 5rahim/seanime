@@ -458,66 +458,58 @@ export function VideoCoreSettingsMenu() {
                     </VideoCoreMenuOption>
                     <VideoCoreMenuOption title="Subtitle Delay" icon={MdOutlineAccessTime}>
                         <p className="text-sm text-[--muted] mb-2">Positive values delay subtitles, negative values advance them.</p>
+                        <div className="flex gap-1.5 items-center mt-3">
+                            <Button
+                                className="px-1 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay - 0.5).toFixed(1)))}
+                            >
+                                −0.5
+                            </Button>
+                            <Button
+                                className="px-1 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay - 0.1).toFixed(1)))}
+                            >
+                                −0.1
+                            </Button>
+                            <span className="text-sm text-center text-[--muted] px-1 flex-1">
+                                {editedSubtitleDelay.toFixed(1)}s
+                            </span>
+                            <Button
+                                className="px-1 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay + 0.1).toFixed(1)))}
+                            >
+                                +0.1
+                            </Button>
+                            <Button
+                                className="px-1 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay + 0.5).toFixed(1)))}
+                            >
+                                +0.5
+                            </Button>
+                        </div>
                         <VideoCoreSettingSelect
                             options={[
                                 { label: "-2.0s", value: -2.0 },
                                 { label: "-1.0s", value: -1.0 },
-                                { label: "-0.9s", value: -0.9 },
-                                { label: "-0.8s", value: -0.8 },
-                                { label: "-0.7s", value: -0.7 },
-                                { label: "-0.6s", value: -0.6 },
                                 { label: "-0.5s", value: -0.5 },
-                                { label: "-0.4s", value: -0.4 },
-                                { label: "-0.3s", value: -0.3 },
-                                { label: "-0.2s", value: -0.2 },
-                                { label: "-0.1s", value: -0.1 },
                                 { label: "0s", value: 0 },
-                                { label: "0.1s", value: 0.1 },
-                                { label: "0.2s", value: 0.2 },
-                                { label: "0.3s", value: 0.3 },
-                                { label: "0.4s", value: 0.4 },
                                 { label: "0.5s", value: 0.5 },
-                                { label: "0.6s", value: 0.6 },
-                                { label: "0.7s", value: 0.7 },
-                                { label: "0.8s", value: 0.8 },
-                                { label: "0.9s", value: 0.9 },
                                 { label: "1.0s", value: 1.0 },
                                 { label: "2.0s", value: 2.0 },
                             ]}
                             onValueChange={(v: number) => {
                                 handleSubtitleDelayChange(v)
                             }}
-                            value={[-2.0,-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,2.0].includes(editedSubtitleDelay) ? editedSubtitleDelay : null}
+                            value={[-2.0, -1.0, -0.5, 0, 0.5, 0.1, 2.0].includes(editedSubtitleDelay) ? editedSubtitleDelay : null}
                         />
-                        <div className="flex gap-1.5 items-center mt-3">
-                            <button
-                                className="flex-1 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-white font-bold text-base"
-                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay - 0.5).toFixed(1)))}
-                            >
-                                −0.5
-                            </button>
-                            <button
-                                className="flex-1 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-white font-medium text-sm"
-                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay - 0.1).toFixed(1)))}
-                            >
-                                −0.1
-                            </button>
-                            <span className="text-sm text-[--muted] px-1 tabular-nums shrink-0 min-w-[3.5rem] text-center">
-                                {editedSubtitleDelay.toFixed(1)}s
-                            </span>
-                            <button
-                                className="flex-1 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-white font-medium text-sm"
-                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay + 0.1).toFixed(1)))}
-                            >
-                                +0.1
-                            </button>
-                            <button
-                                className="flex-1 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-white font-bold text-base"
-                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay + 0.5).toFixed(1)))}
-                            >
-                                +0.5
-                            </button>
-                        </div>
                     </VideoCoreMenuOption>
                     <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed}>
                         <VideoCoreSettingSelect
