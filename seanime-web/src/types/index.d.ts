@@ -67,8 +67,18 @@ declare global {
             checkForUpdates: () => Promise<any>;
             installUpdate: () => Promise<any>;
             killServer: () => Promise<any>;
+            denshiSettings: {
+                get: () => Promise<DenshiSettings>;
+                set: (settings: DenshiSettings) => Promise<DenshiSettings>;
+            };
         };
 
         __isElectronDesktop__?: boolean;
+    }
+
+    interface DenshiSettings {
+        minimizeToTray: boolean;
+        openInBackground: boolean;
+        openAtLaunch: boolean;
     }
 }

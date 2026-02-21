@@ -1,4 +1,4 @@
-const {contextBridge, ipcRenderer, ipcMain, shell, BrowserWindow} = require('electron');
+const { contextBridge, ipcRenderer, ipcMain, shell, BrowserWindow } = require("electron")
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
@@ -6,22 +6,22 @@ contextBridge.exposeInMainWorld(
     'electron', {
         // Window Controls
         window: {
-            minimize: () => ipcRenderer.send('window:minimize'),
-            maximize: () => ipcRenderer.send('window:maximize'),
-            close: () => ipcRenderer.send('window:close'),
-            isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
-            isMinimizable: () => ipcRenderer.invoke('window:isMinimizable'),
-            isMaximizable: () => ipcRenderer.invoke('window:isMaximizable'),
-            isClosable: () => ipcRenderer.invoke('window:isClosable'),
-            isFullscreen: () => ipcRenderer.invoke('window:isFullscreen'),
-            setFullscreen: (fullscreen) => ipcRenderer.send('window:setFullscreen', fullscreen),
-            toggleMaximize: () => ipcRenderer.send('window:toggleMaximize'),
-            hide: () => ipcRenderer.send('window:hide'),
-            show: () => ipcRenderer.send('window:show'),
-            isVisible: () => ipcRenderer.invoke('window:isVisible'),
-            setTitleBarStyle: (style) => ipcRenderer.send('window:setTitleBarStyle', style),
-            getCurrentWindow: () => ipcRenderer.invoke('window:getCurrentWindow'),
-            isMainWindow: () => ipcRenderer.send('window:isMainWindow'),
+            minimize: () => ipcRenderer.send("window:minimize"),
+            maximize: () => ipcRenderer.send("window:maximize"),
+            close: () => ipcRenderer.send("window:close"),
+            isMaximized: () => ipcRenderer.invoke("window:isMaximized"),
+            isMinimizable: () => ipcRenderer.invoke("window:isMinimizable"),
+            isMaximizable: () => ipcRenderer.invoke("window:isMaximizable"),
+            isClosable: () => ipcRenderer.invoke("window:isClosable"),
+            isFullscreen: () => ipcRenderer.invoke("window:isFullscreen"),
+            setFullscreen: (fullscreen) => ipcRenderer.send("window:setFullscreen", fullscreen),
+            toggleMaximize: () => ipcRenderer.send("window:toggleMaximize"),
+            hide: () => ipcRenderer.send("window:hide"),
+            show: () => ipcRenderer.send("window:show"),
+            isVisible: () => ipcRenderer.invoke("window:isVisible"),
+            setTitleBarStyle: (style) => ipcRenderer.send("window:setTitleBarStyle", style),
+            getCurrentWindow: () => ipcRenderer.invoke("window:getCurrentWindow"),
+            isMainWindow: () => ipcRenderer.send("window:isMainWindow"),
         },
 
         localServer: {
@@ -32,28 +32,28 @@ contextBridge.exposeInMainWorld(
         on: (channel, callback) => {
             // Whitelist channels
             const validChannels = [
-                'message',
-                'crash',
-                'window:maximized',
-                'window:unmaximized',
-                'window:fullscreen',
-                'update-downloaded',
-                'update-error',
-                'update-available',
-                'download-progress',
-                'window:currentWindow',
-                'window:isMainWindow',
-            ];
+                "message",
+                "crash",
+                "window:maximized",
+                "window:unmaximized",
+                "window:fullscreen",
+                "update-downloaded",
+                "update-error",
+                "update-available",
+                "download-progress",
+                "window:currentWindow",
+                "window:isMainWindow",
+            ]
             if (validChannels.includes(channel)) {
                 // Remove the event listener to avoid memory leaks
-                ipcRenderer.removeAllListeners(channel);
+                ipcRenderer.removeAllListeners(channel)
                 // Add the event listener
-                ipcRenderer.on(channel, (_, ...args) => callback(...args));
+                ipcRenderer.on(channel, (_, ...args) => callback(...args))
 
                 // Return a function to remove the listener
                 return () => {
-                    ipcRenderer.removeAllListeners(channel);
-                };
+                    ipcRenderer.removeAllListeners(channel)
+                }
             }
         },
 
@@ -61,13 +61,13 @@ contextBridge.exposeInMainWorld(
         emit: (channel, data) => {
             // Whitelist channels
             const validChannels = [
-                'restart-server',
-                'kill-server',
-                'macos-activation-policy-accessory',
-                'macos-activation-policy-regular'
-            ];
+                "restart-server",
+                "kill-server",
+                "macos-activation-policy-accessory",
+                "macos-activation-policy-regular"
+            ]
             if (validChannels.includes(channel)) {
-                ipcRenderer.send(channel, data);
+                ipcRenderer.send(channel, data)
             }
         },
 
@@ -75,11 +75,11 @@ contextBridge.exposeInMainWorld(
         send: (channel, ...args) => {
             // Whitelist channels
             const validChannels = [
-                'restart-app',
-                'quit-app'
-            ];
+                "restart-app",
+                "quit-app"
+            ]
             if (validChannels.includes(channel)) {
-                ipcRenderer.send(channel, ...args);
+                ipcRenderer.send(channel, ...args)
             }
         },
 
@@ -93,13 +93,19 @@ contextBridge.exposeInMainWorld(
 
         // Clipboard
         clipboard: {
-            writeText: (text) => ipcRenderer.invoke('clipboard:writeText', text)
+            writeText: (text) => ipcRenderer.invoke("clipboard:writeText", text)
         },
 
         // Update functions
-        checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
-        installUpdate: () => ipcRenderer.invoke('install-update'),
-        killServer: () => ipcRenderer.invoke('kill-server')
+        checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
+        installUpdate: () => ipcRenderer.invoke("install-update"),
+        killServer: () => ipcRenderer.invoke("kill-server"),
+
+        // Denshi Settings
+        denshiSettings: {
+            get: () => ipcRenderer.invoke("denshi:getSettings"),
+            set: (settings) => ipcRenderer.invoke("denshi:setSettings", settings),
+        },
     }
 );
 

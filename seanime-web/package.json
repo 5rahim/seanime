@@ -8,11 +8,11 @@
         "dev:mobile": "env-cmd -f .env.mobile rsbuild dev",
         "dev:desktop": "env-cmd -f .env.desktop rsbuild dev",
         "dev:denshi": "env-cmd -f .env.denshi rsbuild dev",
-        "build": "tsc && rsbuild build",
+        "build": "tsgo && rsbuild build",
         "build:rsdoctor": "RSDOCTOR=true rsbuild build",
-        "build:desktop": "tsc && env-cmd -f .env.desktop rsbuild build",
-        "build:denshi": "tsc && env-cmd -f .env.denshi rsbuild build",
-        "build:development:desktop": "tsc && env-cmd -f .env.development.desktop rsbuild build",
+        "build:desktop": "tsgo && env-cmd -f .env.desktop rsbuild build",
+        "build:denshi": "tsgo && env-cmd -f .env.denshi rsbuild build",
+        "build:development:desktop": "tsgo && env-cmd -f .env.development.desktop rsbuild build",
         "preview": "rsbuild preview"
     },
     "dependencies": {
@@ -156,6 +156,7 @@
         "@types/react": "^18.3.23",
         "@types/react-dom": "^18.3.7",
         "@types/react-window": "^1.8.8",
+        "@typescript/native-preview": "^7.0.0-dev.20260221.1",
         "autoprefixer": "^10",
         "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250405",
         "encoding": "^0.1.13",

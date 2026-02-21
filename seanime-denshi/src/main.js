@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog, remote, net, protocol, contextBridge } = require("electron")
+const { app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog, remote, net, protocol, nativeImage } = require("electron")
 const path = require("path")
 const { spawn } = require("child_process")
 const fs = require("fs")
@@ -10,6 +10,44 @@ import("strip-ansi").then(module => {
 const { autoUpdater } = require("electron-updater")
 const log = require("electron-log/main")
 log.initialize()
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Settings
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const DENSHI_SETTINGS_DEFAULTS = {
+    minimizeToTray: true,
+    openInBackground: false,
+    openAtLaunch: false,
+}
+
+function getDenshiSettingsPath() {
+    return path.join(app.getPath("userData"), "denshi-settings.json")
+}
+
+function loadDenshiSettings() {
+    try {
+        const settingsPath = getDenshiSettingsPath()
+        if (fs.existsSync(settingsPath)) {
+            const data = JSON.parse(fs.readFileSync(settingsPath, "utf-8"))
+            return { ...DENSHI_SETTINGS_DEFAULTS, ...data }
+        }
+    } catch (err) {
+        log.error("[Denshi] Failed to load settings:", err)
+    }
+    return { ...DENSHI_SETTINGS_DEFAULTS }
+}
+
+function saveDenshiSettings(settings) {
+    try {
+        const settingsPath = getDenshiSettingsPath()
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf-8")
+    } catch (err) {
+        log.error("[Denshi] Failed to save settings:", err)
+    }
+}
+
+let denshiSettings = DENSHI_SETTINGS_DEFAULTS
 
 const _isRsbuildFrontend = true
 
@@ -452,14 +490,17 @@ if (!gotTheLock) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function createTray() {
-    let iconPath = path.join(__dirname, "../assets/icon.png")
-    if (process.platform === "darwin") {
-        iconPath = path.join(__dirname, "../assets/18x18.png")
+    const iconName = process.platform === "darwin" ? "18x18.png" : "icon.png"
+
+    let iconPath = path.join(__dirname, "../assets", iconName)
+    if (_development) {
+        iconPath = path.join(app.getAppPath(), "assets", iconName)
     }
-    tray = new Tray(iconPath)
+    const icon = nativeImage.createFromPath(iconPath)
+    tray = new Tray(icon)
 
     const contextMenu = Menu.buildFromTemplate([{
-        id: "toggle_visibility", label: "Toggle visibility", click: () => {
+        id: "toggle_visibility", label: "Toggle Visibility", click: () => {
             if (mainWindow.isVisible()) {
                 mainWindow.hide()
                 if (process.platform === "darwin") {
@@ -474,7 +515,7 @@ function createTray() {
             }
         }
     }, ...(process.platform === "darwin" ? [{
-        id: "accessory_mode", label: "Remove from dock", click: () => {
+        id: "accessory_mode", label: "Remove from Dock", click: () => {
             app.dock.hide()
         }
     }
@@ -529,7 +570,7 @@ async function launchSeanimeServer(isRestart) {
                 splashScreen.close()
                 splashScreen = null
             }
-            if (mainWindow && !mainWindow.isDestroyed()) {
+            if (mainWindow && !mainWindow.isDestroyed() && !denshiSettings.openInBackground) {
                 mainWindow.maximize()
                 mainWindow.show()
             }
@@ -626,8 +667,14 @@ async function launchSeanimeServer(isRestart) {
                     console.log("[Main] Server started close splash screen")
                     setTimeout(() => {
                         if (mainWindow && !mainWindow.isDestroyed()) {
-                            mainWindow.maximize()
-                            mainWindow.show()
+                            if (denshiSettings.openInBackground) {
+                                // Keep window hidden, just maximize it for when user shows it
+                                mainWindow.maximize()
+                                log.info("[Denshi] Opened in background")
+                            } else {
+                                mainWindow.maximize()
+                                mainWindow.show()
+                            }
                         }
                     }, 1000)
                     resolve()
@@ -772,10 +819,15 @@ function createMainWindow() {
 
     mainWindow.on("close", (event) => {
         if (!isShutdown) {
-            event.preventDefault()
-            mainWindow.hide()
-            if (process.platform === "darwin") {
-                app.dock.hide()
+            if (denshiSettings.minimizeToTray) {
+                event.preventDefault()
+                mainWindow.hide()
+                if (process.platform === "darwin") {
+                    app.dock.hide()
+                }
+            } else {
+                // Close the app completely
+                cleanupAndExit()
             }
         }
     })
@@ -788,7 +840,7 @@ function createMainWindow() {
 function createSplashScreen() {
     logStartupEvent("Creating splash screen")
     splashScreen = new BrowserWindow({
-        width: 800, height: 600, frame: false, resizable: false, backgroundColor: "#0c0c0c", webPreferences: {
+        width: 800, height: 600, frame: false, resizable: false, show: !denshiSettings.openInBackground, backgroundColor: "#0c0c0c", webPreferences: {
             nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, "preload.js")
         }
     })
@@ -885,6 +937,20 @@ function cleanupAndExit() {
 // Initialize the app
 app.whenReady().then(async () => {
     logStartupEvent("App ready")
+
+    // Load denshi settings early
+    denshiSettings = loadDenshiSettings()
+    if (_development) {
+        denshiSettings.openInBackground = false
+    }
+    log.info("[Denshi] Loaded settings:", JSON.stringify(denshiSettings))
+
+    // Apply openAtLaunch setting (only supported on macOS and Windows)
+    if (!_development && (process.platform === "darwin" || process.platform === "win32")) {
+        app.setLoginItemSettings({
+            openAtLogin: denshiSettings.openAtLaunch,
+        })
+    }
 
     // Set up Chromium flags for better video playback
     setupChromiumFlags()
@@ -1137,6 +1203,26 @@ app.whenReady().then(async () => {
     })
 
     ipcMain.handle("get-local-server-port", () => localServerPort)
+
+    // Denshi settings IPC handlers
+    ipcMain.handle("denshi:getSettings", () => {
+        return { ...denshiSettings }
+    })
+
+    ipcMain.handle("denshi:setSettings", (_, newSettings) => {
+        denshiSettings = { ...DENSHI_SETTINGS_DEFAULTS, ...newSettings }
+        saveDenshiSettings(denshiSettings)
+        log.info("[Denshi] Settings updated:", JSON.stringify(denshiSettings))
+
+        // Apply openAtLaunch immediately (only supported on macOS and Windows)
+        if (!_development && (process.platform === "darwin" || process.platform === "win32")) {
+            app.setLoginItemSettings({
+                openAtLogin: denshiSettings.openAtLaunch,
+            })
+        }
+
+        return { ...denshiSettings }
+    })
 
     app.on("window-all-closed", () => {
         if (process.platform !== "darwin") {

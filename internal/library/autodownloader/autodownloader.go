@@ -1430,6 +1430,10 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 	if rule.CustomEpisodeNumberAbsoluteOffset > 0 {
 		episode = episode - rule.CustomEpisodeNumberAbsoluteOffset
 		hasAbsoluteEpisode = true
+		if episode < 1 {
+			episode = 1
+			hasAbsoluteEpisode = false
+		}
 	} else {
 		// Handle absolute episode numbers from metadata
 		if listEntry.GetMedia().GetCurrentEpisodeCount() != -1 && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
