@@ -605,6 +605,20 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                 help="Subtitle tracks that will not be selected by default if they match the preferred lanauges. Separate multiple names with commas."
                             />
                         </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">
+                                Default Subtitle Delay (seconds)
+                            </label>
+                            <NumberInput
+                                value={editedSubtitleDelay}
+                                onValueChange={(v) => setEditedSubtitleDelay(v ?? 0)}
+                                step={0.1}
+                                placeholder="0"
+                                onKeyDown={(e) => e.stopPropagation()}
+                                onInput={(e) => e.stopPropagation()}
+                                help="Positive values delay subtitles, negative values advance them. This value is applied when the player starts."
+                            />
+                        </div>
                     </div>
 
                     {isWebPlayer && <div className="space-y-3">

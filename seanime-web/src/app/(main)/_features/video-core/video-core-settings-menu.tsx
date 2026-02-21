@@ -489,6 +489,20 @@ export function VideoCoreSettingsMenu() {
                             }}
                             value={editedSubtitleDelay}
                         />
+                        <p className="text-sm text-[--muted] mt-3 mb-1">Custom value (seconds)</p>
+                        <div className="flex gap-2 items-center">
+                            <input
+                                type="number"
+                                step="0.1"
+                                className="w-full bg-transparent border border-[--border] rounded-md px-2 py-1 text-sm text-white focus:outline-none focus:border-[--ring]"
+                                value={editedSubtitleDelay}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    const v = parseFloat(e.target.value)
+                                    if (!isNaN(v)) handleSubtitleDelayChange(v)
+                                }}
+                            />
+                            <span className="text-sm text-[--muted] shrink-0">s</span>
+                        </div>
                     </VideoCoreMenuOption>
                     <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed}>
                         <VideoCoreSettingSelect
