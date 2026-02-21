@@ -10,6 +10,7 @@ import (
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -309,6 +310,10 @@ func (c *CacheLayer) checkAndUpdateWorkingState(err error) {
 	if err != nil {
 		// Skip context.Canceled errors, not indicative of API issues
 		if errors.Is(err, context.Canceled) {
+			return
+		}
+
+		if strings.Contains(err.Error(), "404") {
 			return
 		}
 
