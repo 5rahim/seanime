@@ -605,6 +605,49 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                 help="Subtitle tracks that will not be selected by default if they match the preferred lanauges. Separate multiple names with commas."
                             />
                         </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">
+                                Default Subtitle Delay (seconds)
+                            </label>
+                            <p className="text-xs text-muted-foreground">Positive values delay subtitles, negative values advance them.</p>
+                            <div className="flex gap-1.5 items-center">
+                                <Button
+                                    intent="gray-glass"
+                                    size="sm"
+                                    className="flex-1 font-bold text-base"
+                                    onClick={() => setEditedSubtitleDelay(v => parseFloat((v - 0.5).toFixed(1)))}
+                                >
+                                    −0.5
+                                </Button>
+                                <Button
+                                    intent="gray-glass"
+                                    size="sm"
+                                    className="flex-1 text-sm"
+                                    onClick={() => setEditedSubtitleDelay(v => parseFloat((v - 0.1).toFixed(1)))}
+                                >
+                                    −0.1
+                                </Button>
+                                <span className="text-sm text-muted-foreground px-2 tabular-nums shrink-0 min-w-[3.5rem] text-center">
+                                    {editedSubtitleDelay.toFixed(1)}s
+                                </span>
+                                <Button
+                                    intent="gray-glass"
+                                    size="sm"
+                                    className="flex-1 text-sm"
+                                    onClick={() => setEditedSubtitleDelay(v => parseFloat((v + 0.1).toFixed(1)))}
+                                >
+                                    +0.1
+                                </Button>
+                                <Button
+                                    intent="gray-glass"
+                                    size="sm"
+                                    className="flex-1 font-bold text-base"
+                                    onClick={() => setEditedSubtitleDelay(v => parseFloat((v + 0.5).toFixed(1)))}
+                                >
+                                    +0.5
+                                </Button>
+                            </div>
+                        </div>
                     </div>
 
                     {isWebPlayer && <div className="space-y-3">

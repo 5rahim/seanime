@@ -487,8 +487,37 @@ export function VideoCoreSettingsMenu() {
                             onValueChange={(v: number) => {
                                 handleSubtitleDelayChange(v)
                             }}
-                            value={editedSubtitleDelay}
+                            value={[-2.0,-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,2.0].includes(editedSubtitleDelay) ? editedSubtitleDelay : null}
                         />
+                        <div className="flex gap-1.5 items-center mt-3">
+                            <button
+                                className="flex-1 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-white font-bold text-base"
+                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay - 0.5).toFixed(1)))}
+                            >
+                                −0.5
+                            </button>
+                            <button
+                                className="flex-1 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-white font-medium text-sm"
+                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay - 0.1).toFixed(1)))}
+                            >
+                                −0.1
+                            </button>
+                            <span className="text-sm text-[--muted] px-1 tabular-nums shrink-0 min-w-[3.5rem] text-center">
+                                {editedSubtitleDelay.toFixed(1)}s
+                            </span>
+                            <button
+                                className="flex-1 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-white font-medium text-sm"
+                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay + 0.1).toFixed(1)))}
+                            >
+                                +0.1
+                            </button>
+                            <button
+                                className="flex-1 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-white font-bold text-base"
+                                onClick={() => handleSubtitleDelayChange(parseFloat((editedSubtitleDelay + 0.5).toFixed(1)))}
+                            >
+                                +0.5
+                            </button>
+                        </div>
                     </VideoCoreMenuOption>
                     <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed}>
                         <VideoCoreSettingSelect
