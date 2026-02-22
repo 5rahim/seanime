@@ -1053,20 +1053,20 @@ func calculateBaseTitleScore(
 	bestScore := 0.0
 
 	for _, fv := range fileVariations {
-		if fv.CleanBaseTitle == "" {
+		if fv.Normalized == "" {
 			continue
 		}
 		for _, mt := range mediaTitles {
-			if mt.CleanBaseTitle == "" {
+			if mt.Normalized == "" {
 				continue
 			}
 
 			// Compare clean base titles
-			if fv.CleanBaseTitle == mt.CleanBaseTitle {
+			if fv.Normalized == mt.Normalized {
 				return scoreTitleBaseMatch
 			}
 
-			fuzzyScore := sd.Compare(fv.CleanBaseTitle, mt.CleanBaseTitle)
+			fuzzyScore := sd.Compare(fv.Normalized, mt.Normalized)
 			if fuzzyScore >= thresholdBaseTitleFuzzy {
 				score := scoreTitleBaseMatch * fuzzyScore
 				if score > bestScore {

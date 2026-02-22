@@ -342,6 +342,138 @@ declare interface $torrentUtils {
 }
 
 /**
+ * Media utils
+ */
+
+declare namespace $scannerUtils {
+    interface NormalizedTitle {
+        original: string
+        normalized: string
+        cleanBaseTitle: string
+        denoisedTitle: string
+        tokens: string[]
+        season: number
+        part: number
+        year: number
+        isMain: boolean
+    }
+
+    interface SmartSearchTitlesResult {
+        /** Cleaned, deduplicated, search-ready title variants */
+        titles: string[]
+        /** Detected season number (-1 if none) */
+        season: number
+        /** Detected part number (-1 if none) */
+        part: number
+    }
+
+    /**
+     * Normalizes a title for matching. Handles macrons, possessives, separators, format words, etc.
+     * @param title - The title to normalize
+     * @returns A NormalizedTitle object with tokens, season, part, year extracted
+     */
+    function normalizeTitle(title: string): NormalizedTitle
+
+    /**
+     * Extracts a part number from a title string.
+     * Handles: "Part 2", "Cour 2", "Part II", "2nd Part", "2nd Cour"
+     * @param title - The title to extract from
+     * @returns The part number, or -1 if not found
+     */
+    function extractPartNumber(title: string): number
+
+    /**
+     * Extracts a season number from a title string.
+     * Handles: "Season 2", "S02", "2nd Season", roman numerals (II, III),
+     * trailing numbers (Konosuba 2), Japanese patterns (2期)
+     * @param title - The title to extract from
+     * @returns The season number, or -1 if not found
+     */
+    function extractSeasonNumber(title: string): number
+
+    /**
+     * Extracts a year from a title string.
+     * @param title - The title to extract from
+     * @returns The year, or -1 if not found
+     */
+    function extractYear(title: string): number
+
+    /**
+     * Compares two titles using weighted token matching after normalization.
+     * @param title1 - First title
+     * @param title2 - Second title
+     * @returns Match ratio (0.0 - 1.0)
+     */
+    function compareTitles(title1: string, title2: string): number
+
+    /**
+     * Finds the best matching title from a list of candidates.
+     * @param target - The target title to match against
+     * @param candidates - Array of candidate titles
+     * @returns The best matching candidate string
+     */
+    function findBestMatch(target: string, candidates: string[]): string
+
+    /**
+     * Returns significant (non-noise) tokens from a title string.
+     * @param title - The title to tokenize
+     * @returns Array of significant tokens
+     */
+    function getSignificantTokens(title: string): string[]
+
+    /**
+     * Builds a clean search query from a title by normalizing and removing noise words.
+     * @param title - The title to build a query from
+     * @returns A compact search query string
+     */
+    function buildSearchQuery(title: string): string
+
+    /**
+     * Builds an advanced boolean query grouping multiple alternative titles with OR syntax.
+     * @param titles - Array of alternative titles
+     * @returns A query string like "(title1 | title2 | title3)"
+     */
+    function buildAdvancedQuery(titles: string[]): string
+
+    /**
+     * Strips special search syntax characters from a string.
+     * @param query - The raw query string to sanitize
+     * @returns The sanitized query string
+     */
+    function sanitizeQuery(query: string): string
+
+    /**
+     * Builds a query string with multiple season identifier formats.
+     * e.g. buildSeasonQuery("Overlord", 2) → "(Overlord S02 | Overlord Season 2 | Overlord 2nd Season)"
+     * @param title - The base title
+     * @param season - The season number
+     * @returns A query string with season alternatives, or just the base title for season 0/1
+     */
+    function buildSeasonQuery(title: string, season: number): string
+
+    /**
+     * Builds a query string with multiple part identifier formats.
+     * e.g. buildPartQuery("Re:Zero", 2) → "(Re Zero Part 2 | Re Zero Part II | Re Zero 2nd Cour)"
+     * @param title - The base title
+     * @param part - The part number
+     * @returns A query string with part alternatives, or just the base title for part 0/1
+     */
+    function buildPartQuery(title: string, part: number): string
+
+    /**
+     * Processes all media titles and returns cleaned, deduplicated search variants
+     * along with extracted season and part numbers.
+     *
+     * Performs: normalization (macrons, possessives, separators), season/part/roman numeral
+     * extraction, colon/dash splitting for shortened variants, deduplication.
+     *
+     * @param titles - Array of all media titles (romaji, english, synonyms)
+     * @returns An object with titles (cleaned variants), season, and part
+     */
+    function buildSmartSearchTitles(titles: string[]): SmartSearchTitlesResult
+}
+
+/**
  * ChromeDP
  */
 

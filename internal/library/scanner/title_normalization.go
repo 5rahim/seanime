@@ -125,14 +125,15 @@ var (
 
 // NormalizedTitle holds the normalized form and extracted metadata
 type NormalizedTitle struct {
-	Original       string
-	Normalized     string
-	Tokens         []string
-	Season         int
-	Part           int
-	Year           int
-	CleanBaseTitle string // Title without season/part/year info
-	IsMain         bool   // Whether this title is a main title (romaji,english)
+	Original       string   `json:"original"`
+	Normalized     string   `json:"normalized"`
+	CleanBaseTitle string   `json:"cleanBaseTitle"` // Title with roman numerals, season/part/year stripped
+	DenoisedTitle  string   `json:"denoisedTitle"`  // Title with noise words removed
+	Tokens         []string `json:"tokens"`
+	Season         int      `json:"season"`
+	Part           int      `json:"part"`
+	Year           int      `json:"year"`
+	IsMain         bool     `json:"isMain"` // Whether this title is a main title (romaji,english)
 }
 
 // NormalizeTitle creates a normalized version of a title for matching
@@ -157,13 +158,10 @@ func NormalizeTitle(title string) *NormalizedTitle {
 	normalizedFull := normalizeString(title)
 	result.Normalized = normalizedFull
 
+	result.CleanBaseTitle, result.DenoisedTitle = computeCleanBaseTitle(normalizedFull)
+
 	// Tokenize
 	result.Tokens = tokenize(normalizedFull)
-
-	// Create a clean base title (without season/part/year markers)
-	cleanTitle := removeSeasonPartMarkers(title)
-	// Normalize the clean title
-	result.CleanBaseTitle = normalizeString(cleanTitle)
 
 	return result
 }
@@ -177,9 +175,9 @@ func normalizeString(s string) string {
 
 	// Character replacements
 	s = strings.ReplaceAll(s, "@", "a")
-	s = strings.ReplaceAll(s, "×", "x")
+	s = strings.ReplaceAll(s, "×", " x ")
 	s = strings.ReplaceAll(s, "꞉", ":")
-	s = strings.ReplaceAll(s, "＊", "*")
+	s = strings.ReplaceAll(s, "＊", " * ")
 
 	s = replaceWord(s, "the animation", "")
 	s = replaceWord(s, "the", "")
@@ -190,6 +188,11 @@ func normalizeString(s string) string {
 	s = replaceWord(s, "special", "sp")
 	s = strings.ReplaceAll(s, "(tv)", "")
 	s = replaceWord(s, "&", "and")
+
+	// Replace possessive 's to prevent them from adhering to words
+	s = strings.ReplaceAll(s, "'s", " ")
+	s = strings.ReplaceAll(s, "’s", " ")
+	s = strings.ReplaceAll(s, "`s", " ")
 
 	// Replace smart quotes and apostrophes
 	s = strings.ReplaceAll(s, "'", "")
@@ -213,7 +216,7 @@ func normalizeString(s string) string {
 			}
 		} else {
 			sb.WriteRune(r)
-			prevWasSpace = (r == ' ')
+			prevWasSpace = r == ' '
 		}
 	}
 	s = sb.String()
@@ -331,27 +334,49 @@ func tokenize(s string) []string {
 	return result
 }
 
-// removeSeasonPartMarkers removes season/part indicators from a title
-func removeSeasonPartMarkers(title string) string {
-	s := title
+// stripRomanNumerals removes standalone roman numeral words from a normalized title string.
+// e.g. "overlord iii" → "overlord", "attack on titan" → "attack on titan"
+func stripRomanNumerals(s string) string {
+	tokens := strings.Fields(s)
+	result := tokens[:0]
+	for _, t := range tokens {
+		if _, ok := romanToNumber[t]; !ok {
+			result = append(result, t)
+		}
+	}
+	return strings.Join(result, " ")
+}
 
-	// Remove explicit season markers
-	s = seasonPatternExplicit.ReplaceAllString(s, " ")
-	s = seasonPatternOrdinal.ReplaceAllString(s, " ")
-	s = seasonPatternSuffix.ReplaceAllString(s, " ")
+// formatWords are the tokens we strip when building CleanBaseTitle.
+var formatWords = map[string]struct{}{
+	"ova": {}, "ona": {}, "oad": {}, "oav": {}, "sp": {}, "special": {}, "specials": {},
+	"movie": {}, "film": {}, "tv": {}, "nc": {}, "nced": {}, "ncop": {},
+	"extras": {}, "opening": {}, "ending": {}, "preview": {}, "finale": {},
+}
 
-	// Remove part markers
-	s = partPatternExplicit.ReplaceAllString(s, " ")
-	s = partPatternOrdinal.ReplaceAllString(s, " ")
-	s = partPatternRoman.ReplaceAllString(s, " ")
+// computeCleanBaseTitle strips roman numerals, format words and standalone numbers from a normalized title.
+// e.g. "persona 4" → "persona", "attack on titan ova" → "attack on titan"
+var standaloneNumberRegex = regexp.MustCompile(`\b\d+\b$`)
 
-	// Remove year in parentheses
-	s = yearParenRegex.ReplaceAllString(s, " ")
-
-	// Clean up whitespace without allocating intermediate slice
-	s = collapseWhitespace(s)
-
-	return s
+func computeCleanBaseTitle(normalized string) (string, string) {
+	s := standaloneNumberRegex.ReplaceAllString(normalized, " ")
+	tokens := strings.Fields(s)
+	result := tokens[:0]
+	denoisedResult := make([]string, 0, len(tokens))
+	for _, t := range tokens {
+		if _, isFmt := formatWords[t]; isFmt {
+			continue
+		}
+		if _, isRoman := romanToNumber[t]; isRoman {
+			continue
+		}
+		_, isNoise := noiseWords[t]
+		if !isNoise {
+			denoisedResult = append(denoisedResult, t)
+		}
+		result = append(result, t)
+	}
+	return strings.Join(result, " "), strings.Join(denoisedResult, " ")
 }
 
 // ExtractPartNumber extracts the part number from a title string

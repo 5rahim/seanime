@@ -66,8 +66,7 @@ func IntegerToRoman(number int) string {
 	return roman.String()
 }
 
-// Ordinal returns the ordinal string for a specific integer.
-func toOrdinal(number int) string {
+func getOrdinalSuffix(number int) string {
 	absNumber := int(math.Abs(float64(number)))
 
 	i := absNumber % 100
@@ -87,7 +86,6 @@ func toOrdinal(number int) string {
 	}
 }
 
-// IntegerToOrdinal the number by adding the Ordinal to the number.
 func IntegerToOrdinal(number int) string {
-	return strconv.Itoa(number) + toOrdinal(number)
+	return strconv.Itoa(number) + getOrdinalSuffix(number)
 }

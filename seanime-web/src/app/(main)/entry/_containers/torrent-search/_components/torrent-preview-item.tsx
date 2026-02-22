@@ -310,9 +310,9 @@ const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                         className="text-lg text-red-500"
                     /> Unidentified</p>}
 
-                    {mainTitle && <p
+                    {mainTitle && <div
                         className={cn(
-                            "font-normal text-[1.1rem] transition line-clamp-1 tracking-wide flex gap-2 items-center max-w-[20rem] 3xl:max-w-[35rem]",
+                            "font-normal text-[1rem] transition line-clamp-1 tracking-wide flex gap-2 items-center max-w-[35rem] lg:max-w-[35rem] 3xl:max-w-[35rem]",
                             // isBasic && "text-sm",
                         )}
                         data-torrent-preview-item-title
@@ -323,7 +323,7 @@ const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                                 isBestRelease ? "text-[--pink] opacity-70" : "opacity-30",
                             )}
                         />
-                    </span>}</p>}
+                    </span>}</div>}
 
                     {!!torrentName && <p
                         className={cn(
