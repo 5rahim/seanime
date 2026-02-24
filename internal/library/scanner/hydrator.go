@@ -670,7 +670,8 @@ func (fh *FileHydrator) precompileRules() {
 		}
 	})
 
-	if fh.Config == nil || len(fh.Config.Matching.Rules) == 0 {
+	if fh.Config == nil || len(fh.Config.Hydration.Rules) == 0 {
+		fh.ScanLogger.LogMatcher(zerolog.DebugLevel).Msg("Zero config")
 		return
 	}
 
