@@ -663,10 +663,10 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 }
 
 func (fh *FileHydrator) precompileRules() {
-	defer util.HandlePanicInModuleThenS("scanner/matcher/precompileRules", func(stackTrace string) {
+	defer util.HandlePanicInModuleThenS("scanner/hydration/precompileRules", func(stackTrace string) {
 		if fh.ScanLogger != nil {
 			fh.ScanLogger.LogMatcher(zerolog.ErrorLevel).
-				Msg("Panic occurred, when compiling matching rules")
+				Msg("Panic occurred, when compiling hydration rules")
 		}
 	})
 
