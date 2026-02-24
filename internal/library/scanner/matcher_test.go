@@ -1243,3 +1243,233 @@ func TestGetFileFormatType(t *testing.T) {
 		})
 	}
 }
+
+func TestMatcher_applyMatchingRule(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt, "")
+	animeCollection, err := anilistClient.AnimeCollectionWithRelations(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	dir := "E:/Anime"
+
+	tests := []struct {
+		name             string
+		paths            []string
+		rules            []*MatchingRule
+		expectedResults  map[string]int
+		expectedMediaIds []int
+	}{
+		{
+			name: "One rule",
+			paths: []string{
+				"E:/Anime/Some Folder/Mob Psycho - S01E05 - Test5.mkv",
+				"E:/Anime/Some Folder/Mob Psycho - S01E06 - Test6.mkv",
+				"E:/Anime/Some Folder/TestEpisode - S01E07 - Test7.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: ".*Some Folder.*", MediaID: 21507},
+			},
+			expectedResults: map[string]int{
+				"Mob Psycho - S01E05 - Test5.mkv":  21507,
+				"Mob Psycho - S01E06 - Test6.mkv":  21507,
+				"TestEpisode - S01E07 - Test7.mkv": 21507,
+			},
+			expectedMediaIds: []int{21507},
+		},
+
+		{
+			name: "Multiple rules",
+			paths: []string{
+				"E:/Anime/One Piece/One Piece - E100.mkv",
+				"E:/Anime/Mob Psycho/Mob Psycho - E01.mkv",
+				"E:/Anime/Naruto/Naruto Shippuden - E05.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: ".*One Piece.*", MediaID: 21},
+				{Pattern: ".*Mob Psycho.*", MediaID: 21507},
+				{Pattern: ".*Naruto.*", MediaID: 20},
+			},
+			expectedResults: map[string]int{
+				"One Piece - E100.mkv":       21,
+				"Mob Psycho - E01.mkv":       21507,
+				"Naruto Shippuden - E05.mkv": 20,
+			},
+			expectedMediaIds: []int{21, 21507, 20},
+		},
+
+		{
+			name: "Case insensitive rule",
+			paths: []string{
+				"E:/Anime/some folder/MOB PSYCHO - E01.mkv",
+				"E:/Anime/Some Folder/mob psycho 100 - E02.mkv",
+				"E:/Anime/SOME FOLDER/Mob Psycho - E03.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: "(?i).*Some Folder.*", MediaID: 21507},
+			},
+			expectedResults: map[string]int{
+				"MOB PSYCHO - E01.mkv":     21507,
+				"mob psycho 100 - E02.mkv": 21507,
+				"Mob Psycho - E03.mkv":     21507,
+			},
+			expectedMediaIds: []int{21507},
+		},
+
+		{
+			name: "Rule for some files only",
+			paths: []string{
+				"E:/Anime/Test/One Piece - E01.mkv",
+				"E:/Anime/Test/Mob Psycho - S02E05.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: ".*Mob Psycho.*", MediaID: 21507},
+			},
+			expectedResults: map[string]int{
+				"One Piece - E01.mkv":     21,
+				"Mob Psycho - S02E05.mkv": 21507,
+			},
+			expectedMediaIds: []int{21507, 21}, // медиа всё равно должны быть в коллекции
+		},
+		{
+			name: "Special characters in filename",
+			paths: []string{
+				"E:/Anime/Test Folder/Attack on Titan [1080p] - E01.mkv",
+				"E:/Anime/Test Folder/Attack on Titan (2013) - E02.mkv",
+				"E:/Anime/Test Folder/Attack on Titan [Final Season] - E03.mkv",
+				"E:/Anime/Test Folder/Attack on Titan Final_Season_Part_2 - [04] [1080p].mkv",
+				"E:/Anime/Test Folder/Attack.on.Titan.Final.Season.Part.2.05.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: ".*Attack on Titan \\[1080p\\].*", MediaID: 16498},
+				{Pattern: ".*Attack on Titan \\[2013\\].*", MediaID: 16498},
+				{Pattern: ".*Attack on Titan \\[Final Season\\].*", MediaID: 110277},
+				{Pattern: ".*Final_Season_Part_2.*", MediaID: 131681},
+				{Pattern: ".*Attack\\.on\\.Titan\\.Final\\.Season\\.Part\\.2.*", MediaID: 131681},
+			},
+			expectedResults: map[string]int{
+				"Attack on Titan [1080p] - E01.mkv":                      16498,
+				"Attack on Titan (2013) - E02.mkv":                       16498,
+				"Attack on Titan [Final Season] - E03.mkv":               110277,
+				"Attack on Titan Final_Season_Part_2 - [04] [1080p].mkv": 131681,
+				"Attack.on.Titan.Final.Season.Part.2.05.mkv":             131681,
+			},
+			expectedMediaIds: []int{16498, 110277, 131681},
+		},
+		{
+			name: "Rules with Unicode characters",
+			paths: []string{
+				"E:/Anime/(アニメ) さらい屋五葉 第01話 「形ばかりの」(CX 1440x1080 x264-aac).mp4",
+				"E:/Anime/鬼滅の刃/鬼滅の刃 - E02.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: ".*さらい屋五葉.*", MediaID: 7588},
+				{Pattern: ".*鬼滅の刃.*", MediaID: 101922},
+			},
+			expectedResults: map[string]int{
+				"(アニメ) さらい屋五葉 第01話 「形ばかりの」(CX 1440x1080 x264-aac).mp4": 7588,
+				"鬼滅の刃 - E02.mkv": 101922,
+			},
+			expectedMediaIds: []int{101922, 7588},
+		},
+	}
+
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			// Add medias to collection if it doesn't exist
+			allMedia := animeCollection.GetAllAnime()
+			expectedIDs := make([]int, len(tt.expectedMediaIds))
+			copy(expectedIDs, tt.expectedMediaIds)
+
+			for _, media := range allMedia {
+				for i, expectedID := range expectedIDs {
+					if media.ID == expectedID {
+						last := len(expectedIDs) - 1
+						expectedIDs[i] = expectedIDs[last]
+						expectedIDs = expectedIDs[:last]
+						break
+					}
+				}
+			}
+
+			for _, missingID := range expectedIDs {
+				anilist.TestAddAnimeCollectionWithRelationsEntry(
+					animeCollection,
+					missingID,
+					anilist.TestModifyAnimeCollectionEntryInput{
+						Status: lo.ToPtr(anilist.MediaListStatusCurrent),
+					},
+					anilistClient,
+				)
+			}
+
+			allMedia = animeCollection.GetAllAnime()
+
+			scanLogger, err := NewConsoleScanLogger()
+			if err != nil {
+				t.Fatal("expected result, got error:", err.Error())
+			}
+
+			// +---------------------+
+			// |   Local Files       |
+			// +---------------------+
+
+			var lfs []*anime.LocalFile
+			for _, path := range tt.paths {
+				lf := anime.NewLocalFile(path, dir)
+				lfs = append(lfs, lf)
+			}
+
+			// +---------------------+
+			// |   MediaContainer    |
+			// +---------------------+
+
+			mc := NewMediaContainer(&MediaContainerOptions{
+				AllMedia:   NormalizedMediaFromAnilistComplete(allMedia),
+				ScanLogger: scanLogger,
+			})
+
+			// +---------------------+
+			// |      Matcher        |
+			// +---------------------+
+
+			config := &Config{
+				Matching: MatchingConfig{
+					Rules: tt.rules,
+				},
+			}
+			matcher := &Matcher{
+				LocalFiles:        lfs,
+				MediaContainer:    mc,
+				Logger:            util.NewLogger(),
+				ScanLogger:        scanLogger,
+				ScanSummaryLogger: nil,
+				Debug:             true,
+				Config:            config,
+			}
+
+			err = matcher.MatchLocalFilesWithMedia()
+
+			for _, lf := range lfs {
+				expectedID, exists := tt.expectedResults[lf.Name]
+				if !exists {
+					t.Errorf("Unexpected file in results: %s", lf.Name)
+					continue
+				}
+				assert.Equal(t, expectedID, lf.MediaId,
+					"File %q: expected media ID %d, got %d", lf.Name, expectedID, lf.MediaId)
+
+				if expectedID != 0 {
+					t.Logf("✓ %q → MediaID: %d", lf.Name, lf.MediaId)
+				} else {
+					t.Logf("✓ %q → unmatched (as expected)", lf.Name)
+				}
+			}
+		})
+	}
+
+}

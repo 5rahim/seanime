@@ -1132,6 +1132,10 @@ func (m *Matcher) precompileRules() {
 		}
 		rgx.Longest()
 
+		if m.matchingRules == nil {
+			m.matchingRules = make(map[string]*compiledMatchingRule)
+		}
+
 		m.matchingRules[rule.Pattern] = &compiledMatchingRule{
 			regex: rgx,
 			rule:  rule,
