@@ -169,23 +169,7 @@ func getOrdinal(n int) string {
 		return word
 	}
 
-	suffix := "th"
-	switch n % 10 {
-	case 1:
-		if n%100 != 11 {
-			suffix = "st"
-		}
-	case 2:
-		if n%100 != 12 {
-			suffix = "nd"
-		}
-	case 3:
-		if n%100 != 13 {
-			suffix = "rd"
-		}
-	}
-
-	return strconv.Itoa(n) + suffix
+	return util.IntegerToOrdinal(n)
 }
 
 func ExtractEpisodeInteger(s string) (int, bool) {

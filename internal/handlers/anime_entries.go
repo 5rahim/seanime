@@ -314,11 +314,11 @@ func (h *Handler) HandleFetchAnimeEntrySuggestions(c echo.Context) error {
 
 	res, err := anilist.ListAnimeM(
 		shared_platform.NewCacheLayer(h.App.AnilistClientRef),
-		lo.ToPtr(1),
+		new(1),
 		&title,
-		lo.ToPtr(8),
+		new(8),
 		nil,
-		[]*anilist.MediaStatus{lo.ToPtr(anilist.MediaStatusFinished), lo.ToPtr(anilist.MediaStatusReleasing), lo.ToPtr(anilist.MediaStatusCancelled), lo.ToPtr(anilist.MediaStatusHiatus)},
+		[]*anilist.MediaStatus{new(anilist.MediaStatusFinished), new(anilist.MediaStatusReleasing), new(anilist.MediaStatusCancelled), new(anilist.MediaStatusHiatus)},
 		nil,
 		nil,
 		nil,

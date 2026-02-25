@@ -9,7 +9,6 @@ import (
 	"seanime/internal/util"
 
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 )
 
 var (
@@ -146,7 +145,7 @@ func (lp *OfflinePlatform) UpdateEntry(ctx context.Context, mediaID int, status 
 						entry.Status = status
 					}
 					if scoreRaw != nil {
-						entry.Score = lo.ToPtr(float64(*scoreRaw))
+						entry.Score = new(float64(*scoreRaw))
 					}
 					if progress != nil {
 						entry.Progress = progress
@@ -188,7 +187,7 @@ func (lp *OfflinePlatform) UpdateEntry(ctx context.Context, mediaID int, status 
 						entry.Status = status
 					}
 					if scoreRaw != nil {
-						entry.Score = lo.ToPtr(float64(*scoreRaw))
+						entry.Score = new(float64(*scoreRaw))
 					}
 					if progress != nil {
 						entry.Progress = progress

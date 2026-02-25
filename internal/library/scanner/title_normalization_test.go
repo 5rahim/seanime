@@ -6,95 +6,101 @@ import (
 
 func TestNormalizeTitle(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    string
-		want     string
-		wantBase string
-		season   int
-		part     int
+		input        string
+		want         string
+		wantBase     string
+		season       int
+		part         int
+		wantDenoised string
 	}{
 		{
-			name:     "Basic title",
-			input:    "Attack on Titan",
-			want:     "attack on titan",
-			wantBase: "attack on titan",
-			season:   -1,
-			part:     -1,
+			input:        "Attack on Titan",
+			want:         "attack on titan",
+			wantBase:     "attack on titan",
+			season:       -1,
+			part:         -1,
+			wantDenoised: "attack titan",
 		},
 		{
 			// Season markers are stripped from normalized title for accurate matching
 			// Season info is extracted into the Season field instead
-			name:     "Title with season",
-			input:    "Attack on Titan Season 2",
-			want:     "attack on titan",
-			wantBase: "attack on titan",
-			season:   2,
-			part:     -1,
+			input:        "Attack on Titan Season 2",
+			want:         "attack on titan",
+			wantBase:     "attack on titan",
+			season:       2,
+			part:         -1,
+			wantDenoised: "attack titan",
 		},
 		{
 			// Season and part markers are stripped from normalized title
 			// They're extracted into Season and Part fields
-			name:     "Title with part",
-			input:    "Attack on Titan Season 3 Part 2",
-			want:     "attack on titan",
-			wantBase: "attack on titan",
-			season:   3,
-			part:     2,
+			input:        "Attack on Titan Season 3 Part 2",
+			want:         "attack on titan",
+			wantBase:     "attack on titan",
+			season:       3,
+			part:         2,
+			wantDenoised: "attack titan",
 		},
 		{
 			// Roman numerals are kept in normalized title for sequel distinction
 			// e.g. help distinguish "Overlord II" from "Overlord"
-			name:     "Roman numeral season",
-			input:    "Overlord III",
-			want:     "overlord iii",
-			wantBase: "overlord iii",
-			season:   3, // ExtractSeasonNumber should extract this
+			input:        "Overlord III",
+			want:         "overlord iii",
+			wantBase:     "overlord",
+			season:       3, // ExtractSeasonNumber should extract this
+			wantDenoised: "overlord",
 		},
 		{
-			name:     "Special characters",
-			input:    "Steins;Gate",
-			want:     "steins gate",
-			wantBase: "steins gate",
+			input:        "Steins;Gate",
+			want:         "steins gate",
+			wantBase:     "steins gate",
+			wantDenoised: "steins gate",
 		},
 		{
-			name:     "Smart quotes",
-			input:    "Kino's Journey",
-			want:     "kinos journey",
-			wantBase: "kinos journey",
+			input:        "Kino's Journey",
+			want:         "kino journey",
+			wantBase:     "kino journey",
+			wantDenoised: "kino journey",
 		},
 		{
-			name:     "The Animation suffix",
-			input:    "Persona 4 The Animation",
-			want:     "persona 4",
-			wantBase: "persona 4",
+			input:        "Persona 4 The Animation",
+			want:         "persona 4",
+			wantBase:     "persona",
+			wantDenoised: "persona",
 		},
 		{
-			name:     "Case sensitivity",
-			input:    "ATTACK ON TITAN",
-			want:     "attack on titan",
-			wantBase: "attack on titan",
+			input:        "86 - Eighty Six",
+			want:         "86 eighty six",
+			wantBase:     "86 eighty six",
+			wantDenoised: "86 eighty six",
 		},
 		{
-			name:     "With 'The'",
-			input:    "The Melancholy of Haruhi Suzumiya",
-			want:     "melancholy of haruhi suzumiya",
-			wantBase: "melancholy of haruhi suzumiya",
+			input:        "ATTACK ON TITAN",
+			want:         "attack on titan",
+			wantBase:     "attack on titan",
+			wantDenoised: "attack titan",
 		},
 		{
-			name:     "With 'Episode'",
-			input:    "One Piece Episode 1000",
-			want:     "one piece 1000",
-			wantBase: "one piece 1000",
+			input:        "The Melancholy of Haruhi Suzumiya",
+			want:         "melancholy of haruhi suzumiya",
+			wantBase:     "melancholy of haruhi suzumiya",
+			wantDenoised: "melancholy haruhi suzumiya",
 		},
 		{
-			name:     "OAD/OVA",
-			input:    "Attack on Titan OAD",
-			want:     "attack on titan ova",
-			wantBase: "attack on titan ova",
+			input:        "One Piece Episode 1000",
+			want:         "one piece 1000",
+			wantBase:     "one piece",
+			wantDenoised: "one piece",
+		},
+		{
+			input:        "Attack on Titan OAD",
+			want:         "attack on titan ova",
+			wantBase:     "attack on titan",
+			wantDenoised: "attack titan",
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.input, func(t *testing.T) {
 			got := NormalizeTitle(tt.input)
 			if got.Normalized != tt.want {
 				t.Errorf("NormalizeTitle(%q).Normalized = %q, want %q", tt.input, got.Normalized, tt.want)
@@ -102,6 +108,10 @@ func TestNormalizeTitle(t *testing.T) {
 			// check base title only if expected is provided (some cases might be tricky with what 'base' implies)
 			if tt.wantBase != "" && got.CleanBaseTitle != tt.wantBase {
 				t.Errorf("NormalizeTitle(%q).CleanBaseTitle = %q, want %q", tt.input, got.CleanBaseTitle, tt.wantBase)
+			}
+			// check base title only if expected is provided (some cases might be tricky with what 'base' implies)
+			if tt.wantDenoised != "" && got.DenoisedTitle != tt.wantDenoised {
+				t.Errorf("NormalizeTitle(%q).DenoisedTitle = %q, want %q", tt.input, got.DenoisedTitle, tt.wantDenoised)
 			}
 			// Check season extraction if specified
 			if tt.season != 0 && got.Season != tt.season {

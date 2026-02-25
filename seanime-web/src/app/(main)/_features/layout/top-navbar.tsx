@@ -39,13 +39,22 @@ export function TopNavbar(props: TopNavbarProps) {
                 className={cn(
                     "w-full h-[5rem] relative overflow-hidden flex items-center",
                     (ts.hideTopNavbar || __isDesktop__) && "lg:hidden",
+                    // __isDesktop__ && "absolute top-0 left-0 z-[-1]"
                 )}
             >
+                {/*{__isDesktop__ && (*/}
+                {/*    <div*/}
+                {/*        className="absolute inset-0 z-0"*/}
+                {/*        style={{ WebkitAppRegion: "drag" } as any}*/}
+                {/*    />*/}
+                {/*)}*/}
                 <div
                     data-top-navbar-content-container
                     className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto overflow-y-hidden"
+                    // className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto overflow-y-hidden pointer-events-auto"
+
                 >
-                    <div data-top-navbar-content className="flex items-center w-full gap-3">
+                    <div data-top-navbar-content className="flex items-center w-full gap-3 z-[90]" style={{ WebkitAppRegion: "no-drag" } as any}>
                         <AppSidebarTrigger />
                         {!isOffline ? <TopMenu /> : <OfflineTopMenu />}
                         <PlaybackManagerProgressTrackingButton />
@@ -85,7 +94,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
     const openDownloadQueue = useSetAtom(__manga_chapterDownloadsDrawerIsOpenAtom)
     const isMangaPage = pathname.startsWith("/manga")
 
-    if (!ts.hideTopNavbar && import.meta.env.SEA_PUBLIC_PLATFORM !== "desktop") return null
+    if (!ts.hideTopNavbar && !__isDesktop__) return null
 
     return (
         <div data-sidebar-navbar className="flex flex-col gap-1">

@@ -19,6 +19,7 @@ import { useAnimeCollectionLoader } from "@/app/(main)/_hooks/anilist-collection
 import { useAnimeLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useAnimeCollectionListener } from "@/app/(main)/_listeners/anilist-collection.listeners"
+import { useAuthEventListeners } from "@/app/(main)/_listeners/auth.listeners.ts"
 import { useAutoDownloaderItemListener } from "@/app/(main)/_listeners/autodownloader.listeners"
 import { useExtensionListener } from "@/app/(main)/_listeners/extensions.listeners"
 import { useExternalPlayerLinkListener } from "@/app/(main)/_listeners/external-player-link.listeners"
@@ -114,6 +115,7 @@ function Loader() {
     useInvalidateQueriesListener()
     useTorrentStreamListener()
     useChangelogTourListener()
+    useAuthEventListeners()
 
     const serverStatus = useServerStatus()
     const router = useRouter()

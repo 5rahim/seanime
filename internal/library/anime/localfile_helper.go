@@ -300,8 +300,8 @@ func (f *LocalFile) GetFolderTitle(all ...bool) string {
 	return ""
 }
 
-// getAllFolderTitles returns all valid folder titles (not just the closest one).
-func (f *LocalFile) getAllFolderTitles() []string {
+// GetAllFolderTitles returns all valid folder titles (not just the closest one).
+func (f *LocalFile) GetAllFolderTitles() []string {
 	if len(f.ParsedFolderData) == 0 {
 		return nil
 	}
@@ -367,7 +367,7 @@ func (f *LocalFile) GetTitleVariations() []*string {
 	// Collect all valid folder titles (not just the closest one)
 	// This ensures parent folder titles like "Re Zero kara Hajimeru Isekai Seikatsu" are used
 	// for token-based candidate matching even when the closest folder has a shorter name like "ReZero"
-	allFolderTitles := f.getAllFolderTitles()
+	allFolderTitles := f.GetAllFolderTitles()
 
 	// shortcircuit if there are no titles
 	if len(f.ParsedData.Title) == 0 && len(folderTitle) == 0 && len(allFolderTitles) == 0 {
@@ -383,35 +383,49 @@ func (f *LocalFile) GetTitleVariations() []*string {
 	eitherSeasonFirst := folderSeason == 1 || season == 1
 
 	// Collect base titles to use
-	baseTitles := make([]string, 0, 4)
+	// Primary titles: filename and closest folder (used for season/part variations)
+	// Extra titles: parent folder titles (used as raw base titles for candidate lookup and matching with lower weight)
+	primaryTitles := make([]string, 0, 2)
 	if len(f.ParsedData.Title) > 0 {
-		baseTitles = append(baseTitles, f.ParsedData.Title)
+		primaryTitles = append(primaryTitles, f.ParsedData.Title)
 	}
 	if len(folderTitle) > 0 && folderTitle != f.ParsedData.Title {
-		baseTitles = append(baseTitles, folderTitle)
+		primaryTitles = append(primaryTitles, folderTitle)
 	}
-	// Add other folder titles that aren't already in baseTitles
+
+	// Extra folder titles from parent folders (not the closest folder)
+	extraTitles := make([]string, 0, len(allFolderTitles))
 	for _, ft := range allFolderTitles {
 		alreadyAdded := false
-		for _, bt := range baseTitles {
+		for _, bt := range primaryTitles {
 			if ft == bt {
 				alreadyAdded = true
 				break
 			}
 		}
 		if !alreadyAdded {
-			baseTitles = append(baseTitles, ft)
+			extraTitles = append(extraTitles, ft)
 		}
 	}
 
-	// Always add the raw base titles
-	for _, t := range baseTitles {
+	// All base titles combined for raw title addition and candidate lookup
+	baseTitles := make([]string, 0, len(primaryTitles)+len(extraTitles))
+	baseTitles = append(baseTitles, primaryTitles...)
+	baseTitles = append(baseTitles, extraTitles...)
+
+	// Add primary titles as raw base title variations
+	for _, t := range primaryTitles {
+		titleVariations = append(titleVariations, t)
+	}
+	// Add parent folder titles (far away titles)
+	// We'll optionally penalize them later during scoring to avoid false positives.
+	for _, t := range extraTitles {
 		titleVariations = append(titleVariations, t)
 	}
 
-	// Part variations
+	// Part variations (only from primary titles, not parent folder titles)
 	if part > 0 {
-		for _, t := range baseTitles {
+		for _, t := range primaryTitles {
 			titleVariations = append(titleVariations,
 				buildTitle(t, "Part", strconv.Itoa(part)),
 				buildTitle(t, "Part", util.IntegerToOrdinal(part)),
@@ -424,14 +438,14 @@ func (f *LocalFile) GetTitleVariations() []*string {
 		}
 	}
 
-	// Season variations
+	// Season variations (only from primary titles, not parent folder titles)
 	if eitherSeason {
 		seas := folderSeason
 		if season > 0 {
 			seas = season
 		}
 
-		for _, t := range baseTitles {
+		for _, t := range primaryTitles {
 			// Standard formats
 			titleVariations = append(titleVariations,
 				buildTitle(t, "Season", strconv.Itoa(seas)),          // "Title Season 2"
@@ -444,7 +458,7 @@ func (f *LocalFile) GetTitleVariations() []*string {
 
 		// Combined with part
 		if part > 0 {
-			for _, t := range baseTitles {
+			for _, t := range primaryTitles {
 				titleVariations = append(titleVariations,
 					buildTitle(t, "Season", strconv.Itoa(seas), "Part", strconv.Itoa(part)),
 					buildTitle(t, fmt.Sprintf("S%d", seas), fmt.Sprintf("Part %d", part)),

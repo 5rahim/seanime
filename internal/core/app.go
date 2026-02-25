@@ -53,6 +53,7 @@ import (
 	"seanime/internal/util/result"
 	"seanime/internal/videocore"
 	"sync"
+	"sync/atomic"
 
 	"github.com/rs/zerolog"
 )
@@ -158,6 +159,7 @@ type (
 		ServerReady        bool
 		isOfflineRef       *util.Ref[bool]
 		ServerPasswordHash string
+		logoutInProgress   atomic.Bool
 
 		// Plugin system
 		HookManager hook.Manager
@@ -175,6 +177,8 @@ type (
 
 // NewApp creates a new server instance
 func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
+
+	var app *App
 
 	// Initialize logger with predefined format
 	logger := util.NewLogger()
@@ -308,7 +312,11 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	})
 
 	// Initialize Anilist platform
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCWRef, extensionBankRef, logger, database)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCWRef, extensionBankRef, logger, database, func() {
+		if app != nil {
+			app.LogoutFromAnilist()
+		}
+	})
 
 	activePlatformRef := util.NewRef[platform.Platform](anilistPlatform)
 	metadataProviderRef := util.NewRef[metadata_provider.Provider](activeMetadataProvider)
@@ -380,7 +388,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatformRef, metadataProviderRef)
 
 	// Create the main app instance with initialized components
-	app := &App{
+	app = &App{
 		Config:                        cfg,
 		Flags:                         configOpts.Flags,
 		FeatureManager:                NewFeatureManager(logger, configOpts.Flags),

@@ -13,7 +13,6 @@ import (
 	"seanime/internal/util/limiter"
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -168,7 +167,7 @@ func TestMatcher2(t *testing.T) {
 				}
 			}
 			if !hasExpectedMediaId {
-				anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, tt.expectedMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: lo.ToPtr(anilist.MediaListStatusCurrent)}, anilistClient)
+				anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, tt.expectedMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: new(anilist.MediaListStatusCurrent)}, anilistClient)
 				allMedia = animeCollection.GetAllAnime()
 			}
 
@@ -181,7 +180,7 @@ func TestMatcher2(t *testing.T) {
 					}
 				}
 				if !hasOtherMediaId {
-					anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, otherMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: lo.ToPtr(anilist.MediaListStatusCurrent)}, anilistClient)
+					anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, otherMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: new(anilist.MediaListStatusCurrent)}, anilistClient)
 					allMedia = animeCollection.GetAllAnime()
 				}
 			}
@@ -702,6 +701,156 @@ func TestMatcher3(t *testing.T) {
 			expectedMediaId: 163134,
 			otherMediaIds:   []int{},
 		},
+		{
+			name: "ReZero 3_2",
+			paths: []string{
+				"E:/Anime/Re Zero kara Hajimeru Isekai Seikatsu 3rd Season (Batch + OVAs)/ReZero S03 1080p Dual Audio WEBRip DD+ x265-EMBER/ReZero - S03E01-Theatrical Malice [4AB8AF98].mkv",
+			},
+			expectedMediaId: 163134,
+			otherMediaIds:   []int{},
+		},
+		// generic root title shouldn't cause mismatches
+		{
+			name: "Bakemonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Bakemonogatari/[Coalgirls]_Bakemonogatari_01_(1920x1080_Blu-ray_FLAC)_[E32CBBD3].mkv",
+				"E:/Anime/Monogatari Series/Bakemonogatari/[Commie] Bakemonogatari - 02 [BD 1080p AAC] [1B3D8A29].mkv",
+				"E:/Anime/Monogatari Series/Bakemonogatari/Bakemonogatari - 03 (BDRip 1920x1080 x264 FLAC).mkv",
+				"E:/Anime/Monogatari Series/Bakemonogatari - 03 (BDRip 1920x1080 x264 FLAC).mkv",
+			},
+			expectedMediaId: 5081,
+			otherMediaIds:   []int{11597, 15689, 17074},
+		},
+		{
+			name: "Nisemonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Nisemonogatari/[MTBB] Nisemonogatari - 01 (1080p BD) [5C0A0065].mkv",
+				"E:/Anime/Monogatari Series/Nisemonogatari/[Commie] Nisemonogatari - 02 [DB005E82].mkv",
+				"E:/Anime/Monogatari Series/Nisemonogatari/[Coalgirls]_Nisemonogatari_03_(1920x1080_Blu-ray_FLAC).mkv",
+			},
+			expectedMediaId: 11597,
+			otherMediaIds:   []int{5081, 15689, 17074},
+		},
+		{
+			name: "Nekomonogatari Kuro",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Nekomonogatari (Kuro)/[Commie] Nekomonogatari (Kuro) - 01 [B085F6CB].mkv",
+				"E:/Anime/Monogatari Series/Nekomonogatari (Kuro)/[Coalgirls]_Nekomonogatari_(Kuro)_02_(1920x1080_Blu-ray_FLAC)_[A38F72D0].mkv",
+				"E:/Anime/Monogatari Series/Nekomonogatari (Kuro)/[MTBB] Nekomonogatari: Kuro - 03 (1080p BD) [5C0A0065].mkv",
+			},
+			expectedMediaId: 15689,
+			otherMediaIds:   []int{5081, 11597, 17074},
+		},
+		{
+			name: "Monogatari Series: Second Season",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Monogatari Series Second Season/[Edo] Monogatari Series: Second Season - 01 (1080p, AAC) [54F919E3].mkv",
+				"E:/Anime/Monogatari Series/Monogatari Series Second Season/[Coalgirls]_Monogatari_Series_Second_Season_02_(1920x1080_Blu-ray_FLAC).mkv",
+				"E:/Anime/Monogatari Series/Monogatari Series Second Season/[Commie] Monogatari Series Second Season - 03 [1080p][33BBD87B].mkv",
+			},
+			expectedMediaId: 17074,
+			otherMediaIds:   []int{5081, 11597, 15689},
+		},
+		{
+			name: "Hanamonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Hanamonogatari/[Commie] Hanamonogatari - 01 [1080p][33BBD87B].mkv",
+				"E:/Anime/Monogatari Series/Hanamonogatari/[MTBB] Hanamonogatari - 02 (1080p BD) [69C45B90].mkv",
+				"E:/Anime/Monogatari Series/Hanamonogatari/[Coalgirls]_Hanamonogatari_03_(1920x1080_Blu-Ray_FLAC)_[C1D38A94].mkv",
+			},
+			expectedMediaId: 20593,
+			otherMediaIds:   []int{17074},
+		},
+		{
+			name: "Tsukimonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Tsukimonogatari/[Commie] Tsukimonogatari - 01 [1080p][33BBD87B].mkv",
+				"E:/Anime/Monogatari Series/Tsukimonogatari/[MTBB] Tsukimonogatari - 02 (1080p BD) [69C45B90].mkv",
+				"E:/Anime/Monogatari Series/Tsukimonogatari/[Coalgirls]_Tsukimonogatari_03_(1920x1080_Blu-Ray_FLAC)_[C1D38A94].mkv",
+			},
+			expectedMediaId: 20918,
+			otherMediaIds:   []int{17074, 21262},
+		},
+		{
+			name: "Owarimonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Owarimonogatari/[Commie] Owarimonogatari - 01 [1080p][F3E836D4].mkv",
+				"E:/Anime/Monogatari Series/Owarimonogatari/[MTBB] Owarimonogatari - 02 (1080p BD).mkv",
+				"E:/Anime/Monogatari Series/Owarimonogatari/[Coalgirls]_Owarimonogatari_03_(1920x1080_Blu-Ray_FLAC).mkv",
+			},
+			expectedMediaId: 21262,
+			otherMediaIds:   []int{21746, 17074, 100815},
+		},
+		{
+			name: "Koyomimonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Koyomimonogatari/[Commie] Koyomimonogatari - 01 [1080p].mkv",
+				"E:/Anime/Monogatari Series/Koyomimonogatari/[MTBB] Koyomimonogatari - 02 (1080p BD).mkv",
+				"E:/Anime/Monogatari Series/Koyomimonogatari/[Edo] Koyomimonogatari - 03 (1080p, AAC).mkv",
+			},
+			expectedMediaId: 21520,
+			otherMediaIds:   []int{17074, 21262},
+		},
+		{
+			name: "Kizumonogatari I: Tekketsu-hen",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Commie] Kizumonogatari I - Tekketsu-hen [1080p].mkv",
+				"E:/Anime/Monogatari Series/Kizumonogatari/Kizumonogatari Part 1 Tekketsu [1080p].mkv",
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Coalgirls] Kizumonogatari I - Tekketsu-hen (1920x1080 Blu-Ray FLAC).mkv",
+			},
+			expectedMediaId: 9260,
+			otherMediaIds:   []int{21399, 21400, 5081},
+		},
+		{
+			name: "Kizumonogatari II: Nekketsu-hen",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Commie] Kizumonogatari II - Nekketsu-hen [1080p].mkv",
+				//"E:/Anime/Monogatari Series/Kizumonogatari/Kizumonogatari Part 2 Nekketsu [1080p].mkv",
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Coalgirls] Kizumonogatari II - Nekketsu-hen (1920x1080 Blu-Ray FLAC).mkv",
+			},
+			expectedMediaId: 21399,
+			otherMediaIds:   []int{9260, 21400, 5081},
+		},
+		{
+			name: "Kizumonogatari III: Reiketsu-hen",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Commie] Kizumonogatari III - Reiketsu-hen [1080p].mkv",
+				//"E:/Anime/Monogatari Series/Kizumonogatari/Kizumonogatari Part 3 Reiketsu [1080p].mkv",
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Coalgirls] Kizumonogatari III - Reiketsu-hen (1920x1080 Blu-Ray FLAC).mkv",
+			},
+			expectedMediaId: 21400,
+			otherMediaIds:   []int{9260, 21399, 5081},
+		},
+		{
+			name: "Owarimonogatari 2nd Season",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Owarimonogatari 2nd Season/[Commie] Owarimonogatari Second Season - 01 [1080p].mkv",
+				"E:/Anime/Monogatari Series/Owarimonogatari 2nd Season/[MTBB] Owarimonogatari 2nd Season - 02 (1080p BD).mkv",
+				"E:/Anime/Monogatari Series/Owarimonogatari 2nd Season/[SomeSubs] Owarimonogatari S2 - 03 [1080p BD].mkv",
+			},
+			expectedMediaId: 21745,
+			otherMediaIds:   []int{21262, 17074, 100815},
+		},
+		{
+			name: "Zoku Owarimonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Zoku Owarimonogatari/[Erai-raws] Zoku Owarimonogatari - 01 [1080p][Multiple Subtitle].mkv",
+				"E:/Anime/Monogatari Series/Zoku Owarimonogatari/[MTBB] Zoku Owarimonogatari - 02 (1080p BD).mkv",
+				"E:/Anime/Monogatari Series/Zoku Owarimonogatari/[Commie] Zoku Owarimonogatari - 03 [1080p].mkv",
+			},
+			expectedMediaId: 100815,
+			otherMediaIds:   []int{21746, 21262, 17074},
+		},
+		{
+			name: "Monogatari Series: Off & Monster Season",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Monogatari Series Off & Monster Season/[Erai-raws] Monogatari Series - Off & Monster Season - 01 [1080p][Multiple Subtitle][64667E46].mkv",
+				"E:/Anime/Monogatari Series/Monogatari Series Off & Monster Season/[SubsPlease] Monogatari Series - Off and Monster Season - 02 (1080p) [2B23C6D3].mkv",
+				"E:/Anime/Monogatari Series/Monogatari Series Off & Monster Season/[Kawaiika-Raws] Monogatari Series Off & Monster Season - 03 [WEB 1080p x265 E-AC-3][Dual-Audio].mkv",
+			},
+			expectedMediaId: 173533,
+			otherMediaIds:   []int{17074, 5081, 100815},
+		},
 	}
 
 	for _, tt := range tests {
@@ -720,7 +869,7 @@ func TestMatcher3(t *testing.T) {
 				}
 			}
 			if !hasMedia {
-				anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, tt.expectedMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: lo.ToPtr(anilist.MediaListStatusCurrent)}, anilistClient)
+				anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, tt.expectedMediaId, anilist.TestModifyAnimeCollectionEntryInput{Status: new(anilist.MediaListStatusCurrent)}, anilistClient)
 				allMedia = animeCollection.GetAllAnime()
 			}
 
@@ -734,7 +883,7 @@ func TestMatcher3(t *testing.T) {
 					}
 				}
 				if !hasMedia {
-					anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, id, anilist.TestModifyAnimeCollectionEntryInput{Status: lo.ToPtr(anilist.MediaListStatusCurrent)}, anilistClient)
+					anilist.TestAddAnimeCollectionWithRelationsEntry(animeCollection, id, anilist.TestModifyAnimeCollectionEntryInput{Status: new(anilist.MediaListStatusCurrent)}, anilistClient)
 					allMedia = animeCollection.GetAllAnime()
 				}
 			}
@@ -1052,23 +1201,23 @@ func TestIgnoredSynonyms(t *testing.T) {
 				{
 					ID: 33,
 					Title: &anime.NormalizedMediaTitle{
-						English: lo.ToPtr("MultiSet Iterator"),
+						English: new("MultiSet Iterator"),
 					},
-					Synonyms: []*string{lo.ToPtr("MS")},
+					Synonyms: []*string{new("MS")},
 				},
 				{
 					ID: 44,
 					Title: &anime.NormalizedMediaTitle{
-						English: lo.ToPtr("MultiSet Iterator II"),
+						English: new("MultiSet Iterator II"),
 					},
-					Synonyms: []*string{lo.ToPtr("MultiSet 2"), lo.ToPtr("MS")},
+					Synonyms: []*string{new("MultiSet 2"), new("MS")},
 				},
 				{
 					ID: 55,
 					Title: &anime.NormalizedMediaTitle{
-						English: lo.ToPtr("MultiSet Iterator III"),
+						English: new("MultiSet Iterator III"),
 					},
-					Synonyms: []*string{lo.ToPtr("MultiSet 3"), lo.ToPtr("MS")},
+					Synonyms: []*string{new("MultiSet 3"), new("MS")},
 				},
 			},
 			singularizedSynonym:      "MS",
@@ -1243,4 +1392,234 @@ func TestGetFileFormatType(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMatcher_applyMatchingRule(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt, "")
+	animeCollection, err := anilistClient.AnimeCollectionWithRelations(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	dir := "E:/Anime"
+
+	tests := []struct {
+		name             string
+		paths            []string
+		rules            []*MatchingRule
+		expectedResults  map[string]int
+		expectedMediaIds []int
+	}{
+		{
+			name: "One rule",
+			paths: []string{
+				"E:/Anime/Some Folder/Mob Psycho - S01E05 - Test5.mkv",
+				"E:/Anime/Some Folder/Mob Psycho - S01E06 - Test6.mkv",
+				"E:/Anime/Some Folder/TestEpisode - S01E07 - Test7.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: ".*Some Folder.*", MediaID: 21507},
+			},
+			expectedResults: map[string]int{
+				"Mob Psycho - S01E05 - Test5.mkv":  21507,
+				"Mob Psycho - S01E06 - Test6.mkv":  21507,
+				"TestEpisode - S01E07 - Test7.mkv": 21507,
+			},
+			expectedMediaIds: []int{21507},
+		},
+
+		{
+			name: "Multiple rules",
+			paths: []string{
+				"E:/Anime/One Piece/One Piece - E100.mkv",
+				"E:/Anime/Mob Psycho/Mob Psycho - E01.mkv",
+				"E:/Anime/Naruto/Naruto Shippuden - E05.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: ".*One Piece.*", MediaID: 21},
+				{Pattern: ".*Mob Psycho.*", MediaID: 21507},
+				{Pattern: ".*Naruto.*", MediaID: 20},
+			},
+			expectedResults: map[string]int{
+				"One Piece - E100.mkv":       21,
+				"Mob Psycho - E01.mkv":       21507,
+				"Naruto Shippuden - E05.mkv": 20,
+			},
+			expectedMediaIds: []int{21, 21507, 20},
+		},
+
+		{
+			name: "Case insensitive rule",
+			paths: []string{
+				"E:/Anime/some folder/MOB PSYCHO - E01.mkv",
+				"E:/Anime/Some Folder/mob psycho 100 - E02.mkv",
+				"E:/Anime/SOME FOLDER/Mob Psycho - E03.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: "(?i).*Some Folder.*", MediaID: 21507},
+			},
+			expectedResults: map[string]int{
+				"MOB PSYCHO - E01.mkv":     21507,
+				"mob psycho 100 - E02.mkv": 21507,
+				"Mob Psycho - E03.mkv":     21507,
+			},
+			expectedMediaIds: []int{21507},
+		},
+
+		{
+			name: "Rule for some files only",
+			paths: []string{
+				"E:/Anime/Test/One Piece - E01.mkv",
+				"E:/Anime/Test/Mob Psycho - S02E05.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: ".*Mob Psycho.*", MediaID: 21507},
+			},
+			expectedResults: map[string]int{
+				"One Piece - E01.mkv":     21,
+				"Mob Psycho - S02E05.mkv": 21507,
+			},
+			expectedMediaIds: []int{21507, 21}, // медиа всё равно должны быть в коллекции
+		},
+		{
+			name: "Special characters in filename",
+			paths: []string{
+				"E:/Anime/Test Folder/Attack on Titan [1080p] - E01.mkv",
+				"E:/Anime/Test Folder/Attack on Titan (2013) - E02.mkv",
+				"E:/Anime/Test Folder/Attack on Titan [Final Season] - E03.mkv",
+				"E:/Anime/Test Folder/Attack on Titan Final_Season_Part_2 - [04] [1080p].mkv",
+				"E:/Anime/Test Folder/Attack.on.Titan.Final.Season.Part.2.05.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: ".*Attack on Titan \\[1080p\\].*", MediaID: 16498},
+				{Pattern: ".*Attack on Titan \\[2013\\].*", MediaID: 16498},
+				{Pattern: ".*Attack on Titan \\[Final Season\\].*", MediaID: 110277},
+				{Pattern: ".*Final_Season_Part_2.*", MediaID: 131681},
+				{Pattern: ".*Attack\\.on\\.Titan\\.Final\\.Season\\.Part\\.2.*", MediaID: 131681},
+			},
+			expectedResults: map[string]int{
+				"Attack on Titan [1080p] - E01.mkv":                      16498,
+				"Attack on Titan (2013) - E02.mkv":                       16498,
+				"Attack on Titan [Final Season] - E03.mkv":               110277,
+				"Attack on Titan Final_Season_Part_2 - [04] [1080p].mkv": 131681,
+				"Attack.on.Titan.Final.Season.Part.2.05.mkv":             131681,
+			},
+			expectedMediaIds: []int{16498, 110277, 131681},
+		},
+		{
+			name: "Rules with Unicode characters",
+			paths: []string{
+				"E:/Anime/(アニメ) さらい屋五葉 第01話 「形ばかりの」(CX 1440x1080 x264-aac).mp4",
+				"E:/Anime/鬼滅の刃/鬼滅の刃 - E02.mkv",
+			},
+			rules: []*MatchingRule{
+				{Pattern: ".*さらい屋五葉.*", MediaID: 7588},
+				{Pattern: ".*鬼滅の刃.*", MediaID: 101922},
+			},
+			expectedResults: map[string]int{
+				"(アニメ) さらい屋五葉 第01話 「形ばかりの」(CX 1440x1080 x264-aac).mp4": 7588,
+				"鬼滅の刃 - E02.mkv": 101922,
+			},
+			expectedMediaIds: []int{101922, 7588},
+		},
+	}
+
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			// Add medias to collection if it doesn't exist
+			allMedia := animeCollection.GetAllAnime()
+			expectedIDs := make([]int, len(tt.expectedMediaIds))
+			copy(expectedIDs, tt.expectedMediaIds)
+
+			for _, media := range allMedia {
+				for i, expectedID := range expectedIDs {
+					if media.ID == expectedID {
+						last := len(expectedIDs) - 1
+						expectedIDs[i] = expectedIDs[last]
+						expectedIDs = expectedIDs[:last]
+						break
+					}
+				}
+			}
+
+			for _, missingID := range expectedIDs {
+				anilist.TestAddAnimeCollectionWithRelationsEntry(
+					animeCollection,
+					missingID,
+					anilist.TestModifyAnimeCollectionEntryInput{
+						Status: new(anilist.MediaListStatusCurrent),
+					},
+					anilistClient,
+				)
+			}
+
+			allMedia = animeCollection.GetAllAnime()
+
+			scanLogger, err := NewConsoleScanLogger()
+			if err != nil {
+				t.Fatal("expected result, got error:", err.Error())
+			}
+
+			// +---------------------+
+			// |   Local Files       |
+			// +---------------------+
+
+			var lfs []*anime.LocalFile
+			for _, path := range tt.paths {
+				lf := anime.NewLocalFile(path, dir)
+				lfs = append(lfs, lf)
+			}
+
+			// +---------------------+
+			// |   MediaContainer    |
+			// +---------------------+
+
+			mc := NewMediaContainer(&MediaContainerOptions{
+				AllMedia:   NormalizedMediaFromAnilistComplete(allMedia),
+				ScanLogger: scanLogger,
+			})
+
+			// +---------------------+
+			// |      Matcher        |
+			// +---------------------+
+
+			config := &Config{
+				Matching: MatchingConfig{
+					Rules: tt.rules,
+				},
+			}
+			matcher := &Matcher{
+				LocalFiles:        lfs,
+				MediaContainer:    mc,
+				Logger:            util.NewLogger(),
+				ScanLogger:        scanLogger,
+				ScanSummaryLogger: nil,
+				Debug:             true,
+				Config:            config,
+			}
+
+			err = matcher.MatchLocalFilesWithMedia()
+
+			for _, lf := range lfs {
+				expectedID, exists := tt.expectedResults[lf.Name]
+				if !exists {
+					t.Errorf("Unexpected file in results: %s", lf.Name)
+					continue
+				}
+				assert.Equal(t, expectedID, lf.MediaId,
+					"File %q: expected media ID %d, got %d", lf.Name, expectedID, lf.MediaId)
+
+				if expectedID != 0 {
+					t.Logf("✓ %q → MediaID: %d", lf.Name, lf.MediaId)
+				} else {
+					t.Logf("✓ %q → unmatched (as expected)", lf.Name)
+				}
+			}
+		})
+	}
+
 }

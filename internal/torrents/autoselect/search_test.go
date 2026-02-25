@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -124,15 +123,15 @@ func createTestMedia(t *testing.T) *anilist.CompleteAnime {
 	return &anilist.CompleteAnime{
 		ID: 21,
 		Title: &anilist.CompleteAnime_Title{
-			Romaji:  lo.ToPtr("One Piece"),
-			English: lo.ToPtr("One Piece"),
+			Romaji:  new("One Piece"),
+			English: new("One Piece"),
 		},
-		Status: lo.ToPtr(anilist.MediaStatusReleasing),
-		Format: lo.ToPtr(anilist.MediaFormatTv),
+		Status: new(anilist.MediaStatusReleasing),
+		Format: new(anilist.MediaFormatTv),
 		StartDate: &anilist.CompleteAnime_StartDate{
-			Year: lo.ToPtr(1999),
+			Year: new(1999),
 		},
-		IsAdult: lo.ToPtr(false),
+		IsAdult: new(false),
 	}
 }
 
@@ -454,12 +453,12 @@ func TestShouldSearchBatch(t *testing.T) {
 		{
 			name: "Finished anime, ended more than 2 weeks ago",
 			media: &anilist.CompleteAnime{
-				Status: lo.ToPtr(anilist.MediaStatusFinished),
-				Format: lo.ToPtr(anilist.MediaFormatTv),
+				Status: new(anilist.MediaStatusFinished),
+				Format: new(anilist.MediaFormatTv),
 				EndDate: &anilist.CompleteAnime_EndDate{
-					Year:  lo.ToPtr(threeWeeksAgo.Year()),
-					Month: lo.ToPtr(int(threeWeeksAgo.Month())),
-					Day:   lo.ToPtr(threeWeeksAgo.Day()),
+					Year:  new(threeWeeksAgo.Year()),
+					Month: new(int(threeWeeksAgo.Month())),
+					Day:   new(threeWeeksAgo.Day()),
 				},
 			},
 			expected: true,
@@ -467,12 +466,12 @@ func TestShouldSearchBatch(t *testing.T) {
 		{
 			name: "Finished anime, ended exactly 2 weeks ago",
 			media: &anilist.CompleteAnime{
-				Status: lo.ToPtr(anilist.MediaStatusFinished),
-				Format: lo.ToPtr(anilist.MediaFormatTv),
+				Status: new(anilist.MediaStatusFinished),
+				Format: new(anilist.MediaFormatTv),
 				EndDate: &anilist.CompleteAnime_EndDate{
-					Year:  lo.ToPtr(exactlyTwoWeeksAgo.Year()),
-					Month: lo.ToPtr(int(exactlyTwoWeeksAgo.Month())),
-					Day:   lo.ToPtr(exactlyTwoWeeksAgo.Day()),
+					Year:  new(exactlyTwoWeeksAgo.Year()),
+					Month: new(int(exactlyTwoWeeksAgo.Month())),
+					Day:   new(exactlyTwoWeeksAgo.Day()),
 				},
 			},
 			expected: true,
@@ -480,12 +479,12 @@ func TestShouldSearchBatch(t *testing.T) {
 		{
 			name: "Finished anime, ended less than 2 weeks ago",
 			media: &anilist.CompleteAnime{
-				Status: lo.ToPtr(anilist.MediaStatusFinished),
-				Format: lo.ToPtr(anilist.MediaFormatTv),
+				Status: new(anilist.MediaStatusFinished),
+				Format: new(anilist.MediaFormatTv),
 				EndDate: &anilist.CompleteAnime_EndDate{
-					Year:  lo.ToPtr(oneWeekAgo.Year()),
-					Month: lo.ToPtr(int(oneWeekAgo.Month())),
-					Day:   lo.ToPtr(oneWeekAgo.Day()),
+					Year:  new(oneWeekAgo.Year()),
+					Month: new(int(oneWeekAgo.Month())),
+					Day:   new(oneWeekAgo.Day()),
 				},
 			},
 			expected: false,
@@ -493,12 +492,12 @@ func TestShouldSearchBatch(t *testing.T) {
 		{
 			name: "Finished anime, ended yesterday",
 			media: &anilist.CompleteAnime{
-				Status: lo.ToPtr(anilist.MediaStatusFinished),
-				Format: lo.ToPtr(anilist.MediaFormatTv),
+				Status: new(anilist.MediaStatusFinished),
+				Format: new(anilist.MediaFormatTv),
 				EndDate: &anilist.CompleteAnime_EndDate{
-					Year:  lo.ToPtr(yesterday.Year()),
-					Month: lo.ToPtr(int(yesterday.Month())),
-					Day:   lo.ToPtr(yesterday.Day()),
+					Year:  new(yesterday.Year()),
+					Month: new(int(yesterday.Month())),
+					Day:   new(yesterday.Day()),
 				},
 			},
 			expected: false,
@@ -506,19 +505,19 @@ func TestShouldSearchBatch(t *testing.T) {
 		{
 			name: "Finished anime, no end date",
 			media: &anilist.CompleteAnime{
-				Status: lo.ToPtr(anilist.MediaStatusFinished),
-				Format: lo.ToPtr(anilist.MediaFormatTv),
+				Status: new(anilist.MediaStatusFinished),
+				Format: new(anilist.MediaFormatTv),
 			},
 			expected: true,
 		},
 		{
 			name: "Finished anime, partial end date (no day)",
 			media: &anilist.CompleteAnime{
-				Status: lo.ToPtr(anilist.MediaStatusFinished),
-				Format: lo.ToPtr(anilist.MediaFormatTv),
+				Status: new(anilist.MediaStatusFinished),
+				Format: new(anilist.MediaFormatTv),
 				EndDate: &anilist.CompleteAnime_EndDate{
-					Year:  lo.ToPtr(threeWeeksAgo.Year()),
-					Month: lo.ToPtr(int(threeWeeksAgo.Month())),
+					Year:  new(threeWeeksAgo.Year()),
+					Month: new(int(threeWeeksAgo.Month())),
 				},
 			},
 			expected: true,
@@ -526,12 +525,12 @@ func TestShouldSearchBatch(t *testing.T) {
 		{
 			name: "Currently airing anime",
 			media: &anilist.CompleteAnime{
-				Status: lo.ToPtr(anilist.MediaStatusReleasing),
-				Format: lo.ToPtr(anilist.MediaFormatTv),
+				Status: new(anilist.MediaStatusReleasing),
+				Format: new(anilist.MediaFormatTv),
 				EndDate: &anilist.CompleteAnime_EndDate{
-					Year:  lo.ToPtr(oldDate.Year()),
-					Month: lo.ToPtr(int(oldDate.Month())),
-					Day:   lo.ToPtr(oldDate.Day()),
+					Year:  new(oldDate.Year()),
+					Month: new(int(oldDate.Month())),
+					Day:   new(oldDate.Day()),
 				},
 			},
 			expected: false,
@@ -539,12 +538,12 @@ func TestShouldSearchBatch(t *testing.T) {
 		{
 			name: "Movie, finished",
 			media: &anilist.CompleteAnime{
-				Status: lo.ToPtr(anilist.MediaStatusFinished),
-				Format: lo.ToPtr(anilist.MediaFormatMovie),
+				Status: new(anilist.MediaStatusFinished),
+				Format: new(anilist.MediaFormatMovie),
 				EndDate: &anilist.CompleteAnime_EndDate{
-					Year:  lo.ToPtr(oldDate.Year()),
-					Month: lo.ToPtr(int(oldDate.Month())),
-					Day:   lo.ToPtr(oldDate.Day()),
+					Year:  new(oldDate.Year()),
+					Month: new(int(oldDate.Month())),
+					Day:   new(oldDate.Day()),
 				},
 			},
 			expected: false,
@@ -552,12 +551,12 @@ func TestShouldSearchBatch(t *testing.T) {
 		{
 			name: "Old finished anime",
 			media: &anilist.CompleteAnime{
-				Status: lo.ToPtr(anilist.MediaStatusFinished),
-				Format: lo.ToPtr(anilist.MediaFormatTv),
+				Status: new(anilist.MediaStatusFinished),
+				Format: new(anilist.MediaFormatTv),
 				EndDate: &anilist.CompleteAnime_EndDate{
-					Year:  lo.ToPtr(oldDate.Year()),
-					Month: lo.ToPtr(int(oldDate.Month())),
-					Day:   lo.ToPtr(oldDate.Day()),
+					Year:  new(oldDate.Year()),
+					Month: new(int(oldDate.Month())),
+					Day:   new(oldDate.Day()),
 				},
 			},
 			expected: true,

@@ -83,6 +83,7 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extensi
 		{"document", func(vm *goja.Runtime) error { goja_bindings.BindDocument(vm); return nil }},
 		{"crypto", func(vm *goja.Runtime) error { goja_bindings.BindCrypto(vm); return nil }},
 		{"torrentUtils", func(vm *goja.Runtime) error { goja_bindings.BindTorrentUtils(vm); return nil }},
+		{"scannerUtils", func(vm *goja.Runtime) error { goja_bindings.BindScannerUtils(vm); return nil }},
 	}
 
 	for _, binding := range bindings {

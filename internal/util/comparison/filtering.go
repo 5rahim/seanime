@@ -19,6 +19,8 @@ var (
 	seasonTrailingNumRe   = regexp.MustCompile(`(?:^|\s)(\d{1,2})\s*$`)
 	seasonPartCourRegex   = regexp.MustCompile(`(?:part|cour|specials?|sp|movie|ova|ona|oad)\s*\d{1,2}\s*$`)
 	seasonJapaneseRegex   = regexp.MustCompile(`(?:第)?(\d+)\s*期`)
+	// Written-out ordinal + season: "Second Season", "Third Season"
+	seasonWordOrdinalRegex = regexp.MustCompile(`(?i)\b(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\s+season\b`)
 
 	// ValueContainsSpecial regexes
 	specialRegex1 = regexp.MustCompile(`(?i)(^|(?P<show>.*?)[ _.\-(]+)(SP|OAV|OVA|OAD|ONA) ?(?P<ep>\d{1,2})(-(?P<ep2>[0-9]{1,3}))? ?(?P<title>.*)$`)
@@ -45,6 +47,12 @@ var (
 	romanToNum = map[string]int{
 		"ii": 2, "iii": 3, "iv": 4, "v": 5,
 		"vi": 6, "vii": 7, "viii": 8, "ix": 9,
+	}
+
+	// Written-out ordinal word mapping
+	ordinalWordToNum = map[string]int{
+		"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5,
+		"sixth": 6, "seventh": 7, "eighth": 8, "ninth": 9, "tenth": 10,
 	}
 
 	IgnoredFilenames = map[string]struct{}{
@@ -136,6 +144,15 @@ func ExtractSeasonNumber(val string) int {
 		season, err := strconv.Atoi(matches[1])
 		if err == nil {
 			return season
+		}
+	}
+
+	// Written-out ordinal seasons (e.g., "Second Season", "Third Season")
+	matches = seasonWordOrdinalRegex.FindStringSubmatch(val)
+	if len(matches) > 1 {
+		ordinalWord := strings.ToLower(matches[1])
+		if num, ok := ordinalWordToNum[ordinalWord]; ok {
+			return num
 		}
 	}
 

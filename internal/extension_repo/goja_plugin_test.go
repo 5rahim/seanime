@@ -493,7 +493,7 @@ func TestGojaPluginJsonFieldNames(t *testing.T) {
 	plugin, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
 	require.NoError(t, err)
 
-	err = anilistPlatform.UpdateEntryProgress(t.Context(), 178022, 1, lo.ToPtr(1))
+	err = anilistPlatform.UpdateEntryProgress(t.Context(), 178022, 1, new(1))
 	if err != nil {
 		t.Fatalf("GetAnime returned error: %v", err)
 	}

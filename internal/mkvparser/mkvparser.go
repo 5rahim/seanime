@@ -78,7 +78,7 @@ func NewMetadataParser(reader io.ReadSeeker, logger *zerolog.Logger) *MetadataPa
 
 func (mp *MetadataParser) SetLoggerEnabled(enabled bool) {
 	if !enabled {
-		mp.logger = lo.ToPtr(zerolog.Nop())
+		mp.logger = new(zerolog.Nop())
 	} else {
 		mp.logger = mp.realLogger
 	}
@@ -491,7 +491,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		defer cancel()
 		defer mp.logger.Trace().Msgf("mkvparser: Subtitle extraction goroutine finished.")
 
-		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 500}))
+		sampler := new(mp.logger.Sample(&zerolog.BasicSampler{N: 500}))
 
 		// First, ensure metadata is parsed to get track information
 		mp.parseMetadataOnce(extractCtx)

@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/goccy/go-json"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,9 +36,9 @@ func TestGenerateBoilerplateAnimeCollection(t *testing.T) {
 					if list.GetStatus().String() != string(MediaListStatusPlanning) {
 						entries := list.GetEntries()
 						for _, entry := range entries {
-							entry.Progress = lo.ToPtr(0)
-							entry.Score = lo.ToPtr(0.0)
-							entry.Status = lo.ToPtr(MediaListStatusPlanning)
+							entry.Progress = new(0)
+							entry.Score = new(0.0)
+							entry.Status = new(MediaListStatusPlanning)
 							entriesToAddToPlanning = append(entriesToAddToPlanning, entry)
 						}
 						list.Entries = make([]*AnimeListEntry, 0)

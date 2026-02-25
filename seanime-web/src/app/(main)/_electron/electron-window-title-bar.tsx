@@ -99,8 +99,14 @@ export function ElectronWindowTitleBar(props: ElectronWindowTitleBarProps) {
 
     return (
         <>
+            {/*{(currentPlatform === "win32" && showControls && !videoCore_isFullscreen) && (*/}
+            {/*    <div*/}
+            {/*        className="__electron-window-title-bar scroll-locked-offset fixed top-0 right-0 h-10 z-[9999] flex items-center justify-end pointer-events-none"*/}
+            {/*        style={{ WebkitAppRegion: "no-drag" } as any}*/}
+            {/*    >*/}
+            {/*        <div className="flex h-10 items-center justify-center gap-1 mr-2 !cursor-default pointer-events-auto">*/}
             <div
-                className="__electron-window-title-bar scroll-locked-offset bg-transparent fixed top-0 left-0 h-10 z-[999] w-full bg-opacity-90 flex pointer-events-[all]"
+                className="__electron-window-title-bar scroll-locked-offset bg-transparent fixed top-0 left-0 h-10 z-[9999] w-full bg-opacity-90 flex pointer-events-[all]"
                 style={{
                     pointerEvents: "all",
                 }}
@@ -129,6 +135,9 @@ export function ElectronWindowTitleBar(props: ElectronWindowTitleBarProps) {
                         />
                     </div>}
             </div>
+            {/*        </div>*/}
+            {/*</div>*/}
+            {/*)}*/}
         </>
     )
 }

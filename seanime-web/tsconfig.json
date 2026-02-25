@@ -2,7 +2,7 @@
     "compilerOptions": {
         "types": [
             "node",
-          "@rsbuild/core/types"
+            "@rsbuild/core/types"
         ],
         "target": "ES2020",
         "useDefineForClassFields": true,
@@ -26,8 +26,10 @@
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "noFallthroughCasesInSwitch": true,
-        "baseUrl": ".",
         "paths": {
+            "*": [
+                "./*"
+            ],
             "@/*": [
                 "./src/*"
             ]

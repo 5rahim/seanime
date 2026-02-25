@@ -52,7 +52,7 @@ type NewEpisodeCollectionOptions struct {
 // Note: This is used by Torrent and Debrid streaming
 func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollection, err error) {
 	if opts.Logger == nil {
-		opts.Logger = lo.ToPtr(zerolog.Nop())
+		opts.Logger = new(zerolog.Nop())
 	}
 
 	if opts.Media == nil {
@@ -116,8 +116,8 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 	info, err := NewEntryDownloadInfo(&NewEntryDownloadInfoOptions{
 		LocalFiles:          nil,
 		AnimeMetadata:       opts.AnimeMetadata,
-		Progress:            lo.ToPtr(0), // Progress is 0 because we want the entire list
-		Status:              lo.ToPtr(anilist.MediaListStatusCurrent),
+		Progress:            new(0), // Progress is 0 because we want the entire list
+		Status:              new(anilist.MediaListStatusCurrent),
 		Media:               opts.Media,
 		MetadataProviderRef: opts.MetadataProviderRef,
 	})
@@ -206,7 +206,7 @@ type NewEpisodeCollectionFromLocalFilesOptions struct {
 
 func NewEpisodeCollectionFromLocalFiles(ctx context.Context, opts NewEpisodeCollectionFromLocalFilesOptions) (*EpisodeCollection, error) {
 	if opts.Logger == nil {
-		opts.Logger = lo.ToPtr(zerolog.Nop())
+		opts.Logger = new(zerolog.Nop())
 	}
 
 	// Make sure to keep the local files from the media only

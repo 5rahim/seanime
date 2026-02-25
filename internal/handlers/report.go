@@ -81,6 +81,7 @@ func (h *Handler) HandleSaveIssueReport(c echo.Context) error {
 		ViewportWidth:       b.ViewportWidth,
 		ViewportHeight:      b.ViewportHeight,
 		RecordingDurationMs: b.RecordingDurationMs,
+		Username:            h.App.GetUsername(),
 	}); err != nil {
 		return h.RespondWithError(c, err)
 	}

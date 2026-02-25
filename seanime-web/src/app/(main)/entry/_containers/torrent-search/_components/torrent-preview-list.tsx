@@ -77,7 +77,7 @@ export const TorrentPreviewList = React.memo((
                 onSortChange={handleSortChange}
                 onFilterChange={handleFilterChange}
             />
-            <ScrollAreaBox className="h-[calc(100dvh_-_25rem)] bg-gray-950/60">
+            <ScrollAreaBox className="h-[calc(100dvh_-_26rem)] bg-gray-950/60">
                 <TorrentList>
                     {sortedPreviews.filter(Boolean).map(item => {
                         if (!item.torrent) return null

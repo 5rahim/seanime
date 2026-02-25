@@ -189,7 +189,7 @@ func FfprobeGetInfo(ffprobePath, path, hash string) (*MediaInfo, error) {
 		Extension: ext,
 		Size:      sizeUint64,
 		Duration:  float32(data.Format.DurationSeconds),
-		Container: cmp.Or(lo.ToPtr(data.Format.FormatName), nil),
+		Container: cmp.Or(new(data.Format.FormatName), nil),
 	}
 
 	// Get the video streams
@@ -243,7 +243,7 @@ func FfprobeGetInfo(ffprobePath, path, hash string) (*MediaInfo, error) {
 			Title:     nullIfZero(stream.Tags.Title),
 			Language:  nullIfZero(lang.String()),
 			Codec:     stream.CodecName,
-			Extension: lo.ToPtr(extension),
+			Extension: new(extension),
 			IsDefault: stream.Disposition.Default != 0,
 			IsForced:  stream.Disposition.Forced != 0,
 			Link:      link,
@@ -284,7 +284,7 @@ func FfprobeGetInfo(ffprobePath, path, hash string) (*MediaInfo, error) {
 	if container != "" {
 		if len(codecs) > 0 {
 			codecsStr := strings.Join(codecs, ", ")
-			mi.MimeCodec = lo.ToPtr(fmt.Sprintf("%s; codecs=\"%s\"", container, codecsStr))
+			mi.MimeCodec = new(fmt.Sprintf("%s; codecs=\"%s\"", container, codecsStr))
 		} else {
 			mi.MimeCodec = &container
 		}

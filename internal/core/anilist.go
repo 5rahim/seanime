@@ -3,9 +3,12 @@ package core
 import (
 	"context"
 	"seanime/internal/api/anilist"
+	"seanime/internal/database/models"
 	"seanime/internal/events"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/platforms/simulated_platform"
 	"seanime/internal/user"
+	"time"
 )
 
 // GetUser returns the currently logged-in user or a simulated one.
@@ -14,6 +17,17 @@ func (a *App) GetUser() *user.User {
 		return user.NewSimulatedUser()
 	}
 	return a.user
+}
+
+// GetUsername returns the username of the currently logged-in user
+func (a *App) GetUsername() string {
+	if a.user == nil {
+		return ""
+	}
+	if a.user.Viewer == nil {
+		return ""
+	}
+	return a.user.Viewer.GetName()
 }
 
 func (a *App) GetUserAnilistToken() string {
@@ -42,6 +56,40 @@ func (a *App) UpdatePlatform(platform platform.Platform) {
 func (a *App) UpdateAnilistClientToken(token string) {
 	ac := anilist.NewAnilistClient(token, a.AnilistCacheDir)
 	a.AnilistClientRef.Set(ac)
+}
+
+// LogoutFromAnilist clears the AniList token and switches to the simulated platform.
+// This is called internally when the token is detected as invalid.
+func (a *App) LogoutFromAnilist() {
+	// prevent multiple concurrent calls (e.g. from parallel failing requests)
+	if !a.logoutInProgress.CompareAndSwap(false, true) {
+		return
+	}
+	defer a.logoutInProgress.Store(false)
+
+	a.UpdateAnilistClientToken("")
+
+	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(a.LocalManager, a.AnilistClientRef, a.ExtensionBankRef, a.Logger, a.Database)
+	if err != nil {
+		a.Logger.Error().Err(err).Msg("app: Failed to create simulated platform during auto-logout")
+	} else {
+		a.UpdatePlatform(simulatedPlatform)
+	}
+
+	_, _ = a.Database.UpsertAccount(&models.Account{
+		BaseModel: models.BaseModel{
+			ID:        1,
+			UpdatedAt: time.Now(),
+		},
+		Username: "",
+		Token:    "",
+		Viewer:   nil,
+	})
+
+	a.Logger.Debug().Msg("app: Logged out from AniList, switched to simulated platform")
+
+	a.InitOrRefreshModules()
+	a.InitOrRefreshAnilistData()
 }
 
 // GetAnimeCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.
