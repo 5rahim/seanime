@@ -39,7 +39,7 @@ func (a *App) SetOfflineMode(enabled bool) {
 		a.MetadataProviderRef.Set(a.LocalManager.GetOfflineMetadataProvider())
 	} else {
 		// DEVNOTE: We don't handle local platform since the feature doesn't allow offline mode
-		anilistPlatform := anilist_platform.NewAnilistPlatform(a.AnilistClientRef, a.ExtensionBankRef, a.Logger, a.Database)
+		anilistPlatform := anilist_platform.NewAnilistPlatform(a.AnilistClientRef, a.ExtensionBankRef, a.Logger, a.Database, a.LogoutFromAnilist)
 		a.AnilistPlatformRef.Set(anilistPlatform)
 		a.MetadataProviderRef.Set(metadata_provider.NewProvider(&metadata_provider.NewProviderImplOptions{
 			Logger:           a.Logger,

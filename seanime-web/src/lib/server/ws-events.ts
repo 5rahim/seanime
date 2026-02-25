@@ -1,5 +1,6 @@
 export const enum WSEvents {
     ANILIST_DATA_LOADED = "server-ready",
+    SERVER_LOGGED_OUT_ANILIST = "server-logged-out-anilist",
     SCAN_PROGRESS = "scan-progress",
     SCAN_STATUS = "scan-status",
     REFRESHED_ANILIST_ANIME_COLLECTION = "refreshed-anilist-anime-collection",

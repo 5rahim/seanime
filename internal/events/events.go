@@ -19,6 +19,8 @@ type WebsocketClientEvent struct {
 const (
 	ServerReady = "server-ready" // The anilist data has been loaded
 
+	ServerLoggedOutAnilist = "server-logged-out-anilist" // The server has logged out of anilist (without the client requesting it)
+
 	EventScanProgress               = "scan-progress"                      // Progress of the scan
 	EventScanStatus                 = "scan-status"                        // Status text of the scan
 	RefreshedAnilistAnimeCollection = "refreshed-anilist-anime-collection" // The anilist collection has been refreshed

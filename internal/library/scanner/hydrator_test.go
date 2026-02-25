@@ -29,6 +29,7 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt, "")
 	anilistClientRef := util.NewRef[anilist.AnilistClient](anilistClient)
 	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	//wsEventManager := events.NewMockWSEventManager(logger)
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
 	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
 	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations(t.Context())

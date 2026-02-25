@@ -53479,7 +53479,7 @@
     "fields": [
       {
         "name": "Original",
-        "jsonName": "Original",
+        "jsonName": "original",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -53488,7 +53488,7 @@
       },
       {
         "name": "Normalized",
-        "jsonName": "Normalized",
+        "jsonName": "normalized",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -53496,8 +53496,30 @@
         "comments": []
       },
       {
+        "name": "CleanBaseTitle",
+        "jsonName": "cleanBaseTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Title with roman numerals, season/part/year stripped"
+        ]
+      },
+      {
+        "name": "DenoisedTitle",
+        "jsonName": "denoisedTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Title with noise words removed"
+        ]
+      },
+      {
         "name": "Tokens",
-        "jsonName": "Tokens",
+        "jsonName": "tokens",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
@@ -53506,7 +53528,7 @@
       },
       {
         "name": "Season",
-        "jsonName": "Season",
+        "jsonName": "season",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -53515,7 +53537,7 @@
       },
       {
         "name": "Part",
-        "jsonName": "Part",
+        "jsonName": "part",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -53524,7 +53546,7 @@
       },
       {
         "name": "Year",
-        "jsonName": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -53532,25 +53554,25 @@
         "comments": []
       },
       {
-        "name": "CleanBaseTitle",
-        "jsonName": "CleanBaseTitle",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Title without season/part/year info"
-        ]
-      },
-      {
         "name": "IsMain",
-        "jsonName": "IsMain",
+        "jsonName": "isMain",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": [
           " Whether this title is a main title (romaji,english)"
+        ]
+      },
+      {
+        "name": "IsExtra",
+        "jsonName": "isExtra",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether this title is an extra/fallback title (like a root folder title)"
         ]
       }
     ],
@@ -78838,6 +78860,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Username",
+        "jsonName": "username",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -78877,6 +78908,15 @@
         "usedTypescriptType": "Models_DebridSettings",
         "usedStructName": "models.DebridSettings",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Username",
+        "jsonName": "Username",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }

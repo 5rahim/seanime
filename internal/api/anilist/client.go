@@ -367,8 +367,7 @@ func parseResponse(body []byte, httpCode int, result interface{}) error {
 
 	// some servers return a graphql error with a non OK http code, try anyway to parse the body
 	if err := unmarshal(body, result); err != nil {
-		var gqlErr *clientv2.GqlErrorList
-		if errors.As(err, &gqlErr) {
+		if gqlErr, ok := errors.AsType[*clientv2.GqlErrorList](err); ok {
 			errResponse.GqlErrors = &gqlErr.Errors
 		} else if !isKOCode {
 			return err
