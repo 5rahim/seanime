@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.5.1
+
+- ✨ Denshi: Added desktop app settings
+  - Close to tray, Open in background, Open at login
+- ⚡️ Scanner: Improved handling of batch folder titles
+  - Fixed cases where generic batch folder titles could cause incorrect matches downstream
+- ⚡️ Extensions: Added $scannerUtils helper API
+  - Provides utility functions manipulating media titles and building search queries
+- ⚡️ VideoCore: Custom subtitle delay controls #628
+- ⚡️ Server: Automatically log out of AniList when token is invalid
+- 🦺 Server: Fixed incorrect "Completed" status on progress update for unauthenticated users
+- 🦺 Server: Don't count AniList 404 errors as API failures
+- 🦺 Scanner: Fixed hydration rules runtime error #632
+- 🦺 VideoCore: Fixed potential layout thrashing
+- 🏗️ Server: Redact username in logs and issue reports
+- 🏗️ DX: Fixed Tailwind HMR
+
 ## v3.5.0
 
 - ✨ New Library Scanner
