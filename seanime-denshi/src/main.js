@@ -471,10 +471,12 @@ if (!gotTheLock) {
 } else {
     app.on("second-instance", (event, commandLine, workingDirectory, additionalData) => {
         if (additionalData && additionalData.development) return
+        if (!serverStarted) return
         // tried to run a second instance, focus the window.
         if (mainWindow && !mainWindow.isDestroyed()) {
             if (mainWindow.isMinimized()) mainWindow.restore()
             if (!mainWindow.isVisible()) {
+                if (!mainWindow.isMaximized()) mainWindow.maximize()
                 mainWindow.show()
                 if (process.platform === "darwin") {
                     app.dock.show()
@@ -501,12 +503,14 @@ function createTray() {
 
     const contextMenu = Menu.buildFromTemplate([{
         id: "toggle_visibility", label: "Toggle Visibility", click: () => {
+            if (!serverStarted) return
             if (mainWindow.isVisible()) {
                 mainWindow.hide()
                 if (process.platform === "darwin") {
                     app.dock.hide()
                 }
             } else {
+                if (!mainWindow.isMaximized()) mainWindow.maximize()
                 mainWindow.show()
                 mainWindow.focus()
                 if (process.platform === "darwin") {
@@ -533,12 +537,14 @@ function createTray() {
     }
 
     tray.on("click", () => {
+        if (!serverStarted) return
         if (mainWindow.isVisible()) {
             mainWindow.hide()
             if (process.platform === "darwin") {
                 app.dock.hide()
             }
         } else {
+            if (!mainWindow.isMaximized()) mainWindow.maximize()
             mainWindow.show()
             mainWindow.focus()
             if (process.platform === "darwin") {
@@ -668,8 +674,7 @@ async function launchSeanimeServer(isRestart) {
                     setTimeout(() => {
                         if (mainWindow && !mainWindow.isDestroyed()) {
                             if (denshiSettings.openInBackground) {
-                                // Keep window hidden, just maximize it for when user shows it
-                                mainWindow.maximize()
+                                // Don't maximize or show
                                 log.info("[Denshi] Opened in background")
                             } else {
                                 mainWindow.maximize()
@@ -941,6 +946,10 @@ app.whenReady().then(async () => {
     // Load denshi settings early
     denshiSettings = loadDenshiSettings()
     if (_development) {
+        denshiSettings.openInBackground = false
+    }
+    // Disregard openInBackground on Linux
+    if (process.platform === "linux") {
         denshiSettings.openInBackground = false
     }
     log.info("[Denshi] Loaded settings:", JSON.stringify(denshiSettings))
