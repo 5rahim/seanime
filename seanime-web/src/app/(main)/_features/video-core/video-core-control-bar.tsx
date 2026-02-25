@@ -68,18 +68,18 @@ export function VideoCoreControlBar(props: {
             || (paused && cursorPosition === "outside") || (paused && cursorPosition === "approaching")
     )
 
-    const controlBarBottomPx = isMobile ? (
+    const controlBarTranslateY = isMobile ? (
         // On mobile, show controls when paused or interacting
-        (paused || cursorBusy || hoveringControlBar) ? 0 : -300
+        (paused || cursorBusy || hoveringControlBar) ? 0 : 300
     ) : (
         VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? (cursorBusy || hoveringControlBar || paused) ? 0 : (
-            showOnlyTimeRange ? -(mainSectionHeight) : (
-                cursorPosition === "hover" ? 0 : -300
+            showOnlyTimeRange ? mainSectionHeight : (
+                cursorPosition === "hover" ? 0 : 300
             )
         ) : (
             (cursorBusy || hoveringControlBar) ? 0 : (
-                showOnlyTimeRange ? -(mainSectionHeight) : (
-                    cursorPosition === "hover" ? 0 : -300
+                showOnlyTimeRange ? mainSectionHeight : (
+                    cursorPosition === "hover" ? 0 : 300
                 )
             )
         )
@@ -139,7 +139,7 @@ export function VideoCoreControlBar(props: {
         if (!containerElement || isMobile) return
         const captionsOverlay = containerElement.querySelector("#video-core-captions-wrapper") as HTMLElement
         if (!captionsOverlay) return
-        if (controlBarBottomPx === 0 || showOnlyTimeRange) {
+        if (controlBarTranslateY === 0 || showOnlyTimeRange) {
             captionsOverlay.style.setProperty("--tw-translate-y", `-${showOnlyTimeRange ? 20 : 50}px`, "important")
         } else {
             captionsOverlay.style.setProperty("--tw-translate-y", "0%")
@@ -147,7 +147,7 @@ export function VideoCoreControlBar(props: {
         return () => {
             captionsOverlay.style.removeProperty("--tw-translate-y")
         }
-    }, [controlBarBottomPx, containerElement, isMobile])
+    }, [controlBarTranslateY, containerElement, isMobile])
 
     return (
         <>
@@ -179,12 +179,12 @@ export function VideoCoreControlBar(props: {
                 className={cn(
                     "absolute left-0 bottom-0 right-0 flex flex-col text-white",
                     "transition-all duration-300 opacity-0",
-                    "z-[10] h-28",
+                    "z-[10] h-28 transform-gpu",
                     !hideControlBar && "opacity-100",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-500/20",
                 )}
                 style={{
-                    bottom: `${controlBarBottomPx}px`,
+                    transform: `translateY(${controlBarTranslateY}px)`,
                 }}
                 onPointerEnter={() => {
                     if (!isMobile) setHoveringControlBar(true)
@@ -270,7 +270,7 @@ export function VideoCoreMobileControlBar(props: {
 
     const showShadow = paused || cursorBusy
 
-    const bottomSectionBottomPx = (paused || cursorBusy) ? 0 : -300
+    const bottomSectionTranslateY = (paused || cursorBusy) ? 0 : 300
 
     return (
         <>
@@ -302,12 +302,12 @@ export function VideoCoreMobileControlBar(props: {
                 data-vc-element="mobile-control-bar-top-section"
                 className={cn(
                     "vc-mobile-control-bar-top-section",
-                    "absolute transition-all left-0 right-0 top-0 w-full z-[11]",
+                    "absolute transition-all left-0 right-0 top-0 w-full z-[11] transform-gpu",
                     "px-2 pt-3",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
                 )}
                 style={{
-                    top: bottomSectionBottomPx,
+                    transform: `translateY(${-bottomSectionTranslateY}px)`,
                 }}
             >
                 <div
@@ -327,13 +327,13 @@ export function VideoCoreMobileControlBar(props: {
                 data-vc-element="mobile-control-bar-bottom-section"
                 className={cn(
                     "vc-mobile-control-bar-bottom-section",
-                    "absolute transition-all left-0 right-0 bottom-0 w-full z-[11]",
+                    "absolute transition-all left-0 right-0 bottom-0 w-full z-[11] transform-gpu",
                     "px-2",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
                     isSwiping && "transition-none",
                 )}
                 style={{
-                    bottom: isSwiping ? 0 : bottomSectionBottomPx,
+                    transform: isSwiping ? "translateY(0px)" : `translateY(${bottomSectionTranslateY}px)`,
                 }}
             >
                 <div
