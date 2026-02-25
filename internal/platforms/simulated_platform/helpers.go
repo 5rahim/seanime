@@ -40,7 +40,7 @@ func (cw *CollectionWrapper) UpdateEntry(mediaId int, status *anilist.MediaListS
 // UpdateEntryProgress updates the progress of an entry
 func (cw *CollectionWrapper) UpdateEntryProgress(mediaId int, progress int, totalCount *int) error {
 	status := anilist.MediaListStatusCurrent
-	if totalCount != nil && progress >= *totalCount {
+	if totalCount != nil && *totalCount > 0 && progress >= *totalCount {
 		status = anilist.MediaListStatusCompleted
 	}
 

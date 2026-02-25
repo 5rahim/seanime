@@ -662,7 +662,7 @@ func (m *Manager) UpdateEntry(ctx context.Context, mediaID int, status *anilist.
 // UpdateEntryProgress handles updating progress for a custom source entry
 func (m *Manager) UpdateEntryProgress(ctx context.Context, mediaID int, progress int, totalCount *int) error {
 	status := anilist.MediaListStatusCurrent
-	if totalCount != nil && progress >= *totalCount {
+	if totalCount != nil && *totalCount > 0 && progress >= *totalCount {
 		status = anilist.MediaListStatusCompleted
 	}
 
