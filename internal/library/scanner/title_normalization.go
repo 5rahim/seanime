@@ -112,6 +112,8 @@ var (
 	seasonPatternExplicit = regexp.MustCompile(`(?i)\b(?:season|s|series)\s*0*(\d+)\b`)
 	seasonPatternOrdinal  = regexp.MustCompile(`(?i)\b(\d+)(?:st|nd|rd|th)\s*(?:part|season|series)\b`)
 	seasonPatternSuffix   = regexp.MustCompile(`(?i)\b(\d+)\s*(?:期|シーズン)\b`)
+	// Written-out ordinal + season: "Second Season", "Third Season", etc.
+	seasonPatternWordOrdinal = regexp.MustCompile(`(?i)\b(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\s+(?:season)\b`)
 
 	// Part patterns, e.g. "Part 2", "Part II", "Cour 2", "2nd Part"
 	partPatternExplicit = regexp.MustCompile(`(?i)\b(?:part|cour)\s*0*(\d+)\b`)
@@ -133,7 +135,8 @@ type NormalizedTitle struct {
 	Season         int      `json:"season"`
 	Part           int      `json:"part"`
 	Year           int      `json:"year"`
-	IsMain         bool     `json:"isMain"` // Whether this title is a main title (romaji,english)
+	IsMain         bool     `json:"isMain"`  // Whether this title is a main title (romaji,english)
+	IsExtra        bool     `json:"isExtra"` // Whether this title is an extra/fallback title (like a root folder title)
 }
 
 // NormalizeTitle creates a normalized version of a title for matching
@@ -151,6 +154,10 @@ func NormalizeTitle(title string) *NormalizedTitle {
 
 	// Extract metadata
 	result.Season = comparison.ExtractSeasonNumber(title)
+	// Fallback: try written-out ordinal seasons ("Second Season", etc.)
+	if result.Season == -1 {
+		result.Season = extractWordOrdinalSeason(title)
+	}
 	result.Part = ExtractPartNumber(title)
 	result.Year = ExtractYear(title)
 
@@ -224,9 +231,10 @@ func normalizeString(s string) string {
 	// Remove season markers entirely from normalized title
 	// Season/part numbers are extracted separately for scoring
 	// We don't want "Title S2" to match "Other Title 2" just because of the bare "2"
-	s = seasonPatternExplicit.ReplaceAllString(s, " ") // "Season X", "SX", "S0X"
-	s = seasonPatternOrdinal.ReplaceAllString(s, " ")  // "2nd Season", "3rd Season"
-	s = seasonPatternSuffix.ReplaceAllString(s, " ")   // Japanese "2期", "シーズン"
+	s = seasonPatternExplicit.ReplaceAllString(s, " ")    // "Season X", "SX", "S0X"
+	s = seasonPatternOrdinal.ReplaceAllString(s, " ")     // "2nd Season", "3rd Season"
+	s = seasonPatternWordOrdinal.ReplaceAllString(s, " ") // "Second Season", "Third Season"
+	s = seasonPatternSuffix.ReplaceAllString(s, " ")      // Japanese "2期", "シーズン"
 	// Remove part markers entirely
 	s = partPatternExplicit.ReplaceAllString(s, " ") // "Part X", "Cour X"
 	s = partPatternOrdinal.ReplaceAllString(s, " ")  // "2nd Part"
@@ -413,6 +421,19 @@ func ExtractPartNumber(val string) int {
 		}
 	}
 
+	return -1
+}
+
+// extractWordOrdinalSeason extracts a season number from written-out ordinal words
+// e.g. "Second Season" -> 2, "Third Season" -> 3
+func extractWordOrdinalSeason(val string) int {
+	matches := seasonPatternWordOrdinal.FindStringSubmatch(val)
+	if len(matches) > 1 {
+		ordinalWord := strings.ToLower(matches[1])
+		if num, ok := ordinalToNumber[ordinalWord]; ok {
+			return num
+		}
+	}
 	return -1
 }
 

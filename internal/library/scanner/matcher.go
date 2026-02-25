@@ -272,11 +272,31 @@ func (m *Matcher) matchLocalFile(lf *anime.LocalFile) {
 	}
 	m.ScanSummaryLogger.LogDebug(lf, fmt.Sprintf("Title variations: %s", m.getLogVariations(titleVariations)))
 
+	// identify extra titles (parent folder titles)
+	// they'll be penalized later so they don't outcompete more specific files/folders
+	// this is useful for cases like: /Monogatari Series/Kizumonogatari/Kizumonogatari I - Tekketsu-hen (1920x1080 Blu-Ray FLAC).mkv
+	// where "Monogatari Series" can cause mismatches if it has the same weight as "Kizumonogatari"
+	primaryTitlesMap := make(map[string]struct{})
+	extraTitlesMap := make(map[string]struct{})
+	if len(lf.ParsedData.Title) > 0 {
+		primaryTitlesMap[lf.ParsedData.Title] = struct{}{}
+	}
+	if ft := lf.GetFolderTitle(); len(ft) > 0 && ft != lf.ParsedData.Title {
+		primaryTitlesMap[ft] = struct{}{}
+	}
+	for _, ft := range lf.GetAllFolderTitles() {
+		if _, ok := primaryTitlesMap[ft]; !ok {
+			extraTitlesMap[ft] = struct{}{}
+		}
+	}
+
 	// Normalize all title variations for matching
 	normalizedVariations := make([]*NormalizedTitle, 0, len(titleVariations))
 	for _, t := range titleVariations {
 		if t != nil && *t != "" {
-			normalizedVariations = append(normalizedVariations, NormalizeTitle(*t))
+			nt := NormalizeTitle(*t)
+			_, nt.IsExtra = extraTitlesMap[*t]
+			normalizedVariations = append(normalizedVariations, nt)
 		}
 	}
 
@@ -786,6 +806,11 @@ func calculateTitleScore(
 	for _, fv := range fileVariations {
 		for _, mt := range mediaTitles {
 			score := compareTitles(fv, mt, sd)
+			// apply a small penalty to far away folder titles (extra titles)
+			// so they don't outcompete more specific files/folders
+			if fv.IsExtra {
+				score -= 2.0
+			}
 			if score > bestScore {
 				bestScore = score
 			}

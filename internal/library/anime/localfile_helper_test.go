@@ -198,6 +198,7 @@ func TestLocalFile_GetTitleVariations(t *testing.T) {
 			libraryPath: "E:/ANIME",
 			expectedTitles: []string{
 				"Shakugan No Shana I",
+				"Shakugan No Shana",
 			},
 		},
 		{

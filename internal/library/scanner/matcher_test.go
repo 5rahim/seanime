@@ -701,6 +701,156 @@ func TestMatcher3(t *testing.T) {
 			expectedMediaId: 163134,
 			otherMediaIds:   []int{},
 		},
+		{
+			name: "ReZero 3_2",
+			paths: []string{
+				"E:/Anime/Re Zero kara Hajimeru Isekai Seikatsu 3rd Season (Batch + OVAs)/ReZero S03 1080p Dual Audio WEBRip DD+ x265-EMBER/ReZero - S03E01-Theatrical Malice [4AB8AF98].mkv",
+			},
+			expectedMediaId: 163134,
+			otherMediaIds:   []int{},
+		},
+		// generic root title shouldn't cause mismatches
+		{
+			name: "Bakemonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Bakemonogatari/[Coalgirls]_Bakemonogatari_01_(1920x1080_Blu-ray_FLAC)_[E32CBBD3].mkv",
+				"E:/Anime/Monogatari Series/Bakemonogatari/[Commie] Bakemonogatari - 02 [BD 1080p AAC] [1B3D8A29].mkv",
+				"E:/Anime/Monogatari Series/Bakemonogatari/Bakemonogatari - 03 (BDRip 1920x1080 x264 FLAC).mkv",
+				"E:/Anime/Monogatari Series/Bakemonogatari - 03 (BDRip 1920x1080 x264 FLAC).mkv",
+			},
+			expectedMediaId: 5081,
+			otherMediaIds:   []int{11597, 15689, 17074},
+		},
+		{
+			name: "Nisemonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Nisemonogatari/[MTBB] Nisemonogatari - 01 (1080p BD) [5C0A0065].mkv",
+				"E:/Anime/Monogatari Series/Nisemonogatari/[Commie] Nisemonogatari - 02 [DB005E82].mkv",
+				"E:/Anime/Monogatari Series/Nisemonogatari/[Coalgirls]_Nisemonogatari_03_(1920x1080_Blu-ray_FLAC).mkv",
+			},
+			expectedMediaId: 11597,
+			otherMediaIds:   []int{5081, 15689, 17074},
+		},
+		{
+			name: "Nekomonogatari Kuro",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Nekomonogatari (Kuro)/[Commie] Nekomonogatari (Kuro) - 01 [B085F6CB].mkv",
+				"E:/Anime/Monogatari Series/Nekomonogatari (Kuro)/[Coalgirls]_Nekomonogatari_(Kuro)_02_(1920x1080_Blu-ray_FLAC)_[A38F72D0].mkv",
+				"E:/Anime/Monogatari Series/Nekomonogatari (Kuro)/[MTBB] Nekomonogatari: Kuro - 03 (1080p BD) [5C0A0065].mkv",
+			},
+			expectedMediaId: 15689,
+			otherMediaIds:   []int{5081, 11597, 17074},
+		},
+		{
+			name: "Monogatari Series: Second Season",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Monogatari Series Second Season/[Edo] Monogatari Series: Second Season - 01 (1080p, AAC) [54F919E3].mkv",
+				"E:/Anime/Monogatari Series/Monogatari Series Second Season/[Coalgirls]_Monogatari_Series_Second_Season_02_(1920x1080_Blu-ray_FLAC).mkv",
+				"E:/Anime/Monogatari Series/Monogatari Series Second Season/[Commie] Monogatari Series Second Season - 03 [1080p][33BBD87B].mkv",
+			},
+			expectedMediaId: 17074,
+			otherMediaIds:   []int{5081, 11597, 15689},
+		},
+		{
+			name: "Hanamonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Hanamonogatari/[Commie] Hanamonogatari - 01 [1080p][33BBD87B].mkv",
+				"E:/Anime/Monogatari Series/Hanamonogatari/[MTBB] Hanamonogatari - 02 (1080p BD) [69C45B90].mkv",
+				"E:/Anime/Monogatari Series/Hanamonogatari/[Coalgirls]_Hanamonogatari_03_(1920x1080_Blu-Ray_FLAC)_[C1D38A94].mkv",
+			},
+			expectedMediaId: 20593,
+			otherMediaIds:   []int{17074},
+		},
+		{
+			name: "Tsukimonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Tsukimonogatari/[Commie] Tsukimonogatari - 01 [1080p][33BBD87B].mkv",
+				"E:/Anime/Monogatari Series/Tsukimonogatari/[MTBB] Tsukimonogatari - 02 (1080p BD) [69C45B90].mkv",
+				"E:/Anime/Monogatari Series/Tsukimonogatari/[Coalgirls]_Tsukimonogatari_03_(1920x1080_Blu-Ray_FLAC)_[C1D38A94].mkv",
+			},
+			expectedMediaId: 20918,
+			otherMediaIds:   []int{17074, 21262},
+		},
+		{
+			name: "Owarimonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Owarimonogatari/[Commie] Owarimonogatari - 01 [1080p][F3E836D4].mkv",
+				"E:/Anime/Monogatari Series/Owarimonogatari/[MTBB] Owarimonogatari - 02 (1080p BD).mkv",
+				"E:/Anime/Monogatari Series/Owarimonogatari/[Coalgirls]_Owarimonogatari_03_(1920x1080_Blu-Ray_FLAC).mkv",
+			},
+			expectedMediaId: 21262,
+			otherMediaIds:   []int{21746, 17074, 100815},
+		},
+		{
+			name: "Koyomimonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Koyomimonogatari/[Commie] Koyomimonogatari - 01 [1080p].mkv",
+				"E:/Anime/Monogatari Series/Koyomimonogatari/[MTBB] Koyomimonogatari - 02 (1080p BD).mkv",
+				"E:/Anime/Monogatari Series/Koyomimonogatari/[Edo] Koyomimonogatari - 03 (1080p, AAC).mkv",
+			},
+			expectedMediaId: 21520,
+			otherMediaIds:   []int{17074, 21262},
+		},
+		{
+			name: "Kizumonogatari I: Tekketsu-hen",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Commie] Kizumonogatari I - Tekketsu-hen [1080p].mkv",
+				"E:/Anime/Monogatari Series/Kizumonogatari/Kizumonogatari Part 1 Tekketsu [1080p].mkv",
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Coalgirls] Kizumonogatari I - Tekketsu-hen (1920x1080 Blu-Ray FLAC).mkv",
+			},
+			expectedMediaId: 9260,
+			otherMediaIds:   []int{21399, 21400, 5081},
+		},
+		{
+			name: "Kizumonogatari II: Nekketsu-hen",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Commie] Kizumonogatari II - Nekketsu-hen [1080p].mkv",
+				//"E:/Anime/Monogatari Series/Kizumonogatari/Kizumonogatari Part 2 Nekketsu [1080p].mkv",
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Coalgirls] Kizumonogatari II - Nekketsu-hen (1920x1080 Blu-Ray FLAC).mkv",
+			},
+			expectedMediaId: 21399,
+			otherMediaIds:   []int{9260, 21400, 5081},
+		},
+		{
+			name: "Kizumonogatari III: Reiketsu-hen",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Commie] Kizumonogatari III - Reiketsu-hen [1080p].mkv",
+				//"E:/Anime/Monogatari Series/Kizumonogatari/Kizumonogatari Part 3 Reiketsu [1080p].mkv",
+				"E:/Anime/Monogatari Series/Kizumonogatari/[Coalgirls] Kizumonogatari III - Reiketsu-hen (1920x1080 Blu-Ray FLAC).mkv",
+			},
+			expectedMediaId: 21400,
+			otherMediaIds:   []int{9260, 21399, 5081},
+		},
+		{
+			name: "Owarimonogatari 2nd Season",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Owarimonogatari 2nd Season/[Commie] Owarimonogatari Second Season - 01 [1080p].mkv",
+				"E:/Anime/Monogatari Series/Owarimonogatari 2nd Season/[MTBB] Owarimonogatari 2nd Season - 02 (1080p BD).mkv",
+				"E:/Anime/Monogatari Series/Owarimonogatari 2nd Season/[SomeSubs] Owarimonogatari S2 - 03 [1080p BD].mkv",
+			},
+			expectedMediaId: 21745,
+			otherMediaIds:   []int{21262, 17074, 100815},
+		},
+		{
+			name: "Zoku Owarimonogatari",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Zoku Owarimonogatari/[Erai-raws] Zoku Owarimonogatari - 01 [1080p][Multiple Subtitle].mkv",
+				"E:/Anime/Monogatari Series/Zoku Owarimonogatari/[MTBB] Zoku Owarimonogatari - 02 (1080p BD).mkv",
+				"E:/Anime/Monogatari Series/Zoku Owarimonogatari/[Commie] Zoku Owarimonogatari - 03 [1080p].mkv",
+			},
+			expectedMediaId: 100815,
+			otherMediaIds:   []int{21746, 21262, 17074},
+		},
+		{
+			name: "Monogatari Series: Off & Monster Season",
+			paths: []string{
+				"E:/Anime/Monogatari Series/Monogatari Series Off & Monster Season/[Erai-raws] Monogatari Series - Off & Monster Season - 01 [1080p][Multiple Subtitle][64667E46].mkv",
+				"E:/Anime/Monogatari Series/Monogatari Series Off & Monster Season/[SubsPlease] Monogatari Series - Off and Monster Season - 02 (1080p) [2B23C6D3].mkv",
+				"E:/Anime/Monogatari Series/Monogatari Series Off & Monster Season/[Kawaiika-Raws] Monogatari Series Off & Monster Season - 03 [WEB 1080p x265 E-AC-3][Dual-Audio].mkv",
+			},
+			expectedMediaId: 173533,
+			otherMediaIds:   []int{17074, 5081, 100815},
+		},
 	}
 
 	for _, tt := range tests {
@@ -1401,7 +1551,7 @@ func TestMatcher_applyMatchingRule(t *testing.T) {
 					animeCollection,
 					missingID,
 					anilist.TestModifyAnimeCollectionEntryInput{
-						Status: lo.ToPtr(anilist.MediaListStatusCurrent),
+						Status: new(anilist.MediaListStatusCurrent),
 					},
 					anilistClient,
 				)
