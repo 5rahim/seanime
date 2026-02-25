@@ -27,7 +27,7 @@ jobs:
           node-version: '20'
 
       # outputs in "seanime-web/out/" and "seanime-web/out-denshi/"
-      - name: Install dependencies and build Next.js app
+      - name: Install dependencies and build web app
         run: |
           cd seanime-web/
           npm install
