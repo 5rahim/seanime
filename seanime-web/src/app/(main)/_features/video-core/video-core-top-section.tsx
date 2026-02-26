@@ -28,6 +28,7 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode, inline?
                     "absolute left-0 w-full py-4 px-5 duration-200 transition-all opacity-0 z-[999] transform-gpu",
                     (__isDesktop__ && ((inline && fullscreen) || !inline)) ? "top-8" : "top-0",
                     showTopSection && "opacity-100",
+                    isMiniPlayer && "top-0",
                 )}
                 style={{
                     transform: showTopSection ? "translateY(0)" : "translateY(-20px)",
