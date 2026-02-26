@@ -726,6 +726,10 @@ func (fh *FileHydrator) precompileRules() {
 			}
 		}
 
+		if fh.hydrationRules == nil {
+			fh.hydrationRules = make(map[string]*compiledHydrationRule)
+		}
+
 		fh.hydrationRules[rule.Pattern] = r
 	}
 }
