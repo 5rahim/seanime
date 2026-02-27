@@ -139,6 +139,7 @@
         "@graphql-codegen/client-preset": "4.8.2",
         "@rsbuild/core": "^1.7.3",
         "@rsbuild/plugin-babel": "^1.1.0",
+        "@rsbuild/plugin-node-polyfill": "^1.4.4",
         "@rsbuild/plugin-react": "^1.4.5",
         "@rsdoctor/rspack-plugin": "^1.5.2",
         "@tanstack/router-devtools": "^1.157.18",

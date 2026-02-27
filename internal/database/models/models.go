@@ -99,6 +99,8 @@ type LibrarySettings struct {
 	// v3.5+
 	ScannerUseLegacyMatching bool   `gorm:"column:scanner_use_legacy_matching" json:"scannerUseLegacyMatching"`
 	ScannerConfig            string `gorm:"column:scanner_config" json:"scannerConfig"`
+	// v3.6.0+
+	UpdateChannel string `gorm:"column:update_channel" json:"updateChannel"` // "github", "seanime", "seanime_nightly"
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {

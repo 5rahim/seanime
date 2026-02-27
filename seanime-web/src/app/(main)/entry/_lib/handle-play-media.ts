@@ -10,7 +10,7 @@ import {
 } from "@/app/(main)/_atoms/playback.atoms"
 import { useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
 import { __mpt_currentExternalPlayerLinkAtom } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useServerHMACAuth, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice, useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { ExternalPlayerLink } from "@/lib/external-player-link/external-player-link"
@@ -35,6 +35,7 @@ export function useHandlePlayMedia() {
 
     const { downloadedMediaPlayback, electronPlaybackMethod } = useCurrentDevicePlaybackSettings()
     const { externalPlayerLink } = useExternalPlayerLink()
+    const { getHMACTokenQueryParam: getServerHMACTokenQueryParam } = useServerHMACAuth()
 
     // Play using desktop external player
     const { mutate: playVideo } = usePlaybackPlayVideo()
@@ -72,6 +73,7 @@ export function useHandlePlayMedia() {
                 link.setMediaTitle(episode.baseAnime?.title?.userPreferred)
                 link.to({
                     endpoint: "/api/v1/nakama/stream?type=file&path=" + Buffer.from(path).toString("base64"),
+                    onTokenQueryParam: () => getServerHMACTokenQueryParam("/api/v1/nakama/stream", "&"),
                 }).then()
                 openTab(link.getFullUrl())
                 setCurrentExternalPlayerLink(link.getFullUrl())

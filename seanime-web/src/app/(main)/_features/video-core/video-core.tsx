@@ -115,7 +115,7 @@ import {
     vc_createChaptersFromAniSkip,
     vc_logGeneralInfo,
 } from "@/app/(main)/_features/video-core/video-core.utils"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useServerHMACAuth, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import {
     __torrentSearch_selectionAtom,
@@ -647,7 +647,16 @@ export function VideoCore(props: VideoCoreProps) {
         mRef,
     } = props
     const serverStatus = useServerStatus()
+    const { getHMACTokenQueryParam } = useServerHMACAuth()
     const [streamType, setStreamType] = useState<VideoCore_VideoPlaybackInfo["streamType"]>(state.playbackInfo?.streamType ?? "unknown")
+
+    // HMAC token for directstream attachment URLs (fonts)
+    const [directstreamAttToken, setDirectstreamAttToken] = React.useState("")
+    React.useEffect(() => {
+        (async () => {
+            setDirectstreamAttToken(await getHMACTokenQueryParam("/api/v1/directstream/att", "?"))
+        })()
+    }, [getHMACTokenQueryParam])
 
     const videoRef = useRef<HTMLVideoElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
@@ -985,6 +994,7 @@ export function VideoCore(props: VideoCoreProps) {
                     videoElement: v!,
                     playbackInfo: state.playbackInfo!,
                     jassubOffscreenRender: true,
+                    hmacToken: directstreamAttToken,
                     translateTargetLang: serverStatus?.settings?.mediaPlayer?.vcTranslate
                         ? serverStatus?.settings?.mediaPlayer?.vcTranslateTargetLanguage
                         : null,

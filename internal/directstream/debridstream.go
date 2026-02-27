@@ -123,7 +123,7 @@ func (s *DebridStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err e
 			StreamType:        s.Type(),
 			StreamPath:        s.filepath,
 			MimeType:          contentType,
-			StreamUrl:         "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id,
+			StreamUrl:         "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id + s.manager.GetHMACTokenQueryParam("/api/v1/directstream/stream", "&"),
 			ContentLength:     s.contentLength, // loaded by LoadContentType
 			MkvMetadata:       nil,
 			MkvMetadataParser: mo.None[*mkvparser.MetadataParser](),

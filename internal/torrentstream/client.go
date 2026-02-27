@@ -251,6 +251,7 @@ func (c *Client) GetStreamingUrl() string {
 	if strings.HasPrefix(ret, "http://http") {
 		ret = strings.Replace(ret, "http://http", "http", 1)
 	}
+	ret += c.repository.directStreamManager.GetHMACTokenQueryParam("/api/v1/torrentstream/stream", "?")
 	return ret
 }
 
@@ -263,7 +264,7 @@ func (c *Client) GetExternalPlayerStreamingUrl() string {
 	}
 
 	ret := fmt.Sprintf("{{SCHEME}}://{{HOST}}/api/v1/torrentstream/stream/%s", url.PathEscape(c.currentFile.MustGet().DisplayPath()))
-
+	ret += c.repository.directStreamManager.GetHMACTokenQueryParam("/api/v1/torrentstream/stream", "?")
 	return ret
 }
 

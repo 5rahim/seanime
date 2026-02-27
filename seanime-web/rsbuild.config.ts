@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv, RsbuildPluginAPI } from "@rsbuild/core"
 import { pluginBabel } from "@rsbuild/plugin-babel"
+import { pluginNodePolyfill } from "@rsbuild/plugin-node-polyfill"
 import { pluginReact } from "@rsbuild/plugin-react"
 import { RsdoctorRspackPlugin } from "@rsdoctor/rspack-plugin"
 import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack"
@@ -15,6 +16,9 @@ const distPath = isElectronDesktop ? "out-denshi" : "out"
 export default defineConfig({
     plugins: [
         pluginReact(),
+        pluginNodePolyfill({
+            include: ["buffer", "crypto"],
+        }),
         { // run stuff before build
             name: "before-build",
             setup(api: RsbuildPluginAPI) {

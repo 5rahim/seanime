@@ -1,13 +1,13 @@
 {
   "name": "seanime-denshi",
-  "version": "3.5.1",
+  "version": "3.5.2",
   "description": "Electron-based Desktop client for Seanime",
   "main": "src/main.js",
   "author": "5rahim <talkwithrahim@gmail.com>",
   "scripts": {
     "dev": "NODE_ENV=development electron .",
     "build": "electron-builder build",
-    "build:mac": "electron-builder build --mac",
+    "build:mac": "electron-builder build --mac --arm64",
     "build:win": "electron-builder build --win --x64",
     "build:linux": "electron-builder build --linux --x64"
   },

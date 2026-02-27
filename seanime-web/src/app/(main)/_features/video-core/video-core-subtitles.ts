@@ -119,6 +119,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     private playbackInfo: VideoCore_VideoPlaybackInfo
     private currentTrackNumber: number = NO_TRACK_NUMBER
     private fonts: string[] = []
+    private hmacToken: string = ""
 
     private _onSelectedTrackChanged?: (track: number | null) => void
     private _onTracksLoaded?: (tracks: NormalizedTrackInfo[]) => void
@@ -139,6 +140,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         fetchAndConvertToASS,
         sendTranslateRequest,
         translateTargetLang,
+        hmacToken,
     }: {
         videoElement: HTMLVideoElement
         jassubOffscreenRender: boolean
@@ -147,12 +149,14 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         fetchAndConvertToASS: (url?: string, content?: string) => Promise<string | undefined>
         sendTranslateRequest: (text?: string, track?: VideoCore_VideoSubtitleTrack) => void
         translateTargetLang: string | null
+        hmacToken?: string
     }) {
         super()
         this.videoElement = videoElement
         this.jassubOffscreenRender = jassubOffscreenRender
         this.playbackInfo = playbackInfo
         this.settings = settings
+        this.hmacToken = hmacToken || ""
         this.shouldTranslate = translateTargetLang
         this.translationTargetLang = translateTargetLang
         this.fetchAndConvertToASS = fetchAndConvertToASS
@@ -252,7 +256,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
 
                 this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")
-                    ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}`) || []
+                    ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}${this.hmacToken}`) || []
 
                 if (!this.playbackInfo.libassFonts) {
                     this.fonts = [...new Set([...this.fonts, defaultFontUrl])]

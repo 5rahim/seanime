@@ -1,13 +1,20 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
+import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { websocketAtom, WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { ElectronRestartServerPrompt } from "@/app/(main)/_electron/electron-restart-server-prompt"
 import { __openDrawersAtom } from "@/components/ui/drawer"
 import { useMainTab } from "@/hooks/use-main-tab"
 import { logger } from "@/lib/helpers/debug"
+import { usePathname } from "@/lib/navigation.ts"
+import { useRouter } from "@/lib/navigation.ts"
 import { __isElectronDesktop__ } from "@/types/constants"
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai"
 import React, { useRef } from "react"
 import { useCookies } from "react-cookie"
+import { ImSpinner5 } from "react-icons/im"
+import { ImSpinner6 } from "react-icons/im"
+import { ImSpinner3 } from "react-icons/im"
+import { ImSpinner4 } from "react-icons/im"
 import { ImSpinner2 } from "react-icons/im"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { useEffectOnce } from "react-use"
@@ -53,10 +60,10 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
             {__isElectronDesktop__ && <ElectronRestartServerPrompt />}
             <WebSocketContext.Provider value={socket}>
                 {!isConnected && <div
-                    className="fixed right-4 bottom-4 bg-gray-950 border text-sm py-3 px-5 font-semibold rounded-xl z-[100] flex gap-2 items-center"
+                    className="fixed right-4 bottom-4 bg-gray-950 border text-sm py-2 px-4 font-semibold rounded-xl z-[100] flex gap-2 items-center opacity-70"
                 >
-                    <ImSpinner2 className="animate-spin text-lg" />
-                    Establishing connection...
+                    <ImSpinner2 className="animate-spin text-base" />
+                    Connecting...
                 </div>}
                 {children}
             </WebSocketContext.Provider>
@@ -76,6 +83,14 @@ function WebsocketManagement() {
     const setConnectionErrorCount = useSetAtom(websocketConnectionErrorCountAtom)
 
     const [cookies, setCookie, removeCookie] = useCookies(["Seanime-Client-Id"])
+
+    // Password set, user not yet logged in → ws connection fails (401), reconnect loop retries. Once the user logs in, serverAuthTokenRef updates,
+    // next reconnect succeeds.
+    const serverAuthToken = useAtomValue(serverAuthTokenAtom)
+    const serverAuthTokenRef = React.useRef(serverAuthToken)
+    React.useEffect(() => {
+        serverAuthTokenRef.current = serverAuthToken
+    }, [serverAuthToken])
 
     const [, setClientId] = useAtom(clientIdAtom)
     const setMainTab = useSetAtom(isMainTabAtom)
@@ -157,7 +172,8 @@ function WebsocketManagement() {
             const clientId = cookies["Seanime-Client-Id"] || uuidv4()
 
             try {
-                socketRef.current = new WebSocket(`${wsUrl}?id=${clientId}`)
+                const tokenParam = serverAuthTokenRef.current ? `&token=${encodeURIComponent(serverAuthTokenRef.current)}` : ""
+                socketRef.current = new WebSocket(`${wsUrl}?id=${clientId}${tokenParam}`)
 
                 // Reset the last pong timestamp whenever we connect
                 lastPongRef.current = Date.now()

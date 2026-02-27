@@ -507,20 +507,25 @@ type StreamInfo struct {
 func (m *Manager) FetchStreamInfo(streamUrl string) (info *StreamInfo, canStream bool) {
 	hasExtension, isArchive := IsArchive(streamUrl)
 
-	m.Logger.Debug().Str("url", streamUrl).Msg("directstream(debrid): Fetching stream info")
+	m.Logger.Debug().Str("url", streamUrl).Msg("directstream(http): Fetching stream info")
 
 	// If we were able to verify that the stream URL is an archive, we can't stream it
 	if isArchive {
-		m.Logger.Warn().Str("url", streamUrl).Msg("directstream(debrid): Stream URL is an archive, cannot stream")
+		m.Logger.Warn().Str("url", streamUrl).Msg("directstream(http): Stream URL is an archive, cannot stream")
 		return nil, false
 	}
 
 	// If the stream URL has an extension, we can stream it
 	if hasExtension {
-		ext := filepath.Ext(streamUrl)
+		// Strip query params before checking extension
+		cleanUrl := streamUrl
+		if idx := strings.IndexByte(cleanUrl, '?'); idx != -1 {
+			cleanUrl = cleanUrl[:idx]
+		}
+		ext := filepath.Ext(cleanUrl)
 		// If not a valid video extension, we can't stream it
 		if !util.IsValidVideoExtension(ext) {
-			m.Logger.Warn().Str("url", streamUrl).Str("ext", ext).Msg("directstream(debrid): Stream URL has an invalid video extension, cannot stream")
+			m.Logger.Warn().Str("url", streamUrl).Str("ext", ext).Msg("directstream(http): Stream URL has an invalid video extension, cannot stream")
 			return nil, false
 		}
 	}
@@ -530,13 +535,13 @@ func (m *Manager) FetchStreamInfo(streamUrl string) (info *StreamInfo, canStream
 
 	contentType, contentLength, err := m.getContentTypeAndLength(streamUrl)
 	if err != nil {
-		m.Logger.Error().Err(err).Str("url", streamUrl).Msg("directstream(debrid): Failed to fetch content type and length")
+		m.Logger.Error().Err(err).Str("url", streamUrl).Msg("directstream(http): Failed to fetch content type and length")
 		return nil, false
 	}
 
 	// If not a video content type, we can't stream it
 	if !strings.HasPrefix(contentType, "video/") && contentType != "application/octet-stream" && contentType != "application/force-download" {
-		m.Logger.Warn().Str("url", streamUrl).Str("contentType", contentType).Msg("directstream(debrid): Stream URL has an invalid content type, cannot stream")
+		m.Logger.Warn().Str("url", streamUrl).Str("contentType", contentType).Msg("directstream(http): Stream URL has an invalid content type, cannot stream")
 		return nil, false
 	}
 
@@ -547,7 +552,12 @@ func (m *Manager) FetchStreamInfo(streamUrl string) (info *StreamInfo, canStream
 }
 
 func IsArchive(streamUrl string) (hasExtension bool, isArchive bool) {
-	ext := filepath.Ext(streamUrl)
+	// Strip query params before checking extension
+	u := streamUrl
+	if idx := strings.IndexByte(u, '?'); idx != -1 {
+		u = u[:idx]
+	}
+	ext := filepath.Ext(u)
 	if ext == ".zip" || ext == ".rar" {
 		return true, true
 	}

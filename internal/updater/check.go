@@ -1,6 +1,7 @@
 package updater
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"io"
@@ -15,6 +16,7 @@ import (
 var (
 	websiteUrl        = "https://seanime.app/api/release"
 	fallbackGithubUrl = "https://api.github.com/repos/5rahim/seanime/releases/latest"
+	githubCheckUrl    = "https://seanime.app/api/github-status"
 )
 
 type (
@@ -108,18 +110,40 @@ func (u *Updater) GetReleaseName(version string) string {
 	return fmt.Sprintf("seanime-%s_%s_%s.%s", version, oos, arch, ext)
 }
 
-func (u *Updater) fetchLatestRelease() (*Release, error) {
+func (u *Updater) fetchLatestRelease(channel string) (*Release, error) {
 	var release *Release
 
-	docsRelease, err := u.fetchLatestReleaseFromDocs()
-	if err != nil {
-		ghRelease, err := u.fetchLatestReleaseFromGitHub()
+	switch channel {
+	case "seanime_nightly":
+		releaseUrl := "https://seanime.app/api/updates/nightly/nightly_server.json"
+		apiRelease, err := u.fetchLatestReleaseFromApi(releaseUrl)
 		if err != nil {
 			return nil, err
 		}
-		release = ghRelease
-	} else {
-		release = docsRelease
+		release = apiRelease
+	case "seanime":
+		releaseUrl := "https://seanime.app/api/updates/stable/stable_server.json"
+		apiRelease, err := u.fetchLatestReleaseFromApi(releaseUrl)
+		if err != nil {
+			return nil, err
+		}
+		release = apiRelease
+	case "github":
+		fallthrough
+	default:
+		apiRelease, err := u.fetchLatestReleaseFromApi(websiteUrl)
+		if err != nil {
+			if u.logger != nil {
+				u.logger.Warn().Err(err).Msg("updater: Failed to fetch from GitHub, falling back to Seanime")
+			}
+			ghRelease, ghErr := u.fetchLatestReleaseFromGitHub()
+			if ghErr != nil {
+				return nil, err // Return original error if fallback also fails
+			}
+			release = ghRelease
+		} else {
+			release = apiRelease
+		}
 	}
 
 	return release, nil
@@ -173,9 +197,50 @@ func (u *Updater) fetchLatestReleaseFromGitHub() (*Release, error) {
 	return release, nil
 }
 
-func (u *Updater) fetchLatestReleaseFromDocs() (*Release, error) {
+// returns true if github is ok OR url is unreachable
+// returns false if github is down and fallback should be used
+func (u *Updater) fetchGithubStatus() (string, bool) {
+	type GithubStatus struct {
+		Status      string `json:"status"`
+		Fallback    string `json:"fallback"`
+		Description string `json:"description"`
+	}
 
-	response, err := u.client.Get(websiteUrl)
+	response, err := u.client.Get(githubCheckUrl)
+	if err != nil {
+		return "", true // unreachable = ok
+	}
+	defer response.Body.Close()
+
+	statusCode := response.StatusCode
+
+	if !((statusCode >= 200) && (statusCode <= 299)) {
+		return "", true // unreachable = ok
+	}
+
+	byteArr, readErr := io.ReadAll(response.Body)
+	if readErr != nil {
+		return "", true // unreachable = ok
+	}
+
+	var res GithubStatus
+	err = json.Unmarshal(byteArr, &res)
+	if err != nil {
+		return "", true // unreachable = ok
+	}
+
+	// url is reachable, status is "down"
+	if res.Status == "down" {
+		u.logger.Warn().Str("reason", res.Description).Msgf("app: Changing update channel to %s", res.Fallback)
+		return cmp.Or(res.Fallback, "seanime"), false
+	}
+
+	return "", true
+}
+
+func (u *Updater) fetchLatestReleaseFromApi(releaseUrl string) (*Release, error) {
+
+	response, err := u.client.Get(releaseUrl)
 	if err != nil {
 		return nil, err
 	}

@@ -19,6 +19,7 @@ const DENSHI_SETTINGS_DEFAULTS = {
     minimizeToTray: true,
     openInBackground: false,
     openAtLaunch: false,
+    updateChannel: "github"
 }
 
 function getDenshiSettingsPath() {
@@ -362,9 +363,7 @@ function logEnvironmentInfo() {
         // logStartupEvent('App directory contents', JSON.stringify(fs.readdirSync(appPath)));
 
         const webPath = path.join(appPath, "web-denshi")
-        if (fs.existsSync(webPath)) {
-            // logStartupEvent("Web directory contents", JSON.stringify(fs.readdirSync(webPath)))
-        } else {
+        if (!fs.existsSync(webPath)) {
             logStartupEvent("ERROR", "web-denshi directory not found in app path")
         }
     } catch (err) {
@@ -372,34 +371,6 @@ function logEnvironmentInfo() {
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Updater
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const updateConfig = {
-    provider: "generic",
-    url: "https://github.com/5rahim/seanime/releases/latest/download",
-    channel: "latest",
-    allowPrerelease: false,
-    verifyUpdateCodeSignature: false,
-}
-
-// Override with environment variable if set (for testing)
-if (process.env.UPDATES_URL) {
-    updateConfig.url = process.env.UPDATES_URL
-}
-
-// Configure the updater
-autoUpdater.setFeedURL(updateConfig)
-
-// Enable automatic download
-autoUpdater.autoDownload = true
-autoUpdater.autoInstallOnAppQuit = true
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-// App state
 let mainWindow = null
 let splashScreen = null
 let crashScreen = null
@@ -907,37 +878,38 @@ function cleanupAndExit() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// app.on("web-contents-created", (event, contents) => {
-//     console.log("[WCC] created id=", contents.id, "type=", contents.getType())
-//
-//     contents.on("did-start-navigation", (e, url, isInPlace, isMainFrame) => {
-//         console.log("[WCC] did-start-navigation", contents.id, { url, isMainFrame, isInPlace })
-//     })
-//
-//     contents.on("did-navigate", (e, url) => {
-//         console.log("[WCC] did-navigate", contents.id, url)
-//     })
-//
-//     contents.on("did-frame-finish-load", () => {
-//         try {
-//             console.log("[WCC] URL after load", contents.id, contents.getURL())
-//         } catch (e) {
-//         }
-//     })
-//
-//     contents.on("destroyed", () => console.log("[WCC] destroyed", contents.id))
-//
-//     try {
-//         const owner = contents.getOwnerBrowserWindow && contents.getOwnerBrowserWindow()
-//         if (owner) console.log("[WCC] owner window id=", owner.id, "title=", owner.getTitle && owner.getTitle())
-//     } catch (e) {
-//     }
-// })
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Initialization
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// returns true if github is ok OR url is unreachable
+// returns false if github is down and fallback should be used
+async function fetchGithubStatus() {
+    try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+        const response = await net.fetch("https://seanime.app/api/github-status", {
+            signal: controller.signal
+        })
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+            return { ok: true, fallback: "" }
+        }
+
+        const data = await response.json()
+
+        // url is reachable, status is "down"
+        if (data.status === "down") {
+            log.warn(`[Denshi] App: Changing update channel to ${data.fallback}, reason: ${data.description}`)
+            return { ok: false, fallback: data.fallback || "seanime" }
+        }
+
+        return { ok: true, fallback: "" }
+    } catch (err) {
+        return { ok: true, fallback: "" }
+    }
+}
 
 // Initialize the app
 app.whenReady().then(async () => {
@@ -954,7 +926,37 @@ app.whenReady().then(async () => {
     }
     log.info("[Denshi] Loaded settings:", JSON.stringify(denshiSettings))
 
-    // Apply openAtLaunch setting (only supported on macOS and Windows)
+    let currentUpdateChannel = denshiSettings.updateChannel
+    const { ok, fallback } = await fetchGithubStatus()
+    // if github is down, use fallback channel
+    if (!ok) {
+        currentUpdateChannel = fallback
+    }
+
+    const updateConfig = {
+        provider: "generic",
+        url: "https://github.com/5rahim/seanime/releases/latest/download",
+        channel: "latest",
+        allowPrerelease: false,
+        verifyUpdateCodeSignature: false,
+    }
+
+    if (currentUpdateChannel === "seanime_nightly") {
+        updateConfig.url = "https://seanime.app/api/updates/nightly/"
+        updateConfig.allowPrerelease = true
+    } else if (currentUpdateChannel === "seanime") {
+        updateConfig.url = "https://seanime.app/api/updates/stable/"
+        updateConfig.allowPrerelease = false
+    }
+
+    if (process.env.UPDATES_URL) {
+        updateConfig.url = process.env.UPDATES_URL
+    }
+
+    autoUpdater.setFeedURL(updateConfig)
+    autoUpdater.autoDownload = true
+    autoUpdater.autoInstallOnAppQuit = true
+
     if (!_development && (process.platform === "darwin" || process.platform === "win32")) {
         app.setLoginItemSettings({
             openAtLogin: denshiSettings.openAtLaunch,
@@ -979,7 +981,7 @@ app.whenReady().then(async () => {
             }
         } catch (error) {
             console.error("[Main] Error checking for updates:", error)
-            throw error // Let the renderer handle the error
+            throw error
         }
     })
 

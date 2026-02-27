@@ -198,6 +198,13 @@ func (a *App) initModulesOnce() {
 		IsOfflineRef: a.IsOfflineRef(),
 		NativePlayer: a.NativePlayer,
 		VideoCore:    a.VideoCore,
+		HMACTokenFunc: func(endpoint string, symbol string) string {
+			qp, err := a.GetServerPasswordHMACAuth().GenerateQueryParam(endpoint, symbol)
+			if err != nil {
+				return ""
+			}
+			return qp
+		},
 	})
 
 	// +---------------------+
@@ -398,6 +405,11 @@ func (a *App) InitOrRefreshModules() {
 
 		if a.Updater != nil {
 			a.Updater.SetEnabled(!settings.Library.DisableUpdateCheck)
+			if settings.Library.UpdateChannel != "" {
+				a.Updater.UpdateChannel = settings.Library.UpdateChannel
+			} else {
+				a.Updater.UpdateChannel = "github"
+			}
 		}
 
 		// Refresh auto scanner settings (thread safe)

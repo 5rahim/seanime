@@ -34,7 +34,8 @@ type (
 		metadataProviderRef        *util.Ref[metadata_provider.Provider]
 		discordPresence            *discordrpc_presence.Presence
 		platformRef                *util.Ref[platform.Platform]
-		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
+		refreshAnimeCollectionFunc func()                                      // This function is called to refresh the AniList collection
+		hmacTokenFunc              func(endpoint string, symbol string) string // Generates HMAC token query param for stream URLs
 
 		nativePlayer *nativeplayer.NativePlayer
 
@@ -81,6 +82,7 @@ type (
 		IsOfflineRef               *util.Ref[bool]
 		NativePlayer               *nativeplayer.NativePlayer
 		VideoCore                  *videocore.VideoCore
+		HMACTokenFunc              func(endpoint string, symbol string) string
 	}
 )
 
@@ -93,13 +95,13 @@ func NewManager(options NewManagerOptions) *Manager {
 		discordPresence:            options.DiscordPresence,
 		platformRef:                options.PlatformRef,
 		refreshAnimeCollectionFunc: options.RefreshAnimeCollectionFunc,
+		hmacTokenFunc:              options.HMACTokenFunc,
 		isOfflineRef:               options.IsOfflineRef,
 		currentStream:              mo.None[Stream](),
 		nativePlayer:               options.NativePlayer,
 		parserCache:                result.NewCache[string, *mkvparser.MetadataParser](),
 		videoCore:                  options.VideoCore,
 	}
-
 	ret.videoCoreSubscriber = ret.videoCore.Subscribe("directstream")
 	ret.listenToPlayerEvents()
 
@@ -112,6 +114,14 @@ func (m *Manager) SetAnimeCollection(ac *anilist.AnimeCollection) {
 
 func (m *Manager) SetSettings(s *Settings) {
 	m.settings = s
+}
+
+// GetHMACTokenQueryParam returns an HMAC token query param for the given endpoint, or empty string if not available.
+func (m *Manager) GetHMACTokenQueryParam(endpoint string, symbol string) string {
+	if m.hmacTokenFunc != nil {
+		return m.hmacTokenFunc(endpoint, symbol)
+	}
+	return ""
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

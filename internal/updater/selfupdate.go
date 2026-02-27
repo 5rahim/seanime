@@ -136,7 +136,7 @@ func (su *SelfUpdater) Run() error {
 	su.logger.Info().Msg("selfupdate: Fetching latest release info")
 
 	// Get the latest release
-	release, err := su.updater.GetLatestRelease()
+	release, err := su.updater.GetLatestRelease(su.updater.UpdateChannel)
 	if err != nil {
 		su.logger.Error().Err(err).Msg("selfupdate: Failed to get latest release")
 		return err

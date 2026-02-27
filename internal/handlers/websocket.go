@@ -19,6 +19,14 @@ var (
 
 // webSocketEventHandler creates a new websocket handler for real-time event communication
 func (h *Handler) webSocketEventHandler(c echo.Context) error {
+	// When a server password is set, require auth via query param
+	if h.App.Config.Server.Password != "" {
+		token := c.QueryParam("token")
+		if token != h.App.ServerPasswordHash {
+			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+		}
+	}
+
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err

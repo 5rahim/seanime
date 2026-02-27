@@ -1,22 +1,22 @@
 package updater
 
 import (
-	"github.com/samber/lo"
 	"os"
 	"seanime/internal/util"
 	"strings"
 	"testing"
+
+	"github.com/samber/lo"
 )
 
 func TestUpdater_DownloadLatestRelease(t *testing.T) {
 
 	updater := New("0.2.0", util.NewLogger(), nil)
 
-	//tempDir := "E:\\SEANIME-REPO-TEST"
 	tempDir := t.TempDir()
 
 	// Get the latest release
-	release, err := updater.GetLatestRelease()
+	release, err := updater.GetLatestRelease("github")
 	if err != nil {
 		t.Fatal(err)
 	}
