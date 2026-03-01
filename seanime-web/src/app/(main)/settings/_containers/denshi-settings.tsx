@@ -19,7 +19,7 @@ export function DenshiSettings() {
         }
     }, [])
 
-    function updateSetting(key: keyof DenshiSettings, value: boolean) {
+    function updateSetting(key: keyof DenshiSettings, value: boolean | string) {
         if (!settingsRef.current || !window.electron?.denshiSettings) return
 
         const newSettings = { ...settingsRef.current, [key]: value }

@@ -255,7 +255,7 @@ export function VideoCoreInSight() {
                                 <div
                                     data-vc-element="in-sight-character-image"
                                     className={cn(
-                                        "w-32 pointer-events-none aspect-[2/3] overflow-hidden rounded-3xl relative shadow-lg bg-gray-900 border border-gray-900/20 transition-all duration-300",
+                                        "w-32 pointer-events-none aspect-[2/3] overflow-hidden rounded-3xl relative shadow-lg bg-gray-900 border border-gray-900/20 transition-[transform,opacity,border-radius] duration-300",
                                         "scale-90 opacity-90 group-hover/in-sight-character:scale-110 group-hover/in-sight-character:opacity-100 ease-in-out group-hover/in-sight-character:rounded-3xl origin-bottom z-0 group-hover/in-sight-character:z-10",
                                     )}
                                 >

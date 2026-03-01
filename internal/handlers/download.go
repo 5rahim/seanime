@@ -221,7 +221,7 @@ func (h *Handler) HandleDownloadMacDenshiUpdate(c echo.Context) error {
 		return h.RespondWithError(c, fmt.Errorf("invalid download URL: %w", err))
 	}
 
-	if strings.ContainsAny(b.Version, "/\\..") || b.Version == "" {
+	if strings.ContainsAny(b.Version, "/\\") || strings.Contains(b.Version, "..") || b.Version == "" {
 		return h.RespondWithError(c, fmt.Errorf("invalid version string"))
 	}
 

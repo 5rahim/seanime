@@ -71,7 +71,7 @@ export function ElectronRestartServerPrompt() {
     }
 
     // Server is reachable but user hasn't logged in yet
-    const isUnauthenticated = serverHasPassword && !serverAuthToken
+    const isUnauthenticated = (serverHasPassword && !serverAuthToken) || import.meta.env.MODE === "development"
 
     // Try to reconnect automatically
     const tryAutoReconnectRef = React.useRef(true)

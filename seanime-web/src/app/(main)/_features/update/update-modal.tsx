@@ -40,7 +40,9 @@ export function UpdateModal(props: UpdateModalProps) {
     useWebsocketMessageListener({
         type: WSEvents.CHECK_FOR_UPDATES,
         onMessage: () => {
-            refetch()
+            if (!serverStatus?.settings?.library?.disableUpdateCheck) {
+                refetch()
+            }
         },
     })
 
@@ -49,6 +51,7 @@ export function UpdateModal(props: UpdateModalProps) {
     const [fallbackDestination, setFallbackDestination] = React.useState<string>("")
 
     React.useEffect(() => {
+        if (serverStatus?.settings?.library?.disableUpdateCheck) return
         if (updateData && updateData.release) {
             localStorage.setItem("latest-available-update", JSON.stringify(updateData.release.version))
             const latestVersionNotified = localStorage.getItem("notified-available-update")
@@ -69,9 +72,7 @@ export function UpdateModal(props: UpdateModalProps) {
         installUpdate({ fallback_destination: "" })
     }
 
-    if (serverStatus?.settings?.library?.disableUpdateCheck) return null
-
-    if (isLoading || !updateData || !updateData.release) return null
+    if (!updateModalOpen && (serverStatus?.settings?.library?.disableUpdateCheck || isLoading || !updateData || !updateData.release)) return null
 
     return (
         <>
@@ -91,13 +92,13 @@ export function UpdateModal(props: UpdateModalProps) {
                 onOpenChange={() => ignoreUpdate()}
                 contentClass="max-w-3xl"
             >
-                <Downloader release={updateData.release} />
+                <Downloader release={updateData?.release} />
 
                 <div className="space-y-2">
                     <h3 className="text-center">A new update is available!</h3>
                     <h4 className="font-bold flex gap-2 text-center items-center justify-center">
-                        <span className="text-[--muted]">{updateData.current_version}</span> <FiArrowRight />
-                        <span className="text-indigo-200">{updateData.release.version}</span></h4>
+                        <span className="text-[--muted]">{updateData?.current_version}</span> <FiArrowRight />
+                        <span className="text-indigo-200">{updateData?.release?.version}</span></h4>
 
                     {serverStatus?.isDesktopSidecar && <Alert
                         intent="info"

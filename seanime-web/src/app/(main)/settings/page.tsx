@@ -1,9 +1,13 @@
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
+import { useCheckForUpdates } from "@/api/hooks/releases.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
+import { electronUpdateModalOpenAtom } from "@/app/(main)/_electron/electron-update-modal"
 import { CustomLibraryBanner } from "@/app/(main)/_features/anime-library/_containers/custom-library-banner"
 import { __issueReport_overlayOpenAtom } from "@/app/(main)/_features/issue-report/issue-report"
+import { updateModalOpenAtom as webUpdateModalOpenAtom } from "@/app/(main)/_features/update/update-modal"
 import { useServerDisabledFeatures, useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ExternalPlayerLinkSettings, MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplayer-settings"
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
@@ -30,6 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useRouter, useSearchParams } from "@/lib/navigation"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { __isElectronDesktop__ } from "@/types/constants"
+import { useQueryClient } from "@tanstack/react-query"
 import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
@@ -52,11 +57,13 @@ import {
     LuTabletSmartphone,
     LuWandSparkles,
 } from "react-icons/lu"
+import { LuRefreshCw } from "react-icons/lu"
 import { MdOutlineConnectWithoutContact, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiBittorrent, SiQbittorrent, SiTransmission } from "react-icons/si"
 import { TbDatabaseExclamation } from "react-icons/tb"
 import { VscDebugAlt } from "react-icons/vsc"
+import { toast } from "sonner"
 import { SettingsCard, SettingsNavCard, SettingsPageHeader } from "./_components/settings-card"
 import { DenshiSettings } from "./_containers/denshi-settings"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
@@ -73,6 +80,7 @@ export default function Page() {
     const { isFeatureDisabled, showFeatureWarning } = useServerDisabledFeatures()
     const setServerStatus = useSetServerStatus()
     const router = useRouter()
+    const queryClient = useQueryClient()
 
     const searchParams = useSearchParams()
 
@@ -86,6 +94,10 @@ export default function Page() {
     const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
 
     const { mutate: openInExplorer, isPending: isOpening } = useOpenInExplorer()
+
+    const { mutate: checkForUpdates, isPending: isCheckingForUpdates } = useCheckForUpdates()
+    const setWebUpdateModalOpen = useSetAtom(webUpdateModalOpenAtom)
+    const setElectronUpdateModalOpen = useSetAtom(electronUpdateModalOpenAtom)
 
     React.useEffect(() => {
         if (!isPending && !!data?.settings) {
@@ -332,6 +344,7 @@ export default function Page() {
                                         useFallbackMetadataProvider: data.useFallbackMetadataProvider ?? false,
                                         scannerUseLegacyMatching: data.scannerUseLegacyMatching ?? false,
                                         scannerConfig: data.scannerConfig ?? "",
+                                        updateChannel: data.updateChannel || "github",
                                     },
                                     nakama: {
                                         enabled: data.nakamaEnabled ?? false,
@@ -410,6 +423,16 @@ export default function Page() {
                                 }, {
                                     onSuccess: () => {
                                         formRef.current?.reset(formRef.current.getValues())
+
+                                        // Sync updateChannel to Denshi
+                                        if (__isElectronDesktop__ && window.electron?.denshiSettings) {
+                                            window.electron.denshiSettings.get().then((denshiSettings) => {
+                                                window.electron!.denshiSettings.set({
+                                                    ...denshiSettings,
+                                                    updateChannel: data.updateChannel || "github",
+                                                })
+                                            })
+                                        }
                                     },
                                 })
                             }}
@@ -499,6 +522,7 @@ export default function Page() {
                                 vcTranslateTargetLanguage: status?.settings?.mediaPlayer?.vcTranslateTargetLanguage ?? "",
                                 scannerUseLegacyMatching: status?.settings?.library?.scannerUseLegacyMatching ?? false,
                                 scannerConfig: status?.settings?.library?.scannerConfig ?? "",
+                                updateChannel: status?.settings?.library?.updateChannel || "github",
                             }}
                             stackClass="space-y-0 relative"
                         >
@@ -535,6 +559,38 @@ export default function Page() {
                                                 data-open-issue-recorder-button
                                             >
                                                 Record an issue
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                intent="gray-outline"
+                                                onClick={() => {
+                                                    checkForUpdates(undefined, {
+                                                        onSuccess: (data) => {
+                                                            if (data?.release) {
+                                                                queryClient.setQueryData([API_ENDPOINTS.RELEASES.GetLatestUpdate.key], data)
+
+                                                                if (__isElectronDesktop__) {
+                                                                    // Also trigger Electron update
+                                                                    if (window.electron) {
+                                                                        window.electron.checkForUpdates().catch(() => { })
+                                                                    }
+                                                                    setElectronUpdateModalOpen(true)
+                                                                } else {
+                                                                    setWebUpdateModalOpen(true)
+                                                                }
+                                                            } else {
+                                                                toast.success("You are running the latest version")
+                                                            }
+
+                                                        },
+                                                    })
+                                                }}
+                                                loading={isCheckingForUpdates}
+                                                leftIcon={<LuRefreshCw className="transition-transform duration-200 group-hover:rotate-180" />}
+                                                className="transition-all duration-200 hover:scale-105 hover:shadow-md group"
+                                                data-check-for-updates-button
+                                            >
+                                                Check for updates
                                             </Button>
                                         </div>
 

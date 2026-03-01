@@ -3831,6 +3831,10 @@ export type Models_LibrarySettings = {
     useFallbackMetadataProvider: boolean
     scannerUseLegacyMatching: boolean
     scannerConfig: string
+    /**
+     * "github", "seanime", "seanime_nightly"
+     */
+    updateChannel: string
 }
 
 /**

@@ -10,6 +10,7 @@ const (
 	AnimeEntryBulkActionEndpoint                       = "ANIME-ENTRIES-anime-entry-bulk-action"
 	AnimeEntryManualMatchEndpoint                      = "ANIME-ENTRIES-anime-entry-manual-match"
 	CancelDiscordActivityEndpoint                      = "DISCORD-cancel-discord-activity"
+	CheckForUpdatesEndpoint                            = "RELEASES-check-for-updates"
 	ClearAllChapterDownloadQueueEndpoint               = "MANGA-DOWNLOAD-clear-all-chapter-download-queue"
 	ClearFileCacheMediastreamVideoFilesEndpoint        = "FILECACHE-clear-file-cache-mediastream-video-files"
 	CreateAutoDownloaderProfileEndpoint                = "AUTO-DOWNLOADER-create-auto-downloader-profile"

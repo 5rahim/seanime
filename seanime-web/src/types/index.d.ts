@@ -80,5 +80,6 @@ declare global {
         minimizeToTray: boolean;
         openInBackground: boolean;
         openAtLaunch: boolean;
+        updateChannel?: string;
     }
 }

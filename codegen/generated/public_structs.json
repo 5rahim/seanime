@@ -27812,6 +27812,17 @@
         "comments": []
       },
       {
+        "name": "logoutInProgress",
+        "jsonName": "logoutInProgress",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "HookManager",
         "jsonName": "HookManager",
         "goType": "hook.Manager",
@@ -29497,6 +29508,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "UpdateChannel",
+        "jsonName": "updateChannel",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"github\", \"seanime\", \"seanime_nightly\""
+        ]
       }
     ],
     "comments": []
@@ -34937,6 +34959,17 @@
         ]
       },
       {
+        "name": "hmacTokenFunc",
+        "jsonName": "hmacTokenFunc",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Generates HMAC token query param for stream URLs"
+        ]
+      },
+      {
         "name": "nativePlayer",
         "jsonName": "nativePlayer",
         "goType": "nativeplayer.NativePlayer",
@@ -35212,6 +35245,15 @@
         "usedTypescriptType": "VideoCore_VideoCore",
         "usedStructName": "videocore.VideoCore",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HMACTokenFunc",
+        "jsonName": "HMACTokenFunc",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -70643,6 +70685,17 @@
         "comments": [
           " When collections were last fetched"
         ]
+      },
+      {
+        "name": "logoutFunc",
+        "jsonName": "logoutFunc",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " called when an invalid token is detected"
+        ]
       }
     ],
     "comments": []
@@ -87398,6 +87451,15 @@
         "typescriptType": "boolean",
         "required": true,
         "public": false,
+        "comments": []
+      },
+      {
+        "name": "UpdateChannel",
+        "jsonName": "UpdateChannel",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
         "comments": []
       },
       {

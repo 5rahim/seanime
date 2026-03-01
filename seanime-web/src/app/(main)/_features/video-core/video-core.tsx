@@ -140,7 +140,7 @@ import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
-import { useMeasure, useUnmount, useUpdateEffect, useWindowSize } from "react-use"
+import { useUnmount, useUpdateEffect, useWindowSize } from "react-use"
 
 const log = logger("VIDEO CORE")
 
@@ -754,14 +754,33 @@ export function VideoCore(props: VideoCoreProps) {
         dispatchTerminatedEvent()
     }
 
-    // Measure video element size
-    const [measureRef, { width, height }] = useMeasure<HTMLVideoElement>()
+    // measure video element size using a throttled ResizeObserver
+    const videoResizeObserverRef = React.useRef<ResizeObserver | null>(null)
+    const videoResizeRafRef = React.useRef<number | null>(null)
+    const videoResizeTargetRef = React.useRef<HTMLVideoElement | null>(null)
+
     React.useEffect(() => {
-        setRealVideoSize({
-            width,
-            height,
+        videoResizeObserverRef.current = new ResizeObserver((entries) => {
+            if (videoResizeRafRef.current !== null) return // already scheduled
+            videoResizeRafRef.current = requestAnimationFrame(() => {
+                videoResizeRafRef.current = null
+                const entry = entries[0]
+                if (!entry) return
+                const { width: w, height: h } = entry.contentRect
+                setRealVideoSize(prev => {
+                    if (prev.width === w && prev.height === h) return prev
+                    return { width: w, height: h }
+                })
+            })
         })
-    }, [width, height])
+
+        return () => {
+            videoResizeObserverRef.current?.disconnect()
+            if (videoResizeRafRef.current !== null) {
+                cancelAnimationFrame(videoResizeRafRef.current)
+            }
+        }
+    }, [])
 
     // refetch continuity data when playback info changes
     React.useEffect(() => {
@@ -787,7 +806,14 @@ export function VideoCore(props: VideoCoreProps) {
         if (mRef) {
             mRef.current = instance
         }
-        if (instance) measureRef(instance)
+        // observe/unobserve the video element for size changes
+        if (videoResizeTargetRef.current && videoResizeTargetRef.current !== instance) {
+            videoResizeObserverRef.current?.unobserve(videoResizeTargetRef.current)
+        }
+        if (instance) {
+            videoResizeObserverRef.current?.observe(instance)
+        }
+        videoResizeTargetRef.current = instance
         setVideoElement(instance)
     }
 

@@ -8,6 +8,7 @@ import (
 	"io"
 	"seanime/internal/events"
 	"seanime/internal/mkvparser"
+	"seanime/internal/nativeplayer"
 	"seanime/internal/util"
 	"strings"
 	"sync"
@@ -144,28 +145,64 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 		subtitleChannelActive := true
 		errorChannelActive := true
 
+		// Throttle local file streams more aggressively since disk i/o is unbounded.
+		// Network-based streams (torrent, debrid, nakama) are naturally throttled by bandwidth.
+		isLocalFile := stream.Type() == nativeplayer.StreamTypeFile
+		batchSleepDuration := 200 * time.Millisecond
+		flushInterval := 100 * time.Millisecond
+		maxBatchSize := 500
+		if isLocalFile {
+			batchSleepDuration = 500 * time.Millisecond
+			flushInterval = 300 * time.Millisecond
+			maxBatchSize = 50
+		}
+
+		eventBatch := make([]*mkvparser.SubtitleEvent, 0, maxBatchSize)
+		flushBatch := func() {
+			if len(eventBatch) == 0 {
+				return
+			}
+			s.manager.nativePlayer.SubtitleEvents(stream.ClientId(), eventBatch)
+			lastSubtitleEventRWMutex.Lock()
+			lastSubtitleEvent = eventBatch[len(eventBatch)-1]
+			lastSubtitleEventRWMutex.Unlock()
+
+			eventBatch = eventBatch[:0]
+
+			// sleep between batches to prevent flooding
+			time.Sleep(batchSleepDuration)
+		}
+
+		ticker := time.NewTicker(flushInterval)
+		defer ticker.Stop()
+
 		for subtitleChannelActive || errorChannelActive { // Loop as long as at least one channel might still produce data or a final status
 			select {
 			case <-ctx.Done():
 				s.logger.Debug().Int64("offset", offset).Msg("directstream: Subtitle streaming cancelled by context")
+				flushBatch()
 				return
+
+			case <-ticker.C:
+				flushBatch()
 
 			case subtitle, ok := <-subtitleCh:
 				if !ok {
 					subtitleCh = nil // Mark as exhausted
 					subtitleChannelActive = false
 					if !errorChannelActive { // If both channels are exhausted, exit
+						flushBatch()
 						return
 					}
 					continue // Continue to wait for errorChannel or ctx.Done()
 				}
 				if subtitle != nil {
 					onFirstEventSent()
-					// Send the event to the player
-					s.manager.nativePlayer.SubtitleEvent(stream.ClientId(), subtitle)
-					lastSubtitleEventRWMutex.Lock()
-					lastSubtitleEvent = subtitle
-					lastSubtitleEventRWMutex.Unlock()
+					// Buffer the event
+					eventBatch = append(eventBatch, subtitle)
+					if len(eventBatch) >= maxBatchSize {
+						flushBatch()
+					}
 				}
 
 			case err, ok := <-errCh:
@@ -173,6 +210,7 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 					errCh = nil // Mark as exhausted
 					errorChannelActive = false
 					if !subtitleChannelActive { // If both channels are exhausted, exit
+						flushBatch()
 						return
 					}
 					continue // Continue to wait for subtitleChannel or ctx.Done()
@@ -185,6 +223,7 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 					s.logger.Info().Int64("offset", offset).Msg("directstream: Subtitle streaming completed by parser.")
 					subtitleStream.Stop(true)
 				}
+				flushBatch()
 				return // Terminate goroutine
 			}
 		}

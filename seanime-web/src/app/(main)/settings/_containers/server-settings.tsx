@@ -311,9 +311,19 @@ export function ServerSettings(props: ServerSettingsProps) {
                     label={__isElectronDesktop__ ? "Do not fetch update notes" : "Do not check for updates"}
                     help={__isElectronDesktop__ ? (<span className="flex gap-2 items-center">
                         <LuCircleAlert className="size-4 text-[--blue]" />
-                        <span>If enabled, new releases won't be displayed. Seanime Denshi will still auto-update in the background.</span>
+                        <span>If enabled, new releases won't be displayed. Seanime Denshi may still auto-update in the background.</span>
                     </span>) : "If enabled, Seanime will not check for new releases."}
                     moreHelp={__isElectronDesktop__ ? "You cannot disable auto-updates for Seanime Denshi." : undefined}
+                />
+                <Field.Select
+                    label="Update Channel"
+                    name="updateChannel"
+                    help={__isElectronDesktop__ ? "Also applies to Seanime Denshi auto-updates." : undefined}
+                    options={[
+                        { label: "GitHub", value: "github" },
+                        { label: "Seanime", value: "seanime" },
+                        { label: "Seanime (Nightly)", value: "seanime_nightly" },
+                    ]}
                 />
             </SettingsCard>
 

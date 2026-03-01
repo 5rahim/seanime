@@ -37,6 +37,14 @@ func (p *NativePlayer) SubtitleEvent(clientId string, event *mkvparser.SubtitleE
 	p.sendPlayerEventTo(clientId, string(ServerEventSubtitleEvent), event, true)
 }
 
+// SubtitleEvents sends multiple subtitle events to the client.
+func (p *NativePlayer) SubtitleEvents(clientId string, events []*mkvparser.SubtitleEvent) {
+	for _, event := range events {
+		p.videoCore.RecordEvent(event)
+	}
+	p.sendPlayerEventTo(clientId, string(ServerEventSubtitleEvent), events, true)
+}
+
 // SetTracks sends the set tracks event to the client.
 func (p *NativePlayer) SetTracks(clientId string, tracks []*mkvparser.TrackInfo) {
 	p.sendPlayerEventTo(clientId, string(ServerEventSetTracks), tracks)

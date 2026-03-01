@@ -1871,6 +1871,17 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route forces a re-check for updates and returns the result.
+         *  This resets the update cache and performs a fresh check for updates.
+         *  If an error occurs, it will return an empty update.
+         */
+        CheckForUpdates: {
+            key: "RELEASES-check-for-updates",
+            methods: ["POST"],
+            endpoint: "/api/v1/check-for-updates",
+        },
+        /**
+         *  @description
          *  Route returns the latest update.
          *  This will return the latest update.
          *  If an error occurs, it will return an empty update.

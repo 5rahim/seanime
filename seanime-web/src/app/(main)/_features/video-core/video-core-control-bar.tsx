@@ -178,7 +178,7 @@ export function VideoCoreControlBar(props: {
                 data-vc-state-visible={!hideControlBar}
                 className={cn(
                     "absolute left-0 bottom-0 right-0 flex flex-col text-white",
-                    "transition-all duration-300 opacity-0",
+                    "transition-[opacity,transform] duration-300 opacity-0",
                     "z-[10] h-28 transform-gpu",
                     !hideControlBar && "opacity-100",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-500/20",
@@ -302,7 +302,7 @@ export function VideoCoreMobileControlBar(props: {
                 data-vc-element="mobile-control-bar-top-section"
                 className={cn(
                     "vc-mobile-control-bar-top-section",
-                    "absolute transition-all left-0 right-0 top-0 w-full z-[11] transform-gpu",
+                    "absolute transition-transform left-0 right-0 top-0 w-full z-[11] transform-gpu",
                     "px-2 pt-3",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
                 )}
@@ -327,7 +327,7 @@ export function VideoCoreMobileControlBar(props: {
                 data-vc-element="mobile-control-bar-bottom-section"
                 className={cn(
                     "vc-mobile-control-bar-bottom-section",
-                    "absolute transition-all left-0 right-0 bottom-0 w-full z-[11] transform-gpu",
+                    "absolute transition-transform left-0 right-0 bottom-0 w-full z-[11] transform-gpu",
                     "px-2",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
                     isSwiping && "transition-none",
@@ -545,7 +545,7 @@ export function VideoCoreVolumeButton() {
                             "flex h-full w-full relative items-center",
                             "rounded-full",
                             "cursor-pointer",
-                            "transition-all duration-300",
+                            "transition-[width,background-color] duration-300",
                         )}
                         onPointerDown={handlePointerDown}
                         onPointerMove={handlePointerMove}
@@ -630,7 +630,7 @@ export function VideoCoreTimestamp() {
             data-vc-element="timestamp"
             data-vc-timestamp-type={type}
             className={cn(
-                "font-medium opacity-100 cursor-pointer",
+                "tabular-nums font-medium opacity-100 cursor-pointer",
                 isMobile ? "text-xs text-white" : "text-sm hover:opacity-80",
             )}
             onClick={handleSwitchType}

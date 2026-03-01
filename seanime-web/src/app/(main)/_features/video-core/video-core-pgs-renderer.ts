@@ -53,12 +53,26 @@ export class VideoCorePgsRenderer {
         })
     }
 
+    addEvents(events: PgsEvent[]) {
+        if (!this._worker || events.length === 0) {
+            return
+        }
+
+        this._worker.postMessage({
+            type: "addEvents",
+            payload: events,
+        })
+    }
+
     resize() {
         if (!this._canvas || !this._worker) {
             return
         }
 
-        const videoContentSize = this._getRenderedVideoContentSize()
+        const videoContentSize = this._getRenderedVideoContentSize(
+            this._videoElement.clientWidth,
+            this._videoElement.clientHeight,
+        )
         if (!videoContentSize) {
             return
         }
@@ -165,7 +179,10 @@ export class VideoCorePgsRenderer {
         }
 
         // Set initial size before transferring
-        const videoContentSize = this._getRenderedVideoContentSize()
+        const videoContentSize = this._getRenderedVideoContentSize(
+            this._videoElement.clientWidth,
+            this._videoElement.clientHeight,
+        )
         if (videoContentSize) {
             const { displayedWidth, displayedHeight, offsetX, offsetY } = videoContentSize
             this._canvas.width = displayedWidth
@@ -214,8 +231,36 @@ export class VideoCorePgsRenderer {
     private _setupResizeObserver() {
         if (!this._videoElement || !this._canvas) return
 
-        this._resizeObserver = new ResizeObserver(() => {
-            this.resize()
+        let resizeRafId: number | null = null
+        this._resizeObserver = new ResizeObserver((entries) => {
+            if (!this._canvas || !this._worker || !entries[0]) {
+                return
+            }
+            // batch reads and writes
+            if (resizeRafId !== null) return
+            const { width, height } = entries[0].contentRect
+            resizeRafId = requestAnimationFrame(() => {
+                resizeRafId = null
+                if (!this._canvas || !this._worker) return
+                const videoContentSize = this._getRenderedVideoContentSize(width, height)
+                if (!videoContentSize) return
+
+                const { displayedWidth, displayedHeight, offsetX, offsetY } = videoContentSize
+                this._canvasWidth = displayedWidth
+                this._canvasHeight = displayedHeight
+                // batch all style writes together
+                this._canvas.style.width = `${displayedWidth}px`
+                this._canvas.style.height = `${displayedHeight}px`
+                this._canvas.style.left = `${offsetX}px`
+                this._canvas.style.top = `${offsetY}px`
+                this._worker.postMessage({
+                    type: "resize",
+                    payload: { width: displayedWidth, height: displayedHeight },
+                })
+                if (this._debug) {
+                    log.info("Resized canvas", { width: displayedWidth, height: displayedHeight, left: offsetX, top: offsetY })
+                }
+            })
         })
 
         this._resizeObserver.observe(this._videoElement)
@@ -247,10 +292,7 @@ export class VideoCorePgsRenderer {
     }
 
 
-    private _getRenderedVideoContentSize() {
-        const containerWidth = this._videoElement.clientWidth
-        const containerHeight = this._videoElement.clientHeight
-
+    private _getRenderedVideoContentSize(containerWidth: number, containerHeight: number) {
         const videoWidth = this._videoElement.videoWidth
         const videoHeight = this._videoElement.videoHeight
 
@@ -264,32 +306,14 @@ export class VideoCorePgsRenderer {
         let offsetX = 0
         let offsetY = 0
 
-        const objectFit = getComputedStyle(this._videoElement).objectFit || "contain"
-
-        if (objectFit === "cover") {
-            if (videoRatio > containerRatio) {
-                displayedHeight = containerHeight
-                displayedWidth = containerHeight * videoRatio
-                offsetX = (containerWidth - displayedWidth) / 2
-            } else {
-                displayedWidth = containerWidth
-                displayedHeight = containerWidth / videoRatio
-                offsetY = (containerHeight - displayedHeight) / 2
-            }
-        } else if (objectFit === "contain") {
-            if (videoRatio > containerRatio) {
-                displayedWidth = containerWidth
-                displayedHeight = containerWidth / videoRatio
-                offsetY = (containerHeight - displayedHeight) / 2
-            } else {
-                displayedHeight = containerHeight
-                displayedWidth = containerHeight * videoRatio
-                offsetX = (containerWidth - displayedWidth) / 2
-            }
-        } else {
-            // object-fit: fill or none
+        if (videoRatio > containerRatio) {
             displayedWidth = containerWidth
+            displayedHeight = containerWidth / videoRatio
+            offsetY = (containerHeight - displayedHeight) / 2
+        } else {
             displayedHeight = containerHeight
+            displayedWidth = containerHeight * videoRatio
+            offsetX = (containerWidth - displayedWidth) / 2
         }
 
         return { displayedWidth, displayedHeight, offsetX, offsetY }

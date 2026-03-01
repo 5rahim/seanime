@@ -76,8 +76,11 @@ func (su *SelfUpdater) Started() <-chan struct{} {
 	return su.breakLoopCh
 }
 
-func (su *SelfUpdater) StartSelfUpdate(fallbackDestination string) {
+func (su *SelfUpdater) StartSelfUpdate(fallbackDestination string, releaseChannel string) {
 	su.fallbackDest = fallbackDestination
+	if releaseChannel != "" {
+		su.updater.UpdateChannel = releaseChannel
+	}
 	close(su.breakLoopCh)
 }
 
