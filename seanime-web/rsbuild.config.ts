@@ -100,7 +100,7 @@ export default defineConfig({
         chunkSplit: {
             forceSplitting: {
                 "hls": /hls\.js/,
-                "rrweb": /rrweb/,
+                "recorder": /rrweb/,
             },
         },
     },

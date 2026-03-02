@@ -149,7 +149,7 @@ func NewIssueReport(userAgent, appVersion, _os, arch string, logsDir string, isA
 		}
 	}
 
-	userPathPattern := regexp.MustCompile(`(?i)(/home/|/Users/|C:\\Users\\)([^/\\]+)`)
+	userPathPattern := regexp.MustCompile(`(?i)(/home/|/Users/|C:\\Users\\|C:\\\\Users\\\\)([^/\\]+)`)
 
 	if serverStatus != nil {
 		serverStatusMarshaled, err := json.Marshal(serverStatus)
