@@ -25,6 +25,7 @@ import {
     BiWifi,
 } from "react-icons/bi"
 import { FiMousePointer } from "react-icons/fi"
+import { LuGlobe } from "react-icons/lu"
 import { LuAppWindow, LuNetwork, LuTerminal } from "react-icons/lu"
 import { SiReactquery } from "react-icons/si"
 import { Virtuoso } from "react-virtuoso"
@@ -128,6 +129,69 @@ interface ExtendedReport extends Report_IssueReport {
     viewportWidth?: number
     viewportHeight?: number
     recordingDurationMs?: number
+    records?: Record<string, any>
+}
+
+const REF_PREFIX = "$ref:"
+
+/**
+ * Resolves all $ref:N pointers in a report back to their original values.
+ * Mutates the report in-place and removes the records map.
+ */
+function resolveRecords(report: ExtendedReport): ExtendedReport {
+    const records = report.records
+    if (!records || Object.keys(records).length === 0) return report
+
+    const resolveString = (val: string | undefined): string | undefined => {
+        if (!val || !val.startsWith(REF_PREFIX)) return val
+        const key = val.slice(REF_PREFIX.length)
+        return records[key] != null ? String(records[key]) : val
+    }
+
+    const resolveAny = (val: any): any => {
+        if (typeof val === "string" && val.startsWith(REF_PREFIX)) {
+            const key = val.slice(REF_PREFIX.length)
+            return records[key] ?? val
+        }
+        return val
+    }
+
+    for (const log of report.networkLogs || []) {
+        log.dataPreview = resolveString(log.dataPreview)!
+        log.body = resolveString(log.body)!
+        log.url = resolveString(log.url)!
+        log.pageUrl = resolveString(log.pageUrl)!
+    }
+
+    for (const log of report.reactQueryLogs || []) {
+        log.dataPreview = resolveString(log.dataPreview)!
+        log.pageUrl = resolveString(log.pageUrl)!
+    }
+
+    for (const log of report.consoleLogs || []) {
+        log.content = resolveString(log.content)!
+        log.pageUrl = resolveString(log.pageUrl)!
+    }
+
+    for (const log of report.clickLogs || []) {
+        log.pageUrl = resolveString(log.pageUrl)!
+        if (log.className) {
+            log.className = resolveString(log.className)
+        }
+    }
+
+    for (const log of report.navigationLogs || []) {
+        log.from = resolveString(log.from)!
+        log.to = resolveString(log.to)!
+    }
+
+    for (const log of report.websocketLogs || []) {
+        log.payload = resolveAny(log.payload)
+    }
+
+    // Remove the records map since all values have been resolved
+    delete report.records
+    return report
 }
 
 
@@ -311,7 +375,7 @@ function buildUnifiedTimeline(report: ExtendedReport, includeServerLogs: boolean
             }
 
             // offset server logs a little
-            timestamp = new Date(timestamp.getTime() + 580)
+            // timestamp = new Date(timestamp.getTime() + 580)
 
             events.push({
                 id: idx++,
@@ -418,7 +482,7 @@ export default function Page() {
     useEffect(() => {
         getReportFromDB().then((savedReport) => {
             if (savedReport) {
-                setReport(savedReport)
+                setReport(resolveRecords(savedReport))
                 toast.success("Restored previous issue report")
             }
             setIsLoading(false)
@@ -439,8 +503,9 @@ export default function Page() {
 
             decompressReport(formData, {
                 onSuccess: (data) => {
-                    setReport(data as ExtendedReport)
-                    saveReportToDB(data as ExtendedReport)
+                    const resolved = resolveRecords(data as ExtendedReport)
+                    setReport(resolved)
+                    saveReportToDB(resolved)
                     toast.success("Report loaded")
                 },
                 onError: (error) => {
@@ -455,7 +520,7 @@ export default function Page() {
         reader.onload = (e) => {
             try {
                 const content = e.target?.result as string
-                const parsed = JSON.parse(content) as ExtendedReport
+                const parsed = resolveRecords(JSON.parse(content) as ExtendedReport)
                 setReport(parsed)
                 saveReportToDB(parsed)
                 toast.success("Report loaded")
@@ -580,7 +645,7 @@ function ReportViewer({ report }: { report: ExtendedReport }) {
         { key: "overview", label: "Overview", icon: BiInfoCircle },
         { key: "replay", label: "Session Replay", icon: BiPlay, show: hasReplay, accent: true },
         { key: "timeline", label: "Timeline", icon: BiNavigation },
-        { key: "network", label: `Network (${stats.networkCount})`, icon: LuNetwork as any },
+        { key: "network", label: `Network (${stats.networkCount})`, icon: LuGlobe as any },
         { key: "console", label: `Console (${stats.consoleCount})`, icon: LuAppWindow as any },
         { key: "clicks", label: `Clicks (${stats.clickCount})`, icon: FiMousePointer as any },
         { key: "websocket", label: `WebSocket (${stats.websocketCount})`, icon: BiWifi, show: hasWsLogs },
@@ -883,12 +948,12 @@ function TimelinePanel({ events, searchQuery, setSearchQuery, includeServerLogs,
 
                 <div className="h-px bg-[--border]" />
 
-                <Checkbox
+                {/* <Checkbox
                     label="Include server logs"
                     value={includeServerLogs}
                     onValueChange={v => setIncludeServerLogs(v as boolean)}
                     size="sm"
-                />
+                 /> */}
             </div>
 
             <div className="flex-1 min-w-0 bg-gray-950">
@@ -924,7 +989,7 @@ function TimelineEventRow({ event, isExpanded, toggleExpanded }: {
 }) {
     const typeIcons: Record<EventType, React.ReactNode> = {
         click: <FiMousePointer className="text-blue-400" />,
-        network: <LuNetwork className={cn(event.level === "error" ? "text-red-400" : "text-green-400")} />,
+        network: <LuGlobe className={cn(event.level === "error" ? "text-red-400" : "text-green-400")} />,
         console: <LuAppWindow
             className={cn(
                 event.level === "error" ? "text-red-400" : event.level === "warn" ? "text-orange-400" : "text-gray-400",
@@ -940,8 +1005,8 @@ function TimelineEventRow({ event, isExpanded, toggleExpanded }: {
     const typeLabels: Record<EventType, string> = {
         click: "CLICK",
         network: "NET",
-        console: "LOG",
-        query: "QUERY",
+        console: "WEB",
+        query: "RQ",
         navigation: "NAV",
         screenshot: "IMG",
         server: "SRV",

@@ -4574,6 +4574,7 @@ export type Report_IssueReport = {
     viewportWidth?: number
     viewportHeight?: number
     recordingDurationMs?: number
+    records?: Record<string, any>
 }
 
 /**

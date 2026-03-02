@@ -92,7 +92,6 @@ function setupChromiumFlags() {
         "ThrottleDisplayNoneAndVisibilityHiddenCrossOriginIframes",
         "CanvasOopRasterization",
         "UseSkiaRenderer",
-        "RawDraw",
         "PlatformEncryptedDolbyVision",
     ].join(","))
 
