@@ -89,16 +89,6 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
         resetSuggestions()
     }, [page, unmatchedGroups])
 
-    const AnilistIdInput = React.useCallback(() => {
-        return <NumberInput
-            value={anilistId}
-            onValueChange={v => setAnilistId(v)}
-            formatOptions={{
-                useGrouping: false,
-            }}
-        />
-    }, [currentGroup?.dir, _r])
-
     function onActionSuccess() {
         if (page === 0 && unmatchedGroups.length === 1) {
             setIsOpen(false)
@@ -234,7 +224,14 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 <div className="flex items-center flex-wrap gap-2">
                     <div className="flex gap-2 items-center w-full">
                         <p className="flex-none text-lg mr-2 font-semibold">{!hasCustomSources ? "AniList" : "Media"} ID</p>
-                        <AnilistIdInput />
+                        <NumberInput
+                            // key={String(_r) + (currentGroup?.dir || "")}
+                            value={anilistId}
+                            onValueChange={v => setAnilistId(v)}
+                            formatOptions={{
+                                useGrouping: false,
+                            }}
+                        />
                         <Button
                             intent="white"
                             onClick={handleMatchSelected}

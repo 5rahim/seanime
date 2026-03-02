@@ -62,7 +62,7 @@ export class VideoCoreAnime4KManager extends EventTarget {
     private _abortController: AbortController | null = null
     private _frameDropState: FrameDropState = {
         enabled: true,
-        frameDropThreshold: 5,
+        frameDropThreshold: 8,
         frameDropCount: 0,
         totalFrameDrops: 0,
         lastFrameTime: 0,
