@@ -181,7 +181,7 @@ export function SeaCommand() {
                         shouldShow={ctx => (
                             ctx.command.command === "anime"
                             || ctx.command.command === "manga"
-                            // || ctx.command.command === "library"
+                            || ctx.command.command === "library"
                         )}
                         render={() => <SeaCommandUserMediaNavigation />}
                     />

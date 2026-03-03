@@ -1,5 +1,6 @@
 import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { useGetMangaCollection } from "@/api/hooks/manga.hooks"
+import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader.ts"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { CommandGroup, CommandItem, CommandShortcut } from "@/components/ui/command"
 import { useRouter } from "@/lib/navigation"
@@ -15,6 +16,7 @@ export function SeaCommandUserMediaNavigation() {
     const { input, select, command: { isCommand, command, args }, scrollToTop } = useSeaCommandContext()
     const { data: animeCollection, isLoading: isAnimeLoading } = useGetAnimeCollection() // should be available instantly
     const { data: mangaCollection, isLoading: isMangaLoading } = useGetMangaCollection()
+    const animeLibraryCollection = useLibraryCollection()
 
     const anime = animeCollection?.MediaListCollection?.lists?.flatMap(n => n?.entries)?.filter(Boolean)?.map(n => n.media)?.filter(Boolean) ?? []
     const manga = mangaCollection?.lists?.flatMap(n => n?.entries)?.filter(Boolean)?.map(n => n.media)?.filter(Boolean) ?? []
@@ -24,6 +26,10 @@ export function SeaCommandUserMediaNavigation() {
     const query = args.join(" ")
     const filteredAnime = (command === "anime" && query.length > 0) ? anime.filter(n => seaCommand_compareMediaTitles(n.title, query)) : []
     const filteredManga = (command === "manga" && query.length > 0) ? manga.filter(n => seaCommand_compareMediaTitles(n.title, query)) : []
+    const filteredAnimeLibrary = (command === "library" && query.length > 0) ? animeLibraryCollection?.lists?.flatMap(l => l.entries)
+        ?.filter(n => seaCommand_compareMediaTitles(n?.media?.title, query))
+        ?.map(n => n?.media)
+        ?.filter(Boolean) ?? [] : []
 
     return (
         <>
@@ -50,6 +56,23 @@ export function SeaCommandUserMediaNavigation() {
             {command === "anime" && filteredAnime.length > 0 && (
                 <CommandGroup heading="My anime">
                     {filteredAnime.map(n => (
+                        <CommandItem
+                            key={n.id}
+                            onSelect={() => {
+                                select(() => {
+                                    router.push(`/entry?id=${n.id}`)
+                                })
+                            }}
+                        >
+                            <CommandItemMedia media={n} type="anime" />
+                        </CommandItem>
+                    ))}
+                </CommandGroup>
+            )}
+
+            {command === "library" && filteredAnimeLibrary.length > 0 && (
+                <CommandGroup heading="Library anime">
+                    {filteredAnimeLibrary.map(n => (
                         <CommandItem
                             key={n.id}
                             onSelect={() => {
