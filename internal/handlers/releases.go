@@ -31,7 +31,7 @@ func (h *Handler) HandleInstallLatestUpdate(c echo.Context) error {
 
 	go func() {
 		time.Sleep(2 * time.Second)
-		h.App.SelfUpdater.StartSelfUpdate(b.FallbackDestination)
+		h.App.SelfUpdater.StartSelfUpdate(b.FallbackDestination, h.App.Updater.UpdateChannel)
 	}()
 
 	status := h.NewStatus(c)
@@ -40,6 +40,28 @@ func (h *Handler) HandleInstallLatestUpdate(c echo.Context) error {
 	time.Sleep(1 * time.Second)
 
 	return h.RespondWithData(c, status)
+}
+
+// HandleCheckForUpdates
+//
+//	@summary forces a re-check for updates and returns the result.
+//	@desc This resets the update cache and performs a fresh check for updates.
+//	@desc If an error occurs, it will return an empty update.
+//	@route /api/v1/check-for-updates [POST]
+//	@returns updater.Update
+func (h *Handler) HandleCheckForUpdates(c echo.Context) error {
+	// Temporarily enable update checking (bypasses disableUpdateCheck setting)
+	h.App.Updater.SetEnabled(true)
+	defer h.App.Updater.SetEnabled(!h.App.Settings.Library.DisableUpdateCheck)
+
+	h.App.Updater.ShouldRefetchReleases()
+
+	update, err := h.App.Updater.GetLatestUpdate()
+	if err != nil {
+		return h.RespondWithData(c, &updater.Update{})
+	}
+
+	return h.RespondWithData(c, update)
 }
 
 // HandleGetLatestUpdate

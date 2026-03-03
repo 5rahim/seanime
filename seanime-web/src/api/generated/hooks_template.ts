@@ -2297,6 +2297,17 @@
 //     })
 // }
 
+// export function useCheckForUpdates() {
+//     return useServerMutation<Updater_Update>({
+//         endpoint: API_ENDPOINTS.RELEASES.CheckForUpdates.endpoint,
+//         method: API_ENDPOINTS.RELEASES.CheckForUpdates.methods[0],
+//         mutationKey: [API_ENDPOINTS.RELEASES.CheckForUpdates.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useGetLatestUpdate() {
 //     return useServerQuery<Updater_Update>({
 //         endpoint: API_ENDPOINTS.RELEASES.GetLatestUpdate.endpoint,

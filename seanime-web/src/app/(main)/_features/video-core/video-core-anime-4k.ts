@@ -49,7 +49,7 @@ export const VideoCoreAnime4K = () => {
     // Handle option changes
     React.useLayoutEffect(() => {
         if (video && manager) {
-            manager.resize()
+            manager.resize(realVideoSize.width, realVideoSize.height)
         }
     }, [realVideoSize])
 

@@ -187,10 +187,11 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
     useWebsocketMessageListener({
         type: "grant-plugin-permission-check",
         onMessage: (message: string) => {
-            // message format: {extensionId}$$${code}
+            // message format: {extensionId}$$${challengeID}:{code}
             if (message.startsWith(extension.extension?.id) && shouldGrantPluginPermissions.includes(extension.extension?.id ?? "")) {
                 setShouldGrantPluginPermissions(p => p.filter(id => id !== (extension.extension?.id ?? "")))
-                grantPluginPermissions({ id: extension.extension?.id ?? "", clientId: "CODE:" + message.split("$$$")?.[1] || "" })
+                const token = message.split("$$$")?.[1] || ""
+                grantPluginPermissions({ id: extension.extension?.id ?? "", clientId: "CODE:" + token })
             }
         },
     })

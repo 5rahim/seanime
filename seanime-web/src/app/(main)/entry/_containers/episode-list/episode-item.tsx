@@ -4,7 +4,7 @@ import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
 import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
-import { useNakamaHMACAuth, useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
+import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { SeaImage } from "@/components/shared/sea-image"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
@@ -46,7 +46,6 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
     const [_, copyToClipboard] = useCopyToClipboard()
 
     const { getHMACTokenQueryParam } = useServerHMACAuth()
-    const { getHMACTokenQueryParam: getNakamaHMACTokenQueryParam } = useNakamaHMACAuth()
 
     const { encodePath } = useExternalPlayerLink()
 
@@ -113,7 +112,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                                     copyToClipboard(`${getServerBaseUrl()}${endpoint}${tokenQuery}`)
                                 } else {
                                     const endpoint = "/api/v1/nakama/stream?type=file&path=" + Buffer.from(episode.localFile!.path).toString("base64")
-                                    const tokenQuery = await getNakamaHMACTokenQueryParam("/api/v1/nakama/stream", "&")
+                                    const tokenQuery = await getHMACTokenQueryParam("/api/v1/nakama/stream", "&")
                                     copyToClipboard(`${getServerBaseUrl()}${endpoint}${tokenQuery}`)
                                 }
                                 toast.info("Stream URL copied")

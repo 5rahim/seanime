@@ -77,27 +77,28 @@ type WebSocketLog struct {
 }
 
 type IssueReport struct {
-	CreatedAt           time.Time            `json:"createdAt"`
-	UserAgent           string               `json:"userAgent"`
-	AppVersion          string               `json:"appVersion"`
-	OS                  string               `json:"os"`
-	Arch                string               `json:"arch"`
-	Description         string               `json:"description,omitempty"`
-	ClickLogs           []*ClickLog          `json:"clickLogs,omitempty"`
-	NetworkLogs         []*NetworkLog        `json:"networkLogs,omitempty"`
-	ReactQueryLogs      []*ReactQueryLog     `json:"reactQueryLogs,omitempty"`
-	ConsoleLogs         []*ConsoleLog        `json:"consoleLogs,omitempty"`
-	NavigationLogs      []*NavigationLog     `json:"navigationLogs,omitempty"`
-	Screenshots         []*Screenshot        `json:"screenshots,omitempty"`
-	WebSocketLogs       []*WebSocketLog      `json:"websocketLogs,omitempty"`
-	RRWebEvents         []json.RawMessage    `json:"rrwebEvents,omitempty"`
-	UnlockedLocalFiles  []*UnlockedLocalFile `json:"unlockedLocalFiles,omitempty"`
-	ScanLogs            []string             `json:"scanLogs,omitempty"`
-	ServerLogs          string               `json:"serverLogs,omitempty"`
-	ServerStatus        string               `json:"status,omitempty"`
-	ViewportWidth       int                  `json:"viewportWidth,omitempty"`
-	ViewportHeight      int                  `json:"viewportHeight,omitempty"`
-	RecordingDurationMs int64                `json:"recordingDurationMs,omitempty"`
+	CreatedAt           time.Time              `json:"createdAt"`
+	UserAgent           string                 `json:"userAgent"`
+	AppVersion          string                 `json:"appVersion"`
+	OS                  string                 `json:"os"`
+	Arch                string                 `json:"arch"`
+	Description         string                 `json:"description,omitempty"`
+	ClickLogs           []*ClickLog            `json:"clickLogs,omitempty"`
+	NetworkLogs         []*NetworkLog          `json:"networkLogs,omitempty"`
+	ReactQueryLogs      []*ReactQueryLog       `json:"reactQueryLogs,omitempty"`
+	ConsoleLogs         []*ConsoleLog          `json:"consoleLogs,omitempty"`
+	NavigationLogs      []*NavigationLog       `json:"navigationLogs,omitempty"`
+	Screenshots         []*Screenshot          `json:"screenshots,omitempty"`
+	WebSocketLogs       []*WebSocketLog        `json:"websocketLogs,omitempty"`
+	RRWebEvents         []json.RawMessage      `json:"rrwebEvents,omitempty"`
+	UnlockedLocalFiles  []*UnlockedLocalFile   `json:"unlockedLocalFiles,omitempty"`
+	ScanLogs            []string               `json:"scanLogs,omitempty"`
+	ServerLogs          string                 `json:"serverLogs,omitempty"`
+	ServerStatus        string                 `json:"status,omitempty"`
+	ViewportWidth       int                    `json:"viewportWidth,omitempty"`
+	ViewportHeight      int                    `json:"viewportHeight,omitempty"`
+	RecordingDurationMs int64                  `json:"recordingDurationMs,omitempty"`
+	Records             map[string]interface{} `json:"records,omitempty"`
 }
 
 func NewIssueReport(userAgent, appVersion, _os, arch string, logsDir string, isAnimeLibraryIssue bool, serverStatus interface{}, toRedact []string) (ret *IssueReport, err error) {
@@ -149,7 +150,7 @@ func NewIssueReport(userAgent, appVersion, _os, arch string, logsDir string, isA
 		}
 	}
 
-	userPathPattern := regexp.MustCompile(`(?i)(/home/|/Users/|C:\\Users\\)([^/\\]+)`)
+	userPathPattern := regexp.MustCompile(`(?i)(/home/|/Users/|C:\\Users\\|C:\\\\Users\\\\)([^/\\]+)`)
 
 	if serverStatus != nil {
 		serverStatusMarshaled, err := json.Marshal(serverStatus)

@@ -115,7 +115,7 @@ import {
     vc_createChaptersFromAniSkip,
     vc_logGeneralInfo,
 } from "@/app/(main)/_features/video-core/video-core.utils"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useServerHMACAuth, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import {
     __torrentSearch_selectionAtom,
@@ -140,7 +140,7 @@ import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
-import { useMeasure, useUnmount, useUpdateEffect, useWindowSize } from "react-use"
+import { useUnmount, useUpdateEffect, useWindowSize } from "react-use"
 
 const log = logger("VIDEO CORE")
 
@@ -647,7 +647,16 @@ export function VideoCore(props: VideoCoreProps) {
         mRef,
     } = props
     const serverStatus = useServerStatus()
+    const { getHMACTokenQueryParam } = useServerHMACAuth()
     const [streamType, setStreamType] = useState<VideoCore_VideoPlaybackInfo["streamType"]>(state.playbackInfo?.streamType ?? "unknown")
+
+    // HMAC token for directstream attachment URLs (fonts)
+    const [directstreamAttToken, setDirectstreamAttToken] = React.useState("")
+    React.useEffect(() => {
+        (async () => {
+            setDirectstreamAttToken(await getHMACTokenQueryParam("/api/v1/directstream/att", "?"))
+        })()
+    }, [getHMACTokenQueryParam])
 
     const videoRef = useRef<HTMLVideoElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
@@ -745,14 +754,33 @@ export function VideoCore(props: VideoCoreProps) {
         dispatchTerminatedEvent()
     }
 
-    // Measure video element size
-    const [measureRef, { width, height }] = useMeasure<HTMLVideoElement>()
+    // measure video element size using a throttled ResizeObserver
+    const videoResizeObserverRef = React.useRef<ResizeObserver | null>(null)
+    const videoResizeRafRef = React.useRef<number | null>(null)
+    const videoResizeTargetRef = React.useRef<HTMLVideoElement | null>(null)
+
     React.useEffect(() => {
-        setRealVideoSize({
-            width,
-            height,
+        videoResizeObserverRef.current = new ResizeObserver((entries) => {
+            if (videoResizeRafRef.current !== null) return // already scheduled
+            videoResizeRafRef.current = requestAnimationFrame(() => {
+                videoResizeRafRef.current = null
+                const entry = entries[0]
+                if (!entry) return
+                const { width: w, height: h } = entry.contentRect
+                setRealVideoSize(prev => {
+                    if (prev.width === w && prev.height === h) return prev
+                    return { width: w, height: h }
+                })
+            })
         })
-    }, [width, height])
+
+        return () => {
+            videoResizeObserverRef.current?.disconnect()
+            if (videoResizeRafRef.current !== null) {
+                cancelAnimationFrame(videoResizeRafRef.current)
+            }
+        }
+    }, [])
 
     // refetch continuity data when playback info changes
     React.useEffect(() => {
@@ -778,7 +806,14 @@ export function VideoCore(props: VideoCoreProps) {
         if (mRef) {
             mRef.current = instance
         }
-        if (instance) measureRef(instance)
+        // observe/unobserve the video element for size changes
+        if (videoResizeTargetRef.current && videoResizeTargetRef.current !== instance) {
+            videoResizeObserverRef.current?.unobserve(videoResizeTargetRef.current)
+        }
+        if (instance) {
+            videoResizeObserverRef.current?.observe(instance)
+        }
+        videoResizeTargetRef.current = instance
         setVideoElement(instance)
     }
 
@@ -985,6 +1020,7 @@ export function VideoCore(props: VideoCoreProps) {
                     videoElement: v!,
                     playbackInfo: state.playbackInfo!,
                     jassubOffscreenRender: true,
+                    hmacToken: directstreamAttToken,
                     translateTargetLang: serverStatus?.settings?.mediaPlayer?.vcTranslate
                         ? serverStatus?.settings?.mediaPlayer?.vcTranslateTargetLanguage
                         : null,

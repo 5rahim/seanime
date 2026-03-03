@@ -599,7 +599,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                             <TextInput
                                 value={editedSubsBlacklist}
                                 onValueChange={setEditedSubsBlacklist}
-                                placeholder="e.g. sign & songs"
+                                placeholder="e.g. signs & songs,signs/songs"
                                 onKeyDown={(e) => e.stopPropagation()}
                                 onInput={(e) => e.stopPropagation()}
                                 help="Subtitle tracks that will not be selected by default if they match the preferred lanauges. Separate multiple names with commas."

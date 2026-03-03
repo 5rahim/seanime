@@ -1,7 +1,9 @@
 package qbittorrent
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -13,6 +15,7 @@ import (
 	"seanime/internal/torrent_clients/qbittorrent/torrent"
 	"seanime/internal/torrent_clients/qbittorrent/transfer"
 	"strings"
+	std_sync "sync"
 
 	"github.com/rs/zerolog"
 	"golang.org/x/net/publicsuffix"
@@ -71,7 +74,7 @@ func NewClient(opts *NewClientOptions) *Client {
 	}
 
 	client := &http.Client{}
-	return &Client{
+	c := &Client{
 		baseURL:          baseURL,
 		logger:           opts.Logger,
 		client:           client,
@@ -119,6 +122,13 @@ func NewClient(opts *NewClientOptions) *Client {
 			Logger:  opts.Logger,
 		},
 	}
+
+	c.client.Transport = &authedRoundTripper{
+		wrapped: http.DefaultTransport,
+		client:  c,
+	}
+
+	return c
 }
 
 func (c *Client) Login() error {
@@ -173,4 +183,65 @@ func (c *Client) Logout() error {
 		return fmt.Errorf("invalid status %s", resp.Status)
 	}
 	return nil
+}
+
+type authedRoundTripper struct {
+	wrapped http.RoundTripper
+	client  *Client
+	mu      std_sync.Mutex
+}
+
+func (art *authedRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	// Don't intercept login or logout requests to avoid infinite recursion
+	if strings.Contains(req.URL.Path, "/auth/login") || strings.Contains(req.URL.Path, "/auth/logout") {
+		return art.wrapped.RoundTrip(req)
+	}
+
+	// Read body so we can retry
+	var bodyBytes []byte
+	var err error
+	if req.Body != nil {
+		bodyBytes, err = io.ReadAll(req.Body)
+		if err == nil {
+			req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		}
+	}
+
+	resp, err := art.wrapped.RoundTrip(req)
+	if err != nil {
+		return resp, err
+	}
+
+	if resp.StatusCode == http.StatusForbidden {
+		art.client.logger.Warn().Msg("qBittorrent: 403 Forbidden, attempting to re-authenticate")
+		resp.Body.Close()
+
+		art.mu.Lock()
+		err = art.client.Login()
+		art.mu.Unlock()
+
+		if err != nil {
+			art.client.logger.Err(err).Msg("qBittorrent: failed to re-authenticate")
+			// Return a new response with the 403 error status code since it failed
+			return resp, err
+		}
+
+		// Re-authentication successful, retry the request
+		newReq := req.Clone(req.Context())
+		if bodyBytes != nil {
+			newReq.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		}
+
+		// Update cookies in the request
+		newReq.Header.Del("Cookie")
+		if art.client.client.Jar != nil {
+			for _, cookie := range art.client.client.Jar.Cookies(newReq.URL) {
+				newReq.AddCookie(cookie)
+			}
+		}
+
+		return art.wrapped.RoundTrip(newReq)
+	}
+
+	return resp, err
 }

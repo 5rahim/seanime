@@ -71,25 +71,88 @@ export function useVideoCoreBindings(videoRef: React.MutableRefObject<HTMLVideoE
     const setEnded = useSetAtom(vc_ended)
     const setPaused = useSetAtom(vc_paused)
 
+    const prevRef = React.useRef({
+        videoWidth: 0,
+        videoHeight: 0,
+        duration: 0,
+        currentTime: 0,
+        playbackRate: 0,
+        readyState: 0,
+        buffering: false,
+        isMuted: false,
+        volume: 0,
+        ended: false,
+        paused: true,
+        bufferedLength: 0,
+    })
+
     useEffect(() => {
         if (!videoRef.current) return
         const v = videoRef.current
+        const prev = prevRef.current
+
         const handler = () => {
-            setVideoSize({
-                width: v.videoWidth,
-                height: v.videoHeight,
-            })
-            setDuration(v.duration)
-            setCurrentTime(v.currentTime)
-            setPlaybackRate(v.playbackRate)
-            setReadyState(v.readyState)
+            // only update atoms when values actually changed
+            if (prev.videoWidth !== v.videoWidth || prev.videoHeight !== v.videoHeight) {
+                prev.videoWidth = v.videoWidth
+                prev.videoHeight = v.videoHeight
+                setVideoSize({ width: v.videoWidth, height: v.videoHeight })
+            }
+            if (prev.duration !== v.duration) {
+                prev.duration = v.duration
+                setDuration(v.duration)
+            }
+            if (prev.currentTime !== v.currentTime) {
+                prev.currentTime = v.currentTime
+                setCurrentTime(v.currentTime)
+            }
+            if (prev.playbackRate !== v.playbackRate) {
+                prev.playbackRate = v.playbackRate
+                setPlaybackRate(v.playbackRate)
+            }
+            if (prev.readyState !== v.readyState) {
+                prev.readyState = v.readyState
+                setReadyState(v.readyState)
+            }
             // Set buffering to true if readyState is less than HAVE_ENOUGH_DATA (3) and video is not paused
-            setBuffering(v.readyState < 3 && !v.paused)
-            setIsMuted(v.muted)
-            setVolume(v.volume)
-            setBuffered(v.buffered.length > 0 ? v.buffered : null)
-            setEnded(v.ended)
-            setPaused(v.paused)
+            const isBuffering = v.readyState < 3 && !v.paused
+            if (prev.buffering !== isBuffering) {
+                prev.buffering = isBuffering
+                setBuffering(isBuffering)
+            }
+            if (prev.isMuted !== v.muted) {
+                prev.isMuted = v.muted
+                setIsMuted(v.muted)
+            }
+            if (prev.volume !== v.volume) {
+                prev.volume = v.volume
+                setVolume(v.volume)
+            }
+            // only check buffered ranges if the length changed (skip expensive comparison)
+            const bufferedLen = v.buffered.length
+            if (prev.bufferedLength !== bufferedLen) {
+                prev.bufferedLength = bufferedLen
+                setBuffered(v.buffered)
+            } else if (bufferedLen > 0) {
+                setBuffered(prevRanges => {
+                    const current = v.buffered
+                    if (!prevRanges || prevRanges.length !== current.length) return current
+                    for (let i = 0; i < current.length; i++) {
+                        if (prevRanges.start(i) !== current.start(i) || prevRanges.end(i) !== current.end(i)) {
+                            return current
+                        }
+                    }
+                    return prevRanges
+                })
+            }
+            if (prev.ended !== v.ended) {
+                prev.ended = v.ended
+                setEnded(v.ended)
+            }
+            if (prev.paused !== v.paused) {
+                prev.paused = v.paused
+                setPaused(v.paused)
+            }
         }
         const events = ["timeupdate", "loadedmetadata", "progress", "play", "pause", "ratechange", "volumechange", "ended", "loadeddata", "resize",
             "waiting", "canplay", "stalled"]

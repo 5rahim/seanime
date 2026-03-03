@@ -23,10 +23,12 @@ type (
 		hasCheckedForUpdate bool
 		LatestRelease       *Release
 		checkForUpdate      bool
-		logger              *zerolog.Logger
-		client              *http.Client
-		wsEventManager      mo.Option[events.WSEventManagerInterface]
-		announcements       []Announcement
+		UpdateChannel       string
+
+		logger         *zerolog.Logger
+		client         *http.Client
+		wsEventManager mo.Option[events.WSEventManagerInterface]
+		announcements  []Announcement
 	}
 
 	Update struct {
@@ -41,7 +43,9 @@ func New(currVersion string, logger *zerolog.Logger, wsEventManager events.WSEve
 		CurrentVersion:      currVersion,
 		hasCheckedForUpdate: false,
 		checkForUpdate:      true,
-		logger:              logger,
+		UpdateChannel:       "github",
+
+		logger: logger,
 		client: &http.Client{
 			Timeout: time.Second * 10,
 		},
@@ -60,7 +64,7 @@ func (u *Updater) GetLatestUpdate() (*Update, error) {
 		return nil, nil
 	}
 
-	rl, err := u.GetLatestRelease()
+	rl, err := u.GetLatestRelease(u.UpdateChannel)
 	if err != nil {
 		return nil, err
 	}
@@ -81,9 +85,9 @@ func (u *Updater) GetLatestUpdate() (*Update, error) {
 
 	updateType := ""
 	if updateTypeI == -1 {
-		updateType = MinorRelease
-	} else if updateTypeI == -2 {
 		updateType = PatchRelease
+	} else if updateTypeI == -2 {
+		updateType = MinorRelease
 	} else if updateTypeI == -3 {
 		updateType = MajorRelease
 	}
@@ -110,13 +114,20 @@ func (u *Updater) SetEnabled(checkForUpdate bool) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// GetLatestRelease returns the latest release from the GitHub repository.
-func (u *Updater) GetLatestRelease() (*Release, error) {
+// GetLatestRelease returns the latest release from the specified channel.
+func (u *Updater) GetLatestRelease(channel string) (*Release, error) {
 	if u.hasCheckedForUpdate {
 		return u.LatestRelease, nil
 	}
 
-	release, err := u.fetchLatestRelease()
+	fallbackChannel, ok := u.fetchGithubStatus()
+	// if github is down, use fallback channel
+	if !ok {
+		u.UpdateChannel = fallbackChannel
+		channel = fallbackChannel
+	}
+
+	release, err := u.fetchLatestRelease(channel)
 	if err != nil {
 		return nil, err
 	}

@@ -24,13 +24,12 @@ declare module "@tanstack/react-router" {
     }
 }
 
-if (import.meta.env.DEV) {
-    const script = document.createElement("script")
-    script.src = "https://unpkg.com/react-scan/dist/auto.global.js"
-    script.crossOrigin = "anonymous"
-    document.head.appendChild(script)
-}
-
+// if (import.meta.env.DEV) {
+//     const script = document.createElement("script")
+//     script.src = "https://unpkg.com/react-scan/dist/auto.global.js"
+//     script.crossOrigin = "anonymous"
+//     document.head.appendChild(script)
+// }
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <ClientProviders>
         <RouterProvider router={router} />

@@ -2,6 +2,7 @@ import { AL_BaseAnime, Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/gen
 import { useDebridAddTorrents } from "@/api/hooks/debrid.hooks"
 import { useDownloadTorrentFile } from "@/api/hooks/download.hooks"
 import { useTorrentClientDownload } from "@/api/hooks/torrent_client.hooks"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useLibraryPathSelection } from "@/app/(main)/_hooks/use-library-path-selection"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
@@ -11,6 +12,7 @@ import {
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-download-file-selection"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { clientIdAtom } from "@/app/websocket-provider"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
@@ -59,6 +61,8 @@ export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
         animeFolderName,
     })
 
+    const clientId = useAtomValue(clientIdAtom)
+
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useAtom(confirmationModalOpenAtom)
     const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_selectionAtom)
     const selectedTorrents = useAtomValue(__torrentSearch_selectedTorrentsAtom)
@@ -96,6 +100,18 @@ export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
     const { mutate: downloadTorrentFiles, isPending: isDownloadingFiles } = useDownloadTorrentFile(() => {
         setConfirmationModalOpen(false)
         setTorrentDrawerIsOpen(undefined)
+    })
+
+    useWebsocketMessageListener({
+        type: "download-torrent-file-permission-check",
+        onMessage: (message: string) => {
+            downloadTorrentFiles({
+                download_urls: selectedTorrents.map(n => n.downloadUrl),
+                destination,
+                media,
+                clientId: "CODE:" + message,
+            } as any)
+        },
     })
 
     // download via debrid service
@@ -141,7 +157,8 @@ export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
             download_urls: selectedTorrents.map(n => n.downloadUrl),
             destination,
             media,
-        })
+            clientId,
+        } as any)
     }
 
     function handleDebridAddTorrents() {

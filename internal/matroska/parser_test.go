@@ -2307,13 +2307,13 @@ func TestParseEditionEntry_EdgeCases(t *testing.T) {
 		// Empty buffer
 
 		parser := &MatroskaParser{}
-		chapters, err := parser.parseEditionEntry(buf.Bytes())
+		entry, err := parser.parseEditionEntry(buf.Bytes())
 		if err != nil {
 			t.Fatalf("parseEditionEntry() with empty data failed: %v", err)
 		}
 
-		if len(chapters) != 0 {
-			t.Errorf("Expected 0 chapters for empty EditionEntry, got %d", len(chapters))
+		if len(entry.chapters) != 0 {
+			t.Errorf("Expected 0 chapters for empty EditionEntry, got %d", len(entry.chapters))
 		}
 	})
 
@@ -2332,20 +2332,20 @@ func TestParseEditionEntry_EdgeCases(t *testing.T) {
 		buf.Write(chapterBuf.Bytes())
 
 		parser := &MatroskaParser{}
-		chapters, err := parser.parseEditionEntry(buf.Bytes())
+		entry, err := parser.parseEditionEntry(buf.Bytes())
 		if err != nil {
 			t.Fatalf("parseEditionEntry() with single ChapterAtom failed: %v", err)
 		}
 
-		if len(chapters) != 1 {
-			t.Fatalf("Expected 1 chapter, got %d", len(chapters))
+		if len(entry.chapters) != 1 {
+			t.Fatalf("Expected 1 chapter, got %d", len(entry.chapters))
 		}
 
-		if chapters[0].UID != 1 {
-			t.Errorf("Expected chapter UID 1, got %d", chapters[0].UID)
+		if entry.chapters[0].UID != 1 {
+			t.Errorf("Expected chapter UID 1, got %d", entry.chapters[0].UID)
 		}
-		if chapters[0].Start != 0 {
-			t.Errorf("Expected chapter start 0, got %d", chapters[0].Start)
+		if entry.chapters[0].Start != 0 {
+			t.Errorf("Expected chapter start 0, got %d", entry.chapters[0].Start)
 		}
 	})
 
@@ -2370,20 +2370,20 @@ func TestParseEditionEntry_EdgeCases(t *testing.T) {
 		buf.Write(chapterBuf2.Bytes())
 
 		parser := &MatroskaParser{}
-		chapters, err := parser.parseEditionEntry(buf.Bytes())
+		entry, err := parser.parseEditionEntry(buf.Bytes())
 		if err != nil {
 			t.Fatalf("parseEditionEntry() with multiple ChapterAtoms failed: %v", err)
 		}
 
-		if len(chapters) != 2 {
-			t.Fatalf("Expected 2 chapters, got %d", len(chapters))
+		if len(entry.chapters) != 2 {
+			t.Fatalf("Expected 2 chapters, got %d", len(entry.chapters))
 		}
 
-		if chapters[0].UID != 1 {
-			t.Errorf("Expected first chapter UID 1, got %d", chapters[0].UID)
+		if entry.chapters[0].UID != 1 {
+			t.Errorf("Expected first chapter UID 1, got %d", entry.chapters[0].UID)
 		}
-		if chapters[1].UID != 2 {
-			t.Errorf("Expected second chapter UID 2, got %d", chapters[1].UID)
+		if entry.chapters[1].UID != 2 {
+			t.Errorf("Expected second chapter UID 2, got %d", entry.chapters[1].UID)
 		}
 	})
 
@@ -2401,13 +2401,13 @@ func TestParseEditionEntry_EdgeCases(t *testing.T) {
 		buf.Write([]byte{0x7F, 0xFF, 0x84, 0x01, 0x02, 0x03, 0x04})
 
 		parser := &MatroskaParser{}
-		chapters, err := parser.parseEditionEntry(buf.Bytes())
+		entry, err := parser.parseEditionEntry(buf.Bytes())
 		if err != nil {
 			t.Fatalf("parseEditionEntry() with unknown elements failed: %v", err)
 		}
 
-		if len(chapters) != 1 {
-			t.Errorf("Expected 1 chapter (unknown element should be ignored), got %d", len(chapters))
+		if len(entry.chapters) != 1 {
+			t.Errorf("Expected 1 chapter (unknown element should be ignored), got %d", len(entry.chapters))
 		}
 	})
 
@@ -4081,32 +4081,32 @@ func TestParseEditionEntry(t *testing.T) {
 
 		parser := &MatroskaParser{}
 
-		chapters, err := parser.parseEditionEntry(buf.Bytes())
+		entry, err := parser.parseEditionEntry(buf.Bytes())
 		if err != nil {
 			t.Fatalf("parseEditionEntry() failed: %v", err)
 		}
 
-		if len(chapters) != 2 {
-			t.Fatalf("Expected 2 chapters, got %d", len(chapters))
+		if len(entry.chapters) != 2 {
+			t.Fatalf("Expected 2 chapters, got %d", len(entry.chapters))
 		}
 
-		if chapters[0].UID != 1 {
-			t.Errorf("Expected first chapter UID 1, got %d", chapters[0].UID)
+		if entry.chapters[0].UID != 1 {
+			t.Errorf("Expected first chapter UID 1, got %d", entry.chapters[0].UID)
 		}
-		if chapters[1].UID != 2 {
-			t.Errorf("Expected second chapter UID 2, got %d", chapters[1].UID)
+		if entry.chapters[1].UID != 2 {
+			t.Errorf("Expected second chapter UID 2, got %d", entry.chapters[1].UID)
 		}
 	})
 
 	t.Run("Empty edition entry", func(t *testing.T) {
 		parser := &MatroskaParser{}
 
-		chapters, err := parser.parseEditionEntry([]byte{})
+		entry, err := parser.parseEditionEntry([]byte{})
 		if err != nil {
 			t.Fatalf("parseEditionEntry() with empty data failed: %v", err)
 		}
-		if len(chapters) != 0 {
-			t.Errorf("Expected no chapters for empty data, got %d", len(chapters))
+		if len(entry.chapters) != 0 {
+			t.Errorf("Expected no chapters for empty data, got %d", len(entry.chapters))
 		}
 	})
 }

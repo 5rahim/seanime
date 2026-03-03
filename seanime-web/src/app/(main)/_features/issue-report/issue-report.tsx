@@ -128,7 +128,7 @@ export function IssueReport() {
         try {
 
             rrwebEventsRef.current = []
-            const rrweb = await import("rrweb")
+            const rrweb = await import(/* webpackChunkName: "session-record" */ "rrweb")
 
             const stopFn = rrweb.record({
                 emit(event: any) {
@@ -423,7 +423,9 @@ export function IssueReport() {
                         if (this.responseText && this.responseText.length < MAX_RESPONSE_SIZE) {
                             responseBody = this.responseText
                         } else {
-                            responseBody = "<response too large>"
+                            // responseBody = "<response too large>"
+                            const half = Math.floor(MAX_RESPONSE_SIZE / 2)
+                            responseBody = this.responseText.slice(0, half - 1) + "..." + this.responseText.slice(-(half - 2))
                         }
                     }
                 }
@@ -469,11 +471,15 @@ export function IssueReport() {
                         if (text.length < MAX_RESPONSE_SIZE) {
                             responseBody = text
                         } else {
-                            responseBody = "<response too large>"
+                            // responseBody = "<response too large>"
+                            responseBody = text.slice(0, MAX_RESPONSE_SIZE - 3) + "..."
                         }
                     } else if (!contentType) {
                         if (text.length < MAX_RESPONSE_SIZE) {
                             responseBody = text
+                        } else {
+                            const half = Math.floor(MAX_RESPONSE_SIZE / 2)
+                            responseBody = text.slice(0, half - 1) + "..." + text.slice(-(half - 2))
                         }
                     }
 

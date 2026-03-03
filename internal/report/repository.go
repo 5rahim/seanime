@@ -110,6 +110,9 @@ func (r *Repository) SaveIssueReport(opts SaveIssueReportOptions) error {
 		}
 	}
 
+	// Deduplicate repeated string values to reduce serialized size
+	issueReport.Deduplicate()
+
 	r.savedIssueReport = mo.Some(issueReport)
 
 	return nil

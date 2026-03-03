@@ -39,7 +39,7 @@ import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
-import { usePathname, useRouter } from "@/lib/navigation"
+import { useRouter } from "@/lib/navigation"
 import { useAtom } from "jotai"
 import { useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
@@ -136,8 +136,6 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     const progressTotal = type === "anime" ? (media as AL_BaseAnime)?.episodes : (media as AL_BaseManga)?.chapters
 
-    const pathname = usePathname()
-
     React.useEffect(() => {
         if (_listData !== prevListDataRef.current) {
             prevListDataRef.current = _listData
@@ -154,16 +152,14 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     // Dynamically refresh data when LibraryCollection is updated
     React.useEffect(() => {
-        if (pathname !== "/") {
-            const entry = getAtomicLibraryEntry(mediaId)
-            if (!_listData) {
-                setListData(entry?.listData)
-            }
-            if (!_libraryData) {
-                setLibraryData(entry?.libraryData)
-            }
+        const entry = getAtomicLibraryEntry(mediaId)
+        if (!_listData) {
+            setListData(entry?.listData)
         }
-    }, [pathname, __atomicLibraryCollection])
+        if (!_libraryData) {
+            setLibraryData(entry?.libraryData)
+        }
+    }, [__atomicLibraryCollection, mediaId, _listData, _libraryData])
 
     const listDataFromCollection = useAnilistUserAnimeListData(mediaId)
 

@@ -308,6 +308,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.POST("/install-update", h.HandleInstallLatestUpdate)
 	v1.POST("/download-release", h.HandleDownloadRelease)
 	v1.POST("/download-mac-denshi-update", h.HandleDownloadMacDenshiUpdate)
+	v1.POST("/check-for-updates", h.HandleCheckForUpdates)
 
 	//
 	// Theme

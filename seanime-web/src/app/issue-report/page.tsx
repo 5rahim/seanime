@@ -25,8 +25,9 @@ import {
     BiWifi,
 } from "react-icons/bi"
 import { FiMousePointer } from "react-icons/fi"
-import { HiServerStack } from "react-icons/hi2"
-import { LuBrain, LuNetwork, LuTerminal } from "react-icons/lu"
+import { LuGlobe } from "react-icons/lu"
+import { LuAppWindow, LuNetwork, LuTerminal } from "react-icons/lu"
+import { SiReactquery } from "react-icons/si"
 import { Virtuoso } from "react-virtuoso"
 import { toast } from "sonner"
 
@@ -128,6 +129,69 @@ interface ExtendedReport extends Report_IssueReport {
     viewportWidth?: number
     viewportHeight?: number
     recordingDurationMs?: number
+    records?: Record<string, any>
+}
+
+const REF_PREFIX = "$ref:"
+
+/**
+ * Resolves all $ref:N pointers in a report back to their original values.
+ * Mutates the report in-place and removes the records map.
+ */
+function resolveRecords(report: ExtendedReport): ExtendedReport {
+    const records = report.records
+    if (!records || Object.keys(records).length === 0) return report
+
+    const resolveString = (val: string | undefined): string | undefined => {
+        if (!val || !val.startsWith(REF_PREFIX)) return val
+        const key = val.slice(REF_PREFIX.length)
+        return records[key] != null ? String(records[key]) : val
+    }
+
+    const resolveAny = (val: any): any => {
+        if (typeof val === "string" && val.startsWith(REF_PREFIX)) {
+            const key = val.slice(REF_PREFIX.length)
+            return records[key] ?? val
+        }
+        return val
+    }
+
+    for (const log of report.networkLogs || []) {
+        log.dataPreview = resolveString(log.dataPreview)!
+        log.body = resolveString(log.body)!
+        log.url = resolveString(log.url)!
+        log.pageUrl = resolveString(log.pageUrl)!
+    }
+
+    for (const log of report.reactQueryLogs || []) {
+        log.dataPreview = resolveString(log.dataPreview)!
+        log.pageUrl = resolveString(log.pageUrl)!
+    }
+
+    for (const log of report.consoleLogs || []) {
+        log.content = resolveString(log.content)!
+        log.pageUrl = resolveString(log.pageUrl)!
+    }
+
+    for (const log of report.clickLogs || []) {
+        log.pageUrl = resolveString(log.pageUrl)!
+        if (log.className) {
+            log.className = resolveString(log.className)
+        }
+    }
+
+    for (const log of report.navigationLogs || []) {
+        log.from = resolveString(log.from)!
+        log.to = resolveString(log.to)!
+    }
+
+    for (const log of report.websocketLogs || []) {
+        log.payload = resolveAny(log.payload)
+    }
+
+    // Remove the records map since all values have been resolved
+    delete report.records
+    return report
 }
 
 
@@ -244,24 +308,74 @@ function buildUnifiedTimeline(report: ExtendedReport, includeServerLogs: boolean
 
     // Parse and add server logs if enabled
     if (includeServerLogs && report.serverLogs) {
+        // Server log don't have timezone info [time.DateTime]
+        // Client events use UTC so we extract the tz offset from report.createdAt (RFC3339 with offset) & append it to server logs
+        let serverTzOffset = ""
+        let reportDate = ""
+        if (report.createdAt) {
+            reportDate = report.createdAt.split("T")[0]
+            const tzMatch = report.createdAt.match(/([+-]\d{2}:\d{2})$/)
+            if (tzMatch) {
+                serverTzOffset = tzMatch[1] // e.g. "+01:00"
+            } else if (report.createdAt.endsWith("Z")) {
+                serverTzOffset = "Z"
+            }
+        }
+
+        let serverLogsAdded = 0
+        let currentLogDate = ""
+        let overServerLogLimit = false
         const serverLines = report.serverLogs.split("\n").filter(Boolean)
         for (const line of serverLines) {
-            // Try to extract timestamp from server log format (e.g., "2024-01-15T10:30:45..." or similar)
-            const timestampMatch = line.match(/^(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2})/)
-            let timestamp: Date
+            // Try to extract timestamp from server log format (e.g., "2024-01-15 10:30:45..." or similar)
+            const timestampMatch = line.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})/)
+            let timestamp: Date | null = null
             if (timestampMatch) {
+                currentLogDate = timestampMatch[1]
                 try {
-                    timestamp = parseISO(timestampMatch[1].replace(" ", "T"))
+                    // Append timezome offset
+                    const isoStr = timestampMatch[1] + "T" + timestampMatch[2] + serverTzOffset
+                    timestamp = parseISO(isoStr)
                 }
                 catch {
                     timestamp = new Date() // fallback
                 }
             } else {
-                timestamp = new Date() // fallback for lines without timestamp
+                // lines without timestamp will use the previous line's timestamp
+            }
+
+            if (serverLogsAdded >= 100 && currentLogDate && reportDate && currentLogDate !== reportDate) {
+                if (!overServerLogLimit) {
+                    events.push({
+                        id: idx++,
+                        type: "server",
+                        timestamp: events[events.length - 1].timestamp,
+                        summary: "Truncated server logs.",
+                        level: "info",
+                        raw: { line },
+                    })
+                    overServerLogLimit = true
+                }
+                continue
             }
 
             const isError = line.includes("|ERR|")
             const isWarn = line.includes("|WRN|")
+
+            if (!timestamp && events.length === 0) {
+                continue
+            }
+
+            if (!timestamp) {
+                timestamp = events[events.length - 1].timestamp
+                if (!timestamp) {
+                    // skip if can't get a timestamp
+                    continue
+                }
+            }
+
+            // offset server logs a little
+            // timestamp = new Date(timestamp.getTime() + 580)
 
             events.push({
                 id: idx++,
@@ -271,6 +385,7 @@ function buildUnifiedTimeline(report: ExtendedReport, includeServerLogs: boolean
                 level: isError ? "error" : isWarn ? "warn" : "debug",
                 raw: { line },
             })
+            serverLogsAdded++
         }
     }
 
@@ -367,7 +482,7 @@ export default function Page() {
     useEffect(() => {
         getReportFromDB().then((savedReport) => {
             if (savedReport) {
-                setReport(savedReport)
+                setReport(resolveRecords(savedReport))
                 toast.success("Restored previous issue report")
             }
             setIsLoading(false)
@@ -388,8 +503,9 @@ export default function Page() {
 
             decompressReport(formData, {
                 onSuccess: (data) => {
-                    setReport(data as ExtendedReport)
-                    saveReportToDB(data as ExtendedReport)
+                    const resolved = resolveRecords(data as ExtendedReport)
+                    setReport(resolved)
+                    saveReportToDB(resolved)
                     toast.success("Report loaded")
                 },
                 onError: (error) => {
@@ -404,7 +520,7 @@ export default function Page() {
         reader.onload = (e) => {
             try {
                 const content = e.target?.result as string
-                const parsed = JSON.parse(content) as ExtendedReport
+                const parsed = resolveRecords(JSON.parse(content) as ExtendedReport)
                 setReport(parsed)
                 saveReportToDB(parsed)
                 toast.success("Report loaded")
@@ -529,11 +645,11 @@ function ReportViewer({ report }: { report: ExtendedReport }) {
         { key: "overview", label: "Overview", icon: BiInfoCircle },
         { key: "replay", label: "Session Replay", icon: BiPlay, show: hasReplay, accent: true },
         { key: "timeline", label: "Timeline", icon: BiNavigation },
-        { key: "network", label: `Network (${stats.networkCount})`, icon: LuNetwork as any },
-        { key: "console", label: `Console (${stats.consoleCount})`, icon: LuTerminal as any },
+        { key: "network", label: `Network (${stats.networkCount})`, icon: LuGlobe as any },
+        { key: "console", label: `Console (${stats.consoleCount})`, icon: LuAppWindow as any },
         { key: "clicks", label: `Clicks (${stats.clickCount})`, icon: FiMousePointer as any },
         { key: "websocket", label: `WebSocket (${stats.websocketCount})`, icon: BiWifi, show: hasWsLogs },
-        { key: "server", label: "Server Logs", icon: HiServerStack as any },
+        { key: "server", label: "Server Logs", icon: LuTerminal as any },
         { key: "screenshots", label: `Screenshots (${stats.screenshotCount})`, icon: BiImage, show: hasScreenshots },
         { key: "scanlogs", label: "Scan Logs", icon: BiFile, show: hasScanLogs },
     ]
@@ -832,12 +948,12 @@ function TimelinePanel({ events, searchQuery, setSearchQuery, includeServerLogs,
 
                 <div className="h-px bg-[--border]" />
 
-                <Checkbox
+                {/* <Checkbox
                     label="Include server logs"
                     value={includeServerLogs}
                     onValueChange={v => setIncludeServerLogs(v as boolean)}
                     size="sm"
-                />
+                 /> */}
             </div>
 
             <div className="flex-1 min-w-0 bg-gray-950">
@@ -873,24 +989,24 @@ function TimelineEventRow({ event, isExpanded, toggleExpanded }: {
 }) {
     const typeIcons: Record<EventType, React.ReactNode> = {
         click: <FiMousePointer className="text-blue-400" />,
-        network: <LuNetwork className={cn(event.level === "error" ? "text-red-400" : "text-green-400")} />,
-        console: <LuTerminal
+        network: <LuGlobe className={cn(event.level === "error" ? "text-red-400" : "text-green-400")} />,
+        console: <LuAppWindow
             className={cn(
                 event.level === "error" ? "text-red-400" : event.level === "warn" ? "text-orange-400" : "text-gray-400",
             )}
         />,
-        query: <LuBrain className={cn(event.level === "error" ? "text-red-400" : "text-purple-400")} />,
+        query: <SiReactquery className={cn(event.level === "error" ? "text-red-400" : "text-purple-400")} />,
         navigation: <BiNavigation className="text-indigo-400" />,
         screenshot: <BiImage className="text-yellow-400" />,
-        server: <HiServerStack className="text-gray-400" />,
+        server: <LuTerminal className="text-gray-400" />,
         websocket: <BiWifi className="text-cyan-400" />,
     }
 
     const typeLabels: Record<EventType, string> = {
         click: "CLICK",
         network: "NET",
-        console: "LOG",
-        query: "QUERY",
+        console: "WEB",
+        query: "RQ",
         navigation: "NAV",
         screenshot: "IMG",
         server: "SRV",
@@ -1409,8 +1525,8 @@ function ReplayPanel({ rrwebEvents, unifiedEvents, includeServerLogs, setInclude
         const initPlayer = async () => {
             try {
                 const [rrwebPlayerModule] = await Promise.all([
-                    import("rrweb-player"),
-                    import("rrweb-player/dist/style.css"),
+                    import(/* webpackChunkName: "session-playback" */ "rrweb-player"),
+                    import(/* webpackChunkName: "session-playback-style" */ "rrweb-player/dist/style.css"),
                 ])
 
                 if (!mounted || !containerRef.current) return

@@ -29,16 +29,18 @@ export function useMangaReaderUtils() {
     const serverStatus = useServerStatus()
     const { getHMACTokenQueryParam, password } = useServerHMACAuth()
     const [tokenQueryParam, setTokenQueryParam] = React.useState<string>("")
+    const [localPageToken, setLocalPageToken] = React.useState<string>("")
 
     React.useLayoutEffect(() => {
         (async () => {
             setTokenQueryParam(await getHMACTokenQueryParam("/api/v1/image-proxy", "&"))
+            setLocalPageToken(await getHMACTokenQueryParam("/api/v1/manga/local-page", "?"))
         })()
     }, [password])
 
     const getChapterPageUrl = React.useCallback((url: string, isDownloaded: boolean | undefined, headers?: Record<string, string>) => {
         if (url.startsWith("{{manga-local-assets}}")) {
-            return `${getServerBaseUrl()}/api/v1/manga/local-page/${encodeURIComponent(url)}`
+            return `${getServerBaseUrl()}/api/v1/manga/local-page/${encodeURIComponent(url)}${localPageToken}`
         }
 
         if (!isDownloaded) {
@@ -50,7 +52,7 @@ export function useMangaReaderUtils() {
         }
 
         return `${getServerBaseUrl()}/manga-downloads/${url}`
-    }, [tokenQueryParam])
+    }, [tokenQueryParam, localPageToken])
 
     return {
         isReady: (!serverStatus?.serverHasPassword) || (!!password && !!tokenQueryParam),

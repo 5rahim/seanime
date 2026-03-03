@@ -25,7 +25,7 @@ func TestUpdater_FetchLatestRelease(t *testing.T) {
 	//githubUrl = "https://api.github.com/repos/5rahim/seanime-desktop/releases/latest"
 
 	updater := New(constants.Version, util.NewLogger(), events.NewMockWSEventManager(util.NewLogger()))
-	release, err := updater.fetchLatestRelease()
+	release, err := updater.fetchLatestRelease("github")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,10 +35,10 @@ func TestUpdater_FetchLatestRelease(t *testing.T) {
 	}
 }
 
-func TestUpdater_FetchLatestReleaseFromDocs(t *testing.T) {
+func TestUpdater_FetchLatestReleaseFromApi(t *testing.T) {
 
 	updater := New(constants.Version, util.NewLogger(), events.NewMockWSEventManager(util.NewLogger()))
-	release, err := updater.fetchLatestReleaseFromDocs()
+	release, err := updater.fetchLatestReleaseFromApi("github")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,7 +124,7 @@ func TestUpdater(t *testing.T) {
 
 	u := New(constants.Version, util.NewLogger(), events.NewMockWSEventManager(util.NewLogger()))
 
-	rl, err := u.GetLatestRelease()
+	rl, err := u.GetLatestRelease("github")
 	require.NoError(t, err)
 
 	rl.TagName = "v2.2.1"

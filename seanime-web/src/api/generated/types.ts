@@ -3831,6 +3831,10 @@ export type Models_LibrarySettings = {
     useFallbackMetadataProvider: boolean
     scannerUseLegacyMatching: boolean
     scannerConfig: string
+    /**
+     * "github", "seanime", "seanime_nightly"
+     */
+    updateChannel: string
 }
 
 /**
@@ -4570,6 +4574,7 @@ export type Report_IssueReport = {
     viewportWidth?: number
     viewportHeight?: number
     recordingDurationMs?: number
+    records?: Record<string, any>
 }
 
 /**

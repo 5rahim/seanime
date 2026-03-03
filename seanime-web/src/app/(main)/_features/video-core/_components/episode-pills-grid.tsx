@@ -65,7 +65,7 @@ export function EpisodePillsGrid({
                             className={cn(
                                 "relative flex items-center justify-center",
                                 "w-full h-10 rounded-md font-medium text-sm",
-                                "transition-all duration-150 ease-out",
+                                "transition-colors duration-150 ease-out",
                                 "focus:outline-none",
                                 !isSelected && [
                                     "bg-[--subtle]",

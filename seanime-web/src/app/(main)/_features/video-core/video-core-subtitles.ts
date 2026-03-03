@@ -119,6 +119,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     private playbackInfo: VideoCore_VideoPlaybackInfo
     private currentTrackNumber: number = NO_TRACK_NUMBER
     private fonts: string[] = []
+    private hmacToken: string = ""
 
     private _onSelectedTrackChanged?: (track: number | null) => void
     private _onTracksLoaded?: (tracks: NormalizedTrackInfo[]) => void
@@ -139,6 +140,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         fetchAndConvertToASS,
         sendTranslateRequest,
         translateTargetLang,
+        hmacToken,
     }: {
         videoElement: HTMLVideoElement
         jassubOffscreenRender: boolean
@@ -147,12 +149,14 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         fetchAndConvertToASS: (url?: string, content?: string) => Promise<string | undefined>
         sendTranslateRequest: (text?: string, track?: VideoCore_VideoSubtitleTrack) => void
         translateTargetLang: string | null
+        hmacToken?: string
     }) {
         super()
         this.videoElement = videoElement
         this.jassubOffscreenRender = jassubOffscreenRender
         this.playbackInfo = playbackInfo
         this.settings = settings
+        this.hmacToken = hmacToken || ""
         this.shouldTranslate = translateTargetLang
         this.translationTargetLang = translateTargetLang
         this.fetchAndConvertToASS = fetchAndConvertToASS
@@ -252,7 +256,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
 
                 this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")
-                    ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}`) || []
+                    ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}${this.hmacToken}`) || []
 
                 if (!this.playbackInfo.libassFonts) {
                     this.fonts = [...new Set([...this.fonts, defaultFontUrl])]
@@ -519,31 +523,59 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         }
     }
 
-    // This will record the events and add them to the libass renderer if they are new.
-    async onSubtitleEvent(event: MKVParser_SubtitleEvent) {
-        // Check if this is a PGS event
-        if (isPGS(event.codecID)) {
-            this._handlePgsEvent(event)
-            return
-        }
+    // This will record the events and add them to the renderers if they are new.
+    async onSubtitleEvents(events: MKVParser_SubtitleEvent[]) {
+        const pgsEvents: any[] = []
+        const assEvents: CachedEvent[] = []
 
-        // Record the event
-        const { isNew, cachedEntry } = this._recordSubtitleEvent(event)
-        if (!cachedEntry) return
-
-        // If the event belongs to the active track, render it
-        if (event.trackNumber === this.currentTrackNumber && this.libassRenderer && isNew) {
-            if (this.shouldTranslate) {
-                if (cachedEntry.translatedAssEvent) {
-                    // already translated, use it
-                    this.libassRenderer?.renderer?.createEvent(cachedEntry.translatedAssEvent)
-                } else {
-                    // fetch the translation, it will be rendered once returned
-                    this._fetchEventTranslationIfNeeded(cachedEntry)
+        for (const event of events) {
+            // Check if this is a PGS event
+            if (isPGS(event.codecID)) {
+                const isNew = this._handlePgsEvent(event, false)
+                if (isNew && event.trackNumber === this.currentTrackNumber && this.pgsRenderer) {
+                    pgsEvents.push({
+                        startTime: event.startTime / 1e3,
+                        duration: event.duration / 1e3,
+                        imageData: event.text, // base64 PNG
+                        width: parseInt(event.extraData?.width || "0", 10),
+                        height: parseInt(event.extraData?.height || "0", 10),
+                        x: event.extraData?.x ? parseInt(event.extraData.x, 10) : undefined,
+                        y: event.extraData?.y ? parseInt(event.extraData.y, 10) : undefined,
+                        canvasWidth: event.extraData?.canvas_width ? parseInt(event.extraData.canvas_width, 10) : undefined,
+                        canvasHeight: event.extraData?.canvas_height ? parseInt(event.extraData.canvas_height, 10) : undefined,
+                        cropX: event.extraData?.crop_x ? parseInt(event.extraData.crop_x, 10) : undefined,
+                        cropY: event.extraData?.crop_y ? parseInt(event.extraData.crop_y, 10) : undefined,
+                        cropWidth: event.extraData?.crop_width ? parseInt(event.extraData.crop_width, 10) : undefined,
+                        cropHeight: event.extraData?.crop_height ? parseInt(event.extraData.crop_height, 10) : undefined,
+                    })
                 }
             } else {
-                // normal flow
-                this.libassRenderer.renderer.createEvent(cachedEntry.assEvent)
+                // Record the event
+                const { isNew, cachedEntry } = this._recordSubtitleEvent(event)
+                if (isNew && cachedEntry && event.trackNumber === this.currentTrackNumber && this.libassRenderer) {
+                    assEvents.push(cachedEntry)
+                }
+            }
+        }
+
+        if (pgsEvents.length > 0 && this.pgsRenderer) {
+            this.pgsRenderer.addEvents(pgsEvents)
+        }
+
+        if (assEvents.length > 0 && this.libassRenderer) {
+            for (const cachedEntry of assEvents) {
+                if (this.shouldTranslate) {
+                    if (cachedEntry.translatedAssEvent) {
+                        // already translated, use it
+                        this.libassRenderer.renderer.createEvent(cachedEntry.translatedAssEvent)
+                    } else {
+                        // fetch the translation, it will be rendered once returned
+                        this._fetchEventTranslationIfNeeded(cachedEntry)
+                    }
+                } else {
+                    // not translating, use the original event
+                    this.libassRenderer.renderer.createEvent(cachedEntry.assEvent)
+                }
             }
         }
     }
@@ -703,11 +735,11 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         await this.selectTrack(defaultTrackNumber)
     }
 
-    private _handlePgsEvent(event: MKVParser_SubtitleEvent) {
+    private _handlePgsEvent(event: MKVParser_SubtitleEvent, renderImmediately = true) {
         // Ensure the PGS track exists
         if (!this.pgsEventTracks[event.trackNumber]) {
             subtitleLog.warning("PGS track not initialized for track number", event.trackNumber)
-            return
+            return false
         }
 
         const trackEventMap = this.pgsEventTracks[event.trackNumber].events
@@ -715,16 +747,18 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
         // Check if the event is already recorded
         if (trackEventMap.has(eventKey)) {
-            return
+            return false
         }
 
         // Store the event
         trackEventMap.set(eventKey, event)
 
         // If this is the currently selected track, add the event to the renderer
-        if (event.trackNumber === this.currentTrackNumber && this.pgsRenderer) {
+        if (renderImmediately && event.trackNumber === this.currentTrackNumber && this.pgsRenderer) {
             this._addPgsEvent(event)
         }
+
+        return true
     }
 
     private _getPgsEventKey(event: MKVParser_SubtitleEvent): string {
@@ -861,7 +895,16 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         if (event.extraData && event.extraData["_id"]) {
             return event.extraData["_id"]
         }
-        return JSON.stringify(event)
+        return `${event.trackNumber}:${event.startTime}:${event.duration}:${this.__fastStringHash(event.text)}`
+    }
+
+    // djb2 hash for string hashing
+    private __fastStringHash(str: string): number {
+        let hash = 5381
+        for (let i = 0, len = str.length; i < len; i++) {
+            hash = ((hash << 5) + hash + str.charCodeAt(i)) | 0
+        }
+        return hash >>> 0
     }
 
     // Stores the styles for each track.

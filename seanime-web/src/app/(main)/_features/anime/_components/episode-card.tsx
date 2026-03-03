@@ -101,7 +101,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
 
     const Meta = () => (
         <div data-episode-card-info-container className="relative z-[3] w-full space-y-0">
-            {topTitle !== title && <p
+            {(topTitle !== title || showTotalEpisodes) && <p
                 data-episode-card-title
                 className={cn(
                     "w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold",

@@ -10,8 +10,22 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/updater"
 	"seanime/internal/util"
+	"strings"
+	"sync"
+	"time"
 
 	"github.com/labstack/echo/v4"
+)
+
+type downloadGrantChallenge struct {
+	code      string
+	createdAt time.Time
+}
+
+var (
+	downloadGrantChallenges   = make(map[string]*downloadGrantChallenge) // keyed by challenge ID
+	downloadGrantChallengesMu sync.Mutex
+	downloadGrantChallengeTTL = 2 * time.Minute
 )
 
 // HandleDownloadTorrentFile
@@ -25,11 +39,63 @@ func (h *Handler) HandleDownloadTorrentFile(c echo.Context) error {
 		DownloadUrls []string           `json:"download_urls"`
 		Destination  string             `json:"destination"`
 		Media        *anilist.BaseAnime `json:"media"`
+		ClientId     string             `json:"clientId"`
 	}
 
 	var b body
 	if err := c.Bind(&b); err != nil {
 		return h.RespondWithError(c, err)
+	}
+
+	if b.ClientId == "" {
+		return h.RespondWithError(c, fmt.Errorf("clientId is required"))
+	}
+
+	if !strings.HasPrefix(b.ClientId, "CODE:") {
+		challengeID := util.RandomStringWithAlphabet(16, "abcdefghijklmnopqrstuvwxyz0123456789")
+		randomCode := util.RandomStringWithAlphabet(32, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+		downloadGrantChallengesMu.Lock()
+		for k, ch := range downloadGrantChallenges {
+			if time.Since(ch.createdAt) > downloadGrantChallengeTTL {
+				delete(downloadGrantChallenges, k)
+			}
+		}
+		downloadGrantChallenges[challengeID] = &downloadGrantChallenge{
+			code:      randomCode,
+			createdAt: time.Now(),
+		}
+		downloadGrantChallengesMu.Unlock()
+
+		h.App.WSEventManager.SendEventTo(b.ClientId, "download-torrent-file-permission-check", challengeID+":"+randomCode)
+		return h.RespondWithData(c, false)
+	}
+
+	payload := strings.TrimPrefix(b.ClientId, "CODE:")
+	parts := strings.SplitN(payload, ":", 2)
+	if len(parts) != 2 {
+		return h.RespondWithError(c, fmt.Errorf("invalid verification format"))
+	}
+	challengeID := parts[0]
+	submittedCode := parts[1]
+
+	downloadGrantChallengesMu.Lock()
+	challenge, exists := downloadGrantChallenges[challengeID]
+	if exists {
+		delete(downloadGrantChallenges, challengeID)
+	}
+	downloadGrantChallengesMu.Unlock()
+
+	if !exists {
+		return h.RespondWithError(c, fmt.Errorf("no pending verification found"))
+	}
+
+	if time.Since(challenge.createdAt) > downloadGrantChallengeTTL {
+		return h.RespondWithError(c, fmt.Errorf("verification code expired"))
+	}
+
+	if challenge.code != submittedCode {
+		return h.RespondWithError(c, fmt.Errorf("invalid verification code"))
 	}
 
 	errs := make([]error, 0)
@@ -117,6 +183,10 @@ func (h *Handler) HandleDownloadRelease(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
+	if err := util.ValidateReleaseUrl(b.DownloadUrl); err != nil {
+		return h.RespondWithError(c, fmt.Errorf("invalid download URL: %w", err))
+	}
+
 	path, err := h.App.Updater.DownloadLatestRelease(b.DownloadUrl, b.Destination)
 
 	if err != nil {
@@ -145,6 +215,14 @@ func (h *Handler) HandleDownloadMacDenshiUpdate(c echo.Context) error {
 	var b body
 	if err := c.Bind(&b); err != nil {
 		return h.RespondWithError(c, err)
+	}
+
+	if err := util.ValidateReleaseUrl(b.DownloadUrl); err != nil {
+		return h.RespondWithError(c, fmt.Errorf("invalid download URL: %w", err))
+	}
+
+	if strings.ContainsAny(b.Version, "/\\") || strings.Contains(b.Version, "..") || b.Version == "" {
+		return h.RespondWithError(c, fmt.Errorf("invalid version string"))
 	}
 
 	// Get downloads directory
@@ -199,7 +277,7 @@ func (h *Handler) HandleDownloadMacDenshiUpdate(c echo.Context) error {
 	// Find the .app bundle
 	appPath := filepath.Join(extractDir, "Seanime Denshi.app")
 	if _, err := os.Stat(appPath); os.IsNotExist(err) {
-		return h.RespondWithError(c, fmt.Errorf("Seanime Denshi.app not found in extracted files"))
+		return h.RespondWithError(c, fmt.Errorf("app: Seanime Denshi.app not found in extracted files"))
 	}
 
 	// Run xattr -c to remove quarantine attributes
@@ -230,7 +308,7 @@ func (h *Handler) HandleDownloadMacDenshiUpdate(c echo.Context) error {
 	os.Remove(zipPath)
 	os.RemoveAll(extractDir)
 
-	h.App.Logger.Info().Msg("macOS update installed successfully")
+	h.App.Logger.Info().Msg("app: macOS update installed successfully")
 
 	return h.RespondWithData(c, DownloadReleaseResponse{Destination: applicationsPath})
 }

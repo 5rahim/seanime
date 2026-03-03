@@ -1,3 +1,5 @@
+import { getServerBaseUrl } from "@/api/client/server-url"
+import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { isUpdateInstalledAtom, isUpdatingAtom } from "@/app/(main)/_electron/electron-update-modal"
 import { websocketConnectedAtom, websocketConnectionErrorCountAtom } from "@/app/websocket-provider"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -17,6 +19,30 @@ export function ElectronRestartServerPrompt() {
     const [hasClickedRestarted, setHasClickedRestarted] = React.useState(false)
     const isUpdatedInstalled = useAtomValue(isUpdateInstalledAtom)
     const isUpdating = useAtomValue(isUpdatingAtom)
+
+    // Check if the server requires a password (no router dependency)
+    const [serverHasPassword, setServerHasPassword] = React.useState(false)
+    const serverAuthToken = useAtomValue(serverAuthTokenAtom)
+
+    React.useEffect(() => {
+        let cancelled = false
+        const checkStatus = async () => {
+            try {
+                const res = await fetch(`${getServerBaseUrl()}/api/v1/status`)
+                if (res.ok) {
+                    const json = await res.json() as any
+                    if (!cancelled) {
+                        setServerHasPassword(!!json?.data?.serverHasPassword)
+                    }
+                }
+            }
+            catch {
+                // Server unreachable, leave as false
+            }
+        }
+        checkStatus()
+        return () => { cancelled = true }
+    }, [])
 
     const threshold = 8
 
@@ -44,15 +70,18 @@ export function ElectronRestartServerPrompt() {
         }
     }
 
+    // Server is reachable but user hasn't logged in yet
+    const isUnauthenticated = (serverHasPassword && !serverAuthToken) || import.meta.env.MODE === "development"
+
     // Try to reconnect automatically
     const tryAutoReconnectRef = React.useRef(true)
     React.useEffect(() => {
-        if (!isConnected && connectionErrorCount >= threshold && tryAutoReconnectRef.current && !isUpdatedInstalled) {
+        if (!isConnected && connectionErrorCount >= threshold && tryAutoReconnectRef.current && !isUpdatedInstalled && !isUnauthenticated) {
             tryAutoReconnectRef.current = false
             console.log("Connection error count reached 10, restarting server automatically")
             handleRestart()
         }
-    }, [connectionErrorCount])
+    }, [connectionErrorCount, isUnauthenticated])
 
     React.useEffect(() => {
         if (isConnected) {
@@ -61,7 +90,7 @@ export function ElectronRestartServerPrompt() {
         }
     }, [isConnected])
 
-    if (!hasRendered) return null
+    if (!hasRendered || isUnauthenticated) return null
 
     // Not connected for 10 seconds
     return (

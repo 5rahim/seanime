@@ -230,6 +230,10 @@ self.onmessage = async (e) => {
             await handleAddEvent(payload)
             break
 
+        case "addEvents":
+            await Promise.all(payload.map(ev => handleAddEvent(ev)))
+            break
+
         case "render":
             handleRender(payload)
             break

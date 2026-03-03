@@ -8,7 +8,8 @@ import (
 	"seanime/internal/extension_playground"
 	"seanime/internal/util"
 	"strings"
-	"sync/atomic"
+	"sync"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -289,7 +290,17 @@ func (h *Handler) HandleSetPluginSettingsPinnedTrays(c echo.Context) error {
 	return h.RespondWithData(c, true)
 }
 
-var toGrant = atomic.Value{}
+type pluginGrantChallenge struct {
+	code        string
+	extensionID string
+	createdAt   time.Time
+}
+
+var (
+	grantChallenges   = make(map[string]*pluginGrantChallenge) // keyed by challenge ID
+	grantChallengesMu sync.Mutex
+	grantChallengeTTL = 2 * time.Minute
+)
 
 // HandleGrantPluginPermissions
 //
@@ -311,19 +322,63 @@ func (h *Handler) HandleGrantPluginPermissions(c echo.Context) error {
 		return h.RespondWithError(c, fmt.Errorf("clientId is required"))
 	}
 
+	// client requests a challenge code
 	if !strings.HasPrefix(b.ClientId, "CODE:") {
-		randomCode := util.RandomStringWithAlphabet(16, "abcdefghijklmoprstuvw123456")
-		toGrant.Store(randomCode)
-		h.App.WSEventManager.SendEventTo(b.ClientId, "grant-plugin-permission-check", b.ID+"$$$"+randomCode)
+		challengeID := util.RandomStringWithAlphabet(16, "abcdefghijklmnopqrstuvwxyz0123456789")
+		randomCode := util.RandomStringWithAlphabet(32, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+		grantChallengesMu.Lock()
+		// Clean up expired challenges
+		for k, ch := range grantChallenges {
+			if time.Since(ch.createdAt) > grantChallengeTTL {
+				delete(grantChallenges, k)
+			}
+		}
+		grantChallenges[challengeID] = &pluginGrantChallenge{
+			code:        randomCode,
+			extensionID: b.ID,
+			createdAt:   time.Now(),
+		}
+		grantChallengesMu.Unlock()
+
+		// Send challenge ID and code to the client via WebSocket
+		// Format: {extensionId}$$${challengeID}:{code}
+		h.App.WSEventManager.SendEventTo(b.ClientId, "grant-plugin-permission-check", b.ID+"$$$"+challengeID+":"+randomCode)
 		return h.RespondWithData(c, false)
 	}
 
-	if toGrant.Load() == nil {
-		return h.RespondWithError(c, fmt.Errorf("no verification code found"))
+	// client responds with "CODE:{challengeID}:{code}"
+	payload := strings.TrimPrefix(b.ClientId, "CODE:")
+	parts := strings.SplitN(payload, ":", 2)
+	if len(parts) != 2 {
+		return h.RespondWithError(c, fmt.Errorf("invalid verification format"))
+	}
+	challengeID := parts[0]
+	submittedCode := parts[1]
+
+	grantChallengesMu.Lock()
+	challenge, exists := grantChallenges[challengeID]
+	if exists {
+		// delete immediately
+		delete(grantChallenges, challengeID)
+	}
+	grantChallengesMu.Unlock()
+
+	if !exists {
+		return h.RespondWithError(c, fmt.Errorf("no pending verification found"))
 	}
 
-	if code, ok := toGrant.Load().(string); !ok || code != strings.TrimPrefix(b.ClientId, "CODE:") {
+	if time.Since(challenge.createdAt) > grantChallengeTTL {
+		return h.RespondWithError(c, fmt.Errorf("verification code expired"))
+	}
+
+	if challenge.code != submittedCode {
 		return h.RespondWithError(c, fmt.Errorf("invalid verification code"))
+	}
+
+	// ensure the code was issued for this specific extension
+	if challenge.extensionID != b.ID {
+		return h.RespondWithError(c, fmt.Errorf("verification code does not match the requested extension"))
 	}
 
 	h.App.ExtensionRepository.GrantPluginPermissions(b.ID)

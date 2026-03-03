@@ -178,6 +178,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, client
 	if strings.HasPrefix(ret, "http://http") {
 		ret = strings.Replace(ret, "http://http", "http", 1)
 	}
+	ret += m.directstreamManager.GetHMACTokenQueryParam("/api/v1/nakama/stream", "&")
 
 	windowTitle := media.GetPreferredTitle()
 	if !media.IsMovieOrSingleEpisode() {
@@ -266,6 +267,7 @@ func (m *Manager) PlayHostAnimeStream(streamType WatchPartyStreamType, userAgent
 	if strings.HasPrefix(ret, "http://http") {
 		ret = strings.Replace(ret, "http://http", "http", 1)
 	}
+	ret += m.directstreamManager.GetHMACTokenQueryParam("/api/v1/nakama/stream", "&")
 
 	windowTitle := media.GetPreferredTitle()
 	if !media.IsMovieOrSingleEpisode() {

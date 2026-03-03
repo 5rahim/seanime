@@ -87,3 +87,7 @@ internal/extension_repo/goja_plugin_test
 
 seanime-web-tr/
 codegen/nonext/
+
+local_testing
+dist-server
+scripts/build.go

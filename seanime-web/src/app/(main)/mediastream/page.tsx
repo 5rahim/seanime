@@ -16,7 +16,7 @@ import {
 import { VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { VideoCore_VideoSubtitleTrack } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useServerHMACAuth, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -61,6 +61,7 @@ function uuidv4(): string {
 
 function MediastreamPage() {
     const serverStatus = useServerStatus()
+    const { getHMACTokenQueryParam } = useServerHMACAuth()
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -99,6 +100,18 @@ function MediastreamPage() {
     const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("transcode")
     const [url, setUrl] = React.useState<string | null>(null)
     const [playbackError, setPlaybackError] = React.useState<string | null>(null)
+
+    // HMAC tokens for browser-fetched media URLs
+    const [subsToken, setSubsToken] = React.useState("")
+    const [attToken, setAttToken] = React.useState("")
+    const [directToken, setDirectToken] = React.useState("")
+    React.useEffect(() => {
+        (async () => {
+            setSubsToken(await getHMACTokenQueryParam("/api/v1/mediastream/subs", "?"))
+            setAttToken(await getHMACTokenQueryParam("/api/v1/mediastream/att", "?"))
+            setDirectToken(await getHMACTokenQueryParam("/api/v1/mediastream/direct", "?"))
+        })()
+    }, [getHMACTokenQueryParam])
 
 
     const playerRef = React.useRef<HTMLVideoElement | null>(null)
@@ -171,14 +184,18 @@ function MediastreamPage() {
         }
 
         if (mediaContainer.streamUrl) {
-            const _newUrl = `${getServerBaseUrl()}${mediaContainer.streamUrl}`
+            let _newUrl = `${getServerBaseUrl()}${mediaContainer.streamUrl}`
+            // Append HMAC token for direct play URLs
+            if (mediaContainer.streamType === "direct" && directToken) {
+                _newUrl += directToken
+            }
             log.info("Setting stream URL", _newUrl)
             changeUrl(_newUrl)
         } else {
             changeUrl(null)
         }
 
-    }, [mediaContainer, isMediaContainerPending, mediastreamSettings, isCodecSupported])
+    }, [mediaContainer, isMediaContainerPending, mediastreamSettings, isCodecSupported, directToken])
 
 
     // handle fatal errors
@@ -211,13 +228,13 @@ function MediastreamPage() {
             index: sub.index,
             label: sub.title || sub.language || `Track ${sub.index}`,
             language: sub.language || "eng",
-            src: `${getServerBaseUrl()}/api/v1/mediastream/subs` + sub.link,
+            src: `${getServerBaseUrl()}/api/v1/mediastream/subs` + sub.link + subsToken,
             content: undefined, // Content fetching handled by VideoCore if needed, but src is preferred
             type: sub.extension,
             default: sub.isDefault,
             useLibassRenderer: true,
         }))
-    }, [mediaContainer?.mediaInfo?.subtitles])
+    }, [mediaContainer?.mediaInfo?.subtitles, subsToken])
 
     // navigation helpers
     const goToEpisode = useLatestFunction((ep: Anime_Episode) => {
@@ -253,13 +270,13 @@ function MediastreamPage() {
                     ? "native"
                     : (mediaContainer?.streamType === "transcode" ? "hls" : "native"), // Simple heuristic
                 subtitleTracks: subtitleTracks,
-                libassFonts: mediaContainer?.mediaInfo?.fonts?.map(name => ({ src: `${getServerBaseUrl()}/api/v1/mediastream/att/${name}` })) || [],
+                libassFonts: mediaContainer?.mediaInfo?.fonts?.map(name => ({ src: `${getServerBaseUrl()}/api/v1/mediastream/att/${name}${attToken}` })) || [],
                 initialState: undefined,
             } : null,
             loadingState: !url ? "Loading stream..." : null,
             playbackError: playbackError,
         } satisfies VideoCoreLifecycleState
-    }, [url, filePath, media, currentEpisode, mediaContainer, playbackError, subtitleTracks])
+    }, [url, filePath, media, currentEpisode, mediaContainer, playbackError, subtitleTracks, attToken])
 
     if (animeEntryLoading || !animeEntry?.media) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">

@@ -598,7 +598,7 @@ export class MediaCaptionsManager extends EventTarget {
         this.wrapperElement.style.pointerEvents = "none"
         this.wrapperElement.style.zIndex = "10"
         this.wrapperElement.style.overflow = "hidden"
-        this.wrapperElement.classList.add("transform-gpu", "transition-all", "duration-300", "ease-in-out")
+        this.wrapperElement.classList.add("transform-gpu", "transition-transform", "duration-300", "ease-in-out")
         this.videoElement.parentElement?.appendChild(this.wrapperElement)
 
         // Create overlay element for captions

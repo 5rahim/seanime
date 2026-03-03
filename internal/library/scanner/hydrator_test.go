@@ -708,7 +708,6 @@ func TestFileHydrator_applyHydrationRule(t *testing.T) {
 				Logger:            logger,
 				ScanSummaryLogger: scanSummaryLogger,
 				Config:            config,
-				hydrationRules:    make(map[string]*compiledHydrationRule),
 			}
 
 			// Precompile the rules

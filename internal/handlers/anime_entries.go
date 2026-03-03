@@ -610,6 +610,8 @@ func (h *Handler) HandleToggleAnimeEntrySilenceStatus(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
+	missingEpisodesCache = nil
+
 	animeEntry, err := h.App.Database.GetSilencedMediaEntry(uint(b.MediaId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

@@ -108,7 +108,10 @@ func (h *HMACAuth) ValidateToken(token string, endpoint string) (*TokenClaims, e
 
 	// Validate endpoint (optional, can be wildcard *)
 	if endpoint != "" && claims.Endpoint != "*" && claims.Endpoint != endpoint {
-		return nil, fmt.Errorf("token not valid for endpoint %s - claim endpoint: %s", endpoint, claims.Endpoint)
+		// Also allow prefix-based matching (e.g. token for "/api/v1/mediastream/att" is valid for "/api/v1/mediastream/att/font.ttf")
+		if !strings.HasPrefix(endpoint, claims.Endpoint) {
+			return nil, fmt.Errorf("token not valid for endpoint %s - claim endpoint: %s", endpoint, claims.Endpoint)
+		}
 	}
 
 	return &claims, nil

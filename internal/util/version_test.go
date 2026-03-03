@@ -1,9 +1,11 @@
 package util
 
 import (
-	"github.com/Masterminds/semver/v3"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/Masterminds/semver/v3"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCompareVersion(t *testing.T) {
@@ -109,6 +111,27 @@ func TestCompareVersion(t *testing.T) {
 			name:           "Current version is older (is prerelease)",
 			currVersion:    "2.2.0-prerelease",
 			otherVersion:   "2.2.0",
+			expectedOutput: -1,
+			shouldUpdate:   true,
+		},
+		{
+			name:           "Current version is older (is canary)",
+			currVersion:    "2.5.2",
+			otherVersion:   "2.5.3-canary.1",
+			expectedOutput: -1,
+			shouldUpdate:   true,
+		},
+		{
+			name:           "Current version is newer than canary",
+			currVersion:    "2.5.3",
+			otherVersion:   "2.5.3-canary.1",
+			expectedOutput: 1,
+			shouldUpdate:   false,
+		},
+		{
+			name:           "Canary vs Canary",
+			currVersion:    "2.5.3-canary.1",
+			otherVersion:   "2.5.3-canary.2",
 			expectedOutput: -1,
 			shouldUpdate:   true,
 		},
@@ -245,4 +268,37 @@ func TestSemverConstraints(t *testing.T) {
 		})
 	}
 
+}
+
+func TestValidateReleaseUrl(t *testing.T) {
+
+	testCases := []struct {
+		url            string
+		expectedOutput bool
+	}{
+		{
+			url:            "https://github.com/5rahim/seanime/releases/download/v3.5.1/seanime-denshi-3.5.1_MacOS_arm64.dmg",
+			expectedOutput: true,
+		},
+		{
+			url:            "https://github.com/rando/seanime/releases/download/v3.5.1/seanime-denshi-3.5.1_MacOS_arm64.dmg",
+			expectedOutput: false,
+		},
+		{
+			url:            "https://seanime.app/api/updates/stable/seanime-denshi-3.5.1_MacOS_arm64.dmg",
+			expectedOutput: true,
+		},
+		{
+			url:            "http://example.com/badstuff.dmg",
+			expectedOutput: false,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.url, func(t *testing.T) {
+			err := ValidateReleaseUrl(tt.url)
+			valid := err == nil
+			assert.Equal(t, tt.expectedOutput, valid)
+		})
+	}
 }

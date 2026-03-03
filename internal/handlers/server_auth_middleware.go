@@ -17,22 +17,12 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		passwordHash := c.Request().Header.Get("X-Seanime-Token")
 
 		// Allow the following paths to be accessed by anyone
-		if path == "/api/v1/auth/login" || // for auth
-			path == "/api/v1/auth/logout" || // for auth
-			path == "/api/v1/status" || // for interface
-			path == "/events" || // for server events
-			strings.HasPrefix(path, "/api/v1/directstream") || // ID & path based
-			strings.HasPrefix(path, "/api/v1/mediastream/att/") || // used by media players
-			strings.HasPrefix(path, "/api/v1/mediastream/direct") || // used by media players
-			strings.HasPrefix(path, "/api/v1/mediastream/transcode/") || // used by media players
-			strings.HasPrefix(path, "/api/v1/mediastream/subs/") || // path-based
-			strings.HasPrefix(path, "/api/v1/manga/local-page") || // Path-based
-			strings.HasPrefix(path, "/api/v1/torrentstream/stream/") || // accessible by media players
-			strings.HasPrefix(path, "/api/v1/nakama/stream") { // ID-based
+		if path == "/api/v1/status" || // public but restricted
+			path == "/events" || // for server events (auth handled by websocket handler)
+			strings.HasPrefix(path, "/api/v1/mediastream/transcode/") { // HLS segments (TODO: secure later)
 
 			if path == "/api/v1/status" {
-				// allow status requests by anyone but mark as unauthenticated
-				// so we can filter out critical info like settings
+				// allow status requests by all clients but mark as unauthenticated
 				if passwordHash != h.App.ServerPasswordHash {
 					c.Set("unauthenticated", true)
 				}

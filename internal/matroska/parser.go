@@ -1101,6 +1101,14 @@ func (mp *MatroskaParser) parseCueTrackPositions(data []byte) (*Cue, error) {
 //
 // Returns:
 //   - error: An error if the Chapters element could not be parsed.
+//
+// editionEntry holds parsed edition data along with its flags.
+type editionEntry struct {
+	chapters  []*Chapter
+	isDefault bool
+	isHidden  bool
+}
+
 func (mp *MatroskaParser) parseChapters(size uint64) error {
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
@@ -1112,6 +1120,8 @@ func (mp *MatroskaParser) parseChapters(size uint64) error {
 	reader := bytes.NewReader(data)
 	childReader := &EBMLReader{r: &seekableReader{reader}, pos: 0}
 
+	var editions []editionEntry
+
 	for childReader.pos < int64(size) {
 		element, errReadElement := childReader.ReadElement()
 		if errReadElement != nil {
@@ -1122,40 +1132,69 @@ func (mp *MatroskaParser) parseChapters(size uint64) error {
 		}
 
 		if element.ID == IDEditionEntry {
-			chapters, errParseEditionEntry := mp.parseEditionEntry(element.Data)
+			edition, errParseEditionEntry := mp.parseEditionEntry(element.Data)
 			if errParseEditionEntry != nil {
 				return errParseEditionEntry
 			}
-			mp.chapters = append(mp.chapters, chapters...)
+			editions = append(editions, edition)
 		}
+	}
+
+	// Pick the best edition: prefer default, then first non-hidden, then first
+	var selected *editionEntry
+	for i := range editions {
+		if editions[i].isDefault && !editions[i].isHidden {
+			selected = &editions[i]
+			break
+		}
+	}
+	if selected == nil {
+		for i := range editions {
+			if !editions[i].isHidden {
+				selected = &editions[i]
+				break
+			}
+		}
+	}
+	if selected == nil && len(editions) > 0 {
+		selected = &editions[0]
+	}
+
+	if selected != nil {
+		mp.chapters = append(mp.chapters, selected.chapters...)
 	}
 
 	return nil
 }
 
-func (mp *MatroskaParser) parseEditionEntry(data []byte) ([]*Chapter, error) {
+func (mp *MatroskaParser) parseEditionEntry(data []byte) (editionEntry, error) {
 	reader := bytes.NewReader(data)
 	childReader := &EBMLReader{r: &seekableReader{reader}, pos: 0}
 
-	var chapters []*Chapter
+	entry := editionEntry{}
 	for childReader.pos < int64(len(data)) {
 		element, err := childReader.ReadElement()
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				break
 			}
-			return nil, err
+			return entry, err
 		}
 
-		if element.ID == IDChapterAtom {
+		switch element.ID {
+		case IDEditionFlagDefault:
+			entry.isDefault = element.ReadUInt() != 0
+		case IDEditionFlagHidden:
+			entry.isHidden = element.ReadUInt() != 0
+		case IDChapterAtom:
 			chapter, errParseChapterAtom := mp.parseChapterAtom(element.Data)
 			if errParseChapterAtom != nil {
-				return nil, errParseChapterAtom
+				return entry, errParseChapterAtom
 			}
-			chapters = append(chapters, chapter)
+			entry.chapters = append(entry.chapters, chapter)
 		}
 	}
-	return chapters, nil
+	return entry, nil
 }
 
 func (mp *MatroskaParser) parseChapterAtom(data []byte) (*Chapter, error) {

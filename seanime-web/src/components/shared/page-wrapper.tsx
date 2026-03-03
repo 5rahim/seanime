@@ -5,15 +5,13 @@ import React from "react"
 
 type PageWrapperProps = {
     children?: React.ReactNode
-    ref?: React.RefObject<HTMLDivElement>
 } & React.ComponentPropsWithoutRef<"div">
 
-export function PageWrapper(props: PageWrapperProps) {
+export const PageWrapper = React.forwardRef<HTMLDivElement, PageWrapperProps>((props, ref) => {
 
     const {
         children,
         className,
-        ref,
         ...rest
     } = props
 
@@ -29,4 +27,4 @@ export function PageWrapper(props: PageWrapperProps) {
             </motion.div>
         </div>
     )
-}
+})

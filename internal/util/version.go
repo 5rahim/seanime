@@ -1,6 +1,8 @@
 package util
 
 import (
+	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -77,4 +79,41 @@ func VersionIsOlderThan(version string, compare string) bool {
 	comp, shouldUpdate := CompareVersion(version, compare)
 	// shouldUpdate is false means the current version is newer
 	return comp < 0 && shouldUpdate
+}
+
+var allowedGitHubOwners = []string{"5rahim"}
+
+// validateReleaseUrl checks that the URL points to a GitHub release asset
+// from an allowed owner.
+func ValidateReleaseUrl(rawURL string) error {
+	parsed, err := url.Parse(rawURL)
+	if err != nil {
+		return fmt.Errorf("malformed URL")
+	}
+
+	if parsed.Scheme != "https" {
+		return fmt.Errorf("only HTTPS URLs are allowed")
+	}
+
+	switch parsed.Host {
+	case "github.com":
+		// e.g. https://github.com/5rahim/seanime/releases/download/v1.0.0/file.zip
+		parts := strings.Split(strings.TrimPrefix(parsed.Path, "/"), "/")
+		if len(parts) < 6 || parts[2] != "releases" || parts[3] != "download" {
+			return fmt.Errorf("URL must point to a GitHub release asset")
+		}
+		owner := parts[0]
+		for _, allowed := range allowedGitHubOwners {
+			if strings.EqualFold(owner, allowed) {
+				return nil
+			}
+		}
+		return fmt.Errorf("repository owner %q is not allowed", owner)
+
+	case "seanime.app":
+		return nil
+
+	default:
+		return fmt.Errorf("host %q is not allowed", parsed.Host)
+	}
 }

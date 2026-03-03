@@ -62,7 +62,7 @@ export class VideoCoreAnime4KManager extends EventTarget {
     private _abortController: AbortController | null = null
     private _frameDropState: FrameDropState = {
         enabled: true,
-        frameDropThreshold: 5,
+        frameDropThreshold: 8,
         frameDropCount: 0,
         totalFrameDrops: 0,
         lastFrameTime: 0,
@@ -157,12 +157,17 @@ export class VideoCoreAnime4KManager extends EventTarget {
         super.removeEventListener(type, listener, options)
     }
 
-    updateCanvasSize(size: { width: number; height: number }) {
-        const videoContentSize = this.getRenderedVideoContentSize(this.videoElement)
-        this._boxSize = { width: videoContentSize?.displayedWidth || size.width, height: videoContentSize?.displayedHeight || size.height }
+    updateCanvasSize(_size: { width: number; height: number }) {
+        const rect = this.videoElement.getBoundingClientRect()
+        const containerWidth = rect.width
+        const containerHeight = rect.height
+        const videoContentSize = this.getRenderedVideoContentSize(this.videoElement, containerWidth, containerHeight)
+        this._boxSize = { width: videoContentSize?.displayedWidth || containerWidth, height: videoContentSize?.displayedHeight || containerHeight }
         if (this.canvas) {
             this.canvas.width = this._boxSize.width
             this.canvas.height = this._boxSize.height
+            this.canvas.style.width = this._boxSize.width + "px"
+            this.canvas.style.height = this._boxSize.height + "px"
             log.info("Updating canvas size", { ...this._boxSize })
         }
 
@@ -171,8 +176,8 @@ export class VideoCoreAnime4KManager extends EventTarget {
         this.dispatchEvent(event)
     }
 
-    resize() {
-        const videoContentSize = this.getRenderedVideoContentSize(this.videoElement)
+    resize(containerWidth: number, containerHeight: number) {
+        const videoContentSize = this.getRenderedVideoContentSize(this.videoElement, containerWidth, containerHeight)
         this._boxSize = { width: videoContentSize?.displayedWidth || 0, height: videoContentSize?.displayedHeight || 0 }
         if (this.canvas) {
             this.canvas.width = this._boxSize.width
@@ -367,10 +372,7 @@ export class VideoCoreAnime4KManager extends EventTarget {
         }
     }
 
-    private getRenderedVideoContentSize(video: HTMLVideoElement) {
-        const containerWidth = video.clientWidth
-        const containerHeight = video.clientHeight
-
+    private getRenderedVideoContentSize(video: HTMLVideoElement, containerWidth: number, containerHeight: number) {
         const videoWidth = video.videoWidth
         const videoHeight = video.videoHeight
 
@@ -381,28 +383,12 @@ export class VideoCoreAnime4KManager extends EventTarget {
 
         let displayedWidth, displayedHeight
 
-        const objectFit = getComputedStyle(video).objectFit || "fill"
-
-        if (objectFit === "cover") {
-            if (videoRatio > containerRatio) {
-                displayedHeight = containerHeight
-                displayedWidth = containerHeight * videoRatio
-            } else {
-                displayedWidth = containerWidth
-                displayedHeight = containerWidth / videoRatio
-            }
-        } else if (objectFit === "contain") {
-            if (videoRatio > containerRatio) {
-                displayedWidth = containerWidth
-                displayedHeight = containerWidth / videoRatio
-            } else {
-                displayedHeight = containerHeight
-                displayedWidth = containerHeight * videoRatio
-            }
-        } else {
-            // object-fit: fill or none or scale-down, fallback
+        if (videoRatio > containerRatio) {
             displayedWidth = containerWidth
+            displayedHeight = containerWidth / videoRatio
+        } else {
             displayedHeight = containerHeight
+            displayedWidth = containerHeight * videoRatio
         }
 
         return { displayedWidth, displayedHeight }
@@ -412,6 +398,12 @@ export class VideoCoreAnime4KManager extends EventTarget {
     // Create and position the canvas
     private _createCanvas() {
         if (this._abortController?.signal.aborted) return
+
+        const rect = this.videoElement.getBoundingClientRect()
+        const videoContentSize = this.getRenderedVideoContentSize(this.videoElement, rect.width, rect.height)
+        if (videoContentSize) {
+            this._boxSize = { width: videoContentSize.displayedWidth, height: videoContentSize.displayedHeight }
+        }
 
         this.canvas = document.createElement("canvas")
 
@@ -473,21 +465,51 @@ export class VideoCoreAnime4KManager extends EventTarget {
         })
 
         setTimeout(() => {
-            if (this.canvas) {
-                for (const callback of this._onCanvasCreatedCallbacks) {
-                    callback(this.canvas)
-                }
-                for (const callback of this._onCanvasCreatedCallbacksOnce) {
-                    callback(this.canvas)
-                }
-                this._onCanvasCreatedCallbacksOnce.clear()
+            requestAnimationFrame(() => {
+                if (this.canvas) {
+                    const rect = this.videoElement.getBoundingClientRect()
+                    const videoContentSize = this.getRenderedVideoContentSize(this.videoElement, rect.width, rect.height)
+                    if (videoContentSize && (videoContentSize.displayedWidth !== this._boxSize.width || videoContentSize.displayedHeight !== this._boxSize.height)) {
+                        this._boxSize = { width: videoContentSize.displayedWidth, height: videoContentSize.displayedHeight }
+                        this.canvas.width = this._boxSize.width
+                        this.canvas.height = this._boxSize.height
+                        this.canvas.style.width = this._boxSize.width + "px"
+                        this.canvas.style.height = this._boxSize.height + "px"
+                        log.info("Post-init canvas resize correction", { ...this._boxSize })
+                    }
 
-                const event: Anime4KManagerCanvasCreatedEvent = new CustomEvent("canvascreated", { detail: { canvas: this.canvas } })
-                this.dispatchEvent(event)
+                    for (const callback of this._onCanvasCreatedCallbacks) {
+                        callback(this.canvas)
+                    }
+                    for (const callback of this._onCanvasCreatedCallbacksOnce) {
+                        callback(this.canvas)
+                    }
+                    this._onCanvasCreatedCallbacksOnce.clear()
 
-                this._startRenderFpsTracking()
-            }
+                    const event: Anime4KManagerCanvasCreatedEvent = new CustomEvent("canvascreated", { detail: { canvas: this.canvas } })
+                    this.dispatchEvent(event)
+
+                    this._startRenderFpsTracking()
+                }
+            })
         }, 100)
+
+        setTimeout(() => {
+            requestAnimationFrame(() => {
+                if (this.canvas && !this._abortController?.signal.aborted) {
+                    const rect = this.videoElement.getBoundingClientRect()
+                    const videoContentSize = this.getRenderedVideoContentSize(this.videoElement, rect.width, rect.height)
+                    if (videoContentSize && (videoContentSize.displayedWidth !== this._boxSize.width || videoContentSize.displayedHeight !== this._boxSize.height)) {
+                        this._boxSize = { width: videoContentSize.displayedWidth, height: videoContentSize.displayedHeight }
+                        this.canvas.width = this._boxSize.width
+                        this.canvas.height = this._boxSize.height
+                        this.canvas.style.width = this._boxSize.width + "px"
+                        this.canvas.style.height = this._boxSize.height + "px"
+                        log.info("Deferred canvas resize correction", { ...this._boxSize })
+                    }
+                }
+            })
+        }, 500)
 
         // Start frame drop detection if enabled
         if (this._frameDropState.enabled && this._isOptionSelected(this._currentOption)) {
