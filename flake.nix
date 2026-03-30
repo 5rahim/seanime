@@ -47,6 +47,11 @@
             };
           };
 
+          icon = pkgs.fetchurl {
+            url = "https://raw.githubusercontent.com/5rahim/seanime/main/docs/images/seanime-logo.png";
+            hash = "sha256-mS/HV4R52RnausdmEWWY5nuNgqmPSq2+cw1xHnuAOhY=";
+          };
+
           seanime-denshi = pkgs.appimageTools.wrapType2 {
             pname = "seanime-denshi";
             inherit version;
@@ -54,6 +59,19 @@
               url = "https://github.com/5rahim/seanime/releases/download/v${version}/seanime-denshi-${version}_Linux_x86_64.AppImage";
               hash = "sha256-8erYkDgOE5Ma4X502JEyXpYnfrLagJA0i0ePuRE+N4s=";
             };
+            extraInstallCommands = ''
+              install -m 444 -D ${icon} $out/share/icons/hicolor/256x256/apps/seanime-denshi.png
+              mkdir -p $out/share/applications
+              cp -r ${pkgs.makeDesktopItem {
+                name = "seanime-denshi";
+                desktopName = "Seanime Denshi";
+                exec = "seanime-denshi %u";
+                icon = "seanime-denshi";
+                comment = "Anime and Manga media server desktop client";
+                categories = [ "AudioVideo" "Video" ];
+                keywords = [ "anime" "manga" "media" "streaming" ];
+              }}/share/applications/* $out/share/applications/
+            '';
             meta = {
               description = "Seanime Denshi desktop client";
               homepage = "https://seanime.app";
