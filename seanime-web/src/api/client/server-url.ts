@@ -1,4 +1,5 @@
 import { __DEV_SERVER_PORT, TESTONLY__DEV_SERVER_PORT2, TESTONLY__DEV_SERVER_PORT3 } from "@/lib/server/config"
+import { APP_BASE_PATH, withBasePath } from "@/lib/base-path"
 import { __isDesktop__ } from "@/types/constants"
 
 function devOrProd(dev: string, prod: string): string {
@@ -39,4 +40,12 @@ export function getServerBaseUrl(removeProtocol: boolean = false): string {
         ret = ret.replace("http://", "").replace("https://", "")
     }
     return ret
+}
+
+export function getServerBasePath(): string {
+    return APP_BASE_PATH
+}
+
+export function getAppUrl(path: string): string {
+    return withBasePath(path)
 }

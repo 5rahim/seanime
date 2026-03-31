@@ -1,5 +1,6 @@
 import { useGetAnilistCacheLayerStatus, useToggleAnilistCacheLayerStatus } from "@/api/hooks/anilist.hooks"
 import { useLocalSyncSimulatedDataToAnilist } from "@/api/hooks/local.hooks"
+import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import { __seaCommand_shortcuts } from "@/app/(main)/_features/sea-command/sea-command"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
@@ -10,12 +11,14 @@ import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { TextInput } from "@/components/ui/text-input"
 import { __isElectronDesktop__ } from "@/types/constants"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { useFormContext } from "react-hook-form"
 import { FaRedo } from "react-icons/fa"
 import { LuCircleAlert, LuCloudUpload } from "react-icons/lu"
+import { toast } from "sonner"
 import { useServerStatus } from "../../_hooks/use-server-status"
 
 type ServerSettingsProps = {
@@ -25,8 +28,8 @@ type ServerSettingsProps = {
 export function ServerSettings(props: ServerSettingsProps) {
 
     const {
-        isPending,
-        ...rest
+        isPending: _isPending,
+        ..._rest
     } = props
 
     const serverStatus = useServerStatus()
@@ -38,6 +41,31 @@ export function ServerSettings(props: ServerSettingsProps) {
 
     const { data: isApiWorking, isLoading: isFetchingApiStatus } = useGetAnilistCacheLayerStatus()
     const { mutate: toggleCacheLayer, isPending: isTogglingCacheLayer } = useToggleAnilistCacheLayerStatus()
+
+    const { data: serverConfig, refetch: refetchServerConfig } = useServerQuery<{ baseUrl: string }>({
+        endpoint: "/api/v1/server/config",
+        method: "GET",
+        queryKey: ["SERVER_CONFIG"],
+        enabled: true,
+    })
+
+    const [baseUrlInput, setBaseUrlInput] = React.useState("/")
+
+    React.useEffect(() => {
+        if (serverConfig?.baseUrl) {
+            setBaseUrlInput(serverConfig.baseUrl)
+        }
+    }, [serverConfig?.baseUrl])
+
+    const { mutate: saveBaseUrl, isPending: isSavingBaseUrl } = useServerMutation<boolean, { baseUrl: string }>({
+        endpoint: "/api/v1/server/config/base-url",
+        method: "PATCH",
+        mutationKey: ["SERVER_CONFIG_SAVE"],
+        onSuccess: async () => {
+            await refetchServerConfig()
+            toast.success("Base URL saved. Restart Seanime to apply it.")
+        },
+    })
 
     const confirmDialog = useConfirmationDialog({
         title: "Upload to AniList",
@@ -279,7 +307,7 @@ export function ServerSettings(props: ServerSettingsProps) {
                     <div>
                         <Switch
                             value={!isApiWorking}
-                            onValueChange={v => toggleCacheLayer()}
+                            onValueChange={() => toggleCacheLayer()}
                             disabled={isTogglingCacheLayer}
                             label="Use cache-only mode"
                             moreHelp="Seanime will use cached data instead of making API requests."
@@ -336,6 +364,24 @@ export function ServerSettings(props: ServerSettingsProps) {
                 )}
             </SettingsCard>
 
+            <SettingsCard title="Server URL" description="Set this when serving Seanime from a reverse-proxy subpath.">
+                <TextInput
+                    value={baseUrlInput}
+                    onChange={e => setBaseUrlInput(e.target.value)}
+                    label="Base URL path"
+                    help="Examples: / (default), /seanime"
+                    placeholder="/seanime"
+                />
+                <Button
+                    size="sm"
+                    intent="primary-subtle"
+                    onClick={() => saveBaseUrl({ baseUrl: baseUrlInput })}
+                    loading={isSavingBaseUrl}
+                >
+                    Save base URL
+                </Button>
+            </SettingsCard>
+
             {/*<Accordion*/}
             {/*    type="single"*/}
             {/*    collapsible*/}
@@ -354,7 +400,7 @@ export function ServerSettings(props: ServerSettingsProps) {
             {/*</Accordion>*/}
 
 
-            <SettingsSubmitButton isPending={isPending} />
+            <SettingsSubmitButton isPending={_isPending} />
 
         </div>
     )

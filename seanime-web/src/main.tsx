@@ -1,5 +1,6 @@
 import { ClientProviders, queryClient, store } from "@/app/client-providers"
 import "./app/globals.css"
+import { APP_BASE_PATH } from "@/lib/base-path"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
 import React from "react"
 import ReactDOM from "react-dom/client"
@@ -16,6 +17,7 @@ const router = createRouter({
     },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    basepath: APP_BASE_PATH,
 })
 
 declare module "@tanstack/react-router" {

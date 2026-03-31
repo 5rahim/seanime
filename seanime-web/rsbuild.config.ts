@@ -12,6 +12,7 @@ const { publicVars } = loadEnv({ prefixes: ["SEA_"] })
 
 const isElectronDesktop = process.env.SEA_PUBLIC_DESKTOP === "electron"
 const distPath = isElectronDesktop ? "out-denshi" : "out"
+const baseURL = process.env.SEA_PUBLIC_BASE_URL || "/"
 
 export default defineConfig({
     plugins: [
@@ -84,6 +85,7 @@ export default defineConfig({
     output: {
         cleanDistPath: true,
         sourceMap: !!process.env.RSDOCTOR,
+        assetPrefix: baseURL,
         distPath: {
             root: distPath,
         },

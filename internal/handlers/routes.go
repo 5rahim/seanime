@@ -20,6 +20,8 @@ type Handler struct {
 }
 
 func InitRoutes(app *core.App, e *echo.Echo) {
+	basePath := app.Config.GetBaseURLPath()
+
 	// CORS middleware
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
@@ -84,7 +86,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 				newCookie.Value = u
 				newCookie.HttpOnly = false // Make the cookie accessible via JS
 				newCookie.Expires = time.Now().Add(24 * time.Hour)
-				newCookie.Path = "/"
+				newCookie.Path = basePath
 				newCookie.Domain = ""
 				newCookie.SameSite = http.SameSiteDefaultMode
 				newCookie.Secure = false
@@ -149,6 +151,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	// Settings
 	v1.GET("/settings", h.HandleGetSettings)
 	v1.PATCH("/settings", h.HandleSaveSettings)
+	v1.GET("/server/config", h.HandleGetServerConfig)
+	v1.PATCH("/server/config/base-url", h.HandleSaveServerConfigBaseURL)
 	v1.POST("/start", h.HandleGettingStarted)
 	v1.PATCH("/settings/auto-downloader", h.HandleSaveAutoDownloaderSettings)
 	v1.PATCH("/settings/media-player", h.HandleSaveMediaPlayerSettings)

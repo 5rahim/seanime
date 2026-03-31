@@ -5,6 +5,7 @@ import { ElectronRestartServerPrompt } from "@/app/(main)/_electron/electron-res
 import { __openDrawersAtom } from "@/components/ui/drawer"
 import { useMainTab } from "@/hooks/use-main-tab"
 import { logger } from "@/lib/helpers/debug"
+import { withBasePath } from "@/lib/base-path"
 import { usePathname } from "@/lib/navigation.ts"
 import { useRouter } from "@/lib/navigation.ts"
 import { __isElectronDesktop__ } from "@/types/constants"
@@ -168,7 +169,7 @@ function WebsocketManagement() {
                 }
             }
 
-            const wsUrl = `${document.location.protocol == "https:" ? "wss" : "ws"}://${getServerBaseUrl(true)}/events`
+            const wsUrl = `${document.location.protocol == "https:" ? "wss" : "ws"}://${getServerBaseUrl(true)}${withBasePath("/events")}`
             const clientId = cookies["Seanime-Client-Id"] || uuidv4()
 
             try {

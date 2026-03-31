@@ -4,6 +4,7 @@ interface ImportMetaEnv {
     readonly SEA_APP_TITLE: string
     readonly SEA_PUBLIC_PLATFORM: string
     readonly SEA_PUBLIC_DESKTOP: string
+    readonly SEA_PUBLIC_BASE_URL: string
 }
 
 interface ImportMeta {

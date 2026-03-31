@@ -29,30 +29,99 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 		log.Fatal(err)
 	}
 
+	basePath := app.Config.GetBaseURLPath()
+	patchedIndexHTML := []byte(nil)
+	if basePath != "/" {
+		if b, readErr := fs.ReadFile(distFS, "index.html"); readErr == nil {
+			patchedIndexHTML = []byte(patchIndexHTMLBasePath(string(b), basePath))
+		}
+	}
+
 	if app.Config.Server.Tls.Enabled {
 		app.Logger.Debug().Msg("app: TLS is enabled, adding security middleware")
 		e.Use(middleware.Secure())
 	}
 
+	e.Pre(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			if basePath == "/" {
+				return next(c)
+			}
+
+			req := c.Request()
+			path := req.URL.Path
+			if path == "" {
+				path = "/"
+			}
+
+			trimPrefix := func(prefix string) bool {
+				if prefix == "" || prefix == "/" {
+					return false
+				}
+
+				if path == prefix {
+					req.URL.Path = "/"
+					req.RequestURI = "/"
+					return true
+				}
+				withSlash := prefix + "/"
+				if strings.HasPrefix(path, withSlash) {
+					req.URL.Path = "/" + strings.TrimPrefix(path, withSlash)
+					if req.URL.RawQuery != "" {
+						req.RequestURI = req.URL.Path + "?" + req.URL.RawQuery
+					} else {
+						req.RequestURI = req.URL.Path
+					}
+					return true
+				}
+
+				return false
+			}
+
+			if trimPrefix(basePath) {
+				return next(c)
+			}
+
+			forwardedPrefix := NormalizeBaseURLPath(req.Header.Get("X-Forwarded-Prefix"))
+			if forwardedPrefix != "/" {
+				_ = trimPrefix(forwardedPrefix)
+			}
+
+			return next(c)
+		}
+	})
+
 	if !constants.IsRspackFrontend {
+		if basePath != "/" && len(patchedIndexHTML) > 0 {
+			e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+				return func(c echo.Context) error {
+					if c.Request().Method != http.MethodGet && c.Request().Method != http.MethodHead {
+						return next(c)
+					}
+
+					if shouldServePatchedIndex(c.Request().URL.Path) {
+						return c.Blob(http.StatusOK, echo.MIMETextHTMLCharsetUTF8, patchedIndexHTML)
+					}
+
+					return next(c)
+				}
+			})
+		}
+
 		e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 			Filesystem: http.FS(distFS),
 			Browse:     true,
 			HTML5:      true,
 			Skipper: func(c echo.Context) bool {
-				cUrl := c.Request().URL
-				if strings.HasPrefix(cUrl.RequestURI(), "/api") ||
-					strings.HasPrefix(cUrl.RequestURI(), "/events") ||
-					strings.HasPrefix(cUrl.RequestURI(), "/assets") ||
-					strings.HasPrefix(cUrl.RequestURI(), "/manga-downloads") ||
-					strings.HasPrefix(cUrl.RequestURI(), "/offline-assets") {
+				cURL := c.Request().URL
+				if isReservedServerPath(cURL.RequestURI()) {
 					return true // Continue to the next handler
 				}
-				if !strings.HasSuffix(cUrl.Path, ".html") && filepath.Ext(cUrl.Path) == "" {
-					cUrl.Path = cUrl.Path + ".html"
+				if !strings.HasSuffix(cURL.Path, ".html") && filepath.Ext(cURL.Path) == "" {
+					cURL.Path = cURL.Path + ".html"
 				}
-				if cUrl.Path == "/.html" {
-					cUrl.Path = "/index.html"
+				if cURL.Path == "/.html" {
+					cURL.Path = "/index.html"
 				}
 				return false // Continue to the filesystem handler
 			},
@@ -60,13 +129,9 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 	} else {
 		e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				cUrl := c.Request().URL.RequestURI()
+				cURL := c.Request().URL.RequestURI()
 
-				if strings.HasPrefix(cUrl, "/api") ||
-					strings.HasPrefix(cUrl, "/events") ||
-					strings.HasPrefix(cUrl, "/assets") ||
-					strings.HasPrefix(cUrl, "/manga-downloads") ||
-					strings.HasPrefix(cUrl, "/offline-assets") {
+				if isReservedServerPath(cURL) {
 					return next(c)
 				}
 
@@ -77,16 +142,28 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 			}
 		})
 
+		if basePath != "/" && len(patchedIndexHTML) > 0 {
+			e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+				return func(c echo.Context) error {
+					if c.Request().Method != http.MethodGet && c.Request().Method != http.MethodHead {
+						return next(c)
+					}
+
+					if shouldServePatchedIndex(c.Request().URL.Path) {
+						return c.Blob(http.StatusOK, echo.MIMETextHTMLCharsetUTF8, patchedIndexHTML)
+					}
+
+					return next(c)
+				}
+			})
+		}
+
 		e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 			Filesystem: http.FS(distFS),
 			HTML5:      true,
 			Skipper: func(c echo.Context) bool {
-				cUrl := c.Request().URL
-				if strings.HasPrefix(cUrl.RequestURI(), "/api") ||
-					strings.HasPrefix(cUrl.RequestURI(), "/events") ||
-					strings.HasPrefix(cUrl.RequestURI(), "/assets") ||
-					strings.HasPrefix(cUrl.RequestURI(), "/manga-downloads") ||
-					strings.HasPrefix(cUrl.RequestURI(), "/offline-assets") {
+				cURL := c.Request().URL
+				if isReservedServerPath(cURL.RequestURI()) {
 					return true
 				}
 				return false
@@ -94,7 +171,11 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 		}))
 	}
 
-	app.Logger.Info().Msgf("app: Serving embedded web interface")
+	if basePath == "/" {
+		app.Logger.Info().Msgf("app: Serving embedded web interface")
+	} else {
+		app.Logger.Info().Msgf("app: Serving embedded web interface at base URL %s", basePath)
+	}
 
 	// Serve web assets
 	app.Logger.Info().Msgf("app: Web assets path: %s", app.Config.Web.AssetDir)
@@ -123,6 +204,47 @@ func (j *CustomJSONSerializer) Serialize(c echo.Context, i interface{}, indent s
 func (j *CustomJSONSerializer) Deserialize(c echo.Context, i interface{}) error {
 	dec := json.NewDecoder(c.Request().Body)
 	return dec.Decode(i)
+}
+
+func patchIndexHTMLBasePath(indexHTML string, basePath string) string {
+	if basePath == "/" {
+		return indexHTML
+	}
+
+	runtimeScript := `<script>window.__SEANIME_BASE_URL__ = "` + basePath + `";</script>`
+	if strings.Contains(indexHTML, "<head>") {
+		indexHTML = strings.Replace(indexHTML, "<head>", "<head>\n    "+runtimeScript, 1)
+	} else {
+		indexHTML = runtimeScript + indexHTML
+	}
+
+	indexHTML = strings.ReplaceAll(indexHTML, "href=\"/", "href=\""+basePath+"/")
+	indexHTML = strings.ReplaceAll(indexHTML, "src=\"/", "src=\""+basePath+"/")
+	return indexHTML
+}
+
+func isReservedServerPath(path string) bool {
+	return strings.HasPrefix(path, "/api") ||
+		strings.HasPrefix(path, "/events") ||
+		strings.HasPrefix(path, "/assets") ||
+		strings.HasPrefix(path, "/manga-downloads") ||
+		strings.HasPrefix(path, "/offline-assets")
+}
+
+func shouldServePatchedIndex(path string) bool {
+	if isReservedServerPath(path) {
+		return false
+	}
+
+	if path == "" || path == "/" {
+		return true
+	}
+
+	if strings.HasSuffix(path, ".html") {
+		return true
+	}
+
+	return filepath.Ext(path) == ""
 }
 
 func RunEchoServer(app *App, e *echo.Echo) {

@@ -6,13 +6,14 @@ import { VideoCore_VideoPlaybackInfo, VideoCore_VideoSubtitleTrack, VideoCoreSet
 import { logger } from "@/lib/helpers/debug"
 import { detectTrackLanguage } from "@/lib/helpers/language"
 import { getAssetUrl } from "@/lib/server/assets"
+import { withBasePath } from "@/lib/base-path"
 import JASSUB from "jassub"
 import type { ASSEvent } from "jassub/dist/worker/util"
 import { toast } from "sonner"
 
-const modernWasmUrl = "/jassub/jassub-worker-modern.wasm"
-const wasmUrl = "/jassub/jassub-worker.wasm"
-const workerUrl = "/jassub/jassub-worker.js"
+const modernWasmUrl = withBasePath("/jassub/jassub-worker-modern.wasm")
+const wasmUrl = withBasePath("/jassub/jassub-worker.wasm")
+const workerUrl = withBasePath("/jassub/jassub-worker.js")
 
 const subtitleLog = logger("VIDEO CORE SUBTITLES")
 

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardProps } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
+import { withBasePath } from "@/lib/base-path"
 import { useRouter } from "@/lib/navigation"
 import {
     DEFAULT_TORRENT_PROVIDER,
@@ -126,7 +127,7 @@ function StepIndicator({ currentStep, totalSteps, onStepClick }: { currentStep: 
             <div className="flex items-center justify-center mb-6">
                 <div className="relative mx-auto size-16">
                     <motion.img
-                        src="/seanime-logo.png"
+                        src={withBasePath("/seanime-logo.png")}
                         alt="Seanime Logo"
                         className="w-full h-full object-contain"
                         initial={{ opacity: 0 }}
@@ -734,7 +735,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
             <div className="fixed h-100vh w-100vw inset-0 ">
                 <div className="fixed h-100vh w-100vw bg-gray-950/20 z-[1] backdrop-blur-sm firefox:backdrop-blur-none inset-0"></div>
                 <Image
-                    src="/background.jpeg"
+                    src={withBasePath("/background.jpeg")}
                     alt="bg"
                     fill
                     sizes="100vw"

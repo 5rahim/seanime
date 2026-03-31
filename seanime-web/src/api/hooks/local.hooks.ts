@@ -1,4 +1,5 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
+import { getAppUrl } from "@/api/client/server-url"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Local_QueueState, Local_TrackedMediaItem } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
@@ -155,10 +156,10 @@ export function useSetOfflineMode() {
         onSuccess: async (data) => {
             if (data) {
                 toast.success("Offline mode enabled")
-                window.location.href = "/offline"
+                window.location.href = getAppUrl("/offline")
             } else {
                 toast.success("Offline mode disabled")
-                window.location.href = "/"
+                window.location.href = getAppUrl("/")
             }
         },
     })

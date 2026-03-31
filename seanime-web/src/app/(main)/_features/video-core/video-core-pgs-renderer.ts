@@ -1,4 +1,5 @@
 import { logger } from "@/lib/helpers/debug"
+import { withBasePath } from "@/lib/base-path"
 
 interface VideoCorePgsRendererOptions {
     videoElement: HTMLVideoElement
@@ -204,7 +205,7 @@ export class VideoCorePgsRenderer {
             return
         }
 
-        this._worker = new window.Worker("/pgs-renderer.worker.js")
+        this._worker = new window.Worker(withBasePath("/pgs-renderer.worker.js"))
 
         // Handle messages
         this._worker.onmessage = (e) => {
