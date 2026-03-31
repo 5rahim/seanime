@@ -2,6 +2,7 @@ import { useGetSettings } from "@/api/hooks/settings.hooks"
 import { useGetStatus } from "@/api/hooks/status.hooks"
 import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
+import { getAppUrl } from "@/api/client/server-url"
 import { useAtomValue } from "jotai"
 import React from "react"
 
@@ -30,7 +31,7 @@ export function SimpleAuthWrapper({ children }: SimpleAuthWrapperProps) {
         if (serverStatus) {
             if (serverStatus.serverHasPassword && !password) {
                 setRedirecting(true)
-                window.location.href = "/public/auth"
+                window.location.href = getAppUrl("/public/auth")
             }
         }
     }, [serverStatus, password])

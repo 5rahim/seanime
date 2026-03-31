@@ -1,4 +1,5 @@
 import { HIDE_IMAGES } from "@/types/constants"
+import { withBasePath } from "@/lib/base-path"
 import React, { forwardRef, useEffect, useState } from "react"
 
 type ImageProps = React.ImgHTMLAttributes<HTMLImageElement> & {
@@ -24,7 +25,7 @@ export const SeaImage = forwardRef<HTMLImageElement, ImageProps & { isExternal?:
             return <Image
                 ref={ref}
                 {...props}
-                src="/no-cover.png"
+                src={withBasePath("/no-cover.png")}
                 className={props.className}
                 alt={props.alt || "cover"}
                 fill={fill}
@@ -41,7 +42,7 @@ export const SeaImage = forwardRef<HTMLImageElement, ImageProps & { isExternal?:
             || (allowGif && props.src.endsWith(".gif"))
         )
 
-        const effectiveOverride = (blocked || hasError) ? "/no-cover.png" : props.overrideSrc
+        const effectiveOverride = (blocked || hasError) ? withBasePath("/no-cover.png") : props.overrideSrc
 
         function handleError() {
             setHasError(true)

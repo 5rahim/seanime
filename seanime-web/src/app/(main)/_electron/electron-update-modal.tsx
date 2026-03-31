@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { logger } from "@/lib/helpers/debug"
+import { withBasePath } from "@/lib/base-path"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -244,7 +245,7 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
         <div className="fixed top-0 left-0 w-full h-full bg-[--background] flex items-center z-[9999]">
             <div className="container max-w-4xl py-10">
                 <div className="mb-4 flex justify-center w-full">
-                    <img src="/seanime-logo.png" alt="logo" className="w-14 h-auto" />
+                    <img src={withBasePath("/seanime-logo.png")} alt="logo" className="w-14 h-auto" />
                 </div>
                 <p className="text-center text-lg">
                     Update installed. Restart the app.

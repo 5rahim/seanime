@@ -25,6 +25,7 @@ import { HoverCard } from "@/components/ui/hover-card"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu, VerticalMenuItem } from "@/components/ui/vertical-menu"
 import { openTab } from "@/lib/helpers/browser"
+import { withBasePath } from "@/lib/base-path"
 import { usePathname, useRouter } from "@/lib/navigation"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
@@ -365,7 +366,7 @@ function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean
                 )}
             >
                 <img
-                    src="/seanime-logo.png"
+                    src={withBasePath("/seanime-logo.png")}
                     alt="logo"
                     className="w-15 h-10 transition-all duration-300"
                 />

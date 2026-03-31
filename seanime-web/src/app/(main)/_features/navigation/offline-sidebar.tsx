@@ -6,6 +6,7 @@ import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
 import { cn } from "@/components/ui/core/styling"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
+import { withBasePath } from "@/lib/base-path"
 import { usePathname } from "@/lib/navigation"
 import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
@@ -70,7 +71,7 @@ export function OfflineSidebar() {
                 <div>
                     <div className="mb-4 p-4 pb-0 flex justify-center w-full">
                         <img
-                            src="/seanime-logo.png"
+                            src={withBasePath("/seanime-logo.png")}
                             alt="logo"
                             className="w-15 h-10 transition-all duration-300"
                         />

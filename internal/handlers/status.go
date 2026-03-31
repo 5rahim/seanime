@@ -48,6 +48,7 @@ type Status struct {
 	ServerReady           bool                          `json:"serverReady"`
 	ServerHasPassword     bool                          `json:"serverHasPassword"`
 	ShowChangelogTour     string                        `json:"showChangelogTour"`
+	BaseURL               string                        `json:"baseUrl"`
 }
 
 var clientInfoCache = result.NewMap[string, util.ClientInfo]()
@@ -110,6 +111,7 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 		ServerHasPassword:     h.App.Config.Server.Password != "",
 		DisabledFeatures:      h.App.FeatureManager.DisabledFeatures,
 		ShowChangelogTour:     h.App.ShowTour,
+		BaseURL:               h.App.Config.GetBaseURLPath(),
 	}
 
 	if c.Get("unauthenticated") != nil && c.Get("unauthenticated").(bool) {
@@ -119,6 +121,7 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 			ServerReady:       h.App.ServerReady,
 			ServerHasPassword: h.App.Config.Server.Password != "",
 			Settings:          &models.Settings{},
+			BaseURL:           h.App.Config.GetBaseURLPath(),
 		}
 	}
 

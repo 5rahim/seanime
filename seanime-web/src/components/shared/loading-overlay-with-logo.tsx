@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { __isDesktop__ } from "@/types/constants"
 import { SeaImage } from "@/components/shared/sea-image"
+import { withBasePath } from "@/lib/base-path"
 import React from "react"
 
 export function LoadingOverlayWithLogo({ refetch, title }: { refetch?: () => void, title?: string }) {
     return <LoadingOverlay showSpinner={false}>
         <SeaImage
-            src="/seanime-logo.png"
+            src={withBasePath("/seanime-logo.png")}
             alt="Loading..."
             priority
             width={100}

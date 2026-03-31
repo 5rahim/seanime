@@ -1,4 +1,5 @@
 import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { getAppUrl } from "@/api/client/server-url"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { useAtom } from "jotai"
@@ -29,7 +30,7 @@ export function ServerAuth() {
                     const hash = sha256(data.password)
                     setAuthToken(hash)
                     React.startTransition(() => {
-                        window.location.href = "/"
+                        window.location.href = getAppUrl("/")
                         setLoading(false)
                     })
                 }}

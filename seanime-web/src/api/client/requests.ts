@@ -1,5 +1,6 @@
 
 import { getServerBaseUrl } from "@/api/client/server-url"
+import { getAppUrl } from "@/api/client/server-url"
 import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from "@tanstack/react-query"
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
@@ -152,7 +153,7 @@ export function useServerQuery<R, V = any>(
         if (!muteError && props.isError) {
             if (props.error?.response?.data?.error === "UNAUTHENTICATED" && pathname !== "/public/auth") {
                 setPassword(undefined)
-                window.location.href = "/public/auth"
+                window.location.href = getAppUrl("/public/auth")
                 return
             }
             console.log("Server error", props.error)

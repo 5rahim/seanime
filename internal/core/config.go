@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
+
 	"seanime/internal/constants"
 	"seanime/internal/util"
-	"strconv"
 
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
@@ -18,6 +20,7 @@ type Config struct {
 	Server  struct {
 		Host          string
 		Port          int
+		BaseURL       string
 		Offline       bool
 		UseBinaryPath bool // Makes $SEANIME_WORKING_DIR point to the binary's directory
 		Systray       bool
@@ -90,6 +93,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 
 	defaultHost := "127.0.0.1"
 	defaultPort := 43211
+	defaultBaseURL := "/"
 
 	// Environment variables override defaults
 	if os.Getenv("SEANIME_SERVER_HOST") != "" {
@@ -101,6 +105,13 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 		if err != nil {
 			return nil, fmt.Errorf("invalid SEANIME_SERVER_PORT environment variable: %s", os.Getenv("SEANIME_SERVER_PORT"))
 		}
+	}
+	if os.Getenv("SEANIME_SERVER_BASE_URL") != "" {
+		defaultBaseURL = NormalizeBaseURLPath(os.Getenv("SEANIME_SERVER_BASE_URL"))
+	} else if os.Getenv("BASE_URL") != "" {
+		defaultBaseURL = NormalizeBaseURLPath(os.Getenv("BASE_URL"))
+	} else if os.Getenv("PUBLIC_URL") != "" {
+		defaultBaseURL = NormalizeBaseURLPath(os.Getenv("PUBLIC_URL"))
 	}
 
 	// Flags override environment variables
@@ -118,7 +129,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	}
 
 	// Create assets directory if it doesn't exist
-	_ = os.MkdirAll(filepath.Join(dataDir, "assets"), 0700)
+	_ = os.MkdirAll(filepath.Join(dataDir, "assets"), 0o700)
 
 	// Set Seanime's default custom environment variables
 	if err = setDataDirEnv(dataDir); err != nil {
@@ -134,6 +145,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("version", constants.Version)
 	viper.SetDefault("server.host", defaultHost)
 	viper.SetDefault("server.port", defaultPort)
+	viper.SetDefault("server.baseUrl", defaultBaseURL)
 	viper.SetDefault("server.offline", false)
 	// Use the binary's directory as the working directory environment variable on macOS
 	viper.SetDefault("server.useBinaryPath", true)
@@ -162,8 +174,10 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	// Check if host or port have been overridden and differ from config file
 	existingHost := viper.GetString("server.host")
 	existingPort := viper.GetInt("server.port")
+	existingBaseURL := NormalizeBaseURLPath(viper.GetString("server.baseUrl"))
 	hostChanged := false
 	portChanged := false
+	baseURLChanged := false
 
 	if (flags.Host != "" || os.Getenv("SEANIME_SERVER_HOST") != "") && existingHost != defaultHost {
 		viper.Set("server.host", defaultHost)
@@ -172,6 +186,10 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	if (flags.Port != 0 || os.Getenv("SEANIME_SERVER_PORT") != "") && existingPort != defaultPort {
 		viper.Set("server.port", defaultPort)
 		portChanged = true
+	}
+	if (os.Getenv("SEANIME_SERVER_BASE_URL") != "" || os.Getenv("BASE_URL") != "" || os.Getenv("PUBLIC_URL") != "") && existingBaseURL != defaultBaseURL {
+		viper.Set("server.baseUrl", defaultBaseURL)
+		baseURLChanged = true
 	}
 	if flags.Password != "" {
 		viper.Set("server.password", flags.Password)
@@ -183,16 +201,18 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	}
 
 	// Write config if host or port changed
-	if hostChanged || portChanged {
+	if hostChanged || portChanged || baseURLChanged {
 		if err := viper.WriteConfig(); err != nil {
-			logger.Warn().Err(err).Msg("app: Failed to update config with new host/port")
+			logger.Warn().Err(err).Msg("app: Failed to update config with new host/port/base URL")
 		} else {
 			logger.Info().
 				Bool("hostChanged", hostChanged).
 				Bool("portChanged", portChanged).
+				Bool("baseURLChanged", baseURLChanged).
 				Str("host", defaultHost).
 				Int("port", defaultPort).
-				Msg("app: Updated config with new host/port")
+				Str("baseUrl", defaultBaseURL).
+				Msg("app: Updated config with new host/port/base URL")
 		}
 	}
 
@@ -214,6 +234,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 
 	// Expand the values, replacing environment variables
 	expandEnvironmentValues(cfg)
+	cfg.Server.BaseURL = NormalizeBaseURLPath(cfg.Server.BaseURL)
 	cfg.Data.AppDataDir = dataDir
 	cfg.Data.WorkingDir = os.Getenv("SEANIME_WORKING_DIR")
 
@@ -255,6 +276,24 @@ func (cfg *Config) GetServerURI(df ...string) string {
 		}
 	}
 	return pAddr
+}
+
+func (cfg *Config) GetBaseURLPath() string {
+	return NormalizeBaseURLPath(cfg.Server.BaseURL)
+}
+
+func (cfg *Config) JoinBaseURLPath(path string) string {
+	base := cfg.GetBaseURLPath()
+	if path == "" || path == "/" {
+		return base
+	}
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	if base == "/" {
+		return path
+	}
+	return base + path
 }
 
 func getWorkingDir(useBinaryPath bool) (string, error) {
@@ -323,6 +362,9 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	}
 	if cfg.Server.Port == 0 {
 		return errInvalidConfigValue("server.port", "cannot be 0")
+	}
+	if cfg.Server.BaseURL == "" {
+		return errInvalidConfigValue("server.baseUrl", "cannot be empty")
 	}
 	if cfg.Database.Name == "" {
 		return errInvalidConfigValue("database.name", "cannot be empty")
@@ -411,6 +453,7 @@ func checkIsValidPath(path string) error {
 func errInvalidConfigValue(s string, s2 string) error {
 	return fmt.Errorf("invalid config value: \"%s\" %s", s, s2)
 }
+
 func wrapInvalidConfigValue(s string, err error) error {
 	return fmt.Errorf("invalid config value: \"%s\" %w", s, err)
 }
@@ -457,7 +500,7 @@ func expandEnvironmentValues(cfg *Config) {
 func createConfigFile(configPath string) error {
 	_, err := os.Stat(configPath)
 	if os.IsNotExist(err) {
-		if err := os.MkdirAll(filepath.Dir(configPath), 0700); err != nil {
+		if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
 			return err
 		}
 		if err := viper.WriteConfig(); err != nil {
@@ -468,7 +511,6 @@ func createConfigFile(configPath string) error {
 }
 
 func initAppDataDir(definedDataDir string, logger *zerolog.Logger) (dataDir string, configPath string, err error) {
-
 	// User defined data directory
 	if definedDataDir != "" {
 
@@ -497,7 +539,7 @@ func initAppDataDir(definedDataDir string, logger *zerolog.Logger) (dataDir stri
 	}
 
 	// Create data dir if it doesn't exist
-	if err := os.MkdirAll(dataDir, 0700); err != nil {
+	if err := os.MkdirAll(dataDir, 0o700); err != nil {
 		return "", "", err
 	}
 
@@ -508,6 +550,34 @@ func initAppDataDir(definedDataDir string, logger *zerolog.Logger) (dataDir stri
 	dataDir = filepath.FromSlash(dataDir)
 
 	return
+}
+
+func NormalizeBaseURLPath(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" || s == "/" {
+		return "/"
+	}
+
+	if idx := strings.Index(s, "://"); idx != -1 {
+		afterScheme := s[idx+3:]
+		parts := strings.SplitN(afterScheme, "/", 2)
+		if len(parts) == 2 {
+			s = "/" + parts[1]
+		} else {
+			s = "/"
+		}
+	}
+
+	if !strings.HasPrefix(s, "/") {
+		s = "/" + s
+	}
+
+	s = "/" + strings.Trim(strings.TrimPrefix(s, "/"), "/")
+	if s == "/" {
+		return "/"
+	}
+
+	return strings.TrimRight(s, "/")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -521,7 +591,7 @@ func loadLogo(embeddedLogo []byte, dataDir string) (err error) {
 
 	logoPath := filepath.Join(dataDir, "seanime-logo.png")
 	if _, err = os.Stat(logoPath); os.IsNotExist(err) {
-		if err = os.WriteFile(logoPath, embeddedLogo, 0644); err != nil {
+		if err = os.WriteFile(logoPath, embeddedLogo, 0o644); err != nil {
 			return err
 		}
 	}

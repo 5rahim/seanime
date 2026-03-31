@@ -7,6 +7,7 @@ import { SeaImage } from "@/components/shared/sea-image"
 import { CommandGroup, CommandItem } from "@/components/ui/command"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useDebounce } from "@/hooks/use-debounce"
+import { withBasePath } from "@/lib/base-path"
 import { useRouter } from "@/lib/navigation"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -118,7 +119,7 @@ export function SeaCommandSearch() {
                                 className="h-[10rem] w-[10rem] mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                             >
                                 <SeaImage
-                                    src="/luffy-01.png"
+                                    src={withBasePath("/luffy-01.png")}
                                     alt={""}
                                     fill
                                     quality={100}

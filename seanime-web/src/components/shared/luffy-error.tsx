@@ -1,6 +1,7 @@
 import { SeaImage } from "@/components/shared/sea-image"
 import { Button } from "@/components/ui/button/button"
 import { cn } from "@/components/ui/core/styling"
+import { withBasePath } from "@/lib/base-path"
 import { useRouter } from "@/lib/navigation"
 import React from "react"
 
@@ -30,7 +31,7 @@ export const LuffyError: React.FC<LuffyErrorProps> = (props) => {
                 >
                     <SeaImage
                         data-luffy-error-image
-                        src="/luffy-01.png"
+                        src={withBasePath("/luffy-01.png")}
                         alt={""}
                         fill
                         priority
