@@ -15,6 +15,7 @@ import { HiPlay } from "react-icons/hi"
 import { IoPlayForwardCircleSharp } from "react-icons/io5"
 import { LuCircleArrowOutUpRight, LuMonitorPlay } from "react-icons/lu"
 import { RiSettings3Fill } from "react-icons/ri"
+import { SiJellyfin } from "react-icons/si"
 
 type MediaplayerSettingsProps = {
     isPending: boolean
@@ -192,6 +193,32 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                                     name="iinaArgs"
                                     label="Options"
                                     placeholder="e.g. --mpv-mute=yes"
+                                />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="jellyfin">
+                        <AccordionTrigger>
+                            <h4 className="flex gap-2 items-center"><SiJellyfin className="mr-1 text-purple-300" /> Jellyfin</h4>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-4">
+                            <Field.Text
+                                name="jellyfinServerUrl"
+                                label="Server URL"
+                                placeholder="http://localhost:8096"
+                            />
+                            <div className="flex gap-4">
+                                <Field.Text
+                                    name="jellyfinApiKey"
+                                    label="API Key"
+                                    type="password"
+                                    help="Generate one in Jellyfin → Dashboard → API Keys."
+                                />
+                                <Field.Text
+                                    name="jellyfinUserId"
+                                    label="User ID"
+                                    help="Found in Jellyfin → Dashboard → Users → (click user) — copy the ID from the URL."
                                 />
                             </div>
                         </AccordionContent>

@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"seanime/internal/continuity"
 	"seanime/internal/events"
 	"seanime/internal/hook"
 	"seanime/internal/mediaplayers/iina"
+	jellyfin2 "seanime/internal/mediaplayers/jellyfin"
 	mpchc2 "seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
 	vlc2 "seanime/internal/mediaplayers/vlc"
@@ -38,6 +40,7 @@ type (
 		MpcHc                 *mpchc2.MpcHc
 		Mpv                   *mpv.Mpv
 		Iina                  *iina.Iina
+		Jellyfin              *jellyfin2.Jellyfin
 		wsEventManager        events.WSEventManagerInterface
 		continuityManager     *continuity.Manager
 		playerInUse           string
@@ -48,6 +51,7 @@ type (
 		currentPlaybackStatus *PlaybackStatus
 		subscribers           *result.Map[string, *RepositorySubscriber]
 		cancel                context.CancelFunc
+		jellyfinCancel        context.CancelFunc
 		exitedCh              chan struct{} // Closed when the media player exits
 	}
 
@@ -58,6 +62,7 @@ type (
 		MpcHc             *mpchc2.MpcHc
 		Mpv               *mpv.Mpv
 		Iina              *iina.Iina
+		Jellyfin          *jellyfin2.Jellyfin
 		WSEventManager    events.WSEventManagerInterface
 		ContinuityManager *continuity.Manager
 	}
@@ -150,6 +155,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		MpcHc:                 opts.MpcHc,
 		Mpv:                   opts.Mpv,
 		Iina:                  opts.Iina,
+		Jellyfin:              opts.Jellyfin,
 		wsEventManager:        opts.WSEventManager,
 		continuityManager:     opts.ContinuityManager,
 		completionThreshold:   0.8,
@@ -918,6 +924,103 @@ func (m *Repository) streamingPlaybackStatus(status *PlaybackStatus) {
 		return true
 	})
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Jellyfin passive tracking
+
+// StartJellyfinTracking runs an always-on poll loop that observes what is playing on
+// Jellyfin and emits the same events as VLC/MPV — without Seanime initiating playback.
+// Call once at startup; cancel via StopJellyfinTracking.
+func (m *Repository) StartJellyfinTracking() {
+	if m.Jellyfin == nil {
+		return
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	m.jellyfinCancel = cancel
+
+	go func() {
+		const pollInterval = 3 * time.Second
+		ticker := time.NewTicker(pollInterval)
+		defer ticker.Stop()
+
+		var lastFilePath string
+		var completed bool
+		var lastErr error // track error transitions so we don't log every tick
+
+		for {
+			select {
+			case <-ctx.Done():
+				if lastFilePath != "" {
+					m.trackingStopped("Jellyfin tracking stopped")
+				}
+				return
+
+			case <-ticker.C:
+				// Yield if VLC/MPV is actively tracking to avoid interleaved events.
+				m.mu.RLock()
+				otherActive := m.isRunning
+				m.mu.RUnlock()
+				if otherActive {
+					continue
+				}
+
+				state, err := m.Jellyfin.GetPlaybackState()
+
+				// Only log when the error state changes (new error or error cleared),
+				// not on every tick, to avoid spamming the log.
+				if err != nil && lastErr == nil {
+					m.Logger.Warn().Err(err).Msg("jellyfin: poll error")
+				} else if err == nil && lastErr != nil {
+					m.Logger.Debug().Msg("jellyfin: poll recovered")
+				}
+				lastErr = err
+
+				if err != nil || state == nil {
+					if lastFilePath != "" {
+						m.trackingStopped("Jellyfin playback ended")
+						lastFilePath = ""
+						completed = false
+					}
+					continue
+				}
+
+				status := &PlaybackStatus{
+					Filepath:             state.FilePath,
+					Filename:             filepath.Base(state.FilePath),
+					Path:                 state.FilePath,
+					CurrentTimeInSeconds: state.CurrentTimeInSeconds,
+					DurationInSeconds:    state.DurationInSeconds,
+					Duration:             int(state.DurationInSeconds * 1000),
+					CompletionPercentage: state.CompletionPercentage,
+					Playing:              !state.IsPaused,
+					PlaybackType:         PlaybackTypeFile,
+				}
+
+				if state.FilePath != lastFilePath {
+					lastFilePath = state.FilePath
+					completed = false
+					m.trackingStarted(status)
+				}
+
+				m.playbackStatus(status)
+
+				if !completed && state.CompletionPercentage >= m.completionThreshold {
+					m.videoCompleted(status)
+					completed = true
+				}
+			}
+		}
+	}()
+}
+
+func (m *Repository) StopJellyfinTracking() {
+	if m.jellyfinCancel != nil {
+		m.jellyfinCancel()
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (m *Repository) getStatus() (interface{}, error) {
 	switch m.Default {

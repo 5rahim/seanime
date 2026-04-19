@@ -198,6 +198,9 @@ type MediaPlayerSettings struct {
 	VcTranslateTargetLanguage string `gorm:"column:vc_translate_target_language" json:"vcTranslateTargetLanguage"`
 	VcTranslateProvider       string `gorm:"column:vc_translate_provider" json:"vcTranslateProvider"`
 	VcTranslateApiKey         string `gorm:"column:vc_translate_api_key" json:"vcTranslateApiKey"`
+	JellyfinServerUrl         string `gorm:"column:jellyfin_server_url" json:"jellyfinServerUrl"`
+	JellyfinApiKey            string `gorm:"column:jellyfin_api_key" json:"jellyfinApiKey"`
+	JellyfinUserId            string `gorm:"column:jellyfin_user_id" json:"jellyfinUserId"`
 }
 
 type TorrentSettings struct {

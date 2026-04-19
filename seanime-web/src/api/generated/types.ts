@@ -3899,6 +3899,9 @@ export type Models_MediaPlayerSettings = {
     vcTranslateTargetLanguage: string
     vcTranslateProvider: string
     vcTranslateApiKey: string
+    jellyfinServerUrl: string
+    jellyfinApiKey: string
+    jellyfinUserId: string
 }
 
 /**

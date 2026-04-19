@@ -28,6 +28,7 @@ import (
 	"seanime/internal/local"
 	"seanime/internal/manga"
 	"seanime/internal/mediaplayers/iina"
+	"seanime/internal/mediaplayers/jellyfin"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
@@ -103,10 +104,11 @@ type (
 		NativePlayer *nativeplayer.NativePlayer
 		VideoCore    *videocore.VideoCore
 		MediaPlayer  struct {
-			VLC   *vlc.VLC
-			MpcHc *mpchc.MpcHc
-			Mpv   *mpv.Mpv
-			Iina  *iina.Iina
+			VLC      *vlc.VLC
+			MpcHc    *mpchc.MpcHc
+			Mpv      *mpv.Mpv
+			Iina     *iina.Iina
+			Jellyfin *jellyfin.Jellyfin
 		}
 		MediaPlayerRepository *mediaplayer.Repository
 
@@ -491,6 +493,13 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Register Nakama manager cleanup
 	app.AddCleanupFunction(app.NakamaManager.Cleanup)
+
+	// Stop Jellyfin tracking goroutine on shutdown (started in InitOrRefreshModules when configured).
+	app.AddCleanupFunction(func() {
+		if app.MediaPlayerRepository != nil {
+			app.MediaPlayerRepository.StopJellyfinTracking()
+		}
+	})
 
 	// Run one-time initialization actions
 	app.performActionsOnce()

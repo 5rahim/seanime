@@ -18,6 +18,7 @@ import (
 	"seanime/internal/library_explorer"
 	"seanime/internal/manga"
 	"seanime/internal/mediaplayers/iina"
+	"seanime/internal/mediaplayers/jellyfin"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
@@ -447,6 +448,15 @@ func (a *App) InitOrRefreshModules() {
 		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath, settings.MediaPlayer.MpvArgs)
 		a.MediaPlayer.Iina = iina.New(a.Logger, settings.MediaPlayer.IinaSocket, settings.MediaPlayer.IinaPath, settings.MediaPlayer.IinaArgs)
 
+		if settings.MediaPlayer.JellyfinServerUrl != "" {
+			a.MediaPlayer.Jellyfin = &jellyfin.Jellyfin{
+				ServerUrl: settings.MediaPlayer.JellyfinServerUrl,
+				ApiKey:    settings.MediaPlayer.JellyfinApiKey,
+				UserId:    settings.MediaPlayer.JellyfinUserId,
+				Logger:    a.Logger,
+			}
+		}
+
 		// Set media player repository
 		a.MediaPlayerRepository = mediaplayer.NewRepository(&mediaplayer.NewRepositoryOptions{
 			Logger:            a.Logger,
@@ -455,9 +465,17 @@ func (a *App) InitOrRefreshModules() {
 			MpcHc:             a.MediaPlayer.MpcHc,
 			Mpv:               a.MediaPlayer.Mpv, // Socket
 			Iina:              a.MediaPlayer.Iina,
+			Jellyfin:          a.MediaPlayer.Jellyfin,
 			WSEventManager:    a.WSEventManager,
 			ContinuityManager: a.ContinuityManager,
 		})
+
+		if a.MediaPlayer.Jellyfin != nil {
+			// Stop any previously running goroutine before starting a new one.
+			// InitOrRefreshModules is called on every settings save, so this is necessary.
+			a.MediaPlayerRepository.StopJellyfinTracking()
+			go a.MediaPlayerRepository.StartJellyfinTracking()
+		}
 
 		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayerRepository)
 		a.PlaybackManager.SetSettings(&playbackmanager.Settings{
