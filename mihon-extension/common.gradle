@@ -1,0 +1,89 @@
+apply plugin: 'org.jmailen.kotlinter'
+
+android {
+    compileSdkVersion AndroidConfig.compileSdk
+
+    namespace "eu.kanade.tachiyomi.extension"
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+        release {
+            manifest.srcFile "AndroidManifest.xml"
+        }
+        debug {
+            manifest.srcFile "AndroidManifest.xml"
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion AndroidConfig.minSdk
+        targetSdkVersion AndroidConfig.targetSdk
+        applicationIdSuffix pkgNameSuffix
+        versionCode extVersionCode
+        versionName project.ext.properties.getOrDefault("libVersion", "1.4") + ".$extVersionCode"
+        setProperty("archivesBaseName", "tachiyomi-$pkgNameSuffix-v$versionName")
+        manifestPlaceholders = [
+                appName : "Tachiyomi: $extName",
+                extClass: extClass,
+                nsfw: project.ext.properties.getOrDefault("isNsfw", false) ? 1 : 0,
+        ]
+    }
+
+    signingConfigs {
+        release {
+            storeFile rootProject.file("signingkey.jks")
+            storePassword System.getenv("KEY_STORE_PASSWORD") ?: "seanime"
+            keyAlias System.getenv("ALIAS") ?: "seanime"
+            keyPassword System.getenv("KEY_PASSWORD") ?: "seanime"
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+        }
+    }
+
+    dependenciesInfo {
+        includeInApk = false
+    }
+
+    buildFeatures {
+        aidl false
+        renderScript false
+        resValues false
+        shaders false
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        freeCompilerArgs += "-opt-in=kotlinx.serialization.ExperimentalSerializationApi"
+    }
+
+    kotlinter {
+        experimentalRules = true
+        disabledRules = [
+            "experimental:argument-list-wrapping",
+            "experimental:comment-wrapping",
+        ]
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation(project(":core"))
+    compileOnly(libs.bundles.common)
+}

@@ -1,0 +1,10 @@
+.gradle/
+build/
+buildSrc/.gradle/
+buildSrc/build/
+local.properties
+signingkey.jks
+*.apk
+!src/**/AndroidManifest.xml
+core/build/
+src/**/build/

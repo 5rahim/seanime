@@ -405,6 +405,18 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Manga.GET("/local-page/:path", h.HandleGetLocalMangaPage)
 
 	//
+	// Mihon (Tachiyomi/Mihon extension API)
+	//
+
+	v1Mihon := v1.Group("/mihon")
+	v1Mihon.GET("/library", h.HandleMihonLibrary)
+	v1Mihon.GET("/manga/:id", h.HandleMihonMangaDetails)
+	v1Mihon.GET("/manga/:id/chapters", h.HandleMihonMangaChapters)
+	v1Mihon.GET("/chapter/:dir/pages", h.HandleMihonChapterPages)
+	v1Mihon.GET("/repo/index.min.json", h.HandleMihonRepoIndex)
+	v1Mihon.GET("/repo/apk/:name", h.HandleMihonRepoAPK)
+
+	//
 	// File Cache
 	//
 
