@@ -174,7 +174,7 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	}
 
 	// HLS Playlist
-
+    //log.Debug().Str("url", url).Msg("proxy: Processing HLS playlist")
 	bodyBytes, readErr := io.ReadAll(resp.Body)
 	if readErr != nil {
 		log.Error().Err(readErr).Str("url", url).Msg("proxy: Error reading HLS response body")
