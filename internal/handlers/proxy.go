@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"bytes"
+	"context"
+	"crypto/tls"
 	"io"
 	"net/http"
 	url2 "net/url"
@@ -12,15 +14,59 @@ import (
 
 	"github.com/5rahim/hls-m3u8/m3u8"
 	"github.com/goccy/go-json"
-	"github.com/imroc/req/v3"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
 
-var videoProxyClient2 = req.C().
-	SetTimeout(60 * time.Second).
-	EnableInsecureSkipVerify().
-	ImpersonateChrome()
+var videoProxyHTTPClient = &http.Client{
+	Timeout: 30 * time.Minute,
+	Transport: &http.Transport{
+		Proxy:               http.ProxyFromEnvironment,
+		ForceAttemptHTTP2:   false,
+		DisableCompression:  true,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		ResponseHeaderTimeout: 15 * time.Second,
+	},
+}
+
+func isHopByHopHeader(k string) bool {
+	// RFC 7230 section 6.1
+	switch strings.ToLower(k) {
+	case "connection", "keep-alive", "proxy-authenticate", "proxy-authorization", "te", "trailer", "transfer-encoding", "upgrade":
+		return true
+	default:
+		return false
+	}
+}
+
+func streamWithFlush(ctx context.Context, w http.ResponseWriter, r io.Reader) error {
+	buf := make([]byte, 32*1024)
+	flusher, _ := w.(http.Flusher)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		n, readErr := r.Read(buf)
+		if n > 0 {
+			if _, writeErr := w.Write(buf[:n]); writeErr != nil {
+				return writeErr
+			}
+			if flusher != nil {
+				flusher.Flush()
+			}
+		}
+		if readErr != nil {
+			if readErr == io.EOF {
+				return nil
+			}
+			return readErr
+		}
+	}
+}
 
 func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	defer util.HandlePanicInModuleWithError("util/VideoProxy", &err)
@@ -29,39 +75,63 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	headers := c.QueryParam("headers")
 	authToken := c.QueryParam("token")
 
-	r := videoProxyClient2.R()
-
 	var headerMap map[string]string
 	if headers != "" {
 		if err := json.Unmarshal([]byte(headers), &headerMap); err != nil {
 			log.Error().Err(err).Msg("proxy: Error unmarshalling headers")
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		for key, value := range headerMap {
-			r.SetHeader(key, value)
-		}
 	}
 
-	r.SetHeader("Accept", "*/*")
+	// Use the client's method for better compatibility (players often probe with HEAD)
+	method := c.Request().Method
+	upReq, err := http.NewRequestWithContext(c.Request().Context(), method, url, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("proxy: Error creating upstream request")
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	// Apply caller-provided headers
+	for k, v := range headerMap {
+		upReq.Header.Set(k, v)
+	}
+
+	if upReq.Header.Get("User-Agent") == "" {
+		upReq.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+	}
+	if upReq.Header.Get("Accept") == "" {
+		upReq.Header.Set("Accept", "*/*")
+	}
+	upReq.Header.Set("Accept-Encoding", "identity")
 	if rangeHeader := c.Request().Header.Get("Range"); rangeHeader != "" {
-		r.SetHeader("Range", rangeHeader)
+		upReq.Header.Set("Range", rangeHeader)
 	}
 
-	// Always use GET request internally, even for HEAD requests
-	resp, err := r.Get(url)
+	resp, err := videoProxyHTTPClient.Do(upReq)
 
 	if err != nil {
 		log.Error().Err(err).Msg("proxy: Error sending request")
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
-	defer resp.Body.Close()
+	if resp.Body != nil {
+		defer resp.Body.Close()
+	}
 
 	// Copy response headers
+	contentEncoding := strings.ToLower(resp.Header.Get("Content-Encoding"))
+	allowContentLength := contentEncoding == "" || contentEncoding == "identity"
 	for k, vs := range resp.Header {
+		if isHopByHopHeader(k) {
+			continue
+		}
 		for _, v := range vs {
-			if !strings.EqualFold(k, "Content-Length") { // Skip Content-Length header, fixes net::ERR_CONTENT_LENGTH_MISMATCH
-				c.Response().Header().Set(k, v)
+			if strings.EqualFold(k, "Content-Length") {
+				if allowContentLength {
+					c.Response().Header().Set(k, v)
+				}
+				continue
 			}
+			c.Response().Header().Set(k, v)
 		}
 	}
 
@@ -72,17 +142,38 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 
 	// For HEAD requests, return only headers
 	if c.Request().Method == http.MethodHead {
-		return c.NoContent(http.StatusOK)
+		return c.NoContent(resp.StatusCode)
 	}
 
 	isHlsPlaylist := strings.HasSuffix(url, ".m3u8") || strings.Contains(strings.ToLower(resp.Header.Get("Content-Type")), "mpegurl")
 
 	if !isHlsPlaylist {
-		return c.Stream(resp.StatusCode, c.Response().Header().Get("Content-Type"), resp.Body)
+		// Send a minimal, video-friendly header set
+		contentType := resp.Header.Get("Content-Type")
+		if contentType == "" {
+			contentType = "application/octet-stream"
+		}
+		c.Response().Header().Set("Content-Type", contentType)
+		c.Response().Header().Set("Content-Disposition", "inline")
+		c.Response().Header().Set("Accept-Ranges", "bytes")
+		if v := resp.Header.Get("Content-Range"); v != "" {
+			c.Response().Header().Set("Content-Range", v)
+		}
+		if allowContentLength {
+			if v := resp.Header.Get("Content-Length"); v != "" {
+				c.Response().Header().Set("Content-Length", v)
+			}
+		}
+
+		status := resp.StatusCode
+		if c.Request().Header.Get("Range") != "" {
+			status = http.StatusPartialContent
+		}
+		c.Response().WriteHeader(status)
+		return streamWithFlush(c.Request().Context(), c.Response().Writer, resp.Body)
 	}
 
 	// HLS Playlist
-	//log.Debug().Str("url", url).Msg("proxy: Processing HLS playlist")
 
 	bodyBytes, readErr := io.ReadAll(resp.Body)
 	if readErr != nil {
@@ -94,7 +185,7 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	playlist, listType, decodeErr := m3u8.Decode(*buffer, true)
 	if decodeErr != nil {
 		// Playlist might be valid but not decodable by the library, or simply corrupted.
-		// Option 1: Proxy as-is (might be preferred if decoding fails unexpectedly)
+		// Option 1: Proxy as-is
 		log.Warn().Err(decodeErr).Str("url", url).Msg("proxy: Failed to decode M3U8 playlist, proxying raw content")
 		c.Response().Header().Set(echo.HeaderContentType, resp.Header.Get("Content-Type")) // Use original Content-Type
 		c.Response().Header().Set(echo.HeaderContentLength, strconv.Itoa(len(bodyBytes)))
@@ -207,9 +298,7 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 		c.Response().Header().Set("Cache-Control", "no-cache")
 	}
 	log.Debug().Bool("rewritten", needsRewrite).Str("url", url).Msg("proxy: Sending modified HLS playlist")
-	c.Response().WriteHeader(resp.StatusCode)
-
-	return c.Blob(http.StatusOK, c.Response().Header().Get("Content-Type"), modifiedPlaylistBytes)
+	return c.Blob(resp.StatusCode, c.Response().Header().Get("Content-Type"), modifiedPlaylistBytes)
 }
 
 // rewriteURI rewrites a URI pointer if needed, returns true if modified
@@ -242,7 +331,6 @@ func toProxyURL(targetMediaURL string, headerMap map[string]string, authToken st
 	proxyURL := "/api/v1/proxy?url=" + url2.QueryEscape(targetMediaURL)
 	if len(headerMap) > 0 {
 		headersStrB, err := json.Marshal(headerMap)
-		// Ignore marshalling errors here? Or log them? For simplicity, ignoring now.
 		if err == nil && len(headersStrB) > 2 { // Check > 2 for "{}" empty map
 			proxyURL += "&headers=" + url2.QueryEscape(string(headersStrB))
 		}
