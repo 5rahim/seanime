@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"embed"
+	"fmt"
 	"io/fs"
 	"net/http"
+	"path/filepath"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -60,6 +63,10 @@ func (h *Handler) HandleMihonRepoIndex(c echo.Context) error {
 //	@route /api/v1/mihon/repo/apk/:name [GET]
 func (h *Handler) HandleMihonRepoAPK(c echo.Context) error {
 	name := c.Param("name")
+
+	if strings.Contains(name, "/") || strings.Contains(name, "..") || filepath.Ext(name) != ".apk" {
+		return h.RespondWithError(c, fmt.Errorf("invalid APK name"))
+	}
 
 	data, err := fs.ReadFile(mihonRepoFS, "mihon_repo/"+name)
 	if err != nil {

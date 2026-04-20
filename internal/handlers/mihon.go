@@ -226,12 +226,22 @@ func (h *Handler) HandleMihonMangaChapters(c echo.Context) error {
 func (h *Handler) HandleMihonChapterPages(c echo.Context) error {
 	dirName := c.Param("dir")
 
+	if _, ok := chapter_downloader.ParseChapterDirName(dirName); !ok {
+		return h.RespondWithError(c, fmt.Errorf("invalid chapter directory"))
+	}
+
 	downloadDir := h.App.Config.Manga.DownloadDir
 	if downloadDir == "" {
 		return h.RespondWithError(c, fmt.Errorf("manga downloads not configured"))
 	}
 
 	chapterPath := filepath.Join(downloadDir, dirName)
+
+	rel, err := filepath.Rel(downloadDir, chapterPath)
+	if err != nil || strings.HasPrefix(rel, "..") {
+		return h.RespondWithError(c, fmt.Errorf("invalid chapter directory"))
+	}
+
 	if _, err := os.Stat(chapterPath); os.IsNotExist(err) {
 		return h.RespondWithError(c, fmt.Errorf("chapter not found"))
 	}
@@ -386,7 +396,7 @@ func buildPagesFromFiles(chapterPath string, dirName string) []mihonPage {
 	}
 
 	sort.Slice(pages, func(i, j int) bool {
-		return pages[i].URL < pages[j].URL
+		return pages[i].Index < pages[j].Index
 	})
 
 	return pages
@@ -402,7 +412,11 @@ func countPagesInDir(dirPath string) int {
 		}
 		count := 0
 		for _, f := range files {
-			if !f.IsDir() && f.Name() != "registry.json" {
+			if f.IsDir() {
+				continue
+			}
+			ext := strings.ToLower(filepath.Ext(f.Name()))
+			if ext == ".webp" || ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".avif" {
 				count++
 			}
 		}
