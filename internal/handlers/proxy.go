@@ -14,17 +14,23 @@ import (
 
 	"github.com/5rahim/hls-m3u8/m3u8"
 	"github.com/goccy/go-json"
+	"github.com/imroc/req/v3"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
 
+var videoProxyClient2 = req.C().
+	SetTimeout(30 * time.Minute).
+	EnableInsecureSkipVerify().
+	ImpersonateChrome()
+
 var videoProxyHTTPClient = &http.Client{
 	Timeout: 30 * time.Minute,
 	Transport: &http.Transport{
-		Proxy:               http.ProxyFromEnvironment,
-		ForceAttemptHTTP2:   false,
-		DisableCompression:  true,
-		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		Proxy:                 http.ProxyFromEnvironment,
+		ForceAttemptHTTP2:     false,
+		DisableCompression:    true,
+		TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 		ResponseHeaderTimeout: 15 * time.Second,
 	},
 }
@@ -83,39 +89,88 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 		}
 	}
 
-	// Use the client's method for better compatibility (players often probe with HEAD)
-	method := c.Request().Method
-	upReq, err := http.NewRequestWithContext(c.Request().Context(), method, url, nil)
-	if err != nil {
-		log.Error().Err(err).Msg("proxy: Error creating upstream request")
-		return echo.NewHTTPError(http.StatusInternalServerError)
+	// Scope: non-HLS path first. If this is not a playlist URL, fetch upstream via net/http
+	// to avoid host-specific throttling/slow streams observed with req/v3.
+	if !strings.HasSuffix(strings.ToLower(url), ".m3u8") {
+		method := c.Request().Method
+		upReq, err := http.NewRequestWithContext(c.Request().Context(), method, url, nil)
+		if err != nil {
+			log.Error().Err(err).Msg("proxy: Error creating upstream request")
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+
+		for k, v := range headerMap {
+			upReq.Header.Set(k, v)
+		}
+		if upReq.Header.Get("Accept") == "" {
+			upReq.Header.Set("Accept", "*/*")
+		}
+		if upReq.Header.Get("User-Agent") == "" {
+			upReq.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+		}
+		upReq.Header.Set("Accept-Encoding", "identity")
+		if rangeHeader := c.Request().Header.Get("Range"); rangeHeader != "" {
+			upReq.Header.Set("Range", rangeHeader)
+		}
+
+		upResp, err := videoProxyHTTPClient.Do(upReq)
+		if err != nil {
+			log.Error().Err(err).Msg("proxy: Error sending request")
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		defer upResp.Body.Close()
+
+		// Copy response headers
+		contentEncoding := strings.ToLower(upResp.Header.Get("Content-Encoding"))
+		allowContentLength := contentEncoding == "" || contentEncoding == "identity"
+		for k, vs := range upResp.Header {
+			if isHopByHopHeader(k) {
+				continue
+			}
+			for _, v := range vs {
+				if strings.EqualFold(k, "Content-Length") {
+					if allowContentLength {
+						c.Response().Header().Set(k, v)
+					}
+					continue
+				}
+				c.Response().Header().Set(k, v)
+			}
+		}
+
+		// Set CORS headers
+		c.Response().Header().Set("Access-Control-Allow-Origin", "*")
+		c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Response().Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+		// For HEAD requests, return only headers
+		if c.Request().Method == http.MethodHead {
+			return c.NoContent(http.StatusOK)
+		}
+
+		c.Response().WriteHeader(upResp.StatusCode)
+		return streamWithFlush(c.Request().Context(), c.Response().Writer, upResp.Body)
 	}
 
-	// Apply caller-provided headers
-	for k, v := range headerMap {
-		upReq.Header.Set(k, v)
+	// HLS playlist path: keep current req/v3 flow (used for decoding/rewriting playlists)
+	r := videoProxyClient2.R()
+	for key, value := range headerMap {
+		r.SetHeader(key, value)
 	}
-
-	if upReq.Header.Get("User-Agent") == "" {
-		upReq.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
-	}
-	if upReq.Header.Get("Accept") == "" {
-		upReq.Header.Set("Accept", "*/*")
-	}
-	upReq.Header.Set("Accept-Encoding", "identity")
+	r.SetHeader("Accept", "*/*")
+	r.SetHeader("Accept-Encoding", "identity")
 	if rangeHeader := c.Request().Header.Get("Range"); rangeHeader != "" {
-		upReq.Header.Set("Range", rangeHeader)
+		r.SetHeader("Range", rangeHeader)
 	}
 
-	resp, err := videoProxyHTTPClient.Do(upReq)
+	// Always use GET request internally, even for HEAD requests
+	resp, err := r.Get(url)
 
 	if err != nil {
 		log.Error().Err(err).Msg("proxy: Error sending request")
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
-	if resp.Body != nil {
-		defer resp.Body.Close()
-	}
+	defer resp.Body.Close()
 
 	// Copy response headers
 	contentEncoding := strings.ToLower(resp.Header.Get("Content-Encoding"))
@@ -125,7 +180,7 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 			continue
 		}
 		for _, v := range vs {
-			if strings.EqualFold(k, "Content-Length") {
+			if strings.EqualFold(k, "Content-Length") { // Skip Content-Length header, fixes net::ERR_CONTENT_LENGTH_MISMATCH
 				if allowContentLength {
 					c.Response().Header().Set(k, v)
 				}
@@ -142,39 +197,19 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 
 	// For HEAD requests, return only headers
 	if c.Request().Method == http.MethodHead {
-		return c.NoContent(resp.StatusCode)
+		return c.NoContent(http.StatusOK)
 	}
 
 	isHlsPlaylist := strings.HasSuffix(url, ".m3u8") || strings.Contains(strings.ToLower(resp.Header.Get("Content-Type")), "mpegurl")
 
 	if !isHlsPlaylist {
-		// Send a minimal, video-friendly header set
-		contentType := resp.Header.Get("Content-Type")
-		if contentType == "" {
-			contentType = "application/octet-stream"
-		}
-		c.Response().Header().Set("Content-Type", contentType)
-		c.Response().Header().Set("Content-Disposition", "inline")
-		c.Response().Header().Set("Accept-Ranges", "bytes")
-		if v := resp.Header.Get("Content-Range"); v != "" {
-			c.Response().Header().Set("Content-Range", v)
-		}
-		if allowContentLength {
-			if v := resp.Header.Get("Content-Length"); v != "" {
-				c.Response().Header().Set("Content-Length", v)
-			}
-		}
-
-		status := resp.StatusCode
-		if c.Request().Header.Get("Range") != "" {
-			status = http.StatusPartialContent
-		}
-		c.Response().WriteHeader(status)
+		c.Response().WriteHeader(resp.StatusCode)
 		return streamWithFlush(c.Request().Context(), c.Response().Writer, resp.Body)
 	}
 
 	// HLS Playlist
-    //log.Debug().Str("url", url).Msg("proxy: Processing HLS playlist")
+	//log.Debug().Str("url", url).Msg("proxy: Processing HLS playlist")
+
 	bodyBytes, readErr := io.ReadAll(resp.Body)
 	if readErr != nil {
 		log.Error().Err(readErr).Str("url", url).Msg("proxy: Error reading HLS response body")
@@ -185,7 +220,7 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	playlist, listType, decodeErr := m3u8.Decode(*buffer, true)
 	if decodeErr != nil {
 		// Playlist might be valid but not decodable by the library, or simply corrupted.
-		// Option 1: Proxy as-is
+		// Option 1: Proxy as-is (might be preferred if decoding fails unexpectedly)
 		log.Warn().Err(decodeErr).Str("url", url).Msg("proxy: Failed to decode M3U8 playlist, proxying raw content")
 		c.Response().Header().Set(echo.HeaderContentType, resp.Header.Get("Content-Type")) // Use original Content-Type
 		c.Response().Header().Set(echo.HeaderContentLength, strconv.Itoa(len(bodyBytes)))
