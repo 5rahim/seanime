@@ -9,7 +9,6 @@ import (
 	"seanime/internal/util"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/5rahim/hls-m3u8/m3u8"
 	"github.com/goccy/go-json"
@@ -20,6 +19,7 @@ import (
 
 var videoProxyClient2 = req.C().
 	DisableAutoReadResponse().
+	DisableCompression().
 	EnableInsecureSkipVerify().
 	ImpersonateChrome()
 
