@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"context"
 	"io"
 	"net/http"
 	url2 "net/url"
@@ -22,45 +21,6 @@ var videoProxyClient2 = req.C().
 	DisableCompression().
 	EnableInsecureSkipVerify().
 	ImpersonateChrome()
-
-func isHopByHopHeader(k string) bool {
-	// RFC 7230 section 6.1
-	switch strings.ToLower(k) {
-	case "connection", "keep-alive", "proxy-authenticate", "proxy-authorization", "te", "trailer", "transfer-encoding", "upgrade":
-		return true
-	default:
-		return false
-	}
-}
-
-func streamWithFlush(ctx context.Context, w http.ResponseWriter, r io.Reader) error {
-	buf := make([]byte, 32*1024)
-	flusher, _ := w.(http.Flusher)
-
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		n, readErr := r.Read(buf)
-		if n > 0 {
-			if _, writeErr := w.Write(buf[:n]); writeErr != nil {
-				return writeErr
-			}
-			if flusher != nil {
-				flusher.Flush()
-			}
-		}
-		if readErr != nil {
-			if readErr == io.EOF {
-				return nil
-			}
-			return readErr
-		}
-	}
-}
 
 func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	defer util.HandlePanicInModuleWithError("util/VideoProxy", &err)
@@ -83,7 +43,6 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	}
 
 	r.SetHeader("Accept", "*/*")
-	r.SetHeader("Accept-Encoding", "identity")
 	if rangeHeader := c.Request().Header.Get("Range"); rangeHeader != "" {
 		r.SetHeader("Range", rangeHeader)
 	}
@@ -98,20 +57,11 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	defer resp.Body.Close()
 
 	// Copy response headers
-	contentEncoding := strings.ToLower(resp.Header.Get("Content-Encoding"))
-	allowContentLength := contentEncoding == "" || contentEncoding == "identity"
 	for k, vs := range resp.Header {
-		if isHopByHopHeader(k) {
-			continue
-		}
 		for _, v := range vs {
-			if strings.EqualFold(k, "Content-Length") { // Skip Content-Length header, fixes net::ERR_CONTENT_LENGTH_MISMATCH
-				if allowContentLength {
-					c.Response().Header().Set(k, v)
-				}
-				continue
+			if !strings.EqualFold(k, "Content-Length") { // Skip Content-Length header, fixes net::ERR_CONTENT_LENGTH_MISMATCH
+				c.Response().Header().Set(k, v)
 			}
-			c.Response().Header().Set(k, v)
 		}
 	}
 
@@ -128,8 +78,7 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	isHlsPlaylist := strings.HasSuffix(url, ".m3u8") || strings.Contains(strings.ToLower(resp.Header.Get("Content-Type")), "mpegurl")
 
 	if !isHlsPlaylist {
-		c.Response().WriteHeader(resp.StatusCode)
-		return streamWithFlush(c.Request().Context(), c.Response().Writer, resp.Body)
+		return c.Stream(resp.StatusCode, c.Response().Header().Get("Content-Type"), resp.Body)
 	}
 
 	// HLS Playlist
@@ -258,7 +207,9 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 		c.Response().Header().Set("Cache-Control", "no-cache")
 	}
 	log.Debug().Bool("rewritten", needsRewrite).Str("url", url).Msg("proxy: Sending modified HLS playlist")
-	return c.Blob(resp.StatusCode, c.Response().Header().Get("Content-Type"), modifiedPlaylistBytes)
+	c.Response().WriteHeader(resp.StatusCode)
+
+	return c.Blob(http.StatusOK, c.Response().Header().Get("Content-Type"), modifiedPlaylistBytes)
 }
 
 // rewriteURI rewrites a URI pointer if needed, returns true if modified
