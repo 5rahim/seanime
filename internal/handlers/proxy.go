@@ -19,7 +19,6 @@ import (
 )
 
 var videoProxyClient2 = req.C().
-	SetTimeout(30 * time.Minute).
 	DisableAutoReadResponse().
 	EnableInsecureSkipVerify().
 	ImpersonateChrome()
