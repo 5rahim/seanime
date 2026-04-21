@@ -3,7 +3,6 @@ package handlers
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"io"
 	"net/http"
 	url2 "net/url"
@@ -21,19 +20,9 @@ import (
 
 var videoProxyClient2 = req.C().
 	SetTimeout(30 * time.Minute).
+	DisableAutoReadResponse().
 	EnableInsecureSkipVerify().
 	ImpersonateChrome()
-
-var videoProxyHTTPClient = &http.Client{
-	Timeout: 30 * time.Minute,
-	Transport: &http.Transport{
-		Proxy:                 http.ProxyFromEnvironment,
-		ForceAttemptHTTP2:     false,
-		DisableCompression:    true,
-		TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
-		ResponseHeaderTimeout: 15 * time.Second,
-	},
-}
 
 func isHopByHopHeader(k string) bool {
 	// RFC 7230 section 6.1
@@ -81,82 +70,19 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	headers := c.QueryParam("headers")
 	authToken := c.QueryParam("token")
 
+	r := videoProxyClient2.R()
+
 	var headerMap map[string]string
 	if headers != "" {
 		if err := json.Unmarshal([]byte(headers), &headerMap); err != nil {
 			log.Error().Err(err).Msg("proxy: Error unmarshalling headers")
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		for key, value := range headerMap {
+			r.SetHeader(key, value)
+		}
 	}
 
-	// Scope: non-HLS path first. If this is not a playlist URL, fetch upstream via net/http
-	// to avoid host-specific throttling/slow streams observed with req/v3.
-	if !strings.HasSuffix(strings.ToLower(url), ".m3u8") {
-		method := c.Request().Method
-		upReq, err := http.NewRequestWithContext(c.Request().Context(), method, url, nil)
-		if err != nil {
-			log.Error().Err(err).Msg("proxy: Error creating upstream request")
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-
-		for k, v := range headerMap {
-			upReq.Header.Set(k, v)
-		}
-		if upReq.Header.Get("Accept") == "" {
-			upReq.Header.Set("Accept", "*/*")
-		}
-		if upReq.Header.Get("User-Agent") == "" {
-			upReq.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
-		}
-		upReq.Header.Set("Accept-Encoding", "identity")
-		if rangeHeader := c.Request().Header.Get("Range"); rangeHeader != "" {
-			upReq.Header.Set("Range", rangeHeader)
-		}
-
-		upResp, err := videoProxyHTTPClient.Do(upReq)
-		if err != nil {
-			log.Error().Err(err).Msg("proxy: Error sending request")
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-		defer upResp.Body.Close()
-
-		// Copy response headers
-		contentEncoding := strings.ToLower(upResp.Header.Get("Content-Encoding"))
-		allowContentLength := contentEncoding == "" || contentEncoding == "identity"
-		for k, vs := range upResp.Header {
-			if isHopByHopHeader(k) {
-				continue
-			}
-			for _, v := range vs {
-				if strings.EqualFold(k, "Content-Length") {
-					if allowContentLength {
-						c.Response().Header().Set(k, v)
-					}
-					continue
-				}
-				c.Response().Header().Set(k, v)
-			}
-		}
-
-		// Set CORS headers
-		c.Response().Header().Set("Access-Control-Allow-Origin", "*")
-		c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Response().Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-
-		// For HEAD requests, return only headers
-		if c.Request().Method == http.MethodHead {
-			return c.NoContent(http.StatusOK)
-		}
-
-		c.Response().WriteHeader(upResp.StatusCode)
-		return streamWithFlush(c.Request().Context(), c.Response().Writer, upResp.Body)
-	}
-
-	// HLS playlist path: keep current req/v3 flow (used for decoding/rewriting playlists)
-	r := videoProxyClient2.R()
-	for key, value := range headerMap {
-		r.SetHeader(key, value)
-	}
 	r.SetHeader("Accept", "*/*")
 	r.SetHeader("Accept-Encoding", "identity")
 	if rangeHeader := c.Request().Header.Get("Range"); rangeHeader != "" {
@@ -366,6 +292,7 @@ func toProxyURL(targetMediaURL string, headerMap map[string]string, authToken st
 	proxyURL := "/api/v1/proxy?url=" + url2.QueryEscape(targetMediaURL)
 	if len(headerMap) > 0 {
 		headersStrB, err := json.Marshal(headerMap)
+		// Ignore marshalling errors here? Or log them? For simplicity, ignoring now.
 		if err == nil && len(headersStrB) > 2 { // Check > 2 for "{}" empty map
 			proxyURL += "&headers=" + url2.QueryEscape(string(headersStrB))
 		}
