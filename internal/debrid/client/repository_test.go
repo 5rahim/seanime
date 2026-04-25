@@ -17,7 +17,8 @@ import (
 )
 
 type fakeDebridProvider struct {
-	addTorrent func(opts debrid.AddTorrentOptions) (string, error)
+	addTorrent  func(opts debrid.AddTorrentOptions) (string, error)
+	downloadURL func(opts debrid.DownloadTorrentOptions) (string, error)
 }
 
 func (f *fakeDebridProvider) GetSettings() debrid.Settings {
@@ -40,6 +41,9 @@ func (f *fakeDebridProvider) GetTorrentStreamUrl(ctx context.Context, opts debri
 }
 
 func (f *fakeDebridProvider) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (string, error) {
+	if f.downloadURL != nil {
+		return f.downloadURL(opts)
+	}
 	return "", nil
 }
 
