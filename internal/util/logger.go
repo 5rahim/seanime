@@ -36,6 +36,14 @@ const (
 var logBuffer bytes.Buffer
 var logBufferMutex = &sync.Mutex{}
 
+type lockedLogBufferWriter struct{}
+
+func (lockedLogBufferWriter) Write(p []byte) (int, error) {
+	logBufferMutex.Lock()
+	defer logBufferMutex.Unlock()
+	return logBuffer.Write(p)
+}
+
 func NewLogger() *zerolog.Logger {
 
 	timeFormat := fmt.Sprintf("%s", time.DateTime)
@@ -53,7 +61,7 @@ func NewLogger() *zerolog.Logger {
 	}
 
 	fileOutput := zerolog.ConsoleWriter{
-		Out:           &logBuffer,
+		Out:           lockedLogBufferWriter{},
 		TimeFormat:    timeFormat,
 		FormatMessage: ZerologFormatMessageSimple,
 		FormatLevel:   ZerologFormatLevelSimple,

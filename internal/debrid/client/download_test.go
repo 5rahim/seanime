@@ -156,6 +156,69 @@ func TestDebridDownloadFileRestartsWhenRangeIgnored(t *testing.T) {
 	require.Equal(t, "restarted", string(content))
 }
 
+func TestDebridDownloadFileRetriesTransientStatusResponses(t *testing.T) {
+	withFastDebridDownloadRetries(t, 2)
+
+	for _, statusCode := range []int{
+		http.StatusTooManyRequests,
+		http.StatusInternalServerError,
+		http.StatusBadGateway,
+		http.StatusServiceUnavailable,
+		http.StatusGatewayTimeout,
+	} {
+		t.Run(fmt.Sprintf("status_%d", statusCode), func(t *testing.T) {
+			logger := util.NewLogger()
+			ws := newRecordingWSEventManager(logger)
+			repo := &Repository{logger: logger, wsEventManager: ws}
+			zipBytes := makeDownloadTestZip(t, "episode.txt", "retried")
+			var requests atomic.Int32
+
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				requestNumber := requests.Add(1)
+				if requestNumber == 1 {
+					w.WriteHeader(statusCode)
+					_, _ = w.Write([]byte(http.StatusText(statusCode)))
+					return
+				}
+
+				writeZipResponseHeaders(w, len(zipBytes), "")
+				_, _ = w.Write(zipBytes)
+			}))
+			t.Cleanup(server.Close)
+
+			destination := t.TempDir()
+			ok := repo.downloadFile(context.Background(), "torrent-1", server.URL, destination, result.NewMap[string, downloadStatus]())
+
+			require.True(t, ok)
+			require.Equal(t, int32(2), requests.Load())
+			content, err := os.ReadFile(filepath.Join(destination, "episode.txt"))
+			require.NoError(t, err)
+			require.Equal(t, "retried", string(content))
+		})
+	}
+}
+
+func TestDebridDownloadFileFailsFastPermanentStatusResponse(t *testing.T) {
+	withFastDebridDownloadRetries(t, 3)
+
+	logger := util.NewLogger()
+	ws := newRecordingWSEventManager(logger)
+	repo := &Repository{logger: logger, wsEventManager: ws}
+	var requests atomic.Int32
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(http.StatusText(http.StatusNotFound)))
+	}))
+	t.Cleanup(server.Close)
+
+	ok := repo.downloadFile(context.Background(), "torrent-1", server.URL, t.TempDir(), result.NewMap[string, downloadStatus]())
+
+	require.False(t, ok)
+	require.Equal(t, int32(1), requests.Load())
+}
+
 func TestDebridDownloadTorrentDoesNotCompleteAfterTruncatedRetries(t *testing.T) {
 	withFastDebridDownloadRetries(t, 3)
 

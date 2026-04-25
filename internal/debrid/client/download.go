@@ -348,10 +348,14 @@ func (r *Repository) downloadHTTPFile(ctx context.Context, tId string, downloadU
 		appendFile, responseExpectedSize, err := validateDebridDownloadResponse(resp, rangeStart)
 		if err != nil {
 			_ = resp.Body.Close()
-			if errors.Is(err, errInvalidDownloadStatus) || errors.Is(err, errInvalidDownloadContentRange) {
+			if errors.Is(err, errInvalidDownloadContentRange) {
+				return nil, err
+			}
+			if errors.Is(err, errInvalidDownloadStatus) && !isRetryableDebridDownloadStatus(resp.StatusCode) {
 				return nil, err
 			}
 			lastErr = err
+			r.logger.Warn().Err(err).Int("attempt", attempt).Int("status", resp.StatusCode).Str("downloadUrl", downloadUrl).Msg("debrid: Download response status failed, retrying")
 			if err := waitBeforeDebridDownloadRetry(ctx, attempt, backoff); err != nil {
 				return nil, err
 			}
@@ -432,6 +436,19 @@ func (r *Repository) openDownloadResponse(ctx context.Context, client *http.Clie
 		req.Header.Set("Range", fmt.Sprintf("bytes=%d-", rangeStart))
 	}
 	return client.Do(req)
+}
+
+func isRetryableDebridDownloadStatus(statusCode int) bool {
+	switch statusCode {
+	case http.StatusTooManyRequests,
+		http.StatusInternalServerError,
+		http.StatusBadGateway,
+		http.StatusServiceUnavailable,
+		http.StatusGatewayTimeout:
+		return true
+	default:
+		return false
+	}
 }
 
 func validateDebridDownloadResponse(resp *http.Response, rangeStart int64) (appendFile bool, expectedSize int64, err error) {
