@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.8.1
+
+- 🦺 Online streaming: Fixed sidebar visibility in fullscreen mode
+
 ## v3.8.0
 
 - ✨ Torrent Search: Search from multiple providers at once

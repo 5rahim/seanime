@@ -1,6 +1,8 @@
 import { ElectronSidebarPaddingMacOS } from "@/app/(main)/_electron/electron-padding"
+import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { __isDesktop__, __isElectronDesktop__ } from "@/types/constants"
 import { cva, VariantProps } from "class-variance-authority"
+import { useAtomValue } from "jotai/react"
 import * as React from "react"
 import { __AppSidebarContext } from "."
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
@@ -229,10 +231,12 @@ export const AppLayoutSidebar = React.forwardRef<HTMLElement, AppLayoutSidebarPr
         ...rest
     } = props
 
+    const vcIsFullscreen = useAtomValue(vc_isFullscreen)
+
     return (
         <aside
             ref={ref}
-            className={cn(AppLayoutSidebarAnatomy.root(), className)}
+            className={cn(AppLayoutSidebarAnatomy.root(), className, vcIsFullscreen && "lg:hidden")}
             {...rest}
         >
             {__isElectronDesktop__ && <ElectronSidebarPaddingMacOS />}
