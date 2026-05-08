@@ -1,0 +1,13 @@
+services:
+  seanime:
+    build: .
+    ports:
+      - "43211:43211"
+    volumes:
+      - seanime-data:/data
+      # Mount your media library (adjust path as needed):
+      # - /path/to/media:/media
+    restart: unless-stopped
+
+volumes:
+  seanime-data:

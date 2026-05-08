@@ -1,0 +1,8 @@
+.git
+seanime-denshi/
+seanime-web/node_modules/
+seanime-web/out/
+seanime-web/out-denshi/
+web/
+test/
+*.exe
