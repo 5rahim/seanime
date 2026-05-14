@@ -10,7 +10,7 @@ import { Popover } from "@/components/ui/popover"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
-import { addMonths, Day, endOfMonth, endOfWeek, format, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths } from "date-fns"
+import { addMonths, Day, endOfMonth, endOfWeek, format, isSameMonth, isToday, parseISO, startOfMonth, startOfWeek, subMonths } from "date-fns"
 import { addDays } from "date-fns/addDays"
 import { useImmerAtom } from "jotai-immer"
 import { useAtom, useAtomValue } from "jotai/react"
@@ -333,9 +333,10 @@ interface MobileDayItemProps {
 }
 
 function MobileDayItem({ day, calendarParams }: MobileDayItemProps) {
-    const dayName = format(new Date(day.date), "EEEE")
+    const localDay = parseISO(day.date)
+    const dayName = format(localDay, "EEEE")
     const dayNumber = day.date.split("-")?.pop()?.replace(/^0/, "")
-    const monthDay = format(new Date(day.date), "MMM d")
+    const monthDay = format(localDay, "MMM d")
 
     return (
         <div className="p-4" data-schedule-calendar-mobile-list-day-item>
@@ -471,12 +472,13 @@ interface CalendarDayModalProps {
 function CalendarDayModal({ day, open, onOpenChange }: CalendarDayModalProps) {
     const hasEvents = day.events.length > 0
     const calendarParams = useAtomValue(calendarParamsAtom)
+    const localDay = parseISO(day.date)
 
     return (
         <Modal
             open={open}
             onOpenChange={onOpenChange}
-            title={format(new Date(day.date), "EEEE, MMMM d, yyyy")}
+            title={format(localDay, "EEEE, MMMM d, yyyy")}
             description={hasEvents
                 ? `${day.events.length} scheduled episode${day.events.length !== 1 ? "s" : ""}`
                 : "No scheduled episodes for this day"}

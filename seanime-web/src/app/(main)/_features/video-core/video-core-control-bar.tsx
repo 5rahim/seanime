@@ -48,7 +48,6 @@ export function VideoCoreControlBar(props: {
     const cursorBusy = useAtomValue(vc_cursorBusy)
     const [hoveringControlBar, setHoveringControlBar] = useAtom(vc_hoveringControlBar)
     const containerElement = useAtomValue(vc_containerElement)
-    const seeking = useAtomValue(vc_seeking)
 
     const isMobile = useAtomValue(vc_isMobile)
 
@@ -56,6 +55,18 @@ export function VideoCoreControlBar(props: {
 
     // when the user is approaching the control bar
     const [cursorPosition, setCursorPosition] = React.useState<"outside" | "approaching" | "hover">("outside")
+    const cursorPositionRef = React.useRef(cursorPosition)
+    const containerRectRef = React.useRef<DOMRect | null>(null)
+
+    React.useEffect(() => {
+        cursorPositionRef.current = cursorPosition
+    }, [cursorPosition])
+
+    const setCursorPositionC = React.useCallback((nextPosition: "outside" | "approaching" | "hover") => {
+        if (cursorPositionRef.current === nextPosition) return
+        cursorPositionRef.current = nextPosition
+        setCursorPosition(nextPosition)
+    }, [])
 
     // On mobile, always show controls when paused or when tapping
     const showOnlyTimeRange = isMobile ? false : (
@@ -100,40 +111,55 @@ export function VideoCoreControlBar(props: {
         if (isMobile) return
 
         if (!containerElement) {
-            setCursorPosition("outside")
+            setCursorPositionC("outside")
             return
         }
 
-        const rect = containerElement.getBoundingClientRect()
+        const rect = containerRectRef.current ?? containerElement.getBoundingClientRect()
+        containerRectRef.current = rect
         const y = e instanceof PointerEvent ? e.clientY - rect.top : 0
         const registerThreshold = !isMiniPlayer ? 150 : 100 // pixels from the bottom to start registering position
         const showOnlyTimeRangeOffset = !isMiniPlayer ? 50 : 50
 
         if ((y >= rect.height - registerThreshold && y < rect.height - registerThreshold + showOnlyTimeRangeOffset)) {
-            setCursorPosition("approaching")
+            setCursorPositionC("approaching")
         } else if (y < rect.height - registerThreshold) {
-            setCursorPosition("outside")
+            setCursorPositionC("outside")
         } else {
-            setCursorPosition("hover")
+            setCursorPositionC("hover")
         }
     }
 
     function handleVideoContainerPointerLeave(_e: Event) {
         if (isMobile) return
-        setCursorPosition("outside")
+        setCursorPositionC("outside")
     }
 
     React.useEffect(() => {
         if (!containerElement) return
+        const updateContainerRect = () => {
+            containerRectRef.current = containerElement.getBoundingClientRect()
+        }
+
+        updateContainerRect()
+        const resizeObserver = new ResizeObserver(updateContainerRect)
+        resizeObserver.observe(containerElement)
+
+        containerElement.addEventListener("pointerenter", updateContainerRect)
         containerElement.addEventListener("pointermove", handleVideoContainerPointerMove)
         containerElement.addEventListener("pointerleave", handleVideoContainerPointerLeave)
         containerElement.addEventListener("pointercancel", handleVideoContainerPointerLeave)
+        window.addEventListener("resize", updateContainerRect)
         return () => {
+            resizeObserver.disconnect()
+            containerElement.removeEventListener("pointerenter", updateContainerRect)
             containerElement.removeEventListener("pointermove", handleVideoContainerPointerMove)
-            containerElement.removeEventListener("pointerup", handleVideoContainerPointerLeave)
+            containerElement.removeEventListener("pointerleave", handleVideoContainerPointerLeave)
             containerElement.removeEventListener("pointercancel", handleVideoContainerPointerLeave)
+            window.removeEventListener("resize", updateContainerRect)
+            containerRectRef.current = null
         }
-    }, [containerElement, paused, isMiniPlayer, seeking, hoveringControlBar])
+    }, [containerElement, isMobile, isMiniPlayer, setCursorPositionC])
 
     React.useLayoutEffect(() => {
         if (!containerElement || isMobile) return
@@ -179,7 +205,7 @@ export function VideoCoreControlBar(props: {
                 className={cn(
                     "absolute left-0 bottom-0 right-0 flex flex-col text-white",
                     "transition-[opacity,transform] duration-300 opacity-0",
-                    "z-[10] h-28 transform-gpu",
+                    "z-[10] h-28 transform-gpu will-change-[opacity,transform]",
                     !hideControlBar && "opacity-100",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-500/20",
                 )}

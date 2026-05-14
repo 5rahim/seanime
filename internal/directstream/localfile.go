@@ -132,7 +132,11 @@ func (s *LocalFileStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, er
 				s.manager.parserCache.SetT(parserKey, parser, 2*time.Hour)
 			}
 
-			metadata := parser.GetMetadata(context.Background())
+			metadataCtx := s.manager.playbackCtx
+			if metadataCtx == nil {
+				metadataCtx = context.Background()
+			}
+			metadata := parser.GetMetadata(metadataCtx)
 			if metadata.Error != nil {
 				s.logger.Error().Err(metadata.Error).Msg("directstream(torrent): Failed to get metadata")
 				//s.manager.preStreamError(s, fmt.Errorf("failed to get metadata: %w", metadata.Error))
@@ -289,8 +293,15 @@ type PlayLocalFileOptions struct {
 }
 
 // PlayLocalFile is used by a module to load a new torrent stream.
-func (m *Manager) PlayLocalFile(ctx context.Context, opts PlayLocalFileOptions) error {
-	m.ResetOpenState(opts.ClientId)
+func (m *Manager) PlayLocalFile(ctx context.Context, opts PlayLocalFileOptions) (err error) {
+	if !m.BeginOpen(opts.ClientId, "Loading stream...", nil) {
+		return fmt.Errorf("stream opening was cancelled")
+	}
+	defer func() {
+		if err != nil {
+			m.AbortOpen(opts.ClientId, err)
+		}
+	}()
 
 	animeCollection, ok := m.animeCollection.Get()
 	if !ok {

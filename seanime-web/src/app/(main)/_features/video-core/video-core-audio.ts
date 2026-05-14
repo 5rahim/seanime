@@ -154,6 +154,55 @@ export class VideoCoreAudioManager extends EventTarget {
         }
     }
 
+    selectTrack(trackNumber: number) {
+        // If it's an HLS stream, select the track from the HLS API
+        if (this.hlsSetAudioTrack) {
+            audioLog.info("Selecting HLS audio track", trackNumber)
+            this.hlsSetAudioTrack(trackNumber)
+            // The HLS track change will be handled by the external `onHlsTrackChange` which dispatches the event
+            return
+        }
+
+        // MKV audio track selection
+        if (!this.videoElement.audioTracks) return
+
+        let trackChanged = false
+        for (let i = 0; i < this.videoElement.audioTracks.length; i++) {
+            const track = this.videoElement.audioTracks[i]
+            const shouldEnable = this.getNativeTrackNumber(track, i) === trackNumber
+            if (track.enabled !== shouldEnable) {
+                track.enabled = shouldEnable
+                trackChanged = true
+            }
+        }
+
+        if (trackChanged && this.videoElement.audioTracks.dispatchEvent) {
+            this.videoElement.audioTracks.dispatchEvent(new Event("change"))
+        }
+
+        const event: AudioManagerTrackChangedEvent = new CustomEvent("trackchanged", { detail: { trackNumber } })
+        this.dispatchEvent(event)
+    }
+
+    getSelectedTrackNumberOrNull(): number | null {
+        // Check if we're dealing with HLS
+        if (this.hlsSetAudioTrack) {
+            return this.hlsCurrentAudioTrack
+        }
+
+        // MKV audio track
+        if (!this.videoElement.audioTracks) return null
+
+        for (let i = 0; i < this.videoElement.audioTracks.length; i++) {
+            const track = this.videoElement.audioTracks[i]
+            if (track.enabled) {
+                return this.getNativeTrackNumber(track, i)
+            }
+        }
+
+        return null
+    }
+
     __selectDefaultHlsTrack() {
         if (!this.hlsSetAudioTrack || !this.isHlsStream()) return
 
@@ -188,51 +237,43 @@ export class VideoCoreAudioManager extends EventTarget {
         }
     }
 
-    selectTrack(trackNumber: number) {
-        // If it's an HLS stream, select the track from the HLS API
-        if (this.hlsSetAudioTrack) {
-            audioLog.info("Selecting HLS audio track", trackNumber)
-            this.hlsSetAudioTrack(trackNumber)
-            // The HLS track change will be handled by the external `onHlsTrackChange` which dispatches the event
-            return
-        }
-
-        // MKV audio track selection
-        if (!this.videoElement.audioTracks) return
-
-        let trackChanged = false
-        for (let i = 0; i < this.videoElement.audioTracks.length; i++) {
-            const shouldEnable = this.videoElement.audioTracks[i].id === trackNumber.toString()
-            if (this.videoElement.audioTracks[i].enabled !== shouldEnable) {
-                this.videoElement.audioTracks[i].enabled = shouldEnable
-                trackChanged = true
-            }
-        }
-
-        if (trackChanged && this.videoElement.audioTracks.dispatchEvent) {
-            this.videoElement.audioTracks.dispatchEvent(new Event("change"))
-        }
+    syncSelectedTrack() {
+        const trackNumber = this.getSelectedTrackNumberOrNull()
+        if (trackNumber === null) return
 
         const event: AudioManagerTrackChangedEvent = new CustomEvent("trackchanged", { detail: { trackNumber } })
         this.dispatchEvent(event)
     }
 
-    getSelectedTrackNumberOrNull(): number | null {
-        // Check if we're dealing with HLS
-        if (this.hlsSetAudioTrack) {
-            return this.hlsCurrentAudioTrack
-        }
+    private trackIdsMatchMetadata() {
+        const metadataTracks = this.playbackInfo.mkvMetadata?.audioTracks ?? []
+        if (!this.videoElement.audioTracks || metadataTracks.length !== this.videoElement.audioTracks.length) return false
 
-        // MKV audio track
-        if (!this.videoElement.audioTracks) return null
-
+        const metadataNumbers = new Set(metadataTracks.map(track => Number(track.number)))
         for (let i = 0; i < this.videoElement.audioTracks.length; i++) {
-            if (this.videoElement.audioTracks[i].enabled) {
-                return Number(this.videoElement.audioTracks[i].id)
-            }
+            const id = Number(this.videoElement.audioTracks[i].id)
+            if (!Number.isFinite(id) || !metadataNumbers.has(id)) return false
+        }
+        return true
+    }
+
+    private getNativeTrackNumber(track: AudioTrack, index: number) {
+        const metadataTracks = this.playbackInfo.mkvMetadata?.audioTracks ?? []
+        const id = Number(track.id)
+
+        if (this.trackIdsMatchMetadata() && Number.isFinite(id)) {
+            return id
         }
 
-        return null
+        if (metadataTracks[index]) {
+            return Number(metadataTracks[index].number)
+        }
+
+        if (Number.isFinite(id)) {
+            return id
+        }
+
+        return index
     }
 
     getHlsAudioTracks() {

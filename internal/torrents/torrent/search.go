@@ -523,10 +523,12 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 	tMetadata, found := metadataCache.Get(opts.torrent.Name)
 	if !found { // Should always be found
 		parsedData = habari.Parse(opts.torrent.Name)
-		metadataCache.Set(opts.torrent.Name, &TorrentMetadata{
+		newM := &TorrentMetadata{
 			Distance: 1000,
 			Metadata: parsedData,
-		})
+		}
+		metadataCache.Set(opts.torrent.Name, newM)
+		tMetadata = newM
 	}
 	parsedData = tMetadata.Metadata
 

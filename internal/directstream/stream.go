@@ -87,7 +87,13 @@ func (m *Manager) getStreamHandler() http.Handler {
 func (m *Manager) BeginOpen(clientId string, step string, onCancel func()) bool {
 	// if there's a current stream, stop it
 	m.playbackMu.Lock()
+	replacedPlaybackId := m.currentPlaybackId
+	replacedPlaybackClient := m.currentPlaybackClient
 	previousStream, cancelPlayback, _ := m.releaseCurrentStreamLocked(nil)
+	if previousStream != nil && replacedPlaybackId != "" {
+		m.replacedPlaybackId = replacedPlaybackId
+		m.replacedPlaybackClient = replacedPlaybackClient
+	}
 	m.clearPreparationLocked()
 	m.clearCurrentPlaybackIdentityLocked()
 	m.playbackMu.Unlock()
@@ -301,6 +307,21 @@ func (m *Manager) shouldHandleTerminatedEventLocked(event *videocore.VideoTermin
 	return event.GetPlaybackId() == m.currentPlaybackId
 }
 
+func (m *Manager) shouldIgnoreReplacedTerminationLocked(event *videocore.VideoTerminatedEvent) bool {
+	if m.replacedPlaybackId == "" || event.GetPlaybackId() != m.replacedPlaybackId {
+		return false
+	}
+
+	if m.replacedPlaybackClient != "" && event.GetClientId() != "" && event.GetClientId() != m.replacedPlaybackClient {
+		return false
+	}
+
+	m.Logger.Debug().Str("playbackId", event.GetPlaybackId()).Msg("directstream: Ignoring terminated event from replaced stream")
+	m.replacedPlaybackId = ""
+	m.replacedPlaybackClient = ""
+	return true
+}
+
 func (m *Manager) cancelPreparationLocked(clientId string, clearCancelFunc bool) (func(), bool) {
 	if clientId != "" && m.preparingClientID != "" && m.preparingClientID != clientId {
 		return nil, false
@@ -421,11 +442,17 @@ func (m *Manager) listenToPlayerEvents() {
 				}
 
 				m.playbackMu.Lock()
+				terminatedEvent, isTerminated := event.(*videocore.VideoTerminatedEvent)
+				if isTerminated && m.shouldIgnoreReplacedTerminationLocked(terminatedEvent) {
+					m.playbackMu.Unlock()
+					continue
+				}
+
 				cs, ok := m.currentStream.Get()
 				if !ok {
 					var cancelFunc func()
 					shouldCancel := false
-					if _, isTerminated := event.(*videocore.VideoTerminatedEvent); isTerminated {
+					if isTerminated {
 						cancelFunc, shouldCancel = m.cancelPreparationLocked(event.GetClientId(), true)
 					}
 					m.playbackMu.Unlock()
@@ -436,7 +463,7 @@ func (m *Manager) listenToPlayerEvents() {
 					}
 					continue
 				}
-				if terminatedEvent, isTerminated := event.(*videocore.VideoTerminatedEvent); isTerminated {
+				if isTerminated {
 					if !m.shouldHandleTerminatedEventLocked(terminatedEvent, cs) {
 						m.playbackMu.Unlock()
 						continue

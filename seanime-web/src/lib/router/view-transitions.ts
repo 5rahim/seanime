@@ -2,6 +2,7 @@ import { __isElectronDesktop__ } from "@/types/constants"
 import type { ParsedLocation } from "@tanstack/react-router"
 
 const SCROLLED_TRANSITION_THRESHOLD = 8
+let hasSkippedInitialDenshiTransition = false
 
 type ViewTransitionInfo = {
     fromLocation?: ParsedLocation
@@ -38,6 +39,11 @@ function supportsDenshiViewTransitions() {
 }
 
 function getDenshiViewTransitionTypes(info: ViewTransitionInfo) {
+    if (!hasSkippedInitialDenshiTransition) {
+        hasSkippedInitialDenshiTransition = true
+        return false
+    }
+
     const fromLocation = info.fromLocation
     const fromPath = fromLocation?.pathname || "/"
     const toPath = info.toLocation.pathname

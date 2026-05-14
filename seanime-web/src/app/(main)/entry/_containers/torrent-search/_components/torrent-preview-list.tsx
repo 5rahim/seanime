@@ -32,6 +32,7 @@ type TorrentPreviewList = {
     torrentMetadata: Record<string, Torrent_TorrentMetadata> | undefined
     includedSpecialProviders?: string[]
     searchAcrossProviders: boolean
+    isSpoiler: boolean
 }
 
 export const TorrentPreviewList = React.memo((
@@ -46,6 +47,7 @@ export const TorrentPreviewList = React.memo((
         torrentMetadata,
         includedSpecialProviders = [],
         searchAcrossProviders,
+        isSpoiler,
     }: TorrentPreviewList) => {
     // Use hooks for sorting and filtering
     const { sortField, sortDirection, handleSortChange } = useTorrentSorting()
@@ -96,6 +98,7 @@ export const TorrentPreviewList = React.memo((
                                 torrent={item.torrent}
                                 media={entry.media}
                                 episode={item.episode}
+                                isSpoiler={isSpoiler}
                                 metadata={torrentMetadata?.[item.torrent.infoHash!]?.metadata}
                                 debridCached={((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!item.torrent.infoHash && !!debridInstantAvailability[item.torrent.infoHash])}
                                 isSelected={selectedTorrents.findIndex(n => n.infoHash === item.torrent!.infoHash) !== -1}

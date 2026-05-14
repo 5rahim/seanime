@@ -174,7 +174,11 @@ func (s *httpBaseStream) loadPlaybackInfo(streamType nativeplayer.StreamType) (r
 			s.logger.Trace().Msgf("directstream(http): Loading metadata for stream url: %s", s.streamUrl)
 
 			parser := mkvparser.NewMetadataParser(reader, s.logger)
-			metadata := parser.GetMetadata(context.Background())
+			metadataCtx := s.manager.playbackCtx
+			if metadataCtx == nil {
+				metadataCtx = context.Background()
+			}
+			metadata := parser.GetMetadata(metadataCtx)
 			if metadata.Error != nil {
 				err = fmt.Errorf("failed to get metadata: %w", metadata.Error)
 				s.logger.Error().Err(metadata.Error).Msg("directstream(http): Failed to get metadata")

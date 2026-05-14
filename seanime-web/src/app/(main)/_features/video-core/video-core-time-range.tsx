@@ -69,10 +69,16 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     const [skipOpeningTime, setSkipOpeningTime] = useAtom(vc_skipOpeningTime)
     const [skipEndingTime, setSkipEndingTime] = useAtom(vc_skipEndingTime)
     const [restoreProgressTo, setRestoreProgressTo] = useAtom(vc_lastKnownProgress)
+    const rangeRectRef = React.useRef<DOMRect | null>(null)
+    const seekingTargetProgressRef = React.useRef(seekingTargetProgress)
+
+    React.useEffect(() => {
+        seekingTargetProgressRef.current = seekingTargetProgress
+    }, [seekingTargetProgress])
 
     const bufferedPercentage = React.useMemo(() => {
         return (buffered / duration) * 100
-    }, [buffered])
+    }, [buffered, duration])
 
     const chapters = React.useMemo<VideoCoreTimeRangeChapter[]>(() => {
         if (!chapterCues?.length) return [{
@@ -114,7 +120,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
         setProgressPercentage((timeToUse / duration) * 100)
     }, [currentTime, duration, isSwiping, swipeSeekTime])
 
-    const opEdChapters = vc_getOPEDChapters(chapters)
+    const opEdChapters = React.useMemo(() => vc_getOPEDChapters(chapters), [chapters])
 
     // handle auto skip
     React.useEffect(() => {
@@ -176,6 +182,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
             e.preventDefault()
         }
         e.currentTarget.setPointerCapture(e.pointerId) // capture movement outside
+        rangeRectRef.current = e.currentTarget.getBoundingClientRect()
         setSeeking(true)
 
         if (isWatchPartyPeer) return
@@ -201,10 +208,11 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
         if (e.currentTarget.hasPointerCapture(e.pointerId)) {
             e.currentTarget.releasePointerCapture(e.pointerId)
         }
+        rangeRectRef.current = null
         setSeeking(false)
         if (!isWatchPartyPeer) {
             // actually seek the video
-            action({ type: "seekTo", payload: { time: (duration * seekingTargetProgress) / 100 } })
+            action({ type: "seekTo", payload: { time: (duration * seekingTargetProgressRef.current) / 100 } })
         }
         // resume playing
         if (!previouslyPaused) videoElement?.play()?.catch()
@@ -216,9 +224,10 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
         if (e.currentTarget.hasPointerCapture(e.pointerId)) {
             e.currentTarget.releasePointerCapture(e.pointerId)
         }
+        rangeRectRef.current = null
         if (seeking) {
             setSeeking(false)
-            action({ type: "seekTo", payload: { time: (duration * seekingTargetProgress) / 100 } })
+            action({ type: "seekTo", payload: { time: (duration * seekingTargetProgressRef.current) / 100 } })
             if (!previouslyPaused) videoElement?.play()?.catch()
         }
     }
@@ -227,12 +236,18 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     function handlePointerLeave(e: React.PointerEvent<HTMLDivElement>) {
         // don't reset while actively seeking
         if (!seeking) {
-            setSeekingTargetProgress(0)
+            rangeRectRef.current = null
+            if (seekingTargetProgressRef.current !== 0) {
+                seekingTargetProgressRef.current = 0
+                setSeekingTargetProgress(0)
+            }
         }
     }
 
     function getPointerProgress<T extends HTMLElement>(e: React.PointerEvent<T>) { // 0-100
-        const rect = e.currentTarget.getBoundingClientRect()
+        const rect = rangeRectRef.current ?? e.currentTarget.getBoundingClientRect()
+        rangeRectRef.current = rect
+        if (rect.width <= 0) return 0
         const x = e.clientX - rect.left
         return Math.max(0, Math.min(100, (x / rect.width * 100)))
     }
@@ -246,18 +261,21 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
                 e.preventDefault()
             }
             e.stopPropagation()
-            setProgressPercentage(target)
+            setProgressPercentage(prev => Math.abs(prev - target) < 0.1 ? prev : target)
         }
-        setSeekingTargetProgress(target)
+        if (Math.abs(seekingTargetProgressRef.current - target) >= 0.1) {
+            seekingTargetProgressRef.current = target
+            setSeekingTargetProgress(target)
+        }
     }
 
     const setTimeRangeElement = useSetAtom(vc_timeRangeElement)
-    const combineRef = (instance: HTMLDivElement | null) => {
+    const combineRef = React.useCallback((instance: HTMLDivElement | null) => {
         // if (ref as unknown instanceof Function) (ref as any)(instance)
         // else if (ref) (ref as any).current = instance
         // if (instance) measureRef(instance)
         setTimeRangeElement(instance)
-    }
+    }, [setTimeRangeElement])
 
     return (
         <div
@@ -267,7 +285,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
             className={cn(
                 "w-full relative group/vc-time-range z-[2] flex h-8",
                 "cursor-pointer outline-none",
-                "touch-none select-none", // prevent page scroll and text selection on mobile
+                "touch-none select-none [contain:layout_style]", // prevent page scroll and text selection on mobile
             )}
             role="slider"
             tabIndex={0}

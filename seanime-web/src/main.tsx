@@ -2,6 +2,7 @@ import { useIsSimulatedUser } from "@/app/(main)/_hooks/use-server-status"
 import { ClientProviders, queryClient, store } from "@/app/client-providers"
 import "./app/globals.css"
 import { __navigationPreloadModeAtom, getActualNavigationPreloadMode, NavigationPreloadMode } from "@/lib/navigation-preload-settings"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
 import { useAtomValue } from "jotai/react"
 import React from "react"
@@ -56,6 +57,44 @@ function AppRouterProvider() {
     const preloadMode = getActualNavigationPreloadMode(_preloadMode, isSimulatedUser)
 
     return <RouterProvider router={routersByPreloadMode[preloadMode]} />
+}
+
+function DesktopStartupReady() {
+    React.useEffect(() => {
+        if (!__isElectronDesktop__ || window.location.pathname.startsWith("/splashscreen") || !window.electron?.startup?.ready) {
+            return
+        }
+
+        let sent = false
+        let ff = 0
+        let sf = 0
+        let fallbackId = 0
+
+        const sendReady = () => {
+            if (sent) return
+
+            sent = true
+            window.electron?.startup?.ready()
+        }
+
+        ff = window.requestAnimationFrame(() => {
+            sf = window.requestAnimationFrame(() => {
+                sendReady()
+            })
+        })
+
+        fallbackId = window.setTimeout(() => {
+            sendReady()
+        }, 500)
+
+        return () => {
+            window.cancelAnimationFrame(ff)
+            window.cancelAnimationFrame(sf)
+            window.clearTimeout(fallbackId)
+        }
+    }, [])
+
+    return null
 }
 
 function RootErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
@@ -113,6 +152,7 @@ ReactDOM.createRoot(document.getElementById("root")!, {
 }).render(
     <ErrorBoundary FallbackComponent={RootErrorFallback}>
         <ClientProviders>
+            <DesktopStartupReady />
             <AppRouterProvider />
         </ClientProviders>
     </ErrorBoundary>,

@@ -32,6 +32,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
+import { useEpisodeSpoilerState } from "@/lib/theme/anime-spoilers"
+import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
 import React, { startTransition } from "react"
@@ -209,6 +211,14 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
         setExtraProviderIds(next)
     }, [extraProviderDraft, extraProviderOptions, setExtraProviderIds])
 
+    const ts = useThemeSettings()
+    const spoiler = useEpisodeSpoilerState(ts, {
+        mediaId: entry.mediaId,
+        episodeNumber: torrentSearchStreamEpisode?.progressNumber || 0,
+        watchedProgress: entry.listData?.progress ?? 0,
+        spoilerMode: "blur",
+    })
+
 
     return (
         <>
@@ -238,6 +248,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                 progressNumber={torrentSearchStreamEpisode.progressNumber}
                                 episodeNumber={torrentSearchStreamEpisode.episodeNumber}
                                 length={torrentSearchStreamEpisode.episodeMetadata?.length}
+                                watchedProgress={entry.listData?.progress}
                                 actionIcon={null}
                                 anime={{
                                     id: torrentSearchStreamEpisode.baseAnime?.id,
@@ -480,6 +491,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     type={type}
                                     entry={entry}
                                     debridInstantAvailability={debridInstantAvailability}
+                                    isSpoiler={spoiler.isSpoiler}
                                 />}
 
                             {hasOneWarning && <LuffyError />}
@@ -496,6 +508,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         torrentMetadata={data?.torrentMetadata}
                                         includedSpecialProviders={data?.includedSpecialProviders}
                                         searchAcrossProviders={searchAcrossProviders}
+                                        isSpoiler={spoiler.isSpoiler}
                                         // animeMetadata={data?.animeMetadata}
                                     />
                                 </>
@@ -520,6 +533,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         torrentMetadata={data?.torrentMetadata}
                                         includedSpecialProviders={data?.includedSpecialProviders}
                                         searchAcrossProviders={searchAcrossProviders}
+                                        isSpoiler={spoiler.isSpoiler}
                                     />
                                 </>
                             )}
@@ -558,10 +572,11 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
 }
 
-function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvailability }: {
+function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvailability, isSpoiler }: {
     entry: Anime_Entry | undefined,
     type: TorrentSelectionType,
-    debridInstantAvailability: Record<string, Debrid_TorrentItemInstantAvailability>
+    debridInstantAvailability: Record<string, Debrid_TorrentItemInstantAvailability>,
+    isSpoiler: boolean
 }) {
 
     const { data: batchHistory } = useGetTorrentstreamBatchHistory(entry?.mediaId, true)
@@ -585,6 +600,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                 media={entry.media}
                 episode={undefined}
                 debridCached={((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!batchHistory.torrent.infoHash && !!debridInstantAvailability[batchHistory.torrent.infoHash])}
+                isSpoiler={isSpoiler}
                 isSelected={false}
                 onClick={() => {
                     if (!batchHistory?.torrent || !torrentSearchStreamEpisode?.aniDBEpisode) return

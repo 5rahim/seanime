@@ -67,6 +67,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     const currentPageIndex = useAtomValue(__manga_currentPageIndexAtom)
     const setCurrentPageIndex = useSetAtom(__manga_currentPageIndexAtom)
     const setCurrentPaginationMapIndex = useSetAtom(__manga_currentPaginationMapIndexAtom)
+    const setIsLastPage = useSetAtom(__manga_isLastPageAtom)
 
     const [readingMode, setReadingMode] = useAtom(__manga_readingModeAtom)
     const isLastPage = useAtomValue(__manga_isLastPageAtom)
@@ -217,12 +218,14 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     React.useEffect(() => {
         if (!currentChapterResumeKey) {
             restoredChapterResumeKeyRef.current = null
+            setIsLastPage(false)
             setCurrentPageIndex(0)
             setCurrentPaginationMapIndex(0)
             return
         }
 
         restoredChapterResumeKeyRef.current = null
+        setIsLastPage(false)
         setCurrentPageIndex(shouldRestoreSavedPage ? currentResumeLocation?.pageIndex ?? 0 : 0)
         setCurrentPaginationMapIndex(0)
     }, [currentChapterResumeKey])

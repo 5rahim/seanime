@@ -152,6 +152,14 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 		return fmt.Errorf("torrentstream: No torrent selected")
 	}
 
+	if opts.PlaybackType == PlaybackTypeNativePlayer && !r.directStreamManager.IsOpenActive(opts.ClientId) {
+		r.logger.Debug().Msg("torrentstream: Stream opening was cancelled before playback")
+		if torrentToStream.Torrent != nil {
+			torrentToStream.Torrent.Drop()
+		}
+		return nil
+	}
+
 	//
 	// Set current file & torrent
 	//
@@ -246,6 +254,11 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 			})
 		}
 	}()
+
+	if opts.PlaybackType == PlaybackTypeNativePlayer && !r.directStreamManager.IsOpenActive(opts.ClientId) {
+		r.logger.Debug().Msg("torrentstream: Stream opening was cancelled before loaded event")
+		return nil
+	}
 
 	r.sendStateEvent(eventTorrentLoaded)
 	r.logger.Info().Msg("torrentstream: Stream started")

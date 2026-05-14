@@ -845,7 +845,7 @@ export function VideoCore(props: VideoCoreProps) {
     }, [state.active, state.playbackInfo?.id])
 
     // Merge refs
-    const combineRef = (instance: HTMLVideoElement | null) => {
+    const combineRef = React.useCallback((instance: HTMLVideoElement | null) => {
         videoRef.current = instance
         if (mRef) {
             mRef.current = instance
@@ -859,12 +859,12 @@ export function VideoCore(props: VideoCoreProps) {
         }
         videoResizeTargetRef.current = instance
         setVideoElement(instance)
-    }
+    }, [mRef, setVideoElement])
 
-    const combineContainerRef = (instance: HTMLDivElement | null) => {
+    const combineContainerRef = React.useCallback((instance: HTMLDivElement | null) => {
         containerRef.current = instance
         setContainerElement(instance)
-    }
+    }, [setContainerElement])
 
     // actions
     function togglePlay() {
@@ -881,15 +881,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     function onAudioChange() {
         log.info("Audio changed", videoRef.current?.audioTracks)
-        if (videoRef.current?.audioTracks) {
-            for (let i = 0; i < videoRef.current.audioTracks.length; i++) {
-                const track = videoRef.current.audioTracks[i]
-                if (track.enabled) {
-                    audioManager?.selectTrack(Number(track.id))
-                    break
-                }
-            }
-        }
+        audioManager?.syncSelectedTrack()
         action({ type: "seek", payload: { time: -1 } })
     }
 
@@ -1270,6 +1262,12 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }, [menuOpen])
 
+    React.useEffect(() => {
+        if (inline && isMiniPlayer) {
+            setIsMiniPlayer(false)
+        }
+    }, [isMiniPlayer, inline])
+
     let lastClickTime = React.useRef(0)
 
     const handleClick = (e: React.SyntheticEvent<HTMLDivElement>) => {
@@ -1512,6 +1510,24 @@ export function VideoCore(props: VideoCoreProps) {
     const setNotBusyTimeout = React.useRef<NodeJS.Timeout | null>(null)
     const lastPointerPosition = React.useRef({ x: 0, y: 0 })
     const isHoveringContainer = React.useRef(false)
+    const busyRef = React.useRef(busy)
+    const cursorBusyRef = React.useRef(cursorBusy)
+
+    React.useEffect(() => {
+        busyRef.current = busy
+    }, [busy])
+
+    React.useEffect(() => {
+        cursorBusyRef.current = cursorBusy
+    }, [cursorBusy])
+
+    React.useEffect(() => {
+        return () => {
+            if (setNotBusyTimeout.current) {
+                clearTimeout(setNotBusyTimeout.current)
+            }
+        }
+    }, [])
 
     const handleContainerPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
         const { x, y } = e.nativeEvent
@@ -1521,9 +1537,13 @@ export function VideoCore(props: VideoCoreProps) {
         if (setNotBusyTimeout?.current) {
             clearTimeout(setNotBusyTimeout.current)
         }
-        setBusy(true)
+        if (!busyRef.current) {
+            busyRef.current = true
+            setBusy(true)
+        }
         setNotBusyTimeout.current = setTimeout(() => {
-            if (!cursorBusy) {
+            if (!cursorBusyRef.current) {
+                busyRef.current = false
                 setBusy(false)
             }
         }, DELAY_BEFORE_NOT_BUSY)
@@ -1678,6 +1698,16 @@ export function VideoCore(props: VideoCoreProps) {
                     data-native-player-drawer
                     onMiniPlayerClick={() => {
                         togglePlay()
+                    }}
+                    onEscapeKeyDown={e => {
+                        e.preventDefault()
+                        if (!inline) {
+                            if (fullscreen) {
+                                setTimeout(() => {
+                                    setIsMiniPlayer(true)
+                                }, 800)
+                            } else setIsMiniPlayer(true)
+                        }
                     }}
                 >
                     <PlayerContent

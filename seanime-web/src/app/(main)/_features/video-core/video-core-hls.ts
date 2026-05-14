@@ -167,7 +167,7 @@ export function useVideoCoreHls({
                     const uniqueTracks = new Map<string, { track: any, index: number }>()
 
                     data.audioTracks.forEach((track: any, index: number) => {
-                        const key = `${track.groupId || ""}-${track.lang || "unknown"}-${track.name || ""}-${track.audioCodec || ""}`
+                        const key = `${track.id ?? index}-${track.groupId || ""}-${track.lang || "unknown"}-${track.name || ""}-${track.audioCodec || ""}`
 
                         // Keep the first occurrence of each unique track
                         if (!uniqueTracks.has(key)) {
@@ -176,7 +176,7 @@ export function useVideoCoreHls({
                     })
 
                     const audioTracks: HlsAudioTrack[] = Array.from(uniqueTracks.values()).map(({ track, index }) => ({
-                        id: index,
+                        id: typeof track.id === "number" ? track.id : index,
                         name: track.name || track.lang || `Track ${track.id}`,
                         language: track.lang,
                         default: track.default,

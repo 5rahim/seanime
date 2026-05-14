@@ -344,6 +344,79 @@ func TestStream_beginOpenTerminatesPreviousStream(t *testing.T) {
 	}
 }
 
+// the old player's terminate event can arrive after the new stream starts opening
+func TestStream_beginOpenIgnoresReplacedPlaybackTermination(t *testing.T) {
+	logger := util.NewLogger()
+	ws := events.NewMockWSEventManager(logger)
+	vc := videocore.New(videocore.NewVideoCoreOptions{
+		WsEventManager: ws,
+		Logger:         logger,
+	})
+	np := nativeplayer.New(nativeplayer.NewNativePlayerOptions{
+		WsEventManager: ws,
+		Logger:         logger,
+		VideoCore:      vc,
+	})
+	manager := NewManager(NewManagerOptions{
+		Logger:         logger,
+		WSEventManager: ws,
+		NativePlayer:   np,
+		VideoCore:      vc,
+	})
+
+	stream := &eventStream{
+		clientID:     "player-client",
+		playbackInfo: &nativeplayer.PlaybackInfo{ID: "previous-playback-id"},
+		terminatedCh: make(chan struct{}),
+	}
+	manager.currentStream = mo.Some[Stream](stream)
+	manager.currentPlaybackId = "previous-playback-id"
+	manager.currentPlaybackClient = "player-client"
+
+	t.Cleanup(func() {
+		vc.Shutdown()
+	})
+
+	require.True(t, manager.BeginOpen("player-client", "opening", nil))
+
+	ws.MockSendClientEvent(&events.WebsocketClientEvent{
+		ClientID: "socket-client",
+		Type:     events.VideoCoreEventType,
+		Payload: videocore.ClientEvent{
+			ClientId: "player-client",
+			Type:     videocore.PlayerEventVideoTerminated,
+			Payload: mustMarshalRawMessage(t, map[string]interface{}{
+				"id":           "previous-playback-id",
+				"clientId":     "player-client",
+				"playerType":   "native",
+				"playbackType": "torrent",
+			}),
+		},
+	})
+
+	require.Eventually(t, func() bool {
+		return manager.IsOpenActive("player-client")
+	}, time.Second, 10*time.Millisecond)
+
+	ws.MockSendClientEvent(&events.WebsocketClientEvent{
+		ClientID: "socket-client",
+		Type:     events.VideoCoreEventType,
+		Payload: videocore.ClientEvent{
+			ClientId: "player-client",
+			Type:     videocore.PlayerEventVideoTerminated,
+			Payload: mustMarshalRawMessage(t, map[string]interface{}{
+				"clientId":     "player-client",
+				"playerType":   "native",
+				"playbackType": "torrent",
+			}),
+		},
+	})
+
+	require.Eventually(t, func() bool {
+		return !manager.IsOpenActive("player-client")
+	}, time.Second, 10*time.Millisecond)
+}
+
 func TestStream_closeOpenReturnsWhileLoadPlaybackInfoIsBlocked(t *testing.T) {
 	logger := util.NewLogger()
 	ws := events.NewMockWSEventManager(logger)

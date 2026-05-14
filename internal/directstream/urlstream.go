@@ -46,8 +46,15 @@ type PlayUrlStreamOptions struct {
 }
 
 // PlayUrlStream starts built-in player playback for an arbitrary HTTP URL with progress tracking.
-func (m *Manager) PlayUrlStream(ctx context.Context, opts PlayUrlStreamOptions) error {
-	m.ResetOpenState(opts.ClientId)
+func (m *Manager) PlayUrlStream(ctx context.Context, opts PlayUrlStreamOptions) (err error) {
+	if !m.BeginOpen(opts.ClientId, "Loading stream...", nil) {
+		return fmt.Errorf("stream opening was cancelled")
+	}
+	defer func() {
+		if err != nil {
+			m.AbortOpen(opts.ClientId, err)
+		}
+	}()
 
 	episodeCollection, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
 		AnimeMetadata:       nil,

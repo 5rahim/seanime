@@ -38,6 +38,7 @@ type TorrentTable = {
     includedSpecialProviders?: string[]
     type: TorrentSelectionType
     searchAcrossProviders: boolean
+    isSpoiler: boolean
 }
 
 export const TorrentTable = memo((
@@ -58,6 +59,7 @@ export const TorrentTable = memo((
         includedSpecialProviders = [],
         type,
         searchAcrossProviders,
+        isSpoiler,
     }: TorrentTable) => {
     // Use hooks for sorting and filtering
     const { sortField, sortDirection, handleSortChange } = useTorrentSorting()
@@ -138,6 +140,7 @@ export const TorrentTable = memo((
                                         debridCached={((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!torrent.infoHash && !!debridInstantAvailability[torrent.infoHash])}
                                         isSelected={selectedTorrents.findIndex(n => n.infoHash === torrent!.infoHash) !== -1}
                                         onClick={() => onToggleTorrent(torrent!)}
+                                        isSpoiler={isSpoiler}
                                         overrideProps={{
                                             releaseGroup: releaseGroup,
                                             displayName: (episodeNumber ?? -1) >= 0

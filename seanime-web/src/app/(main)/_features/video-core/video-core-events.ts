@@ -198,7 +198,7 @@ export function useVideoCoreSetupEvents(id: string,
         audioManager.addEventListener("hlstrackchanged", handleHlsAudioTrackChanged)
         return () => {
             audioManager.removeEventListener("trackchanged", handleAudioTrackChanged)
-            audioManager.addEventListener("hlstrackchanged", handleHlsAudioTrackChanged)
+            audioManager.removeEventListener("hlstrackchanged", handleHlsAudioTrackChanged)
         }
     }, [isActivePlayer, state, audioManager])
 

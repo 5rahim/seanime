@@ -7,7 +7,6 @@ import { IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
-import { openTab } from "@/lib/helpers/browser"
 import { usePathname, useRouter } from "@/lib/navigation"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
@@ -49,6 +48,42 @@ type WebSocketLogEntry = {
     timestamp: string
 }
 
+function getReportDataPreview(value: unknown, maxLength = 200) {
+    if (typeof value !== "object" || value === null) {
+        return String(value ?? "").slice(0, maxLength)
+    }
+
+    try {
+        return JSON.stringify(value).slice(0, maxLength)
+    }
+    catch {
+        return "[unserializable]"
+    }
+}
+
+// avoids circular references and large data in error objects
+function getReportError(error: unknown) {
+    if (!error) return null
+    if (error instanceof Error) {
+        return {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+        }
+    }
+    if (typeof error === "object") {
+        const record = error as Record<string, any>
+        return {
+            name: record.name,
+            message: record.message,
+            code: record.code,
+            status: record.response?.status,
+            data: record.response?.data,
+        }
+    }
+    return String(error)
+}
+
 const __issueReport_navigationLogsAtom = atom<NavigationLog[]>([])
 const __issueReport_screenshotsAtom = atom<ScreenshotEntry[]>([])
 
@@ -80,7 +115,8 @@ export function IssueReport() {
     // WebSocket event capture
     const wsEventsRef = useRef<WebSocketLogEntry[]>([])
 
-    const { mutate, isPending } = useSaveIssueReport()
+    const { mutateAsync, isPending } = useSaveIssueReport()
+    const [isDownloadingReport, setDownloadingReport] = React.useState(false)
 
     const eventCount = consoleLogs.length + clickLogs.length + networkLogs.length + reactQueryLogs.length + navigationLogs.length
     const rrwebEventCount = rrwebEventsRef.current.length
@@ -292,11 +328,9 @@ export function IssueReport() {
                 pageUrl: window.location.href.replace(window.location.host, "{client}"),
                 status: listener.query.state.status,
                 hash: listener.query.queryHash,
-                error: listener.query.state.error,
+                error: getReportError(listener.query.state.error),
                 timestamp: new Date().toISOString(),
-                dataPreview: typeof listener.query.state.data === "object"
-                    ? JSON.stringify(listener.query.state.data).slice(0, 200)
-                    : "",
+                dataPreview: getReportDataPreview(listener.query.state.data),
                 dataType: typeof listener.query.state.data,
             }])
         })
@@ -314,10 +348,9 @@ export function IssueReport() {
                 pageUrl: window.location.href.replace(window.location.host, "{client}"),
                 status: listener.mutation!.state.status,
                 hash: JSON.stringify(listener.mutation!.options.mutationKey),
-                error: listener.mutation!.state.error,
+                error: getReportError(listener.mutation!.state.error),
                 timestamp: new Date().toISOString(),
-                dataPreview: typeof listener.mutation!.state.data === "object" ? JSON.stringify(listener.mutation!.state.data)
-                    .slice(0, 200) : "",
+                dataPreview: getReportDataPreview(listener.mutation!.state.data),
                 dataType: typeof listener.mutation!.state.data,
             }])
         })
@@ -596,9 +629,47 @@ export function IssueReport() {
         toast.success("Screenshot added to report")
     }
 
-    const { getHMACTokenQueryParam } = useServerHMACAuth()
+    const { password, getHMACTokenQueryParam } = useServerHMACAuth()
+
+    async function downloadIssueReport() {
+        const endpoint = "/api/v1/report/issue/download"
+        const tokenQuery = await getHMACTokenQueryParam(endpoint)
+        if (password && !tokenQuery) {
+            throw new Error("failed to generate download token")
+        }
+
+        const response = await fetch(`${getServerBaseUrl()}${endpoint}${tokenQuery}`, {
+            credentials: "include",
+        })
+        if (!response.ok) {
+            let message = "failed to download issue report"
+            try {
+                const data: unknown = await response.json()
+                if (typeof data === "object" && data !== null && "error" in data && typeof data.error === "string" && data.error.trim()) {
+                    message = data.error
+                }
+            }
+            catch {
+            }
+            throw new Error(message)
+        }
+
+        const blob = await response.blob()
+        const contentDisposition = response.headers.get("content-disposition")
+        const filename = contentDisposition?.match(/filename="?([^";]+)"?/i)?.[1] ?? "issue_report.zip"
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+        setTimeout(() => URL.revokeObjectURL(url), 0)
+    }
 
     async function handleStopRecording() {
+        if (isPending || isDownloadingReport) return
+
         // stop rrweb and capture final events
         if (rrwebStopFnRef.current) {
             rrwebStopFnRef.current()
@@ -624,25 +695,26 @@ export function IssueReport() {
 
         setRecording(false)
 
-        mutate({
-            ...logsToSave,
-            isAnimeLibraryIssue: recordLocalFiles,
-        }, {
-            onSuccess: async () => {
-                toast.success("Issue report saved successfully")
-
-                setTimeout(async () => {
-                    try {
-                        const endpoint = "/api/v1/report/issue/download"
-                        const tokenQuery = await getHMACTokenQueryParam(endpoint)
-                        openTab(`${getServerBaseUrl()}${endpoint}${tokenQuery}`)
-                    }
-                    catch (error) {
-                        toast.error("Failed to generate download token")
-                    }
-                }, 1000)
-            },
-        })
+        try {
+            await mutateAsync({
+                ...logsToSave,
+                isAnimeLibraryIssue: recordLocalFiles,
+            })
+            setDownloadingReport(true)
+            await downloadIssueReport()
+            toast.success("Issue report saved successfully")
+        }
+        catch (error) {
+            if (typeof error === "object" && error !== null && "isAxiosError" in error) {
+                return
+            }
+            if (error instanceof Error && error.message) {
+                toast.error(error.message)
+            }
+        }
+        finally {
+            setDownloadingReport(false)
+        }
     }
 
     // format elapsed time as mm:ss
@@ -770,11 +842,12 @@ export function IssueReport() {
                         <div className="flex items-center gap-2 pt-1 border-t border-gray-800">
                             <button
                                 onClick={handleStopRecording}
+                                disabled={isPending || isDownloadingReport}
                                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500
-                                    transition-colors text-sm font-medium text-white flex-1 justify-center"
+                                    transition-colors text-sm font-medium text-white flex-1 justify-center disabled:opacity-60 disabled:cursor-not-allowed"
                             >
                                 <PiStopCircleFill className="text-lg" />
-                                Stop & Save
+                                {isPending || isDownloadingReport ? "Saving..." : "Stop & Save"}
                             </button>
                             <Tooltip
                                 trigger={<IconButton

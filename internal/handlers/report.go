@@ -130,7 +130,7 @@ func (h *Handler) HandleDownloadIssueReport(c echo.Context) error {
 	// Generate filename with current timestamp
 	filename := fmt.Sprintf("issue_report_%s.zip", time.Now().Format("2006-01-02_15-04-05"))
 
-	c.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	c.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filename))
 	c.Response().Header().Set("Content-Type", "application/zip")
 
 	return c.Stream(200, "application/zip", buffer)

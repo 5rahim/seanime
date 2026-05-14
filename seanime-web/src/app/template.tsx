@@ -11,25 +11,6 @@ export default function Template({ children }: { children: React.ReactNode }) {
     const pathname = typeof window !== "undefined" ? window.location.pathname : "/"
     const showSpinner = pathname !== "/issue-report" && pathname !== "/scan-log-viewer" && pathname !== "/public/auth"
 
-    React.useEffect(() => {
-        if (!__isElectronDesktop__ || pathname.startsWith("/splashscreen") || !window.electron?.startup?.ready) {
-            return
-        }
-
-        let ff = 0
-        let sf = 0
-        ff = window.requestAnimationFrame(() => {
-            sf = window.requestAnimationFrame(() => {
-                window.electron?.startup?.ready()
-            })
-        })
-
-        return () => {
-            window.cancelAnimationFrame(ff)
-            window.cancelAnimationFrame(sf)
-        }
-    }, [pathname])
-
     return (
         <>
             {__isElectronDesktop__ && <ElectronWindowTitleBar />}

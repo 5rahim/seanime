@@ -191,8 +191,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     const { setPreviewModalMediaId } = useMediaPreviewModal()
     const { openDirInLibraryExplorer } = useLibraryExplorer()
 
-    const [isHoveringCard, setIsHoveringCard] = useState(false)
     const [shouldRenderPopup, setShouldRenderPopup] = useState(false)
+    const closePopupTimerRef = React.useRef<number | undefined>(undefined)
 
     const warmCardEntry = React.useCallback(() => {
         if (onClick || !shouldWarmEntryOnIntent(navigationPreloadMode, isSimulatedUser)) return
@@ -200,23 +200,31 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     }, [isSimulatedUser, link, navigationPreloadMode, onClick, shouldBypassPreloadBudget])
 
     const handleCardMouseEnter = React.useCallback(() => {
-        setIsHoveringCard(true)
+        if (closePopupTimerRef.current) {
+            window.clearTimeout(closePopupTimerRef.current)
+            closePopupTimerRef.current = undefined
+        }
+        setShouldRenderPopup(true)
         warmCardEntry()
     }, [warmCardEntry])
 
-    // Handle delayed unmount for exit animation
-    React.useEffect(() => {
-        if (isHoveringCard) {
-            setShouldRenderPopup(true)
-            return
-        } else {
-            // Delay unmount to allow exit animation
-            const timer = setTimeout(() => {
-                setShouldRenderPopup(false)
-            }, 35) // Match animation duration
-            return () => clearTimeout(timer)
+    const handleCardMouseLeave = React.useCallback(() => {
+        if (closePopupTimerRef.current) {
+            window.clearTimeout(closePopupTimerRef.current)
         }
-    }, [isHoveringCard])
+        closePopupTimerRef.current = window.setTimeout(() => {
+            setShouldRenderPopup(false)
+            closePopupTimerRef.current = undefined
+        }, 35)
+    }, [])
+
+    React.useEffect(() => {
+        return () => {
+            if (closePopupTimerRef.current) {
+                window.clearTimeout(closePopupTimerRef.current)
+            }
+        }
+    }, [])
 
     const handlePreviewClick = React.useCallback(() => {
         setPreviewModalMediaId(mediaId, type)
@@ -243,9 +251,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
             data-media-type={type}
             className={props.containerClassName}
             data-list-data={stringifiedListData}
-            onMouseEnter={handleCardMouseEnter}
-            onMouseOver={() => setIsHoveringCard(true)}
-            onMouseLeave={() => setIsHoveringCard(false)}
+            onPointerEnter={handleCardMouseEnter}
+            onPointerLeave={handleCardMouseLeave}
         >
 
             <MediaEntryCardOverlay overlay={overlay} />

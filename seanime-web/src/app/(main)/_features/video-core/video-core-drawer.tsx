@@ -425,8 +425,8 @@ export function VideoCoreDrawer(props: DrawerProps) {
                     className={cn(
                         DrawerAnatomy.content({ size, side: "player" }),
                         contentClass,
-                        "w-full h-full transition-all duration-300 overflow-hidden fixed",
-                        miniPlayer && "aspect-video w-[300px] lg:w-[400px] h-auto rounded-lg shadow-xl",
+                        "w-full h-full transition-all duration-300 overflow-hidden fixed transform-gpu [contain:layout_paint_style]",
+                        miniPlayer && "aspect-video w-[300px] lg:w-[400px] h-auto rounded-lg shadow-xl will-change-[transform,opacity]",
                         isHidden && "ring-2 ring-brand-300",
                     )}
                     ref={contentRef}

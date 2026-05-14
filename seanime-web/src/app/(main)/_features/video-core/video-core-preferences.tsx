@@ -1232,7 +1232,8 @@ export function VideoCoreKeybindingController(props: {
 
         // Enable next track
         audioTracks[nextIndex].enabled = true
-        audioManager?.selectTrack(nextIndex)
+        audioTracks.dispatchEvent?.(new Event("change"))
+        audioManager.syncSelectedTrack()
 
         const trackName = audioTracks[nextIndex].label || audioTracks[nextIndex].language || `Track ${nextIndex + 1}`
         showOverlayFeedback({ message: `Audio: ${trackName}` })
