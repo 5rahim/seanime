@@ -87,7 +87,10 @@
         }
       ],
       "category": "Entertainment",
-      "artifactName": "seanime-denshi-${version}_Linux_${arch}.${ext}"
+      "artifactName": "seanime-denshi-${version}_Linux_${arch}.${ext}",
+      "desktop": {
+        "StartupWMClass": "seanime-denshi"
+      }
     },
     "nsis": {
       "oneClick": false,
