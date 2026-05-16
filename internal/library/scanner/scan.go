@@ -459,24 +459,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 	// Merge skipped files with scanned files
 	// Only files that exist (this removes deleted/moved files)
 	if len(skippedLfs) > 0 {
-		wg := sync.WaitGroup{}
-		mu := sync.Mutex{}
-		wg.Add(len(skippedLfs))
-		for _, skippedLf := range skippedLfs {
-			go func(skippedLf *anime.LocalFile) {
-				defer wg.Done()
-				if filesystem.FileExists(skippedLf.Path) {
-					mu.Lock()
-					localFiles = append(localFiles, skippedLf)
-					mu.Unlock()
-				} else if scn.WithShelving && skippedLf.IsLocked() { // If the file is locked and shelving is enabled, shelve it
-					mu.Lock()
-					scn.shelvedLocalFiles = append(scn.shelvedLocalFiles, skippedLf)
-					mu.Unlock()
-				}
-			}(skippedLf)
-		}
-		wg.Wait()
+		localFiles = scn.mergeSkippedLfsF(localFiles, skippedLfs, filesystem.FileExists)
 	}
 
 	// Add remaining shelved files
@@ -514,6 +497,52 @@ func (scn *Scanner) InLibrariesOnly(lfs []*anime.LocalFile) {
 
 func (scn *Scanner) GetShelvedLocalFiles() []*anime.LocalFile {
 	return scn.shelvedLocalFiles
+}
+
+func (scn *Scanner) mergeSkippedLfsF(
+	localFiles []*anime.LocalFile,
+	skippedLfs map[string]*anime.LocalFile,
+	fileExists func(string) bool,
+) []*anime.LocalFile {
+	if len(skippedLfs) == 0 {
+		return localFiles
+	}
+
+	var (
+		wg           sync.WaitGroup
+		mu           sync.Mutex
+		mergedFiles  = make([]*anime.LocalFile, 0, len(skippedLfs))
+		shelvedFiles []*anime.LocalFile
+	)
+	// using a semaphore to limit concurrency when calling os.Stat
+	sem := make(chan struct{}, 64)
+
+	for _, skippedLf := range skippedLfs {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(skippedLf *anime.LocalFile) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			if fileExists(skippedLf.Path) {
+				mu.Lock()
+				mergedFiles = append(mergedFiles, skippedLf)
+				mu.Unlock()
+				return
+			}
+
+			if scn.WithShelving && skippedLf.IsLocked() {
+				mu.Lock()
+				shelvedFiles = append(shelvedFiles, skippedLf)
+				mu.Unlock()
+			}
+		}(skippedLf)
+	}
+
+	wg.Wait()
+	scn.shelvedLocalFiles = append(scn.shelvedLocalFiles, shelvedFiles...)
+
+	return append(localFiles, mergedFiles...)
 }
 
 func (scn *Scanner) addRemainingShelvedFiles(skippedLfs map[string]*anime.LocalFile, sortedLibraryPaths []string) {
