@@ -50,12 +50,12 @@ export function VideoCoreOverlayDisplay() {
             >
                 {notification.message === "PLAY" &&
                     <PiPlayDuotone
-                        className={cn("size-10 lg:size-24 text-white", isMiniPlayer && "size-10")}
+                        className={cn("size-10 lg:size-24 text-white", isMiniPlayer && "size-10 lg:size-10")}
                         style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}
                     />}
                 {notification.message === "PAUSE" &&
                     <PiPauseDuotone
-                        className={cn("size-10 lg:size-24 text-white", isMiniPlayer && "size-10")}
+                        className={cn("size-10 lg:size-24 text-white", isMiniPlayer && "size-10 lg:size-10")}
                         style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}
                     />}
             </motion.div>
@@ -63,12 +63,17 @@ export function VideoCoreOverlayDisplay() {
     }
 
     return (
-        <div data-vc-overlay-display-container className="absolute top-6 lg:top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
+        <div
+            data-vc-overlay-display-container className={cn(
+            "absolute top-6 lg:top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none",
+            isMiniPlayer && "top-2 lg:top-4",
+        )}
+        >
             <div
                 data-vc-overlay-display
                 className={cn(
                     "text-white px-2 py-1 text-sm md:text-md lg:text-xl font-semibold rounded-lg bg-black/50 backdrop-blur-sm tracking-wide",
-                    isMiniPlayer && "text-sm",
+                    isMiniPlayer && "text-xs md:text-xs lg:text-xs",
                 )}
             >
                 {notification.message}

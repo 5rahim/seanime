@@ -245,6 +245,32 @@ html[data-denshi-view-transitions]::view-transition-new(denshi-titlebar) {
     opacity: 1;
 }
 
+@supports selector(:active-view-transition-type(sea-denshi-route)) {
+    html[data-denshi-view-transitions]:active-view-transition-type(sea-denshi-route) [data-vc-element="drawer-content"][data-vc-miniplayer-state="true"] {
+        view-transition-name: denshi-vc-player;
+    }
+
+    html[data-denshi-view-transitions]:active-view-transition-type(sea-denshi-route)::view-transition-group(denshi-vc-player) {
+        animation: none;
+        z-index: 999999;
+    }
+
+    html[data-denshi-view-transitions]:active-view-transition-type(sea-denshi-route)::view-transition-old(denshi-vc-player),
+    html[data-denshi-view-transitions]:active-view-transition-type(sea-denshi-route)::view-transition-new(denshi-vc-player) {
+        animation: none;
+        mix-blend-mode: normal;
+        backface-visibility: hidden;
+    }
+
+    html[data-denshi-view-transitions]:active-view-transition-type(sea-denshi-route)::view-transition-old(denshi-vc-player) {
+        opacity: 0;
+    }
+
+    html[data-denshi-view-transitions]:active-view-transition-type(sea-denshi-route)::view-transition-new(denshi-vc-player) {
+        opacity: 1;
+    }
+}
+
 html[data-denshi-view-transitions]::view-transition-old(denshi-main) {
     animation: sea-denshi-fade-out var(--sea-denshi-vt) var(--sea-denshi-vt-ease) both;
 }
@@ -272,6 +298,49 @@ html[data-denshi-view-transitions]::view-transition-new(denshi-main) {
 @media (prefers-reduced-motion: reduce) {
     html[data-denshi-view-transitions]::view-transition-old(denshi-main),
     html[data-denshi-view-transitions]::view-transition-new(denshi-main) {
+        animation: none;
+    }
+}
+
+/* video-core full player -> mini-player view transition */
+html[data-vc-miniplayer-view-transition] [data-vc-element="drawer-content"] {
+    view-transition-name: vc-player;
+}
+
+html[data-vc-miniplayer-view-transition]::view-transition {
+    pointer-events: none;
+}
+
+html[data-vc-miniplayer-view-transition]::view-transition-group(root),
+html[data-vc-miniplayer-view-transition]::view-transition-old(root),
+html[data-vc-miniplayer-view-transition]::view-transition-new(root) {
+    animation: none;
+}
+
+html[data-vc-miniplayer-view-transition]::view-transition-old(root) {
+    opacity: 0;
+}
+
+html[data-vc-miniplayer-view-transition]::view-transition-new(root) {
+    opacity: 1;
+}
+
+html[data-vc-miniplayer-view-transition]::view-transition-group(vc-player) {
+    animation-duration: 320ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 999999;
+}
+
+html[data-vc-miniplayer-view-transition]::view-transition-old(vc-player),
+html[data-vc-miniplayer-view-transition]::view-transition-new(vc-player) {
+    mix-blend-mode: normal;
+    backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-vc-miniplayer-view-transition]::view-transition-group(vc-player),
+    html[data-vc-miniplayer-view-transition]::view-transition-old(vc-player),
+    html[data-vc-miniplayer-view-transition]::view-transition-new(vc-player) {
         animation: none;
     }
 }

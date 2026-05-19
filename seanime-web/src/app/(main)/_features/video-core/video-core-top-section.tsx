@@ -11,6 +11,7 @@ import { __isDesktop__ } from "@/types/constants"
 import { useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
+import { startVideoCoreMiniPlayerTransition } from "./video-core"
 import { vc_fullscreenManager } from "./video-core-fullscreen"
 
 export function VideoCoreTopSection(props: { children?: React.ReactNode, inline?: boolean }) {
@@ -90,7 +91,9 @@ export function VideoCoreTopPlaybackInfo(props: { state: VideoCoreLifecycleState
                         onClick={() => {
                             router.push(`/entry?id=${state.playbackInfo?.episode?.baseAnime?.id}`)
                             fullscreenManager?.exitFullscreen()?.then(() => {
-                                setMiniPlayer(true)
+                                startVideoCoreMiniPlayerTransition(() => {
+                                    setMiniPlayer(true)
+                                })
                             })
                         }}
                     >

@@ -128,6 +128,8 @@ import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Modal } from "@/components/ui/modal"
+import { useDisclosure } from "@/hooks/use-disclosure"
 import { logger } from "@/lib/helpers/debug"
 import { __isDesktop__, __isElectronDesktop__ } from "@/types/constants"
 import { useQueryClient } from "@tanstack/react-query"
@@ -136,6 +138,7 @@ import { atom } from "jotai"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useMemo, useRef, useState } from "react"
+import { flushSync } from "react-dom"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
@@ -148,6 +151,46 @@ const log = logger("VIDEO CORE")
 export const VIDEOCORE_DEBUG_ELEMENTS = false
 
 const DELAY_BEFORE_NOT_BUSY = 1_000 //ms
+
+type ViewTransitionDocument = Document & {
+    startViewTransition?: (callback: () => void) => {
+        finished: Promise<void>
+    }
+}
+
+export function startVideoCoreMiniPlayerTransition(update: () => void) {
+    if (typeof document === "undefined" || typeof window === "undefined") {
+        update()
+        return
+    }
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        update()
+        return
+    }
+
+    const documentWithViewTransition = document as ViewTransitionDocument
+    if (!documentWithViewTransition.startViewTransition) {
+        update()
+        return
+    }
+
+    document.documentElement.setAttribute("data-vc-miniplayer-view-transition", "")
+
+    try {
+        const transition = documentWithViewTransition.startViewTransition(() => {
+            flushSync(update)
+        })
+
+        void transition.finished.finally(() => {
+            document.documentElement.removeAttribute("data-vc-miniplayer-view-transition")
+        }).catch(() => {})
+    }
+    catch {
+        document.documentElement.removeAttribute("data-vc-miniplayer-view-transition")
+        update()
+    }
+}
 
 export const vc_subtitleManager = atom<VideoCoreSubtitleManager | null>(null)
 export const vc_mediaCaptionsManager = atom<MediaCaptionsManager | null>(null)
@@ -753,14 +796,60 @@ export function VideoCore(props: VideoCoreProps) {
     const isFirstError = React.useRef(true)
     const shouldDispatchTerminatedOnUnmount = React.useRef(false)
     const [activePlayer, setActivePlayer] = useAtom(vc_activePlayerId)
+    const pendingMiniPlayerTransitionRef = React.useRef(false)
+    const {
+        isOpen: isTerminateConfirmOpen,
+        open: openTerminateConfirm,
+        close: closeTerminateConfirm,
+    } = useDisclosure(false)
+
+    const startMiniPlayerTransition = React.useCallback(() => {
+        startVideoCoreMiniPlayerTransition(() => {
+            setIsMiniPlayer(true)
+        })
+    }, [setIsMiniPlayer])
+
+    const enterMiniPlayer = React.useCallback(() => {
+        if (isMiniPlayer) return
+
+        if (fullscreen) {
+            if (!fullscreenManager) {
+                startMiniPlayerTransition()
+                return
+            }
+
+            pendingMiniPlayerTransitionRef.current = true
+            fullscreenManager.exitFullscreen()
+            return
+        }
+
+        startMiniPlayerTransition()
+    }, [fullscreen, fullscreenManager, isMiniPlayer, startMiniPlayerTransition])
 
     React.useEffect(() => {
         setIsMiniPlayer(false)
     }, [])
 
+    React.useLayoutEffect(() => {
+        if (!pendingMiniPlayerTransitionRef.current || fullscreen) return
+
+        pendingMiniPlayerTransitionRef.current = false
+        const frame = window.requestAnimationFrame(startMiniPlayerTransition)
+
+        return () => {
+            window.cancelAnimationFrame(frame)
+        }
+    }, [fullscreen, startMiniPlayerTransition])
+
     React.useEffect(() => {
         setPluginSkipDataOverride(undefined)
     }, [state.playbackInfo?.id])
+
+    useUpdateEffect(() => {
+        if ((!isMiniPlayer || !state.active) && isTerminateConfirmOpen) {
+            closeTerminateConfirm()
+        }
+    }, [isMiniPlayer, state.active, isTerminateConfirmOpen, closeTerminateConfirm])
 
     React.useEffect(() => {
         if (!__isElectronDesktop__ || !window.electron?.on) return
@@ -794,6 +883,7 @@ export function VideoCore(props: VideoCoreProps) {
     })
 
     function onTerminateStream() {
+        closeTerminateConfirm()
         _onTerminateStream?.()
         dispatchTerminatedEvent()
     }
@@ -1670,8 +1760,7 @@ export function VideoCore(props: VideoCoreProps) {
                     onOpenChange={(v) => {
                         if (!v) {
                             if (!isMiniPlayer) {
-                                setIsMiniPlayer(true)
-                                fullscreenManager?.exitFullscreen()
+                                enterMiniPlayer()
                             } else {
                                 onTerminateStream()
                             }
@@ -1701,13 +1790,14 @@ export function VideoCore(props: VideoCoreProps) {
                     }}
                     onEscapeKeyDown={e => {
                         e.preventDefault()
-                        if (!inline) {
-                            if (fullscreen) {
-                                setTimeout(() => {
-                                    setIsMiniPlayer(true)
-                                }, 800)
-                            } else setIsMiniPlayer(true)
+                        if (isMiniPlayer) {
+                            if (!isTerminateConfirmOpen) {
+                                openTerminateConfirm()
+                            }
+                            return
                         }
+
+                        enterMiniPlayer()
                     }}
                 >
                     <PlayerContent
@@ -1741,6 +1831,31 @@ export function VideoCore(props: VideoCoreProps) {
                     />
                 </VideoCoreDrawer>
 
+                <Modal
+                    title="Terminate stream?"
+                    description="Press Esc again or choose terminate to stop playback."
+                    titleClass="text-center"
+                    open={isTerminateConfirmOpen && isMiniPlayer}
+                    onOpenChange={open => {
+                        if (!open) {
+                            closeTerminateConfirm()
+                        }
+                    }}
+                    onEscapeKeyDown={e => {
+                        e.preventDefault()
+                        onTerminateStream()
+                    }}
+                >
+                    <div className="flex gap-2 justify-center items-center">
+                        <Button intent="warning-subtle" onClick={onTerminateStream}>
+                            Terminate stream
+                        </Button>
+                        <Button intent="white" onClick={closeTerminateConfirm}>
+                            Keep playing
+                        </Button>
+                    </div>
+                </Modal>
+
             </ScopeProvider>
         </>
     )
@@ -1761,7 +1876,9 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
                     intent="gray-basic"
                     className="rounded-full absolute top-0 flex-none right-4 z-[999]"
                     onClick={() => {
-                        setIsMiniPlayer(true)
+                        startVideoCoreMiniPlayerTransition(() => {
+                            setIsMiniPlayer(true)
+                        })
                     }}
                 />
             </>}
