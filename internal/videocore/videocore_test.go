@@ -2,12 +2,11 @@ package videocore
 
 import (
 	"encoding/json"
-	"testing"
-	"time"
-
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
+	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -295,6 +294,82 @@ func TestGetSkipDataAllowsEmptyClientState(t *testing.T) {
 		require.Nil(t, ret.skipData)
 	case <-time.After(time.Second):
 		t.Fatal("expected skip data result")
+	}
+}
+
+func TestPlayerStateRequestsTimeout(t *testing.T) {
+	previousTimeout := playerEventResponseTimeout
+	playerEventResponseTimeout = 10 * time.Millisecond
+	t.Cleanup(func() {
+		playerEventResponseTimeout = previousTimeout
+	})
+
+	logger := util.NewLogger()
+	ws := newRecordingWSEventManager()
+	vc := New(NewVideoCoreOptions{
+		WsEventManager: ws,
+		Logger:         logger,
+	})
+
+	t.Cleanup(vc.Shutdown)
+
+	vc.setPlaybackState(newPlaybackState("playback-1"))
+
+	tests := []struct {
+		name      string
+		eventType ServerEvent
+		call      func() bool
+	}{
+		{
+			name:      "text tracks",
+			eventType: ServerEventGetTextTracks,
+			call: func() bool {
+				_, ok := vc.GetTextTracks()
+				return ok
+			},
+		},
+		{
+			name:      "playlist",
+			eventType: ServerEventGetPlaylist,
+			call: func() bool {
+				_, ok := vc.GetPlaylist()
+				return ok
+			},
+		},
+		{
+			name:      "status",
+			eventType: ServerEventGetStatus,
+			call: func() bool {
+				_, ok := vc.PullStatus()
+				return ok
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ws.sent = nil
+			resultCh := make(chan bool, 1)
+
+			go func() {
+				resultCh <- tt.call()
+			}()
+
+			require.Eventually(t, func() bool {
+				return len(ws.sent) == 1
+			}, time.Second, 10*time.Millisecond)
+
+			// missing client responses should release
+			envelope := decodeVideoCoreEnvelope(t, ws.sent[0].payload)
+			require.Equal(t, string(tt.eventType), envelope["type"])
+
+			select {
+			case ok := <-resultCh:
+				require.False(t, ok)
+			case <-time.After(time.Second):
+				t.Fatal("expected player state request to time out")
+			}
+		})
 	}
 }
 

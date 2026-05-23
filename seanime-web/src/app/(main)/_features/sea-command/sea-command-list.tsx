@@ -49,6 +49,16 @@ export function SeaCommandList() {
             show: true,
         },
         {
+            command: "droptorrent",
+            description: "Drop current torrentstream torrent",
+            show: input.startsWith("/d"),
+        },
+        {
+            command: "reload",
+            description: "Reload the page",
+            show: input.startsWith("/r"),
+        },
+        {
             command: "spoilers",
             description: "Toggle spoilers for this anime",
             show: isAnimePage,

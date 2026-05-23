@@ -461,11 +461,13 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 
 		clusterSeekOffset, err := findNextClusterOffset(newReader, offset, backoffBytes)
 		if err != nil {
-			if !errors.Is(err, io.EOF) {
+			if isClusterSearchEOF(err) {
+				mp.logger.Debug().Err(err).Msg("mkvparser: No subtitle cluster found before EOF")
+			} else {
 				mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to offset for subtitle extraction")
 			}
 			cancel()
-			closeChannels(err)
+			closeChannels(nil)
 			return subtitleCh, errCh, startedCh
 		}
 
@@ -827,6 +829,10 @@ func (mp *MetadataParser) processSubtitleData(
 	}
 
 	return subtitleEvent
+}
+
+func isClusterSearchEOF(err error) bool {
+	return errors.Is(err, io.EOF) || strings.Contains(err.Error(), "EOF reached before reading new data")
 }
 
 // findNextClusterOffset searches for the Matroska Cluster ID in the ReadSeeker

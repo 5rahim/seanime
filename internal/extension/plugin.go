@@ -18,6 +18,7 @@ var (
 	PluginPermissionDebrid        PluginPermissionScope = "debrid"         // Allows the plugin to manage debrid providers and torrents
 	PluginPermissionAnilist       PluginPermissionScope = "anilist"        // Allows the plugin to use the Anilist client
 	PluginPermissionAnilistToken  PluginPermissionScope = "anilist-token"  // Allows the plugin to see and use the Anilist token
+	PluginPermissionCustomClient  PluginPermissionScope = "custom-client"  // Allows the plugin to swap app clients after prompting
 	PluginPermissionSystem        PluginPermissionScope = "system"         // Allows the plugin to use the OS/Filesystem/Filepath functions. SystemPermissions must be granted additionally.
 	PluginPermissionCron          PluginPermissionScope = "cron"           // Allows the plugin to use the cron manager
 	PluginPermissionNotification  PluginPermissionScope = "notification"   // Allows the plugin to use the notification manager
@@ -282,6 +283,8 @@ func (p *PluginPermissions) GetDescription() string {
 				desc.WriteString("AniList: View and edit your AniList lists\n")
 			case PluginPermissionAnilistToken:
 				desc.WriteString("AniList Token: View and use your AniList token\n")
+			case PluginPermissionCustomClient:
+				desc.WriteString("Custom Client: Swap app clients after approval\n")
 			case PluginPermissionSystem:
 				desc.WriteString("System: Access OS functions (detailed below)\n")
 			case PluginPermissionCron:

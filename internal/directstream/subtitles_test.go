@@ -62,3 +62,41 @@ func TestStartSubtitleStreamPSkipsNearbyActiveStream(t *testing.T) {
 	})
 	require.Equal(t, 1, count)
 }
+
+func TestSubtitleFlushConfigForTorrentThrottlesBatches(t *testing.T) {
+	// torrent subtitle extraction can outrun the UI, so its batches stay smaller
+	defaultConfig := subtitleFlushConfigFor(nativeplayer.StreamTypeDebrid, 0)
+	torrentConfig := subtitleFlushConfigFor(nativeplayer.StreamTypeTorrent, 0)
+	torrentSeekConfig := subtitleFlushConfigFor(nativeplayer.StreamTypeTorrent, 8*1024*1024)
+
+	require.Less(t, torrentConfig.maxBatchSize, defaultConfig.maxBatchSize)
+	require.Greater(t, torrentConfig.flushInterval, defaultConfig.flushInterval)
+	require.Zero(t, defaultConfig.minSendInterval)
+	require.NotZero(t, torrentConfig.minSendInterval)
+	require.Less(t, torrentSeekConfig.flushInterval, torrentConfig.flushInterval)
+	require.Less(t, torrentSeekConfig.minSendInterval, torrentConfig.minSendInterval)
+}
+
+func TestShouldSendSubtitleEventSkipsCachedEvents(t *testing.T) {
+	// seeks can rediscover old subtitles, but the browser only needs each event once
+	stream := &BaseStream{subtitleEventCache: result.NewMap[string, *mkvparser.SubtitleEvent]()}
+	event := &mkvparser.SubtitleEvent{
+		TrackNumber: 1,
+		Text:        "hello",
+		StartTime:   10,
+		Duration:    2,
+		CodecID:     "S_TEXT/ASS",
+		ExtraData:   map[string]string{"style": "Default"},
+	}
+
+	require.True(t, stream.shouldSendSubtitleEvent(event))
+	require.False(t, stream.shouldSendSubtitleEvent(event))
+	require.True(t, stream.shouldSendSubtitleEvent(&mkvparser.SubtitleEvent{
+		TrackNumber: 1,
+		Text:        "hello",
+		StartTime:   12,
+		Duration:    2,
+		CodecID:     "S_TEXT/ASS",
+		ExtraData:   map[string]string{"style": "Default"},
+	}))
+}

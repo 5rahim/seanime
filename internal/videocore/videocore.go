@@ -736,6 +736,17 @@ func (vc *VideoCore) SendGetPlaybackState() {
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetPlaybackState), nil)
 }
 
+var playerEventResponseTimeout = 5 * time.Second
+
+func waitPlayerEventResp(done <-chan struct{}) bool {
+	select {
+	case <-done:
+		return true
+	case <-time.After(playerEventResponseTimeout):
+		return false
+	}
+}
+
 // GetPlaylist sends a get-text-tracks request to the video player and returns the text tracks.
 func (vc *VideoCore) GetTextTracks() (ret []*VideoTextTrack, ok bool) {
 	state, ok := vc.GetPlaybackState()
@@ -752,12 +763,12 @@ func (vc *VideoCore) GetTextTracks() (ret []*VideoTextTrack, ok bool) {
 		}
 		return true // keep listening
 	})
-	go func(cancel func()) {
-		defer cancel()
-		<-time.After(5 * time.Second)
-	}(cancel)
+	defer cancel()
+
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetTextTracks), nil)
-	<-done
+	if !waitPlayerEventResp(done) {
+		return nil, false
+	}
 	return ret, ret != nil
 }
 
@@ -777,12 +788,12 @@ func (vc *VideoCore) GetPlaylist() (ret *VideoPlaylistState, ok bool) {
 		}
 		return true // keep listening
 	})
-	go func(cancel func()) {
-		defer cancel()
-		<-time.After(5 * time.Second)
-	}(cancel)
+	defer cancel()
+
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetPlaylist), nil)
-	<-done
+	if !waitPlayerEventResp(done) {
+		return nil, false
+	}
 	return ret, ret != nil
 }
 
@@ -806,13 +817,10 @@ func (vc *VideoCore) GetSkipData() (ret *SkipData, ok bool) {
 	defer cancel()
 
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetSkipData), nil)
-
-	select {
-	case <-done:
+	if waitPlayerEventResp(done) {
 		return ret, true
-	case <-time.After(5 * time.Second):
-		return nil, false
 	}
+	return nil, false
 }
 
 // PullStatus pulls the current playback status from the video player.
@@ -831,12 +839,12 @@ func (vc *VideoCore) PullStatus() (ret VideoStatusEvent, ok bool) {
 		}
 		return true // keep listening
 	})
-	go func(cancel func()) {
-		defer cancel()
-		<-time.After(5 * time.Second)
-	}(cancel)
+	defer cancel()
+
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetStatus), nil, true)
-	<-done
+	if !waitPlayerEventResp(done) {
+		return VideoStatusEvent{}, false
+	}
 	return ret, true
 }
 

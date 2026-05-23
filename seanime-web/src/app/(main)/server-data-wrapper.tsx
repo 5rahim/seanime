@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useGetStatus } from "@/api/hooks/status.hooks"
 import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { GettingStartedPage } from "@/app/(main)/_features/getting-started/getting-started-page"
@@ -13,6 +14,7 @@ import { usePathname, useRouter } from "@/lib/navigation"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
 import { __isDesktop__ } from "@/types/constants"
+import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import React from "react"
 import { useWebsocketMessageListener } from "./_hooks/handle-websockets"
@@ -34,6 +36,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
     const router = useRouter()
     const serverStatus = useServerStatus()
     const setServerStatus = useSetServerStatus()
+    const queryClient = useQueryClient()
     const password = useAtomValue(serverAuthTokenAtom)
     const { data: queryServerStatus, isLoading, refetch } = useGetStatus()
     const resolvedServerStatus = serverStatus ?? queryServerStatus
@@ -49,6 +52,15 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
         type: WSEvents.ANILIST_DATA_LOADED,
         onMessage: () => {
             logger("Data Wrapper").info("Anilist data loaded, refetching server status")
+            refetch()
+        },
+    })
+
+    useWebsocketMessageListener({
+        type: WSEvents.SETTINGS_CHANGED,
+        onMessage: () => {
+            logger("Data Wrapper").info("Settings changed, refetching server status")
+            void queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SETTINGS.GetSettings.key] })
             refetch()
         },
     })

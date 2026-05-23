@@ -13,6 +13,9 @@ dev.dockerfile
 .dockerignore
 
 go.work
+.gocache
+.gotmp
+tmp-*
 
 .github/*.md
 

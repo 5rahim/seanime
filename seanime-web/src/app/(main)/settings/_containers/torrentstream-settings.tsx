@@ -1,12 +1,16 @@
 import { Models_TorrentstreamSettings } from "@/api/generated/types"
+import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { useSaveTorrentstreamSettings, useTorrentstreamDropTorrent } from "@/api/hooks/torrentstream.hooks"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets.ts"
 import { AutoSelectProfileButton } from "@/app/(main)/settings/_components/autoselect-profile-form"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { ExperimentalBadge } from "@/components/shared/beta-badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { defineSchema, Field, Form } from "@/components/ui/form"
+import { WSEvents } from "@/lib/server/ws-events.ts"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { FcFolder } from "react-icons/fc"
@@ -45,8 +49,16 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
     } = props
 
     const { mutate, isPending } = useSaveTorrentstreamSettings()
+    const { refetch } = useGetTorrentstreamSettings()
 
     const { mutate: dropTorrent, isPending: droppingTorrent } = useTorrentstreamDropTorrent()
+
+    useWebsocketMessageListener({
+        type: WSEvents.SETTINGS_CHANGED,
+        onMessage: () => {
+            refetch()
+        },
+    })
 
     const formRef = React.useRef<UseFormReturn<any>>(null)
 
@@ -55,6 +67,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
     return (
         <>
             <Form
+                key={settings?.updatedAt ?? "torrentstream-settings"}
                 schema={torrentstreamSchema}
                 mRef={formRef}
                 onSubmit={data => {
@@ -113,15 +126,6 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                             />
                         </SettingsCard>
 
-                        {/*<SettingsCard title="Preloading">*/}
-                        {/*    <Field.Switch*/}
-                        {/*        side="right"*/}
-                        {/*        name="preloadNextStream"*/}
-                        {/*        label="Preload next stream"*/}
-                        {/*        help="Starts downloading the next episode in the background."*/}
-                        {/*    />*/}
-                        {/*</SettingsCard>*/}
-
                         <SettingsCard title="Auto-select">
                             <Field.Switch
                                 side="right"
@@ -145,6 +149,14 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                             <div className="pt-2">
                                 <AutoSelectProfileButton />
                             </div>
+
+                            <Field.Switch
+                                side="right"
+                                name="preloadNextStream"
+                                label={<span>Preload next episode <ExperimentalBadge title="Unstable" /></span>}
+                                help="Starts downloading the next episode in the background."
+                                moreHelp="This feature is only partially implemented. Do not rely on it working correctly."
+                            />
                         </SettingsCard>
 
 

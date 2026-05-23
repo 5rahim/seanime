@@ -28,7 +28,6 @@ export function useGetAnimeCollection() {
         enabled: true,
     })
 }
-
 export function useGetRawAnimeCollection() {
     return useServerQuery<AL_AnimeCollection>({
         endpoint: API_ENDPOINTS.ANILIST.GetRawAnimeCollection.endpoint,
@@ -37,7 +36,6 @@ export function useGetRawAnimeCollection() {
         enabled: true,
     })
 }
-
 export function useGetRawAnimeCollectionTags() {
     return useServerQuery<Record<number, Array<string>>>({
         endpoint: API_ENDPOINTS.ANILIST.GetRawAnimeCollectionTags.endpoint,

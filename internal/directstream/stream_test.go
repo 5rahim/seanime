@@ -12,6 +12,7 @@ import (
 	"seanime/internal/mkvparser"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/util"
+	httputil "seanime/internal/util/http"
 	"seanime/internal/util/result"
 	"seanime/internal/videocore"
 	"sync"
@@ -27,6 +28,58 @@ type testStream struct {
 	handler http.Handler
 }
 
+type blockingRangeReader struct {
+	closed chan struct{}
+	once   sync.Once
+}
+
+func newBlockingRangeReader() *blockingRangeReader {
+	return &blockingRangeReader{closed: make(chan struct{})}
+}
+
+func (r *blockingRangeReader) Read([]byte) (int, error) {
+	<-r.closed
+	return 0, io.ErrClosedPipe
+}
+
+func (r *blockingRangeReader) Seek(int64, int) (int64, error) {
+	return 0, nil
+}
+
+func (r *blockingRangeReader) Close() error {
+	r.once.Do(func() {
+		close(r.closed)
+	})
+	return nil
+}
+
+func TestServeContentRange(t *testing.T) {
+	reader := newBlockingRangeReader()
+	ctx, cancel := context.WithCancel(context.Background())
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/stream", nil)
+	done := make(chan struct{})
+
+	go func() {
+		defer close(done)
+		serveContentRange(rec, req, ctx, reader, "video.mkv", 1024, "video/webm", httputil.Range{Start: 0, Length: 512})
+	}()
+
+	// canceled stream contexts should close blocked readers and free the http request
+	cancel()
+
+	select {
+	case <-reader.closed:
+	case <-time.After(time.Second):
+		t.Fatal("expected reader to close")
+	}
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("expected range serve to return")
+	}
+}
 func (s *testStream) Type() nativeplayer.StreamType {
 	return nativeplayer.StreamTypeTorrent
 }

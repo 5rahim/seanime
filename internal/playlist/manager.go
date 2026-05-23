@@ -716,6 +716,7 @@ func (m *Manager) StopPlaylist(reason string, isError ...bool) {
 // isEpisodeCompleted is true if the current episode is completed (used for manual tracking)
 func (m *Manager) PlayEpisode(which string, isCurrentCompleted bool) {
 	m.mu.Lock()
+	defer m.mu.Unlock()
 
 	m.logger.Debug().Str("which", which).Bool("isCurrentCompleted", isCurrentCompleted).Msg("playlist: Episode requested")
 
@@ -730,10 +731,16 @@ func (m *Manager) PlayEpisode(which string, isCurrentCompleted bool) {
 
 	currentEpisode, ok := m.currentEpisode.Get()
 	if !ok {
-		m.mu.Unlock()
 		if which == "next" {
 			m.logger.Debug().Msg("playlist: No episodes in playlist, playing next episode")
-			m.playNextEpisode()
+			for _, playlistEp := range data.playlist.Episodes {
+				if playlistEp.IsCompleted {
+					continue
+				}
+				m.playEpisode(playlistEp)
+				m.prepareNextEpisode()
+				break
+			}
 		}
 		return
 	}
@@ -749,14 +756,12 @@ func (m *Manager) PlayEpisode(which string, isCurrentCompleted bool) {
 
 	if episode == nil {
 		m.logger.Error().Msgf("playlist: Episode not found for '%s'", which)
-		m.mu.Unlock()
 		return
 	}
 
 	m.logger.Debug().Str("which", which).Int("mediaId", episode.Episode.BaseAnime.ID).Str("aniDBEpisode", episode.Episode.AniDBEpisode).Str("episode", episode.Episode.DisplayTitle).Msg("playlist: Episode found")
 
 	m.playEpisode(episode)
-	m.mu.Unlock()
 }
 
 func (m *Manager) ReopenEpisode() {

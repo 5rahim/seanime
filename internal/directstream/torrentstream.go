@@ -3,7 +3,9 @@ package directstream
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/library/anime"
@@ -28,6 +30,7 @@ type TorrentStream struct {
 	BaseStream
 	torrent       *torrent.Torrent
 	file          *torrent.File
+	downloadDir   string
 	onTerminate   func()
 	streamReadyCh chan struct{} // Closed by the initiator when the stream is ready
 }
@@ -36,9 +39,71 @@ func (s *TorrentStream) Type() nativeplayer.StreamType {
 	return nativeplayer.StreamTypeTorrent
 }
 
+func (s *TorrentStream) completedFilePath() (string, bool) {
+	if s.downloadDir == "" || s.torrent == nil || s.file == nil || s.file.Length() <= 0 {
+		return "", false
+	}
+
+	filePath := filepath.Join(s.downloadDir, s.torrent.InfoHash().HexString(), filepath.FromSlash(s.file.Path()))
+	info, err := os.Stat(filePath)
+	if err != nil || info.IsDir() || info.Size() != s.file.Length() {
+		return "", false
+	}
+
+	return filePath, true
+}
+
+func (s *TorrentStream) openCompletedFile() (io.ReadSeekCloser, bool) {
+	filePath, ok := s.completedFilePath()
+	if !ok {
+		return nil, false
+	}
+
+	reader, err := os.Open(filePath)
+	if err != nil {
+		s.logger.Warn().Err(err).Str("path", filePath).Msg("directstream(torrent): Failed to open completed torrent file")
+		return nil, false
+	}
+
+	s.logger.Trace().Str("path", filePath).Msg("directstream(torrent): Using completed torrent file")
+	return reader, true
+}
+
+func (s *TorrentStream) hasCompletedFile() bool {
+	_, ok := s.completedFilePath()
+	return ok
+}
+
+func (s *TorrentStream) newReader() io.ReadSeekCloser {
+	if reader, ok := s.openCompletedFile(); ok {
+		return reader
+	}
+
+	return torrentutil.NewReadSeeker(s.torrent, s.file, s.logger)
+}
+
+func (s *TorrentStream) newMetadataReader() io.ReadSeekCloser {
+	if reader, ok := s.openCompletedFile(); ok {
+		return reader
+	}
+
+	reader := s.file.NewReader()
+	reader.SetResponsive()
+	reader.SetReadahead(0)
+	return reader
+}
+
+func (s *TorrentStream) newSubtitleReader() io.ReadSeekCloser {
+	if reader, ok := s.openCompletedFile(); ok {
+		return reader
+	}
+
+	return torrentutil.NewReadSeeker(s.torrent, s.file, s.logger)
+}
+
 func (s *TorrentStream) LoadContentType() string {
 	s.contentTypeOnce.Do(func() {
-		r := s.file.NewReader()
+		r := s.newMetadataReader()
 		defer r.Close()
 		s.contentType = loadContentType(s.file.DisplayPath(), r)
 	})
@@ -80,7 +145,7 @@ func (s *TorrentStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err 
 
 		// If the content type is an EBML content type, we can create a metadata parser
 		if isEbmlContent(s.LoadContentType()) {
-			reader := torrentutil.NewReadSeeker(s.torrent, s.file, s.logger)
+			reader := s.newMetadataReader()
 			defer reader.Close()
 			parser := mkvparser.NewMetadataParser(reader, s.logger)
 			metadataCtx := s.manager.playbackCtx
@@ -139,7 +204,8 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 		}
 
 		if isThumbnailRequest(r) {
-			reader := s.file.NewReader()
+			reader := s.newReader()
+			defer reader.Close()
 			ra, ok := handleRange(w, r, reader, name, size)
 			if !ok {
 				return
@@ -149,7 +215,7 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 		}
 
 		s.logger.Trace().Str("file", name).Msg("directstream(torrent): New reader")
-		tr := torrentutil.NewReadSeeker(s.torrent, s.file, s.logger)
+		tr := s.newReader()
 		defer func() {
 			s.logger.Trace().Msg("directstream(torrent): Closing reader")
 			_ = tr.Close()
@@ -175,8 +241,7 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 			go func(offset int64, subtitleCtx context.Context) {
 				if _, ok := s.playbackInfo.MkvMetadataParser.Get(); ok {
 					// Start a subtitle stream from the current position
-					subReader := s.file.NewReader()
-					subReader.SetResponsive()
+					subReader := s.newSubtitleReader()
 					s.StartSubtitleStream(s, subtitleCtx, subReader, offset)
 				}
 			}(ra.Start, serveCtx)
@@ -201,6 +266,7 @@ type PlayTorrentStreamOptions struct {
 	Media         *anilist.BaseAnime
 	Torrent       *torrent.Torrent
 	File          *torrent.File
+	DownloadDir   string
 	OnTerminate   func()
 }
 
@@ -224,6 +290,7 @@ func (m *Manager) PlayTorrentStream(ctx context.Context, opts PlayTorrentStreamO
 	stream := &TorrentStream{
 		torrent:     opts.Torrent,
 		file:        opts.File,
+		downloadDir: opts.DownloadDir,
 		onTerminate: opts.OnTerminate,
 		BaseStream: BaseStream{
 			manager:               m,

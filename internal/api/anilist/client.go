@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"seanime/internal/constants"
+	"net/url"
 	"seanime/internal/events"
 	"seanime/internal/util"
 	"strconv"
@@ -75,12 +75,10 @@ func NewAnilistClient(token string, cacheDir string) *AnilistClientImpl {
 		token:    token,
 		cacheDir: cacheDir,
 		Client: &Client{
-			Client: clientv2.NewClient(http.DefaultClient, constants.AnilistApiUrl, nil,
+			Client: clientv2.NewClient(alHttpClient(), alApiUrl(), nil,
 				func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}, next clientv2.RequestInterceptorFunc) error {
-					req.Header.Set("Content-Type", "application/json")
-					req.Header.Set("Accept", "application/json")
-					if len(token) > 0 {
-						req.Header.Set("Authorization", "Bearer "+token)
+					if err := initAnilistReq(ctx, req, token); err != nil {
+						return err
 					}
 					return next(ctx, req, gqlInfo, res)
 				}),
@@ -97,11 +95,11 @@ func (ac *AnilistClientImpl) IsAuthenticated() bool {
 	if ac.Client == nil || ac.Client.Client == nil {
 		return false
 	}
-	if len(ac.token) == 0 {
+	provider := currentRequestProvider()
+	if provider == nil {
 		return false
 	}
-	// If the token is not empty, we are authenticated
-	return true
+	return provider.IsAuthenticated(ac.token)
 }
 
 func (ac *AnilistClientImpl) GetCacheDir() string {
@@ -110,6 +108,37 @@ func (ac *AnilistClientImpl) GetCacheDir() string {
 
 func (ac *AnilistClientImpl) CustomQuery(body []byte, logger *zerolog.Logger, token ...string) (data interface{}, err error) {
 	return customQuery(body, logger, token...)
+}
+
+func alApiUrl() string {
+	return currentRequestProvider().ApiUrl()
+}
+
+func alHttpClient() *http.Client {
+	return requestProviderHTTPClient(currentRequestProvider())
+}
+
+func initAnilistReq(ctx context.Context, req *http.Request, token string) error {
+	provider := currentRequestProvider()
+	if err := setAnilistReqUrl(req, provider.ApiUrl()); err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+
+	return provider.PrepareRequest(ctx, req, token)
+}
+
+func setAnilistReqUrl(req *http.Request, rawURL string) error {
+	apiURL, err := url.Parse(rawURL)
+	if err != nil {
+		return err
+	}
+
+	req.URL = apiURL
+	req.Host = apiURL.Host
+	return nil
 }
 
 ////////////////////////////////
@@ -547,7 +576,7 @@ func (ac *AnilistClientImpl) customDoFunc(ctx context.Context, req *http.Request
 
 	var resp *http.Response
 	resp, rlRemainingStr, err = doAniListRequestWithRetries(
-		http.DefaultClient,
+		alHttpClient(),
 		req,
 		sharedAniListRateBlocker,
 		sleepWithContext,
@@ -618,7 +647,7 @@ func unmarshal(data []byte, res interface{}) error {
 	}
 
 	var err error
-	if resp.Errors != nil && len(resp.Errors) > 0 {
+	if len(resp.Errors) > 0 {
 		// try to parse standard graphql error
 		err = &clientv2.GqlErrorList{}
 		if e := json.Unmarshal(data, err); e != nil {

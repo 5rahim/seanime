@@ -504,8 +504,7 @@ func (m *Manager) listenToPlayerEvents() {
 						}
 						lfStream.StartSubtitleStream(lfStream, m.playbackCtx, subReader, 0)
 					} else if ts, ok := cs.(*TorrentStream); ok {
-						subReader := ts.file.NewReader()
-						subReader.SetResponsive()
+						subReader := ts.newSubtitleReader()
 						ts.StartSubtitleStream(ts, m.playbackCtx, subReader, 0)
 					}
 				case *videocore.VideoSeekedEvent:
@@ -567,6 +566,8 @@ type BaseStream struct {
 	playbackInfoOnce       sync.Once
 	playbackCancelFunc     context.CancelFunc
 	subtitleEventCache     *result.Map[string, *mkvparser.SubtitleEvent]
+	subtitleSendMu         sync.Mutex
+	subtitleLastSent       time.Time
 	terminateOnce          sync.Once
 	serveContentCancelFunc context.CancelFunc
 	filename               string // Name of the file being streamed, if applicable

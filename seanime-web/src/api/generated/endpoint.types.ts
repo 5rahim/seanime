@@ -1843,6 +1843,18 @@ export type SaveSettings_Variables = {
 /**
  * - Filepath: internal/handlers/settings.go
  * - Filename: settings.go
+ * - Endpoint: /api/v1/settings/path
+ * @description
+ * Route patches a specific app setting.
+ */
+export type PatchSetting_Variables = {
+    path: string
+    value: any
+}
+
+/**
+ * - Filepath: internal/handlers/settings.go
+ * - Filename: settings.go
  * - Endpoint: /api/v1/settings/auto-downloader
  * @description
  * Route updates the auto-downloader settings.

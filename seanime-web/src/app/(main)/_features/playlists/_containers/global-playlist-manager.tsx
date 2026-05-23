@@ -1,7 +1,7 @@
 import { Anime_Entry, Anime_Playlist, Anime_PlaylistEpisode, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { useCurrentDevicePlaybackSettings } from "@/app/(main)/_atoms/playback.atoms"
-import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
+import { getNextBatchFileSelection, useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
 import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { PlaylistManagerPopup } from "@/app/(main)/_features/playlists/_components/global-playlist-popup"
 import { playlist_getEpisodeKey, playlist_isSameEpisode } from "@/app/(main)/_features/playlists/_components/playlist-editor"
@@ -49,6 +49,8 @@ type ServerEvents =
 const pm_currentPlaylist = atom<Anime_Playlist | null>(null)
 const pm_currentPlaylistEpisode = atom<Anime_PlaylistEpisode | null>(null)
 const pm_confirmProgressUpdateModalOpen = atom<"next" | "previous" | null>(null)
+const pm_playEpisodeRequestPending = atom(false)
+const playlistEpisodeRequestCooldownMs = 2500
 
 export function usePlaylistManager() {
     const { sendMessage } = useWebsocketSender()
@@ -57,6 +59,7 @@ export function usePlaylistManager() {
     const [currentPlaylist, setCurrentPlaylist] = useAtom(pm_currentPlaylist)
     const [currentPlaylistEpisode, setCurrentPlaylistEpisode] = useAtom(pm_currentPlaylistEpisode)
     const [confirmOpen, setConfirmOpen] = useAtom(pm_confirmProgressUpdateModalOpen)
+    const [playEpisodeRequestPending, setPlayEpisodeRequestPending] = useAtom(pm_playEpisodeRequestPending)
 
     const { downloadedMediaPlayback, torrentStreamingPlayback, electronPlaybackMethod } = useCurrentDevicePlaybackSettings()
     const { activeOnDevice } = useMediastreamActiveOnDevice()
@@ -82,6 +85,7 @@ export function usePlaylistManager() {
     }
 
     function stopPlaylist() {
+        setPlayEpisodeRequestPending(false)
         log.info("Sending stop playlist event")
         sendMessage({
             type: WSEvents.PLAYLIST,
@@ -102,8 +106,12 @@ export function usePlaylistManager() {
     }
 
     function playEpisode(which: "next" | "previous", isCurrentCompleted: boolean) {
+        if (playEpisodeRequestPending) return
+
         log.info("Sending play episode event", which, isCurrentCompleted)
         if (isCurrentCompleted) {
+            setPlayEpisodeRequestPending(true)
+            window.setTimeout(() => setPlayEpisodeRequestPending(false), playlistEpisodeRequestCooldownMs)
             sendMessage({
                 type: WSEvents.PLAYLIST,
                 payload: {
@@ -123,6 +131,10 @@ export function usePlaylistManager() {
     function onConfirmedProgress(shouldUpdate: boolean) {
         if (confirmOpen) {
             setConfirmOpen(null)
+            if (playEpisodeRequestPending) return
+
+            setPlayEpisodeRequestPending(true)
+            window.setTimeout(() => setPlayEpisodeRequestPending(false), playlistEpisodeRequestCooldownMs)
             log.info("Sending play episode event", confirmOpen, shouldUpdate)
             sendMessage({
                 type: WSEvents.PLAYLIST,
@@ -151,6 +163,7 @@ export function usePlaylistManager() {
         nextPlaylistEpisode,
         prevPlaylistEpisode,
         onConfirmedProgress,
+        playEpisodeRequestPending,
     }
 }
 
@@ -162,7 +175,15 @@ export function GlobalPlaylistManager() {
 
     const nativePlayerState = useAtomValue(nativePlayer_stateAtom)
 
-    const { stopPlaylist, reopenEpisode, playEpisode, nextPlaylistEpisode, prevPlaylistEpisode, onConfirmedProgress } = usePlaylistManager()
+    const {
+        stopPlaylist,
+        reopenEpisode,
+        playEpisode,
+        nextPlaylistEpisode,
+        prevPlaylistEpisode,
+        onConfirmedProgress,
+        playEpisodeRequestPending,
+    } = usePlaylistManager()
 
     // state
     const [currentPlaylist, setCurrentPlaylist] = useAtom(pm_currentPlaylist)
@@ -197,7 +218,7 @@ export function GlobalPlaylistManager() {
     const { data: animeEntry } = useGetAnimeEntry(torrentSearchStreamEpisode?.baseAnime?.id)
 
     // The torrent to continue playing from
-    const { autoPlayTorrent } = useAutoPlaySelectedTorrent()
+    const { autoPlayTorrent, setAutoPlayTorrent } = useAutoPlaySelectedTorrent()
 
     function sameTorrent(autoPlayTorrent: { entry: Anime_Entry, torrent: HibikeTorrent_AnimeTorrent } | null, episode: Anime_PlaylistEpisode) {
         if (!autoPlayTorrent) return false
@@ -224,6 +245,7 @@ export function GlobalPlaylistManager() {
                     log.info("Received play episode event", data.payload)
                     const payload2 = data.payload as { playlistEpisode: Anime_PlaylistEpisode }
                     const episode = payload2.playlistEpisode
+                    setCurrentPlaylistEpisode(episode)
 
                     toast.info(`Playing episode ${episode.episode?.aniDBEpisode} of ${episode.episode?.baseAnime?.title?.userPreferred}`)
 
@@ -251,14 +273,22 @@ export function GlobalPlaylistManager() {
                             } else {
                                 if (autoPlayTorrent?.torrent?.isBatch && torrentStream_autoSelectFile && sameTorrent(autoPlayTorrent, episode)) {
                                     log.info("Previous selection matches, auto-selecting file for torrent stream")
+                                    const batchSelection = getNextBatchFileSelection(
+                                        autoPlayTorrent.batchFiles,
+                                        episode.episode?.episodeNumber!,
+                                        episode.episode?.aniDBEpisode!,
+                                    )
                                     handleTorrentstreamSelection({
                                         mediaId: episode.episode?.baseAnime?.id!,
                                         episodeNumber: episode.episode?.episodeNumber!,
                                         aniDBEpisode: episode.episode?.aniDBEpisode!,
                                         torrent: autoPlayTorrent.torrent,
-                                        chosenFileIndex: undefined,
-                                        batchEpisodeFiles: undefined,
+                                        chosenFileIndex: batchSelection.fileIndex,
+                                        batchEpisodeFiles: batchSelection.batchEpisodeFiles,
                                     })
+                                    if (batchSelection.batchEpisodeFiles) {
+                                        setAutoPlayTorrent(autoPlayTorrent.torrent, autoPlayTorrent.entry, batchSelection.batchEpisodeFiles)
+                                    }
                                     return
                                 } else {
                                     log.info("No previous torrent found, opening torrent search")
@@ -323,7 +353,6 @@ export function GlobalPlaylistManager() {
             open={confirmProgress !== null}
             onOpenChange={open => {
                 if (!open) {
-                    onConfirmedProgress(false)
                     setConfirmProgress(null)
                 }
             }}
@@ -334,10 +363,10 @@ export function GlobalPlaylistManager() {
             </p>
 
             <div className="flex gap-2 mt-4 justify-end">
-                <Button intent="primary" onClick={() => onConfirmedProgress(true)}>
+                <Button intent="primary" disabled={playEpisodeRequestPending} onClick={() => onConfirmedProgress(true)}>
                     Yes
                 </Button>
-                <Button intent="white-subtle" onClick={() => onConfirmedProgress(false)}>
+                <Button intent="white-subtle" disabled={playEpisodeRequestPending} onClick={() => onConfirmedProgress(false)}>
                     No
                 </Button>
             </div>
@@ -361,7 +390,7 @@ export function GlobalPlaylistManager() {
                         icon={<MdSkipPrevious />}
                         intent="white-subtle"
                         className="rounded-full"
-                        disabled={!prevPlaylistEpisode}
+                        disabled={!prevPlaylistEpisode || playEpisodeRequestPending}
                         onClick={() => playEpisode("previous", false)}
                     />
                     <div className="flex flex-1"></div>
@@ -371,6 +400,7 @@ export function GlobalPlaylistManager() {
                             icon={<LuRefreshCw />}
                             intent="gray-basic"
                             className="rounded-full"
+                            disabled={playEpisodeRequestPending}
                             onClick={() => reopenEpisode()}
                         />
                     </span>}
@@ -394,7 +424,7 @@ export function GlobalPlaylistManager() {
                         icon={<MdSkipNext />}
                         intent="white-subtle"
                         className="rounded-full"
-                        disabled={!nextPlaylistEpisode}
+                        disabled={!nextPlaylistEpisode || playEpisodeRequestPending}
                         onClick={() => playEpisode("next", false)}
                     />
                 </div>

@@ -182,6 +182,7 @@ const (
 	OnlinestreamManualSearchEndpoint                   = "ONLINESTREAM-onlinestream-manual-search"
 	OpenAnimeEntryInExplorerEndpoint                   = "ANIME-ENTRIES-open-anime-entry-in-explorer"
 	OpenInExplorerEndpoint                             = "EXPLORER-open-in-explorer"
+	PatchSettingEndpoint                               = "SETTINGS-patch-setting"
 	PlaybackAutoPlayNextEpisodeEndpoint                = "PLAYBACK-MANAGER-playback-auto-play-next-episode"
 	PlaybackCancelCurrentPlaylistEndpoint              = "PLAYBACK-MANAGER-playback-cancel-current-playlist"
 	PlaybackCancelManualTrackingEndpoint               = "PLAYBACK-MANAGER-playback-cancel-manual-tracking"

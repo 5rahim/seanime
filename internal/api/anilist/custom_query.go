@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"seanime/internal/constants"
 	"seanime/internal/util"
 	"time"
 
@@ -46,20 +45,23 @@ func customQuery(body []byte, logger *zerolog.Logger, token ...string) (data int
 	})
 
 	var req *http.Request
-	req, err = http.NewRequest("POST", constants.AnilistApiUrl, bytes.NewBuffer(body))
+	req, err = http.NewRequest("POST", alApiUrl(), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	if len(token) > 0 && token[0] != "" {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token[0]))
+	authToken := ""
+	if len(token) > 0 {
+		authToken = token[0]
+	}
+
+	if err = initAnilistReq(req.Context(), req, authToken); err != nil {
+		return nil, err
 	}
 
 	var resp *http.Response
 	resp, rlRemainingStr, err = doAniListRequestWithRetries(
-		http.DefaultClient,
+		alHttpClient(),
 		req,
 		sharedAniListRateBlocker,
 		sleepWithContext,

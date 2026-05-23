@@ -75,7 +75,8 @@ export const enum WSEvents {
     HIDE_INDEFINITE_LOADER = "hide-indefinite-loader",
     NAKAMA_ONLINE_STREAM_EVENT = "nakama-online-stream-event",
     NAKAMA_ONLINE_STREAM_CLIENT_EVENT = "nakama-online-stream-client-event",
-    PLAYLIST = "playlist"
+    PLAYLIST = "playlist",
+    SETTINGS_CHANGED = "settings-changed",
 }
 
 export const enum WebviewEvents {

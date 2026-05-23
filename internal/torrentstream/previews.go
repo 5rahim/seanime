@@ -1,6 +1,7 @@
 package torrentstream
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"seanime/internal/api/anilist"
@@ -43,7 +44,7 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 
 	r.logger.Trace().Str("hash", opts.Torrent.InfoHash).Msg("torrentstream: Getting file previews for torrent selection")
 
-	selectedTorrent, err := r.client.AddTorrent(opts.Magnet)
+	selectedTorrent, err := r.client.AddTorrent(context.Background(), opts.Magnet)
 	if err != nil {
 		r.logger.Error().Err(err).Msgf("torrentstream: Error adding torrent %s", opts.Magnet)
 		return nil, err

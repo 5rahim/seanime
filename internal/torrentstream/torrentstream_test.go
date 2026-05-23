@@ -229,6 +229,24 @@ func TestRepositoryDefaultsAndSettingsGuards(t *testing.T) {
 	require.Equal(t, "/custom/downloads", repo.GetDownloadDir())
 }
 
+func TestStreamOptionsMatchAllowsImplicitFileIndex(t *testing.T) {
+	fileIndex := 3
+	prepared := &StartStreamOptions{MediaId: 10, EpisodeNumber: 4, AniDBEpisode: "4", FileIndex: &fileIndex}
+	request := &StartStreamOptions{MediaId: 10, EpisodeNumber: 4, AniDBEpisode: "4"}
+
+	require.True(t, streamOptionsMatch(request, prepared))
+	require.True(t, streamOptionsMatch(prepared, request))
+}
+
+func TestStreamOptionsMatchRejectsExplicitDifferentFileIndex(t *testing.T) {
+	preparedIndex := 3
+	requestIndex := 4
+	prepared := &StartStreamOptions{MediaId: 10, EpisodeNumber: 4, AniDBEpisode: "4", FileIndex: &preparedIndex}
+	request := &StartStreamOptions{MediaId: 10, EpisodeNumber: 4, AniDBEpisode: "4", FileIndex: &requestIndex}
+
+	require.False(t, streamOptionsMatch(request, prepared))
+}
+
 func TestInitModulesRejectsNilSettingsAndDisablesModule(t *testing.T) {
 	repo, _, _ := newTorrentstreamTestRepository(t)
 

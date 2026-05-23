@@ -7,7 +7,7 @@ import { Alert } from "@/components/ui/alert"
 import { Field } from "@/components/ui/form"
 import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
-import { getDefaultIinaSocket, getDefaultMpvSocket } from "@/lib/server/settings"
+import { getDefaultIinaSocket } from "@/lib/server/settings"
 import React from "react"
 import { useWatch } from "react-hook-form"
 import { FcClapperboard, FcVideoCall, FcVlc } from "react-icons/fc"
@@ -148,7 +148,8 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                                 <Field.Text
                                     name="mpvSocket"
                                     label="Socket"
-                                    placeholder={`Default: '${getDefaultMpvSocket(serverStatus?.os ?? "")}'`}
+                                    placeholder="Leave empty for an auto-generated socket"
+                                    help="Set this only if you want Seanime to attach to a specific mpv IPC socket."
                                 />
                                 <Field.Text
                                     name="mpvPath"

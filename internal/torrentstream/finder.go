@@ -34,7 +34,7 @@ func (r *Repository) setPriorityDownloadStrategy(t *torrent.Torrent, file *torre
 	torrentutil.PrioritizeDownloadPieces(t, file, r.logger)
 }
 
-func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode string, episodeNumber int) (ret *playbackTorrent, err error) {
+func (r *Repository) findBestTorrent(ctx context.Context, media *anilist.CompleteAnime, aniDbEpisode string, episodeNumber int) (ret *playbackTorrent, err error) {
 	defer util.HandlePanicInModuleWithError("torrentstream/findBestTorrent", &err)
 
 	r.logger.Debug().Msgf("torrentstream: Finding best torrent for %s, Episode %d", media.GetTitleSafe(), episodeNumber)
@@ -58,7 +58,7 @@ func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode 
 	}
 
 	result, err := r.autoSelect.FindBestTorrent(
-		context.Background(),
+		ctx,
 		media,
 		episodeNumber,
 		profile,
@@ -94,7 +94,7 @@ func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode 
 }
 
 // findBestTorrentFromManualSelection is like findBestTorrent but no need to search for the best torrent first
-func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTorrent, media *anilist.CompleteAnime, aniDbEpisode string, chosenFileIndex *int) (*playbackTorrent, error) {
+func (r *Repository) findBestTorrentFromManualSelection(ctx context.Context, t *hibiketorrent.AnimeTorrent, media *anilist.CompleteAnime, aniDbEpisode string, chosenFileIndex *int) (*playbackTorrent, error) {
 
 	r.logger.Debug().Msgf("torrentstream: Analyzing torrent from %s for %s", t.Link, media.GetTitleSafe())
 
@@ -105,7 +105,7 @@ func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTo
 		return nil, fmt.Errorf("could not get magnet link from %s", t.Link)
 	}
 	t.MagnetLink = magnet
-	selectedTorrent, err := r.client.AddTorrent(magnet)
+	selectedTorrent, err := r.client.AddTorrent(ctx, magnet)
 	if err != nil {
 		r.logger.Error().Err(err).Msgf("torrentstream: Error adding torrent %s", t.Link)
 		return nil, err

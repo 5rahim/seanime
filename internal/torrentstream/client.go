@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/util"
 	"strings"
@@ -40,6 +41,7 @@ type (
 		lastSpeedCheck              time.Time // Track the last time we checked speeds
 		lastBytesCompleted          int64     // Track the last bytes completed
 		lastBytesWrittenData        int64     // Track the last bytes written data
+		lastFileCleanup             time.Time
 	}
 
 	TorrentStatus struct {
@@ -206,6 +208,10 @@ func (c *Client) initializeClient() error {
 						c.currentTorrentStatus.DownloadSpeed,
 						c.currentTorrentStatus.UploadSpeed,
 						c.currentTorrentStatus.Size)
+					if time.Since(c.lastFileCleanup) > 5*time.Second {
+						c.cleanupActiveTorrentFiles()
+						c.lastFileCleanup = now
+					}
 					c.timeSinceLoggedSeeding = time.Now()
 				}
 				c.mu.Unlock()
@@ -268,26 +274,38 @@ func (c *Client) GetExternalPlayerStreamingUrl() string {
 	return ret
 }
 
-func (c *Client) AddTorrent(id string) (*torrent.Torrent, error) {
+func (c *Client) AddTorrent(ctx context.Context, id string) (*torrent.Torrent, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	if c.torrentClient.IsAbsent() {
 		return nil, errors.New("torrent client is not initialized")
 	}
 
-	// Drop torrents except current stream and prepared stream
-	c.dropExcessTorrents()
-
 	if strings.HasPrefix(id, "magnet") {
-		return c.addTorrentMagnet(id)
+		t, err := c.addTorrentMagnet(ctx, id)
+		if err == nil {
+			c.dropExcessTorrents(t.InfoHash())
+		}
+		return t, err
 	}
 
 	if strings.HasPrefix(id, "http") {
-		return c.addTorrentFromDownloadURL(id)
+		t, err := c.addTorrentFromDownloadURL(ctx, id)
+		if err == nil {
+			c.dropExcessTorrents(t.InfoHash())
+		}
+		return t, err
 	}
 
-	return c.addTorrentFromFile(id)
+	t, err := c.addTorrentFromFile(ctx, id)
+	if err == nil {
+		c.dropExcessTorrents(t.InfoHash())
+	}
+	return t, err
 }
 
-func (c *Client) addTorrentMagnet(magnet string) (*torrent.Torrent, error) {
+func (c *Client) addTorrentMagnet(ctx context.Context, magnet string) (*torrent.Torrent, error) {
 	if c.torrentClient.IsAbsent() {
 		return nil, errors.New("torrent client is not initialized")
 	}
@@ -304,6 +322,9 @@ func (c *Client) addTorrentMagnet(magnet string) (*torrent.Torrent, error) {
 	case <-t.Closed():
 		//t.Drop()
 		return nil, errors.New("torrent closed")
+	case <-ctx.Done():
+		t.Drop()
+		return nil, ctx.Err()
 	case <-time.After(1 * time.Minute):
 		t.Drop()
 		return nil, errors.New("timeout waiting for torrent info")
@@ -312,7 +333,7 @@ func (c *Client) addTorrentMagnet(magnet string) (*torrent.Torrent, error) {
 	return t, nil
 }
 
-func (c *Client) addTorrentFromFile(fp string) (*torrent.Torrent, error) {
+func (c *Client) addTorrentFromFile(ctx context.Context, fp string) (*torrent.Torrent, error) {
 	if c.torrentClient.IsAbsent() {
 		return nil, errors.New("torrent client is not initialized")
 	}
@@ -322,17 +343,32 @@ func (c *Client) addTorrentFromFile(fp string) (*torrent.Torrent, error) {
 		return nil, err
 	}
 	c.repository.logger.Trace().Msgf("torrentstream: Waiting to retrieve torrent info")
-	<-t.GotInfo()
+	select {
+	case <-t.GotInfo():
+		break
+	case <-t.Closed():
+		return nil, errors.New("torrent closed")
+	case <-ctx.Done():
+		t.Drop()
+		return nil, ctx.Err()
+	case <-time.After(1 * time.Minute):
+		t.Drop()
+		return nil, errors.New("timeout waiting for torrent info")
+	}
 	c.repository.logger.Info().Msgf("torrentstream: Torrent added: %s", t.InfoHash().AsString())
 	return t, nil
 }
 
-func (c *Client) addTorrentFromDownloadURL(url string) (*torrent.Torrent, error) {
+func (c *Client) addTorrentFromDownloadURL(ctx context.Context, url string) (*torrent.Torrent, error) {
 	if c.torrentClient.IsAbsent() {
 		return nil, errors.New("torrent client is not initialized")
 	}
 
-	resp, err := http.Get(url)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -361,6 +397,9 @@ func (c *Client) addTorrentFromDownloadURL(url string) (*torrent.Torrent, error)
 	case <-t.Closed():
 		t.Drop()
 		return nil, errors.New("torrent closed")
+	case <-ctx.Done():
+		t.Drop()
+		return nil, ctx.Err()
 	case <-time.After(1 * time.Minute):
 		t.Drop()
 		return nil, errors.New("timeout waiting for torrent info")
@@ -407,12 +446,83 @@ func (c *Client) RemoveTorrent(infoHash string) error {
 	torrents := c.torrentClient.MustGet().Torrents()
 	for _, t := range torrents {
 		if t.InfoHash().AsString() == infoHash {
+			droppedHash := t.InfoHash()
 			t.Drop()
+			c.removeTorrentFiles(droppedHash)
 			c.repository.logger.Debug().Msgf("torrentstream: Removed torrent: %s", infoHash)
 			return nil
 		}
 	}
 	return fmt.Errorf("no torrent found")
+}
+
+func (c *Client) removeTorrentFiles(infoHash metainfo.Hash) {
+	if c.repository.settings.IsAbsent() {
+		return
+	}
+
+	torrentDir := path.Join(c.repository.settings.MustGet().DownloadDir, infoHash.HexString())
+	if err := os.RemoveAll(torrentDir); err != nil {
+		c.repository.logger.Warn().Err(err).Str("path", torrentDir).Msg("torrentstream: Failed to remove torrent files")
+	}
+}
+
+func (c *Client) torrentFilePath(t *torrent.Torrent, file *torrent.File) (string, bool) {
+	if c.repository.settings.IsAbsent() || t == nil || file == nil {
+		return "", false
+	}
+
+	return filepath.Join(c.repository.settings.MustGet().DownloadDir, t.InfoHash().HexString(), filepath.FromSlash(file.Path())), true
+}
+
+func (c *Client) cleanupTorrentFiles(t *torrent.Torrent, keepFiles ...*torrent.File) {
+	if c.repository.settings.IsAbsent() || t == nil {
+		return
+	}
+
+	keepPaths := make(map[string]struct{}, len(keepFiles))
+	for _, file := range keepFiles {
+		filePath, ok := c.torrentFilePath(t, file)
+		if ok {
+			keepPaths[filePath] = struct{}{}
+		}
+	}
+
+	deprioritized := 0
+	for _, file := range t.Files() {
+		filePath, ok := c.torrentFilePath(t, file)
+		if !ok {
+			continue
+		}
+		if _, keep := keepPaths[filePath]; keep {
+			continue
+		}
+
+		file.SetPriority(torrent.PiecePriorityNone)
+		deprioritized++
+	}
+
+	if deprioritized > 0 {
+		c.repository.logger.Debug().Str("infoHash", t.InfoHash().HexString()).Int("deprioritized", deprioritized).Msg("torrentstream: Deprioritized inactive torrent files")
+	}
+}
+
+func (c *Client) cleanupActiveTorrentFiles() {
+	if c.currentTorrent.IsPresent() && c.currentFile.IsPresent() {
+		currentTorrent := c.currentTorrent.MustGet()
+		keepFiles := []*torrent.File{c.currentFile.MustGet()}
+		if prepared, ok := c.repository.preloadedStream.Get(); ok && prepared.Torrent.InfoHash() == currentTorrent.InfoHash() {
+			keepFiles = append(keepFiles, prepared.File)
+		}
+		c.cleanupTorrentFiles(currentTorrent, keepFiles...)
+	}
+
+	if prepared, ok := c.repository.preloadedStream.Get(); ok {
+		if c.currentTorrent.IsPresent() && c.currentTorrent.MustGet().InfoHash() == prepared.Torrent.InfoHash() {
+			return
+		}
+		c.cleanupTorrentFiles(prepared.Torrent, prepared.File)
+	}
 }
 
 func (c *Client) dropTorrents() {
@@ -440,14 +550,17 @@ func (c *Client) dropTorrents() {
 	c.repository.logger.Debug().Msg("torrentstream: Dropped all torrents")
 }
 
-// dropExcessTorrents drops all torrents except the current stream and prepared stream
-func (c *Client) dropExcessTorrents() {
+// dropExcessTorrents drops all torrents except the current stream, prepared stream, and explicit keep hashes.
+func (c *Client) dropExcessTorrents(keep ...metainfo.Hash) {
 	if c.torrentClient.IsAbsent() {
 		return
 	}
 
 	// Collect info hashes we want to keep
 	keepHashes := make(map[metainfo.Hash]bool)
+	for _, hash := range keep {
+		keepHashes[hash] = true
+	}
 
 	// Keep current torrent
 	if c.currentTorrent.IsPresent() {
@@ -469,11 +582,7 @@ func (c *Client) dropExcessTorrents() {
 			t.Drop()
 			droppedCount++
 
-			// Also remove its directory
-			if c.repository.settings.IsPresent() {
-				torrentDir := path.Join(c.repository.settings.MustGet().DownloadDir, t.Name())
-				_ = os.RemoveAll(torrentDir)
-			}
+			c.removeTorrentFiles(infoHash)
 		}
 	}
 

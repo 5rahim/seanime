@@ -24,6 +24,7 @@ export class VideoCorePreviewManager {
     private hlsInstance: Hls | null = null
     private isHlsSource: boolean = false
     private lastKnownTime: number = 0
+    private prefetchAheadCount: number = PREFETCH_AHEAD_COUNT
 
     private readonly _dummyVideoElement = document.createElement("video")
     private readonly _offscreenCanvas = new OffscreenCanvas(0, 0)
@@ -40,6 +41,7 @@ export class VideoCorePreviewManager {
     ) {
         this.initializeDummyVideoElement()
         this.videoElement = videoElement
+        this.prefetchAheadCount = useCustomThumbnailRequest === false ? 0 : PREFETCH_AHEAD_COUNT
 
         this.isHlsSource = streamType === "hls"
         this.loadMediaSource(
@@ -115,10 +117,11 @@ export class VideoCorePreviewManager {
 
     async retrievePreviewForSegment(
         segmentIndex: number,
+        prefetch = true,
     ): Promise<string | undefined> {
         const cachedPreview = this.previewCache.get(segmentIndex)
         if (cachedPreview) {
-            this.prefetchUpcomingSegments(segmentIndex)
+            if (prefetch) this.prefetchUpcomingSegments(segmentIndex)
             return cachedPreview
         }
 
@@ -126,7 +129,7 @@ export class VideoCorePreviewManager {
         if (inFlight) return inFlight
 
         const promise = this.schedulePreviewGeneration(segmentIndex)
-        this.prefetchUpcomingSegments(segmentIndex)
+        if (prefetch) this.prefetchUpcomingSegments(segmentIndex)
 
         return promise
     }
@@ -171,7 +174,9 @@ export class VideoCorePreviewManager {
     }
 
     private prefetchUpcomingSegments(currentIndex: number): void {
-        for (let i = 1; i <= PREFETCH_AHEAD_COUNT; i++) {
+        if (this.prefetchAheadCount <= 0) return
+
+        for (let i = 1; i <= this.prefetchAheadCount; i++) {
             const nextIndex = currentIndex + i
             if (
                 !this.previewCache.has(nextIndex) &&

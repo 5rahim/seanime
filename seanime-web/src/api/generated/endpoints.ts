@@ -2002,6 +2002,16 @@ export const API_ENDPOINTS = {
             methods: ["PATCH"],
             endpoint: "/api/v1/settings",
         },
+        /**
+         *  @description
+         *  Route patches a specific app setting.
+         *  This updates a single setting path and refreshes the server status.
+         */
+        PatchSetting: {
+            key: "SETTINGS-patch-setting",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/settings/path",
+        },
         SaveAutoDownloaderSettings: {
             key: "SETTINGS-save-auto-downloader-settings",
             methods: ["PATCH"],

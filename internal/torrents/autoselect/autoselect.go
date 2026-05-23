@@ -66,7 +66,7 @@ func New(opts *NewAutoSelectOptions) *AutoSelect {
 }
 
 type TorrentClient interface {
-	AddTorrent(magnet string) (*torrent.Torrent, error)
+	AddTorrent(ctx context.Context, magnet string) (*torrent.Torrent, error)
 	RemoveTorrent(hash string) error
 }
 
@@ -99,7 +99,7 @@ func (s *AutoSelect) FindBestTorrent(
 
 	// 3. Select file (iterate top 3)
 	s.log("Selecting best file from top candidates")
-	return s.selectFile(media, episodeNumber, torrents, mode, torrentClient, debridClient)
+	return s.selectFile(ctx, media, episodeNumber, torrents, mode, torrentClient, debridClient)
 }
 
 func (s *AutoSelect) log(msg string) {

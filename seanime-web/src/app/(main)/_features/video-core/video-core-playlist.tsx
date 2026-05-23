@@ -2,7 +2,7 @@ import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
-import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
+import { getNextBatchFileSelection, useAutoPlaySelectedTorrent, useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
 import { useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { VideoCoreNextButton, VideoCorePreviousButton } from "@/app/(main)/_features/video-core/video-core-control-bar"
@@ -142,7 +142,8 @@ export function useVideoCorePlaylist() {
     const [debridStream_autoSelectFile] = useAtom(__debridStream_autoSelectFileAtom)
 
     // The torrent to continue playing from
-    const { autoPlayTorrent } = useAutoPlaySelectedTorrent()
+    const { autoPlayTorrent, setAutoPlayTorrent } = useAutoPlaySelectedTorrent()
+    const { setTorrentstreamAutoplayInfo } = useTorrentstreamAutoplay()
 
     // Global playlist
     const {
@@ -151,6 +152,23 @@ export function useVideoCorePlaylist() {
         currentPlaylist: globalCurrentPlaylist,
         playEpisode: playGlobalPlaylistEpisode,
     } = usePlaylistManager()
+
+    function updateTorrentstreamAutoplayInfo(episode: Anime_Episode) {
+        if (!playlistState?.animeEntry) return
+
+        const nextEpisode = playlistState.episodes.find(e => e.episodeNumber === episode.episodeNumber + 1)
+        if (nextEpisode?.aniDBEpisode) {
+            setTorrentstreamAutoplayInfo({
+                allEpisodes: playlistState.episodes,
+                entry: playlistState.animeEntry,
+                episodeNumber: nextEpisode.episodeNumber,
+                aniDBEpisode: nextEpisode.aniDBEpisode,
+                type: "torrentstream",
+            })
+        } else {
+            setTorrentstreamAutoplayInfo(null)
+        }
+    }
 
     function startStream(episode: Anime_Episode) {
         if (!playlistState?.animeEntry || !episode.aniDBEpisode) return
@@ -164,6 +182,7 @@ export function useVideoCorePlaylist() {
                     episodeNumber: episode.episodeNumber,
                     aniDBEpisode: episode.aniDBEpisode,
                 })
+                updateTorrentstreamAutoplayInfo(episode)
                 return
             } else if (playbackType === "debrid" && debridStream_currentSessionAutoSelect) {
 
@@ -187,19 +206,19 @@ export function useVideoCorePlaylist() {
                 }
             }
             if (playbackType === "torrent") {
+                const batchSelection = getNextBatchFileSelection(autoPlayTorrent.batchFiles, episode.episodeNumber, episode.aniDBEpisode)
                 handleTorrentstreamSelection({
                     mediaId: playlistState.animeEntry.mediaId,
                     episodeNumber: episode.episodeNumber,
                     aniDBEpisode: episode.aniDBEpisode,
                     torrent: autoPlayTorrent.torrent,
-                    chosenFileIndex: fileIndex,
-                    batchEpisodeFiles: (autoPlayTorrent?.batchFiles && fileIndex !== undefined) ? {
-                        ...autoPlayTorrent.batchFiles,
-                        current: fileIndex,
-                        currentEpisodeNumber: episode.episodeNumber,
-                        currentAniDBEpisode: episode.aniDBEpisode,
-                    } : undefined,
+                    chosenFileIndex: batchSelection.fileIndex,
+                    batchEpisodeFiles: batchSelection.batchEpisodeFiles,
                 })
+                if (batchSelection.batchEpisodeFiles) {
+                    setAutoPlayTorrent(autoPlayTorrent.torrent, playlistState.animeEntry, batchSelection.batchEpisodeFiles)
+                }
+                updateTorrentstreamAutoplayInfo(episode)
             } else if (playbackType === "debrid") {
                 handleDebridstreamSelection({
                     mediaId: playlistState.animeEntry.mediaId,
@@ -313,6 +332,7 @@ export function useVideoCorePlaylist() {
     return {
         playlistState,
         animeEntry: playlistState?.animeEntry,
+        isGlobalPlaylistActive: !!globalCurrentPlaylist,
         hasPreviousEpisode: !!playlistState?.previousEpisode && !isWatchPartyPeer,
         hasNextEpisode: !!playlistState?.nextEpisode && !isWatchPartyPeer,
         playEpisode,

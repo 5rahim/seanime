@@ -56,12 +56,33 @@ export function useAutoPlaySelectedTorrent() {
     }
 }
 
+export function getNextBatchFileSelection(
+    batchFiles: HibikeTorrent_BatchEpisodeFiles | undefined,
+    episodeNumber: number,
+    aniDBEpisode: string,
+) {
+    const file = batchFiles?.files?.find(n => n.index === batchFiles.current + 1)
+    if (!batchFiles || !file) {
+        return { fileIndex: undefined, batchEpisodeFiles: undefined }
+    }
+
+    return {
+        fileIndex: file.index,
+        batchEpisodeFiles: {
+            ...batchFiles,
+            current: file.index,
+            currentEpisodeNumber: episodeNumber,
+            currentAniDBEpisode: aniDBEpisode,
+        },
+    }
+}
+
 export function useTorrentstreamAutoplay() {
     const [info, setInfo] = useAtom(__autoPlay_stateAtom)
     const [nextEpisode, setNextEpisode] = useAtom(__autoplay_nextEpisodeAtom)
 
     const { handleAutoSelectStream, handleStreamSelection } = useHandleStartTorrentStream()
-    const { autoPlayTorrent } = useAutoPlaySelectedTorrent()
+    const { autoPlayTorrent, setAutoPlayTorrent } = useAutoPlaySelectedTorrent()
 
     function handleAutoplayNextTorrentstreamEpisode(preload?: boolean) {
         if (!info) return
@@ -74,14 +95,7 @@ export function useTorrentstreamAutoplay() {
             torrentInfo = null
         }
 
-        // If it's the right torrent and it's a batch, get the next file index to play
-        let fileIndex: number | undefined = undefined
-        if (!!torrentInfo && torrentInfo?.batchFiles) {
-            const file = torrentInfo!.batchFiles.files?.find(n => n.index === torrentInfo!.batchFiles!.current + 1)
-            if (file) {
-                fileIndex = file.index
-            }
-        }
+        const { fileIndex, batchEpisodeFiles } = getNextBatchFileSelection(torrentInfo?.batchFiles, episodeNumber, aniDBEpisode)
 
         logger("TORRENT STREAM AUTOPLAY").info("Auto playing next episode", { episodeNumber, fileIndex, preload, torrent: torrentInfo?.torrent })
 
@@ -93,12 +107,7 @@ export function useTorrentstreamAutoplay() {
                 aniDBEpisode: aniDBEpisode,
                 torrent: torrentInfo.torrent,
                 chosenFileIndex: fileIndex,
-                batchEpisodeFiles: (torrentInfo?.batchFiles && fileIndex !== undefined) ? {
-                    ...torrentInfo.batchFiles,
-                    current: fileIndex,
-                    currentEpisodeNumber: episodeNumber,
-                    currentAniDBEpisode: aniDBEpisode,
-                } : undefined,
+                batchEpisodeFiles,
                 preload: preload,
             })
         } else {
@@ -112,6 +121,10 @@ export function useTorrentstreamAutoplay() {
         }
 
         if (!preload) {
+            if (torrentInfo?.torrent && batchEpisodeFiles) {
+                setAutoPlayTorrent(torrentInfo.torrent, entry, batchEpisodeFiles)
+            }
+
             const nextEpisode = allEpisodes?.find(e => e.episodeNumber === episodeNumber + 1)
             if (nextEpisode && !!nextEpisode.aniDBEpisode) {
                 setInfo({

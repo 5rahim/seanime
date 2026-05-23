@@ -24574,6 +24574,61 @@
     ]
   },
   {
+    "filepath": "../internal/api/anilist/request_provider.go",
+    "filename": "request_provider.go",
+    "name": "CustomClientConfig",
+    "formattedName": "AL_CustomClientConfig",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Endpoint",
+        "jsonName": "endpoint",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Token",
+        "jsonName": "token",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Headers",
+        "jsonName": "headers",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Authenticated",
+        "jsonName": "authenticated",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/api/anilist/stats.go",
     "filename": "stats.go",
     "name": "Stats",
@@ -36530,6 +36585,24 @@
         "comments": []
       },
       {
+        "name": "replacedPlaybackId",
+        "jsonName": "replacedPlaybackId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "replacedPlaybackClient",
+        "jsonName": "replacedPlaybackClient",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "preparingClientID",
         "jsonName": "preparingClientID",
         "goType": "string",
@@ -37023,6 +37096,27 @@
         "comments": []
       },
       {
+        "name": "subtitleSendMu",
+        "jsonName": "subtitleSendMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "subtitleLastSent",
+        "jsonName": "subtitleLastSent",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "terminateOnce",
         "jsonName": "terminateOnce",
         "goType": "sync.Once",
@@ -37293,6 +37387,15 @@
         "comments": []
       },
       {
+        "name": "downloadDir",
+        "jsonName": "downloadDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "onTerminate",
         "jsonName": "onTerminate",
         "goType": "",
@@ -37384,6 +37487,15 @@
         "usedTypescriptType": "Torrent_File",
         "usedStructName": "torrent.File",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadDir",
+        "jsonName": "DownloadDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -63728,6 +63840,60 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "playbackSwitch",
+        "jsonName": "playbackSwitch",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "freshPosition",
+        "jsonName": "freshPosition",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "freshDuration",
+        "jsonName": "freshDuration",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "autoSocket",
+        "jsonName": "autoSocket",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "launchErrCh",
+        "jsonName": "launchErrCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "launchLogPath",
+        "jsonName": "launchLogPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -75358,6 +75524,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "gojautil.Scheduler",
+        "typescriptType": "Scheduler",
+        "usedTypescriptType": "Scheduler",
+        "usedStructName": "gojautil.Scheduler",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -75732,6 +75909,17 @@
         "comments": []
       },
       {
+        "name": "Anilist",
+        "jsonName": "Anilist",
+        "goType": "AnilistActions",
+        "typescriptType": "AnilistActions",
+        "usedTypescriptType": "AnilistActions",
+        "usedStructName": "plugin.AnilistActions",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Settings",
         "jsonName": "Settings",
         "goType": "SettingsActions",
@@ -75787,6 +75975,34 @@
   {
     "filepath": "../internal/plugin/app_context.go",
     "filename": "app_context.go",
+    "name": "AnilistActions",
+    "formattedName": "AnilistActions",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "UseOfficialClient",
+        "jsonName": "UseOfficialClient",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UseCustomClient",
+        "jsonName": "UseCustomClient",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/app_context.go",
+    "filename": "app_context.go",
     "name": "SettingsActions",
     "formattedName": "SettingsActions",
     "package": "plugin",
@@ -75794,6 +76010,33 @@
       {
         "name": "OnSaved",
         "jsonName": "OnSaved",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnMediastreamSaved",
+        "jsonName": "OnMediastreamSaved",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnTorrentstreamSaved",
+        "jsonName": "OnTorrentstreamSaved",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnDebridSaved",
+        "jsonName": "OnDebridSaved",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -76099,6 +76342,17 @@
         "typescriptType": "AuthActions",
         "usedTypescriptType": "AuthActions",
         "usedStructName": "plugin.AuthActions",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anilist",
+        "jsonName": "anilist",
+        "goType": "AnilistActions",
+        "typescriptType": "AnilistActions",
+        "usedTypescriptType": "AnilistActions",
+        "usedStructName": "plugin.AnilistActions",
         "required": true,
         "public": false,
         "comments": []
@@ -90293,6 +90547,16 @@
         "comments": [
           " Track the last bytes written data"
         ]
+      },
+      {
+        "name": "lastFileCleanup",
+        "jsonName": "lastFileCleanup",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -91017,6 +91281,59 @@
         "jsonName": "preloadedStream",
         "goType": "",
         "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "streamActionMu",
+        "jsonName": "streamActionMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "startRequestId",
+        "jsonName": "startRequestId",
+        "goType": "atomic.Uint64",
+        "typescriptType": "Uint64",
+        "usedTypescriptType": "Uint64",
+        "usedStructName": "atomic.Uint64",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "startCancelMu",
+        "jsonName": "startCancelMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "startCancel",
+        "jsonName": "startCancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "startCancelId",
+        "jsonName": "startCancelId",
+        "goType": "uint64",
+        "typescriptType": "number",
         "required": true,
         "public": false,
         "comments": []

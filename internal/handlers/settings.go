@@ -267,6 +267,64 @@ func (h *Handler) HandleSaveSettings(c echo.Context) error {
 	return h.RespondWithData(c, status)
 }
 
+// HandlePatchSetting
+//
+//	@summary patches a specific app setting.
+//	@desc This updates a single setting path and refreshes the server status.
+//	@route /api/v1/settings/path [PATCH]
+//	@returns handlers.Status
+func (h *Handler) HandlePatchSetting(c echo.Context) error {
+	type body struct {
+		Path  string      `json:"path"`
+		Value interface{} `json:"value"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	b.Path = strings.TrimSpace(b.Path)
+	if b.Path == "" {
+		return h.RespondWithError(c, errors.New("settings path is empty"))
+	}
+
+	prevSettings, err := h.App.Database.GetSettings()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	nextSettings, err := models.SetSettingsPath(prevSettings, b.Path, b.Value)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if err := h.guardStrictSettingsMutation(c, prevSettings, nextSettings.Library, nextSettings.Manga); err != nil {
+		return err
+	}
+	if err := h.guardPrivilegedSettingsMutation(c, prevSettings, nextSettings.MediaPlayer, nextSettings.Torrent); err != nil {
+		return err
+	}
+
+	nextSettings.BaseModel = models.BaseModel{
+		ID:        1,
+		UpdatedAt: time.Now(),
+	}
+
+	settings, err := h.App.Database.UpsertSettings(nextSettings)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	h.App.WSEventManager.SendEvent("settings", settings)
+
+	status := h.NewStatus(c)
+
+	h.App.InitOrRefreshModules()
+
+	return h.RespondWithData(c, status)
+}
+
 // HandleSaveAutoDownloaderSettings
 //
 //	@summary updates the auto-downloader settings.

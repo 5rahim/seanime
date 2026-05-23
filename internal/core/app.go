@@ -455,10 +455,27 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 				return nil
 			},
 		},
+		Anilist: plugin.AnilistActions{
+			UseOfficialClient: app.UseOfficialAnilistClient,
+			UseCustomClient:   app.UseCustomAnimeClient,
+		},
 		Settings: plugin.SettingsActions{
 			OnSaved: func(settings *models.Settings) {
 				app.WSEventManager.SendEvent("settings", settings)
 				app.InitOrRefreshModules()
+				app.WSEventManager.SendEvent(events.SettingsChanged, nil)
+			},
+			OnMediastreamSaved: func(_ *models.MediastreamSettings) {
+				app.InitOrRefreshMediastreamSettings()
+				app.WSEventManager.SendEvent(events.SettingsChanged, nil)
+			},
+			OnTorrentstreamSaved: func(_ *models.TorrentstreamSettings) {
+				app.InitOrRefreshTorrentstreamSettings()
+				app.WSEventManager.SendEvent(events.SettingsChanged, nil)
+			},
+			OnDebridSaved: func(_ *models.DebridSettings) {
+				app.InitOrRefreshDebridSettings()
+				app.WSEventManager.SendEvent(events.SettingsChanged, nil)
 			},
 		},
 		Extensions: plugin.ExtensionActions{

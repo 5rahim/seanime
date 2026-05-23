@@ -10195,6 +10195,55 @@
     }
   },
   {
+    "name": "HandlePatchSetting",
+    "trimmedName": "PatchSetting",
+    "comments": [
+      "HandlePatchSetting",
+      "",
+      "\t@summary patches a specific app setting.",
+      "\t@desc This updates a single setting path and refreshes the server status.",
+      "\t@route /api/v1/settings/path [PATCH]",
+      "\t@returns handlers.Status",
+      ""
+    ],
+    "filepath": "internal/handlers/settings.go",
+    "filename": "settings.go",
+    "api": {
+      "summary": "patches a specific app setting.",
+      "descriptions": [
+        "This updates a single setting path and refreshes the server status."
+      ],
+      "endpoint": "/api/v1/settings/path",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Path",
+          "jsonName": "path",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Value",
+          "jsonName": "value",
+          "goType": "",
+          "usedStructType": "",
+          "typescriptType": "any",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "handlers.Status",
+      "returnGoType": "handlers.Status",
+      "returnTypescriptType": "Status"
+    }
+  },
+  {
     "name": "HandleSaveAutoDownloaderSettings",
     "trimmedName": "SaveAutoDownloaderSettings",
     "comments": [

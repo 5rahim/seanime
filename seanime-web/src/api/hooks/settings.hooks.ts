@@ -1,6 +1,7 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import {
     GettingStarted_Variables,
+    PatchSetting_Variables,
     SaveAutoDownloaderSettings_Variables,
     SaveMediaPlayerSettings_Variables,
     SaveSettings_Variables,
@@ -8,6 +9,7 @@ import {
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Models_Settings, Status } from "@/api/generated/types"
 import { isLoginModalOpenAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useQueryClient } from "@tanstack/react-query"
 import { useSetAtom } from "jotai/react"
 import { toast } from "sonner"
@@ -48,6 +50,28 @@ export function useSaveSettings() {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SETTINGS.GetSettings.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
             toast.success("Settings saved")
+        },
+    })
+}
+
+export function usePatchSetting() {
+    const queryClient = useQueryClient()
+    const setServerStatus = useSetServerStatus()
+
+    return useServerMutation<Status, PatchSetting_Variables>({
+        endpoint: API_ENDPOINTS.SETTINGS.PatchSetting.endpoint,
+        method: API_ENDPOINTS.SETTINGS.PatchSetting.methods[0],
+        mutationKey: [API_ENDPOINTS.SETTINGS.PatchSetting.key],
+        onSuccess: async data => {
+            if (data) {
+                setServerStatus(data)
+                queryClient.setQueryData([API_ENDPOINTS.STATUS.GetStatus.key], data)
+                queryClient.setQueryData([API_ENDPOINTS.SETTINGS.GetSettings.key], data.settings)
+            }
+
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SETTINGS.GetSettings.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
+            toast.success("Settings updated")
         },
     })
 }

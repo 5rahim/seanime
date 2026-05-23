@@ -273,7 +273,10 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 				p.storage = plugin.GlobalAppContext.BindStorage(vm, logger, p.ext, p.scheduler)
 
 			case extension.PluginPermissionAnilist: // Anilist
-				plugin.GlobalAppContext.BindAnilist(vm, logger, p.ext)
+				plugin.GlobalAppContext.BindAnilist(vm, logger, p.ext, p.scheduler)
+
+			case extension.PluginPermissionCustomClient: // Custom client
+				plugin.GlobalAppContext.BindAnilistCustomClient(vm, logger, p.ext, p.scheduler)
 
 			case extension.PluginPermissionDatabase: // Database
 				plugin.GlobalAppContext.BindDatabase(vm, logger, p.ext)

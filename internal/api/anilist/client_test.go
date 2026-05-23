@@ -249,6 +249,34 @@ func TestDoAniListRequestWithRetriesDoesNotRetryWhenRateLimitHeadersAreMissing(t
 	assert.Equal(t, "", rlRemainingStr)
 }
 
+func TestUseCustomAPIUsesRuntimeConfig(t *testing.T) {
+	prevProvider := CurrentRequestProvider()
+	t.Cleanup(func() {
+		require.NoError(t, SetRequestProvider(prevProvider))
+	})
+
+	require.NoError(t, UseCustomAPI(CustomClientConfig{
+		Name:     "plugin-client",
+		Endpoint: "https://plugin.example.com/graphql",
+		Token:    "plugin-token",
+		Headers: map[string]string{
+			"X-Provider": "plugin",
+		},
+		Authenticated: true,
+	}))
+
+	// a custom client should only need an endpoint and request parameters from the extension.
+	req, err := http.NewRequest(http.MethodPost, "https://example.com/graphql", nil)
+	require.NoError(t, err)
+	require.NoError(t, initAnilistReq(context.Background(), req, ""))
+
+	assert.Equal(t, "https://plugin.example.com/graphql", req.URL.String())
+	assert.Equal(t, "plugin", req.Header.Get("X-Provider"))
+	assert.Equal(t, "Bearer plugin-token", req.Header.Get("Authorization"))
+	assert.Equal(t, "plugin-client", CurrentRequestProviderName())
+	assert.True(t, NewAnilistClient("", t.TempDir()).IsAuthenticated())
+}
+
 func TestAniListRateBlockerWaitsUntilBlockExpires(t *testing.T) {
 	// once blocked, later requests should wait until the shared block expires.
 	clock := &testClock{now: time.Date(2026, time.April, 7, 12, 0, 10, 0, time.UTC)}

@@ -1326,12 +1326,16 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }
 
-    const { playEpisode } = useVideoCorePlaylist()
+    const { playEpisode, isGlobalPlaylistActive } = useVideoCorePlaylist()
     const handleEnded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.info("Video ended")
         subtitleManager?.pgsRenderer?.stop()
         onEnded?.()
         if (autoNext && !isWatchPartyParticipant) {
+            if (props.id === "native-player" && isGlobalPlaylistActive) {
+                log.info("Skipping frontend auto next for native global playlist")
+                return
+            }
             // videoRef?.current?.pause()
             playEpisode("next")
         }

@@ -61,7 +61,7 @@ func getPriorityManager(t *torrent.Torrent, file *torrent.File, logger *zerolog.
 		readers: make(map[string]*readerInfo),
 		torrent: t,
 		file:    file,
-		logger:  logger,
+		logger:  new(logger.Sample(&zerolog.BasicSampler{N: 20})),
 	}
 	priorityManagers[key] = pm
 

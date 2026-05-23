@@ -2558,10 +2558,45 @@ declare namespace $storage {
 }
 
 declare namespace $anilist {
+    type RequestProvider = "official" | (string & {})
+
+    type CustomClientOptions = {
+        /** Display name returned by getRequestProvider. Defaults to "custom". */
+        name?: string
+        /** Absolute GraphQL endpoint for an AniList-compatible API. */
+        endpoint: string
+        /** Optional bearer token convenience field. Custom headers may be used instead. */
+        token?: string
+        /** Headers applied to every GraphQL request. */
+        headers?: Record<string, string>
+        /** Marks the client as authenticated even when no bearer token is provided. */
+        authenticated?: boolean
+    }
+
     /**
      * Deletes all cached data.
      */
     function clearCache(): void
+
+    /**
+     * Get the currently active AniList request provider.
+     * Permissions needed: custom-client
+     */
+    function getRequestProvider(): RequestProvider
+
+    /**
+     * Switch back to the official AniList API at runtime.
+     * Prompts the user before switching.
+     * Permissions needed: custom-client
+     */
+    function useOfficialApi(): Promise<void>
+
+    /**
+     * Switch to a custom AniList-compatible GraphQL API at runtime.
+     * Prompts the user before switching.
+     * Permissions needed: custom-client
+     */
+    function useCustomApi(options: CustomClientOptions): Promise<void>
 
     /**
      * Refresh the anime collection.

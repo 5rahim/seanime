@@ -63,6 +63,116 @@ func (a *App) UpdateAnilistClientToken(token string) {
 	a.AnilistClientRef.Set(ac)
 }
 
+func (a *App) UseOfficialAnilistClient() error {
+	previousProvider := anilist.CurrentRequestProvider()
+	anilist.UseOfficialAPI()
+
+	if err := a.applyRuntimeAnilistClient(anilist.NewAnilistClient(a.Database.GetAnilistToken(), a.AnilistCacheDir)); err != nil {
+		_ = anilist.SetRequestProvider(previousProvider)
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) UseCustomAnimeClient(config anilist.CustomClientConfig) error {
+	previousProvider := anilist.CurrentRequestProvider()
+	if err := anilist.UseCustomAPI(config); err != nil {
+		return err
+	}
+
+	if err := a.applyRuntimeAnilistClient(anilist.NewAnilistClient(config.Token, a.AnilistCacheDir)); err != nil {
+		_ = anilist.SetRequestProvider(previousProvider)
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) applyRuntimeAnilistClient(client anilist.AnilistClient) error {
+	if a.IsOffline() {
+		return errors.New("anilist runtime switch is unavailable in offline mode")
+	}
+
+	nextUser := user.NewSimulatedUser()
+	provider := anilist.CurrentRequestProviderName()
+
+	if client.IsAuthenticated() {
+		viewer, err := fetchRuntimeViewer(provider, func() (*anilist.GetViewer, error) {
+			return client.GetViewer(context.Background())
+		}, time.Sleep)
+		if err != nil {
+			return err
+		}
+
+		token := ""
+		if provider == anilist.OfficialRequestProviderName {
+			token = a.Database.GetAnilistToken()
+		}
+
+		nextUser = &user.User{
+			Viewer: viewer.GetViewer(),
+			Token:  token,
+		}
+	}
+
+	a.AnilistClientRef.Set(client)
+
+	var nextPlatform platform.Platform
+	var err error
+	if client.IsAuthenticated() {
+		nextPlatform = anilist_platform.NewAnilistPlatform(a.AnilistClientRef, a.ExtensionBankRef, a.Logger, a.Database, a.LogoutFromAnilist)
+	} else {
+		nextPlatform, err = simulated_platform.NewSimulatedPlatform(a.LocalManager, a.AnilistClientRef, a.ExtensionBankRef, a.Logger, a.Database)
+		if err != nil {
+			return err
+		}
+	}
+
+	a.UpdatePlatform(nextPlatform)
+	a.user = nextUser
+	a.AnilistPlatformRef.Get().SetUsername(nextUser.Viewer.Name)
+	a.InitOrRefreshModules()
+
+	if a.DiscordPresence != nil {
+		a.DiscordPresence.SetUsername(nextUser.Viewer.Name)
+	}
+
+	if _, err := a.RefreshAnimeCollection(); err != nil {
+		return err
+	}
+
+	if _, err := a.RefreshMangaCollection(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var customClientViewerRetryDelays = []time.Duration{
+	500 * time.Millisecond,
+	time.Second,
+	2 * time.Second,
+	3 * time.Second,
+}
+
+func fetchRuntimeViewer(provider string, getViewer func() (*anilist.GetViewer, error), sleep func(time.Duration)) (*anilist.GetViewer, error) {
+	viewer, err := getViewer()
+	if err == nil || provider == anilist.OfficialRequestProviderName {
+		return viewer, err
+	}
+
+	for _, delay := range customClientViewerRetryDelays {
+		sleep(delay)
+		viewer, err = getViewer()
+		if err == nil {
+			return viewer, nil
+		}
+	}
+
+	return nil, err
+}
+
 func (a *App) LoginToAnilist(token string) error {
 	if token == "" {
 		return errors.New("token is empty")

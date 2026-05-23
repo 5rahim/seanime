@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.8.3
+
+- 🦺 Scanner: Limit concurrency when checking files
+- 🦺 Plugins: ctx.appSettings now includes debrid, torrent streaming and transcode settings
+- 🦺 VideoCore: Throttle torrent stream subtitle events to avoid lag
+- 🦺 VideoCore: Throttle thumbnail requests
+- 🦺 VideoCore: Fixed autonext skipping playlist episodes
+- 🦺 VideoCore: Fixed playback failure when replaying fully downloaded torrent stream
+- 🦺 Torrentstream: Dropping torrent removes them on disk
+- 🦺 MPV: Potential fix for stale events causing incorrect progress updates
+- 🦺 MPV: Generate fresh IPC sockets for each launch to avoid collisions
+- 🏗️ MPV: Refactored error messages handling
+- 🏗️ VideoCore: Use View Transitions for mini player transitions
+- 🏗️ Torrentstream: Completed torrent files now stream from file on disk instead of client readers
+- 🏗️ UI: Replaced Radix-based drawers with Vaul-based components
+
 ## v3.8.2
 
 - 🦺 VideoCore: Fixed audio selection

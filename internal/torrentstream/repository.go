@@ -22,6 +22,7 @@ import (
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"sync"
 	"sync/atomic"
 
 	itorrent "github.com/anacrolix/torrent"
@@ -59,6 +60,11 @@ type (
 
 		previousStreamOptions mo.Option[*StartStreamOptions]
 		preloadedStream       mo.Option[*preloadedStream]
+		streamActionMu        sync.Mutex
+		startRequestId        atomic.Uint64
+		startCancelMu         sync.Mutex
+		startCancel           context.CancelFunc
+		startCancelId         uint64
 		shouldPreloadStream   atomic.Bool // Flag on whether the client should prepare a stream
 	}
 
@@ -131,6 +137,9 @@ func (r *Repository) IsEnabled() bool {
 }
 
 func (r *Repository) GetPreviousStreamOptions() (*StartStreamOptions, bool) {
+	r.streamActionMu.Lock()
+	defer r.streamActionMu.Unlock()
+
 	return r.previousStreamOptions.OrElse(nil), r.previousStreamOptions.IsPresent()
 }
 

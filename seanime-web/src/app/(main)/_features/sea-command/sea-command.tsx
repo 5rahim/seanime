@@ -246,6 +246,9 @@ export function SeaCommand() {
                         shouldShow={ctx => (
                             ctx.command.command === "logs"
                             || ctx.command.command === "issue"
+                            || ctx.command.command === "droptorrent"
+                            || ctx.command.command === "reload"
+                            || ctx.command.command === "devtool"
                         )}
                         render={() => <SeaCommandActions />}
                     />

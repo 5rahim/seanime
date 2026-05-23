@@ -5,12 +5,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"io"
 	"math"
 	"seanime/internal/events"
 	"seanime/internal/mkvparser"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/util"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -36,6 +38,136 @@ const (
 	defaultSubtitleBackoffBytes    int64 = 1024 * 1024
 	subtitleStreamDedupWindowBytes       = 1024 * 1024
 )
+
+type subtitleFlushConfig struct {
+	flushInterval       time.Duration
+	maxBatchSize        int
+	sleepAfterFullBatch time.Duration
+	minSendInterval     time.Duration
+}
+
+func subtitleFlushConfigFor(streamType nativeplayer.StreamType, offset int64) subtitleFlushConfig {
+	config := subtitleFlushConfig{
+		flushInterval:       100 * time.Millisecond,
+		maxBatchSize:        500,
+		sleepAfterFullBatch: 200 * time.Millisecond,
+	}
+
+	if streamType == nativeplayer.StreamTypeTorrent {
+		config = subtitleFlushConfig{
+			flushInterval:       250 * time.Millisecond,
+			maxBatchSize:        25,
+			sleepAfterFullBatch: 100 * time.Millisecond,
+			minSendInterval:     100 * time.Millisecond,
+		}
+		if offset > 0 {
+			config = subtitleFlushConfig{
+				flushInterval:       100 * time.Millisecond,
+				maxBatchSize:        35,
+				sleepAfterFullBatch: 50 * time.Millisecond,
+				minSendInterval:     75 * time.Millisecond,
+			}
+		}
+	}
+
+	if streamType == nativeplayer.StreamTypeFile {
+		config = subtitleFlushConfig{
+			flushInterval:       300 * time.Millisecond,
+			maxBatchSize:        50,
+			sleepAfterFullBatch: 500 * time.Millisecond,
+		}
+		// local resume/seek need to catch up very quickly
+		if offset > 0 {
+			config = subtitleFlushConfig{
+				flushInterval:       75 * time.Millisecond,
+				maxBatchSize:        200,
+				sleepAfterFullBatch: 25 * time.Millisecond,
+			}
+		}
+	}
+
+	return config
+}
+
+func subtitleEventId(event *mkvparser.SubtitleEvent) string {
+	if event == nil {
+		return ""
+	}
+
+	hash := fnv.New64a()
+	_, _ = hash.Write([]byte(event.Text))
+
+	if len(event.ExtraData) > 0 {
+		keys := make([]string, 0, len(event.ExtraData))
+		for key := range event.ExtraData {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		for _, key := range keys {
+			_, _ = hash.Write([]byte(key))
+			_, _ = hash.Write([]byte{'='})
+			_, _ = hash.Write([]byte(event.ExtraData[key]))
+			_, _ = hash.Write([]byte{'|'})
+		}
+	}
+
+	return fmt.Sprintf("%d:%s:%f:%f:%x", event.TrackNumber, event.CodecID, event.StartTime, event.Duration, hash.Sum64())
+}
+
+func (s *BaseStream) shouldSendSubtitleEvent(event *mkvparser.SubtitleEvent) bool {
+	if event == nil {
+		return false
+	}
+	if s.subtitleEventCache == nil {
+		return true
+	}
+
+	_, loaded := s.subtitleEventCache.LoadOrStore(subtitleEventId(event), event)
+	return !loaded
+}
+
+func (s *BaseStream) sendSubtitleEvents(ctx context.Context, stream Stream, events []*mkvparser.SubtitleEvent, config subtitleFlushConfig) bool {
+	if len(events) == 0 {
+		return true
+	}
+
+	if config.minSendInterval <= 0 {
+		s.manager.nativePlayer.SubtitleEvents(stream.ClientId(), events)
+		return true
+	}
+
+	s.subtitleSendMu.Lock()
+	defer s.subtitleSendMu.Unlock()
+
+	if !s.waitForSubtitleSend(ctx, config.minSendInterval) {
+		return false
+	}
+
+	s.manager.nativePlayer.SubtitleEvents(stream.ClientId(), events)
+	s.subtitleLastSent = time.Now()
+	return true
+}
+
+func (s *BaseStream) waitForSubtitleSend(ctx context.Context, minSendInterval time.Duration) bool {
+	if s.subtitleLastSent.IsZero() {
+		return true
+	}
+
+	wait := minSendInterval - time.Since(s.subtitleLastSent)
+	if wait <= 0 {
+		return true
+	}
+
+	timer := time.NewTimer(wait)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return false
+	case <-timer.C:
+		return true
+	}
+}
 
 func subtitleOffsetForTime(playbackInfo *nativeplayer.PlaybackInfo, currentTime float64, duration float64) int64 {
 	if playbackInfo == nil || playbackInfo.ContentLength <= 0 || currentTime <= 0 {
@@ -87,8 +219,7 @@ func (m *Manager) startSubtitleStreamForTime(stream Stream, playbackInfo *native
 		}
 		s.StartSubtitleStream(s, m.playbackCtx, reader, offset)
 	case *TorrentStream:
-		reader := s.file.NewReader()
-		reader.SetResponsive()
+		reader := s.newSubtitleReader()
 		s.StartSubtitleStream(s, m.playbackCtx, reader, offset)
 	case *UrlStream:
 		reader, err := s.getReader()
@@ -195,6 +326,11 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 
 	var lastSubtitleEvent *mkvparser.SubtitleEvent
 	lastSubtitleEventRWMutex := sync.RWMutex{}
+	setLastSubtitleEvent := func(event *mkvparser.SubtitleEvent) {
+		lastSubtitleEventRWMutex.Lock()
+		lastSubtitleEvent = event
+		lastSubtitleEventRWMutex.Unlock()
+	}
 
 	// Check every second if we need to end this stream
 	go func() {
@@ -206,11 +342,13 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 				subtitleStream.Stop(false)
 				return
 			case <-ticker.C:
-				if lastSubtitleEvent == nil {
+				lastSubtitleEventRWMutex.RLock()
+				lastEvent := lastSubtitleEvent
+				lastSubtitleEventRWMutex.RUnlock()
+				if lastEvent == nil {
 					continue
 				}
 				shouldEnd := false
-				lastSubtitleEventRWMutex.RLock()
 				s.activeSubtitleStreams.Range(func(key string, value *SubtitleStream) bool {
 					if key != subtitleStreamId {
 						// If the other stream is ahead of this stream
@@ -218,13 +356,12 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 						// |--------------->                   this stream
 						//                     |-------------> other stream
 						//                    ^^^ stop this stream where it reached the tail of the other stream
-						if offset > 0 && offset < value.offset && lastSubtitleEvent.HeadPos >= value.offset {
+						if offset > 0 && offset < value.offset && lastEvent.HeadPos >= value.offset {
 							shouldEnd = true
 						}
 					}
 					return true
 				})
-				lastSubtitleEventRWMutex.RUnlock()
 				if shouldEnd {
 					subtitleStream.Stop(false)
 					return
@@ -247,31 +384,19 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 		subtitleChannelActive := true
 		errorChannelActive := true
 
-		flushInterval := 100 * time.Millisecond
-		maxBatchSize := 500
-		sleepAfterFullBatch := 200 * time.Millisecond
-		if stream.Type() == nativeplayer.StreamTypeFile {
-			flushInterval = 300 * time.Millisecond
-			maxBatchSize = 50
-			sleepAfterFullBatch = 500 * time.Millisecond
-
-			// local resume/seek needs to catch up quickly once we start near the active position
-			if offset > 0 {
-				flushInterval = 75 * time.Millisecond
-				maxBatchSize = 200
-				sleepAfterFullBatch = 25 * time.Millisecond
-			}
-		}
+		flushConfig := subtitleFlushConfigFor(stream.Type(), offset)
+		flushInterval := flushConfig.flushInterval
+		maxBatchSize := flushConfig.maxBatchSize
+		sleepAfterFullBatch := flushConfig.sleepAfterFullBatch
 
 		eventBatch := make([]*mkvparser.SubtitleEvent, 0, maxBatchSize)
 		flushBatch := func(fullBatch bool) {
 			if len(eventBatch) == 0 {
 				return
 			}
-			s.manager.nativePlayer.SubtitleEvents(stream.ClientId(), eventBatch)
-			lastSubtitleEventRWMutex.Lock()
-			lastSubtitleEvent = eventBatch[len(eventBatch)-1]
-			lastSubtitleEventRWMutex.Unlock()
+			if !s.sendSubtitleEvents(ctx, stream, eventBatch, flushConfig) {
+				return
+			}
 
 			eventBatch = eventBatch[:0]
 
@@ -306,7 +431,11 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 				}
 				if subtitle != nil {
 					onFirstEventSent()
-					// Buffer the event
+					setLastSubtitleEvent(subtitle)
+					if stream.Type() == nativeplayer.StreamTypeTorrent && !s.shouldSendSubtitleEvent(subtitle) {
+						continue
+					}
+
 					eventBatch = append(eventBatch, subtitle)
 					if len(eventBatch) >= maxBatchSize {
 						flushBatch(true)

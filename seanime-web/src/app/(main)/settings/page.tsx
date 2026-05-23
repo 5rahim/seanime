@@ -330,6 +330,7 @@ export default function Page() {
 
                     <div className="">
                         <Form
+                            key={`${status?.settings?.updatedAt ?? "settings"}:${status?.themeSettings?.updatedAt ?? "theme"}`}
                             schema={settingsSchema}
                             mRef={formRef}
                             onSubmit={async data => {

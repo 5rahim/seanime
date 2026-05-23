@@ -37,6 +37,11 @@ func handleRange(w http.ResponseWriter, r *http.Request, reader io.ReadSeekClose
 }
 
 func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Context, reader io.ReadSeekCloser, name string, size int64, contentType string, ra httputil.Range) {
+	stopReader := context.AfterFunc(ctx, func() {
+		_ = reader.Close()
+	})
+	defer stopReader()
+
 	w.Header().Set("Accept-Ranges", "bytes")
 	w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Connection", "keep-alive")
@@ -65,6 +70,11 @@ func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Conte
 }
 
 func serveTorrent(w http.ResponseWriter, r *http.Request, ctx context.Context, reader io.ReadSeekCloser, name string, size int64, contentType string, ra httputil.Range) {
+	stopReader := context.AfterFunc(ctx, func() {
+		_ = reader.Close()
+	})
+	defer stopReader()
+
 	w.Header().Set("Accept-Ranges", "bytes")
 	w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Connection", "keep-alive")

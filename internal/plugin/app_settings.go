@@ -18,6 +18,61 @@ import (
 	"github.com/rs/zerolog"
 )
 
+const (
+	appSettingsMediastreamRoot   = "mediastream"
+	appSettingsTorrentstreamRoot = "torrentstream"
+	appSettingsDebridRoot        = "debrid"
+)
+
+type appSettingsBundle struct {
+	Settings      *models.Settings
+	Mediastream   *models.MediastreamSettings
+	Torrentstream *models.TorrentstreamSettings
+	Debrid        *models.DebridSettings
+}
+
+type appSettingsChanges struct {
+	base          bool
+	mediastream   bool
+	torrentstream bool
+	debrid        bool
+}
+
+func (o appSettingsChanges) hasChanges() bool {
+	return o.base || o.mediastream || o.torrentstream || o.debrid
+}
+
+func (o *appSettingsChanges) markKey(key string) {
+	switch strings.TrimSpace(key) {
+	case appSettingsMediastreamRoot:
+		o.mediastream = true
+	case appSettingsTorrentstreamRoot:
+		o.torrentstream = true
+	case appSettingsDebridRoot:
+		o.debrid = true
+	case "":
+		return
+	default:
+		o.base = true
+	}
+}
+
+func changesForPath(path string) (ret appSettingsChanges) {
+	parts := splitPath(path)
+	if len(parts) == 0 {
+		return ret
+	}
+	ret.markKey(parts[0])
+	return ret
+}
+
+func changesForMap(in map[string]interface{}) (ret appSettingsChanges) {
+	for key := range in {
+		ret.markKey(key)
+	}
+	return ret
+}
+
 func (a *AppContextImpl) bindSettingsObj(vm *goja.Runtime, ext *extension.Extension, scheduler *gojautil.Scheduler) *goja.Object {
 	settingsObj := vm.NewObject()
 	cache := newPromptCache()
@@ -52,17 +107,12 @@ func (a *AppContextImpl) bindSettingsObj(vm *goja.Runtime, ext *extension.Extens
 			Cache:    cache,
 			CacheKey: settingsCacheKey("view", path),
 		}, func() (interface{}, error) {
-			settings, err := a.getSettings()
+			base, err := a.getSettingsMap()
 			if err != nil {
 				return nil, err
 			}
 			if path == "" {
-				return settings, nil
-			}
-
-			base, err := toMap(settings)
-			if err != nil {
-				return nil, err
+				return base, nil
 			}
 			value, found := getPath(base, path)
 			if !found && hasFallback {
@@ -95,37 +145,46 @@ func (a *AppContextImpl) bindSettingsObj(vm *goja.Runtime, ext *extension.Extens
 				Cache:      cache,
 				CacheKey:   settingsCacheKey("edit", path),
 			}, func() (interface{}, error) {
-				settings, err := a.getSettings()
-				if err != nil {
-					return nil, err
-				}
-
-				base, err := toMap(settings)
+				bundle, base, err := a.getSettingsBundleAndMap()
 				if err != nil {
 					return nil, err
 				}
 				if err := setPath(base, path, value); err != nil {
 					return nil, err
 				}
-				next, err := mapToSettings(base)
+				changes := changesForPath(path)
+				next, err := mapToSettingsBundle(base, bundle, changes)
 				if err != nil {
 					return nil, err
 				}
-				return a.saveSettings(next)
+				return a.saveSettings(next, changes)
 			})
 		}
 
-		var next models.Settings
-		if err := decodeValue(call.Argument(0), &next); err != nil {
+		currentBundle, currentMap, err := a.getSettingsBundleAndMap()
+		if err != nil {
+			return rejectNow(vm, err)
+		}
+
+		nextInput := make(map[string]interface{})
+		if err := decodeValue(call.Argument(0), &nextInput); err != nil {
+			return rejectNow(vm, err)
+		}
+
+		changes := changesForMap(nextInput)
+		nextBundle, err := mapToSettingsBundle(nextInput, currentBundle, changes)
+		if err != nil {
+			return rejectNow(vm, err)
+		}
+		nextMap, err := settingsBundleToMap(nextBundle)
+		if err != nil {
 			return rejectNow(vm, err)
 		}
 
 		details := []string{"all settings"}
-		if current, err := a.getSettings(); err == nil {
-			details = diffSettingsPaths(current, &next)
-			if len(details) == 0 {
-				details = []string{"no setting changes"}
-			}
+		details = diffAppSettingsPaths(currentMap, nextMap)
+		if len(details) == 0 {
+			details = []string{"no setting changes"}
 		}
 
 		return a.settingsAction(vm, scheduler, ext, prompt.Options{
@@ -137,7 +196,7 @@ func (a *AppContextImpl) bindSettingsObj(vm *goja.Runtime, ext *extension.Extens
 			Cache:    cache,
 			CacheKey: settingsCacheKey("edit", details...),
 		}, func() (interface{}, error) {
-			return a.saveSettings(&next)
+			return a.saveSettings(nextBundle, changes)
 		})
 	})
 
@@ -156,16 +215,18 @@ func (a *AppContextImpl) bindSettingsObj(vm *goja.Runtime, ext *extension.Extens
 			Cache:    cache,
 			CacheKey: settingsCacheKey("edit", details...),
 		}, func() (interface{}, error) {
-			settings, err := a.getSettings()
+			bundle, base, err := a.getSettingsBundleAndMap()
 			if err != nil {
 				return nil, err
 			}
 
-			next, err := patchSettings(settings, patch)
+			merge(base, patch)
+			changes := changesForMap(patch)
+			next, err := mapToSettingsBundle(base, bundle, changes)
 			if err != nil {
 				return nil, err
 			}
-			return a.saveSettings(next)
+			return a.saveSettings(next, changes)
 		})
 	})
 
@@ -207,8 +268,8 @@ func (a *AppContextImpl) settingsAction(vm *goja.Runtime, scheduler *gojautil.Sc
 	return vm.ToValue(promise)
 }
 
-func (a *AppContextImpl) saveSettings(settings *models.Settings) (*models.Settings, error) {
-	if settings == nil {
+func (a *AppContextImpl) saveSettings(bundle *appSettingsBundle, changes appSettingsChanges) (map[string]interface{}, error) {
+	if bundle == nil {
 		return nil, errors.New("settings is nil")
 	}
 
@@ -217,32 +278,126 @@ func (a *AppContextImpl) saveSettings(settings *models.Settings) (*models.Settin
 		return nil, errors.New("database not set")
 	}
 
-	settings.BaseModel = models.BaseModel{ID: 1, UpdatedAt: time.Now()}
-	saved, err := database.UpsertSettings(settings)
-	if err != nil {
-		return nil, err
+	now := time.Now()
+
+	var (
+		savedSettings      *models.Settings
+		savedMediastream   *models.MediastreamSettings
+		savedTorrentstream *models.TorrentstreamSettings
+		savedDebrid        *models.DebridSettings
+		err                error
+	)
+
+	if changes.base {
+		if bundle.Settings == nil {
+			return nil, errors.New("settings is nil")
+		}
+		bundle.Settings.BaseModel = models.BaseModel{ID: 1, UpdatedAt: now}
+		savedSettings, err = database.UpsertSettings(bundle.Settings)
+		if err != nil {
+			return nil, err
+		}
 	}
-	if a.settings.OnSaved != nil {
-		a.settings.OnSaved(saved)
+
+	if changes.mediastream {
+		if bundle.Mediastream == nil {
+			bundle.Mediastream = &models.MediastreamSettings{}
+		}
+		bundle.Mediastream.BaseModel = models.BaseModel{ID: 1, UpdatedAt: now}
+		savedMediastream, err = database.UpsertMediastreamSettings(bundle.Mediastream)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return saved, nil
+
+	if changes.torrentstream {
+		if bundle.Torrentstream == nil {
+			bundle.Torrentstream = &models.TorrentstreamSettings{}
+		}
+		bundle.Torrentstream.BaseModel = models.BaseModel{ID: 1, UpdatedAt: now}
+		savedTorrentstream, err = database.UpsertTorrentstreamSettings(bundle.Torrentstream)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if changes.debrid {
+		if bundle.Debrid == nil {
+			bundle.Debrid = &models.DebridSettings{}
+		}
+		bundle.Debrid.BaseModel = models.BaseModel{ID: 1, UpdatedAt: now}
+		savedDebrid, err = database.UpsertDebridSettings(bundle.Debrid)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if savedSettings != nil && a.settings.OnSaved != nil {
+		a.settings.OnSaved(savedSettings)
+	}
+	if savedMediastream != nil && a.settings.OnMediastreamSaved != nil {
+		a.settings.OnMediastreamSaved(savedMediastream)
+	}
+	if savedTorrentstream != nil && a.settings.OnTorrentstreamSaved != nil {
+		a.settings.OnTorrentstreamSaved(savedTorrentstream)
+	}
+	if savedDebrid != nil && a.settings.OnDebridSaved != nil {
+		a.settings.OnDebridSaved(savedDebrid)
+	}
+
+	if !changes.hasChanges() {
+		return settingsBundleToMap(bundle)
+	}
+
+	return a.getSettingsMap()
 }
 
-func (a *AppContextImpl) getSettings() (*models.Settings, error) {
+func (a *AppContextImpl) getSettingsBundle() (*appSettingsBundle, error) {
 	database, ok := a.database.Get()
 	if !ok {
 		return nil, errors.New("database not set")
 	}
-	return database.GetSettings()
-}
 
-func patchSettings(settings *models.Settings, patch map[string]interface{}) (*models.Settings, error) {
-	base, err := toMap(settings)
+	settings, err := database.GetSettings()
 	if err != nil {
 		return nil, err
 	}
-	merge(base, patch)
-	return mapToSettings(base)
+
+	ret := &appSettingsBundle{Settings: settings}
+	if mediastream, found := database.GetMediastreamSettings(); found {
+		ret.Mediastream = mediastream
+	}
+	if torrentstream, found := database.GetTorrentstreamSettings(); found {
+		ret.Torrentstream = torrentstream
+	}
+	if debrid, found := database.GetDebridSettings(); found {
+		ret.Debrid = debrid
+	}
+
+	return ret, nil
+}
+
+func (a *AppContextImpl) getSettingsBundleAndMap() (*appSettingsBundle, map[string]interface{}, error) {
+	bundle, err := a.getSettingsBundle()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	base, err := settingsBundleToMap(bundle)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return bundle, base, nil
+
+}
+
+func (a *AppContextImpl) getSettingsMap() (map[string]interface{}, error) {
+	_, base, err := a.getSettingsBundleAndMap()
+	if err != nil {
+		return nil, err
+	}
+	return base, nil
 }
 
 func toMap(in interface{}) (map[string]interface{}, error) {
@@ -323,6 +478,127 @@ func mapToSettings(in map[string]interface{}) (*models.Settings, error) {
 	return &ret, nil
 }
 
+func settingsBundleToMap(bundle *appSettingsBundle) (map[string]interface{}, error) {
+	ret := map[string]interface{}{}
+	if bundle != nil && bundle.Settings != nil {
+		base, err := toMap(bundle.Settings)
+		if err != nil {
+			return nil, err
+		}
+		if base != nil {
+			ret = base
+		}
+	}
+
+	if bundle == nil {
+		return ret, nil
+	}
+
+	if err := setSettingsSection(ret, appSettingsMediastreamRoot, bundle.Mediastream); err != nil {
+		return nil, err
+	}
+	if err := setSettingsSection(ret, appSettingsTorrentstreamRoot, bundle.Torrentstream); err != nil {
+		return nil, err
+	}
+	if err := setSettingsSection(ret, appSettingsDebridRoot, bundle.Debrid); err != nil {
+		return nil, err
+	}
+
+	return ret, nil
+}
+
+func setSettingsSection(dst map[string]interface{}, key string, value interface{}) error {
+	if value == nil {
+		return nil
+	}
+
+	section, err := toMap(value)
+	if err != nil {
+		return err
+	}
+	stripSettingMetaKeys(section)
+	dst[key] = section
+	return nil
+}
+
+func stripSettingMetaKeys(in map[string]interface{}) {
+	delete(in, "id")
+	delete(in, "createdAt")
+	delete(in, "updatedAt")
+}
+
+func mapToSettingsBundle(in map[string]interface{}, prev *appSettingsBundle, changes appSettingsChanges) (*appSettingsBundle, error) {
+	base := make(map[string]interface{}, len(in))
+	for key, value := range in {
+		switch key {
+		case appSettingsMediastreamRoot, appSettingsTorrentstreamRoot, appSettingsDebridRoot:
+			continue
+		default:
+			base[key] = value
+		}
+	}
+
+	settings, err := mapToSettings(base)
+	if err != nil {
+		return nil, err
+	}
+
+	var prevMediastream *models.MediastreamSettings
+	var prevTorrentstream *models.TorrentstreamSettings
+	var prevDebrid *models.DebridSettings
+	if prev != nil {
+		prevMediastream = prev.Mediastream
+		prevTorrentstream = prev.Torrentstream
+		prevDebrid = prev.Debrid
+	}
+
+	mediastream, err := decodeSettingsSection[models.MediastreamSettings](appSettingsMediastreamRoot, in[appSettingsMediastreamRoot], prevMediastream, changes.mediastream)
+	if err != nil {
+		return nil, err
+	}
+	torrentstream, err := decodeSettingsSection[models.TorrentstreamSettings](appSettingsTorrentstreamRoot, in[appSettingsTorrentstreamRoot], prevTorrentstream, changes.torrentstream)
+	if err != nil {
+		return nil, err
+	}
+	debrid, err := decodeSettingsSection[models.DebridSettings](appSettingsDebridRoot, in[appSettingsDebridRoot], prevDebrid, changes.debrid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &appSettingsBundle{
+		Settings:      settings,
+		Mediastream:   mediastream,
+		Torrentstream: torrentstream,
+		Debrid:        debrid,
+	}, nil
+}
+
+func decodeSettingsSection[T any](key string, raw interface{}, prev *T, changed bool) (*T, error) {
+	if !changed {
+		return prev, nil
+	}
+	if raw == nil {
+		return new(T), nil
+	}
+
+	section, ok := raw.(map[string]interface{})
+	if !ok {
+		return nil, errors.New("settings section \"" + key + "\" should be an object")
+	}
+
+	bytes, err := json.Marshal(section)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := new(T)
+	if err := json.Unmarshal(bytes, ret); err != nil {
+		return nil, err
+	}
+
+	return ret, nil
+}
+
 func decodeValue(value goja.Value, out interface{}) error {
 	if value == nil || goja.IsUndefined(value) || goja.IsNull(value) {
 		return errors.New("value is empty")
@@ -369,18 +645,9 @@ func collectSettingPaths(prefix string, in map[string]interface{}, ret *[]string
 	}
 }
 
-func diffSettingsPaths(prev *models.Settings, next *models.Settings) []string {
-	prevMap, err := toMap(prev)
-	if err != nil {
-		return []string{"all settings"}
-	}
-	nextMap, err := toMap(next)
-	if err != nil {
-		return []string{"all settings"}
-	}
-
+func diffAppSettingsPaths(prev map[string]interface{}, next map[string]interface{}) []string {
 	ret := make([]string, 0)
-	diffMapPaths("", prevMap, nextMap, &ret)
+	diffMapPaths("", prev, next, &ret)
 	sort.Strings(ret)
 	return ret
 }

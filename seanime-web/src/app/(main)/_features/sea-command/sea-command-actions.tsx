@@ -1,3 +1,4 @@
+import { useTorrentstreamDropTorrent } from "@/api/hooks/torrentstream.hooks"
 import { __issueReport_overlayOpenAtom, __issueReport_recordingAtom } from "@/app/(main)/_features/issue-report/issue-report"
 import { useHandleCopyLatestLogs } from "@/app/(main)/_hooks/logs"
 import { CommandGroup, CommandItem, CommandShortcut } from "@/components/ui/command"
@@ -13,6 +14,11 @@ export function SeaCommandActions() {
     const setIssueRecorderIsRecording = useSetAtom(__issueReport_recordingAtom)
 
     const { handleCopyLatestLogs } = useHandleCopyLatestLogs()
+    const { mutate: dropTorrent, isPending: droppingTorrent } = useTorrentstreamDropTorrent()
+
+    const reloadPage = () => {
+        window.location.reload()
+    }
 
     return (
         <>
@@ -48,6 +54,41 @@ export function SeaCommandActions() {
                         }}
                     >
                         Record an issue
+                        <CommandShortcut>Enter</CommandShortcut>
+                    </CommandItem>
+                </CommandGroup>
+            )}
+            {command === "droptorrent" && (
+                <CommandGroup heading="Actions">
+                    <CommandItem
+                        value="Drop Torrent"
+                        onSelect={() => {
+                            close()
+                            select(() => {
+                                dropTorrent(undefined, {
+                                    onSuccess: () => {
+                                    },
+                                })
+                            })
+                        }}
+                    >
+                        Drop all torrents from the torrent streaming client
+                        <CommandShortcut>{droppingTorrent ? "Dropping..." : "Enter"}</CommandShortcut>
+                    </CommandItem>
+                </CommandGroup>
+            )}
+            {command === "reload" && (
+                <CommandGroup heading="Actions">
+                    <CommandItem
+                        value="Reload Page"
+                        onSelect={() => {
+                            close()
+                            select(() => {
+                                reloadPage()
+                            })
+                        }}
+                    >
+                        Reload the page
                         <CommandShortcut>Enter</CommandShortcut>
                     </CommandItem>
                 </CommandGroup>

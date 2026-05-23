@@ -15,6 +15,15 @@ type (
 	}
 )
 
+func (r *Repository) resetPreloadFlag() {
+	settings, ok := r.settings.Get()
+	if !ok {
+		r.shouldPreloadStream.Store(false)
+		return
+	}
+	r.shouldPreloadStream.Store(settings.PreloadNextStream)
+}
+
 func (r *Repository) listenToMediaPlayerEvents() {
 	r.mediaPlayerRepositorySubscriber = r.mediaPlayerRepository.Subscribe("torrentstream")
 
@@ -37,9 +46,7 @@ func (r *Repository) listenToMediaPlayerEvents() {
 					// Reset the current video duration, as the video has stopped
 					// DEVNOTE: This is changed in client.go as well when the duration is updated over 0
 					r.playback.currentVideoDuration = 0
-					if settings, ok := r.settings.Get(); ok {
-						r.shouldPreloadStream.Store(settings.PreloadNextStream)
-					}
+					r.resetPreloadFlag()
 				case mediaplayer.StreamingVideoCompletedEvent:
 				case mediaplayer.StreamingTrackingStoppedEvent:
 					if r.client.currentTorrent.IsPresent() {
@@ -102,9 +109,7 @@ func (r *Repository) listenToNativePlayerEvents() {
 			case *videocore.VideoLoadedEvent:
 				r.logger.Debug().Msg("torrentstream: Native player loaded event received")
 				r.playback.currentVideoDuration = 0
-				if settings, ok := r.settings.Get(); ok {
-					r.shouldPreloadStream.Store(settings.PreloadNextStream)
-				}
+				r.resetPreloadFlag()
 			case *videocore.VideoLoadedMetadataEvent:
 				go func() {
 					if r.client.currentFile.IsPresent() && r.playback.currentVideoDuration == 0 {
@@ -116,11 +121,12 @@ func (r *Repository) listenToNativePlayerEvents() {
 							r.sendStateEvent(eventTorrentStartedPlaying)
 							// Update the stored video duration
 							r.playback.currentVideoDuration = int(event.Duration)
+							r.resetPreloadFlag()
 						}
 					}
 				}()
 			case *videocore.VideoStatusEvent:
-				if event.CurrentTime/event.Duration >= 0.5 && r.shouldPreloadStream.Load() {
+				if event.Duration > 0 && event.CurrentTime/event.Duration >= 0.5 && r.shouldPreloadStream.Load() {
 					r.shouldPreloadStream.Store(false)
 					r.sendStateEvent(eventPreloadNextStream)
 				}

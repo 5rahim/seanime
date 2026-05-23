@@ -379,7 +379,6 @@ export function ServerSettings(props: ServerSettingsProps) {
                         />
                     </div>
                 )}
-                <Separator />
                 <Field.Switch
                     side="right"
                     name="useFallbackMetadataProvider"

@@ -1,4 +1,5 @@
 import { useGetDebridSettings, useSaveDebridSettings } from "@/api/hooks/debrid.hooks"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets.ts"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AutoSelectProfileButton } from "@/app/(main)/settings/_components/autoselect-profile-form"
 import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
@@ -7,6 +8,7 @@ import { SeaLink } from "@/components/shared/sea-link"
 import { Alert } from "@/components/ui/alert"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { WSEvents } from "@/lib/server/ws-events.ts"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { HiOutlineServerStack } from "react-icons/hi2"
@@ -34,8 +36,15 @@ export function DebridSettings(props: DebridSettingsProps) {
     } = props
 
     const serverStatus = useServerStatus()
-    const { data: settings, isLoading } = useGetDebridSettings()
+    const { data: settings, isLoading, refetch } = useGetDebridSettings()
     const { mutate, isPending } = useSaveDebridSettings()
+
+    useWebsocketMessageListener({
+        type: WSEvents.SETTINGS_CHANGED,
+        onMessage: () => {
+            refetch()
+        },
+    })
 
     const formRef = React.useRef<UseFormReturn<any>>(null)
 
@@ -51,6 +60,7 @@ export function DebridSettings(props: DebridSettingsProps) {
             />
 
             <Form
+                key={settings?.updatedAt ?? "debrid-settings"}
                 schema={debridSettingsSchema}
                 mRef={formRef}
                 onSubmit={data => {

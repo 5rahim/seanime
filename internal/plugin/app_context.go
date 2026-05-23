@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
@@ -63,6 +64,7 @@ type AppContextModules struct {
 	OnRefreshAnilistMangaCollection func()
 	PromptManager                   *prompt.Manager
 	Auth                            AuthActions
+	Anilist                         AnilistActions
 	Settings                        SettingsActions
 	Extensions                      ExtensionActions
 }
@@ -72,8 +74,16 @@ type AuthActions struct {
 	Logout func() error
 }
 
+type AnilistActions struct {
+	UseOfficialClient func() error
+	UseCustomClient   func(config anilist.CustomClientConfig) error
+}
+
 type SettingsActions struct {
-	OnSaved func(settings *models.Settings)
+	OnSaved              func(settings *models.Settings)
+	OnMediastreamSaved   func(settings *models.MediastreamSettings)
+	OnTorrentstreamSaved func(settings *models.TorrentstreamSettings)
+	OnDebridSaved        func(settings *models.DebridSettings)
 }
 
 type ExtensionActions struct {
@@ -104,7 +114,9 @@ type AppContext interface {
 	// BindStorage binds $storage to the Goja runtime
 	BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) *Storage
 	// BindAnilist binds $anilist to the Goja runtime
-	BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
+	BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
+	// BindAnilistCustomClient binds runtime client swap APIs to $anilist
+	BindAnilistCustomClient(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 	// BindDatabase binds $database to the Goja runtime
 	BindDatabase(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 	// BindSystem binds $system to the Goja runtime
@@ -224,6 +236,7 @@ type AppContextImpl struct {
 	autoSelect                      mo.Option[*autoselect.AutoSelect]
 	promptManager                   mo.Option[*prompt.Manager]
 	auth                            AuthActions
+	anilist                         AnilistActions
 	settings                        SettingsActions
 	extensions                      ExtensionActions
 }
@@ -415,8 +428,24 @@ func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
 		a.auth.Logout = modules.Auth.Logout
 	}
 
+	if modules.Anilist.UseOfficialClient != nil {
+		a.anilist.UseOfficialClient = modules.Anilist.UseOfficialClient
+	}
+	if modules.Anilist.UseCustomClient != nil {
+		a.anilist.UseCustomClient = modules.Anilist.UseCustomClient
+	}
+
 	if modules.Settings.OnSaved != nil {
 		a.settings.OnSaved = modules.Settings.OnSaved
+	}
+	if modules.Settings.OnMediastreamSaved != nil {
+		a.settings.OnMediastreamSaved = modules.Settings.OnMediastreamSaved
+	}
+	if modules.Settings.OnTorrentstreamSaved != nil {
+		a.settings.OnTorrentstreamSaved = modules.Settings.OnTorrentstreamSaved
+	}
+	if modules.Settings.OnDebridSaved != nil {
+		a.settings.OnDebridSaved = modules.Settings.OnDebridSaved
 	}
 
 	if modules.Extensions.SetDisabled != nil {
