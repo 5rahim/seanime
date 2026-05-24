@@ -1,7 +1,14 @@
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
 import { vc_mediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core"
-import { anime4kOptions, getAnime4KOptionByValue, vc_anime4kOption } from "@/app/(main)/_features/video-core/video-core-anime-4k"
+import {
+    anime4kOptions,
+    getAnime4KOptionByValue,
+    getAnime4KOptionRecommendation,
+    getGPUInfo,
+    getGPUVendor,
+    vc_anime4kOption,
+} from "@/app/(main)/_features/video-core/video-core-anime-4k"
 import { Anime4KOption } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_menuSectionOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
@@ -210,6 +217,9 @@ export function VideoCoreSettingsMenu() {
     const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
     const currentAnime4kOption = getAnime4KOptionByValue(anime4kOption)
 
+    const [gpuInfo, setGpuInfo] = useState<{ gpu: string; vendor: string; architecture: string } | null>(null)
+    const [gpuInfoChecked, setGpuInfoChecked] = useState(false)
+
     const [, setKeybindingsModelOpen] = useAtom(videoCorePreferencesModalAtom)
 
     const [showChapterMarkers, setShowChapterMarkers] = useAtom(vc_showChapterMarkersAtom)
@@ -222,6 +232,21 @@ export function VideoCoreSettingsMenu() {
     const [menuOpen, setMenuOpen] = useAtom(vc_menuOpen)
     const [openMenuSection, setOpenMenuSection] = useAtom(vc_menuSectionOpen)
     const [openMenuSubSection, setOpenMenuSubSection] = useAtom(vc_menuSubSectionOpen)
+
+    React.useEffect(() => {
+        if (openMenuSection !== "Anime4K" || gpuInfoChecked) return
+        let cancelled = false
+        getGPUInfo().then(info => {
+            if (cancelled) return
+            setGpuInfo(info)
+            setGpuInfoChecked(true)
+        })
+        return () => {
+            cancelled = true
+        }
+        // gpuInfoChecked guards against re-running once a result is cached.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [openMenuSection])
 
     const { mutate: openInExplorer, isPending: isOpeningInExplorer } = useOpenInExplorer()
 
@@ -567,13 +592,20 @@ export function VideoCoreSettingsMenu() {
                         <p className="text-[--muted] text-sm mb-2">
                             Real-time sharpening. GPU-intensive.
                         </p>
+                        <p className="text-[--muted] text-sm mb-2">
+                            {gpuInfo
+                                ? <>GPU: <span className="text-white">{getGPUVendor(gpuInfo.vendor || gpuInfo.gpu)}{gpuInfo.architecture ? ` ${gpuInfo.architecture}` : ""}</span> (hardware accelerated)</>
+                                : gpuInfoChecked
+                                    ? <>GPU: WebGPU not available — Anime4K is disabled</>
+                                    : <>Detecting GPU…</>}
+                        </p>
                         <VideoCoreSettingSelect
                             isFullscreen={isFullscreen}
                             containerElement={containerElement}
                             options={anime4kOptions.map(option => ({
                                 label: `${option.label}`,
                                 value: option.value,
-                                moreInfo: option.performance === "heavy" ? "Heavy" : undefined,
+                                moreInfo: getAnime4KOptionRecommendation(option.value, gpuInfo?.gpu, gpuInfo?.vendor),
                                 description: option.description,
                             }))}
                             onValueChange={(value: Anime4KOption) => {

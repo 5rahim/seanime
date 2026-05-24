@@ -1,91 +1,7 @@
-import { vc_anime4kManager } from "@/app/(main)/_features/video-core/video-core"
 import type { Anime4KOption } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
-import { vc_realVideoSize } from "@/app/(main)/_features/video-core/video-core-atoms"
-import { vc_seeking } from "@/app/(main)/_features/video-core/video-core-atoms"
-import { vc_paused } from "@/app/(main)/_features/video-core/video-core-atoms"
-import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
-import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
-import { vc_pip } from "@/app/(main)/_features/video-core/video-core-pip"
-import { logger } from "@/lib/helpers/debug"
-import { useAtomValue } from "jotai"
-import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
-import React from "react"
-
-const log = logger("VIDEO CORE ANIME 4K")
 
 export const vc_anime4kOption = atomWithStorage<Anime4KOption>("sea-video-core-anime4k", "off", undefined, { getOnInit: true })
-
-export const VideoCoreAnime4K = () => {
-    const realVideoSize = useAtomValue(vc_realVideoSize)
-    const seeking = useAtomValue(vc_seeking)
-    const isMiniPlayer = useAtomValue(vc_miniPlayer)
-    const isPip = useAtomValue(vc_pip)
-    const video = useAtomValue(vc_videoElement)
-    const paused = useAtomValue(vc_paused)
-
-    const manager = useAtomValue(vc_anime4kManager)
-    const [selectedOption] = useAtom(vc_anime4kOption)
-
-    const resizeCanvas = React.useEffectEvent(() => {
-        if (!video || !manager) return
-
-        const rect = video.getBoundingClientRect()
-        if (!rect.width || !rect.height) return
-
-        manager.resize(rect.width, rect.height)
-    })
-
-    // Update manager with real video size
-    React.useEffect(() => {
-        resizeCanvas()
-    }, [manager, video])
-
-    // Handle option changes
-    React.useEffect(() => {
-        if (video && manager) {
-            // log.info("Setting Anime4K option", selectedOption)
-            manager.setOption(selectedOption, {
-                isMiniPlayer,
-                isPip,
-                seeking,
-            })
-        }
-    }, [video, manager, selectedOption, isMiniPlayer, isPip, seeking])
-
-    // Handle option changes
-    // React.useLayoutEffect(() => {
-    //     resizeCanvas()
-    // }, [realVideoSize.width, realVideoSize.height])
-
-    React.useEffect(() => {
-        if (!video || !manager) return
-
-        let resizeFrame = 0
-
-        const handleResize = () => {
-            if (resizeFrame) {
-                cancelAnimationFrame(resizeFrame)
-            }
-
-            resizeFrame = requestAnimationFrame(() => {
-                resizeFrame = 0
-                resizeCanvas()
-            })
-        }
-
-        window.addEventListener("resize", handleResize)
-
-        return () => {
-            window.removeEventListener("resize", handleResize)
-            if (resizeFrame) {
-                cancelAnimationFrame(resizeFrame)
-            }
-        }
-    }, [manager, video])
-
-    return null
-}
 
 export const anime4kOptions: { value: Anime4KOption; label: string; description: string; performance: "light" | "medium" | "heavy" }[] = [
     { value: "off", label: "Off", description: "Disabled", performance: "light" },
@@ -127,25 +43,53 @@ export const getRecommendedAnime4KOptions = (videoResolution: { width: number; h
 }
 
 export const getPerformanceRecommendation = (gpu?: string) => {
-    const isHighEnd = gpu && (
+    const lower = (gpu || "").toLowerCase()
+
+    const isHighEnd = !!gpu && (
+        // Marketing names (rarely exposed by WebGPU; kept for non-browser callers)
         gpu.includes("RTX 40") ||
         gpu.includes("RTX 3080") ||
         gpu.includes("RTX 3090") ||
+        gpu.includes("RX 9070") ||
+        gpu.includes("RX 7900") ||
+        gpu.includes("RX 7800") ||
         gpu.includes("RX 6800") ||
         gpu.includes("RX 6900") ||
+        gpu.includes("Radeon Pro W7") ||
         gpu.includes("M1 Pro") ||
         gpu.includes("M1 Max") ||
         gpu.includes("M2") ||
-        gpu.includes("M3")
+        gpu.includes("M3") ||
+        // WebGPU architecture strings (Chrome/Edge expose these)
+        lower.includes("rdna-3") ||
+        lower.includes("rdna-4") ||
+        lower.includes("ada-lovelace") ||
+        lower.includes("blackwell") ||
+        lower.includes("hopper") ||
+        lower.includes("apple-m2") ||
+        lower.includes("apple-m3") ||
+        lower.includes("apple-m4")
     )
 
-    const isMidRange = gpu && (
+    const isMidRange = !!gpu && (
         gpu.includes("RTX 30") ||
         gpu.includes("RTX 20") ||
         gpu.includes("GTX 16") ||
+        gpu.includes("RX 7700") ||
+        gpu.includes("RX 7600") ||
+        gpu.includes("RX 6700") ||
         gpu.includes("RX 6600") ||
+        gpu.includes("RX 6500") ||
+        gpu.includes("RX 6400") ||
         gpu.includes("RX 5") ||
-        gpu.includes("M1")
+        gpu.includes("M1") ||
+        // Architecture strings
+        lower.includes("rdna-2") ||
+        lower.includes("ampere") ||
+        lower.includes("turing") ||
+        lower.includes("xe-2") ||
+        lower.includes("xe-hpg") ||
+        lower.includes("apple-m1")
     )
 
     if (isHighEnd) {
@@ -164,6 +108,52 @@ export const getPerformanceRecommendation = (gpu?: string) => {
             recommendedOptions: anime4kOptions.filter(opt => opt.performance === "light"),
         }
     }
+}
+
+export type GPUVendor = "AMD" | "NVIDIA" | "Intel" | "Apple" | "Other"
+
+export const getGPUVendor = (gpu?: string): GPUVendor => {
+    if (!gpu) return "Other"
+    const lower = gpu.toLowerCase()
+    // Vendor strings (WebGPU normalized) and marketing names
+    if (lower.includes("amd") || lower.includes("radeon") || lower.includes("rx ") || lower.includes("vega")) return "AMD"
+    if (lower.includes("nvidia") || lower.includes("geforce") || lower.includes("rtx") || lower.includes("gtx")) return "NVIDIA"
+    if (lower.includes("intel") || lower.includes("arc ") || lower.includes("iris")) return "Intel"
+    if (lower.includes("apple") || lower.startsWith("m1") || lower.startsWith("m2") || lower.startsWith("m3") || lower.startsWith("m4")) return "Apple"
+    // WebGPU architecture strings (no vendor word but still identifiable)
+    if (lower.startsWith("rdna") || lower === "gcn" || lower.startsWith("gcn-")) return "AMD"
+    if (
+        lower.includes("ada-lovelace") || lower.includes("ampere") || lower.includes("turing") ||
+        lower.includes("pascal") || lower.includes("maxwell") || lower.includes("blackwell") || lower.includes("hopper")
+    ) return "NVIDIA"
+    if (lower.startsWith("xe") || lower.includes("gen-")) return "Intel"
+    return "Other"
+}
+
+// Returns the label that should appear in the menu's `moreInfo` slot for an
+// option, given the detected GPU. When the option is in the recommended bucket
+// for the GPU it shows e.g. "AMD ✓"; otherwise it falls back to the legacy
+// "Heavy" badge for heavy-tier options, or undefined for normal ones.
+// `gpuArch` is matched against marketing names AND WebGPU architecture strings;
+// `gpuVendor` is the normalized vendor token used solely to label the badge.
+export const getAnime4KOptionRecommendation = (
+    optionValue: Anime4KOption,
+    gpuArch?: string,
+    gpuVendor?: string,
+): string | undefined => {
+    const option = anime4kOptions.find(o => o.value === optionValue)
+    if (!option || option.value === "off") return undefined
+
+    if (gpuArch) {
+        const recommendation = getPerformanceRecommendation(gpuArch)
+        const isRecommended = recommendation.recommendedOptions.some(o => o.value === option.value)
+        if (isRecommended) {
+            const vendor = getGPUVendor(gpuVendor || gpuArch)
+            return vendor === "Other" ? "✓" : `${vendor} ✓`
+        }
+    }
+
+    return option.performance === "heavy" ? "Heavy" : undefined
 }
 
 export const isWebGPUAvailable = async (): Promise<boolean> => {
@@ -211,7 +201,7 @@ export const getOptimalAnime4KSettings = async (videoResolution: { width: number
     }
 }
 
-const getGPUInfo = async () => {
+export const getGPUInfo = async (): Promise<{ gpu: string; vendor: string; architecture: string } | null> => {
     if (!navigator.gpu) return null
 
     try {
@@ -219,10 +209,16 @@ const getGPUInfo = async () => {
         if (!adapter) return null
 
         const info = (adapter as any).info || {}
+        const architecture: string = info.architecture || ""
+        const vendor: string = info.vendor || ""
+        // Prefer the more descriptive architecture string ("rdna-3", "rx-7800-xt", ...)
+        // when available, falling back to the vendor.
+        const gpu = architecture || vendor || "Unknown GPU"
 
         return {
-            gpu: info.vendor || info.architecture || "Unknown GPU",
-            vendor: info.vendor || "Unknown",
+            gpu,
+            vendor: vendor || "Unknown",
+            architecture,
         }
     }
     catch {
