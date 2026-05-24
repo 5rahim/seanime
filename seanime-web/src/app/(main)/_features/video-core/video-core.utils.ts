@@ -56,7 +56,7 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
     }
 })
 
-export function useVideoCoreBindings(videoRef: React.MutableRefObject<HTMLVideoElement | null>,
+export function useVideoCoreBindings(videoElement: HTMLVideoElement | null,
     playbackInfo: VideoCore_VideoPlaybackInfo | null | undefined,
 ) {
 
@@ -88,8 +88,8 @@ export function useVideoCoreBindings(videoRef: React.MutableRefObject<HTMLVideoE
     })
 
     useEffect(() => {
-        if (!videoRef.current) return
-        const v = videoRef.current
+        if (!videoElement) return
+        const v = videoElement
         const prev = prevRef.current
 
         const handler = () => {
@@ -164,7 +164,7 @@ export function useVideoCoreBindings(videoRef: React.MutableRefObject<HTMLVideoE
             console.log("Removing video event listeners")
             events.forEach(e => v.removeEventListener(e, handler))
         }
-    }, [playbackInfo?.id])
+    }, [videoElement, playbackInfo?.id])
 
 }
 

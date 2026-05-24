@@ -268,7 +268,6 @@ func (r *Repository) ListDevelopmentModeExtensions() (ret []*extension.Extension
 
 func (r *Repository) ListInvalidExtensions() (ret []*extension.InvalidExtension) {
 	r.invalidExtensions.Range(func(key string, ext *extension.InvalidExtension) bool {
-		ext.Extension.Payload = ""
 		ret = append(ret, ext)
 		return true
 	})

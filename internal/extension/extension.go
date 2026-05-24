@@ -130,6 +130,28 @@ func ToExtensionData(ext BaseExtension) *Extension {
 	}
 }
 
+func CopyInfo(ext *Extension) *Extension {
+	return &Extension{
+		ID:            ext.ID,
+		Name:          ext.Name,
+		Version:       ext.Version,
+		ManifestURI:   ext.ManifestURI,
+		Language:      ext.Language,
+		Type:          ext.Type,
+		Description:   ext.Description,
+		Author:        ext.Author,
+		Icon:          ext.Icon,
+		Website:       ext.Website,
+		Readme:        ext.Readme,
+		Notes:         ext.Notes,
+		Lang:          GetExtensionLang(ext.Lang),
+		Permissions:   ext.Permissions,
+		Payload:       ext.Payload,
+		PayloadURI:    ext.PayloadURI,
+		IsDevelopment: ext.IsDevelopment,
+	}
+}
+
 func GetExtensionLang(lang string) string {
 	if lang == "" {
 		return "en"

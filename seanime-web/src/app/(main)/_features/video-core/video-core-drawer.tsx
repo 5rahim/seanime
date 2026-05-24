@@ -513,6 +513,7 @@ export function VideoCoreDrawer(props: DrawerProps) {
             dismissible={!!miniPlayer}
             handleOnly
             noBodyStyles
+            autoFocus={false}
             disablePreventScroll={false}
             open={resolvedOpen}
             defaultOpen={defaultOpen}

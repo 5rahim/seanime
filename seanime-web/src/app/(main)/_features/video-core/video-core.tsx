@@ -184,7 +184,7 @@ export function startVideoCoreMiniPlayerTransition(update: () => void) {
 
         void transition.finished.finally(() => {
             document.documentElement.removeAttribute("data-vc-miniplayer-view-transition")
-        }).catch(() => {})
+        }).catch(() => { })
     }
     catch {
         document.documentElement.removeAttribute("data-vc-miniplayer-view-transition")
@@ -733,7 +733,7 @@ export function VideoCore(props: VideoCoreProps) {
         dispatchCanPlayEvent,
         dispatchTranslateTextEvent,
         dispatchTranslateSubtitleTrackEvent,
-    } = useVideoCoreSetupEvents(props.id, state, videoRef, onTerminateStream, setPluginSkipDataOverride, currentSkipDataRef)
+    } = useVideoCoreSetupEvents(props.id, state, onTerminateStream, setPluginSkipDataOverride, currentSkipDataRef)
 
     const { width: windowWidth } = useWindowSize()
     const [isMobilePlayer, setIsMobilePlayer] = useAtom(vc_isMobile)
@@ -741,9 +741,9 @@ export function VideoCore(props: VideoCoreProps) {
         setIsMobilePlayer(windowWidth < 1024)
     }, [windowWidth < 1024])
 
-    const setVideoElement = useSetAtom(vc_videoElement)
+    const [videoElement, setVideoElement] = useAtom(vc_videoElement)
     const setRealVideoSize = useSetAtom(vc_realVideoSize)
-    useVideoCoreBindings(videoRef, state.playbackInfo)
+    useVideoCoreBindings(videoElement, state.playbackInfo)
     useVideoCorePlaylistSetup(state, onPlayEpisode)
 
     const { isParticipant: isWatchPartyParticipant } = useNakamaWatchParty()
@@ -1768,6 +1768,10 @@ export function VideoCore(props: VideoCoreProps) {
                             } else {
                                 onTerminateStream()
                             }
+                        } else {
+                            React.startTransition(() => {
+                                videoRef?.current?.focus?.()
+                            })
                         }
                     }}
                     borderToBorder
