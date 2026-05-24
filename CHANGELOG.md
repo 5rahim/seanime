@@ -4,19 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## v3.8.3
 
-- 🦺 Scanner: Limit concurrency when checking files
-- 🦺 Plugins: ctx.appSettings now includes debrid, torrent streaming and transcode settings
-- 🦺 VideoCore: Throttle torrent stream subtitle events to avoid lag
-- 🦺 VideoCore: Throttle thumbnail requests
+- ⚡️ Plugins: ctx.appSettings now includes debrid, torrent streaming and transcode settings
+- ⚡️ Torrent streaming: Option to preload next stream (Unstable)
+- 🦺 Scanner: Fixed runtime error caused by concurrent file checking
 - 🦺 VideoCore: Fixed autonext skipping playlist episodes
 - 🦺 VideoCore: Fixed playback failure when replaying fully downloaded torrent stream
-- 🦺 Torrentstream: Dropping torrent removes them on disk
+- 🦺 VideoCore: Fixed occasional bugs caused by new React19 ref handling
+- 🦺 VideoCore(Perf): Throttle torrent stream subtitle events to avoid UI lag
+- 🦺 VideoCore(Perf): Throttle thumbnail scrobbling requests
+- 🦺 Torrentstream: Dropping torrent removes them on disk immediately
 - 🦺 MPV: Potential fix for stale events causing incorrect progress updates
 - 🦺 MPV: Generate fresh IPC sockets for each launch to avoid collisions
 - 🏗️ MPV: Refactored error messages handling
 - 🏗️ VideoCore: Use View Transitions for mini player transitions
-- 🏗️ Torrentstream: Completed torrent files now stream from file on disk instead of client readers
-- 🏗️ UI: Replaced Radix-based drawers with Vaul-based components
+- 🏗️ Torrentstream: Fully downloaded files now stream from file on disk directly
+- 🏗️ UI: Replaced drawer components and built-in player drawer to avoid layout thrashing
 
 ## v3.8.2
 
