@@ -151,7 +151,6 @@ export function VideoCoreControlBar(props: {
         containerElement.addEventListener("pointerleave", handleVideoContainerPointerLeave)
         containerElement.addEventListener("pointercancel", handleVideoContainerPointerLeave)
         window.addEventListener("resize", updateContainerRect)
-        console.warn("listeners attached to video container")
         return () => {
             resizeObserver.disconnect()
             containerElement.removeEventListener("pointerenter", updateContainerRect)
@@ -160,7 +159,6 @@ export function VideoCoreControlBar(props: {
             containerElement.removeEventListener("pointercancel", handleVideoContainerPointerLeave)
             window.removeEventListener("resize", updateContainerRect)
             containerRectRef.current = null
-            console.warn("listeners REMOVED from video container")
         }
     }, [containerElement, isMobile, isMiniPlayer])
 
