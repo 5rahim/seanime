@@ -10,7 +10,7 @@ export function AdvancedSearchList() {
 
     const { isLoading, data, fetchNextPage, hasNextPage, type } = useAnilistAdvancedSearch()
 
-    const items = data?.pages.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean).filter(media => !!media.startDate?.year)
+    const items = data?.pages.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean)
 
     return <>
         {!isLoading && <MediaCardLazyGrid itemCount={items?.length ?? 0}>
