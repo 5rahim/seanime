@@ -7,14 +7,12 @@
 <h1 align="center"><b>Seanime</b></h1>
 
 <p align="center">
-<img src="https://seanime.app/bucket/img-20260508-090521-5fjqklfa--sq.webp" alt="preview" width="100%"/>
+<img src="https://seanime.app/bucket/img-20260508-090529-ioc20pjr--sq2.webp" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
   <a href="https://seanime.app/docs">Documentation</a> |
   <a href="https://github.com/5rahim/seanime/releases">Latest release</a> |
-  <a href="https://www.youtube.com/playlist?list=PLgQO-Ih6JClhFFdEVuNQJejyX_8iH82gl">Tutorials</a> |
-  <a href="https://discord.gg/Sbr7Phzt6m">Discord</a> |
   <a href="https://seanime.app/docs/policies">Copyright</a>
 </p>
 
