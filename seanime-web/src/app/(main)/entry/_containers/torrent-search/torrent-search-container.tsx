@@ -38,7 +38,7 @@ import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
 import React, { startTransition } from "react"
 import { FiSearch } from "react-icons/fi"
-import { LuCornerLeftDown, LuFileSearch, LuPlus, LuSave } from "react-icons/lu"
+import { LuCornerLeftDown, LuFileSearch, LuPlus, LuSave, LuRefreshCw } from "react-icons/lu"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorrent[]>([])
 
@@ -97,6 +97,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
         data,
         isLoading,
         isFetching,
+        refetchSearch,
         soughtEpisode,
     } = useHandleTorrentSearch({
         isAdult: false,
@@ -268,6 +269,22 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                 leftIcon={<LuFileSearch />}
                                 options={providerOptions}
                             />
+                        </div>
+
+                        <div
+                            className="h-10 rounded-[--radius] px-2 flex items-center"
+                            data-torrent-search-container-param-container-refresh-button
+                        >
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-full w-full px-2"
+                                onClick={() => refetchSearch()}
+                                disabled={isFetching}
+                                title="Refresh search"
+                            >
+                                <LuRefreshCw className={cn("text-lg", isFetching && "animate-spin")} />
+                            </Button>
                         </div>
 
                         <div

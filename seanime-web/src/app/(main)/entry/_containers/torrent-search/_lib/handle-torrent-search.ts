@@ -147,7 +147,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     /**
      * Fetch torrent search data
      */
-    const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSearchTorrent({
+    const { data: _data, isLoading: _isLoading, isFetching: _isFetching, refetch: _refetchSearch } = useSearchTorrent({
         query: debouncedGlobalFilter.trim().toLowerCase(),
         episodeNumber: debouncedSmartSearchEpisode,
             batch: smartSearchBatch,
@@ -230,6 +230,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
         data: _data,
         isLoading: _isLoading,
         isFetching: _isFetching,
+        refetchSearch: _refetchSearch,
     }
 
 }
