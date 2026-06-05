@@ -23,6 +23,8 @@ _docker-compose.yml
 
 logs
 web/
+mobile/web/*
+!mobile/web/.gitkeep
 web-desktop/
 web-denshi/
 out/
