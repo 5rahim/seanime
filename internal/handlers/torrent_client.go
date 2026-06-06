@@ -66,9 +66,17 @@ func (h *Handler) HandleGetActiveTorrentList(c echo.Context) error {
 func (h *Handler) HandleTorrentClientAction(c echo.Context) error {
 
 	type body struct {
-		Hash   string `json:"hash"`
-		Action string `json:"action"`
-		Dir    string `json:"dir"`
+		Hash          string `json:"hash,omitempty"`
+		Action        string `json:"action"`
+		Dir           string `json:"dir,omitempty"`
+		Tracker       string `json:"tracker,omitempty"`
+		Name          string `json:"name,omitempty"`
+		Value         bool   `json:"value,omitempty"`
+		Index         int    `json:"index,omitempty"`
+		Priority      int    `json:"priority,omitempty"`
+		DownloadLimit int    `json:"downloadLimit,omitempty"`
+		UploadLimit   int    `json:"uploadLimit,omitempty"`
+		Magnet        string `json:"magnet,omitempty"`
 	}
 
 	var b body
@@ -76,8 +84,12 @@ func (h *Handler) HandleTorrentClientAction(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	if b.Hash == "" || b.Action == "" {
+	if b.Action == "" {
 		return h.RespondWithError(c, errors.New("missing arguments"))
+	}
+	globalAction := b.Action == "pause-all" || b.Action == "resume-all" || b.Action == "set-limits" || b.Action == "add-magnet"
+	if !globalAction && b.Hash == "" {
+		return h.RespondWithError(c, errors.New("missing torrent hash"))
 	}
 
 	switch b.Action {
@@ -114,10 +126,76 @@ func (h *Handler) HandleTorrentClientAction(c echo.Context) error {
 			return err
 		}
 		OpenDirInExplorer(b.Dir)
+	case "pause-all", "resume-all", "force-start", "queue-up", "queue-down", "move-storage", "recheck", "reannounce", "add-tracker", "remove-tracker", "set-file-priority", "set-sequential", "rename", "set-limits", "add-magnet":
+		client := h.App.TorrentClientRepository.GetSeanimeClient()
+		if h.App.TorrentClientRepository.GetProvider() != torrent_client.SeanimeClient || client == nil {
+			return h.RespondWithError(c, errors.New("action is only available for the Seanime torrent client"))
+		}
+		var err error
+		switch b.Action {
+		case "pause-all":
+			err = client.PauseAll()
+		case "resume-all":
+			err = client.ResumeAll()
+		case "force-start":
+			err = client.SetForceStart(b.Hash, b.Value)
+		case "queue-up":
+			err = client.MoveQueue(b.Hash, -1)
+		case "queue-down":
+			err = client.MoveQueue(b.Hash, 1)
+		case "move-storage":
+			err = client.MoveStorage(b.Hash, b.Dir)
+		case "recheck":
+			go func(hash string) {
+				if verifyErr := client.RecheckTorrent(hash); verifyErr != nil {
+					h.App.Logger.Error().Err(verifyErr).Str("hash", hash).Msg("torrent client: recheck failed")
+				}
+			}(b.Hash)
+		case "reannounce":
+			err = client.ReannounceTorrent(b.Hash)
+		case "add-tracker":
+			err = client.AddTracker(b.Hash, b.Tracker)
+		case "remove-tracker":
+			err = client.RemoveTracker(b.Hash, b.Tracker)
+		case "set-file-priority":
+			err = client.SetFilePriority(b.Hash, b.Index, b.Priority)
+		case "set-sequential":
+			err = client.SetSequential(b.Hash, b.Value)
+		case "rename":
+			err = client.RenameTorrent(b.Hash, b.Name)
+		case "set-limits":
+			client.SetLimits(b.DownloadLimit, b.UploadLimit)
+		case "add-magnet":
+			_, err = client.AddMagnet(b.Magnet, b.Dir)
+		}
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
 	}
 
 	return h.RespondWithData(c, true)
 
+}
+
+// HandleGetBuiltInTorrentDetails
+//
+//	@summary returns details for a torrent managed by the Seanime torrent client.
+//	@route /api/v1/torrent-client/details [GET]
+//	@returns seanime.TorrentDetails
+func (h *Handler) HandleGetBuiltInTorrentDetails(c echo.Context) error {
+	hash := c.QueryParam("hash")
+	if hash == "" {
+		return h.RespondWithError(c, errors.New("missing torrent hash"))
+	}
+	client := h.App.TorrentClientRepository.GetSeanimeClient()
+	if h.App.TorrentClientRepository.GetProvider() != torrent_client.SeanimeClient || client == nil {
+		return h.RespondWithError(c, errors.New("Seanime torrent client is not active"))
+	}
+	details, err := client.GetTorrentDetails(hash)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	return h.RespondWithData(c, details)
 }
 
 // HandleTorrentClientGetFiles

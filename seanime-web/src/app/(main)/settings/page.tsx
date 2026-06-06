@@ -38,7 +38,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useRouter, useSearchParams } from "@/lib/navigation"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { THEME_DEFAULT_VALUES } from "@/lib/theme/theme-hooks"
-import { __isElectronDesktop__ } from "@/types/constants"
+import { __ENABLE_BUILTIN_TC__, __isElectronDesktop__ } from "@/types/constants"
 import { useQueryClient } from "@tanstack/react-query"
 import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -418,6 +418,11 @@ export default function Page() {
                                         transmissionPort: data.transmissionPort,
                                         transmissionUsername: data.transmissionUsername,
                                         transmissionPassword: data.transmissionPassword,
+                                        seanimePort: data.seanimePort,
+                                        seanimeMaxConnections: data.seanimeMaxConnections,
+                                        seanimeDownloadLimit: data.seanimeDownloadLimit,
+                                        seanimeUploadLimit: data.seanimeUploadLimit,
+                                        seanimeMaxActiveDownloads: data.seanimeMaxActiveDownloads,
                                         showActiveTorrentCount: data.showActiveTorrentCount ?? false,
                                         hideTorrentList: data.hideTorrentList ?? false,
                                     },
@@ -509,6 +514,11 @@ export default function Page() {
                                 transmissionPort: status?.settings?.torrent?.transmissionPort,
                                 transmissionUsername: status?.settings?.torrent?.transmissionUsername,
                                 transmissionPassword: status?.settings?.torrent?.transmissionPassword,
+                                seanimePort: status?.settings?.torrent?.seanimePort || 50007,
+                                seanimeMaxConnections: status?.settings?.torrent?.seanimeMaxConnections || 50,
+                                seanimeDownloadLimit: status?.settings?.torrent?.seanimeDownloadLimit ?? 0,
+                                seanimeUploadLimit: status?.settings?.torrent?.seanimeUploadLimit ?? 0,
+                                seanimeMaxActiveDownloads: status?.settings?.torrent?.seanimeMaxActiveDownloads || 3,
                                 hideAudienceScore: status?.settings?.anilist?.hideAudienceScore ?? false,
                                 autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
                                 disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
@@ -788,6 +798,7 @@ export default function Page() {
                                                 options={[
                                                     { label: "qBittorrent", value: "qbittorrent" },
                                                     { label: "Transmission", value: "transmission" },
+                                                    ...(__ENABLE_BUILTIN_TC__ ? [{ label: "Built-in", value: "seanime" }] : []),
                                                     { label: "None", value: "none" },
                                                 ]}
                                             />
@@ -882,6 +893,38 @@ export default function Page() {
                                                     />
                                                 </AccordionContent>
                                             </AccordionItem>
+                                            {__ENABLE_BUILTIN_TC__ && (
+                                                <AccordionItem value="seanime">
+                                                    <AccordionTrigger>
+                                                        <h4 className="flex gap-2 items-center">
+                                                            <SiBittorrent className="text-[--brand]" /> Built-in
+                                                        </h4>
+                                                    </AccordionTrigger>
+                                                    <AccordionContent className="p-0 py-4 space-y-4">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <Field.Number
+                                                                name="seanimePort"
+                                                                label="Listening port"
+                                                                formatOptions={{ useGrouping: false }}
+                                                            />
+                                                            <Field.Number name="seanimeMaxConnections" label="Connections per torrent" />
+                                                            <Field.Number name="seanimeMaxActiveDownloads" label="Active downloads" />
+                                                        </div>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <Field.Number
+                                                                name="seanimeDownloadLimit"
+                                                                label="Download limit (KB/s)"
+                                                                help="Set to 0 for no limit."
+                                                            />
+                                                            <Field.Number
+                                                                name="seanimeUploadLimit"
+                                                                label="Upload limit (KB/s)"
+                                                                help="Set to 0 for no limit."
+                                                            />
+                                                        </div>
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            )}
                                         </Accordion>
                                         {/*</SettingsCard>*/}
 

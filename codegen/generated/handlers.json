@@ -10958,7 +10958,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -10976,13 +10976,112 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Tracker",
+          "jsonName": "tracker",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Name",
+          "jsonName": "name",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Value",
+          "jsonName": "value",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Index",
+          "jsonName": "index",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Priority",
+          "jsonName": "priority",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "DownloadLimit",
+          "jsonName": "downloadLimit",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "UploadLimit",
+          "jsonName": "uploadLimit",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Magnet",
+          "jsonName": "magnet",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
           "descriptions": []
         }
       ],
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGetBuiltInTorrentDetails",
+    "trimmedName": "GetBuiltInTorrentDetails",
+    "comments": [
+      "HandleGetBuiltInTorrentDetails",
+      "",
+      "\t@summary returns details for a torrent managed by the Seanime torrent client.",
+      "\t@route /api/v1/torrent-client/details [GET]",
+      "\t@returns seanime.TorrentDetails",
+      ""
+    ],
+    "filepath": "internal/handlers/torrent_client.go",
+    "filename": "torrent_client.go",
+    "api": {
+      "summary": "returns details for a torrent managed by the Seanime torrent client.",
+      "descriptions": [],
+      "endpoint": "/api/v1/torrent-client/details",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "seanime.TorrentDetails",
+      "returnGoType": "seanime.TorrentDetails",
+      "returnTypescriptType": "TorrentDetails"
     }
   },
   {

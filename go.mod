@@ -206,3 +206,5 @@ require (
 )
 
 tool golang.org/x/mobile/cmd/gobind
+
+replace github.com/anacrolix/torrent => ./third_party/torrent

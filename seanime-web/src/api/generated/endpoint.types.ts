@@ -1948,9 +1948,17 @@ export type UpdateTheme_Variables = {
  * Route performs an action on a torrent.
  */
 export type TorrentClientAction_Variables = {
-    hash: string
+    hash?: string
     action: string
-    dir: string
+    dir?: string
+    tracker?: string
+    name?: string
+    value?: boolean
+    index?: number
+    priority?: number
+    downloadLimit?: number
+    uploadLimit?: number
+    magnet?: string
 }
 
 /**

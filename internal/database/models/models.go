@@ -205,24 +205,42 @@ type MediaPlayerSettings struct {
 }
 
 type TorrentSettings struct {
-	Default              string `gorm:"column:default_torrent_client" json:"defaultTorrentClient"`
-	QBittorrentPath      string `gorm:"column:qbittorrent_path" json:"qbittorrentPath"`
-	QBittorrentHost      string `gorm:"column:qbittorrent_host" json:"qbittorrentHost"`
-	QBittorrentPort      int    `gorm:"column:qbittorrent_port" json:"qbittorrentPort"`
-	QBittorrentUsername  string `gorm:"column:qbittorrent_username" json:"qbittorrentUsername"`
-	QBittorrentPassword  string `gorm:"column:qbittorrent_password" json:"qbittorrentPassword"`
-	QBittorrentTags      string `gorm:"column:qbittorrent_tags" json:"qbittorrentTags"`
-	QBittorrentCategory  string `gorm:"column:qbittorrent_category" json:"qbittorrentCategory"`
-	TransmissionPath     string `gorm:"column:transmission_path" json:"transmissionPath"`
-	TransmissionHost     string `gorm:"column:transmission_host" json:"transmissionHost"`
-	TransmissionPort     int    `gorm:"column:transmission_port" json:"transmissionPort"`
-	TransmissionUsername string `gorm:"column:transmission_username" json:"transmissionUsername"`
-	TransmissionPassword string `gorm:"column:transmission_password" json:"transmissionPassword"`
+	Default                   string `gorm:"column:default_torrent_client" json:"defaultTorrentClient"`
+	QBittorrentPath           string `gorm:"column:qbittorrent_path" json:"qbittorrentPath"`
+	QBittorrentHost           string `gorm:"column:qbittorrent_host" json:"qbittorrentHost"`
+	QBittorrentPort           int    `gorm:"column:qbittorrent_port" json:"qbittorrentPort"`
+	QBittorrentUsername       string `gorm:"column:qbittorrent_username" json:"qbittorrentUsername"`
+	QBittorrentPassword       string `gorm:"column:qbittorrent_password" json:"qbittorrentPassword"`
+	QBittorrentTags           string `gorm:"column:qbittorrent_tags" json:"qbittorrentTags"`
+	QBittorrentCategory       string `gorm:"column:qbittorrent_category" json:"qbittorrentCategory"`
+	TransmissionPath          string `gorm:"column:transmission_path" json:"transmissionPath"`
+	TransmissionHost          string `gorm:"column:transmission_host" json:"transmissionHost"`
+	TransmissionPort          int    `gorm:"column:transmission_port" json:"transmissionPort"`
+	TransmissionUsername      string `gorm:"column:transmission_username" json:"transmissionUsername"`
+	TransmissionPassword      string `gorm:"column:transmission_password" json:"transmissionPassword"`
+	SeanimePort               int    `gorm:"column:seanime_port" json:"seanimePort"`
+	SeanimeMaxConnections     int    `gorm:"column:seanime_max_connections" json:"seanimeMaxConnections"`
+	SeanimeDownloadLimit      int    `gorm:"column:seanime_download_limit" json:"seanimeDownloadLimit"`
+	SeanimeUploadLimit        int    `gorm:"column:seanime_upload_limit" json:"seanimeUploadLimit"`
+	SeanimeMaxActiveDownloads int    `gorm:"column:seanime_max_active_downloads" json:"seanimeMaxActiveDownloads"`
 	// v2.1+
 	ShowActiveTorrentCount bool `gorm:"column:show_active_torrent_count" json:"showActiveTorrentCount"`
 	// v2.2+
 	// DEPRECATED, no longer used
 	HideTorrentList bool `gorm:"column:hide_torrent_list" json:"hideTorrentList"`
+}
+
+type LocalTorrent struct {
+	BaseModel
+	Hash           string `gorm:"column:hash;uniqueIndex" json:"hash"`
+	Magnet         string `gorm:"column:magnet;type:text" json:"magnet"`
+	Name           string `gorm:"column:name" json:"name"`
+	Destination    string `gorm:"column:destination" json:"destination"`
+	Paused         bool   `gorm:"column:paused" json:"paused"`
+	QueueIndex     int    `gorm:"column:queue_index;index" json:"queueIndex"`
+	ForceStart     bool   `gorm:"column:force_start" json:"forceStart"`
+	Sequential     bool   `gorm:"column:sequential" json:"sequential"`
+	FilePriorities string `gorm:"column:file_priorities;type:text" json:"-"`
 }
 
 type ListSyncSettings struct {

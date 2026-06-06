@@ -2672,6 +2672,15 @@
 //     })
 // }
 
+// export function useGetBuiltInTorrentDetails() {
+//     return useServerQuery<TorrentDetails>({
+//         endpoint: API_ENDPOINTS.TORRENT_CLIENT.GetBuiltInTorrentDetails.endpoint,
+//         method: API_ENDPOINTS.TORRENT_CLIENT.GetBuiltInTorrentDetails.methods[0],
+//         queryKey: [API_ENDPOINTS.TORRENT_CLIENT.GetBuiltInTorrentDetails.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useTorrentClientGetFiles() {
 //     return useServerMutation<Array<string>, TorrentClientGetFiles_Variables>({
 //         endpoint: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientGetFiles.endpoint,

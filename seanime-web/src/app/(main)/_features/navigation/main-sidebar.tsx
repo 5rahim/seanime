@@ -41,7 +41,7 @@ import { LuBookOpen, LuCalendar, LuCompass, LuRefreshCw, LuRss, LuSettings } fro
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
 import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone } from "react-icons/pi"
 import { RiListCheck3 } from "react-icons/ri"
-import { SiQbittorrent, SiTransmission } from "react-icons/si"
+import { SiBittorrent, SiQbittorrent, SiTransmission } from "react-icons/si"
 import { TbReportSearch } from "react-icons/tb"
 import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
@@ -200,12 +200,14 @@ function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean
             && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
             ? [{
                 id: "torrent-list",
-                iconType: serverStatus?.settings?.torrent?.defaultTorrentClient === TORRENT_CLIENT.QBITTORRENT ? SiQbittorrent : SiTransmission,
+                iconType: serverStatus?.settings?.torrent?.defaultTorrentClient === TORRENT_CLIENT.QBITTORRENT
+                    ? SiQbittorrent
+                    : serverStatus?.settings?.torrent?.defaultTorrentClient === TORRENT_CLIENT.SEANIME ? SiBittorrent : SiTransmission,
                 name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
                     ? "Torrent list"
                     : `Torrent list (${activeTorrentCount.seeding} seeding)`,
-                href: "/torrent-list",
-                isCurrent: pathname === "/torrent-list",
+                href: serverStatus?.settings?.torrent?.defaultTorrentClient === TORRENT_CLIENT.SEANIME ? "/torrent-client" : "/torrent-list",
+                isCurrent: pathname === "/torrent-list" || pathname === "/torrent-client",
                 addon: ((activeTorrentCount.downloading + activeTorrentCount.paused) > 0 && serverStatus?.settings?.torrent?.showActiveTorrentCount)
                     ? <Badge
                         className="absolute right-0 top-0 bg-green-500" size="sm"

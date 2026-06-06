@@ -46,6 +46,9 @@ export default function Page() {
                         {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <SeaLink href={`/qbittorrent`}>
                             <Button intent="white" rightIcon={<BiLinkExternal />}>Embedded client</Button>
                         </SeaLink>}
+                        {serverStatus?.settings?.torrent?.defaultTorrentClient === "seanime" && <SeaLink href="/torrent-client">
+                            <Button intent="white" rightIcon={<BiLinkExternal />}>Torrent dashboard</Button>
+                        </SeaLink>}
                     </div>
                 </div>
 

@@ -10,6 +10,7 @@ export const DEFAULT_DOH_PROVIDER = ""
 export const DEFAULT_MPV_TYPE = "socket"
 
 export const enum TORRENT_CLIENT {
+    SEANIME = "seanime",
     QBITTORRENT = "qbittorrent",
     TRANSMISSION = "transmission",
     NONE = "none",
@@ -64,6 +65,11 @@ export const settingsSchema = z.object({
     transmissionPort: z.number().optional().default(9091),
     transmissionUsername: z.string().optional().default(""),
     transmissionPassword: z.string().optional().default(""),
+    seanimePort: z.number().optional().default(50007),
+    seanimeMaxConnections: z.number().optional().default(50),
+    seanimeDownloadLimit: z.number().optional().default(0),
+    seanimeUploadLimit: z.number().optional().default(0),
+    seanimeMaxActiveDownloads: z.number().optional().default(3),
     hideAudienceScore: z.boolean().optional().default(false),
     autoUpdateProgress: z.boolean().optional().default(false),
     disableUpdateCheck: z.boolean().optional().default(false),
@@ -225,6 +231,11 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         transmissionPort: data.transmissionPort,
         transmissionUsername: data.transmissionUsername,
         transmissionPassword: data.transmissionPassword,
+        seanimePort: data.seanimePort,
+        seanimeMaxConnections: data.seanimeMaxConnections,
+        seanimeDownloadLimit: data.seanimeDownloadLimit,
+        seanimeUploadLimit: data.seanimeUploadLimit,
+        seanimeMaxActiveDownloads: data.seanimeMaxActiveDownloads,
         showActiveTorrentCount: false,
         hideTorrentList: false,
     },

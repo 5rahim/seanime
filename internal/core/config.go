@@ -61,6 +61,9 @@ type Config struct {
 	Extensions struct {
 		Dir string
 	}
+	Torrent struct {
+		Dir string
+	}
 	Anilist struct {
 		ClientID string
 	}
@@ -156,6 +159,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("offline.dir", "$SEANIME_DATA_DIR/offline")
 	viper.SetDefault("offline.assetDir", "$SEANIME_DATA_DIR/offline/assets")
 	viper.SetDefault("extensions.dir", "$SEANIME_DATA_DIR/extensions")
+	viper.SetDefault("torrent.dir", "$SEANIME_DATA_DIR/torrent")
 
 	// Create and populate the config file if it doesn't exist
 	if err = createConfigFile(configPath); err != nil {
@@ -457,6 +461,7 @@ func expandEnvironmentValues(cfg *Config) {
 	cfg.Offline.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.Dir))
 	cfg.Offline.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.AssetDir))
 	cfg.Extensions.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Extensions.Dir))
+	cfg.Torrent.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Torrent.Dir))
 	cfg.Server.Tls.CertPath = filepath.FromSlash(os.ExpandEnv(cfg.Server.Tls.CertPath))
 	cfg.Server.Tls.KeyPath = filepath.FromSlash(os.ExpandEnv(cfg.Server.Tls.KeyPath))
 }
