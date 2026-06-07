@@ -29,6 +29,7 @@ const MEDIASTREAM_HW_ACCEL_OPTIONS = [
     { label: "CPU (Disabled)", value: "cpu" },
     { label: "NVIDIA (NVENC)", value: "nvidia" },
     { label: "Intel (QSV)", value: "qsv" },
+    { label: "Intel (QSV Low-Power)", value: "qsv-low-power" },
     { label: "VAAPI", value: "vaapi" },
     { label: "Apple VideoToolbox", value: "videotoolbox" },
     { label: "Custom", value: "custom" },

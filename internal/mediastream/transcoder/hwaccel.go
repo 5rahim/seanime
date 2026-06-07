@@ -92,7 +92,22 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 			ScaleFilter:   "format=nv12|vaapi,hwupload,scale_vaapi=%d:%d:format=nv12",
 			WithForcedIdr: true,
 		}
-	case "qsv", "intel":
+	case "qsv", "intel", "qsv-low-power", "qsv-lp", "intel-low-power", "intel-lp":
+		lowPower := name == "qsv-low-power" || name == "qsv-lp" || name == "intel-low-power" || name == "intel-lp"
+		encodeFlags := []string{
+			"-c:v", "h264_qsv",
+			"-preset", preset,
+		}
+		if lowPower {
+			encodeFlags = []string{
+				"-c:v", "h264_qsv",
+				"-low_power", "1",
+				"-preset", preset,
+				"-bf", "0",
+			}
+			name = "qsv-low-power"
+		}
+
 		return HwAccelSettings{
 			Name: name,
 			DecodeFlags: []string{
@@ -100,10 +115,7 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 				"-qsv_device", GetEnvOr("SEANIME_TRANSCODER_QSV_RENDERER", defaultOSDevice),
 				"-hwaccel_output_format", "qsv",
 			},
-			EncodeFlags: []string{
-				"-c:v", "h264_qsv",
-				"-preset", preset,
-			},
+			EncodeFlags: encodeFlags,
 			// see note on ScaleFilter of the vaapi HwAccel, this is the same filter but adapted to qsv
 			ScaleFilter:   "format=nv12|qsv,hwupload,scale_qsv=%d:%d:format=nv12",
 			WithForcedIdr: true,
