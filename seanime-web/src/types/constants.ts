@@ -11,5 +11,3 @@ export const HIDE_IMAGES = false
 
 export const __CAST_ENABLED__ = false
 
-export const __ENABLE_BUILTIN_TC__ = false
-

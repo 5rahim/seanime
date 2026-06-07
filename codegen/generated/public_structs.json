@@ -29351,9 +29351,9 @@
         "name": "Experimental",
         "jsonName": "Experimental",
         "goType": "INTERNAL_Config_Experimental",
-        "inlineStructType": "struct{\nMainServerTorrentStreaming bool}",
+        "inlineStructType": "struct{\nBuiltinTorrentClient bool}",
         "typescriptType": "INTERNAL_Config_Experimental",
-        "usedTypescriptType": "{ MainServerTorrentStreaming: boolean; }",
+        "usedTypescriptType": "{ BuiltinTorrentClient: boolean; }",
         "usedStructName": "core.Config_Experimental",
         "required": true,
         "public": true,
@@ -29726,8 +29726,8 @@
     "package": "core",
     "fields": [
       {
-        "name": "MainServerTorrentStreaming",
-        "jsonName": "MainServerTorrentStreaming",
+        "name": "BuiltinTorrentClient",
+        "jsonName": "BuiltinTorrentClient",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -29881,8 +29881,8 @@
     "package": "core",
     "fields": [
       {
-        "name": "MainServerTorrentStreaming",
-        "jsonName": "MainServerTorrentStreaming",
+        "name": "BuiltinTorrentClient",
+        "jsonName": "builtinTorrentClient",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,

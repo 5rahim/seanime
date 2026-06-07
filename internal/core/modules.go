@@ -554,13 +554,14 @@ func (a *App) InitOrRefreshModules() {
 
 		// Torrent Client Repository
 		a.TorrentClientRepository = torrent_client.NewRepository(&torrent_client.NewRepositoryOptions{
-			Logger:              a.Logger,
-			QbittorrentClient:   qbit,
-			Transmission:        trans,
-			SeanimeClient:       builtInClient,
-			TorrentRepository:   a.TorrentRepository,
-			Provider:            settings.Torrent.Default,
-			MetadataProviderRef: a.MetadataProviderRef,
+			Logger:                 a.Logger,
+			QbittorrentClient:      qbit,
+			Transmission:           trans,
+			SeanimeClient:          builtInClient,
+			TorrentRepository:      a.TorrentRepository,
+			Provider:               settings.Torrent.Default,
+			MetadataProviderRef:    a.MetadataProviderRef,
+			IsBuiltinClientEnabled: a.FeatureFlags.BuiltinTorrentClient,
 		})
 
 		a.TorrentClientRepository.InitActiveTorrentCount(settings.Torrent.ShowActiveTorrentCount, a.WSEventManager)

@@ -41,13 +41,14 @@ type (
 	}
 
 	NewRepositoryOptions struct {
-		Logger              *zerolog.Logger
-		QbittorrentClient   *qbittorrent.Client
-		Transmission        *transmission.Transmission
-		SeanimeClient       *builtin_client.Client
-		TorrentRepository   *torrent.Repository
-		Provider            string
-		MetadataProviderRef *util.Ref[metadata_provider.Provider]
+		Logger                 *zerolog.Logger
+		QbittorrentClient      *qbittorrent.Client
+		Transmission           *transmission.Transmission
+		SeanimeClient          *builtin_client.Client
+		TorrentRepository      *torrent.Repository
+		Provider               string
+		MetadataProviderRef    *util.Ref[metadata_provider.Provider]
+		IsBuiltinClientEnabled bool
 	}
 
 	ActiveCount struct {
@@ -58,6 +59,9 @@ type (
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
+	if !opts.IsBuiltinClientEnabled && opts.Provider == SeanimeClient {
+		opts.Provider = ""
+	}
 	if opts.Provider == "" {
 		opts.Provider = QbittorrentClient
 	}

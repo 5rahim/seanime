@@ -38,7 +38,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useRouter, useSearchParams } from "@/lib/navigation"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { THEME_DEFAULT_VALUES } from "@/lib/theme/theme-hooks"
-import { __ENABLE_BUILTIN_TC__, __isElectronDesktop__ } from "@/types/constants"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { useQueryClient } from "@tanstack/react-query"
 import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -798,7 +798,7 @@ export default function Page() {
                                                 options={[
                                                     { label: "qBittorrent", value: "qbittorrent" },
                                                     { label: "Transmission", value: "transmission" },
-                                                    ...(__ENABLE_BUILTIN_TC__ ? [{ label: "Built-in", value: "seanime" }] : []),
+                                                    ...(status?.featureFlags?.builtinTorrentClient ? [{ label: "Built-in", value: "seanime" }] : []),
                                                     { label: "None", value: "none" },
                                                 ]}
                                             />
@@ -893,7 +893,7 @@ export default function Page() {
                                                     />
                                                 </AccordionContent>
                                             </AccordionItem>
-                                            {__ENABLE_BUILTIN_TC__ && (
+                                            {status?.featureFlags?.builtinTorrentClient && (
                                                 <AccordionItem value="seanime">
                                                     <AccordionTrigger>
                                                         <h4 className="flex gap-2 items-center">

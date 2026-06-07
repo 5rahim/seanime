@@ -68,7 +68,7 @@ type Config struct {
 		ClientID string
 	}
 	Experimental struct {
-		MainServerTorrentStreaming bool
+		BuiltinTorrentClient bool
 	}
 }
 
@@ -401,11 +401,6 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 		if err := checkIsValidPath(cfg.Server.Tls.KeyPath); err != nil {
 			return wrapInvalidConfigValue("server.tls.keyPath", err)
 		}
-	}
-
-	// Uncomment if "MainServerTorrentStreaming" is no longer an experimental feature
-	if cfg.Experimental.MainServerTorrentStreaming {
-		logger.Warn().Msgf("app: 'Main Server Torrent Streaming' feature is no longer experimental, remove the flag from your config file")
 	}
 
 	return nil

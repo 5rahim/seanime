@@ -1980,7 +1980,7 @@ export type Continuity_WatchHistoryItemResponse = {
  * - Package: core
  */
 export type INTERNAL_FeatureFlags = {
-    MainServerTorrentStreaming: boolean
+    builtinTorrentClient: boolean
 }
 
 /**
