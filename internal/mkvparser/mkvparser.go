@@ -533,6 +533,15 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		}
 		defer demuxer.Close()
 
+		// Ignore all tracks except subtitle tracks to optimize sequential reading
+		var trackMask uint64 = ^uint64(0)
+		for _, track := range metadata.SubtitleTracks {
+			if track.Number > 0 && track.Number <= 64 {
+				trackMask &= ^(uint64(1) << (track.Number - 1))
+			}
+		}
+		demuxer.SetTrackMask(trackMask)
+
 		lastSubtitleEvents := make(map[uint8]*SubtitleEvent)
 		pgsDecoders := make(map[uint8]*pgs.PgsDecoder)
 

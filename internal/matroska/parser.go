@@ -1723,36 +1723,88 @@ func (mp *MatroskaParser) parseClusterHeader(size uint64) error {
 //     and metadata.
 //   - error: An error if the SimpleBlock element could not be parsed.
 func (mp *MatroskaParser) parseSimpleBlock(size uint64) (*Packet, error) {
-	data := make([]byte, size)
-	n, err := io.ReadFull(mp.reader.r, data)
+	if size < 4 {
+		data := make([]byte, size)
+		n, err := io.ReadFull(mp.reader.r, data)
+		if err != nil {
+			return nil, err
+		}
+		mp.reader.pos += int64(n)
+		return nil, fmt.Errorf("block too short")
+	}
+
+	// Read only the header of the block first (up to 12 bytes: track number VINT is max 8, timestamp is 2, flags is 1)
+	headerSize := int(size)
+	if headerSize > 12 {
+		headerSize = 12
+	}
+
+	headerData := make([]byte, headerSize)
+	n, err := io.ReadFull(mp.reader.r, headerData)
 	if err != nil {
 		return nil, err
 	}
 	mp.reader.pos += int64(n)
 
-	if len(data) < 4 {
-		return nil, fmt.Errorf("block too short")
-	}
-
 	// Parse track number (VINT)
-	trackNum, trackBytes := mp.parseVInt(data)
+	trackNum, trackBytes := mp.parseVInt(headerData)
 	if trackBytes == 0 {
 		return nil, fmt.Errorf("invalid track number")
 	}
 
+	// Check if this track is ignored
+	isIgnored := mp.currentTrackMask != 0 && (1<<(trackNum-1))&mp.currentTrackMask != 0
+
 	// Parse timestamp (2 bytes, signed)
-	if len(data) < trackBytes+2 {
+	if len(headerData) < trackBytes+2 {
 		return nil, fmt.Errorf("block too short for timestamp")
 	}
-
-	timestamp := int16(data[trackBytes])<<8 | int16(data[trackBytes+1])
+	timestamp := int16(headerData[trackBytes])<<8 | int16(headerData[trackBytes+1])
 
 	// Parse flags
-	if len(data) < trackBytes+3 {
+	if len(headerData) < trackBytes+3 {
 		return nil, fmt.Errorf("block too short for flags")
 	}
+	flags := headerData[trackBytes+2]
 
-	flags := data[trackBytes+2]
+	if isIgnored {
+		// If ignored, skip the rest of this SimpleBlock's payload by seeking!
+		remaining := int64(size) - int64(n)
+		if remaining > 0 {
+			if _, seekErr := mp.reader.Seek(remaining, io.SeekCurrent); seekErr != nil {
+				return nil, seekErr
+			}
+		}
+
+		scaledTime := (mp.clusterTimestamp + uint64(timestamp)) * mp.fileInfo.TimecodeScale
+		packet := &Packet{
+			Track:     uint8(trackNum),
+			StartTime: scaledTime,
+			EndTime:   scaledTime,
+			FilePos:   uint64(mp.reader.Position()) - size,
+			Data:      nil,
+			Flags:     uint32(flags),
+		}
+		if flags&0x80 != 0 {
+			packet.Flags |= KF
+		}
+		return packet, nil
+	}
+
+	// If not ignored, read the rest of the block data
+	remaining := int(size) - n
+	frameDataBuf := make([]byte, remaining)
+	if remaining > 0 {
+		if _, err = io.ReadFull(mp.reader.r, frameDataBuf); err != nil {
+			return nil, err
+		}
+		mp.reader.pos += int64(remaining)
+	}
+
+	// Reconstruct the full data slice for processing
+	data := make([]byte, size)
+	copy(data, headerData)
+	copy(data[n:], frameDataBuf)
 
 	// Extract frame data, handling lacing
 	frameData := data[trackBytes+3:]
