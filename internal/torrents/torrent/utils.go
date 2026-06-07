@@ -2,6 +2,7 @@ package torrent
 
 import (
 	"bytes"
+
 	"github.com/anacrolix/torrent/metainfo"
 )
 
