@@ -22,6 +22,8 @@ export enum PluginClientEvents {
     ActionRenderAnimePageButtons = "action:anime-page-buttons:render",
     ActionRenderAnimePageDropdownItems = "action:anime-page-dropdown-items:render",
     ActionRenderMangaPageButtons = "action:manga-page-buttons:render",
+    ActionRenderMangaPageDropdownItems = "action:manga-page-dropdown-items:render",
+    ActionRenderMangaLibraryDropdownItems = "action:manga-library-dropdown-items:render",
     ActionRenderMediaCardContextMenuItems = "action:media-card-context-menu-items:render",
     ActionRenderAnimeLibraryDropdownItems = "action:anime-library-dropdown-items:render",
     ActionRenderEpisodeCardContextMenuItems = "action:episode-card-context-menu-items:render",
@@ -67,6 +69,8 @@ export enum PluginServerEvents {
     ActionRenderAnimePageButtons = "action:anime-page-buttons:updated",
     ActionRenderAnimePageDropdownItems = "action:anime-page-dropdown-items:updated",
     ActionRenderMangaPageButtons = "action:manga-page-buttons:updated",
+    ActionRenderMangaPageDropdownItems = "action:manga-page-dropdown-items:updated",
+    ActionRenderMangaLibraryDropdownItems = "action:manga-library-dropdown-items:updated",
     ActionRenderMediaCardContextMenuItems = "action:media-card-context-menu-items:updated",
     ActionRenderEpisodeCardContextMenuItems = "action:episode-card-context-menu-items:updated",
     ActionRenderEpisodeGridItemMenuItems = "action:episode-grid-item-menu-items:updated",
@@ -387,6 +391,38 @@ export function usePluginSendActionRenderMangaPageButtonsEvent() {
 
     return {
         sendActionRenderMangaPageButtonsEvent,
+    }
+}
+
+export type Plugin_Client_ActionRenderMangaPageDropdownItemsEventPayload = {}
+
+export function usePluginSendActionRenderMangaPageDropdownItemsEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendActionRenderMangaPageDropdownItemsEvent = useCallback((payload: Plugin_Client_ActionRenderMangaPageDropdownItemsEventPayload,
+        extensionID?: string,
+    ) => {
+        sendPluginMessage(PluginClientEvents.ActionRenderMangaPageDropdownItems, payload, extensionID)
+    }, [])
+
+    return {
+        sendActionRenderMangaPageDropdownItemsEvent,
+    }
+}
+
+export type Plugin_Client_ActionRenderMangaLibraryDropdownItemsEventPayload = {}
+
+export function usePluginSendActionRenderMangaLibraryDropdownItemsEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendActionRenderMangaLibraryDropdownItemsEvent = useCallback((payload: Plugin_Client_ActionRenderMangaLibraryDropdownItemsEventPayload,
+        extensionID?: string,
+    ) => {
+        sendPluginMessage(PluginClientEvents.ActionRenderMangaLibraryDropdownItems, payload, extensionID)
+    }, [])
+
+    return {
+        sendActionRenderMangaLibraryDropdownItemsEvent,
     }
 }
 
@@ -1015,6 +1051,34 @@ export function usePluginListenActionRenderMangaPageButtonsEvent(cb: (payload: P
     return useWebsocketPluginMessageListener<Plugin_Server_ActionRenderMangaPageButtonsEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ActionRenderMangaPageButtons,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_ActionRenderMangaPageDropdownItemsEventPayload = {
+    items: any
+}
+
+export function usePluginListenActionRenderMangaPageDropdownItemsEvent(cb: (payload: Plugin_Server_ActionRenderMangaPageDropdownItemsEventPayload,
+    extensionId: string,
+) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_ActionRenderMangaPageDropdownItemsEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.ActionRenderMangaPageDropdownItems,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_ActionRenderMangaLibraryDropdownItemsEventPayload = {
+    items: any
+}
+
+export function usePluginListenActionRenderMangaLibraryDropdownItemsEvent(cb: (payload: Plugin_Server_ActionRenderMangaLibraryDropdownItemsEventPayload,
+    extensionId: string,
+) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_ActionRenderMangaLibraryDropdownItemsEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.ActionRenderMangaLibraryDropdownItems,
         onMessage: cb,
     })
 }

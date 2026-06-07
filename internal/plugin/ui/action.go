@@ -26,6 +26,8 @@ type ActionManager struct {
 	animePageDropdownItems      *result.Map[string, *AnimePageDropdownMenuItem]
 	animeLibraryDropdownItems   *result.Map[string, *AnimeLibraryDropdownMenuItem]
 	mangaPageButtons            *result.Map[string, *MangaPageButton]
+	mangaPageDropdownItems      *result.Map[string, *MangaPageDropdownMenuItem]
+	mangaLibraryDropdownItems   *result.Map[string, *MangaLibraryDropdownMenuItem]
 	mediaCardContextMenuItems   *result.Map[string, *MediaCardContextMenuItem]
 	episodeCardContextMenuItems *result.Map[string, *EpisodeCardContextMenuItem]
 	episodeGridItemMenuItems    *result.Map[string, *EpisodeGridItemMenuItem]
@@ -81,6 +83,12 @@ func (a *ActionManager) UnmountAll() {
 	}
 	if a.mangaPageButtons.ClearN() > 0 {
 		a.renderMangaPageButtons()
+	}
+	if a.mangaPageDropdownItems.ClearN() > 0 {
+		a.renderMangaPageDropdownItems()
+	}
+	if a.mangaLibraryDropdownItems.ClearN() > 0 {
+		a.renderMangaLibraryDropdownItems()
 	}
 	if a.mediaCardContextMenuItems.ClearN() > 0 {
 		a.renderMediaCardContextMenuItems()
@@ -183,6 +191,30 @@ func (a *AnimeLibraryDropdownMenuItem) CreateObject(actionManager *ActionManager
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+type MangaPageDropdownMenuItem struct {
+	BaseAction
+}
+
+func (a *MangaPageDropdownMenuItem) CreateObject(actionManager *ActionManager) *goja.Object {
+	obj := actionManager.ctx.vm.NewObject()
+	actionManager.bindSharedToObject(obj, a)
+	return obj
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type MangaLibraryDropdownMenuItem struct {
+	BaseAction
+}
+
+func (a *MangaLibraryDropdownMenuItem) CreateObject(actionManager *ActionManager) *goja.Object {
+	obj := actionManager.ctx.vm.NewObject()
+	actionManager.bindSharedToObject(obj, a)
+	return obj
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 type MediaCardContextMenuItemFor string
 
 const (
@@ -217,6 +249,8 @@ func NewActionManager(ctx *Context) *ActionManager {
 		animeLibraryDropdownItems:   result.NewMap[string, *AnimeLibraryDropdownMenuItem](),
 		animePageDropdownItems:      result.NewMap[string, *AnimePageDropdownMenuItem](),
 		mangaPageButtons:            result.NewMap[string, *MangaPageButton](),
+		mangaPageDropdownItems:      result.NewMap[string, *MangaPageDropdownMenuItem](),
+		mangaLibraryDropdownItems:   result.NewMap[string, *MangaLibraryDropdownMenuItem](),
 		mediaCardContextMenuItems:   result.NewMap[string, *MediaCardContextMenuItem](),
 		episodeCardContextMenuItems: result.NewMap[string, *EpisodeCardContextMenuItem](),
 		episodeGridItemMenuItems:    result.NewMap[string, *EpisodeGridItemMenuItem](),
@@ -272,6 +306,30 @@ func (a *ActionManager) renderMangaPageButtons() {
 	})
 }
 
+func (a *ActionManager) renderMangaPageDropdownItems() {
+	items := make([]*MangaPageDropdownMenuItem, 0)
+	a.mangaPageDropdownItems.Range(func(key string, value *MangaPageDropdownMenuItem) bool {
+		items = append(items, value)
+		return true
+	})
+
+	a.ctx.SendEventToClient(ServerActionRenderMangaPageDropdownItemsEvent, ServerActionRenderMangaPageDropdownItemsEventPayload{
+		Items: items,
+	})
+}
+
+func (a *ActionManager) renderMangaLibraryDropdownItems() {
+	items := make([]*MangaLibraryDropdownMenuItem, 0)
+	a.mangaLibraryDropdownItems.Range(func(key string, value *MangaLibraryDropdownMenuItem) bool {
+		items = append(items, value)
+		return true
+	})
+
+	a.ctx.SendEventToClient(ServerActionRenderMangaLibraryDropdownItemsEvent, ServerActionRenderMangaLibraryDropdownItemsEventPayload{
+		Items: items,
+	})
+}
+
 func (a *ActionManager) renderMediaCardContextMenuItems() {
 	items := make([]*MediaCardContextMenuItem, 0)
 	a.mediaCardContextMenuItems.Range(func(key string, value *MediaCardContextMenuItem) bool {
@@ -319,6 +377,8 @@ func (a *ActionManager) bind(ctxObj *goja.Object) {
 	_ = actionObj.Set("newAnimeLibraryDropdownItem", a.jsNewAnimeLibraryDropdownItem)
 	_ = actionObj.Set("newMediaCardContextMenuItem", a.jsNewMediaCardContextMenuItem)
 	_ = actionObj.Set("newMangaPageButton", a.jsNewMangaPageButton)
+	_ = actionObj.Set("newMangaPageDropdownItem", a.jsNewMangaPageDropdownItem)
+	_ = actionObj.Set("newMangaLibraryDropdownItem", a.jsNewMangaLibraryDropdownItem)
 	_ = actionObj.Set("newEpisodeCardContextMenuItem", a.jsNewEpisodeCardContextMenuItem)
 	_ = actionObj.Set("newEpisodeGridItemMenuItem", a.jsNewEpisodeGridItemMenuItem)
 	_ = ctxObj.Set("action", actionObj)
@@ -482,6 +542,50 @@ func (a *ActionManager) jsNewMangaPageButton(call goja.FunctionCall) goja.Value 
 	return obj
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// jsNewMangaPageDropdownItem
+//
+//	Example:
+//	const downloadButton = ctx.newMangaPageDropdownItem({
+//		label: "Download",
+//		onClick: "download-button-clicked",
+//	})
+func (a *ActionManager) jsNewMangaPageDropdownItem(call goja.FunctionCall) goja.Value {
+	// Create a new action
+	action := &MangaPageDropdownMenuItem{}
+
+	// Get the props
+	a.unmarshalProps(call, action)
+	action.ID = uuid.New().String()
+
+	// Create the object
+	obj := action.CreateObject(a)
+	return obj
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// jsNewMangaLibraryDropdownItem
+//
+//	Example:
+//	const downloadButton = ctx.newMangaLibraryDropdownItem({
+//		label: "Download",
+//		onClick: "download-button-clicked",
+//	})
+func (a *ActionManager) jsNewMangaLibraryDropdownItem(call goja.FunctionCall) goja.Value {
+	// Create a new action
+	action := &MangaLibraryDropdownMenuItem{}
+
+	// Get the props
+	a.unmarshalProps(call, action)
+	action.ID = uuid.New().String()
+
+	// Create the object
+	obj := action.CreateObject(a)
+	return obj
+}
+
 // ///////////////////////////////////////////////////////////////////////////////////
 // Shared
 // ///////////////////////////////////////////////////////////////////////////////////
@@ -506,6 +610,14 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		id = act.ID
 		//props = act.GetProps()
 		mapToUse = a.mangaPageButtons
+	case *MangaPageDropdownMenuItem:
+		id = act.ID
+		//props = act.GetProps()
+		mapToUse = a.mangaPageDropdownItems
+	case *MangaLibraryDropdownMenuItem:
+		id = act.ID
+		//props = act.GetProps()
+		mapToUse = a.mangaLibraryDropdownItems
 	case *AnimePageDropdownMenuItem:
 		id = act.ID
 		//props = act.GetProps()
@@ -539,6 +651,16 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 			if btn, ok := action.(*MangaPageButton); ok {
 				m.Set(id, btn)
 				a.renderMangaPageButtons()
+			}
+		case *result.Map[string, *MangaPageDropdownMenuItem]:
+			if item, ok := action.(*MangaPageDropdownMenuItem); ok {
+				m.Set(id, item)
+				a.renderMangaPageDropdownItems()
+			}
+		case *result.Map[string, *MangaLibraryDropdownMenuItem]:
+			if item, ok := action.(*MangaLibraryDropdownMenuItem); ok {
+				m.Set(id, item)
+				a.renderMangaLibraryDropdownItems()
 			}
 		case *result.Map[string, *AnimePageDropdownMenuItem]:
 			if item, ok := action.(*AnimePageDropdownMenuItem); ok {
@@ -579,6 +701,12 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		case *result.Map[string, *MangaPageButton]:
 			m.Delete(id)
 			a.renderMangaPageButtons()
+		case *result.Map[string, *MangaPageDropdownMenuItem]:
+			m.Delete(id)
+			a.renderMangaPageDropdownItems()
+		case *result.Map[string, *MangaLibraryDropdownMenuItem]:
+			m.Delete(id)
+			a.renderMangaLibraryDropdownItems()
 		case *result.Map[string, *AnimePageDropdownMenuItem]:
 			m.Delete(id)
 			a.renderAnimePageDropdownItems()
@@ -605,6 +733,12 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		case *MangaPageButton:
 			act.SetLabel(label)
 			a.renderMangaPageButtons()
+		case *MangaPageDropdownMenuItem:
+			act.SetLabel(label)
+			a.renderMangaPageDropdownItems()
+		case *MangaLibraryDropdownMenuItem:
+			act.SetLabel(label)
+			a.renderMangaLibraryDropdownItems()
 		case *AnimePageDropdownMenuItem:
 			act.SetLabel(label)
 			a.renderAnimePageDropdownItems()
@@ -631,6 +765,12 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		case *MangaPageButton:
 			act.SetLoading(loading)
 			a.renderMangaPageButtons()
+		case *MangaPageDropdownMenuItem:
+			act.SetLoading(loading)
+			a.renderMangaPageDropdownItems()
+		case *MangaLibraryDropdownMenuItem:
+			act.SetLoading(loading)
+			a.renderMangaLibraryDropdownItems()
 		case *AnimePageDropdownMenuItem:
 			act.SetLoading(loading)
 			a.renderAnimePageDropdownItems()
@@ -657,6 +797,12 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		case *MangaPageButton:
 			act.SetDisabled(disabled)
 			a.renderMangaPageButtons()
+		case *MangaPageDropdownMenuItem:
+			act.SetDisabled(disabled)
+			a.renderMangaPageDropdownItems()
+		case *MangaLibraryDropdownMenuItem:
+			act.SetDisabled(disabled)
+			a.renderMangaLibraryDropdownItems()
 		case *AnimePageDropdownMenuItem:
 			act.SetDisabled(disabled)
 			a.renderAnimePageDropdownItems()
@@ -683,6 +829,12 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		case *MangaPageButton:
 			act.SetStyle(style)
 			a.renderMangaPageButtons()
+		case *MangaPageDropdownMenuItem:
+			act.SetStyle(style)
+			a.renderMangaPageDropdownItems()
+		case *MangaLibraryDropdownMenuItem:
+			act.SetStyle(style)
+			a.renderMangaLibraryDropdownItems()
 		case *AnimePageDropdownMenuItem:
 			act.SetStyle(style)
 			a.renderAnimePageDropdownItems()

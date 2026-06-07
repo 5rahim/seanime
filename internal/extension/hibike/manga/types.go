@@ -38,6 +38,8 @@ type (
 		Year int `json:"year,omitempty"`
 		// URL of the manga cover image.
 		Image string `json:"image,omitempty"`
+		// Request headers for the cover image if proxying is required.
+		ImageHeaders map[string]string `json:"imageHeaders,omitempty"`
 		// Indicates how well the chapter title matches the search query.
 		// It is a number from 0 to 1.
 		// Leave it empty if the comparison should be done by Seanime.

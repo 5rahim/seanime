@@ -40414,6 +40414,15 @@
         "comments": []
       },
       {
+        "name": "ImageHeaders",
+        "jsonName": "imageHeaders",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "SearchRating",
         "jsonName": "searchRating",
         "goType": "float64",
@@ -77854,6 +77863,24 @@
         "comments": []
       },
       {
+        "name": "mangaPageDropdownItems",
+        "jsonName": "mangaPageDropdownItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaLibraryDropdownItems",
+        "jsonName": "mangaLibraryDropdownItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "mediaCardContextMenuItems",
         "jsonName": "mediaCardContextMenuItems",
         "goType": "",
@@ -78084,6 +78111,30 @@
     "filename": "action.go",
     "name": "AnimeLibraryDropdownMenuItem",
     "formattedName": "PluginUI_AnimeLibraryDropdownMenuItem",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseAction"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "MangaPageDropdownMenuItem",
+    "formattedName": "PluginUI_MangaPageDropdownMenuItem",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseAction"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "MangaLibraryDropdownMenuItem",
+    "formattedName": "PluginUI_MangaLibraryDropdownMenuItem",
     "package": "plugin_ui",
     "fields": [],
     "comments": [],
@@ -79499,6 +79550,8 @@
         "\"action:anime-page-buttons:render\"",
         "\"action:anime-page-dropdown-items:render\"",
         "\"action:manga-page-buttons:render\"",
+        "\"action:manga-page-dropdown-items:render\"",
+        "\"action:manga-library-dropdown-items:render\"",
         "\"action:media-card-context-menu-items:render\"",
         "\"action:anime-library-dropdown-items:render\"",
         "\"action:episode-card-context-menu-items:render\"",
@@ -79738,6 +79791,24 @@
     "filename": "events.go",
     "name": "ClientActionRenderMangaPageButtonsEventPayload",
     "formattedName": "PluginUI_ClientActionRenderMangaPageButtonsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderMangaPageDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderMangaPageDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderMangaLibraryDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderMangaLibraryDropdownItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -80385,6 +80456,8 @@
         "\"action:anime-page-buttons:updated\"",
         "\"action:anime-page-dropdown-items:updated\"",
         "\"action:manga-page-buttons:updated\"",
+        "\"action:manga-page-dropdown-items:updated\"",
+        "\"action:manga-library-dropdown-items:updated\"",
         "\"action:media-card-context-menu-items:updated\"",
         "\"action:episode-card-context-menu-items:updated\"",
         "\"action:episode-grid-item-menu-items:updated\"",
@@ -81027,6 +81100,44 @@
       {
         "name": "Buttons",
         "jsonName": "buttons",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderMangaPageDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderMangaPageDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderMangaLibraryDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderMangaLibraryDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
         "goType": "",
         "typescriptType": "any",
         "required": true,

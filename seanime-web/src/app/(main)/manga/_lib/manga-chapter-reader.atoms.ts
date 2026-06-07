@@ -104,6 +104,12 @@ export const MANGA_SETTINGS_ATOM_KEYS = {
     overflowPageContainerWidth: "sea-manga-overflow-page-container-width",
 }
 
+export const MANGA_PAGE_ZOOM_MIN = 0.5
+export const MANGA_PAGE_ZOOM_MAX = 3
+export const MANGA_PAGE_ZOOM_STEP = 0.1
+export const MANGA_PAGE_ZOOM_DEFAULT = 1
+export const __manga_pageZoomAtom = atom(MANGA_PAGE_ZOOM_DEFAULT)
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const MangaReadingDirection = {

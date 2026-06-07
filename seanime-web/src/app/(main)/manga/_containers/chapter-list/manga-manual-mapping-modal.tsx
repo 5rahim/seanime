@@ -1,6 +1,7 @@
 import { Manga_Entry } from "@/api/generated/types"
 import { useGetMangaMapping, useMangaManualMapping, useMangaManualSearch, useRemoveMangaMapping } from "@/api/hooks/manga.hooks"
 import { useSelectedMangaProvider } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
+import { useMangaReaderUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaImage } from "@/components/shared/sea-image"
@@ -51,6 +52,7 @@ const searchSchema = defineSchema(({ z }) => z.object({
 function Content({ entry }: { entry: Manga_Entry }) {
     const router = useRouter()
     const { selectedProvider } = useSelectedMangaProvider(entry.mediaId)
+    const { getChapterPageUrl, isReady: imageProxyReady } = useMangaReaderUtils()
 
     // Get current mapping
     const { data: existingMapping, isLoading: mappingLoading } = useGetMangaMapping({
@@ -69,6 +71,11 @@ function Content({ entry }: { entry: Manga_Entry }) {
             })
         }
     }
+
+    const getSearchResultImageUrl = React.useCallback((image: string | undefined, headers?: Record<string, string>) => {
+        if (!image) return "/no-cover.png"
+        return imageProxyReady ? getChapterPageUrl(image, false, headers) : "/no-cover.png"
+    }, [getChapterPageUrl, imageProxyReady])
 
     // Match
     const { mutate: match, isPending: isMatching } = useMangaManualMapping()
@@ -158,7 +165,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
                                     >
 
                                         {<SeaImage
-                                            src={item.image || "/no-cover.png"}
+                                            src={getSearchResultImageUrl(item.image, item.imageHeaders)}
                                             placeholder={imageShimmer(700, 475)}
                                             sizes="10rem"
                                             fill

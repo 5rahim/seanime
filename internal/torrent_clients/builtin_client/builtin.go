@@ -15,6 +15,7 @@ import (
 	"time"
 
 	g "github.com/anacrolix/generics"
+	alog "github.com/anacrolix/log"
 	anacrolix "github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/storage"
 	"github.com/rs/zerolog"
@@ -172,6 +173,7 @@ func New(opts *NewClientOptions) (*Client, error) {
 	cfg.Seed = true
 	cfg.DownloadRateLimiter = downloadLimiter
 	cfg.UploadRateLimiter = uploadLimiter
+	cfg.Logger = alog.Logger{}.FilterLevel(alog.Never)
 	cfg.DefaultStorage = storage.NewFileOpts(storage.NewFileClientOpts{
 		ClientBaseDir:   opts.Dir,
 		PieceCompletion: noClosePieceCompletion{pc},
@@ -372,8 +374,13 @@ func (c *Client) addPersisted(item *models.LocalTorrent) (*anacrolix.Torrent, er
 	}
 	t.SetOnWriteChunkError(func(err error) {
 		if err != nil {
-			entry.setWriteError(err)
-			c.logger.Error().Err(err).Str("hash", item.Hash).Msg("builtin torrent: write chunk error")
+			prevErr := entry.getWriteError()
+			if prevErr == nil || prevErr.Error() != err.Error() {
+				entry.setWriteError(err)
+				c.logger.Error().Err(err).Str("hash", item.Hash).Msg("builtin torrent: write chunk error")
+				t.DisallowDataDownload()
+				go c.reconcileQueue()
+			}
 		}
 	})
 	c.mu.Lock()
@@ -397,20 +404,33 @@ func (c *Client) RemoveTorrent(hash string, deleteFiles bool) error {
 	if entry == nil {
 		return errors.New("torrent not found")
 	}
-	entry.torrent.DisallowDataDownload()
-	entry.torrent.DisallowDataUpload()
+	if entry.torrent != nil {
+		entry.torrent.DisallowDataDownload()
+		entry.torrent.DisallowDataUpload()
+	}
 	var paths []string
 	var root string
 	var err error
 	if deleteFiles {
-		paths, root, err = torrentFilePaths(entry.model.Destination, entry.torrent)
-		if err != nil {
-			return err
+		if entry.torrent != nil {
+			paths, root, err = torrentFilePaths(entry.model.Destination, entry.torrent)
+			if err != nil {
+				return err
+			}
+		} else if entry.model.Name != "" {
+			rootPath := filepath.Join(entry.model.Destination, entry.model.Name)
+			destClean := filepath.Clean(entry.model.Destination)
+			rootClean := filepath.Clean(rootPath)
+			if rootClean != destClean && strings.HasPrefix(rootClean, destClean+string(filepath.Separator)) {
+				_ = os.RemoveAll(rootClean)
+			}
 		}
 	}
 	c.removeRuntime(hash)
-	if deleteErr := removeTorrentFiles(paths, root); deleteErr != nil {
-		c.logger.Warn().Err(deleteErr).Str("hash", hash).Msg("builtin torrent: some files or directories could not be removed from disk")
+	if len(paths) > 0 || root != "" {
+		if deleteErr := removeTorrentFiles(paths, root); deleteErr != nil {
+			c.logger.Warn().Err(deleteErr).Str("hash", hash).Msg("builtin torrent: some files or directories could not be removed from disk")
+		}
 	}
 	if err = c.database.DeleteLocalTorrent(hash); err != nil {
 		return err
@@ -426,7 +446,9 @@ func (c *Client) removeRuntime(hash string) {
 	delete(c.torrents, hash)
 	c.mu.Unlock()
 	if entry != nil {
-		entry.torrent.Drop()
+		if entry.torrent != nil {
+			entry.torrent.Drop()
+		}
 		if entry.storageCloser != nil {
 			_ = entry.storageCloser.Close()
 		}
@@ -1002,6 +1024,9 @@ func (c *Client) allowedEntriesLocked() map[string]bool {
 	active := 0
 	for _, entry := range c.sortedEntriesLocked() {
 		if entry.model.Paused || entry.torrent == nil {
+			continue
+		}
+		if entry.getWriteError() != nil {
 			continue
 		}
 		if length := entry.torrent.Length(); length > 0 && entry.torrent.BytesCompleted() >= length {

@@ -17,6 +17,8 @@ interface FetchOptions {
     body?: any
     /** Whether to bypass cloudflare */
     noCloudflareBypass?: boolean
+    /** Redirect behavior, defaults to follow */
+    redirect?: "follow" | "manual" | "error"
     /** Timeout in seconds, defaults to 35 */
     timeout?: number
 }

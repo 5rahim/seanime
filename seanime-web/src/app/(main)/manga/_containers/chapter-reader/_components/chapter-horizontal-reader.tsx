@@ -1,6 +1,6 @@
 import { Manga_PageContainer } from "@/api/generated/types"
 import { ChapterPage } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-page"
-import { useHandleChapterPageStatus, useHydrateMangaPaginationMap } from "@/app/(main)/manga/_lib/handle-chapter-reader"
+import { useHandleChapterPageStatus, useHydrateMangaPaginationMap, useMangaReaderZoomWheel } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -12,6 +12,7 @@ import {
     __manga_pageGapAtom,
     __manga_pageGapShadowAtom,
     __manga_pageOverflowContainerWidthAtom,
+    __manga_pageZoomAtom,
     __manga_paginationMapAtom,
     __manga_readingDirectionAtom,
     __manga_readingModeAtom,
@@ -41,6 +42,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const pageGap = useAtomValue(__manga_pageGapAtom)
     const pageGapShadow = useAtomValue(__manga_pageGapShadowAtom)
     const pageOverflowContainerWidth = useAtomValue(__manga_pageOverflowContainerWidthAtom)
+    const pageZoom = useAtomValue(__manga_pageZoomAtom)
 
     const [hiddenBar, setHideBar] = useAtom(__manga_hiddenBarAtom)
 
@@ -59,6 +61,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const [currentMapIndex, setCurrentMapIndex] = useAtom(__manga_currentPaginationMapIndexAtom)
 
     useHydrateMangaPaginationMap(pageContainer)
+    useMangaReaderZoomWheel(containerRef)
 
     const { handlePageLoad } = useHandleChapterPageStatus(pageContainer)
 
@@ -160,12 +163,14 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
         <div
             data-chapter-horizontal-reader-container
             className={cn(
-                "h-[calc(100dvh-3rem)] overflow-y-hidden overflow-x-hidden w-full px-4 select-none relative",
+                "h-[calc(100dvh-3rem)] w-full px-4 select-none relative focus-visible:outline-none",
                 hiddenBar && "h-dvh max-h-full",
-                "focus-visible:outline-none",
-                pageFit === MangaPageFit.COVER && "overflow-y-auto",
-                pageFit === MangaPageFit.TRUE_SIZE && "overflow-y-auto",
-                pageFit === MangaPageFit.LARGER && "overflow-y-auto",
+                pageZoom !== 1 ? "overflow-auto" : cn(
+                    "overflow-x-hidden",
+                    (pageFit === MangaPageFit.COVER || pageFit === MangaPageFit.TRUE_SIZE || pageFit === MangaPageFit.LARGER)
+                        ? "overflow-y-auto"
+                        : "overflow-y-hidden",
+                ),
 
                 // Double page + PageFit = LARGER
                 pageFit === MangaPageFit.LARGER && readingMode === MangaReadingMode.DOUBLE_PAGE && "w-full px-40 mx-auto",
@@ -255,6 +260,8 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                         imageWidth={pageFit === MangaPageFit.LARGER && readingMode === MangaReadingMode.PAGED
                             ? pageOverflowContainerWidth + "%"
                             : undefined}
+                        pageZoom={pageZoom}
+                        pageFit={pageFit}
                     />
                 ))}
             </div>

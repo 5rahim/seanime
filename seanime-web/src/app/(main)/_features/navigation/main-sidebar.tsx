@@ -46,6 +46,55 @@ import { TbReportSearch } from "react-icons/tb"
 import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
+function getAnilistGifAvatarCandidate(avatar?: { large?: string, medium?: string }) {
+    const source = avatar?.large || avatar?.medium
+    if (!source || source.endsWith(".gif")) return undefined
+
+    try {
+        const url = new URL(source)
+        if (!url.hostname.endsWith(".anilist.co")) return undefined
+        if (!url.pathname.includes("/file/anilistcdn/user/avatar/")) return undefined
+
+        const gifPath = url.pathname
+            .replace("/medium/", "/large/")
+            .replace(/\.(jpe?g|png|webp)$/i, ".gif")
+
+        if (gifPath === url.pathname) return undefined
+        url.pathname = gifPath
+        return url.toString()
+    }
+    catch {
+        return undefined
+    }
+}
+
+function useResolvedAnilistAvatarSrc(avatar?: { large?: string, medium?: string }) {
+    const fallbackSrc = avatar?.medium || avatar?.large
+    const gifCandidate = React.useMemo(() => getAnilistGifAvatarCandidate(avatar), [avatar?.large, avatar?.medium])
+    const [src, setSrc] = React.useState(fallbackSrc)
+
+    React.useEffect(() => {
+        setSrc(fallbackSrc)
+        if (!gifCandidate) return
+
+        let cancelled = false
+        const image = new Image()
+        image.onload = () => {
+            if (!cancelled) setSrc(gifCandidate)
+        }
+        image.onerror = () => {
+            if (!cancelled) setSrc(fallbackSrc)
+        }
+        image.src = gifCandidate
+
+        return () => {
+            cancelled = true
+        }
+    }, [fallbackSrc, gifCandidate])
+
+    return src
+}
+
 export function MainSidebar() {
 
     const ctx = useAppSidebarContext()
@@ -552,6 +601,7 @@ function SidebarUser({ isCollapsed, expandedSidebar, onLogout }: { isCollapsed: 
     const ctx = useAppSidebarContext()
     const user = useCurrentUser()
     const router = useRouter()
+    const avatarSrc = useResolvedAnilistAvatarSrc(user?.viewer?.avatar)
 
     const [dropdownOpen, setDropdownOpen] = React.useState(false)
     const [loginModal, setLoginModal] = useAtom(isLoginModalOpenAtom)
@@ -593,7 +643,7 @@ function SidebarUser({ isCollapsed, expandedSidebar, onLogout }: { isCollapsed: 
                             { "hidden": ctx.isBelowBreakpoint },
                         )}
                     >
-                        <Avatar size="sm" className="cursor-pointer" src={user?.viewer?.avatar?.medium || undefined} />
+                        <Avatar size="sm" className="cursor-pointer" src={avatarSrc || undefined} />
                         {expandedSidebar && <p className="truncate text-sm text-[--muted]">{user?.viewer?.name}</p>}
                     </div>}
                     open={dropdownOpen}

@@ -3001,6 +3001,7 @@ export type HibikeManga_SearchResult = {
     synonyms?: Array<string>
     year?: number
     image?: string
+    imageHeaders?: Record<string, string>
     searchRating?: number
 }
 

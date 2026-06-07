@@ -205,6 +205,8 @@ func (u *UI) Register(callback string) error {
 	u.context.actionManager.renderAnimePageDropdownItems()
 	u.context.actionManager.renderAnimeLibraryDropdownItems()
 	u.context.actionManager.renderMangaPageButtons()
+	u.context.actionManager.renderMangaPageDropdownItems()
+	u.context.actionManager.renderMangaLibraryDropdownItems()
 	u.context.actionManager.renderMediaCardContextMenuItems()
 	u.context.actionManager.renderEpisodeCardContextMenuItems()
 	u.context.actionManager.renderEpisodeGridItemMenuItems()
@@ -288,6 +290,12 @@ func (u *UI) dispatchClientEvent(clientEvent *ClientPluginEvent) {
 
 	case ClientActionRenderMangaPageButtonsEvent: // Client wants to update the manga page buttons
 		u.context.actionManager.renderMangaPageButtons()
+
+	case ClientActionRenderMangaPageDropdownItemsEvent: // Client wants to update the manga page dropdown items
+		u.context.actionManager.renderMangaPageDropdownItems()
+
+	case ClientActionRenderMangaLibraryDropdownItemsEvent: // Client wants to update the manga library dropdown items
+		u.context.actionManager.renderMangaLibraryDropdownItems()
 
 	case ClientActionRenderMediaCardContextMenuItemsEvent: // Client wants to update the media card context menu items
 		u.context.actionManager.renderMediaCardContextMenuItems()

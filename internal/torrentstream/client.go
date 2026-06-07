@@ -97,7 +97,7 @@ func (c *Client) initializeClient() error {
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.Seed = true
 	cfg.DisableIPv6 = settings.DisableIPV6
-	cfg.Logger = alog.Logger{}
+	cfg.Logger = alog.Logger{}.FilterLevel(alog.Never)
 
 	// TEST ONLY: Limit download speed to 1mb/s
 	// cfg.DownloadRateLimiter = rate.NewLimiter(rate.Limit(1<<20), 1<<20)

@@ -8,9 +8,14 @@ import {
     __manga_doublePageOffsetAtom,
     __manga_pageFitAtom,
     __manga_pageStretchAtom,
+    __manga_pageZoomAtom,
     __manga_paginationMapAtom,
     __manga_readingDirectionAtom,
     __manga_readingModeAtom,
+    MANGA_PAGE_ZOOM_DEFAULT,
+    MANGA_PAGE_ZOOM_MAX,
+    MANGA_PAGE_ZOOM_MIN,
+    MANGA_PAGE_ZOOM_STEP,
     MangaPageFit,
     MangaPageStretch,
     MangaReadingDirection,
@@ -355,6 +360,298 @@ export function useHydrateMangaPaginationMap(pageContainer?: Manga_PageContainer
 
 }
 
+export function clampMangaPageZoom(value: number) {
+    if (!Number.isFinite(value)) return MANGA_PAGE_ZOOM_DEFAULT
+    return Math.min(MANGA_PAGE_ZOOM_MAX, Math.max(MANGA_PAGE_ZOOM_MIN, Number(value.toFixed(2))))
+}
+
+export function useMangaPageZoomControls() {
+    const [pageZoom, setPageZoom] = useAtom(__manga_pageZoomAtom)
+    const setFlashAction = useSetAtom(manga_doFlashAction)
+
+    const setZoom = React.useCallback((value: number | ((previous: number) => number), flash = true) => {
+        setPageZoom(previous => {
+            const nextValue = typeof value === "function" ? value(previous) : value
+            const clamped = clampMangaPageZoom(nextValue)
+            if (flash && clamped !== previous) {
+                setFlashAction({ message: `Zoom: ${Math.round(clamped * 100)}%` })
+            }
+            return clamped
+        })
+    }, [setFlashAction, setPageZoom])
+
+    const zoomIn = React.useCallback(() => {
+        setZoom(previous => previous + MANGA_PAGE_ZOOM_STEP)
+    }, [setZoom])
+
+    const zoomOut = React.useCallback(() => {
+        setZoom(previous => previous - MANGA_PAGE_ZOOM_STEP)
+    }, [setZoom])
+
+    const resetZoom = React.useCallback(() => {
+        setZoom(MANGA_PAGE_ZOOM_DEFAULT)
+    }, [setZoom])
+
+    return {
+        pageZoom,
+        setZoom,
+        zoomIn,
+        zoomOut,
+        resetZoom,
+    }
+}
+
+export function useMangaReaderZoomWheel(containerRef: React.RefObject<HTMLElement | null>) {
+    const { pageZoom, setZoom } = useMangaPageZoomControls()
+
+    const mousePositionRef = React.useRef({ x: 0, y: 0 })
+    const zoomAdjustmentRef = React.useRef<{
+        oldZoom: number
+        newZoom: number
+        cursorX: number
+        cursorY: number
+        mouseOnPageX: number
+        mouseOnPageY: number
+        pageIndex: string
+    } | null>(null)
+
+    React.useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            mousePositionRef.current = { x: e.clientX, y: e.clientY }
+        }
+        window.addEventListener("mousemove", handleMouseMove)
+        return () => window.removeEventListener("mousemove", handleMouseMove)
+    }, [])
+
+    React.useLayoutEffect(() => {
+        const adj = zoomAdjustmentRef.current
+        if (!adj) return
+        zoomAdjustmentRef.current = null
+
+        const container = containerRef.current
+        if (!container) return
+
+        const ratio = adj.newZoom / adj.oldZoom
+
+        if (adj.pageIndex) {
+            const containerDiv = document.getElementById(adj.pageIndex)
+            const pageDiv = containerDiv?.querySelector("img") as HTMLElement
+            if (pageDiv) {
+                const newPageRect = pageDiv.getBoundingClientRect()
+                const newContainerRect = container.getBoundingClientRect()
+                const newPageOffsetLeft = newPageRect.left - newContainerRect.left + container.scrollLeft
+                const newPageOffsetTop = newPageRect.top - newContainerRect.top + container.scrollTop
+
+                const newScrollLeft = newPageOffsetLeft + (adj.mouseOnPageX * ratio) - adj.cursorX
+                const newScrollTop = newPageOffsetTop + (adj.mouseOnPageY * ratio) - adj.cursorY
+
+                container.scrollTo({
+                    left: newScrollLeft,
+                    top: newScrollTop,
+                    behavior: "instant" as any,
+                })
+                return
+            }
+        }
+
+        // Fallback zoom calculation if page element is not resolved
+        const scrollLeftBefore = (container.scrollLeft + adj.cursorX) * ratio - adj.cursorX
+        const scrollTopBefore = (container.scrollTop + adj.cursorY) * ratio - adj.cursorY
+
+        container.scrollTo({
+            left: scrollLeftBefore,
+            top: scrollTopBefore,
+            behavior: "instant" as any,
+        })
+    }, [pageZoom])
+
+    const performZoom = React.useCallback((targetZoomValue: number) => {
+        const container = containerRef.current
+        if (!container) return
+
+        const oldZoom = pageZoom
+        const newZoom = clampMangaPageZoom(targetZoomValue)
+        if (oldZoom === newZoom) return
+
+        const containerRect = container.getBoundingClientRect()
+        const clientX = mousePositionRef.current.x || (containerRect.left + containerRect.width / 2)
+        const clientY = mousePositionRef.current.y || (containerRect.top + containerRect.height / 2)
+
+        const cursorX = clientX - containerRect.left
+        const cursorY = clientY - containerRect.top
+
+        // Find the page div element under the cursor to compute layout-independent coordinates
+        const hoveredElement = document.elementFromPoint(clientX, clientY)
+        const containerDiv = hoveredElement?.closest("[data-chapter-page-container]") as HTMLElement || container.querySelector(
+            "[data-chapter-page-container]") as HTMLElement
+        const pageDiv = containerDiv?.querySelector("img") as HTMLElement
+
+        if (pageDiv && containerDiv) {
+            const pageRect = pageDiv.getBoundingClientRect()
+            const mouseOnPageX = clientX - pageRect.left
+            const mouseOnPageY = clientY - pageRect.top
+
+            zoomAdjustmentRef.current = {
+                oldZoom,
+                newZoom,
+                cursorX,
+                cursorY,
+                mouseOnPageX,
+                mouseOnPageY,
+                pageIndex: containerDiv.id,
+            }
+        } else {
+            zoomAdjustmentRef.current = {
+                oldZoom,
+                newZoom,
+                cursorX,
+                cursorY,
+                mouseOnPageX: cursorX,
+                mouseOnPageY: cursorY,
+                pageIndex: "",
+            }
+        }
+
+        // Set the state
+        setZoom(newZoom, true)
+    }, [pageZoom, setZoom, containerRef])
+
+    // Cursor style and drag-to-pan handler
+    React.useEffect(() => {
+        const container = containerRef.current
+        if (!container) return
+
+        let isDragging = false
+        let startX = 0
+        let startY = 0
+        let startScrollLeft = 0
+        let startScrollTop = 0
+        let hasMoved = false
+
+        if (pageZoom > 1) {
+            container.style.cursor = "grab"
+        } else {
+            container.style.cursor = ""
+        }
+
+        const handleMouseDown = (e: MouseEvent) => {
+            if (pageZoom <= 1) return
+            if (e.button !== 0) return // Left click only
+
+            const target = e.target as HTMLElement
+            if (target.closest("button") || target.closest("input") || target.closest("select") || target.closest("a")) {
+                return
+            }
+
+            isDragging = true
+            startX = e.clientX
+            startY = e.clientY
+            startScrollLeft = container.scrollLeft
+            startScrollTop = container.scrollTop
+            hasMoved = false
+        }
+
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isDragging) return
+
+            const dx = e.clientX - startX
+            const dy = e.clientY - startY
+
+            if (!hasMoved && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+                hasMoved = true
+            }
+
+            if (hasMoved) {
+                e.preventDefault()
+                container.scrollLeft = startScrollLeft - dx
+                container.scrollTop = startScrollTop - dy
+                container.style.cursor = "grabbing"
+            }
+        }
+
+        const handleMouseUpOrLeave = () => {
+            if (!isDragging) return
+            isDragging = false
+            container.style.cursor = pageZoom > 1 ? "grab" : ""
+        }
+
+        const handleCaptureClick = (e: MouseEvent) => {
+            if (hasMoved) {
+                e.stopPropagation()
+                e.preventDefault()
+                hasMoved = false
+            }
+        }
+
+        container.addEventListener("mousedown", handleMouseDown)
+        window.addEventListener("mousemove", handleMouseMove)
+        window.addEventListener("mouseup", handleMouseUpOrLeave)
+        container.addEventListener("mouseleave", handleMouseUpOrLeave)
+        container.addEventListener("click", handleCaptureClick, { capture: true })
+
+        return () => {
+            container.style.cursor = ""
+            container.removeEventListener("mousedown", handleMouseDown)
+            window.removeEventListener("mousemove", handleMouseMove)
+            window.removeEventListener("mouseup", handleMouseUpOrLeave)
+            container.removeEventListener("mouseleave", handleMouseUpOrLeave)
+            container.removeEventListener("click", handleCaptureClick, { capture: true })
+        }
+    }, [containerRef, pageZoom])
+
+    React.useEffect(() => {
+        const container = containerRef.current
+        if (!container) return
+
+        const handleWheel = (event: WheelEvent) => {
+            if (!event.ctrlKey && !event.metaKey) return
+            event.preventDefault()
+
+            const step = MANGA_PAGE_ZOOM_STEP
+            const targetZoom = event.deltaY < 0 ? pageZoom + step : pageZoom - step
+            performZoom(targetZoom)
+        }
+
+        container.addEventListener("wheel", handleWheel, { passive: false })
+        return () => container.removeEventListener("wheel", handleWheel)
+    }, [containerRef, pageZoom, performZoom])
+
+    React.useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const isCtrlOrMeta = event.ctrlKey || event.metaKey
+            if (!isCtrlOrMeta) return
+
+            const activeEl = document.activeElement
+            if (
+                activeEl &&
+                (activeEl.tagName === "INPUT" ||
+                    activeEl.tagName === "TEXTAREA" ||
+                    activeEl.getAttribute("contenteditable") === "true")
+            ) {
+                return
+            }
+
+            if (event.key === "=" || event.key === "+") {
+                event.preventDefault()
+                event.stopPropagation()
+                performZoom(pageZoom + MANGA_PAGE_ZOOM_STEP)
+            } else if (event.key === "-") {
+                event.preventDefault()
+                event.stopPropagation()
+                performZoom(pageZoom - MANGA_PAGE_ZOOM_STEP)
+            } else if (event.key === "0") {
+                event.preventDefault()
+                event.stopPropagation()
+                performZoom(MANGA_PAGE_ZOOM_DEFAULT)
+            }
+        }
+
+        // Capture phase keydown listener on window to override browser-level zoom shortcuts
+        window.addEventListener("keydown", handleKeyDown, { capture: true })
+        return () => window.removeEventListener("keydown", handleKeyDown, { capture: true })
+    }, [pageZoom, performZoom])
+}
+
 export function useSwitchSettingsWithKeys() {
     const [readingMode, setReadingMode] = useAtom(__manga_readingModeAtom)
     const [readingDirection, setReadingDirection] = useAtom(__manga_readingDirectionAtom)
@@ -462,4 +759,3 @@ function getRecurringNumber(arr: number[]): number | undefined {
 
     return highestNumber
 }
-
