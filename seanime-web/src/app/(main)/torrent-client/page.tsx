@@ -17,7 +17,9 @@ import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuSeparat
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { Pagination, PaginationEllipsis, PaginationItem, PaginationTrigger } from "@/components/ui/pagination"
 import { Popover } from "@/components/ui/popover"
+import { Select } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
@@ -85,6 +87,81 @@ function formatSpeed(value: number) {
     const index = Math.min(Math.floor(Math.log(value) / Math.log(1024)), units.length - 1)
     if (index < 0) return "0 B/s"
     return `${(value / Math.pow(1024, index)).toFixed(index > 1 ? 1 : 0)} ${units[index]}`
+}
+
+function truncatePath(path: string, maxLength = 35) {
+    if (!path) return ""
+    let cleanPath = path
+    if ((cleanPath.endsWith("/") && cleanPath.length > 1) || (cleanPath.endsWith("\\") && cleanPath.length > 1)) {
+        cleanPath = cleanPath.slice(0, -1)
+    }
+    if (cleanPath.length <= maxLength) return path
+
+    const separator = cleanPath.includes("\\") ? "\\" : "/"
+    const parts = cleanPath.split(separator)
+
+    if (parts.length <= 3) {
+        const half = Math.floor(maxLength / 2) - 2
+        return cleanPath.substring(0, half) + "..." + cleanPath.substring(cleanPath.length - half)
+    }
+
+    const firstFolder = parts[0] === "" ? parts[1] : parts[0]
+    const prefix = (parts[0] === "" ? separator : "") + firstFolder
+    const last = parts[parts.length - 1]
+
+    let rightSide = last
+    let idx = parts.length - 2
+    const startIdx = parts[0] === "" ? 2 : 1
+
+    while (idx >= startIdx) {
+        const nextRight = parts[idx] + separator + rightSide
+        const combined = prefix + separator + "..." + separator + nextRight
+        if (combined.length <= maxLength) {
+            rightSide = nextRight
+            idx--
+        } else {
+            break
+        }
+    }
+
+    return prefix + separator + "..." + separator + rightSide
+}
+
+function getVisiblePages(currentPage: number, totalPages: number) {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisiblePages = 5
+
+    if (totalPages <= maxVisiblePages) {
+        for (let i = 1; i <= totalPages; i++) {
+            pages.push(i)
+        }
+    } else {
+        pages.push(1)
+
+        if (currentPage <= 3) {
+            for (let i = 2; i <= 4; i++) {
+                pages.push(i)
+            }
+            if (totalPages > 4) {
+                pages.push("ellipsis")
+                pages.push(totalPages)
+            }
+        } else if (currentPage >= totalPages - 2) {
+            pages.push("ellipsis")
+            for (let i = totalPages - 3; i <= totalPages; i++) {
+                if (i > 1) pages.push(i)
+            }
+        } else {
+            pages.push("ellipsis")
+            pages.push(currentPage - 1)
+            pages.push(currentPage)
+            pages.push(currentPage + 1)
+            pages.push("ellipsis")
+            pages.push(totalPages)
+        }
+    }
+
+    return pages
 }
 
 const filters: Array<{ value: StatusFilter, label: string, icon: React.ReactNode }> = [
@@ -169,6 +246,25 @@ function Dashboard() {
         }
     }), [torrents, filter, search])
 
+    const [currentPage, setCurrentPage] = React.useState(1)
+    const [pageSize, setPageSize] = React.useState(50)
+
+    React.useEffect(() => {
+        setCurrentPage(1)
+    }, [search, filter])
+
+    const totalPages = Math.ceil(visible.length / pageSize)
+
+    React.useEffect(() => {
+        if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(totalPages)
+        }
+    }, [currentPage, totalPages])
+
+    const paginatedVisible = React.useMemo(() => {
+        return visible.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    }, [visible, currentPage, pageSize])
+
     React.useEffect(() => {
         setSelected(prev => {
             const next = new Set([...prev].filter(hash => torrents.some(torrent => torrent.hash === hash)))
@@ -185,7 +281,7 @@ function Dashboard() {
     const { mutate: openInExplorer } = useOpenInExplorer()
     const action = useTorrentClientAction((variables) => {
         list.refetch()
-        if (inspectorHash) {
+        if (inspectorHash && variables?.action !== "remove") {
             details.refetch()
         }
         if (variables?.action === "set-limits") {
@@ -218,11 +314,13 @@ function Dashboard() {
                 <Button leftIcon={<LuMagnet />} intent="white" onClick={() => setAddOpen(true)}>Add torrent</Button>
                 <Button
                     intent="gray-outline"
+                    className="border-gray-600 text-gray-200 hover:border-gray-500 hover:text-white"
                     disabled={torrents.length === 0 || torrents.every(t => t.status === "paused" || t.status === "stopped") || action.isPending}
                     onClick={() => perform({ action: "pause-all" })}
                 >Pause all</Button>
                 <Button
                     intent="gray-outline"
+                    className="border-gray-600 text-gray-200 hover:border-gray-500 hover:text-white"
                     disabled={torrents.length === 0 || !torrents.some(t => t.status === "paused" || t.status === "stopped") || action.isPending}
                     onClick={() => perform({ action: "resume-all" })}
                 >Resume all</Button>
@@ -236,8 +334,10 @@ function Dashboard() {
                     return <button
                         key={item.value}
                         className={cn(
-                            "group/filter flex min-w-max items-center gap-2.5 text-sm text-[--muted] transition-colors hover:text-[--foreground] pb-3 px-1 border-b-2 border-transparent xl:pb-2 xl:px-3.5 xl:py-2 xl:border-b-0 xl:rounded-lg xl:w-full xl:justify-between xl:hover:bg-[--subtle]",
-                            filter === item.value ? "border-[--brand] text-[--foreground] xl:bg-[--subtle] xl:border-b-0" : "xl:hover:bg-[--subtle]",
+                            "group/filter flex min-w-max items-center gap-2.5 text-sm text-[--muted] transition-colors hover:text-[--foreground] pb-3 px-1 border-b-2 border-transparent xl:pb-2 xl:pl-3 xl:pr-3.5 xl:py-2 xl:border-b-0 xl:border-l-2 xl:border-transparent xl:rounded-r-lg xl:rounded-l-none xl:w-full xl:justify-between xl:hover:bg-[--subtle]",
+                            filter === item.value
+                                ? "border-[--brand] text-[--foreground] xl:bg-gray-800/80 xl:border-b-0 xl:border-l-[--brand] xl:text-white"
+                                : "xl:hover:bg-[--subtle]",
                         )}
                         onClick={() => setFilter(item.value)}
                     >
@@ -262,126 +362,147 @@ function Dashboard() {
                 <Card className="p-0 overflow-hidden flex flex-col border border-[--border]">
                     <div className="p-2 sm:p-3 border-b border-[--border] bg-gray-950/20 w-full">
                         <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between w-full">
-                            <div className="flex flex-wrap lg:flex-nowrap gap-1 items-center flex-shrink-0">
-                                <Tooltip
-                                    trigger={<IconButton
-                                        icon={<BiPlay />}
-                                        intent="gray-subtle"
-                                        disabled={!selected.size || !selectedTorrents.some(t => t.status === "paused" || t.status === "stopped") || action.isPending}
-                                        onClick={() => performSelected("resume")}
-                                    />}
-                                >
-                                    Resume
-                                </Tooltip>
-                                <Tooltip
-                                    trigger={<IconButton
-                                        icon={<BiPause />}
-                                        intent="gray-subtle"
-                                        disabled={!selected.size || selectedTorrents.every(t => t.status === "paused" || t.status === "stopped") || action.isPending}
-                                        onClick={() => performSelected("pause")}
-                                    />}
-                                >
-                                    Pause
-                                </Tooltip>
-                                <Tooltip
-                                    trigger={<IconButton
-                                        icon={<BiTrash />}
-                                        intent="alert-subtle"
-                                        disabled={!selected.size || action.isPending}
-                                        onClick={() => removeDialog.open()}
-                                    />}
-                                >
-                                    Remove
-                                </Tooltip>
-                                <span className="mx-1 h-6 w-px bg-[--border]" />
-                                <Tooltip
-                                    trigger={<IconButton
-                                        icon={<FiChevronUp />}
-                                        intent="gray-subtle"
-                                        disabled={!single || torrents.length <= 1 || single.queueIndex === 0 || action.isPending}
-                                        onClick={() => single && perform({ hash: single.hash, action: "queue-up" })}
-                                    />}
-                                >
-                                    Move up
-                                </Tooltip>
-                                <Tooltip
-                                    trigger={<IconButton
-                                        icon={<FiChevronDown />}
-                                        intent="gray-subtle"
-                                        disabled={!single || torrents.length <= 1 || single.queueIndex === torrents.length - 1 || action.isPending}
-                                        onClick={() => single && perform({ hash: single.hash, action: "queue-down" })}
-                                    />}
-                                >
-                                    Move down
-                                </Tooltip>
-                                <Tooltip
-                                    trigger={<IconButton
-                                        icon={<LuZap />}
-                                        intent={selectedTorrents.some(t => t.forceStart) ? "primary-subtle" : "gray-subtle"}
-                                        disabled={!selected.size || selectedTorrents.every(t => t.progress === 1) || action.isPending}
-                                        onClick={() => performSelected("force-start",
-                                            !selectedTorrents.every(t => t.forceStart))}
-                                    />}
-                                >
-                                    Force start
-                                </Tooltip>
-                                <Tooltip
-                                    trigger={<IconButton
-                                        icon={<BiFolder />}
-                                        intent="gray-subtle"
-                                        disabled={!single || single.size === "0 B" || action.isPending}
-                                        onClick={() => {
-                                            if (!single) return
-                                            setMoveDestination(single.contentPath)
-                                            setMoveOpen(true)
-                                        }}
-                                    />}
-                                >
-                                    Change save path
-                                </Tooltip>
-                                <Tooltip
-                                    trigger={<IconButton
-                                        icon={<BiRefresh />}
-                                        intent="gray-subtle"
-                                        disabled={!selected.size || selectedTorrents.every(t => t.size === "0 B") || action.isPending}
-                                        onClick={() => performSelected("recheck")}
-                                    />}
-                                >
-                                    Recheck
-                                </Tooltip>
-                                <Tooltip
-                                    trigger={<IconButton
-                                        icon={<LuRadioTower />}
-                                        intent="gray-subtle"
-                                        disabled={!selected.size || action.isPending}
-                                        onClick={() => performSelected("reannounce")}
-                                    />}
-                                >
-                                    Reannounce
-                                </Tooltip>
-                                <Popover
-                                    open={limitsOpen}
-                                    onOpenChange={setLimitsOpen}
-                                    trigger={
-                                        <div>
-                                            <Tooltip trigger={<IconButton icon={<LuGauge />} intent="gray-subtle" />}>
-                                                Speed limits
-                                            </Tooltip>
-                                        </div>
-                                    }
-                                    className="w-72 space-y-3 p-4"
-                                >
-                                    <p>Global speed limits</p>
-                                    <TextInput label="Download (KB/s)" value={downloadLimit} onValueChange={setDownloadLimit} inputMode="numeric" />
-                                    <TextInput label="Upload (KB/s)" value={uploadLimit} onValueChange={setUploadLimit} inputMode="numeric" />
-                                    <Button
-                                        size="sm" intent="white" className="w-full" disabled={action.isPending} onClick={() => perform({
-                                        action: "set-limits",
-                                        downloadLimit: Number(downloadLimit) || 0,
-                                        uploadLimit: Number(uploadLimit) || 0,
-                                    })}
-                                    >Apply limits</Button>
-                                </Popover>
+                            <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+                                <div className="flex items-center gap-1">
+                                    <Tooltip
+                                        trigger={<IconButton
+                                            icon={<BiPlay />}
+                                            intent="gray-subtle"
+                                            disabled={!selected.size || !selectedTorrents.some(t => t.status === "paused" || t.status === "stopped") || action.isPending}
+                                            onClick={() => performSelected("resume")}
+                                        />}
+                                    >
+                                        Resume
+                                    </Tooltip>
+                                    <Tooltip
+                                        trigger={<IconButton
+                                            icon={<BiPause />}
+                                            intent="gray-subtle"
+                                            disabled={!selected.size || selectedTorrents.every(t => t.status === "paused" || t.status === "stopped") || action.isPending}
+                                            onClick={() => performSelected("pause")}
+                                        />}
+                                    >
+                                        Pause
+                                    </Tooltip>
+                                </div>
+
+                                <span className="mx-1 h-5 w-px bg-[--border]" />
+
+                                <div className="flex items-center gap-1">
+                                    <Tooltip
+                                        trigger={<IconButton
+                                            icon={<FiChevronUp />}
+                                            intent="gray-subtle"
+                                            disabled={!single || torrents.length <= 1 || single.queueIndex === 0 || action.isPending}
+                                            onClick={() => single && perform({ hash: single.hash, action: "queue-up" })}
+                                        />}
+                                    >
+                                        Move up
+                                    </Tooltip>
+                                    <Tooltip
+                                        trigger={<IconButton
+                                            icon={<FiChevronDown />}
+                                            intent="gray-subtle"
+                                            disabled={!single || torrents.length <= 1 || single.queueIndex === torrents.length - 1 || action.isPending}
+                                            onClick={() => single && perform({ hash: single.hash, action: "queue-down" })}
+                                        />}
+                                    >
+                                        Move down
+                                    </Tooltip>
+                                </div>
+
+                                <span className="mx-1 h-5 w-px bg-[--border]" />
+
+                                <div className="flex items-center gap-1">
+                                    <Tooltip
+                                        trigger={<IconButton
+                                            icon={<LuZap />}
+                                            intent={selectedTorrents.some(t => t.forceStart) ? "primary-subtle" : "gray-subtle"}
+                                            disabled={!selected.size || selectedTorrents.every(t => t.progress === 1) || action.isPending}
+                                            onClick={() => performSelected("force-start",
+                                                !selectedTorrents.every(t => t.forceStart))}
+                                        />}
+                                    >
+                                        Force start
+                                    </Tooltip>
+                                    <Tooltip
+                                        trigger={<IconButton
+                                            icon={<BiFolder />}
+                                            intent="gray-subtle"
+                                            disabled={!single || single.size === "0 B" || action.isPending}
+                                            onClick={() => {
+                                                if (!single) return
+                                                setMoveDestination(single.contentPath)
+                                                setMoveOpen(true)
+                                            }}
+                                        />}
+                                    >
+                                        Change save path
+                                    </Tooltip>
+                                    <Tooltip
+                                        trigger={<IconButton
+                                            icon={<BiRefresh />}
+                                            intent="gray-subtle"
+                                            disabled={!selected.size || selectedTorrents.every(t => t.size === "0 B") || action.isPending}
+                                            onClick={() => performSelected("recheck")}
+                                        />}
+                                    >
+                                        Recheck
+                                    </Tooltip>
+                                    <Tooltip
+                                        trigger={<IconButton
+                                            icon={<LuRadioTower />}
+                                            intent="gray-subtle"
+                                            disabled={!selected.size || action.isPending}
+                                            onClick={() => performSelected("reannounce")}
+                                        />}
+                                    >
+                                        Reannounce
+                                    </Tooltip>
+                                    <Popover
+                                        open={limitsOpen}
+                                        onOpenChange={setLimitsOpen}
+                                        trigger={
+                                            <div>
+                                                <Tooltip trigger={<IconButton icon={<LuGauge />} intent="gray-subtle" />}>
+                                                    Speed limits
+                                                </Tooltip>
+                                            </div>
+                                        }
+                                        className="w-72 space-y-3 p-4"
+                                    >
+                                        <p>Global speed limits</p>
+                                        <TextInput
+                                            label="Download (KB/s)"
+                                            value={downloadLimit}
+                                            onValueChange={setDownloadLimit}
+                                            inputMode="numeric"
+                                        />
+                                        <TextInput label="Upload (KB/s)" value={uploadLimit} onValueChange={setUploadLimit} inputMode="numeric" />
+                                        <Button
+                                            size="sm" intent="white" className="w-full" disabled={action.isPending} onClick={() => perform({
+                                            action: "set-limits",
+                                            downloadLimit: Number(downloadLimit) || 0,
+                                            uploadLimit: Number(uploadLimit) || 0,
+                                        })}
+                                        >Apply limits</Button>
+                                    </Popover>
+                                </div>
+
+                                <span className="mx-1 h-5 w-px bg-[--border]" />
+
+                                <div className="flex items-center gap-1">
+                                    <Tooltip
+                                        trigger={<IconButton
+                                            icon={<BiTrash />}
+                                            intent="alert-subtle"
+                                            disabled={!selected.size || action.isPending}
+                                            onClick={() => removeDialog.open()}
+                                        />}
+                                    >
+                                        Remove
+                                    </Tooltip>
+                                </div>
                             </div>
 
                             <div className="flex-1 flex"></div>
@@ -432,7 +553,7 @@ function Dashboard() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {visible.map(torrent => (
+                            {paginatedVisible.map(torrent => (
                                 <SeaContextMenu
                                     key={torrent.hash}
                                     content={
@@ -558,6 +679,57 @@ function Dashboard() {
                         </TableBody>
                     </Table>
                     {!visible.length && <div className="py-16 text-center text-[--muted]">No torrents match this view.</div>}
+
+                    {totalPages > 1 && (
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-[--border] bg-gray-950/10">
+                            <div className="flex items-center gap-2">
+                                <Select
+                                    value={String(pageSize)}
+                                    onValueChange={v => {
+                                        setPageSize(Number(v))
+                                        setCurrentPage(1)
+                                    }}
+                                    options={[
+                                        { value: "20", label: "20 per page" },
+                                        { value: "50", label: "50 per page" },
+                                        { value: "100", label: "100 per page" },
+                                        { value: "200", label: "200 per page" },
+                                    ]}
+                                    size="sm"
+                                    fieldClass="w-36"
+                                    className="w-36"
+                                />
+                                <span className="text-xs text-[--muted]">
+                                    Showing {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, visible.length)} of {visible.length}
+                                </span>
+                            </div>
+
+                            <Pagination>
+                                <PaginationTrigger
+                                    direction="previous"
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    isDisabled={currentPage <= 1}
+                                />
+                                {getVisiblePages(currentPage, totalPages).map((page, index) => (
+                                    page === "ellipsis" ? (
+                                        <PaginationEllipsis key={`ellipsis-${index}`} />
+                                    ) : (
+                                        <PaginationItem
+                                            key={page}
+                                            value={page}
+                                            onClick={() => setCurrentPage(page as number)}
+                                            data-selected={page === currentPage}
+                                        />
+                                    )
+                                ))}
+                                <PaginationTrigger
+                                    direction="next"
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    isDisabled={currentPage >= totalPages}
+                                />
+                            </Pagination>
+                        </div>
+                    )}
                 </Card>
 
                 {inspectorHash && <Inspector
@@ -684,21 +856,36 @@ const TorrentRow = React.forwardRef<HTMLTableRowElement, {
                     <div
                         className={cn("h-full bg-[--brand]",
                             torrent.status === "seeding" && "bg-blue-400",
-                            torrent.status === "paused" && "bg-gray-500")} style={{ width: `${Math.max(0, Math.min(100, torrent.progress * 100))}%` }}
+                            torrent.status === "paused" && "bg-gray-500",
+                            torrent.status === "error" && "bg-red-500")} style={{ width: `${Math.max(0, Math.min(100, torrent.progress * 100))}%` }}
                     />
                 </div>
-                <div className="mt-1 text-xs text-[--muted]">{(torrent.progress * 100).toFixed(1)}% · {torrent.contentPath}</div>
+                <div className="mt-1 text-xs text-[--muted] flex items-center gap-1">
+                    <span>{(torrent.progress * 100).toFixed(1)}%</span>
+                    <span>·</span>
+                    {torrent.error ? (
+                        <span className="text-red-400 font-medium" title={torrent.error}>
+                            {torrent.error}
+                        </span>
+                    ) : (
+                        <span title={torrent.contentPath} className="cursor-help hover:text-[--foreground] transition-colors">
+                            {truncatePath(torrent.contentPath, 35)}
+                        </span>
+                    )}
+                </div>
             </div>
         </TableCell>
         <TableCell><Status status={torrent.status} forceStart={torrent.forceStart} /></TableCell>
-        <TableCell className="text-right whitespace-nowrap">{torrent.size}</TableCell>
-        <TableCell className="text-right">{torrent.seeds} / {torrent.peers}</TableCell>
+        <TableCell className="text-right whitespace-nowrap tabular-nums">{torrent.size}</TableCell>
+        <TableCell className="text-right whitespace-nowrap tabular-nums">{torrent.seeds} / {torrent.peers}</TableCell>
         <TableCell className="text-right whitespace-nowrap tabular-nums">{torrent.downSpeed}</TableCell>
         <TableCell className="text-right whitespace-nowrap tabular-nums">{torrent.upSpeed}</TableCell>
-        <TableCell className="text-right tabular-nums whitespace-nowrap">{torrent.eta}</TableCell>
-        <TableCell className="text-right tabular-nums">{torrent.ratio.toFixed(2)}</TableCell>
+        <TableCell className="text-right whitespace-nowrap tabular-nums">{torrent.eta}</TableCell>
+        <TableCell className="text-right whitespace-nowrap tabular-nums">{torrent.ratio.toFixed(2)}</TableCell>
         <TableCell className="whitespace-nowrap">{torrent.addedAt ? new Date(torrent.addedAt).toLocaleString() : "Unknown"}</TableCell>
-        <TableCell className="max-w-80 truncate" title={torrent.contentPath}>{torrent.contentPath}</TableCell>
+        <TableCell className="max-w-80 truncate cursor-help hover:text-[--foreground] transition-colors" title={torrent.contentPath}>
+            {truncatePath(torrent.contentPath, 45)}
+        </TableCell>
     </TableRow>
 })
 TorrentRow.displayName = "TorrentRow"
@@ -761,11 +948,13 @@ function Inspector(props: {
             </TabsContent>
             <TabsContent value="files" className="p-0">
                 <Table>
-                    <TableHeader><TableRow><TableHead>File</TableHead><TableHead>Progress</TableHead><TableHead>Size</TableHead><TableHead>Priority</TableHead></TableRow></TableHeader>
+                    <TableHeader><TableRow><TableHead>File</TableHead><TableHead className="text-right whitespace-nowrap">Progress</TableHead><TableHead
+                        className="text-right whitespace-nowrap"
+                    >Size</TableHead><TableHead>Priority</TableHead></TableRow></TableHeader>
                     <TableBody>{details?.files?.map(file => <TableRow key={file.index}>
                         <TableCell className="max-w-xl break-all">{file.path}</TableCell>
-                        <TableCell>{(file.progress * 100).toFixed(1)}%</TableCell>
-                        <TableCell>{formatBytes(file.length)}</TableCell>
+                        <TableCell className="text-right whitespace-nowrap tabular-nums">{(file.progress * 100).toFixed(1)}%</TableCell>
+                        <TableCell className="text-right whitespace-nowrap tabular-nums">{formatBytes(file.length)}</TableCell>
                         <TableCell>
                             <div className="flex gap-1">
                                 {[0, 1, 2].map(priority => (
@@ -839,6 +1028,7 @@ function Status({ status, forceStart }: { status: TorrentClient_TorrentStatus, f
             status === "seeding" && "bg-blue-500/15 text-blue-300",
             status === "paused" && "bg-gray-500/20 text-gray-300",
             status === "queued" && "bg-orange-500/15 text-orange-200",
+            status === "error" && "bg-red-500/15 text-red-300",
         )}
     >{forceStart ? "Forced" : status}</span>
 }
@@ -846,7 +1036,7 @@ function Status({ status, forceStart }: { status: TorrentClient_TorrentStatus, f
 function matchesFilter(status: TorrentClient_TorrentStatus, filter: StatusFilter) {
     if (filter === "all") return true
     if (filter === "active") return status === "downloading" || status === "seeding"
-    if (filter === "inactive") return status === "paused" || status === "queued"
+    if (filter === "inactive") return status === "paused" || status === "queued" || status === "error"
     return status === filter
 }
 

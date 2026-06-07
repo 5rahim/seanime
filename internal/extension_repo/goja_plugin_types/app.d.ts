@@ -4082,6 +4082,7 @@ declare namespace $app {
         queueIndex: number;
         forceStart: boolean;
         sequential: boolean;
+        error: string;
     }
 
     /**
@@ -4092,7 +4093,8 @@ declare namespace $app {
         "paused" |
         "other" |
         "stopped" |
-        "queued";
+        "queued" |
+        "error";
 
     /**
      * - Filepath: internal/torrents/torrent/search.go

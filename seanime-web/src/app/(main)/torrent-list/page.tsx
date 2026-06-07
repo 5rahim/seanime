@@ -241,6 +241,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
             "hover:bg-gray-900 hover:bg-opacity-70 px-4 py-3 relative flex gap-4 group/torrent-item",
             torrent.status === "paused" && "bg-gray-900 hover:bg-gray-900",
             torrent.status === "downloading" && "bg-green-900 bg-opacity-20 hover:hover:bg-opacity-30 hover:bg-green-900",
+            torrent.status === "error" && "bg-red-900 bg-opacity-20 hover:hover:bg-opacity-30 hover:bg-red-900",
         )}
         >
             <div data-torrent-item-title-container className="w-full">
@@ -258,26 +259,31 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     }}
                 >{torrent.name}</div>
                 <div data-torrent-item-info className="text-[--muted]">
-                    <span className={cn({ "text-green-300": torrent.status === "downloading" })}>{progress}</span>
-                    {` `}
-                    <BiDownArrow className="inline-block mx-2" />
-                    {torrent.downSpeed}
-                    {` `}
-                    <BiUpArrow className="inline-block mx-2" />
-                    {torrent.upSpeed}
-                    {torrent.status !== "seeding" && <>
-                        {` `}
-                        <BiTime className="inline-block mx-2 mb-0.5" />
-                        {torrent.eta}
-                    </>}
-                    {` - `}
-                    <span>{torrent.seeds} {torrent.seeds !== 1 ? "seeds" : "seed"}</span>
-                    {/*{` - `}*/}
-                    {/*<span>{torrent.peers} {torrent.peers !== 1 ? "peers" : "peer"}</span>*/}
+                    {torrent.error ? (
+                        <span className="text-red-400 font-medium" title={torrent.error}>{torrent.error}</span>
+                    ) : (
+                        <>
+                            <span className={cn({ "text-green-300": torrent.status === "downloading" })}>{progress}</span>
+                            {` `}
+                            <BiDownArrow className="inline-block mx-2" />
+                            {torrent.downSpeed}
+                            {` `}
+                            <BiUpArrow className="inline-block mx-2" />
+                            {torrent.upSpeed}
+                            {torrent.status !== "seeding" && <>
+                                {` `}
+                                <BiTime className="inline-block mx-2 mb-0.5" />
+                                {torrent.eta}
+                            </>}
+                            {` - `}
+                            <span>{torrent.seeds} {torrent.seeds !== 1 ? "seeds" : "seed"}</span>
+                        </>
+                    )}
                     {` - `}
                     <strong
                         className={cn({
                             "text-blue-300": torrent.status === "seeding",
+                            "text-red-400": torrent.status === "error",
                         }, "text-sm")}
                     >{capitalize(torrent.status)}</strong>
                 </div>
@@ -289,6 +295,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                                 {
                                     "bg-green-300": torrent.status === "downloading",
                                     "bg-gray-500": torrent.status === "paused",
+                                    "bg-red-500": torrent.status === "error",
                                 },
                             )}
                             style={{ width: `${String(Math.floor(torrent.progress * 100))}%` }}

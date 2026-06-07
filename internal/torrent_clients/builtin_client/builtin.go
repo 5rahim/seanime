@@ -70,6 +70,20 @@ type torrentEntry struct {
 	sequentialStart       int
 	filePriorities        map[int]int
 	storageCloser         io.Closer
+	writeError            error
+	writeErrorMu          sync.RWMutex
+}
+
+func (e *torrentEntry) getWriteError() error {
+	e.writeErrorMu.RLock()
+	defer e.writeErrorMu.RUnlock()
+	return e.writeError
+}
+
+func (e *torrentEntry) setWriteError(err error) {
+	e.writeErrorMu.Lock()
+	defer e.writeErrorMu.Unlock()
+	e.writeError = err
 }
 
 type TorrentSnapshot struct {
@@ -90,6 +104,7 @@ type TorrentSnapshot struct {
 	Downloaded  int64     `json:"downloaded"`
 	Uploaded    int64     `json:"uploaded"`
 	AddedAt     time.Time `json:"addedAt"`
+	Error       string    `json:"error"`
 }
 
 type TorrentDetails struct {
@@ -308,6 +323,21 @@ func (c *Client) AddMagnet(magnet, destination string) (*anacrolix.Torrent, erro
 }
 
 func (c *Client) addPersisted(item *models.LocalTorrent) (*anacrolix.Torrent, error) {
+	if item.Paused {
+		entry := &torrentEntry{
+			client: c, model: item, torrent: nil, lastSample: time.Now(), sequentialStart: -1,
+			filePriorities: make(map[int]int),
+			storageCloser:  nil,
+		}
+		if item.FilePriorities != "" {
+			_ = json.Unmarshal([]byte(item.FilePriorities), &entry.filePriorities)
+		}
+		c.mu.Lock()
+		c.torrents[item.Hash] = entry
+		c.mu.Unlock()
+		return nil, nil
+	}
+
 	spec, err := anacrolix.TorrentSpecFromMagnetUri(item.Magnet)
 	if err != nil {
 		return nil, fmt.Errorf("parse persisted magnet: %w", err)
@@ -319,7 +349,7 @@ func (c *Client) addPersisted(item *models.LocalTorrent) (*anacrolix.Torrent, er
 	})
 	spec.Storage = fc
 	spec.DisallowDataDownload = true
-	spec.DisallowDataUpload = item.Paused
+	spec.DisallowDataUpload = true
 	t, _, err := c.client.AddTorrentSpec(spec)
 	if err != nil {
 		fc.Close()
@@ -340,6 +370,12 @@ func (c *Client) addPersisted(item *models.LocalTorrent) (*anacrolix.Torrent, er
 		filePriorities: filePriorities,
 		storageCloser:  fc,
 	}
+	t.SetOnWriteChunkError(func(err error) {
+		if err != nil {
+			entry.setWriteError(err)
+			c.logger.Error().Err(err).Str("hash", item.Hash).Msg("builtin torrent: write chunk error")
+		}
+	})
 	c.mu.Lock()
 	c.torrents[item.Hash] = entry
 	c.mu.Unlock()
@@ -373,13 +409,15 @@ func (c *Client) RemoveTorrent(hash string, deleteFiles bool) error {
 		}
 	}
 	c.removeRuntime(hash)
-	deleteErr := removeTorrentFiles(paths, root)
+	if deleteErr := removeTorrentFiles(paths, root); deleteErr != nil {
+		c.logger.Warn().Err(deleteErr).Str("hash", hash).Msg("builtin torrent: some files or directories could not be removed from disk")
+	}
 	if err = c.database.DeleteLocalTorrent(hash); err != nil {
 		return err
 	}
 	c.compactQueue()
 	c.reconcileQueue()
-	return deleteErr
+	return nil
 }
 
 func (c *Client) removeRuntime(hash string) {
@@ -450,12 +488,53 @@ func (c *Client) setPaused(hash string, paused bool) error {
 		c.mu.Unlock()
 		return errors.New("torrent not found")
 	}
-	entry.model.Paused = paused
+
 	if paused {
+		entry.model.Paused = true
 		entry.model.ForceStart = false
+		t := entry.torrent
+		closer := entry.storageCloser
+		if t != nil {
+			entry.model.Length = t.Length()
+			entry.model.Completed = t.BytesCompleted()
+		}
+		entry.torrent = nil
+		entry.storageCloser = nil
+		c.mu.Unlock()
+		if t != nil {
+			t.Drop()
+		}
+		if closer != nil {
+			_ = closer.Close()
+		}
+	} else {
+		// Resume: Check directory existence first!
+		if _, err := os.Stat(entry.model.Destination); err != nil {
+			c.mu.Unlock()
+			if os.IsNotExist(err) || errors.Is(err, os.ErrNotExist) {
+				return fmt.Errorf("cannot resume: save directory not found (%s)", entry.model.Destination)
+			}
+			return fmt.Errorf("cannot resume: %w", err)
+		}
+
+		entry.model.Paused = false
+		entry.setWriteError(nil)
+		c.mu.Unlock()
+
+		_, err := c.addPersisted(entry.model)
+		if err != nil {
+			c.mu.Lock()
+			entry.model.Paused = true
+			c.mu.Unlock()
+			return err
+		}
 	}
-	c.mu.Unlock()
-	if err := c.database.UpdateLocalTorrent(hash, map[string]interface{}{"paused": paused, "force_start": entry.model.ForceStart}); err != nil {
+	if err := c.database.UpdateLocalTorrent(hash, map[string]interface{}{
+		"paused":      paused,
+		"force_start": entry.model.ForceStart,
+		"length":      entry.model.Length,
+		"completed":   entry.model.Completed,
+	}); err != nil {
 		return err
 	}
 	c.reconcileQueue()
@@ -559,10 +638,12 @@ func (c *Client) SetSequential(hash string, enabled bool) error {
 	if err := c.database.UpdateLocalTorrent(entry.model.Hash, map[string]interface{}{"sequential": enabled}); err != nil {
 		return err
 	}
-	if !enabled && entry.torrent.Info() != nil {
-		entry.torrent.DownloadAll()
+	if entry.torrent != nil {
+		if !enabled && entry.torrent.Info() != nil {
+			entry.torrent.DownloadAll()
+		}
+		c.reconcileQueue()
 	}
-	c.reconcileQueue()
 	return nil
 }
 
@@ -570,6 +651,19 @@ func (c *Client) SetFilePriority(hash string, index, priority int) error {
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return err
+	}
+	if entry.torrent == nil {
+		c.mu.Lock()
+		entry.filePriorities[index] = priority
+		encoded, err := json.Marshal(entry.filePriorities)
+		if err == nil {
+			entry.model.FilePriorities = string(encoded)
+		}
+		c.mu.Unlock()
+		if err != nil {
+			return err
+		}
+		return c.database.UpdateLocalTorrent(entry.model.Hash, map[string]interface{}{"file_priorities": entry.model.FilePriorities})
 	}
 	if entry.torrent.Info() == nil {
 		return errors.New("torrent metadata is not available")
@@ -602,6 +696,9 @@ func (c *Client) AddTracker(hash, tracker string) error {
 	if err != nil {
 		return err
 	}
+	if entry.torrent == nil {
+		return errors.New("torrent is paused")
+	}
 	tracker = strings.TrimSpace(tracker)
 	if tracker == "" {
 		return errors.New("tracker URL is required")
@@ -615,11 +712,14 @@ func (c *Client) RemoveTracker(hash, tracker string) error {
 	if err != nil {
 		return err
 	}
+	if entry.torrent == nil {
+		return errors.New("torrent is paused")
+	}
 	trackers := trackerList(entry.torrent)
 	filtered := make([][]string, 0, len(trackers))
-	for _, current := range trackers {
-		if current != tracker {
-			filtered = append(filtered, []string{current})
+	for _, t := range trackers {
+		if t != tracker {
+			filtered = append(filtered, []string{t})
 		}
 	}
 	entry.torrent.ModifyTrackers(filtered)
@@ -630,6 +730,9 @@ func (c *Client) ReannounceTorrent(hash string) error {
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return err
+	}
+	if entry.torrent == nil {
+		return errors.New("torrent is paused")
 	}
 	trackers := trackerList(entry.torrent)
 	tiers := make([][]string, 0, len(trackers))
@@ -646,9 +749,13 @@ func (c *Client) RecheckTorrent(hash string) error {
 	if err != nil {
 		return err
 	}
+	if entry.torrent == nil {
+		return errors.New("torrent is paused")
+	}
 	if entry.torrent.Info() == nil {
 		return errors.New("torrent metadata is not available")
 	}
+	entry.setWriteError(nil)
 	return entry.torrent.VerifyData()
 }
 
@@ -657,12 +764,12 @@ func (c *Client) RenameTorrent(hash, name string) error {
 	if err != nil {
 		return err
 	}
-	name = strings.TrimSpace(name)
-	if name == "" {
-		return errors.New("name is required")
-	}
+	c.mu.Lock()
 	entry.model.Name = name
-	entry.torrent.SetDisplayName(name)
+	if entry.torrent != nil {
+		entry.torrent.SetDisplayName(name)
+	}
+	c.mu.Unlock()
 	return c.database.UpdateLocalTorrent(entry.model.Hash, map[string]interface{}{"name": name})
 }
 
@@ -671,15 +778,24 @@ func (c *Client) MoveStorage(hash, newDestination string) error {
 	if err != nil {
 		return err
 	}
-	if entry.torrent.Info() == nil {
-		return errors.New("torrent metadata is not available")
-	}
 	newDestination = filepath.Clean(newDestination)
 	if newDestination == "" || newDestination == "." {
 		return errors.New("new destination is required")
 	}
 	if err := os.MkdirAll(newDestination, 0755); err != nil {
 		return err
+	}
+	if entry.torrent == nil {
+		c.mu.Lock()
+		entry.model.Destination = newDestination
+		c.mu.Unlock()
+		if err := c.database.UpdateLocalTorrent(entry.model.Hash, map[string]interface{}{"destination": newDestination}); err != nil {
+			return err
+		}
+		return nil
+	}
+	if entry.torrent.Info() == nil {
+		return errors.New("torrent metadata is not available")
 	}
 	wasPaused := entry.model.Paused
 	entry.torrent.DisallowDataDownload()
@@ -734,6 +850,9 @@ func (c *Client) GetTorrentDetails(hash string) (*TorrentDetails, error) {
 		return nil, err
 	}
 	details := &TorrentDetails{Torrent: c.snapshotEntry(entry)}
+	if entry.torrent == nil {
+		return details, nil
+	}
 	filePriorities := c.filePrioritiesSnapshot(entry)
 	if entry.torrent.Info() != nil {
 		for index, file := range entry.torrent.Files() {
@@ -798,7 +917,23 @@ func (c *Client) snapshotEntry(entry *torrentEntry) TorrentSnapshot {
 }
 
 func (c *Client) snapshotEntryA(entry *torrentEntry, allowed map[string]bool) TorrentSnapshot {
-	stats := entry.torrent.Stats()
+	var stats anacrolix.TorrentStats
+	length := entry.model.Length
+	completed := entry.model.Completed
+	if entry.torrent != nil {
+		stats = entry.torrent.Stats()
+		if entry.torrent.Info() != nil {
+			length = entry.torrent.Length()
+			completed = entry.torrent.BytesCompleted()
+
+			entry.model.Length = length
+			entry.model.Completed = completed
+		}
+	}
+	errStr := ""
+	if wErr := entry.getWriteError(); wErr != nil {
+		errStr = wErr.Error()
+	}
 	return TorrentSnapshot{
 		Name:        displayName(entry),
 		Hash:        entry.model.Hash,
@@ -808,8 +943,8 @@ func (c *Client) snapshotEntryA(entry *torrentEntry, allowed map[string]bool) To
 		ForceStart:  entry.model.ForceStart,
 		Sequential:  entry.model.Sequential,
 		QueueIndex:  entry.model.QueueIndex,
-		Length:      entry.torrent.Length(),
-		Completed:   entry.torrent.BytesCompleted(),
+		Length:      length,
+		Completed:   completed,
 		DownSpeed:   entry.downSpeed,
 		UpSpeed:     entry.upSpeed,
 		Seeds:       stats.ConnectedSeeders,
@@ -817,6 +952,7 @@ func (c *Client) snapshotEntryA(entry *torrentEntry, allowed map[string]bool) To
 		Downloaded:  stats.BytesReadUsefulData.Int64(),
 		Uploaded:    stats.BytesWrittenData.Int64(),
 		AddedAt:     entry.model.CreatedAt,
+		Error:       errStr,
 	}
 }
 
@@ -865,7 +1001,7 @@ func (c *Client) allowedEntriesLocked() map[string]bool {
 	allowed := make(map[string]bool, len(c.torrents))
 	active := 0
 	for _, entry := range c.sortedEntriesLocked() {
-		if entry.model.Paused {
+		if entry.model.Paused || entry.torrent == nil {
 			continue
 		}
 		if length := entry.torrent.Length(); length > 0 && entry.torrent.BytesCompleted() >= length {
@@ -888,6 +1024,9 @@ func (c *Client) reconcileQueue() {
 	allowed := c.allowedEntriesLocked()
 	c.mu.RUnlock()
 	for _, entry := range entries {
+		if entry.torrent == nil {
+			continue
+		}
 		if entry.model.Paused || !allowed[entry.model.Hash] {
 			entry.torrent.DisallowDataDownload()
 			entry.torrent.DisallowDataUpload()
@@ -1052,6 +1191,9 @@ func (c *Client) sampleRates(now time.Time) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	for _, entry := range c.torrents {
+		if entry.torrent == nil {
+			continue
+		}
 		stats := entry.torrent.Stats()
 		downloaded := stats.BytesReadUsefulData.Int64()
 		uploaded := stats.BytesWrittenData.Int64()
@@ -1063,6 +1205,19 @@ func (c *Client) sampleRates(now time.Time) {
 		entry.lastDownload = downloaded
 		entry.lastUpload = uploaded
 		entry.lastSample = now
+
+		if _, err := os.Stat(entry.model.Destination); err != nil {
+			if os.IsNotExist(err) || errors.Is(err, os.ErrNotExist) {
+				entry.setWriteError(fmt.Errorf("save directory not found: %s", entry.model.Destination))
+			} else {
+				entry.setWriteError(fmt.Errorf("save directory error: %w", err))
+			}
+		} else {
+			wErr := entry.getWriteError()
+			if wErr != nil && strings.HasPrefix(wErr.Error(), "save directory") {
+				entry.setWriteError(nil)
+			}
+		}
 	}
 }
 

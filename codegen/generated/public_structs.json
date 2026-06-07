@@ -85459,6 +85459,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -89662,6 +89671,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IsBuiltinClientEnabled",
+        "jsonName": "IsBuiltinClientEnabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -90006,6 +90024,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -90026,7 +90053,8 @@
         "\"paused\"",
         "\"other\"",
         "\"stopped\"",
-        "\"queued\""
+        "\"queued\"",
+        "\"error\""
       ]
     },
     "comments": []

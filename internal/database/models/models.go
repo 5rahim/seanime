@@ -241,6 +241,8 @@ type LocalTorrent struct {
 	ForceStart     bool   `gorm:"column:force_start" json:"forceStart"`
 	Sequential     bool   `gorm:"column:sequential" json:"sequential"`
 	FilePriorities string `gorm:"column:file_priorities;type:text" json:"-"`
+	Length         int64  `gorm:"column:length" json:"length"`
+	Completed      int64  `gorm:"column:completed" json:"completed"`
 }
 
 type ListSyncSettings struct {

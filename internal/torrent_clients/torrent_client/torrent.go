@@ -16,6 +16,7 @@ const (
 	TorrentStatusOther       TorrentStatus = "other"
 	TorrentStatusStopped     TorrentStatus = "stopped"
 	TorrentStatusQueued      TorrentStatus = "queued"
+	TorrentStatusError       TorrentStatus = "error"
 )
 
 type (
@@ -36,6 +37,7 @@ type (
 		QueueIndex  int           `json:"queueIndex"`
 		ForceStart  bool          `json:"forceStart"`
 		Sequential  bool          `json:"sequential"`
+		Error       string        `json:"error"`
 	}
 	TorrentStatus string
 )
@@ -49,6 +51,8 @@ func (r *Repository) FromSeanimeTorrents(items []builtin_client.TorrentSnapshot)
 		}
 		status := TorrentStatusDownloading
 		switch {
+		case item.Error != "":
+			status = TorrentStatusError
 		case item.Paused:
 			status = TorrentStatusPaused
 		case item.Queued:
@@ -69,7 +73,7 @@ func (r *Repository) FromSeanimeTorrents(items []builtin_client.TorrentSnapshot)
 			UpSpeed: util.ToHumanReadableSpeed(int(item.UpSpeed)), DownSpeed: util.ToHumanReadableSpeed(int(item.DownSpeed)),
 			Progress: progress, Size: util.Bytes(uint64(item.Length)), Eta: eta, Status: status,
 			ContentPath: item.Destination, Ratio: ratio, AddedAt: item.AddedAt, QueueIndex: item.QueueIndex,
-			ForceStart: item.ForceStart, Sequential: item.Sequential,
+			ForceStart: item.ForceStart, Sequential: item.Sequential, Error: item.Error,
 		})
 	}
 	return ret

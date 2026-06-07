@@ -4857,6 +4857,7 @@ export type TorrentClient_Torrent = {
     queueIndex: number
     forceStart: boolean
     sequential: boolean
+    error: string
 }
 
 /**
@@ -4869,7 +4870,8 @@ export type TorrentClient_TorrentStatus = "downloading" |
     "paused" |
     "other" |
     "stopped" |
-    "queued"
+    "queued" |
+    "error"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Torrentstream
