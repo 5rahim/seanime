@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/anacrolix/log"
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 )
 
 // Show that multiple connections from the same local TCP port to the same remote port will fail.

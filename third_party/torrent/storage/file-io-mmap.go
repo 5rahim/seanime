@@ -5,6 +5,7 @@ package storage
 import (
 	"errors"
 	"fmt"
+	"github.com/anacrolix/sync"
 	"io"
 	"io/fs"
 	"os"
@@ -12,7 +13,7 @@ import (
 
 	g "github.com/anacrolix/generics"
 	"github.com/anacrolix/missinggo/v2/panicif"
-	"github.com/anacrolix/sync"
+	"github.com/edsrzf/mmap-go"
 )
 
 // Lock uses of shared handles, instead of having a lifetime RLock. Because sync.RWMutex is not safe

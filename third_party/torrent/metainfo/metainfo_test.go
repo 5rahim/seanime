@@ -8,11 +8,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/anacrolix/torrent/bencode"
+	"github.com/anacrolix/missinggo/v2"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/anacrolix/torrent/bencode"
 )
 
 func testFile(t *testing.T, filename string) {

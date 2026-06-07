@@ -10,13 +10,14 @@ import (
 
 	"github.com/anacrolix/log"
 	"github.com/anacrolix/missinggo/v2/filecache"
-	"github.com/anacrolix/torrent"
-	"github.com/anacrolix/torrent/internal/testutil"
-	"github.com/anacrolix/torrent/storage"
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/time/rate"
+
+	"github.com/anacrolix/torrent"
+	"github.com/anacrolix/torrent/internal/testutil"
+	"github.com/anacrolix/torrent/storage"
 )
 
 type fileCacheClientStorageFactoryParams struct {

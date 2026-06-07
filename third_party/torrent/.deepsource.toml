@@ -6,8 +6,8 @@ test_patterns = ["**/*_test.go"]
 name = "go"
 enabled = true
 
-[analyzers.meta]
-import_root = "github.com/anacrolix/torrent"
+  [analyzers.meta]
+  import_root = "github.com/anacrolix/torrent"
 
 [[transformers]]
 name = "gofmt"

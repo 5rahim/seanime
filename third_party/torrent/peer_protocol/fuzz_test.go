@@ -9,7 +9,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 )
 
 func FuzzDecoder(f *testing.F) {

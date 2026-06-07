@@ -8,7 +8,9 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/anacrolix/missinggo/v2"
 	"github.com/anacrolix/missinggo/v2/panicif"
+
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/anacrolix/torrent/segments"
 )

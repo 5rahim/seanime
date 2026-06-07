@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/edsrzf/mmap-go"
 	"golang.org/x/sys/unix"
 )
 

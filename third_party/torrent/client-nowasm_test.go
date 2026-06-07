@@ -7,10 +7,11 @@ import (
 	"os"
 	"testing"
 
+	qt "github.com/go-quicktest/qt"
+	"github.com/stretchr/testify/require"
+
 	"github.com/anacrolix/torrent/internal/testutil"
 	"github.com/anacrolix/torrent/storage"
-	"github.com/go-quicktest/qt"
-	"github.com/stretchr/testify/require"
 )
 
 func TestBoltPieceCompletionClosedWhenClientClosed(t *testing.T) {

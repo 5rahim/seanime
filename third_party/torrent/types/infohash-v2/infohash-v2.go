@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"unsafe"
 
+	"github.com/multiformats/go-multihash"
+
 	"github.com/anacrolix/torrent/types/infohash"
 )
 

@@ -11,10 +11,12 @@ import (
 
 	g "github.com/anacrolix/generics"
 	"github.com/anacrolix/log"
+	"github.com/gorilla/websocket"
+	"github.com/pion/webrtc/v4"
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/anacrolix/torrent/tracker"
 	"github.com/anacrolix/torrent/types/infohash"
-	"github.com/gorilla/websocket"
-	"go.opentelemetry.io/otel/trace"
 )
 
 type TrackerClientStats struct {

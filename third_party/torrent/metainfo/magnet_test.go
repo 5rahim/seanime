@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -16,13 +16,15 @@ import (
 
 	"github.com/anacrolix/log"
 	"github.com/anacrolix/tagflag"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/dustin/go-humanize"
+	"golang.org/x/time/rate"
+
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/iplist"
 	"github.com/anacrolix/torrent/metainfo"
 	pp "github.com/anacrolix/torrent/peer_protocol"
 	"github.com/anacrolix/torrent/storage"
-	"github.com/davecgh/go-spew/spew"
-	"golang.org/x/time/rate"
 )
 
 func clientStatusWriter(ctx context.Context, cl *torrent.Client) {

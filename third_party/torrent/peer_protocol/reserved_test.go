@@ -3,7 +3,7 @@ package peer_protocol
 import (
 	"testing"
 
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 )
 
 func TestV2BitLocation(t *testing.T) {

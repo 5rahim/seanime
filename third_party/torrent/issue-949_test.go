@@ -3,8 +3,9 @@ package torrent
 import (
 	"testing"
 
+	qt "github.com/go-quicktest/qt"
+
 	"github.com/anacrolix/torrent/metainfo"
-	"github.com/go-quicktest/qt"
 )
 
 func TestIssue949LastPieceZeroPadding(t *testing.T) {

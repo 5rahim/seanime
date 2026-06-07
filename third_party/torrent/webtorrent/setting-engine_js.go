@@ -4,6 +4,10 @@
 
 package webtorrent
 
+import (
+	"github.com/pion/webrtc/v4"
+)
+
 // I'm not sure what to do for logging for JS. See
 // https://gophers.slack.com/archives/CAK2124AG/p1649651943947579.
 var s = webrtc.SettingEngine{}

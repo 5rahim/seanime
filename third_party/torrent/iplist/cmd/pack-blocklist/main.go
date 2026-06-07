@@ -6,7 +6,9 @@ import (
 	"bufio"
 	"os"
 
+	"github.com/anacrolix/missinggo/v2"
 	"github.com/anacrolix/tagflag"
+
 	"github.com/anacrolix/torrent/iplist"
 )
 

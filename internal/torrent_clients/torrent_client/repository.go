@@ -174,6 +174,9 @@ func (r *Repository) GetList(opts *GetListOptions) ([]*Torrent, error) {
 		case "oldest":
 			sortBy = "added_on"
 			reverse = false
+		case "queue":
+			sortBy = "queue"
+			reverse = false
 		default:
 		}
 	}
@@ -245,6 +248,12 @@ func (r *Repository) GetList(opts *GetListOptions) ([]*Torrent, error) {
 					return strings.ToLower(torrents[i].Name) > strings.ToLower(torrents[j].Name)
 				}
 				return strings.ToLower(torrents[i].Name) < strings.ToLower(torrents[j].Name)
+			}
+			if sortBy == "queue" {
+				if reverse {
+					return torrents[i].QueueIndex > torrents[j].QueueIndex
+				}
+				return torrents[i].QueueIndex < torrents[j].QueueIndex
 			}
 			if reverse {
 				return torrents[i].AddedAt.After(torrents[j].AddedAt)

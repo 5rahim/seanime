@@ -7,7 +7,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 	"github.com/google/go-cmp/cmp"
 )
 

@@ -11,6 +11,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/anacrolix/missinggo/v2"
+	"github.com/edsrzf/mmap-go"
+
 	"github.com/anacrolix/torrent/metainfo"
 	mmapSpan "github.com/anacrolix/torrent/mmap-span"
 )

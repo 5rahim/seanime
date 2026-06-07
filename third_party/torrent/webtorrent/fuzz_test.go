@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 )
 
 func FuzzJsonBinaryStrings(f *testing.F) {

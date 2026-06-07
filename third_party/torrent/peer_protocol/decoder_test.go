@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

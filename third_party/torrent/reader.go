@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/anacrolix/log"
+	"github.com/anacrolix/missinggo/v2"
 	"github.com/anacrolix/missinggo/v2/panicif"
 )
 

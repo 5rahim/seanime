@@ -15,16 +15,19 @@ import (
 	"testing/iotest"
 	"time"
 
+	"github.com/anacrolix/dht/v2"
 	"github.com/anacrolix/log"
+	"github.com/anacrolix/missinggo/v2"
 	"github.com/anacrolix/missinggo/v2/filecache"
+	"github.com/go-quicktest/qt"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/internal/testutil"
 	"github.com/anacrolix/torrent/iplist"
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/anacrolix/torrent/storage"
-	"github.com/go-quicktest/qt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestClientDefault(t *testing.T) {

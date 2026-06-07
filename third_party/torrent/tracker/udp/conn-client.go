@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 	"net"
+
+	"github.com/anacrolix/missinggo/v2"
 )
 
 type listenPacketFunc func(network, addr string) (net.PacketConn, error)

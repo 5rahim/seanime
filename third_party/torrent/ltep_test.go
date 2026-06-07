@@ -6,9 +6,11 @@ import (
 	"testing"
 
 	"github.com/anacrolix/sync"
+	qt "github.com/go-quicktest/qt"
+
+	. "github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/internal/testutil"
 	pp "github.com/anacrolix/torrent/peer_protocol"
-	"github.com/go-quicktest/qt"
 )
 
 const (

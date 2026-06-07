@@ -15,9 +15,11 @@ import (
 	"github.com/RoaringBitmap/roaring"
 	g "github.com/anacrolix/generics"
 	"github.com/anacrolix/missinggo/v2/panicif"
+	"github.com/dustin/go-humanize"
+	"golang.org/x/time/rate"
+
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/anacrolix/torrent/segments"
-	"golang.org/x/time/rate"
 )
 
 // How many consecutive bytes to allow discarding from responses. This number is based on

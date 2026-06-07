@@ -6,10 +6,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/anacrolix/torrent/webtorrent"
+	"github.com/pion/webrtc/v4"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/anacrolix/torrent/webtorrent"
 )
 
 const webrtcNetwork = "webrtc"

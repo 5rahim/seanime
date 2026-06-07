@@ -3,10 +3,11 @@ package issue_952
 import (
 	"testing"
 
+	qt "github.com/go-quicktest/qt"
+
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/anacrolix/torrent/types/infohash"
-	"github.com/go-quicktest/qt"
 )
 
 type scrapeResponse struct {

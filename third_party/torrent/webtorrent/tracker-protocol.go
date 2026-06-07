@@ -3,6 +3,8 @@ package webtorrent
 import (
 	"fmt"
 	"math"
+
+	"github.com/pion/webrtc/v4"
 )
 
 type AnnounceRequest struct {

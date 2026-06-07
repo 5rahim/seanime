@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	g "github.com/anacrolix/generics"
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 )
 
 func TestNestedMaps(t *testing.T) {

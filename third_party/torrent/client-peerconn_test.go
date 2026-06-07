@@ -8,12 +8,14 @@ import (
 	"testing/iotest"
 
 	"github.com/anacrolix/chansync"
+	"github.com/anacrolix/missinggo/v2"
 	"github.com/anacrolix/missinggo/v2/bitmap"
-	"github.com/anacrolix/torrent/internal/testutil"
 	"github.com/go-quicktest/qt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/time/rate"
+
+	"github.com/anacrolix/torrent/internal/testutil"
 )
 
 func TestPeerConnEstablished(t *testing.T) {

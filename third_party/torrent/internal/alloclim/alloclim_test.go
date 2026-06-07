@@ -6,7 +6,7 @@ import (
 	"time"
 
 	_ "github.com/anacrolix/envpprof"
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 )
 
 func TestReserveOverMax(t *testing.T) {

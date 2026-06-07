@@ -17,13 +17,15 @@ import (
 	_ "github.com/anacrolix/envpprof"
 	"github.com/anacrolix/fuse"
 	fusefs "github.com/anacrolix/fuse/fs"
+	"github.com/anacrolix/missinggo/v2"
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/internal/testutil"
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/anacrolix/torrent/storage"
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func init() {

@@ -28,13 +28,20 @@ import (
 	"github.com/RoaringBitmap/roaring"
 	"github.com/anacrolix/chansync"
 	"github.com/anacrolix/chansync/events"
+	"github.com/anacrolix/dht/v2"
+	. "github.com/anacrolix/generics"
 	g "github.com/anacrolix/generics"
 	"github.com/anacrolix/log"
+	"github.com/anacrolix/missinggo/v2"
 	"github.com/anacrolix/missinggo/v2/bitmap"
 	"github.com/anacrolix/missinggo/v2/panicif"
 	"github.com/anacrolix/missinggo/v2/pubsub"
 	"github.com/anacrolix/multiless"
 	"github.com/anacrolix/sync"
+	"github.com/pion/webrtc/v4"
+	"golang.org/x/sync/errgroup"
+	"golang.org/x/time/rate"
+
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/internal/check"
 	"github.com/anacrolix/torrent/internal/nestedmaps"
@@ -51,8 +58,6 @@ import (
 	infohash_v2 "github.com/anacrolix/torrent/types/infohash-v2"
 	"github.com/anacrolix/torrent/webseed"
 	"github.com/anacrolix/torrent/webtorrent"
-	"golang.org/x/sync/errgroup"
-	"golang.org/x/time/rate"
 )
 
 var errTorrentClosed = errors.New("torrent closed")

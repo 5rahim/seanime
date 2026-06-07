@@ -14,7 +14,7 @@ import (
 	"github.com/anacrolix/dht/v2/krpc"
 	_ "github.com/anacrolix/envpprof"
 	"github.com/anacrolix/missinggo/v2/iter"
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 	"github.com/stretchr/testify/require"
 )
 

@@ -8,8 +8,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/anacrolix/torrent/metainfo"
+	"github.com/anacrolix/missinggo/v2"
 	"github.com/go-quicktest/qt"
+
+	"github.com/anacrolix/torrent/metainfo"
 )
 
 func TestShortFile(t *testing.T) {

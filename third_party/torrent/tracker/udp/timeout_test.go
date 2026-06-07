@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 )
 
 func TestTimeoutMax(t *testing.T) {

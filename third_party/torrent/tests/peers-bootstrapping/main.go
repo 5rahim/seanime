@@ -13,6 +13,8 @@ import (
 	"github.com/anacrolix/envpprof"
 	"github.com/anacrolix/log"
 	"github.com/anacrolix/sync"
+	"github.com/dustin/go-humanize"
+
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/metainfo"

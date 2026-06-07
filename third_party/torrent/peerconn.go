@@ -19,18 +19,22 @@ import (
 	"github.com/RoaringBitmap/roaring"
 	"github.com/anacrolix/chansync"
 	"github.com/anacrolix/generics"
+	. "github.com/anacrolix/generics"
 	"github.com/anacrolix/log"
 	"github.com/anacrolix/missinggo/v2/bitmap"
 	"github.com/anacrolix/missinggo/v2/panicif"
 	"github.com/anacrolix/multiless"
+
+	"golang.org/x/time/rate"
+
 	"github.com/anacrolix/torrent/bencode"
 	requestStrategy "github.com/anacrolix/torrent/internal/request-strategy"
+
 	"github.com/anacrolix/torrent/merkle"
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/anacrolix/torrent/mse"
 	pp "github.com/anacrolix/torrent/peer_protocol"
 	utHolepunch "github.com/anacrolix/torrent/peer_protocol/ut-holepunch"
-	"golang.org/x/time/rate"
 )
 
 type PeerStatus struct {

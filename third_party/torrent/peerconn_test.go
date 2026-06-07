@@ -12,12 +12,13 @@ import (
 	"testing"
 
 	g "github.com/anacrolix/generics"
-	"github.com/anacrolix/torrent/metainfo"
-	pp "github.com/anacrolix/torrent/peer_protocol"
-	"github.com/anacrolix/torrent/storage"
 	"github.com/go-quicktest/qt"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/time/rate"
+
+	"github.com/anacrolix/torrent/metainfo"
+	pp "github.com/anacrolix/torrent/peer_protocol"
+	"github.com/anacrolix/torrent/storage"
 )
 
 // Ensure that no race exists between sending a bitfield, and a subsequent

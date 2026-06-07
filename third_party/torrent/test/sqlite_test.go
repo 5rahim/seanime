@@ -12,11 +12,12 @@ import (
 	"net/http"
 	"testing"
 
+	qt "github.com/go-quicktest/qt"
+
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/metainfo"
 	sqliteStorage "github.com/anacrolix/torrent/storage/sqlite"
-	"github.com/go-quicktest/qt"
 )
 
 func TestSqliteStorageClosed(t *testing.T) {

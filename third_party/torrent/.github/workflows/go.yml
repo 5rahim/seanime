@@ -1,6 +1,6 @@
 name: Go
 
-on: [ push, pull_request ]
+on: [push, pull_request]
 
 jobs:
   test:
@@ -8,10 +8,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [ stable, oldstable ]
+        go-version: [ stable, oldstable]
         # windows-latest removed for now: known issues with file handles to
         # resolved. could set classic file io mode.
-        os: [ macos-latest, ubuntu-latest ]
+        os: [macos-latest, ubuntu-latest]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4

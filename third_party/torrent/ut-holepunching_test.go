@@ -15,11 +15,12 @@ import (
 
 	"github.com/anacrolix/log"
 	"github.com/anacrolix/missinggo/v2/iter"
-	"github.com/anacrolix/torrent/internal/testutil"
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/time/rate"
+
+	"github.com/anacrolix/torrent/internal/testutil"
 )
 
 // Check that after completing leeching, a leecher transitions to a seeding

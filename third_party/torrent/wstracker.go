@@ -9,10 +9,12 @@ import (
 	"sync"
 
 	"github.com/anacrolix/log"
+	"github.com/gorilla/websocket"
+	"github.com/pion/webrtc/v4"
+
 	"github.com/anacrolix/torrent/tracker"
 	httpTracker "github.com/anacrolix/torrent/tracker/http"
 	"github.com/anacrolix/torrent/webtorrent"
-	"github.com/gorilla/websocket"
 )
 
 type websocketTrackerStatus struct {

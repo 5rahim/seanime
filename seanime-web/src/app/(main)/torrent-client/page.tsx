@@ -145,7 +145,7 @@ function Dashboard() {
         setDestination: setMoveDestination,
     })
 
-    const list = useGetActiveTorrentList(true, "", "newest")
+    const list = useGetActiveTorrentList(true, "", "queue")
     const torrents = list.data ?? []
     const totalDownSpeed = React.useMemo(() => {
         return torrents.reduce((sum, t) => sum + parseSpeed(t.downSpeed), 0)

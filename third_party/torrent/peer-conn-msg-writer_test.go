@@ -3,6 +3,8 @@ package torrent
 import (
 	"testing"
 
+	"github.com/dustin/go-humanize"
+
 	pp "github.com/anacrolix/torrent/peer_protocol"
 )
 

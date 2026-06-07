@@ -8,6 +8,8 @@ import (
 
 	"github.com/anacrolix/fuse"
 	"github.com/anacrolix/fuse/fs"
+	"github.com/anacrolix/missinggo/v2"
+
 	"github.com/anacrolix/torrent"
 )
 

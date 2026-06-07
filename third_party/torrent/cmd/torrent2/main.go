@@ -9,7 +9,9 @@ import (
 	"io"
 	"os"
 
+	"github.com/anacrolix/bargle/v2"
 	"github.com/anacrolix/log"
+
 	"github.com/anacrolix/torrent/merkle"
 	"github.com/anacrolix/torrent/metainfo"
 )

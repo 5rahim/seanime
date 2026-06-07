@@ -3,7 +3,7 @@ package bencode
 import (
 	"testing"
 
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 )
 
 func TestBytesMarshalNil(t *testing.T) {

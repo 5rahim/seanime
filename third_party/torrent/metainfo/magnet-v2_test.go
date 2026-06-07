@@ -3,7 +3,7 @@ package metainfo
 import (
 	"testing"
 
-	"github.com/go-quicktest/qt"
+	qt "github.com/go-quicktest/qt"
 )
 
 func TestParseMagnetV2(t *testing.T) {

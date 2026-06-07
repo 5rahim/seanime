@@ -13,10 +13,12 @@ import (
 
 	"github.com/RoaringBitmap/roaring"
 	"github.com/anacrolix/chansync"
+	. "github.com/anacrolix/generics"
 	"github.com/anacrolix/log"
 	"github.com/anacrolix/missinggo/v2/bitmap"
 	"github.com/anacrolix/missinggo/v2/panicif"
 	"github.com/anacrolix/multiless"
+
 	"github.com/anacrolix/torrent/mse"
 	pp "github.com/anacrolix/torrent/peer_protocol"
 	typedRoaring "github.com/anacrolix/torrent/typed-roaring"
