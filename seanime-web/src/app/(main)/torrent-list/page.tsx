@@ -17,6 +17,7 @@ import { Popover } from "@/components/ui/popover"
 import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
 import { upath } from "@/lib/helpers/upath"
+import { __isElectronDesktop__ } from "@/types/constants"
 import capitalize from "lodash/capitalize"
 import React from "react"
 import { BiDownArrow, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiTrash, BiUpArrow } from "react-icons/bi"
@@ -43,9 +44,21 @@ export default function Page() {
                     </div>
                     <div data-torrent-list-page-header-actions>
                         {/*Show embedded client button only for qBittorrent*/}
-                        {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <SeaLink href={`/qbittorrent`}>
-                            <Button intent="white" rightIcon={<BiLinkExternal />}>Embedded client</Button>
-                        </SeaLink>}
+                        {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && (
+                            __isElectronDesktop__ ? (
+                                <SeaLink href={`/qbittorrent`}>
+                                    <Button intent="white" rightIcon={<BiLinkExternal />}>Embedded client</Button>
+                                </SeaLink>
+                            ) : (
+                                <a
+                                    href={`http://${serverStatus.settings.torrent?.qbittorrentHost}:${String(serverStatus.settings.torrent?.qbittorrentPort)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <Button intent="white" rightIcon={<BiLinkExternal />}>qBittorrent Web UI</Button>
+                                </a>
+                            )
+                        )}
                         {serverStatus?.settings?.torrent?.defaultTorrentClient === "seanime" && <SeaLink href="/torrent-client">
                             <Button intent="white" rightIcon={<BiLinkExternal />}>Torrent dashboard</Button>
                         </SeaLink>}

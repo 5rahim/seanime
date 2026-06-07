@@ -1,6 +1,7 @@
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { __isElectronDesktop__ } from "@/types/constants"
 import React from "react"
 import { LuExternalLink } from "react-icons/lu"
@@ -29,50 +30,69 @@ export default function Page() {
     if (!settings) return null
 
     return (
-        <PageWrapper className="p-4 sm:p-6 lg:p-8 space-y-4">
+        <PageWrapper className="p-4 sm:p-6 lg:p-8 space-y-6">
             <header className="flex items-center justify-between">
                 <div>
                     <h2>qBittorrent</h2>
                     <p className="text-[--muted]">Access the embedded qBittorrent client Web UI.</p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <a
-                        href={qbittorrentUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <Button
-                            intent="gray-outline"
-                            leftIcon={<LuExternalLink />}
+                {__isElectronDesktop__ && (
+                    <div className="flex items-center gap-2">
+                        <a
+                            href={qbittorrentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
                         >
-                            Open in browser
-                        </Button>
-                    </a>
-                </div>
+                            <Button
+                                intent="gray-outline"
+                                leftIcon={<LuExternalLink />}
+                            >
+                                Open in browser
+                            </Button>
+                        </a>
+                    </div>
+                )}
             </header>
 
-            <div
-                className="w-full h-[calc(100vh-16rem)] rounded-xl border border-[--border] overflow-hidden ring-1 ring-[--border] ring-offset-2 ring-offset-[--background]"
-            >
-                {isAllowed && (
-                    __isElectronDesktop__ ? (
+            {__isElectronDesktop__ ? (
+                <div
+                    className="w-full h-[calc(100vh-16rem)] rounded-xl border border-[--border] overflow-hidden ring-1 ring-[--border] ring-offset-2 ring-offset-[--background]"
+                >
+                    {isAllowed && (
                         <webview
                             src={qbittorrentUrl}
                             style={{ width: "100%", height: "100%" }}
                             {...({ allowpopups: "true" } as any)}
                         />
-                    ) : (
-                        <iframe
-                            src={qbittorrentUrl}
-                            className="w-full h-full"
-                            sandbox="allow-forms allow-fullscreen allow-same-origin allow-scripts allow-popups"
-                            referrerPolicy="no-referrer"
-                            {...({ credentialless: "true" } as any)}
-                        />
-                    )
-                )}
-            </div>
+                    )}
+                </div>
+            ) : (
+                <div className="flex items-center justify-center h-[calc(100vh-16rem)]">
+                    <Card className="max-w-md p-8 text-center space-y-6 border border-[--border] bg-gray-900/40 backdrop-blur-sm rounded-2xl shadow-xl">
+                        <div className="space-y-2">
+                            <h3 className="text-xl font-semibold tracking-tight text-white">Open in a new tab</h3>
+                            <p className="text-sm text-[--muted]">
+                                Due to browser security policies (COEP and Clickjacking protection), the embedded client cannot be loaded inside the
+                                iframe here.
+                            </p>
+                        </div>
+                        <a
+                            href={qbittorrentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block w-full"
+                        >
+                            <Button
+                                className="w-full"
+                                intent="primary"
+                                leftIcon={<LuExternalLink />}
+                            >
+                                Open qBittorrent Web UI
+                            </Button>
+                        </a>
+                    </Card>
+                </div>
+            )}
         </PageWrapper>
     )
 }
-
