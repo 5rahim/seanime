@@ -1768,7 +1768,7 @@ func (mp *MatroskaParser) parseSimpleBlock(size uint64) (*Packet, error) {
 	flags := headerData[trackBytes+2]
 
 	if isIgnored {
-		// If ignored, skip the rest of this SimpleBlock's payload by seeking!
+		// If ignored, skip the rest of this SimpleBlock's payload by seeking
 		remaining := int64(size) - int64(n)
 		if remaining > 0 {
 			if _, seekErr := mp.reader.Seek(remaining, io.SeekCurrent); seekErr != nil {

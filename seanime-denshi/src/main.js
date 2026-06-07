@@ -318,6 +318,7 @@ async function isDesktopServerReachable() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let localServerPort
+const allowedWebviewOrigins = new Set()
 
 // Start local server for youtube player embeds
 // Used by webviews inside React to load youtube embed and bypass 153 errors
@@ -1083,7 +1084,16 @@ function createMainWindow() {
     })
 
     mainWindow.webContents.on("will-attach-webview", (event, webPreferences, params) => {
-        if (!isAllowedLocalEmbedURL(params.src)) {
+        let isAllowed = false
+        try {
+            const parsed = new URL(params.src)
+            if (isAllowedLocalEmbedURL(params.src) || allowedWebviewOrigins.has(parsed.origin)) {
+                isAllowed = true
+            }
+        } catch (err) {
+        }
+
+        if (!isAllowed) {
             log.warn(`[Denshi] Blocked unexpected webview src ${params.src}`)
             event.preventDefault()
             return
@@ -1099,7 +1109,7 @@ function createMainWindow() {
         webPreferences.webSecurity = true
         webPreferences.allowRunningInsecureContent = true
 
-        params.allowpopups = false
+        params.allowpopups = params.allowpopups || false
     })
 
 
@@ -1584,10 +1594,20 @@ app.whenReady().then(async () => {
         console.log("EVENT quit-app")
         cleanupAndExit()
     })
-
     ipcMain.handle("get-local-server-port", () => localServerPort)
 
-    // Denshi settings IPC handlers
+    ipcMain.handle("denshi:allowWebviewOrigin", (event, origin) => {
+        try {
+            const parsed = new URL(origin)
+            allowedWebviewOrigins.add(parsed.origin)
+            log.info(`[Denshi] Allowed webview origin: ${parsed.origin}`)
+            return true
+        } catch (err) {
+            log.error(`[Denshi] Failed to allow webview origin ${origin}:`, err.message)
+            return false
+        }
+    })
+
     ipcMain.handle("denshi:getSettings", () => {
         return { ...denshiSettings }
     })
