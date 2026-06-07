@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.8.4
+
+- ✨ Built-in torrent client (Experimental)
+  - Only available as a feature flag
+- ⚡️ Transcode: Support for Low-power Intel QSV
+- ⚡️ Manga: Support for zooming
+- ⚡️ AniList: Support for animated profile pictures
+- ⚡️ Plugin: Added dropdown actions for manga
+- ⚡️ Plugin: Option to change fetch redirect policy
+- ⚡️ VideoCore(Perf): Optimized subtitle parsing
+- 🦺 VideoCore: Fixed keybinds handling and input focus in mini player
+- 🦺 Extension: Fixed unified code diff
+- 🏗️ Core: Experimental support for gomobile
+
 ## v3.8.3
 
 - ⚡️ Plugins: ctx.appSettings now includes debrid, torrent streaming and transcode settings

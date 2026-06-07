@@ -117,7 +117,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	e.Use(headMethodMiddleware)
 	// e.Use(h.controlPlaneBodyLimitMiddleware)
-	e.Use(h.controlPlaneMutationRateLimitMiddleware)
+	//e.Use(h.controlPlaneMutationRateLimitMiddleware)
 
 	e.GET("/events", h.webSocketEventHandler)
 
