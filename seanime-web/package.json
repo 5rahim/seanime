@@ -8,6 +8,7 @@
         "dev:mobile": "env-cmd -f .env.mobile rsbuild dev",
         "dev:desktop": "env-cmd -f .env.desktop rsbuild dev",
         "dev:denshi": "env-cmd -f .env.denshi rsbuild dev",
+      "postinstall": "patch-package",
         "typecheck": "tsgo --pretty false",
         "build": "npm run typecheck && rsbuild build",
         "build:rsdoctor": "RSDOCTOR=true rsbuild build",
@@ -160,6 +161,7 @@
         "autoprefixer": "^10",
         "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250405",
         "encoding": "^0.1.13",
+      "patch-package": "^8.0.1",
         "postcss": "^8",
         "tailwindcss": "^3.4.17",
         "typescript": "^6"

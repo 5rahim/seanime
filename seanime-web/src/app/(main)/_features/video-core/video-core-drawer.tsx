@@ -510,7 +510,7 @@ export function VideoCoreDrawer(props: DrawerProps) {
             modal={!canInteractOutside}
             container={container}
             direction="bottom"
-            dismissible={!!miniPlayer}
+            dismissible={false}
             handleOnly
             noBodyStyles
             autoFocus={false}
