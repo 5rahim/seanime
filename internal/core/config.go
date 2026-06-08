@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"seanime/internal/constants"
 	"seanime/internal/util"
 	"strconv"
@@ -129,6 +130,11 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 
 	// Set Seanime's default custom environment variables
 	if err = setDataDirEnv(dataDir); err != nil {
+		return nil, err
+	}
+
+	// Set temporary directory environment variable to guarantee a writable temp folder
+	if err = setTempDirEnv(dataDir); err != nil {
 		return nil, err
 	}
 
@@ -270,6 +276,12 @@ func (cfg *Config) GetServerURI(df ...string) string {
 }
 
 func getWorkingDir(useBinaryPath bool) (string, error) {
+	if runtime.GOOS == "android" || runtime.GOOS == "ios" {
+		if dataDir := os.Getenv("SEANIME_DATA_DIR"); dataDir != "" {
+			return dataDir, nil
+		}
+	}
+
 	// Get the working directory
 	wd, err := os.Getwd()
 	if err != nil {
@@ -312,6 +324,20 @@ func setDataDirEnv(dataDir string) error {
 		}
 	}
 
+	return nil
+}
+
+func setTempDirEnv(dataDir string) error {
+	// Set TMPDIR environment variable if it's not set, or if we are on Android (where default is /data/local/tmp which is not writable)
+	if os.Getenv("TMPDIR") == "" || runtime.GOOS == "android" {
+		tempDir := filepath.Join(dataDir, "temp")
+		if err := os.MkdirAll(tempDir, 0700); err != nil {
+			return err
+		}
+		if err := os.Setenv("TMPDIR", tempDir); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

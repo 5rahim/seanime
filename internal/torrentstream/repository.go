@@ -181,8 +181,10 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 	// Set default download directory, which is a temporary directory
 	if s.DownloadDir == "" {
 		s.DownloadDir = r.getDefaultDownloadPath()
-		_ = os.MkdirAll(s.DownloadDir, os.ModePerm) // Create the directory if it doesn't exist
+	} else {
+		s.DownloadDir = util.ResolvePhysicalPath(s.DownloadDir)
 	}
+	_ = os.MkdirAll(s.DownloadDir, os.ModePerm) // Create the directory if it doesn't exist
 
 	// DEVNOTE: Commented code below causes error log after initializing the client
 	//// Empty the download directory

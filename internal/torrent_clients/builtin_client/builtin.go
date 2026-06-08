@@ -7,8 +7,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
+	"seanime/internal/util"
 	"sort"
 	"strings"
 	"sync"
@@ -161,7 +163,8 @@ func New(opts *NewClientOptions) (*Client, error) {
 		_ = os.Remove(dbFile + "-shm")
 		pc, err = storage.NewDefaultPieceCompletionForDir(opts.Dir)
 		if err != nil {
-			return nil, fmt.Errorf("create piece completion: %w", err)
+			opts.Logger.Warn().Err(err).Msg("builtin torrent: failed to initialize persistent piece completion DB, falling back to in-memory map")
+			pc = storage.NewMapPieceCompletion()
 		}
 	}
 
@@ -185,14 +188,25 @@ func New(opts *NewClientOptions) (*Client, error) {
 		cfg.NoDefaultPortForwarding = true
 		cfg.DialForPeerConns = false
 	}
+	if runtime.GOOS == "ios" || runtime.GOOS == "android" {
+		cfg.DisableIPv6 = true
+		cfg.NoDefaultPortForwarding = true
+	}
 	if opts.MaxConnections > 0 {
 		cfg.EstablishedConnsPerTorrent = opts.MaxConnections
 	}
 
 	inner, err := anacrolix.NewClient(cfg)
 	if err != nil {
-		pc.Close()
-		return nil, fmt.Errorf("create torrent client: %w", err)
+		if cfg.ListenPort != 0 {
+			opts.Logger.Warn().Err(err).Msgf("builtin torrent: failed to start client on port %d, retrying with random port", cfg.ListenPort)
+			cfg.ListenPort = 0
+			inner, err = anacrolix.NewClient(cfg)
+		}
+		if err != nil {
+			pc.Close()
+			return nil, fmt.Errorf("create torrent client: %w", err)
+		}
 	}
 
 	c := &Client{
@@ -263,6 +277,7 @@ func (c *Client) Close() {
 }
 
 func (c *Client) restore() error {
+	defer util.HandlePanicInModuleThen("builtin_client/restore", func() {})
 	items, err := c.database.GetLocalTorrents()
 	if err != nil {
 		return fmt.Errorf("load persisted torrents: %w", err)
@@ -277,6 +292,7 @@ func (c *Client) restore() error {
 }
 
 func (c *Client) AddMagnet(magnet, destination string) (*anacrolix.Torrent, error) {
+	defer util.HandlePanicInModuleThen("builtin_client/AddMagnet", func() {})
 	if destination == "" {
 		return nil, errors.New("destination is required")
 	}
@@ -325,6 +341,7 @@ func (c *Client) AddMagnet(magnet, destination string) (*anacrolix.Torrent, erro
 }
 
 func (c *Client) addPersisted(item *models.LocalTorrent) (*anacrolix.Torrent, error) {
+	defer util.HandlePanicInModuleThen("builtin_client/addPersisted", func() {})
 	if item.Paused {
 		entry := &torrentEntry{
 			client: c, model: item, torrent: nil, lastSample: time.Now(), sequentialStart: -1,
@@ -397,6 +414,7 @@ func (c *Client) TorrentExists(hash string) bool {
 }
 
 func (c *Client) RemoveTorrent(hash string, deleteFiles bool) error {
+	defer util.HandlePanicInModuleThen("builtin_client/RemoveTorrent", func() {})
 	hash = strings.ToLower(hash)
 	c.mu.RLock()
 	entry := c.torrents[hash]
@@ -495,14 +513,17 @@ func removeTorrentFiles(paths []string, root string) error {
 }
 
 func (c *Client) PauseTorrent(hash string) error {
+	defer util.HandlePanicInModuleThen("builtin_client/PauseTorrent", func() {})
 	return c.setPaused(hash, true)
 }
 
 func (c *Client) ResumeTorrent(hash string) error {
+	defer util.HandlePanicInModuleThen("builtin_client/ResumeTorrent", func() {})
 	return c.setPaused(hash, false)
 }
 
 func (c *Client) setPaused(hash string, paused bool) error {
+	defer util.HandlePanicInModuleThen("builtin_client/setPaused", func() {})
 	hash = strings.ToLower(hash)
 	c.mu.Lock()
 	entry := c.torrents[hash]
@@ -564,6 +585,7 @@ func (c *Client) setPaused(hash string, paused bool) error {
 }
 
 func (c *Client) PauseAll() error {
+	defer util.HandlePanicInModuleThen("builtin_client/PauseAll", func() {})
 	for _, snapshot := range c.Snapshots() {
 		if err := c.PauseTorrent(snapshot.Hash); err != nil {
 			return err
@@ -573,6 +595,7 @@ func (c *Client) PauseAll() error {
 }
 
 func (c *Client) ResumeAll() error {
+	defer util.HandlePanicInModuleThen("builtin_client/ResumeAll", func() {})
 	for _, snapshot := range c.Snapshots() {
 		if err := c.ResumeTorrent(snapshot.Hash); err != nil {
 			return err
@@ -582,6 +605,7 @@ func (c *Client) ResumeAll() error {
 }
 
 func (c *Client) SetForceStart(hash string, enabled bool) error {
+	defer util.HandlePanicInModuleThen("builtin_client/SetForceStart", func() {})
 	hash = strings.ToLower(hash)
 	c.mu.Lock()
 	entry := c.torrents[hash]
@@ -602,6 +626,7 @@ func (c *Client) SetForceStart(hash string, enabled bool) error {
 }
 
 func (c *Client) MoveQueue(hash string, direction int) error {
+	defer util.HandlePanicInModuleThen("builtin_client/MoveQueue", func() {})
 	hash = strings.ToLower(hash)
 	c.mu.Lock()
 	entries := c.sortedEntriesLocked()
@@ -648,6 +673,7 @@ func setRateLimit(limiter *rate.Limiter, limitKB int) {
 }
 
 func (c *Client) SetSequential(hash string, enabled bool) error {
+	defer util.HandlePanicInModuleThen("builtin_client/SetSequential", func() {})
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return err
@@ -670,6 +696,7 @@ func (c *Client) SetSequential(hash string, enabled bool) error {
 }
 
 func (c *Client) SetFilePriority(hash string, index, priority int) error {
+	defer util.HandlePanicInModuleThen("builtin_client/SetFilePriority", func() {})
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return err
@@ -709,11 +736,12 @@ func (c *Client) SetFilePriority(hash string, index, priority int) error {
 	if err != nil {
 		return err
 	}
-	applyFilePriorities(entry)
+	applyFilePriorities(entry, entry.torrent)
 	return c.database.UpdateLocalTorrent(entry.model.Hash, map[string]interface{}{"file_priorities": entry.model.FilePriorities})
 }
 
 func (c *Client) AddTracker(hash, tracker string) error {
+	defer util.HandlePanicInModuleThen("builtin_client/AddTracker", func() {})
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return err
@@ -729,7 +757,8 @@ func (c *Client) AddTracker(hash, tracker string) error {
 	return nil
 }
 
-func (c *Client) RemoveTracker(hash, tracker string) error {
+func (c *Client) RemoveTracker(hash, tracker string) (err error) {
+	defer util.HandlePanicInModuleWithError("builtin_client/RemoveTracker", &err)
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return err
@@ -748,7 +777,8 @@ func (c *Client) RemoveTracker(hash, tracker string) error {
 	return nil
 }
 
-func (c *Client) ReannounceTorrent(hash string) error {
+func (c *Client) ReannounceTorrent(hash string) (err error) {
+	defer util.HandlePanicInModuleWithError("builtin_client/ReannounceTorrent", &err)
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return err
@@ -766,7 +796,8 @@ func (c *Client) ReannounceTorrent(hash string) error {
 	return nil
 }
 
-func (c *Client) RecheckTorrent(hash string) error {
+func (c *Client) RecheckTorrent(hash string) (err error) {
+	defer util.HandlePanicInModuleWithError("builtin_client/RecheckTorrent", &err)
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return err
@@ -781,7 +812,8 @@ func (c *Client) RecheckTorrent(hash string) error {
 	return entry.torrent.VerifyData()
 }
 
-func (c *Client) RenameTorrent(hash, name string) error {
+func (c *Client) RenameTorrent(hash, name string) (err error) {
+	defer util.HandlePanicInModuleWithError("builtin_client/RenameTorrent", &err)
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return err
@@ -795,7 +827,8 @@ func (c *Client) RenameTorrent(hash, name string) error {
 	return c.database.UpdateLocalTorrent(entry.model.Hash, map[string]interface{}{"name": name})
 }
 
-func (c *Client) MoveStorage(hash, newDestination string) error {
+func (c *Client) MoveStorage(hash, newDestination string) (err error) {
+	defer util.HandlePanicInModuleWithError("builtin_client/MoveStorage", &err)
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return err
@@ -867,6 +900,7 @@ func (c *Client) MoveStorage(hash, newDestination string) error {
 }
 
 func (c *Client) GetTorrentDetails(hash string) (*TorrentDetails, error) {
+	defer util.HandlePanicInModuleThen("builtin_client/GetTorrentDetails", func() {})
 	entry, err := c.getEntry(hash)
 	if err != nil {
 		return nil, err
@@ -923,6 +957,7 @@ func trackerList(t *anacrolix.Torrent) []string {
 }
 
 func (c *Client) Snapshots() []TorrentSnapshot {
+	defer util.HandlePanicInModuleThen("builtin_client/Snapshots", func() {})
 	c.mu.RLock()
 	entries := c.sortedEntriesLocked()
 	allowed := c.allowedEntriesLocked()
@@ -1044,40 +1079,47 @@ func (c *Client) allowedEntriesLocked() map[string]bool {
 }
 
 func (c *Client) reconcileQueue() {
+	defer util.HandlePanicInModuleThen("builtin_client/reconcileQueue", func() {})
 	c.mu.RLock()
 	entries := c.sortedEntriesLocked()
 	allowed := c.allowedEntriesLocked()
 	c.mu.RUnlock()
 	for _, entry := range entries {
-		if entry.torrent == nil {
+		c.mu.RLock()
+		t := entry.torrent
+		isPaused := entry.model.Paused
+		isAllowed := allowed[entry.model.Hash]
+		isSequential := entry.model.Sequential
+		c.mu.RUnlock()
+
+		if t == nil {
 			continue
 		}
-		if entry.model.Paused || !allowed[entry.model.Hash] {
-			entry.torrent.DisallowDataDownload()
-			entry.torrent.DisallowDataUpload()
+		if isPaused || !isAllowed {
+			t.DisallowDataDownload()
+			t.DisallowDataUpload()
 			continue
 		}
-		entry.torrent.AllowDataDownload()
-		entry.torrent.AllowDataUpload()
-		if entry.torrent.Info() != nil {
-			if entry.model.Sequential {
-				applySequentialPriorities(entry)
+		t.AllowDataDownload()
+		t.AllowDataUpload()
+		if t.Info() != nil {
+			if isSequential {
+				applySequentialPriorities(entry, t)
 			} else {
-				entry.torrent.DownloadAll()
-				prioritizeBoundaries(entry)
+				t.DownloadAll()
+				prioritizeBoundaries(entry, t)
 			}
-			applyFilePriorities(entry)
+			applyFilePriorities(entry, t)
 		}
 	}
 }
 
-func applySequentialPriorities(entry *torrentEntry) {
-	t := entry.torrent
+func applySequentialPriorities(entry *torrentEntry, t *anacrolix.Torrent) {
 	if t.NumPieces() == 0 {
 		return
 	}
 	firstMissing := -1
-	wanted := wantedPieceSet(entry)
+	wanted := wantedPieceSet(entry, t)
 	for i := 0; i < t.NumPieces(); i++ {
 		if !wanted[i] {
 			t.Piece(i).SetPriority(anacrolix.PiecePriorityNone)
@@ -1107,16 +1149,16 @@ func applySequentialPriorities(entry *torrentEntry) {
 		}
 		t.Piece(i).SetPriority(priority)
 	}
-	prioritizeBoundaries(entry)
+	prioritizeBoundaries(entry, t)
 	entry.sequentialInitialized = true
 	entry.sequentialStart = firstMissing
 }
 
-func applyFilePriorities(entry *torrentEntry) {
-	if entry.torrent.Info() == nil {
+func applyFilePriorities(entry *torrentEntry, t *anacrolix.Torrent) {
+	if t.Info() == nil {
 		return
 	}
-	files := entry.torrent.Files()
+	files := t.Files()
 	priorities := entry.client.filePrioritiesSnapshot(entry)
 	for index, priority := range priorities {
 		if index < 0 || index >= len(files) {
@@ -1127,7 +1169,7 @@ func applyFilePriorities(entry *torrentEntry) {
 		case 0:
 			file.SetPriority(anacrolix.PiecePriorityNone)
 			if !entry.model.Sequential {
-				entry.torrent.CancelPieces(file.BeginPieceIndex(), file.EndPieceIndex())
+				t.CancelPieces(file.BeginPieceIndex(), file.EndPieceIndex())
 			}
 		case 2:
 			file.SetPriority(anacrolix.PiecePriorityHigh)
@@ -1138,20 +1180,20 @@ func applyFilePriorities(entry *torrentEntry) {
 		}
 	}
 	if !entry.model.Sequential {
-		wanted := wantedPieceSet(entry)
-		for piece := 0; piece < entry.torrent.NumPieces(); piece++ {
-			if wanted[piece] && entry.torrent.Piece(piece).State().Priority == anacrolix.PiecePriorityNone {
-				entry.torrent.Piece(piece).SetPriority(anacrolix.PiecePriorityNormal)
+		wanted := wantedPieceSet(entry, t)
+		for piece := 0; piece < t.NumPieces(); piece++ {
+			if wanted[piece] && t.Piece(piece).State().Priority == anacrolix.PiecePriorityNone {
+				t.Piece(piece).SetPriority(anacrolix.PiecePriorityNormal)
 			}
 		}
-		prioritizeBoundaries(entry)
+		prioritizeBoundaries(entry, t)
 	}
 }
 
-func wantedPieceSet(entry *torrentEntry) []bool {
-	wanted := make([]bool, entry.torrent.NumPieces())
+func wantedPieceSet(entry *torrentEntry, t *anacrolix.Torrent) []bool {
+	wanted := make([]bool, t.NumPieces())
 	priorities := entry.client.filePrioritiesSnapshot(entry)
-	for index, file := range entry.torrent.Files() {
+	for index, file := range t.Files() {
 		if priority, explicitlySet := priorities[index]; explicitlySet && priority == 0 {
 			continue
 		}
@@ -1162,9 +1204,9 @@ func wantedPieceSet(entry *torrentEntry) []bool {
 	return wanted
 }
 
-func pieceWanted(entry *torrentEntry, piece int) bool {
+func pieceWanted(entry *torrentEntry, t *anacrolix.Torrent, piece int) bool {
 	priorities := entry.client.filePrioritiesSnapshot(entry)
-	for index, file := range entry.torrent.Files() {
+	for index, file := range t.Files() {
 		if piece < file.BeginPieceIndex() || piece >= file.EndPieceIndex() {
 			continue
 		}
@@ -1185,20 +1227,20 @@ func (c *Client) filePrioritiesSnapshot(entry *torrentEntry) map[int]int {
 	return priorities
 }
 
-func prioritizeBoundaries(entry *torrentEntry) {
-	t := entry.torrent
+func prioritizeBoundaries(entry *torrentEntry, t *anacrolix.Torrent) {
 	if t.NumPieces() == 0 {
 		return
 	}
-	if pieceWanted(entry, 0) {
+	if pieceWanted(entry, t, 0) {
 		t.Piece(0).SetPriority(anacrolix.PiecePriorityHigh)
 	}
-	if pieceWanted(entry, t.NumPieces()-1) {
+	if pieceWanted(entry, t, t.NumPieces()-1) {
 		t.Piece(t.NumPieces() - 1).SetPriority(anacrolix.PiecePriorityHigh)
 	}
 }
 
 func (c *Client) runScheduler() {
+	defer util.HandlePanicInModuleThen("builtin_client/runScheduler", func() {})
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	for {
@@ -1213,6 +1255,7 @@ func (c *Client) runScheduler() {
 }
 
 func (c *Client) sampleRates(now time.Time) {
+	defer util.HandlePanicInModuleThen("builtin_client/sampleRates", func() {})
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	for _, entry := range c.torrents {
@@ -1247,6 +1290,7 @@ func (c *Client) sampleRates(now time.Time) {
 }
 
 func (c *Client) compactQueue() {
+	defer util.HandlePanicInModuleThen("builtin_client/compactQueue", func() {})
 	c.mu.Lock()
 	entries := c.sortedEntriesLocked()
 	for i, entry := range entries {

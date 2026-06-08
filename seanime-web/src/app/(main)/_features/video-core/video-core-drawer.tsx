@@ -179,7 +179,9 @@ export function VideoCoreDrawer(props: DrawerProps) {
         const previousPointerEvents = body.style.pointerEvents
 
         const unlockBodyPointerEvents = () => {
-            body.style.pointerEvents = "auto"
+            if (body.style.pointerEvents !== "auto") {
+                body.style.pointerEvents = "auto"
+            }
         }
 
         unlockBodyPointerEvents()

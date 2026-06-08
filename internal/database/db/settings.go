@@ -2,6 +2,7 @@ package db
 
 import (
 	"seanime/internal/database/models"
+	"seanime/internal/util"
 
 	"gorm.io/gorm/clause"
 )
@@ -9,22 +10,24 @@ import (
 var CurrSettings *models.Settings
 
 func (db *Database) UpsertSettings(settings *models.Settings) (*models.Settings, error) {
+	dbSettings := CloneSettings(settings)
+	VirtualizeSettingsPaths(dbSettings)
 
 	err := db.gormdb.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
 		UpdateAll: true,
-	}).Create(settings).Error
+	}).Create(dbSettings).Error
 
 	if err != nil {
 		db.Logger.Error().Err(err).Msg("db: Failed to save settings in the database")
 		return nil, err
 	}
 
+	ResolveSettingsPathsPhysical(settings)
 	CurrSettings = settings
 
 	db.Logger.Debug().Msg("db: Settings saved")
 	return settings, nil
-
 }
 
 func (db *Database) GetSettings() (*models.Settings, error) {
@@ -39,6 +42,10 @@ func (db *Database) GetSettings() (*models.Settings, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	ResolveSettingsPathsPhysical(&settings)
+
+	CurrSettings = &settings
 	return &settings, nil
 }
 
@@ -49,7 +56,7 @@ func (db *Database) GetLibraryPathFromSettings() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return settings.Library.LibraryPath, nil
+	return util.ResolvePhysicalPath(settings.Library.LibraryPath), nil
 }
 
 func (db *Database) GetAdditionalLibraryPathsFromSettings() ([]string, error) {
@@ -57,7 +64,11 @@ func (db *Database) GetAdditionalLibraryPathsFromSettings() ([]string, error) {
 	if err != nil {
 		return []string{}, err
 	}
-	return settings.Library.LibraryPaths, nil
+	resolved := make([]string, len(settings.Library.LibraryPaths))
+	for i, p := range settings.Library.LibraryPaths {
+		resolved[i] = util.ResolvePhysicalPath(p)
+	}
+	return resolved, nil
 }
 
 func (db *Database) GetAllLibraryPathsFromSettings() ([]string, error) {
@@ -68,7 +79,12 @@ func (db *Database) GetAllLibraryPathsFromSettings() ([]string, error) {
 	if settings.Library == nil {
 		return []string{}, nil
 	}
-	return append([]string{settings.Library.LibraryPath}, settings.Library.LibraryPaths...), nil
+	r := append([]string{settings.Library.LibraryPath}, settings.Library.LibraryPaths...)
+	resolved := make([]string, len(r))
+	for i, p := range r {
+		resolved[i] = util.ResolvePhysicalPath(p)
+	}
+	return resolved, nil
 }
 
 func (db *Database) AllLibraryPathsFromSettings(settings *models.Settings) *[]string {
@@ -76,7 +92,11 @@ func (db *Database) AllLibraryPathsFromSettings(settings *models.Settings) *[]st
 		return &[]string{}
 	}
 	r := append([]string{settings.Library.LibraryPath}, settings.Library.LibraryPaths...)
-	return &r
+	resolved := make([]string, len(r))
+	for i, p := range r {
+		resolved[i] = util.ResolvePhysicalPath(p)
+	}
+	return &resolved
 }
 
 func (db *Database) AutoUpdateProgressIsEnabled() (bool, error) {
@@ -198,3 +218,54 @@ func (db *Database) GetDebridSettings() (*models.DebridSettings, bool) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func ResolveSettingsPathsPhysical(settings *models.Settings) {
+	if settings == nil {
+		return
+	}
+	if settings.Library != nil {
+		settings.Library.LibraryPath = util.ResolvePhysicalPath(settings.Library.LibraryPath)
+		for i, p := range settings.Library.LibraryPaths {
+			settings.Library.LibraryPaths[i] = util.ResolvePhysicalPath(p)
+		}
+	}
+	if settings.Manga != nil {
+		settings.Manga.LocalSourceDirectory = util.ResolvePhysicalPath(settings.Manga.LocalSourceDirectory)
+	}
+}
+
+func VirtualizeSettingsPaths(settings *models.Settings) {
+	if settings == nil {
+		return
+	}
+	if settings.Library != nil {
+		settings.Library.LibraryPath = util.ResolveVirtualPath(settings.Library.LibraryPath)
+		for i, p := range settings.Library.LibraryPaths {
+			settings.Library.LibraryPaths[i] = util.ResolveVirtualPath(p)
+		}
+	}
+	if settings.Manga != nil {
+		settings.Manga.LocalSourceDirectory = util.ResolveVirtualPath(settings.Manga.LocalSourceDirectory)
+	}
+}
+
+func CloneSettings(settings *models.Settings) *models.Settings {
+	if settings == nil {
+		return nil
+	}
+	clone := *settings
+	if settings.Library != nil {
+		lib := *settings.Library
+		if settings.Library.LibraryPaths != nil {
+			lib.LibraryPaths = append([]string{}, settings.Library.LibraryPaths...)
+		} else {
+			lib.LibraryPaths = []string{}
+		}
+		clone.Library = &lib
+	}
+	if settings.Manga != nil {
+		manga := *settings.Manga
+		clone.Manga = &manga
+	}
+	return &clone
+}

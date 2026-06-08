@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/util"
 	"strings"
@@ -97,6 +98,10 @@ func (c *Client) initializeClient() error {
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.Seed = true
 	cfg.DisableIPv6 = settings.DisableIPV6
+	if runtime.GOOS == "ios" || runtime.GOOS == "android" {
+		cfg.DisableIPv6 = true
+		cfg.NoDefaultPortForwarding = true
+	}
 	cfg.Logger = alog.Logger{}.FilterLevel(alog.Never)
 
 	// TEST ONLY: Limit download speed to 1mb/s
@@ -123,8 +128,15 @@ func (c *Client) initializeClient() error {
 	// Create the torrent client
 	client, err := torrent.NewClient(cfg)
 	if err != nil {
-		c.mu.Unlock()
-		return fmt.Errorf("error creating a new torrent client: %v", err)
+		if cfg.ListenPort != 0 {
+			c.repository.logger.Warn().Err(err).Msgf("torrentstream: failed to start client on port %d, retrying with random port", cfg.ListenPort)
+			cfg.ListenPort = 0
+			client, err = torrent.NewClient(cfg)
+		}
+		if err != nil {
+			c.mu.Unlock()
+			return fmt.Errorf("error creating a new torrent client: %v", err)
+		}
 	}
 	c.repository.logger.Info().Msgf("torrentstream: Initialized torrent client on port %d", settings.TorrentClientPort)
 	c.torrentClient = mo.Some(client)

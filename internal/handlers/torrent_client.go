@@ -40,6 +40,9 @@ func (h *Handler) HandleGetActiveTorrentList(c echo.Context) error {
 	// If an error occurred, try to start the torrent client and get the list again
 	// DEVNOTE: We try to get the list first because this route is called repeatedly by the client.
 	if err != nil {
+		if h.App.TorrentClientRepository.GetProvider() == torrent_client.SeanimeClient {
+			return h.RespondWithData(c, make([]*torrent_client.Torrent, 0))
+		}
 		if err := h.guardPrivilegedTorrentClient(c, h.App.Settings); err != nil {
 			return err
 		}

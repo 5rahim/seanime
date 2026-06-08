@@ -36,6 +36,7 @@ import (
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
 	"seanime/internal/user"
+	"seanime/internal/util"
 	"seanime/internal/videocore"
 
 	"github.com/cli/browser"
@@ -46,6 +47,8 @@ import (
 // This function is called once after the App instance is created.
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
 func (a *App) initModulesOnce() {
+
+	_, _ = util.EnsureDocumentsDirectoryVisible()
 
 	a.LocalManager.SetRefreshAnilistCollectionsFunc(func() {
 		_, _ = a.RefreshAnimeCollection()

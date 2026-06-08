@@ -2,16 +2,10 @@ package server
 
 import (
 	"embed"
-	"fmt"
-	golog "log"
-	"os"
-	"path/filepath"
 	"seanime/internal/core"
 	"seanime/internal/cron"
 	"seanime/internal/handlers"
 	"seanime/internal/updater"
-	"seanime/internal/util"
-	"seanime/internal/util/crashlog"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -32,33 +26,7 @@ func startApp(embeddedLogo []byte) (*core.App, core.SeanimeFlags, *updater.SelfU
 		EmbeddedLogo: embeddedLogo,
 	}, selfupdater)
 
-	// Create log file
-	logFilePath := filepath.Join(app.Config.Logs.Dir, fmt.Sprintf("seanime-%s.log", time.Now().Format("2006-01-02_15-04-05")))
-	// Open the log file
-	logFile, _ := os.OpenFile(
-		logFilePath,
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-		0664,
-	)
-
-	log.Logger = *app.Logger
-	golog.SetOutput(app.Logger)
-	util.SetupLoggerSignalHandling(logFile)
-	crashlog.GlobalCrashLogger.SetLogDir(app.Config.Logs.Dir)
-
-	app.OnFlushLogs = func() {
-		util.WriteGlobalLogBufferToFile(logFile)
-		logFile.Sync()
-	}
-
-	if !flags.Update {
-		go func() {
-			for {
-				util.WriteGlobalLogBufferToFile(logFile)
-				time.Sleep(5 * time.Second)
-			}
-		}()
-	}
+	app.InitLogging(flags.Update)
 
 	return app, flags, selfupdater
 }
