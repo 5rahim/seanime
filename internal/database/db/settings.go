@@ -250,7 +250,7 @@ func VirtualizeSettingsPaths(settings *models.Settings) {
 }
 
 func CloneSettings(settings *models.Settings) *models.Settings {
-	if !util.IsIOS() || settings == nil {
+	if settings == nil {
 		return nil
 	}
 	clone := *settings
@@ -264,7 +264,8 @@ func CloneSettings(settings *models.Settings) *models.Settings {
 		clone.Library = &lib
 	}
 	if settings.Manga != nil {
-		clone.Manga = new(*settings.Manga)
+		manga := *settings.Manga
+		clone.Manga = &manga
 	}
 	return &clone
 }
