@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.8.6
+
+- 🦺 Fixed settings regression introduced in v3.8.5
+
 ## v3.8.5
 
 - 🦺 Built-in Torrent Client: Fixed runtime error causing by pausing
