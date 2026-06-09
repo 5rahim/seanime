@@ -235,7 +235,7 @@ func ResolveSettingsPathsPhysical(settings *models.Settings) {
 }
 
 func VirtualizeSettingsPaths(settings *models.Settings) {
-	if settings == nil {
+	if !util.IsIOS() || settings == nil {
 		return
 	}
 	if settings.Library != nil {
@@ -250,7 +250,7 @@ func VirtualizeSettingsPaths(settings *models.Settings) {
 }
 
 func CloneSettings(settings *models.Settings) *models.Settings {
-	if settings == nil {
+	if !util.IsIOS() || settings == nil {
 		return nil
 	}
 	clone := *settings
@@ -264,8 +264,7 @@ func CloneSettings(settings *models.Settings) *models.Settings {
 		clone.Library = &lib
 	}
 	if settings.Manga != nil {
-		manga := *settings.Manga
-		clone.Manga = &manga
+		clone.Manga = new(*settings.Manga)
 	}
 	return &clone
 }

@@ -28,12 +28,9 @@ func (a *App) InitLogging(updateMode bool) {
 	// Create log file
 	logFilePath := filepath.Join(a.Config.Logs.Dir, fmt.Sprintf("seanime-%s.log", time.Now().Format("2006-01-02_15-04-05")))
 
-	if util.IsMobile() {
-		fmt.Fprintf(os.Stderr, "[InitLogging] logFilePath: %q\n", logFilePath)
-	}
-
 	var perm os.FileMode = 0664
 	if util.IsMobile() {
+		fmt.Fprintf(os.Stderr, "[InitLogging] logFilePath: %q\n", logFilePath)
 		perm = 0600
 	}
 

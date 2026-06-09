@@ -48,7 +48,7 @@ import (
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
 func (a *App) initModulesOnce() {
 
-	_, _ = util.EnsureDocumentsDirectoryVisible()
+	_, _ = util.InitIOSDocumentsDir()
 
 	a.LocalManager.SetRefreshAnilistCollectionsFunc(func() {
 		_, _ = a.RefreshAnimeCollection()

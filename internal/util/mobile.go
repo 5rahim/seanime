@@ -19,7 +19,7 @@ func IsAndroid() bool {
 	return runtime.GOOS == "android"
 }
 
-func EnsureDocumentsDirectoryVisible() (string, error) {
+func InitIOSDocumentsDir() (string, error) {
 	if !IsIOS() {
 		return "", nil
 	}

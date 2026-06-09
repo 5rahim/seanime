@@ -3,7 +3,6 @@ package handlers
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 	"seanime/internal/util"
 	"strings"
 
@@ -47,19 +46,19 @@ func (h *Handler) HandleDirectorySelector(c echo.Context) error {
 	}
 
 	input := filepath.ToSlash(filepath.Clean(request.Input))
-	physicalInput := util.ResolvePhysicalPath(input)
-	directoryExists, err := checkDirectoryExists(physicalInput)
+	actualInput := util.ResolvePhysicalPath(input)
+	directoryExists, err := checkDirectoryExists(actualInput)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
 	if directoryExists {
-		suggestions, err := getAutocompletionSuggestions(physicalInput)
+		suggestions, err := getAutocompletionSuggestions(actualInput)
 		if err != nil {
 			return h.RespondWithError(c, err)
 		}
 
-		content, err := getDirectoryContent(physicalInput)
+		content, err := getDirectoryContent(actualInput)
 		if err != nil {
 			return h.RespondWithError(c, err)
 		}
@@ -80,15 +79,15 @@ func (h *Handler) HandleDirectorySelector(c echo.Context) error {
 		}
 
 		return h.RespondWithData(c, DirectorySelectorResponse{
-			FullPath:    util.ResolveVirtualPath(physicalInput),
-			BasePath:    util.ResolveVirtualPath(filepath.ToSlash(filepath.Dir(physicalInput))),
+			FullPath:    util.ResolveVirtualPath(actualInput),
+			BasePath:    util.ResolveVirtualPath(filepath.ToSlash(filepath.Dir(actualInput))),
 			Exists:      true,
 			Suggestions: virtualSuggestions,
 			Content:     virtualContent,
 		})
 	}
 
-	suggestions, err := getAutocompletionSuggestions(physicalInput)
+	suggestions, err := getAutocompletionSuggestions(actualInput)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -102,8 +101,8 @@ func (h *Handler) HandleDirectorySelector(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, DirectorySelectorResponse{
-		FullPath:    util.ResolveVirtualPath(physicalInput),
-		BasePath:    util.ResolveVirtualPath(filepath.ToSlash(filepath.Dir(physicalInput))),
+		FullPath:    util.ResolveVirtualPath(actualInput),
+		BasePath:    util.ResolveVirtualPath(filepath.ToSlash(filepath.Dir(actualInput))),
 		Exists:      false,
 		Suggestions: virtualSuggestions,
 	})
@@ -127,7 +126,7 @@ func getAutocompletionSuggestions(input string) ([]DirectoryInfo, error) {
 
 	entries, err := os.ReadDir(baseDir)
 	if err != nil {
-		if runtime.GOOS == "ios" || runtime.GOOS == "android" {
+		if util.IsMobile() {
 			return nil, nil
 		}
 		return nil, err
@@ -150,7 +149,7 @@ func getDirectoryContent(path string) ([]DirectoryInfo, error) {
 
 	entries, err := os.ReadDir(path)
 	if err != nil {
-		if runtime.GOOS == "ios" || runtime.GOOS == "android" {
+		if util.IsMobile() {
 			return nil, nil
 		}
 		return nil, err

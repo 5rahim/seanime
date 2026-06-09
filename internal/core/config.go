@@ -328,6 +328,9 @@ func setDataDirEnv(dataDir string) error {
 }
 
 func setTempDirEnv(dataDir string) error {
+	if !util.IsMobile() {
+		return nil
+	}
 	// Set TMPDIR environment variable if it's not set, or if we are on Android (where default is /data/local/tmp which is not writable)
 	if os.Getenv("TMPDIR") == "" || runtime.GOOS == "android" {
 		tempDir := filepath.Join(dataDir, "temp")
