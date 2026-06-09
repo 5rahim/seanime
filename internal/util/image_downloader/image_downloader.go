@@ -3,7 +3,6 @@ package image_downloader
 import (
 	"bytes"
 	"fmt"
-	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
@@ -235,7 +234,7 @@ func (id *ImageDownloader) downloadImage(url string) {
 	}
 
 	// Get the image format
-	_, format, err := image.DecodeConfig(bytes.NewReader(buf))
+	_, _, format, err := util.DetectImageFormatAndDimensions(buf, url)
 	if err != nil {
 		id.logger.Error().Err(err).Msgf("image downloader: Failed to decode image format from URL %s", url)
 		return

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.8.5
+
+- 🦺 Built-in Torrent Client: Fixed runtime error causing by pausing
+- 🦺 Built-in Torrent Client: Added in-memory map fallback
+- 🦺 VideoCore: Potential fix for body pointer events
+- 🦺 Manga: Potential fix for image format and size detection failing
+- 🏗️ Core: Improved support for gomobile
+
 ## v3.8.4
 
 - ✨ Built-in torrent client (Experimental)

@@ -176,7 +176,7 @@ export function VideoCoreDrawer(props: DrawerProps) {
         if (!resolvedOpen || !canInteractOutside || typeof document === "undefined") return
 
         const body = document.body
-        const previousPointerEvents = body.style.pointerEvents
+        const previousPointerEvents = body.style.pointerEvents === "none" ? "" : body.style.pointerEvents
 
         const unlockBodyPointerEvents = () => {
             if (body.style.pointerEvents !== "auto") {
@@ -200,6 +200,24 @@ export function VideoCoreDrawer(props: DrawerProps) {
             }
         }
     }, [resolvedOpen, canInteractOutside])
+
+    // dumb failsafe
+    React.useEffect(() => {
+        if (!resolvedOpen) {
+            const timer = setTimeout(() => {
+                if (typeof document !== "undefined") {
+                    const body = document.body
+                    if (body.style.pointerEvents === "none") {
+                        const activeModals = document.querySelectorAll("[role=\"dialog\"], [data-state=\"open\"]")
+                        if (activeModals.length === 0) {
+                            body.style.pointerEvents = ""
+                        }
+                    }
+                }
+            }, 1000)
+            return () => clearTimeout(timer)
+        }
+    }, [resolvedOpen])
 
     React.useEffect(() => {
         const t = setTimeout(() => {
