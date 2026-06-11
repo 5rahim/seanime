@@ -102,11 +102,21 @@ function Content(props: ExtensionCodeModalProps) {
                 setCode={setCode}
                 language={extension.language}
                 readOnly={readOnly}
-            /> : <UnifiedDiff oldCode={diff} currentCode={code} />}
+            /> : <UnifiedDiff oldCode={code} currentCode={diff} language={extension.language} />}
         </>
     )
 }
 
+function getCodeMirrorLanguageExtensions(language?: string) {
+    const normalized = language?.toLowerCase()
+    if (normalized === "go") return [StreamLanguage.define(go)]
+
+    return [javascript({ typescript: normalized === "typescript" })]
+}
+
+function normalizeDiffCode(code: string) {
+    return code.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n")
+}
 
 function ExtensionCodeEditor({
     code,
@@ -121,7 +131,7 @@ function ExtensionCodeEditor({
                 value={code}
                 height="75vh"
                 theme={vscodeDark}
-                extensions={[javascript({ typescript: language === "typescript" }), StreamLanguage.define(go)]}
+                extensions={getCodeMirrorLanguageExtensions(language)}
                 onChange={setCode}
                 readOnly={readOnly}
             />
@@ -132,19 +142,22 @@ function ExtensionCodeEditor({
 interface Props {
     oldCode: string;
     currentCode: string;
+    language: string;
 }
 
-export const UnifiedDiff = ({ oldCode, currentCode }: Props) => {
+export const UnifiedDiff = ({ oldCode, currentCode, language }: Props) => {
+    const normalizedOldCode = useMemo(() => normalizeDiffCode(oldCode), [oldCode])
+    const normalizedCurrentCode = useMemo(() => normalizeDiffCode(currentCode), [currentCode])
     const extensions = useMemo(() => [
-        javascript({ typescript: true }),
+        ...getCodeMirrorLanguageExtensions(language),
         unifiedMergeView({
-            original: oldCode,
+            original: normalizedOldCode,
             highlightChanges: true,
             gutter: true,
             mergeControls: false,
-            // allowInlineDiffs: true,
+            allowInlineDiffs: true,
         }),
-    ], [oldCode])
+    ], [normalizedOldCode, language])
 
     const hideDiffStyles = EditorView.theme({
         ".cm-changedText": {
@@ -158,7 +171,7 @@ export const UnifiedDiff = ({ oldCode, currentCode }: Props) => {
     return (
         <div className="overflow-hidden rounded-[--radius-md]">
             <CodeMirror
-                value={currentCode}
+                value={normalizedCurrentCode}
                 height="75vh"
                 theme={vscodeDark}
                 extensions={[hideDiffStyles, ...extensions]}

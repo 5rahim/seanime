@@ -29324,6 +29324,18 @@
         "comments": []
       },
       {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "INTERNAL_Config_Torrent",
+        "inlineStructType": "struct{\nDir string}",
+        "typescriptType": "INTERNAL_Config_Torrent",
+        "usedTypescriptType": "{ Dir: string; }",
+        "usedStructName": "core.Config_Torrent",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Anilist",
         "jsonName": "Anilist",
         "goType": "INTERNAL_Config_Anilist",
@@ -29339,9 +29351,9 @@
         "name": "Experimental",
         "jsonName": "Experimental",
         "goType": "INTERNAL_Config_Experimental",
-        "inlineStructType": "struct{\nMainServerTorrentStreaming bool}",
+        "inlineStructType": "struct{\nBuiltinTorrentClient bool}",
         "typescriptType": "INTERNAL_Config_Experimental",
-        "usedTypescriptType": "{ MainServerTorrentStreaming: boolean; }",
+        "usedTypescriptType": "{ BuiltinTorrentClient: boolean; }",
         "usedStructName": "core.Config_Experimental",
         "required": true,
         "public": true,
@@ -29671,6 +29683,25 @@
   {
     "filepath": "../internal/core/config.go",
     "filename": "config.go",
+    "name": "Config_Torrent",
+    "formattedName": "INTERNAL_Config_Torrent",
+    "package": "core",
+    "fields": [
+      {
+        "name": "Dir",
+        "jsonName": "Dir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
     "name": "Config_Anilist",
     "formattedName": "INTERNAL_Config_Anilist",
     "package": "core",
@@ -29695,8 +29726,8 @@
     "package": "core",
     "fields": [
       {
-        "name": "MainServerTorrentStreaming",
-        "jsonName": "MainServerTorrentStreaming",
+        "name": "BuiltinTorrentClient",
+        "jsonName": "BuiltinTorrentClient",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -29850,8 +29881,8 @@
     "package": "core",
     "fields": [
       {
-        "name": "MainServerTorrentStreaming",
-        "jsonName": "MainServerTorrentStreaming",
+        "name": "BuiltinTorrentClient",
+        "jsonName": "builtinTorrentClient",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -31295,6 +31326,51 @@
         "comments": []
       },
       {
+        "name": "SeanimePort",
+        "jsonName": "seanimePort",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SeanimeMaxConnections",
+        "jsonName": "seanimeMaxConnections",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SeanimeDownloadLimit",
+        "jsonName": "seanimeDownloadLimit",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SeanimeUploadLimit",
+        "jsonName": "seanimeUploadLimit",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SeanimeMaxActiveDownloads",
+        "jsonName": "seanimeMaxActiveDownloads",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ShowActiveTorrentCount",
         "jsonName": "showActiveTorrentCount",
         "goType": "bool",
@@ -31314,6 +31390,100 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "LocalTorrent",
+    "formattedName": "Models_LocalTorrent",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Magnet",
+        "jsonName": "magnet",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Destination",
+        "jsonName": "destination",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "QueueIndex",
+        "jsonName": "queueIndex",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ForceStart",
+        "jsonName": "forceStart",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Sequential",
+        "jsonName": "sequential",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FilePriorities",
+        "jsonName": "",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "../internal/database/models/models.go",
@@ -40239,6 +40409,15 @@
         "jsonName": "image",
         "goType": "string",
         "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ImageHeaders",
+        "jsonName": "imageHeaders",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -77684,6 +77863,24 @@
         "comments": []
       },
       {
+        "name": "mangaPageDropdownItems",
+        "jsonName": "mangaPageDropdownItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaLibraryDropdownItems",
+        "jsonName": "mangaLibraryDropdownItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "mediaCardContextMenuItems",
         "jsonName": "mediaCardContextMenuItems",
         "goType": "",
@@ -77914,6 +78111,30 @@
     "filename": "action.go",
     "name": "AnimeLibraryDropdownMenuItem",
     "formattedName": "PluginUI_AnimeLibraryDropdownMenuItem",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseAction"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "MangaPageDropdownMenuItem",
+    "formattedName": "PluginUI_MangaPageDropdownMenuItem",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseAction"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "MangaLibraryDropdownMenuItem",
+    "formattedName": "PluginUI_MangaLibraryDropdownMenuItem",
     "package": "plugin_ui",
     "fields": [],
     "comments": [],
@@ -79329,6 +79550,8 @@
         "\"action:anime-page-buttons:render\"",
         "\"action:anime-page-dropdown-items:render\"",
         "\"action:manga-page-buttons:render\"",
+        "\"action:manga-page-dropdown-items:render\"",
+        "\"action:manga-library-dropdown-items:render\"",
         "\"action:media-card-context-menu-items:render\"",
         "\"action:anime-library-dropdown-items:render\"",
         "\"action:episode-card-context-menu-items:render\"",
@@ -79568,6 +79791,24 @@
     "filename": "events.go",
     "name": "ClientActionRenderMangaPageButtonsEventPayload",
     "formattedName": "PluginUI_ClientActionRenderMangaPageButtonsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderMangaPageDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderMangaPageDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderMangaLibraryDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ClientActionRenderMangaLibraryDropdownItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -80215,6 +80456,8 @@
         "\"action:anime-page-buttons:updated\"",
         "\"action:anime-page-dropdown-items:updated\"",
         "\"action:manga-page-buttons:updated\"",
+        "\"action:manga-page-dropdown-items:updated\"",
+        "\"action:manga-library-dropdown-items:updated\"",
         "\"action:media-card-context-menu-items:updated\"",
         "\"action:episode-card-context-menu-items:updated\"",
         "\"action:episode-grid-item-menu-items:updated\"",
@@ -80857,6 +81100,44 @@
       {
         "name": "Buttons",
         "jsonName": "buttons",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderMangaPageDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderMangaPageDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderMangaLibraryDropdownItemsEventPayload",
+    "formattedName": "PluginUI_ServerActionRenderMangaLibraryDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -84910,6 +85191,543 @@
     "comments": []
   },
   {
+    "filepath": "../internal/torrent_clients/builtin_client/builtin.go",
+    "filename": "builtin.go",
+    "name": "NewClientOptions",
+    "formattedName": "NewClientOptions",
+    "package": "builtin_client",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Dir",
+        "jsonName": "Dir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Port",
+        "jsonName": "Port",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxConnections",
+        "jsonName": "MaxConnections",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadLimitKB",
+        "jsonName": "DownloadLimitKB",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UploadLimitKB",
+        "jsonName": "UploadLimitKB",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxActiveDownloads",
+        "jsonName": "MaxActiveDownloads",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableNetwork",
+        "jsonName": "DisableNetwork",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/builtin_client/builtin.go",
+    "filename": "builtin.go",
+    "name": "Client",
+    "formattedName": "Client",
+    "package": "builtin_client",
+    "fields": [
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "database",
+        "jsonName": "database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "anacrolix.Client",
+        "typescriptType": "Client",
+        "usedTypescriptType": "Client",
+        "usedStructName": "anacrolix.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrents",
+        "jsonName": "torrents",
+        "goType": "map[string]torrentEntry",
+        "typescriptType": "Record\u003cstring, torrentEntry\u003e",
+        "usedTypescriptType": "torrentEntry",
+        "usedStructName": "builtin_client.torrentEntry",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "downloadLimiter",
+        "jsonName": "downloadLimiter",
+        "goType": "rate.Limiter",
+        "typescriptType": "Limiter",
+        "usedTypescriptType": "Limiter",
+        "usedStructName": "rate.Limiter",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "uploadLimiter",
+        "jsonName": "uploadLimiter",
+        "goType": "rate.Limiter",
+        "typescriptType": "Limiter",
+        "usedTypescriptType": "Limiter",
+        "usedStructName": "rate.Limiter",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "maxActiveDownloads",
+        "jsonName": "maxActiveDownloads",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeCh",
+        "jsonName": "closeCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "pieceCompletion",
+        "jsonName": "pieceCompletion",
+        "goType": "storage.PieceCompletion",
+        "typescriptType": "PieceCompletion",
+        "usedTypescriptType": "PieceCompletion",
+        "usedStructName": "storage.PieceCompletion",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/builtin_client/builtin.go",
+    "filename": "builtin.go",
+    "name": "TorrentSnapshot",
+    "formattedName": "TorrentSnapshot",
+    "package": "builtin_client",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Destination",
+        "jsonName": "destination",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Queued",
+        "jsonName": "queued",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ForceStart",
+        "jsonName": "forceStart",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Sequential",
+        "jsonName": "sequential",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "QueueIndex",
+        "jsonName": "queueIndex",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Length",
+        "jsonName": "length",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Completed",
+        "jsonName": "completed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownSpeed",
+        "jsonName": "downSpeed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpSpeed",
+        "jsonName": "upSpeed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeds",
+        "jsonName": "seeds",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Peers",
+        "jsonName": "peers",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Downloaded",
+        "jsonName": "downloaded",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Uploaded",
+        "jsonName": "uploaded",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AddedAt",
+        "jsonName": "addedAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/builtin_client/builtin.go",
+    "filename": "builtin.go",
+    "name": "TorrentDetails",
+    "formattedName": "TorrentDetails",
+    "package": "builtin_client",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "torrent",
+        "goType": "TorrentSnapshot",
+        "typescriptType": "TorrentSnapshot",
+        "usedTypescriptType": "TorrentSnapshot",
+        "usedStructName": "builtin_client.TorrentSnapshot",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]FileDetails",
+        "typescriptType": "Array\u003cFileDetails\u003e",
+        "usedTypescriptType": "FileDetails",
+        "usedStructName": "builtin_client.FileDetails",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Trackers",
+        "jsonName": "trackers",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Peers",
+        "jsonName": "peers",
+        "goType": "[]PeerDetails",
+        "typescriptType": "Array\u003cPeerDetails\u003e",
+        "usedTypescriptType": "PeerDetails",
+        "usedStructName": "builtin_client.PeerDetails",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/builtin_client/builtin.go",
+    "filename": "builtin.go",
+    "name": "FileDetails",
+    "formattedName": "FileDetails",
+    "package": "builtin_client",
+    "fields": [
+      {
+        "name": "Index",
+        "jsonName": "index",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Length",
+        "jsonName": "length",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Completed",
+        "jsonName": "completed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Priority",
+        "jsonName": "priority",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/builtin_client/builtin.go",
+    "filename": "builtin.go",
+    "name": "PeerDetails",
+    "formattedName": "PeerDetails",
+    "package": "builtin_client",
+    "fields": [
+      {
+        "name": "Address",
+        "jsonName": "address",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Client",
+        "jsonName": "client",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/torrent_clients/qbittorrent/application/client.go",
     "filename": "client.go",
     "name": "Client",
@@ -88821,6 +89639,17 @@
         "comments": []
       },
       {
+        "name": "seanimeClient",
+        "jsonName": "seanimeClient",
+        "goType": "builtin_client.Client",
+        "typescriptType": "Client",
+        "usedTypescriptType": "Client",
+        "usedStructName": "builtin_client.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "torrentRepository",
         "jsonName": "torrentRepository",
         "goType": "torrent.Repository",
@@ -88915,6 +89744,17 @@
         "comments": []
       },
       {
+        "name": "SeanimeClient",
+        "jsonName": "SeanimeClient",
+        "goType": "builtin_client.Client",
+        "typescriptType": "Client",
+        "usedTypescriptType": "Client",
+        "usedStructName": "builtin_client.Client",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "TorrentRepository",
         "jsonName": "TorrentRepository",
         "goType": "torrent.Repository",
@@ -88940,6 +89780,15 @@
         "goType": "",
         "typescriptType": "any",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsBuiltinClientEnabled",
+        "jsonName": "IsBuiltinClientEnabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -89231,6 +90080,70 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Peers",
+        "jsonName": "peers",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ratio",
+        "jsonName": "ratio",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AddedAt",
+        "jsonName": "addedAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "QueueIndex",
+        "jsonName": "queueIndex",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ForceStart",
+        "jsonName": "forceStart",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Sequential",
+        "jsonName": "sequential",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -89250,7 +90163,9 @@
         "\"seeding\"",
         "\"paused\"",
         "\"other\"",
-        "\"stopped\""
+        "\"stopped\"",
+        "\"queued\"",
+        "\"error\""
       ]
     },
     "comments": []

@@ -46,6 +46,7 @@ declare global {
             };
             localServer: {
                 getPort: () => Promise<number>;
+                allowWebviewOrigin?: (origin: string) => Promise<boolean>;
             },
             startup: {
                 ready: () => void;

@@ -1980,7 +1980,7 @@ export type Continuity_WatchHistoryItemResponse = {
  * - Package: core
  */
 export type INTERNAL_FeatureFlags = {
-    MainServerTorrentStreaming: boolean
+    builtinTorrentClient: boolean
 }
 
 /**
@@ -3001,6 +3001,7 @@ export type HibikeManga_SearchResult = {
     synonyms?: Array<string>
     year?: number
     image?: string
+    imageHeaders?: Record<string, string>
     searchRating?: number
 }
 
@@ -4108,6 +4109,11 @@ export type Models_TorrentSettings = {
     transmissionPort: number
     transmissionUsername: string
     transmissionPassword: string
+    seanimePort: number
+    seanimeMaxConnections: number
+    seanimeDownloadLimit: number
+    seanimeUploadLimit: number
+    seanimeMaxActiveDownloads: number
     showActiveTorrentCount: boolean
     hideTorrentList: boolean
 }
@@ -4846,6 +4852,13 @@ export type TorrentClient_Torrent = {
     eta: string
     status: TorrentClient_TorrentStatus
     contentPath: string
+    peers: number
+    ratio: number
+    addedAt?: string
+    queueIndex: number
+    forceStart: boolean
+    sequential: boolean
+    error: string
 }
 
 /**
@@ -4853,7 +4866,13 @@ export type TorrentClient_Torrent = {
  * - Filename: torrent.go
  * - Package: torrent_client
  */
-export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" | "other" | "stopped"
+export type TorrentClient_TorrentStatus = "downloading" |
+    "seeding" |
+    "paused" |
+    "other" |
+    "stopped" |
+    "queued" |
+    "error"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Torrentstream

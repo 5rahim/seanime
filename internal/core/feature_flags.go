@@ -2,7 +2,6 @@ package core
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/spf13/viper"
 )
 
 type (
@@ -136,7 +135,7 @@ func (m *FeatureManager) GetDisabledFeatureMap() map[FeatureKey]bool {
 
 type (
 	FeatureFlags struct {
-		MainServerTorrentStreaming bool
+		BuiltinTorrentClient bool `json:"builtinTorrentClient"`
 	}
 
 	ExperimentalFeatureFlags struct {
@@ -146,7 +145,7 @@ type (
 // NewFeatureFlags initializes the feature flags
 func NewFeatureFlags(cfg *Config, logger *zerolog.Logger) FeatureFlags {
 	ff := FeatureFlags{
-		MainServerTorrentStreaming: viper.GetBool("experimental.mainServerTorrentStreaming"),
+		BuiltinTorrentClient: cfg.Experimental.BuiltinTorrentClient,
 	}
 
 	checkExperimentalFeatureFlags(&ff, cfg, logger)
@@ -155,11 +154,8 @@ func NewFeatureFlags(cfg *Config, logger *zerolog.Logger) FeatureFlags {
 }
 
 func checkExperimentalFeatureFlags(ff *FeatureFlags, cfg *Config, logger *zerolog.Logger) {
-	if ff.MainServerTorrentStreaming {
-		logger.Warn().Msg("app: [Feature flag] 'Main Server Torrent Streaming' experimental feature is enabled")
-	}
-}
 
-func (ff *FeatureFlags) IsMainServerTorrentStreamingEnabled() bool {
-	return ff.MainServerTorrentStreaming
+	if ff.BuiltinTorrentClient {
+		logger.Warn().Msg("app: [Feature flag] 'Built-in Torrent Client' experimental feature is enabled")
+	}
 }

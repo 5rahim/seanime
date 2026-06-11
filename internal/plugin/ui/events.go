@@ -37,6 +37,8 @@ const (
 	ClientActionRenderAnimePageButtonsEvent            ClientEventType = "action:anime-page-buttons:render"              // When the client requests the buttons to display on the anime page
 	ClientActionRenderAnimePageDropdownItemsEvent      ClientEventType = "action:anime-page-dropdown-items:render"       // When the client requests the dropdown items to display on the anime page
 	ClientActionRenderMangaPageButtonsEvent            ClientEventType = "action:manga-page-buttons:render"              // When the client requests the buttons to display on the manga page
+	ClientActionRenderMangaPageDropdownItemsEvent      ClientEventType = "action:manga-page-dropdown-items:render"       // When the client requests the dropdown items to display on the manga page
+	ClientActionRenderMangaLibraryDropdownItemsEvent   ClientEventType = "action:manga-library-dropdown-items:render"    // When the client requests the dropdown items to display on the manga library
 	ClientActionRenderMediaCardContextMenuItemsEvent   ClientEventType = "action:media-card-context-menu-items:render"   // When the client requests the context menu items to display on the media card
 	ClientActionRenderAnimeLibraryDropdownItemsEvent   ClientEventType = "action:anime-library-dropdown-items:render"    // When the client requests the dropdown items to display on the anime library
 	ClientActionRenderEpisodeCardContextMenuItemsEvent ClientEventType = "action:episode-card-context-menu-items:render" // When the client requests the context menu items to display on the episode card
@@ -86,6 +88,8 @@ type ClientWebviewPostMessageEventPayload struct {
 type ClientActionRenderAnimePageButtonsEventPayload struct{}
 type ClientActionRenderAnimePageDropdownItemsEventPayload struct{}
 type ClientActionRenderMangaPageButtonsEventPayload struct{}
+type ClientActionRenderMangaPageDropdownItemsEventPayload struct{}
+type ClientActionRenderMangaLibraryDropdownItemsEventPayload struct{}
 type ClientActionRenderMediaCardContextMenuItemsEventPayload struct{}
 type ClientActionRenderAnimeLibraryDropdownItemsEventPayload struct{}
 type ClientActionRenderEpisodeCardContextMenuItemsEventPayload struct{}
@@ -233,6 +237,8 @@ const (
 	ServerActionRenderAnimePageButtonsEvent            ServerEventType = "action:anime-page-buttons:updated"              // When the server renders the anime page buttons
 	ServerActionRenderAnimePageDropdownItemsEvent      ServerEventType = "action:anime-page-dropdown-items:updated"       // When the server renders the anime page dropdown items
 	ServerActionRenderMangaPageButtonsEvent            ServerEventType = "action:manga-page-buttons:updated"              // When the server renders the manga page buttons
+	ServerActionRenderMangaPageDropdownItemsEvent      ServerEventType = "action:manga-page-dropdown-items:updated"       // When the server renders the manga page dropdown items
+	ServerActionRenderMangaLibraryDropdownItemsEvent   ServerEventType = "action:manga-library-dropdown-items:updated"    // When the server renders the manga library dropdown items
 	ServerActionRenderMediaCardContextMenuItemsEvent   ServerEventType = "action:media-card-context-menu-items:updated"   // When the server renders the media card context menu items
 	ServerActionRenderEpisodeCardContextMenuItemsEvent ServerEventType = "action:episode-card-context-menu-items:updated" // When the server renders the episode card context menu items
 	ServerActionRenderEpisodeGridItemMenuItemsEvent    ServerEventType = "action:episode-grid-item-menu-items:updated"    // When the server renders the episode grid item menu items
@@ -361,6 +367,14 @@ type ServerActionRenderAnimePageDropdownItemsEventPayload struct {
 
 type ServerActionRenderMangaPageButtonsEventPayload struct {
 	Buttons interface{} `json:"buttons"`
+}
+
+type ServerActionRenderMangaPageDropdownItemsEventPayload struct {
+	Items interface{} `json:"items"`
+}
+
+type ServerActionRenderMangaLibraryDropdownItemsEventPayload struct {
+	Items interface{} `json:"items"`
 }
 
 type ServerActionRenderMediaCardContextMenuItemsEventPayload struct {

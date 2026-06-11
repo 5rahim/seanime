@@ -25,7 +25,8 @@ contextBridge.exposeInMainWorld(
         },
 
         localServer: {
-            getPort: () => ipcRenderer.invoke("get-local-server-port")
+            getPort: () => ipcRenderer.invoke("get-local-server-port"),
+            allowWebviewOrigin: (origin) => ipcRenderer.invoke("denshi:allowWebviewOrigin", origin),
         },
 
         startup: {

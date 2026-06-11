@@ -18,6 +18,7 @@ import {
     __manga_hiddenBarAtom,
     __manga_pageFitAtom,
     __manga_pageStretchAtom,
+    __manga_pageZoomAtom,
     __manga_paginationMapAtom,
     __manga_readerProgressBarAtom,
     __manga_readingDirectionAtom,
@@ -64,6 +65,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
     const paginationMap = useAtomValue(__manga_paginationMapAtom)
     const pageFit = useAtomValue(__manga_pageFitAtom)
     const pageStretch = useAtomValue(__manga_pageStretchAtom)
+    const pageZoom = useAtomValue(__manga_pageZoomAtom)
     const readingMode = useAtomValue(__manga_readingModeAtom)
     const readingDirection = useAtomValue(__manga_readingDirectionAtom)
     const readerProgressBar = useAtomValue(__manga_readerProgressBarAtom)
@@ -310,6 +312,10 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                             <div data-manga-reader-bar-info-container-fit className="flex items-center gap-1">
                                 <span className="text-white w-6">f:</span>
                                 {MANGA_PAGE_FIT_OPTIONS.find((option) => option.value === pageFit)?.label}
+                            </div>
+                            <div data-manga-reader-bar-info-container-zoom className="flex items-center gap-1">
+                                <span className="text-white w-6">z:</span>
+                                <span>{Math.round(pageZoom * 100)}%</span>
                             </div>
                             {pageStretch !== MangaPageStretch.NONE &&
                                 <div data-manga-reader-bar-info-container-stretch className="flex items-center gap-1">

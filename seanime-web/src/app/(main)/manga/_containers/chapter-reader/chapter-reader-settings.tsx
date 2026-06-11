@@ -1,3 +1,4 @@
+import { useMangaPageZoomControls } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import {
     __manga_doublePageOffsetAtom,
     __manga_entryReaderSettings,
@@ -16,6 +17,10 @@ import {
     __manga_readingModeAtom,
     MANGA_DEFAULT_KBS,
     MANGA_KBS_ATOM_KEYS,
+    MANGA_PAGE_ZOOM_DEFAULT,
+    MANGA_PAGE_ZOOM_MAX,
+    MANGA_PAGE_ZOOM_MIN,
+    MANGA_PAGE_ZOOM_STEP,
     MANGA_SETTINGS_ATOM_KEYS,
     MangaPageFit,
     MangaPageStretch,
@@ -164,6 +169,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
     const [pageGapShadow, setPageGapShadow] = useAtom(__manga_pageGapShadowAtom)
     const [doublePageOffset, setDoublePageOffset] = useAtom(__manga_doublePageOffsetAtom)
     const [pageOverflowContainerWidth, setPageOverflowContainerWidth] = useAtom(__manga_pageOverflowContainerWidthAtom)
+    const { pageZoom, setZoom, resetZoom } = useMangaPageZoomControls()
     //---
     const [readerProgressBar, setReaderProgressBar] = useAtom(__manga_readerProgressBarAtom)
     const [hiddenBar, setHideBar] = useAtom(__manga_hiddenBarAtom)
@@ -429,6 +435,28 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                             //     <p>'True Size': No scaling, raw sizes</p>
                             // </>}
                         />
+
+                        <div className="flex gap-2 items-end">
+                            <NumberInput
+                                label="Zoom"
+                                max={MANGA_PAGE_ZOOM_MAX * 100}
+                                min={MANGA_PAGE_ZOOM_MIN * 100}
+                                step={MANGA_PAGE_ZOOM_STEP * 100}
+                                rightAddon="%"
+                                value={Math.round(pageZoom * 100)}
+                                onValueChange={(value) => setZoom(value / 100)}
+                                allowMouseWheel={false}
+                            />
+                            <Button
+                                size="sm"
+                                className="rounded-full mb-1"
+                                intent="gray-outline"
+                                disabled={pageZoom === MANGA_PAGE_ZOOM_DEFAULT}
+                                onClick={resetZoom}
+                            >
+                                Reset
+                            </Button>
+                        </div>
 
                         {
                             pageFit === MangaPageFit.LARGER && (

@@ -2178,6 +2178,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/torrent-client/action",
         },
+        GetBuiltInTorrentDetails: {
+            key: "TORRENT-CLIENT-get-built-in-torrent-details",
+            methods: ["GET"],
+            endpoint: "/api/v1/torrent-client/details",
+        },
         /**
          *  @description
          *  Route gets the files of a torrent.

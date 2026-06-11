@@ -73,6 +73,7 @@ const (
 	GetAutoDownloaderRulesEndpoint                     = "AUTO-DOWNLOADER-get-auto-downloader-rules"
 	GetAutoDownloaderRulesByAnimeEndpoint              = "AUTO-DOWNLOADER-get-auto-downloader-rules-by-anime"
 	GetAutoSelectProfileEndpoint                       = "TORRENT-SEARCH-get-auto-select-profile"
+	GetBuiltInTorrentDetailsEndpoint                   = "TORRENT-CLIENT-get-built-in-torrent-details"
 	GetCPUProfileEndpoint                              = "STATUS-get-c-p-u-profile"
 	GetChangelogEndpoint                               = "RELEASES-get-changelog"
 	GetContinuityWatchHistoryEndpoint                  = "CONTINUITY-get-continuity-watch-history"

@@ -3,6 +3,7 @@ import { useRefetchMangaChapterContainers } from "@/api/hooks/manga.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
+import { PluginMangaLibraryDropdownItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { SeaCommandInjectableItem, useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { seaCommand_compareMediaTitles } from "@/app/(main)/_features/sea-command/utils"
@@ -350,6 +351,7 @@ const CollectionListItem = memo(({ list, storedProviders, showStatuses, type, wi
                     >
                         <LuBookOpenCheck /> {params.unreadOnly ? "Show all" : "Unread chapters only"}
                     </DropdownMenuItem>
+                    <PluginMangaLibraryDropdownItems />
                 </DropdownMenu>}
 
             </div>

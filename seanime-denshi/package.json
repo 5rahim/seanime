@@ -1,6 +1,6 @@
 {
   "name": "seanime-denshi",
-  "version": "3.8.3",
+  "version": "3.8.6",
   "description": "Electron-based Desktop client for Seanime",
   "main": "src/main.js",
   "author": "5rahim <talkwithrahim@gmail.com>",
@@ -87,7 +87,10 @@
         }
       ],
       "category": "Entertainment",
-      "artifactName": "seanime-denshi-${version}_Linux_${arch}.${ext}"
+      "artifactName": "seanime-denshi-${version}_Linux_${arch}.${ext}",
+      "desktop": {
+        "StartupWMClass": "seanime-denshi"
+      }
     },
     "nsis": {
       "oneClick": false,

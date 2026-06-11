@@ -24,7 +24,7 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 
 	distFS, err := fs.Sub(webFS, "web")
 	if err != nil {
-		log.Fatal(err)
+		app.Logger.Warn().Msg("app: Web UI directory 'web' not found in embedded FS, running in API-only mode")
 	}
 
 	if app.Config.Server.Tls.Enabled {
@@ -63,23 +63,24 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 		}
 	})
 
-	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
-		Filesystem: http.FS(distFS),
-		HTML5:      true,
-		Skipper: func(c echo.Context) bool {
-			cUrl := c.Request().URL
-			if strings.HasPrefix(cUrl.RequestURI(), "/api") ||
-				strings.HasPrefix(cUrl.RequestURI(), "/events") ||
-				strings.HasPrefix(cUrl.RequestURI(), "/assets") ||
-				strings.HasPrefix(cUrl.RequestURI(), "/manga-downloads") ||
-				strings.HasPrefix(cUrl.RequestURI(), "/offline-assets") {
-				return true
-			}
-			return false
-		},
-	}))
-
-	app.Logger.Info().Msgf("app: Serving embedded web interface")
+	if err == nil {
+		e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+			Filesystem: http.FS(distFS),
+			HTML5:      true,
+			Skipper: func(c echo.Context) bool {
+				cUrl := c.Request().URL
+				if strings.HasPrefix(cUrl.RequestURI(), "/api") ||
+					strings.HasPrefix(cUrl.RequestURI(), "/events") ||
+					strings.HasPrefix(cUrl.RequestURI(), "/assets") ||
+					strings.HasPrefix(cUrl.RequestURI(), "/manga-downloads") ||
+					strings.HasPrefix(cUrl.RequestURI(), "/offline-assets") {
+					return true
+				}
+				return false
+			},
+		}))
+		app.Logger.Info().Msgf("app: Serving embedded web interface")
+	}
 
 	// Serve web assets
 	app.Logger.Info().Msgf("app: Web assets path: %s", app.Config.Web.AssetDir)

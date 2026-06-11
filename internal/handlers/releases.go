@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"net/http"
+	"runtime"
 	"seanime/internal/updater"
 	"seanime/internal/util/result"
 	"strings"
@@ -21,6 +23,10 @@ import (
 //	@route /api/v1/install-update [POST]
 //	@returns handlers.Status
 func (h *Handler) HandleInstallLatestUpdate(c echo.Context) error {
+	if runtime.GOOS == "android" || runtime.GOOS == "ios" {
+		return h.RespondWithError(c, errors.New("self-updating is not supported on mobile platforms"))
+	}
+
 	if err := h.guardPrivilegedLocalExecution(c); err != nil {
 		return err
 	}

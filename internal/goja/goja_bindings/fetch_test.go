@@ -1,12 +1,93 @@
 package goja_bindings
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/dop251/goja"
+	"github.com/stretchr/testify/require"
 )
 
 // inspired by figma
+
+func TestFetchRedirectOptions(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/redirect":
+			http.Redirect(w, r, "/target", http.StatusFound)
+		case "/target":
+			_, _ = w.Write([]byte("target"))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	tests := []struct {
+		name           string
+		redirect       string
+		expectedState  goja.PromiseState
+		expectedStatus int
+		expectedURL    string
+		redirected     bool
+		errorContains  string
+	}{
+		{
+			name:           "follow",
+			redirect:       "follow",
+			expectedState:  goja.PromiseStateFulfilled,
+			expectedStatus: http.StatusOK,
+			expectedURL:    server.URL + "/target",
+			redirected:     true,
+		},
+		{
+			name:           "manual",
+			redirect:       "manual",
+			expectedState:  goja.PromiseStateFulfilled,
+			expectedStatus: http.StatusFound,
+			expectedURL:    server.URL + "/redirect",
+			redirected:     false,
+		},
+		{
+			name:          "error",
+			redirect:      "error",
+			expectedState: goja.PromiseStateRejected,
+			errorContains: "redirect mode error",
+		},
+		{
+			name:          "invalid",
+			redirect:      "sideways",
+			expectedState: goja.PromiseStateRejected,
+			errorContains: "invalid redirect option",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			vm := goja.New()
+			fetch := BindFetch("", vm, []string{"*"})
+			defer fetch.Close()
+
+			val, err := vm.RunString(fmt.Sprintf(`fetch(%q, { redirect: %q })`, server.URL+"/redirect", tt.redirect))
+			require.NoError(t, err)
+
+			promise := requirePromise(t, val)
+			waitForPromiseState(t, promise, tt.expectedState)
+
+			if tt.expectedState == goja.PromiseStateRejected {
+				require.Contains(t, promise.Result().String(), tt.errorContains)
+				return
+			}
+
+			result := promise.Result().ToObject(vm)
+			require.Equal(t, int64(tt.expectedStatus), result.Get("status").ToInteger())
+			require.Equal(t, tt.expectedURL, result.Get("url").String())
+			require.Equal(t, tt.redirected, result.Get("redirected").ToBoolean())
+		})
+	}
+}
 
 func TestIsURLAllowed(t *testing.T) {
 	vm := goja.New()

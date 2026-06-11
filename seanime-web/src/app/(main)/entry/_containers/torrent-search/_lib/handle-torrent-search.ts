@@ -4,7 +4,7 @@ import { useSearchTorrent } from "@/api/hooks/torrent_search.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { __torrentSearch_selectionEpisodeAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { useDebounceWithSet } from "@/hooks/use-debounce"
+import { useDebounceWithTrigger } from "@/hooks/use-debounce"
 import { logger } from "@/lib/helpers/debug"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { useAtom } from "jotai/react"
@@ -76,9 +76,12 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     // Smart search is not enabled for adult content
     const [searchType, setSearchType] = React.useState(!isAdult ? Torrent_SearchType.SMART : Torrent_SearchType.SIMPLE)
 
-    const [globalFilter, debouncedGlobalFilter, setGlobalFilter] = useDebounceWithSet(hasEpisodesToDownload
-        ? ""
-        : (entry?.media?.title?.romaji || ""), 500)
+    const {
+        value: globalFilter,
+        debouncedValue: debouncedGlobalFilter,
+        setValue: setGlobalFilter,
+        triggerImmediate: triggerImmediateSearch,
+    } = useDebounceWithTrigger(hasEpisodesToDownload ? "" : (entry?.media?.title?.romaji || ""), 500)
     const [selectedTorrents, setSelectedTorrents] = useAtom(__torrentSearch_selectedTorrentsAtom)
     const [searchAcrossProviders, setSearchAcrossProviders] = useAtom(__torrentSearch_searchAcrossProvidersAtom)
     const [extraProviderIds, setExtraProviderIds] = useAtom(__torrentSearch_extraProviderIdsAtom)
@@ -86,8 +89,12 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     // const [smartSearchEpisode, setSmartSearchEpisode] = React.useState<number>(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1)
     const [smartSearchResolution, setSmartSearchResolution] = React.useState("")
     const [smartSearchBest, setSmartSearchBest] = React.useState(false)
-    const [smartSearchEpisode, debouncedSmartSearchEpisode, setSmartSearchEpisode] = useDebounceWithSet(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber ?? 1,
-        500)
+    const {
+        value: smartSearchEpisode,
+        debouncedValue: debouncedSmartSearchEpisode,
+        setValue: setSmartSearchEpisode,
+        triggerImmediate: triggerImmediateEpisode,
+    } = useDebounceWithTrigger(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber ?? 1, 500)
 
     const activeExtraProviderIds = React.useMemo(() => {
         const validProviderIds = new Set(providerExtensions?.map(ext => ext.id) ?? [])
@@ -147,7 +154,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     /**
      * Fetch torrent search data
      */
-    const { data: _data, isLoading: _isLoading, isFetching: _isFetching, refetch: _refetchSearch } = useSearchTorrent({
+    const { data: _data, isLoading: _isLoading, isFetching: _isFetching, isError: _isError, refetch } = useSearchTorrent({
         query: debouncedGlobalFilter.trim().toLowerCase(),
         episodeNumber: debouncedSmartSearchEpisode,
             batch: smartSearchBatch,
@@ -209,6 +216,8 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
         setSelectedProviderExtensionId,
         globalFilter,
         setGlobalFilter,
+        debouncedGlobalFilter,
+        triggerImmediateSearch,
         selectedTorrents,
         setSelectedTorrents,
         searchAcrossProviders,
@@ -221,16 +230,18 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
         setSmartSearchBatch,
         smartSearchEpisode,
         setSmartSearchEpisode,
+        debouncedSmartSearchEpisode,
+        triggerImmediateEpisode,
         smartSearchResolution,
         setSmartSearchResolution,
         smartSearchBest,
         setSmartSearchBest,
-        debouncedSmartSearchEpisode,
         soughtEpisode,
         data: _data,
         isLoading: _isLoading,
         isFetching: _isFetching,
-        refetchSearch: _refetchSearch,
+        isError: _isError,
+        refetch,
     }
 
 }

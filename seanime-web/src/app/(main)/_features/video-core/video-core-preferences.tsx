@@ -7,6 +7,7 @@ import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-at
 import { vc_isMuted } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_volume } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_containerElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import { useVideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
@@ -60,6 +61,13 @@ const tabsListClass = cn(
 const tabContentClass = cn(
     "space-y-4 animate-in fade-in-0 duration-300",
 )
+
+function isEditableKeyboardTarget(target: EventTarget | null) {
+    if (!(target instanceof Element)) return false
+    if (target instanceof HTMLElement && target.isContentEditable) return true
+
+    return !!target.closest("input, textarea, select, [contenteditable='true'], [role='textbox']")
+}
 
 const translationSettingsSchema = defineSchema(({ z, presets }) => z.object({
     vcTranslate: z.boolean().default(false),
@@ -853,8 +861,10 @@ export function VideoCoreKeybindingController(props: {
     const [keybindings] = useAtom(vc_keybindingsAtom)
     const isKeybindingsModalOpen = useAtomValue(videoCorePreferencesModalAtom)
     const fullscreen = useAtomValue(vc_isFullscreen)
+    const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const pip = useAtomValue(vc_pip)
     const volume = useAtomValue(vc_volume)
+    const setMiniPlayer = useSetAtom(vc_miniPlayer)
     const setVolume = useSetAtom(vc_storedVolumeAtom)
     const muted = useAtomValue(vc_isMuted)
     const setMuted = useSetAtom(vc_storedMutedAtom)
@@ -907,8 +917,13 @@ export function VideoCoreKeybindingController(props: {
     //
 
     const handleKeyboardShortcuts = useCallback(async (e: KeyboardEvent) => {
-            // Don't handle shortcuts if in an input/textarea or while keybindings modal is open
-            if (isKeybindingsModalOpen || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+            // Don't handle player shortcuts while typing or while keybindings modal is open.
+            if (
+                e.defaultPrevented ||
+                isKeybindingsModalOpen ||
+                isEditableKeyboardTarget(e.target) ||
+                isEditableKeyboardTarget(document.activeElement)
+            ) {
                 return
             }
 
@@ -923,6 +938,18 @@ export function VideoCoreKeybindingController(props: {
 
             const video = videoElement
 
+            if (isMiniPlayer) {
+                if (e.code === keybindings.fullscreen.key) {
+                    e.preventDefault()
+                    setMiniPlayer(false)
+                    window.requestAnimationFrame(() => {
+                        window.requestAnimationFrame(() => {
+                            handleToggleFullscreen()
+                        })
+                    })
+                }
+                return
+            }
 
             if (e.code === "Space" || e.code === "Enter") {
                 e.preventDefault()
@@ -1086,7 +1113,7 @@ export function VideoCoreKeybindingController(props: {
             }
         },
         [keybindings, volume, muted, seek, active, fullscreen, pip, showOverlayFeedback, introEndTime, introStartTime, isKeybindingsModalOpen,
-            toggleInSight, videoElement])
+            toggleInSight, videoElement, isMiniPlayer, setMiniPlayer])
 
     // Keyboard shortcut handlers
     const handleNextChapter = useCallback(() => {

@@ -11,7 +11,9 @@ import {
     usePluginListenActionRenderAnimePageDropdownItemsEvent,
     usePluginListenActionRenderEpisodeCardContextMenuItemsEvent,
     usePluginListenActionRenderEpisodeGridItemMenuItemsEvent,
+    usePluginListenActionRenderMangaLibraryDropdownItemsEvent,
     usePluginListenActionRenderMangaPageButtonsEvent,
+    usePluginListenActionRenderMangaPageDropdownItemsEvent,
     usePluginListenActionRenderMediaCardContextMenuItemsEvent,
     usePluginSendActionClickedEvent,
     usePluginSendActionRenderAnimeLibraryDropdownItemsEvent,
@@ -19,7 +21,9 @@ import {
     usePluginSendActionRenderAnimePageDropdownItemsEvent,
     usePluginSendActionRenderEpisodeCardContextMenuItemsEvent,
     usePluginSendActionRenderEpisodeGridItemMenuItemsEvent,
+    usePluginSendActionRenderMangaLibraryDropdownItemsEvent,
     usePluginSendActionRenderMangaPageButtonsEvent,
+    usePluginSendActionRenderMangaPageDropdownItemsEvent,
     usePluginSendActionRenderMediaCardContextMenuItemsEvent,
 } from "../generated/plugin-events"
 
@@ -180,6 +184,56 @@ export function PluginMangaPageButtons(props: { media: AL_BaseManga }) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+type PluginMangaPageDropdownMenuItem = {
+    extensionId: string
+    onClick: string
+    label: string
+    id: string
+    style: React.CSSProperties
+    disabled?: boolean
+}
+
+export function PluginMangaPageDropdownItems(props: { media: AL_BaseManga }) {
+    const [items, setItems] = useState<PluginMangaPageDropdownMenuItem[]>([])
+
+    const { sendActionRenderMangaPageDropdownItemsEvent } = usePluginSendActionRenderMangaPageDropdownItemsEvent()
+    const { sendActionClickedEvent } = usePluginSendActionClickedEvent()
+
+    useEffect(() => {
+        sendActionRenderMangaPageDropdownItemsEvent({}, "")
+    }, [])
+
+    // Listen for the action to render the manga page dropdown items
+    usePluginListenActionRenderMangaPageDropdownItemsEvent((event, extensionId) => {
+        setItems(p => {
+            const otherItems = p.filter(i => i.extensionId !== extensionId)
+            const extItems = event.items.map((i: Record<string, any>) => ({ ...i, extensionId } as PluginMangaPageDropdownMenuItem))
+            return sortItems([...otherItems, ...extItems])
+        })
+    }, "")
+
+    // Send
+    function handleClick(item: PluginMangaPageDropdownMenuItem) {
+        sendActionClickedEvent({
+            actionId: item.id,
+            event: {
+                media: props.media,
+            },
+        }, item.extensionId)
+    }
+
+    if (items.length === 0) return null
+
+    return <>
+        <DropdownMenuSeparator />
+        {items.map(i => (
+            <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style} disabled={i.disabled}>{i.label || "???"}</DropdownMenuItem>
+        ))}
+    </>
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 type PluginMediaCardContextMenuItem = {
     extensionId: string
     onClick: string
@@ -269,6 +323,54 @@ export function PluginAnimeLibraryDropdownItems() {
 
     // Send
     function handleClick(item: PluginAnimeLibraryDropdownMenuItem) {
+        sendActionClickedEvent({
+            actionId: item.id,
+            event: {},
+        }, item.extensionId)
+    }
+
+    if (items.length === 0) return null
+
+    return <>
+        <DropdownMenuSeparator />
+        {items.map(i => (
+            <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style} disabled={i.disabled}>{i.label || "???"}</DropdownMenuItem>
+        ))}
+    </>
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type PluginMangaLibraryDropdownMenuItem = {
+    extensionId: string
+    onClick: string
+    label: string
+    id: string
+    style: React.CSSProperties
+    disabled?: boolean
+}
+
+export function PluginMangaLibraryDropdownItems() {
+    const [items, setItems] = useState<PluginMangaLibraryDropdownMenuItem[]>([])
+
+    const { sendActionRenderMangaLibraryDropdownItemsEvent } = usePluginSendActionRenderMangaLibraryDropdownItemsEvent()
+    const { sendActionClickedEvent } = usePluginSendActionClickedEvent()
+
+    useEffect(() => {
+        sendActionRenderMangaLibraryDropdownItemsEvent({}, "")
+    }, [])
+
+    // Listen for the action to render the manga library dropdown items
+    usePluginListenActionRenderMangaLibraryDropdownItemsEvent((event, extensionId) => {
+        setItems(p => {
+            const otherItems = p.filter(i => i.extensionId !== extensionId)
+            const extItems = event.items.map((i: Record<string, any>) => ({ ...i, extensionId } as PluginMangaLibraryDropdownMenuItem))
+            return sortItems([...otherItems, ...extItems])
+        })
+    }, "")
+
+    // Send
+    function handleClick(item: PluginMangaLibraryDropdownMenuItem) {
         sendActionClickedEvent({
             actionId: item.id,
             event: {},

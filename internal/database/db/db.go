@@ -113,6 +113,7 @@ func migrateTables(db *gorm.DB) error {
 		&models.CustomSourceCollection{},
 		&models.CustomSourceIdentifier{},
 		&models.MediaMetadataParent{},
+		&models.LocalTorrent{},
 		//&models.MangaChapterContainer{},
 	)
 	if err != nil {

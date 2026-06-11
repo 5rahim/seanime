@@ -3,7 +3,6 @@ package chapter_downloader
 import (
 	"bytes"
 	"fmt"
-	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
@@ -297,7 +296,7 @@ func (cd *Downloader) downloadPage(page *hibikemanga.ChapterPage, destination st
 	}
 
 	// Get the image format
-	config, format, err := image.DecodeConfig(bytes.NewReader(buf))
+	width, height, format, err := util.DetectImageFormatAndDimensions(buf, page.URL)
 	if err != nil {
 		cd.logger.Error().Err(err).Msgf("chapter downloader: Failed to decode image format from URL %s", page.URL)
 		return
@@ -325,8 +324,8 @@ func (cd *Downloader) downloadPage(page *hibikemanga.ChapterPage, destination st
 	cd.downloadMu.Lock()
 	(*registry)[page.Index] = PageInfo{
 		Index:       page.Index,
-		Width:       config.Width,
-		Height:      config.Height,
+		Width:       width,
+		Height:      height,
 		Filename:    filename,
 		OriginalURL: page.URL,
 		Size:        int64(len(buf)),

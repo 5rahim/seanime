@@ -9,7 +9,15 @@ import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers
 import { EpisodePillsGrid } from "@/app/(main)/_features/video-core/_components/episode-pills-grid"
 import { useSkipData } from "@/app/(main)/_features/video-core/_lib/aniskip"
 import { VideoCore, VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
-import { isHLSSrc, isNativeVideoExtension, isProbablyHls } from "@/app/(main)/_features/video-core/video-core-hls"
+import {
+    HlsAudioTrack,
+    isHLSSrc,
+    isNativeVideoExtension,
+    isProbablyHls,
+    vc_hlsAudioTracks,
+    vc_hlsCurrentAudioTrack,
+    vc_hlsSetAudioTrack,
+} from "@/app/(main)/_features/video-core/video-core-hls"
 import {
     VideoCoreInlineHelpers,
     VideoCoreInlineHelperUpdateProgressButton,
@@ -21,11 +29,13 @@ import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_conta
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
+    __onlinestream_audioTrackPreferenceByMediaAtom,
+    __onlinestream_dubbedPreferenceByMediaAtom,
     __onlinestream_qualityAtom,
-    __onlinestream_selectedDubbedAtom,
     __onlinestream_selectedEpisodeNumberAtom,
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
+    OnlinestreamAudioTrackPreference,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { useOnlinestreamAutoProviderCycler } from "@/app/(main)/onlinestream/_lib/use-onlinestream-auto-provider-cycler"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -80,6 +90,165 @@ function getQualityResolution(value: string | null | undefined) {
     return normalized.match(/\b(\d{3,4}p|auto|default)\b/i)?.[1]?.toLowerCase() ?? null
 }
 
+function normalizeAudioTrackValue(value: string | null | undefined) {
+    return value?.trim().toLowerCase() ?? ""
+}
+
+function normalizeAudioTrackLanguage(value: string | null | undefined) {
+    const normalized = normalizeAudioTrackValue(value).split("-")[0]
+    const aliases: Record<string, string> = {
+        en: "eng",
+        eng: "eng",
+        english: "eng",
+        ja: "jpn",
+        jp: "jpn",
+        jap: "jpn",
+        jpn: "jpn",
+        japanese: "jpn",
+        fr: "fra",
+        fra: "fra",
+        fre: "fra",
+        french: "fra",
+        es: "spa",
+        spa: "spa",
+        spanish: "spa",
+        pt: "por",
+        por: "por",
+        portuguese: "por",
+        de: "deu",
+        deu: "deu",
+        ger: "deu",
+        german: "deu",
+        it: "ita",
+        ita: "ita",
+        italian: "ita",
+        ru: "rus",
+        rus: "rus",
+        russian: "rus",
+        ko: "kor",
+        kor: "kor",
+        korean: "kor",
+        zh: "zho",
+        zho: "zho",
+        chi: "zho",
+        chinese: "zho",
+    }
+    return aliases[normalized] ?? normalized
+}
+
+function findPreferredAudioTrack(audioTracks: HlsAudioTrack[], preference: OnlinestreamAudioTrackPreference | undefined) {
+    if (!preference) return null
+
+    const language = normalizeAudioTrackLanguage(preference.language)
+    const name = normalizeAudioTrackValue(preference.name)
+
+    const byNameAndLanguage = audioTracks.find(track => {
+        if (!name || normalizeAudioTrackValue(track.name) !== name) return false
+        if (!language) return true
+        return normalizeAudioTrackLanguage(track.language) === language
+    })
+    if (byNameAndLanguage) return byNameAndLanguage
+
+    if (language) {
+        const byLanguage = audioTracks.find(track => normalizeAudioTrackLanguage(track.language) === language)
+        if (byLanguage) return byLanguage
+    }
+
+    if (name) {
+        const byName = audioTracks.find(track => normalizeAudioTrackValue(track.name) === name)
+        if (byName) return byName
+    }
+
+    if (preference.trackId !== undefined) {
+        return audioTracks.find(track => track.id === preference.trackId) ?? null
+    }
+
+    return null
+}
+
+function OnlinestreamAudioTrackPreferenceSync(props: { mediaId?: number, playbackId?: string | null }) {
+    const { mediaId, playbackId } = props
+    const audioTracks = useAtomValue(vc_hlsAudioTracks)
+    const currentAudioTrack = useAtomValue(vc_hlsCurrentAudioTrack)
+    const setHlsAudioTrack = useAtomValue(vc_hlsSetAudioTrack)
+    const [preferenceByMedia, setPreferenceByMedia] = useAtom(__onlinestream_audioTrackPreferenceByMediaAtom)
+    const preferenceKey = mediaId ? String(mediaId) : null
+    const preference = preferenceKey ? preferenceByMedia[preferenceKey] : undefined
+    const hasAppliedPreferenceRef = React.useRef(false)
+    const applyingTrackIdRef = React.useRef<number | null>(null)
+    const lastAudioTrackRef = React.useRef<number | null>(null)
+
+    React.useEffect(() => {
+        hasAppliedPreferenceRef.current = false
+        applyingTrackIdRef.current = null
+        lastAudioTrackRef.current = null
+    }, [playbackId, mediaId])
+
+    React.useEffect(() => {
+        if (!preferenceKey || !audioTracks.length || !setHlsAudioTrack || hasAppliedPreferenceRef.current) return
+
+        hasAppliedPreferenceRef.current = true
+        const preferredTrack = findPreferredAudioTrack(audioTracks, preference)
+        if (!preferredTrack) return
+
+        if (preferredTrack.id === currentAudioTrack) {
+            lastAudioTrackRef.current = currentAudioTrack
+            return
+        }
+
+        applyingTrackIdRef.current = preferredTrack.id
+        setHlsAudioTrack(preferredTrack.id)
+    }, [audioTracks, currentAudioTrack, preference, preferenceKey, setHlsAudioTrack])
+
+    React.useEffect(() => {
+        if (!preferenceKey || !audioTracks.length || currentAudioTrack === -1 || !hasAppliedPreferenceRef.current) return
+
+        if (applyingTrackIdRef.current !== null) {
+            if (applyingTrackIdRef.current === currentAudioTrack) {
+                lastAudioTrackRef.current = currentAudioTrack
+                applyingTrackIdRef.current = null
+            }
+            return
+        }
+
+        if (lastAudioTrackRef.current === null) {
+            lastAudioTrackRef.current = currentAudioTrack
+            return
+        }
+
+        if (lastAudioTrackRef.current === currentAudioTrack) return
+
+        lastAudioTrackRef.current = currentAudioTrack
+
+        const currentTrack = audioTracks.find(track => track.id === currentAudioTrack)
+        if (!currentTrack) return
+
+        const nextPreference: OnlinestreamAudioTrackPreference = {
+            trackId: currentTrack.id,
+            language: currentTrack.language,
+            name: currentTrack.name,
+        }
+
+        setPreferenceByMedia(prev => {
+            const current = prev[preferenceKey]
+            if (
+                current?.trackId === nextPreference.trackId &&
+                current?.language === nextPreference.language &&
+                current?.name === nextPreference.name
+            ) {
+                return prev
+            }
+
+            return {
+                ...prev,
+                [preferenceKey]: nextPreference,
+            }
+        })
+    }, [audioTracks, currentAudioTrack, preferenceKey, setPreferenceByMedia])
+
+    return null
+}
+
 export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton }: OnlinestreamPageProps) {
     const serverStatus = useAtomValue(serverStatusAtom)
     const router = useRouter()
@@ -98,8 +267,24 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const [currentEpisodeNumber, setSelectedEpisodeNumber] = useAtom(__onlinestream_selectedEpisodeNumberAtom)
     const [server, setServer] = useAtom(__onlinestream_selectedServerAtom)
     const [quality, setQuality] = useAtom(__onlinestream_qualityAtom)
-    const [dubbed, setDubbed] = useAtom(__onlinestream_selectedDubbedAtom)
+    const [dubbedPreferenceByMedia, setDubbedPreferenceByMedia] = useAtom(__onlinestream_dubbedPreferenceByMediaAtom)
     const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
+    const dubbedPreferenceKey = mediaId ? String(mediaId) : null
+    const dubbed = dubbedPreferenceKey ? dubbedPreferenceByMedia[dubbedPreferenceKey] ?? false : false
+    const setDubbed = React.useCallback((update: boolean | ((prev: boolean) => boolean)) => {
+        if (!dubbedPreferenceKey) return
+
+        setDubbedPreferenceByMedia(prev => {
+            const current = prev[dubbedPreferenceKey] ?? false
+            const next = typeof update === "function" ? update(current) : update
+            if (current === next && Object.prototype.hasOwnProperty.call(prev, dubbedPreferenceKey)) return prev
+
+            return {
+                ...prev,
+                [dubbedPreferenceKey]: next,
+            }
+        })
+    }, [dubbedPreferenceKey, setDubbedPreferenceByMedia])
 
     const [overrideStreamType, setOverrideStreamType] = React.useState<VideoCore_VideoPlaybackInfo["streamType"] | null>(null)
 
@@ -626,6 +811,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                     <>
                         <VideoCoreProvider id="onlinestream">
                             <div data-onlinestream-video-container className="w-full aspect-video mx-auto border rounded-lg overflow-hidden">
+                                <OnlinestreamAudioTrackPreferenceSync mediaId={mediaId} playbackId={url} />
                                 <VideoCore
                                     id="onlinestream"
                                     mRef={playerRef}

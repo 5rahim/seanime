@@ -373,6 +373,8 @@ declare namespace $ui {
         body?: any
         /** Whether to bypass cloudflare */
         noCloudflareBypass?: boolean
+        /** Redirect behavior, defaults to follow */
+        redirect?: "follow" | "manual" | "error"
         /** Timeout in seconds, defaults to 35 */
         timeout?: number
         /** AbortSignal to cancel the request */
@@ -980,6 +982,18 @@ declare namespace $ui {
          * @param props - Button properties
          */
         newMangaPageButton(props: { label: string, intent?: Intent, style?: Record<string, string>, tooltipText?: string }): MangaPageButtonAction
+
+        /**
+         * Creates a new dropdown menu item for the manga page
+         * @param props - Dropdown item properties
+         */
+        newMangaPageDropdownItem(props: { label: string, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseManga }>
+
+        /**
+         * Creates a new dropdown menu item for the manga library
+         * @param props - Dropdown item properties
+         */
+        newMangaLibraryDropdownItem(props: { label: string, style?: Record<string, string> }): ActionObject
 
         /**
          * Creates a new context menu item for the episode card

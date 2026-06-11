@@ -29,12 +29,14 @@ import (
 	"seanime/internal/platforms/shared_platform"
 	"seanime/internal/playlist"
 	"seanime/internal/plugin"
+	seanime_torrent "seanime/internal/torrent_clients/builtin_client"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrent_clients/transmission"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
 	"seanime/internal/user"
+	"seanime/internal/util"
 	"seanime/internal/videocore"
 
 	"github.com/cli/browser"
@@ -45,6 +47,8 @@ import (
 // This function is called once after the App instance is created.
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
 func (a *App) initModulesOnce() {
+
+	_, _ = util.InitIOSDocumentsDir()
 
 	a.LocalManager.SetRefreshAnilistCollectionsFunc(func() {
 		_, _ = a.RefreshAnimeCollection()
@@ -123,6 +127,12 @@ func (a *App) initModulesOnce() {
 		Logger:              a.Logger,
 		MetadataProviderRef: a.MetadataProviderRef,
 		ExtensionBankRef:    a.ExtensionBankRef,
+	})
+
+	a.AddCleanupFunction(func() {
+		if a.TorrentClientRepository != nil {
+			a.TorrentClientRepository.Shutdown()
+		}
 	})
 
 	// +---------------------+
@@ -528,14 +538,33 @@ func (a *App) InitOrRefreshModules() {
 			a.TorrentClientRepository.Shutdown()
 		}
 
+		var builtInClient *seanime_torrent.Client
+		if settings.Torrent.Default == torrent_client.SeanimeClient {
+			builtInClient, err = seanime_torrent.New(&seanime_torrent.NewClientOptions{
+				Logger:             a.Logger,
+				Database:           a.Database,
+				Dir:                a.Config.Torrent.Dir,
+				Port:               settings.Torrent.SeanimePort,
+				MaxConnections:     settings.Torrent.SeanimeMaxConnections,
+				DownloadLimitKB:    settings.Torrent.SeanimeDownloadLimit,
+				UploadLimitKB:      settings.Torrent.SeanimeUploadLimit,
+				MaxActiveDownloads: settings.Torrent.SeanimeMaxActiveDownloads,
+			})
+			if err != nil {
+				a.Logger.Error().Err(err).Msg("app: Failed to initialize Seanime torrent client")
+			}
+		}
+
 		// Torrent Client Repository
 		a.TorrentClientRepository = torrent_client.NewRepository(&torrent_client.NewRepositoryOptions{
-			Logger:              a.Logger,
-			QbittorrentClient:   qbit,
-			Transmission:        trans,
-			TorrentRepository:   a.TorrentRepository,
-			Provider:            settings.Torrent.Default,
-			MetadataProviderRef: a.MetadataProviderRef,
+			Logger:                 a.Logger,
+			QbittorrentClient:      qbit,
+			Transmission:           trans,
+			SeanimeClient:          builtInClient,
+			TorrentRepository:      a.TorrentRepository,
+			Provider:               settings.Torrent.Default,
+			MetadataProviderRef:    a.MetadataProviderRef,
+			IsBuiltinClientEnabled: a.FeatureFlags.BuiltinTorrentClient,
 		})
 
 		a.TorrentClientRepository.InitActiveTorrentCount(settings.Torrent.ShowActiveTorrentCount, a.WSEventManager)

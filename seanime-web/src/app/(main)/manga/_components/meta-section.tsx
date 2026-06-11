@@ -10,19 +10,21 @@ import {
     MediaPageHeaderEntryDetails,
 } from "@/app/(main)/_features/media/_components/media-page-header-components"
 import { MediaSyncTrackButton } from "@/app/(main)/_features/media/_containers/media-sync-track-button"
+import { PluginMangaPageButtons, PluginMangaPageDropdownItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-webviews"
 import { SeaLink } from "@/components/shared/sea-link"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip } from "@/components/ui/tooltip"
+import { copyToClipboard, openTab } from "@/lib/helpers/browser"
 import { getCustomSourceExtensionId, getCustomSourceMediaSiteUrl, isCustomSource } from "@/lib/server/utils"
 import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/theme-hooks"
 import React from "react"
-import { BiExtension } from "react-icons/bi"
+import { BiDotsVerticalRounded, BiExtension } from "react-icons/bi"
 import { LuExternalLink } from "react-icons/lu"
 import { SiAnilist } from "react-icons/si"
-import { PluginMangaPageButtons } from "../../_features/plugin/actions/plugin-actions"
 
 
 export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL_MangaDetailsById_Media | undefined, detailsLoading?: boolean }) {
@@ -112,6 +114,33 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                 <div className="w-full flex flex-wrap gap-4 items-center" data-manga-meta-section-buttons-row>
 
                     {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <div className="flex-1 hidden lg:flex"></div>}
+
+                    <DropdownMenu
+                        data-manga-entry-dropdown-menu
+                        trigger={<IconButton
+                            data-manga-entry-dropdown-menu-trigger
+                            icon={<BiDotsVerticalRounded />}
+                            intent="gray-subtle"
+                            size="md"
+                        />}
+                    >
+                        {!isCustomSource(entry.mediaId) && <DropdownMenuItem
+                            onClick={() => openTab(`https://anilist.co/manga/${entry.mediaId}`)}
+                        >
+                            <SiAnilist /> Open on AniList
+                        </DropdownMenuItem>}
+                        {isCustomSource(entry.mediaId) && !!getCustomSourceMediaSiteUrl(entry.media) && <DropdownMenuItem
+                            onClick={() => openTab(getCustomSourceMediaSiteUrl(entry.media)!)}
+                        >
+                            <LuExternalLink /> Open in website
+                        </DropdownMenuItem>}
+                        {isCustomSource(entry.mediaId) && <DropdownMenuItem
+                            onClick={() => copyToClipboard(entry.mediaId.toString())}
+                        >
+                            Copy ID
+                        </DropdownMenuItem>}
+                        <PluginMangaPageDropdownItems media={entry.media} />
+                    </DropdownMenu>
 
                     <MediaSyncTrackButton mediaId={entry.mediaId} type="manga" size="md" />
 

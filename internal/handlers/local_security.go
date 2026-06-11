@@ -92,6 +92,13 @@ func isTrustedHardenedOriginURL(parsed *url.URL) bool {
 		return true
 	}
 
+	scheme := strings.ToLower(parsed.Scheme)
+	isLocal := scheme == "capacitor" || scheme == "ionic" || scheme == "app" || scheme == "file"
+	if isLocal {
+		host := strings.ToLower(parsed.Hostname())
+		return host == "" || host == "localhost" || host == "-"
+	}
+
 	host := strings.ToLower(parsed.Hostname())
 	if host == "localhost" {
 		return true
@@ -547,11 +554,13 @@ func parseTrustedOrigin(rawOrigin string) (*url.URL, bool) {
 		return parsed, true
 	}
 
-	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+	scheme := strings.ToLower(parsed.Scheme)
+	isLocal := scheme == "capacitor" || scheme == "ionic" || scheme == "app" || scheme == "file"
+	if parsed.Scheme != "http" && parsed.Scheme != "https" && !isLocal {
 		return nil, false
 	}
 
-	if parsed.Hostname() == "" {
+	if parsed.Scheme != "file" && parsed.Hostname() == "" && parsed.Host != "-" {
 		return nil, false
 	}
 
@@ -591,6 +600,13 @@ func isRequestFromTrustedOrigin(req *http.Request) bool {
 
 	if parsed.Scheme == "app" && parsed.Host == "-" {
 		return true
+	}
+
+	scheme := strings.ToLower(parsed.Scheme)
+	isLocal := scheme == "capacitor" || scheme == "ionic" || scheme == "app" || scheme == "file"
+	if isLocal {
+		host := strings.ToLower(parsed.Hostname())
+		return host == "" || host == "localhost" || host == "-"
 	}
 
 	if parsed.Scheme != "http" && parsed.Scheme != "https" {

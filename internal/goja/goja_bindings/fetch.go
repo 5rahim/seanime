@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"seanime/internal/security"
 	"seanime/internal/util"
@@ -164,14 +165,16 @@ type fetchOptions struct {
 	Headers            map[string]string
 	Timeout            int // seconds
 	NoCloudFlareBypass bool
+	Redirect           string
 	Signal             *goja.Object // AbortSignal
 }
 
 type fetchResult struct {
-	body     []byte
-	request  *req.Request
-	response *req.Response
-	json     interface{}
+	body        []byte
+	request     *req.Request
+	response    *req.Response
+	originalURL string
+	json        interface{}
 }
 
 // BindFetch binds the fetch function to the VM
@@ -297,6 +300,7 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		Method:             "GET",
 		Timeout:            int(defaultTimeout.Seconds()),
 		NoCloudFlareBypass: false,
+		Redirect:           "follow",
 	}
 
 	var reqBody interface{}
@@ -337,12 +341,25 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 				}
 			}
 
+			if o := rawOpts.Get("redirect"); o != nil && !goja.IsUndefined(o) {
+				if v, ok := o.Export().(string); ok {
+					options.Redirect = v
+				}
+			}
+
 			if o := rawOpts.Get("signal"); o != nil && !goja.IsUndefined(o) {
 				if signalObj := o.ToObject(f.vm); signalObj != nil {
 					options.Signal = signalObj
 				}
 			}
 		}
+	}
+
+	switch options.Redirect {
+	case "follow", "manual", "error":
+	default:
+		reject(NewError(f.vm, fmt.Errorf("invalid redirect option: %s", options.Redirect)))
+		return f.vm.ToValue(promise)
 	}
 
 	// Check if URL is allowed based on domain restrictions
@@ -418,6 +435,14 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 
 		// Create request with timeout
 		reqClient := client.Clone().SetTimeout(time.Duration(options.Timeout) * time.Second)
+		switch options.Redirect {
+		case "manual":
+			reqClient.SetRedirectPolicy(req.NoRedirectPolicy())
+		case "error":
+			reqClient.SetRedirectPolicy(func(req *http.Request, via []*http.Request) error {
+				return fmt.Errorf("redirect mode error: received redirect to %s", req.URL.String())
+			})
+		}
 
 		request := reqClient.R()
 
@@ -483,6 +508,7 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		result.body = rawBody
 		result.response = resp
 		result.request = request
+		result.originalURL = url
 
 		if len(rawBody) > 0 {
 			var data interface{}
@@ -525,7 +551,7 @@ func (f *fetchResult) toGojaObject(vm *goja.Runtime) *goja.Object {
 		cookies[cookie.Name] = cookie.Value
 	}
 	_ = obj.Set("cookies", cookies)
-	_ = obj.Set("redirected", f.response.Request.URL != f.response.Request.URL) // req handles redirects automatically
+	_ = obj.Set("redirected", f.originalURL != "" && f.response.Request != nil && f.response.Request.URL.String() != f.originalURL)
 	_ = obj.Set("contentType", f.response.Header.Get("Content-Type"))
 	_ = obj.Set("contentLength", f.response.ContentLength)
 

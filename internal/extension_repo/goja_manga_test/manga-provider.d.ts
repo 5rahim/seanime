@@ -4,6 +4,7 @@ declare type SearchResult = {
     synonyms?: string[]
     year?: number
     image?: string
+    imageHeaders?: { [key: string]: string }
 }
 
 declare type ChapterDetails = {

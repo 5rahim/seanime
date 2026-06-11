@@ -64,7 +64,9 @@ func BuildHwAccelProfile(opts HwAccelOptions, ffmpegPath string, logger *zerolog
 	case "vaapi":
 		return vaApiProfile(defaultDevice)
 	case "qsv", "intel":
-		return qsvProfile(defaultDevice, preset)
+		return qsvProfile(defaultDevice, preset, false)
+	case "qsv-low-power", "qsv-lp", "intel-low-power", "intel-lp":
+		return qsvProfile(defaultDevice, preset, true)
 	case "nvidia":
 		return nvidiaProfile(preset)
 	case "videotoolbox":
@@ -172,22 +174,37 @@ func vaApiProfile(device string) HwAccelProfile {
 	}
 }
 
-func qsvProfile(device, preset string) HwAccelProfile {
+func qsvProfile(device, preset string, lowPower bool) HwAccelProfile {
+	name := "qsv"
+	encodeFlags := []string{
+		"-c:v", "h264_qsv",
+		"-preset", preset,
+		"-profile:v", "high", // ?
+		"-async_depth", "1", // ? reduce latency
+		"-look_ahead", "0", // ?
+		"-bf", "3", // ?
+	}
+	if lowPower {
+		name = "qsv-low-power"
+		encodeFlags = []string{
+			"-c:v", "h264_qsv",
+			"-low_power", "1",
+			"-preset", preset,
+			"-profile:v", "high", // ?
+			"-async_depth", "1", // ? reduce latency
+			"-look_ahead", "0", // ?
+			"-bf", "0", // low-power QSV is more broadly compatible without B-frames
+		}
+	}
+
 	return HwAccelProfile{
-		Name: "qsv",
+		Name: name,
 		DecodeFlags: []string{
 			"-hwaccel", "qsv",
 			"-qsv_device", GetEnvOr("SEANIME_TRANSCODER_QSV_RENDERER", device),
 			"-hwaccel_output_format", "qsv",
 		},
-		EncodeFlags: []string{
-			"-c:v", "h264_qsv",
-			"-preset", preset,
-			"-profile:v", "high", // ?
-			"-async_depth", "1", // ? reduce latency
-			"-look_ahead", "0", // ?
-			"-bf", "3", // ?
-		},
+		EncodeFlags:   encodeFlags,
 		ScaleFilter:   "format=nv12|qsv,hwupload,scale_qsv=%d:%d:format=nv12",
 		NoScaleFilter: "format=nv12|qsv,hwupload",
 		ForcedIDR:     true,

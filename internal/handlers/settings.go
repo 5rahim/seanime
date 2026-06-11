@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
@@ -30,7 +31,10 @@ func (h *Handler) HandleGetSettings(c echo.Context) error {
 		return h.RespondWithError(c, errors.New(runtime.GOOS))
 	}
 
-	return h.RespondWithData(c, settings)
+	clientSettings := db.CloneSettings(settings)
+	db.VirtualizeSettingsPaths(clientSettings)
+
+	return h.RespondWithData(c, clientSettings)
 }
 
 // HandleGettingStarted
@@ -60,6 +64,17 @@ func (h *Handler) HandleGettingStarted(c echo.Context) error {
 
 	if err := c.Bind(&b); err != nil {
 		return h.RespondWithError(c, err)
+	}
+
+	// Resolve incoming virtual paths to physical paths on iOS
+	if b.Library.LibraryPath != "" {
+		b.Library.LibraryPath = util.ResolvePhysicalPath(b.Library.LibraryPath)
+	}
+	for i, p := range b.Library.LibraryPaths {
+		b.Library.LibraryPaths[i] = util.ResolvePhysicalPath(p)
+	}
+	if b.Manga.LocalSourceDirectory != "" {
+		b.Manga.LocalSourceDirectory = util.ResolvePhysicalPath(b.Manga.LocalSourceDirectory)
 	}
 
 	prevSettings, _ := h.App.Database.GetSettings()
@@ -176,6 +191,19 @@ func (h *Handler) HandleSaveSettings(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
+	// Resolve incoming virtual paths to physical paths on iOS
+	if util.IsIOS() {
+		if b.Library.LibraryPath != "" {
+			b.Library.LibraryPath = util.ResolvePhysicalPath(b.Library.LibraryPath)
+		}
+		for i, p := range b.Library.LibraryPaths {
+			b.Library.LibraryPaths[i] = util.ResolvePhysicalPath(p)
+		}
+		if b.Manga.LocalSourceDirectory != "" {
+			b.Manga.LocalSourceDirectory = util.ResolvePhysicalPath(b.Manga.LocalSourceDirectory)
+		}
+	}
+
 	prevSettings, _ := h.App.Database.GetSettings()
 	if err := h.guardStrictSettingsMutation(c, prevSettings, &b.Library, &b.Manga); err != nil {
 		return err
@@ -208,7 +236,7 @@ func (h *Handler) HandleSaveSettings(c echo.Context) error {
 		if s == "" || util.IsSameDir(s, b.Library.LibraryPath) {
 			return false
 		}
-		info, err := os.Stat(s)
+		info, err := os.Stat(util.ResolvePhysicalPath(s))
 		if err != nil {
 			return false
 		}
