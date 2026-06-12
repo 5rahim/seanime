@@ -13,6 +13,8 @@ const { publicVars } = loadEnv({ prefixes: ["SEA_"] })
 const isElectronDesktop = process.env.SEA_PUBLIC_DESKTOP === "electron"
 const distPath = isElectronDesktop ? "out-denshi" : "out"
 
+const isDevBuild = process.env.NODE_ENV !== "production";
+
 export default defineConfig({
     plugins: [
         pluginReact(),
@@ -83,13 +85,13 @@ export default defineConfig({
     },
     output: {
         cleanDistPath: true,
-        sourceMap: !!process.env.RSDOCTOR,
+        sourceMap: isDevBuild,
         distPath: {
             root: distPath,
         },
         filename: {
-            js: process.env.NODE_ENV === "production" ? "[name].[contenthash:8].js" : "[name].js",
-            css: process.env.NODE_ENV === "production" ? "[name].[contenthash:8].css" : "[name].css",
+            js: isDevBuild ? "[name].js" : "[name].[contenthash:8].js",
+            css: isDevBuild ? "[name].css" : "[name].[contenthash:8].css",
         },
     },
     html: {
@@ -114,10 +116,7 @@ export default defineConfig({
                 // outputModule: true,
             },
             output: { // redundant?
-                chunkFilename: process.env.NODE_ENV === "production" ? "static/js/async/[name].[contenthash:8].js" : "static/js/async/[name].js",
-            },
-            optimization: {
-                chunkIds: !!process.env.RSDOCTOR ? "named" : undefined,
+                chunkFilename: isDevBuild ? "static/js/async/[name].js" : "static/js/async/[name].[contenthash:8].js",
             },
             plugins: [
                 TanStackRouterRspack({
@@ -125,8 +124,8 @@ export default defineConfig({
                     generatedRouteTree: "./src/routeTree.gen.ts",
                     autoCodeSplitting: true,
                 }),
-                process.env.RSDOCTOR && new RsdoctorRspackPlugin({}),
-            ].filter(Boolean),
+                ...(process.env.RSDOCTOR ? [new RsdoctorRspackPlugin({})] : []),
+            ],
             resolve: {
                 fallback: {
                     module: false,
