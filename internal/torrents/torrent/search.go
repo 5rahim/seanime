@@ -394,10 +394,13 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 			return cmp.Compare(j.Torrent.Seeders, i.Torrent.Seeders)
 		})
 
-		ret.Previews = previews
-
-		if cacheHit {
-			// Update the data in the cache with Previews
+		if !cacheHit {
+			ret.Previews = previews
+		} else {
+			// `ret` is stored in cache by pointer and cannot be modified in-place
+			tmp := *ret
+			ret = &tmp
+			ret.Previews = previews
 			cache := getAnimeSearchCache(r.animeProviderSearchCaches, providerCacheKey)
 			cache.Set(searchCacheKey, ret)
 		}
