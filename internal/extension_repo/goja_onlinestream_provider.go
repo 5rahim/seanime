@@ -31,14 +31,12 @@ func NewGojaOnlinestreamProvider(ext *extension.Extension, language extension.La
 func (g *GojaOnlinestreamProvider) GetEpisodeServers() (ret []string) {
 	ret = make([]string, 0)
 
-	method, err := g.callClassMethod(context.Background(), "getEpisodeServers")
-
-	promiseRes, err := g.waitForPromise(method)
+	res, err := g.callClassMethod(context.Background(), "getEpisodeServers")
 	if err != nil {
 		return
 	}
 
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return
 	}
@@ -49,18 +47,12 @@ func (g *GojaOnlinestreamProvider) GetEpisodeServers() (ret []string) {
 func (g *GojaOnlinestreamProvider) Search(opts hibikeonlinestream.SearchOptions) (ret []*hibikeonlinestream.SearchResult, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".Search", &err)
 
-	method, err := g.callClassMethod(context.Background(), "search", structToMap(opts))
+	res, err := g.callClassMethod(context.Background(), "search", structToMap(opts))
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
 	}
 
-	promiseRes, err := g.waitForPromise(method)
-	if err != nil {
-		return nil, fmt.Errorf("failed to wait for promise: %w", err)
-	}
-
-	ret = make([]*hibikeonlinestream.SearchResult, 0)
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal search results: %w", err)
 	}
@@ -71,14 +63,12 @@ func (g *GojaOnlinestreamProvider) Search(opts hibikeonlinestream.SearchOptions)
 func (g *GojaOnlinestreamProvider) FindEpisodes(id string) (ret []*hibikeonlinestream.EpisodeDetails, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".FindEpisodes", &err)
 
-	method, err := g.callClassMethod(context.Background(), "findEpisodes", id)
-
-	promiseRes, err := g.waitForPromise(method)
+	res, err := g.callClassMethod(context.Background(), "findEpisodes", id)
 	if err != nil {
 		return nil, err
 	}
 
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, err
 	}
@@ -93,16 +83,14 @@ func (g *GojaOnlinestreamProvider) FindEpisodes(id string) (ret []*hibikeonlines
 func (g *GojaOnlinestreamProvider) FindEpisodeServer(episode *hibikeonlinestream.EpisodeDetails, server string) (ret *hibikeonlinestream.EpisodeServer, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".FindEpisodeServer", &err)
 
-	method, err := g.callClassMethod(context.Background(), "findEpisodeServer", structToMap(episode), server)
-
-	promiseRes, err := g.waitForPromise(method)
+	res, err := g.callClassMethod(context.Background(), "findEpisodeServer", structToMap(episode), server)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	ret.Provider = g.ext.ID
@@ -115,12 +103,12 @@ func (g *GojaOnlinestreamProvider) GetSettings() (ret hibikeonlinestream.Setting
 		ret = hibikeonlinestream.Settings{}
 	})
 
-	method, err := g.callClassMethod(context.Background(), "getSettings")
+	res, err := g.callClassMethod(context.Background(), "getSettings")
 	if err != nil {
 		return
 	}
 
-	err = g.unmarshalValue(method, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return
 	}
