@@ -30,14 +30,12 @@ func NewGojaAnimeTorrentProvider(ext *extension.Extension, language extension.La
 func (g *GojaAnimeTorrentProvider) Search(opts hibiketorrent.AnimeSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".Search", &err)
 
-	method, err := g.callClassMethod(context.Background(), "search", structToMap(opts))
-
-	promiseRes, err := g.waitForPromise(method)
+	res, err := g.callClassMethod(context.Background(), "search", structToMap(opts))
 	if err != nil {
 		return nil, err
 	}
 
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, err
 	}
@@ -52,14 +50,12 @@ func (g *GojaAnimeTorrentProvider) Search(opts hibiketorrent.AnimeSearchOptions)
 func (g *GojaAnimeTorrentProvider) SmartSearch(opts hibiketorrent.AnimeSmartSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".SmartSearch", &err)
 
-	method, err := g.callClassMethod(context.Background(), "smartSearch", structToMap(opts))
-
-	promiseRes, err := g.waitForPromise(method)
+	res, err := g.callClassMethod(context.Background(), "smartSearch", structToMap(opts))
 	if err != nil {
 		return nil, err
 	}
 
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, err
 	}
@@ -79,12 +75,7 @@ func (g *GojaAnimeTorrentProvider) GetTorrentInfoHash(torrent *hibiketorrent.Ani
 		return "", err
 	}
 
-	promiseRes, err := g.waitForPromise(res)
-	if err != nil {
-		return "", err
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return "", err
 	}
@@ -100,12 +91,7 @@ func (g *GojaAnimeTorrentProvider) GetTorrentMagnetLink(torrent *hibiketorrent.A
 		return "", err
 	}
 
-	promiseRes, err := g.waitForPromise(res)
-	if err != nil {
-		return "", err
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return "", err
 	}
@@ -116,17 +102,12 @@ func (g *GojaAnimeTorrentProvider) GetTorrentMagnetLink(torrent *hibiketorrent.A
 func (g *GojaAnimeTorrentProvider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetLatest", &err)
 
-	method, err := g.callClassMethod(context.Background(), "getLatest")
+	res, err := g.callClassMethod(context.Background(), "getLatest")
 	if err != nil {
 		return nil, err
 	}
 
-	promiseRes, err := g.waitForPromise(method)
-	if err != nil {
-		return nil, err
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, err
 	}
