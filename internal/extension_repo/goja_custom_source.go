@@ -42,17 +42,12 @@ func (g *GojaCustomSource) ListAnime(ctx context.Context, search string, page in
 
 	g.logger.Debug().Str("extension", g.extId).Str("search", search).Msg("custom source: Fetching anime")
 
-	method, err := g.callClassMethod(ctx, "listAnime", search, page, perPage)
+	res, err := g.callClassMethod(ctx, "listAnime", search, page, perPage)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
 	}
 
-	promiseRes, err := g.waitForPromise(method)
-	if err != nil {
-		return nil, fmt.Errorf("failed to wait for promise: %w", err)
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal result: %w", err)
 	}
@@ -65,17 +60,12 @@ func (g *GojaCustomSource) ListManga(ctx context.Context, search string, page in
 
 	g.logger.Debug().Str("extension", g.extId).Str("search", search).Msg("custom source: Fetching manga")
 
-	method, err := g.callClassMethod(ctx, "listManga", search, page, perPage)
+	res, err := g.callClassMethod(ctx, "listManga", search, page, perPage)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
 	}
 
-	promiseRes, err := g.waitForPromise(method)
-	if err != nil {
-		return nil, fmt.Errorf("failed to wait for promise: %w", err)
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal result: %w", err)
 	}
@@ -88,12 +78,12 @@ func (g *GojaCustomSource) GetSettings() (ret hibikecustomsource.Settings) {
 		ret = hibikecustomsource.Settings{}
 	})
 
-	method, err := g.callClassMethod(context.Background(), "getSettings")
+	res, err := g.callClassMethod(context.Background(), "getSettings")
 	if err != nil {
 		return
 	}
 
-	err = g.unmarshalValue(method, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return
 	}
@@ -106,17 +96,12 @@ func (g *GojaCustomSource) GetAnime(ctx context.Context, id []int) (ret []*anili
 
 	g.logger.Debug().Str("extension", g.extId).Ints("ids", id).Msg("custom source: Getting anime")
 
-	method, err := g.callClassMethod(ctx, "getAnime", id)
+	res, err := g.callClassMethod(ctx, "getAnime", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
 	}
 
-	promiseRes, err := g.waitForPromise(method)
-	if err != nil {
-		return nil, fmt.Errorf("failed to wait for promise: %w", err)
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal result: %w", err)
 	}
@@ -129,17 +114,12 @@ func (g *GojaCustomSource) GetAnimeWithRelations(ctx context.Context, id int) (r
 
 	g.logger.Debug().Str("extension", g.extId).Int("id", id).Msg("custom source: Getting anime with relations")
 
-	method, err := g.callClassMethod(ctx, "getAnimeWithRelations", id)
+	res, err := g.callClassMethod(ctx, "getAnimeWithRelations", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
 	}
 
-	promiseRes, err := g.waitForPromise(method)
-	if err != nil {
-		return nil, fmt.Errorf("failed to wait for promise: %w", err)
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal result: %w", err)
 	}
@@ -156,17 +136,12 @@ func (g *GojaCustomSource) GetAnimeMetadata(ctx context.Context, id int) (ret *m
 
 	g.logger.Debug().Str("extension", g.extId).Int("id", id).Msg("custom source: Getting anime metadata")
 
-	method, err := g.callClassMethod(ctx, "getAnimeMetadata", id)
+	res, err := g.callClassMethod(ctx, "getAnimeMetadata", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
 	}
 
-	promiseRes, err := g.waitForPromise(method)
-	if err != nil {
-		return nil, fmt.Errorf("failed to wait for promise: %w", err)
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal result: %w", err)
 	}
@@ -179,17 +154,12 @@ func (g *GojaCustomSource) GetAnimeDetails(ctx context.Context, id int) (ret *an
 
 	g.logger.Debug().Str("extension", g.extId).Int("id", id).Msg("custom source: Getting anime details")
 
-	method, err := g.callClassMethod(ctx, "getAnimeDetails", id)
+	res, err := g.callClassMethod(ctx, "getAnimeDetails", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
 	}
 
-	promiseRes, err := g.waitForPromise(method)
-	if err != nil {
-		return nil, fmt.Errorf("failed to wait for promise: %w", err)
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return &anilist.AnimeDetailsById_Media{}, nil
 	}
@@ -202,17 +172,12 @@ func (g *GojaCustomSource) GetManga(ctx context.Context, id []int) (ret []*anili
 
 	g.logger.Debug().Str("extension", g.extId).Ints("ids", id).Msg("custom source: Getting manga")
 
-	method, err := g.callClassMethod(ctx, "getManga", id)
+	res, err := g.callClassMethod(ctx, "getManga", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
 	}
 
-	promiseRes, err := g.waitForPromise(method)
-	if err != nil {
-		return nil, fmt.Errorf("failed to wait for promise: %w", err)
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal result: %w", err)
 	}
@@ -225,17 +190,12 @@ func (g *GojaCustomSource) GetMangaDetails(ctx context.Context, id int) (ret *an
 
 	g.logger.Debug().Str("extension", g.extId).Int("id", id).Msg("custom source: Getting manga details")
 
-	method, err := g.callClassMethod(ctx, "getMangaDetails", id)
+	res, err := g.callClassMethod(ctx, "getMangaDetails", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
 	}
 
-	promiseRes, err := g.waitForPromise(method)
-	if err != nil {
-		return nil, fmt.Errorf("failed to wait for promise: %w", err)
-	}
-
-	err = g.unmarshalValue(promiseRes, &ret)
+	err = g.unmarshalValue(res, &ret)
 	if err != nil {
 		return &anilist.MangaDetailsById_Media{}, nil
 	}
