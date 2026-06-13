@@ -147,9 +147,9 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 		searchCacheKey = fmt.Sprintf("s%d-%s", opts.Media.GetID(), opts.Query)
 	}
 
-	providerCache := getAnimeSearchCache(r.animeProviderSearchCaches, providerCacheKey)
+	cache := getAnimeSearchCache(r.animeProviderSearchCaches, providerCacheKey)
 	// Check the cache
-	ret, cacheHit := providerCache.Get(searchCacheKey)
+	ret, cacheHit := cache.Get(searchCacheKey)
 	if cacheHit {
 		r.logger.Debug().Str("provider", providerCacheKey).Str("type", string(opts.Type)).Msg("torrent search: Cache HIT")
 	} else {
@@ -395,6 +395,12 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 		})
 
 		ret.Previews = previews
+
+		if cacheHit {
+			// Update the data in the cache with Previews
+			cache := getAnimeSearchCache(r.animeProviderSearchCaches, providerCacheKey)
+			cache.Set(searchCacheKey, ret)
+		}
 	}
 
 	if !cacheHit {
@@ -408,8 +414,8 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 			sortSearchData(ret)
 		}
 
-		// Store the data in the cache
-		providerCache.Set(searchCacheKey, ret)
+		cache := getAnimeSearchCache(r.animeProviderSearchCaches, providerCacheKey)
+		cache.Set(searchCacheKey, ret)
 	}
 
 	return
