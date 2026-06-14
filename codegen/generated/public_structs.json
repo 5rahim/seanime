@@ -31478,6 +31478,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Length",
+        "jsonName": "length",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Completed",
+        "jsonName": "completed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -90932,15 +90950,6 @@
       {
         "name": "animeProviderSearchCaches",
         "jsonName": "animeProviderSearchCaches",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "animeProviderSmartSearchCaches",
-        "jsonName": "animeProviderSmartSearchCaches",
         "goType": "",
         "typescriptType": "any",
         "required": false,
