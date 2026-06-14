@@ -249,6 +249,40 @@ func TestDoAniListRequestWithRetriesDoesNotRetryWhenRateLimitHeadersAreMissing(t
 	assert.Equal(t, "", rlRemainingStr)
 }
 
+func TestDoAniListRequestWithRetriesExhaustsRetries(t *testing.T) {
+	clock := &testClock{now: time.Date(2026, time.April, 7, 12, 0, 0, 0, time.UTC)}
+	rateBlocker := newAniListRateBlocker()
+	rateBlocker.now = clock.Now
+	requestBody := `{"query":"test"}`
+	attempt := 0
+
+	client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		attempt++
+		return newAniListTestResponse(http.StatusTooManyRequests, `{"errors":[{"message":"rate limited"}]}`, map[string]string{
+			"Date":        clock.Now().Format(http.TimeFormat),
+			"Retry-After": "0",
+		}), nil
+	})}
+
+	req, err := http.NewRequest(http.MethodPost, "https://anilist.test/graphql", bytes.NewBufferString(requestBody))
+	require.NoError(t, err)
+
+	resp, _, err := doAniListRequestWithRetries(
+		client,
+		req,
+		rateBlocker,
+		func(ctx context.Context, delay time.Duration) error {
+			clock.Advance(delay)
+			return nil
+		},
+		nil,
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "rate limit exceeded, retries exhausted")
+	assert.Nil(t, resp)
+	assert.Equal(t, 2, attempt)
+}
+
 func TestUseCustomAPIUsesRuntimeConfig(t *testing.T) {
 	prevProvider := CurrentRequestProvider()
 	t.Cleanup(func() {

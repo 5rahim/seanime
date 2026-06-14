@@ -31,6 +31,8 @@ func (r *Repository) ServeEchoFile(c echo.Context, rawFilePath string, clientId 
 		}
 	}
 
+	filePath = util.ResolvePhysicalPath(filePath)
+
 	// Make sure the file is in the library directories
 	inLibrary := false
 	for _, libraryPath := range libraryPaths {

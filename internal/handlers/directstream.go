@@ -7,6 +7,7 @@ import (
 	"seanime/internal/directstream"
 	"seanime/internal/mkvparser"
 	"seanime/internal/security"
+	"seanime/internal/util"
 
 	"github.com/labstack/echo/v4"
 )
@@ -33,6 +34,7 @@ func (h *Handler) HandleDirectstreamPlayLocalFile(c echo.Context) error {
 	}
 
 	b.ClientId = getRequestClientId(c, b.ClientId)
+	b.Path = util.ResolvePhysicalPath(b.Path)
 	if err := h.guardStrictFilesystemPath(c, b.Path); err != nil {
 		return err
 	}

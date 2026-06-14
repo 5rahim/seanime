@@ -264,8 +264,7 @@ func CloneSettings(settings *models.Settings) *models.Settings {
 		clone.Library = &lib
 	}
 	if settings.Manga != nil {
-		manga := *settings.Manga
-		clone.Manga = &manga
+		clone.Manga = new(*settings.Manga)
 	}
 	return &clone
 }

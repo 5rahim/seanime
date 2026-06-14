@@ -74,7 +74,13 @@ func ResolvePhysicalPath(path string) string {
 		return cleanPath
 	}
 
-	// Remove leading slash to join properly
+	if strings.Contains(cleanPath, "/Documents/") {
+		parts := strings.SplitN(cleanPath, "/Documents/", 2)
+		if len(parts) == 2 {
+			return filepath.ToSlash(filepath.Join(dataDir, parts[1]))
+		}
+	}
+
 	rel := strings.TrimPrefix(cleanPath, "/")
 	return filepath.ToSlash(filepath.Join(dataDir, rel))
 }

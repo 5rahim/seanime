@@ -514,7 +514,7 @@ func doAniListRequestWithRetries(
 		return resp, rlRemainingStr, nil
 	}
 
-	return resp, rlRemainingStr, nil
+	return nil, rlRemainingStr, errors.New("anilist: rate limit exceeded, retries exhausted")
 }
 
 func closeAniListResponseBody(resp *http.Response) {
