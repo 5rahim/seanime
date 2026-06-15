@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.8.7
+
+- ⚡️ VideoCore: Improved hls.js error handling
+- 🦺 iOS: Fixes for media paths
+- 🦺 UI: Fixed media entry modal number inputs
+- 🦺 Torrent: Fixed search caching #827
+- ⬆️ Updated hls.js
+
 ## v3.8.6
 
 - 🦺 Fixed settings regression introduced in v3.8.5
