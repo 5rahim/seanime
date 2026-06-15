@@ -251,7 +251,7 @@ const NumberField = React.memo(withControlledInput(forwardRef<HTMLInputElement, 
     ({ onChange, ...props }, ref) => {
         return <NumberInput
             {...props}
-            onValueChange={onChange}
+            onValueChange={(value, valueAsString) => onChange(valueAsString === "" ? undefined : value)}
             ref={ref}
         />
     },
