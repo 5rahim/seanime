@@ -150,7 +150,6 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 	var cacheHit bool
 	if searchCacheKey != "" {
 		cache := getAnimeSearchCache(r.animeProviderSearchCaches, providerCacheKey)
-		// Check the cache
 		ret, cacheHit = cache.Get(searchCacheKey)
 	}
 
@@ -163,7 +162,6 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 				return nil, err
 			}
 
-			// `ret` is stored in cache by pointer and cannot be modified in-place
 			ret = new(*ret)
 			ret.Previews = previews
 			if searchCacheKey != "" {
@@ -178,7 +176,6 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 		return
 	}
 
-	// Cache Miss Path (un-nested)
 	var torrents []*hibiketorrent.AnimeTorrent
 	anidbAID := 0
 	anidbEID := 0
@@ -222,7 +219,6 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 
 			switch searchType {
 			case AnimeSearchTypeSmart:
-				// Check for context cancellation before making the request
 				select {
 				case <-ctx.Done():
 					return
@@ -250,7 +246,6 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 				return
 			case AnimeSearchTypeSimple:
 
-				// Check for context cancellation before making the request
 				select {
 				case <-ctx.Done():
 					return
