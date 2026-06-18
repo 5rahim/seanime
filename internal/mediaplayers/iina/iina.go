@@ -333,13 +333,7 @@ func (i *Iina) listenForEvents(ctx context.Context) {
 	events, stopListening := i.conn.NewEventListener()
 	i.Logger.Debug().Msg("iina: Listening for events")
 
-	_, err := i.conn.Get("path")
-	if err != nil {
-		i.Logger.Error().Err(err).Msg("iina: Failed to get path")
-		return
-	}
-
-	_, err = i.conn.Call("observe_property", 42, "time-pos")
+	_, err := i.conn.Call("observe_property", 42, "time-pos")
 	if err != nil {
 		i.Logger.Error().Err(err).Msg("iina: Failed to observe time-pos")
 		return

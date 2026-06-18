@@ -462,13 +462,7 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 	events, stopListening := m.conn.NewEventListener()
 	m.Logger.Debug().Msg("mpv: Listening for events")
 
-	_, err := m.conn.Get("path")
-	if err != nil {
-		m.Logger.Error().Err(err).Msg("mpv: Failed to get path")
-		return
-	}
-
-	_, err = m.conn.Call("observe_property", 42, "time-pos")
+	_, err := m.conn.Call("observe_property", 42, "time-pos")
 	if err != nil {
 		m.Logger.Error().Err(err).Msg("mpv: Failed to observe time-pos")
 		return
