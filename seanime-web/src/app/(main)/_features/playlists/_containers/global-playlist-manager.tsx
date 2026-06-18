@@ -1,7 +1,7 @@
 import { Anime_Entry, Anime_Playlist, Anime_PlaylistEpisode, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { useCurrentDevicePlaybackSettings } from "@/app/(main)/_atoms/playback.atoms"
-import { getNextBatchFileSelection, useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
+import { getBatchFileSelectionForEpisode, useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
 import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { PlaylistManagerPopup } from "@/app/(main)/_features/playlists/_components/global-playlist-popup"
 import { playlist_getEpisodeKey, playlist_isSameEpisode } from "@/app/(main)/_features/playlists/_components/playlist-editor"
@@ -273,7 +273,7 @@ export function GlobalPlaylistManager() {
                             } else {
                                 if (autoPlayTorrent?.torrent?.isBatch && torrentStream_autoSelectFile && sameTorrent(autoPlayTorrent, episode)) {
                                     log.info("Previous selection matches, auto-selecting file for torrent stream")
-                                    const batchSelection = getNextBatchFileSelection(
+                                    const batchSelection = getBatchFileSelectionForEpisode(
                                         autoPlayTorrent.batchFiles,
                                         episode.episode?.episodeNumber!,
                                         episode.episode?.aniDBEpisode!,

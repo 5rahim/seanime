@@ -60,7 +60,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
         if (selectedDebridService !== DEBRID_SERVICE.TORBOX) {
             batchFiles = {
                 current: parseInt(selectedFileId),
-                files: previews?.map(n => { return { index: n.index, name: n.displayPath, path: n.path } }) || [],
+                files: previews?.map(n => { return { index: n.index, name: n.displayPath, path: n.path, episodeNumber: n.episodeNumber } }) || [],
                 currentEpisodeNumber: torrentSearchStreamEpisode.episodeNumber,
                 currentAniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
             }

@@ -46,7 +46,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
         // autoplay will increment selectedFileIdx by 1 to play the next file
         const batchFiles: HibikeTorrent_BatchEpisodeFiles = {
             current: selectedFileIdx,
-            files: filePreviews?.map(n => { return { index: n.index, name: n.displayPath, path: n.path } }) || [],
+            files: filePreviews?.map(n => { return { index: n.index, name: n.displayPath, path: n.path, episodeNumber: n.episodeNumber } }) || [],
             currentEpisodeNumber: torrentSearchStreamEpisode.episodeNumber,
             currentAniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
         }

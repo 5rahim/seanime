@@ -1,7 +1,7 @@
 import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useDeleteTorrentstreamBatchHistory, useGetTorrentstreamBatchHistory } from "@/api/hooks/torrentstream.hooks"
-import { useDebridstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
+import { getBatchFileSelectionForEpisode, useDebridstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
 import { useSelectedDebridService, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import { ENTRY_VIEW_TRANSITION } from "@/app/(main)/entry/_containers/entry-view-transition"
@@ -194,42 +194,24 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
                     })
                     started = true
                 } else {
-                    // Only auto select the file index if the user is trying to watch the next episode
+                    // Resolve the batch file for the requested episode, relative to the
+                    // last selected file (works for previous/next and arbitrary jumps).
                     if (batchHistory?.batchEpisodeFiles && selectedDebridService !== DEBRID_SERVICE.TORBOX) {
-                        let fileIndex: number | undefined = undefined
-
-                        console.log("handleEpisodeClick (batchHistory)",
-                            batchHistory?.batchEpisodeFiles,
+                        const batchSelection = getBatchFileSelectionForEpisode(
+                            batchHistory.batchEpisodeFiles,
+                            episode.episodeNumber,
                             episode.aniDBEpisode,
-                            episode.episodeNumber)
+                        )
 
-                        if (batchHistory?.batchEpisodeFiles.currentAniDBEpisode === episode.aniDBEpisode) {
-                            fileIndex = batchHistory.batchEpisodeFiles.current
-                        } else {
-                            // guess index based on the last selected file
-                            const offset = episode.episodeNumber - batchHistory.batchEpisodeFiles.currentEpisodeNumber
-                            const file = batchHistory.batchEpisodeFiles.files?.find(f => f.index === (batchHistory.batchEpisodeFiles?.current || 0) + offset)
-                            if (file) {
-                                fileIndex = file.index
-                                console.log("handleEpisodeClick (batchHistory) found file", file)
-                            }
-                        }
-
-                        if (fileIndex !== undefined) {
+                        if (batchSelection.fileIndex !== undefined) {
                             forcePlaybackMethodFn(forcePlaybackMethod, () => {
                                 handleStreamSelection({
                                     mediaId: entry.mediaId,
                                     episodeNumber: episode.episodeNumber,
                                     aniDBEpisode: episode.aniDBEpisode!,
                                     torrent: batchHistory.torrent!,
-                                    chosenFileId: String(fileIndex),
-                                    batchEpisodeFiles: (batchHistory.batchEpisodeFiles) ? {
-                                        ...batchHistory.batchEpisodeFiles!,
-                                        files: batchHistory.batchEpisodeFiles!.files!,
-                                        current: fileIndex!,
-                                        currentAniDBEpisode: episode.aniDBEpisode!,
-                                        currentEpisodeNumber: episode.episodeNumber,
-                                    } : undefined,
+                                    chosenFileId: String(batchSelection.fileIndex),
+                                    batchEpisodeFiles: batchSelection.batchEpisodeFiles,
                                 })
                             })
                             started = true

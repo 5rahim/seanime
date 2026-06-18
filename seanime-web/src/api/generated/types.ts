@@ -3110,6 +3110,7 @@ export type HibikeTorrent_AnimeTorrentFile = {
     index: number
     path: string
     name: string
+    episodeNumber: number
 }
 
 /**

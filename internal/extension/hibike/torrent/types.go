@@ -172,6 +172,9 @@ type (
 		Index int    `json:"index"`
 		Path  string `json:"path"`
 		Name  string `json:"name"`
+		// EpisodeNumber is the episode parsed from the file name, or 0 if unknown.
+		// Used to map a batch file to an episode regardless of file order.
+		EpisodeNumber int `json:"episodeNumber"`
 	}
 
 	BatchEpisodeFiles struct {

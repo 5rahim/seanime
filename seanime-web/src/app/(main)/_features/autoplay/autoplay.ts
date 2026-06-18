@@ -56,13 +56,42 @@ export function useAutoPlaySelectedTorrent() {
     }
 }
 
-export function getNextBatchFileSelection(
+/**
+ * Resolves which file of a batch torrent corresponds to the target episode.
+ *
+ * Primary strategy: match the file whose parsed episode number equals the target
+ * episode. This is robust even when the torrent's files are not ordered by episode
+ * (common with batch releases, e.g. file index 0 holding episode 12).
+ *
+ * Fallback (when the parsed episode number is unknown, e.g. unparseable names or
+ * absolute-numbered batches): derive the file index from the episode offset
+ * relative to the currently-mapped episode. This works in both directions
+ * (previous/next) and for arbitrary jumps, unlike a naive "current + 1" which only
+ * holds when moving strictly forward and silently drifts once the user goes
+ * backward or skips.
+ */
+export function getBatchFileSelectionForEpisode(
     batchFiles: HibikeTorrent_BatchEpisodeFiles | undefined,
     episodeNumber: number,
     aniDBEpisode: string,
 ) {
-    const file = batchFiles?.files?.find(n => n.index === batchFiles.current + 1)
-    if (!batchFiles || !file) {
+    if (!batchFiles) {
+        return { fileIndex: undefined, batchEpisodeFiles: undefined }
+    }
+
+    // Prefer matching the file by its parsed episode number.
+    let file = batchFiles.files?.find(n => n.episodeNumber > 0 && n.episodeNumber === episodeNumber)
+
+    // Fallback: reuse the currently-mapped file when re-selecting the same episode,
+    // otherwise derive the index from the episode offset relative to it.
+    if (!file) {
+        const targetIndex = batchFiles.currentAniDBEpisode === aniDBEpisode
+            ? batchFiles.current
+            : batchFiles.current + (episodeNumber - batchFiles.currentEpisodeNumber)
+        file = batchFiles.files?.find(n => n.index === targetIndex)
+    }
+
+    if (!file) {
         return { fileIndex: undefined, batchEpisodeFiles: undefined }
     }
 
@@ -95,7 +124,7 @@ export function useTorrentstreamAutoplay() {
             torrentInfo = null
         }
 
-        const { fileIndex, batchEpisodeFiles } = getNextBatchFileSelection(torrentInfo?.batchFiles, episodeNumber, aniDBEpisode)
+        const { fileIndex, batchEpisodeFiles } = getBatchFileSelectionForEpisode(torrentInfo?.batchFiles, episodeNumber, aniDBEpisode)
 
         logger("TORRENT STREAM AUTOPLAY").info("Auto playing next episode", { episodeNumber, fileIndex, preload, torrent: torrentInfo?.torrent })
 
@@ -166,13 +195,7 @@ export function useDebridstreamAutoplay() {
 
         if (autoPlayTorrent?.torrent?.isBatch) {
 
-            let fileIndex: number | undefined = undefined
-            if (autoPlayTorrent?.batchFiles) {
-                const file = autoPlayTorrent.batchFiles.files?.find(n => n.index === autoPlayTorrent.batchFiles!.current + 1)
-                if (file) {
-                    fileIndex = file.index
-                }
-            }
+            const { fileIndex, batchEpisodeFiles } = getBatchFileSelectionForEpisode(autoPlayTorrent?.batchFiles, episodeNumber, aniDBEpisode)
 
             // If the user provided a torrent, use it
             handleStreamSelection({
@@ -181,12 +204,7 @@ export function useDebridstreamAutoplay() {
                 aniDBEpisode: aniDBEpisode,
                 torrent: autoPlayTorrent.torrent,
                 chosenFileId: fileIndex !== undefined ? String(fileIndex) : "",
-                batchEpisodeFiles: (autoPlayTorrent?.batchFiles && fileIndex !== undefined) ? {
-                    ...autoPlayTorrent.batchFiles,
-                    current: fileIndex,
-                    currentEpisodeNumber: episodeNumber,
-                    currentAniDBEpisode: aniDBEpisode,
-                } : undefined,
+                batchEpisodeFiles: batchEpisodeFiles,
             })
         } else {
             // Otherwise, use the auto-select function
