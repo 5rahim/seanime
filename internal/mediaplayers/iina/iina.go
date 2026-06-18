@@ -333,13 +333,13 @@ func (i *Iina) listenForEvents(ctx context.Context) {
 	events, stopListening := i.conn.NewEventListener()
 	i.Logger.Debug().Msg("iina: Listening for events")
 
-	_, err := i.conn.Get("path")
-	if err != nil {
-		i.Logger.Error().Err(err).Msg("iina: Failed to get path")
-		return
-	}
-
-	_, err = i.conn.Call("observe_property", 42, "time-pos")
+	// Don't probe Get("path") here. For network/torrent streams the file may not
+	// be loaded yet when the IPC connection is established, so mpv returns
+	// "property unavailable". Treating that as fatal tears down the event loop
+	// (and, via terminate(), the player process), which silently breaks progress
+	// tracking. The path, filename, duration and time-pos values are delivered
+	// below via observe_property once the stream finishes loading.
+	_, err := i.conn.Call("observe_property", 42, "time-pos")
 	if err != nil {
 		i.Logger.Error().Err(err).Msg("iina: Failed to observe time-pos")
 		return

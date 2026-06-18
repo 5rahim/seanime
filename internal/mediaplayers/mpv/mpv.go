@@ -462,13 +462,13 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 	events, stopListening := m.conn.NewEventListener()
 	m.Logger.Debug().Msg("mpv: Listening for events")
 
-	_, err := m.conn.Get("path")
-	if err != nil {
-		m.Logger.Error().Err(err).Msg("mpv: Failed to get path")
-		return
-	}
-
-	_, err = m.conn.Call("observe_property", 42, "time-pos")
+	// Don't probe Get("path") here. For network/torrent streams the file may not
+	// be loaded yet when the IPC connection is established, so mpv returns
+	// "property unavailable". Treating that as fatal tears down the event loop
+	// (and, via terminate(), the player process), which silently breaks progress
+	// tracking. The path, filename, duration and time-pos values are delivered
+	// below via observe_property once the stream finishes loading.
+	_, err := m.conn.Call("observe_property", 42, "time-pos")
 	if err != nil {
 		m.Logger.Error().Err(err).Msg("mpv: Failed to observe time-pos")
 		return
