@@ -18,6 +18,8 @@
         "preview": "rsbuild preview"
     },
     "dependencies": {
+        "@mpv-prism/core": "https://seanime.app/assets/mpv-prism/0.1.0/packages/mpv-prism-core-0.1.0.tgz",
+        "@mpv-prism/react": "https://seanime.app/assets/mpv-prism/0.1.0/packages/mpv-prism-react-0.1.0.tgz",
         "@codemirror/autocomplete": "^6.20.1",
         "@codemirror/lang-javascript": "^6.2.5",
         "@codemirror/language": "^6.12.3",
@@ -138,10 +140,10 @@
         "zod": "^3.25.67"
     },
     "devDependencies": {
-        "@rsbuild/core": "^1.7.5",
-        "@rsbuild/plugin-babel": "^1.1.2",
-        "@rsbuild/plugin-node-polyfill": "^1.4.4",
-        "@rsbuild/plugin-react": "^1.4.6",
+        "@rsbuild/core": "^2.0.15",
+        "@rsbuild/plugin-babel": "^2.0.0",
+        "@rsbuild/plugin-node-polyfill": "^1.4.6",
+        "@rsbuild/plugin-react": "^2.1.0",
         "@rsdoctor/rspack-plugin": "^1.5.8",
         "@tanstack/router-plugin": "^1.167.22",
         "@types/crypto-js": "^4.2.2",

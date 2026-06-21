@@ -2,7 +2,8 @@ import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
-import { getNextBatchFileSelection, useAutoPlaySelectedTorrent, useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
+import { useAutoPlaySelectedTorrent, useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
+import { getBatchSelectionParams } from "@/app/(main)/_features/autoplay/batches.ts"
 import { useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { VideoCoreNextButton, VideoCorePreviousButton } from "@/app/(main)/_features/video-core/video-core-control-bar"
@@ -198,28 +199,32 @@ export function useVideoCorePlaylist() {
         // If a torrent was selected for auto play (i.e. user manually select torrent with auto select file)
         if (autoPlayTorrent?.torrent?.isBatch) {
             log.info("Previous torrent selected for auto play", autoPlayTorrent)
-            let fileIndex: number | undefined = undefined
-            if (autoPlayTorrent?.batchFiles) {
-                const file = autoPlayTorrent.batchFiles.files?.find(n => n.index === autoPlayTorrent.batchFiles!.current + 1)
-                if (file) {
-                    fileIndex = file.index
-                }
-            }
+            const batchParams = getBatchSelectionParams(
+                autoPlayTorrent.batchFiles,
+                episode.episodeNumber,
+                episode.aniDBEpisode,
+            )
             if (playbackType === "torrent") {
-                const batchSelection = getNextBatchFileSelection(autoPlayTorrent.batchFiles, episode.episodeNumber, episode.aniDBEpisode)
                 handleTorrentstreamSelection({
                     mediaId: playlistState.animeEntry.mediaId,
                     episodeNumber: episode.episodeNumber,
                     aniDBEpisode: episode.aniDBEpisode,
                     torrent: autoPlayTorrent.torrent,
-                    chosenFileIndex: batchSelection.fileIndex,
-                    batchEpisodeFiles: batchSelection.batchEpisodeFiles,
+                    chosenFileIndex: batchParams.fileIndex,
+                    batchEpisodeFiles: batchParams.batchEpisodeFiles,
                 })
-                if (batchSelection.batchEpisodeFiles) {
-                    setAutoPlayTorrent(autoPlayTorrent.torrent, playlistState.animeEntry, batchSelection.batchEpisodeFiles)
+                if (batchParams.batchEpisodeFiles) {
+                    setAutoPlayTorrent(autoPlayTorrent.torrent, playlistState.animeEntry, batchParams.batchEpisodeFiles)
                 }
                 updateTorrentstreamAutoplayInfo(episode)
             } else if (playbackType === "debrid") {
+                let fileIndex: number | undefined = undefined
+                if (autoPlayTorrent?.batchFiles) {
+                    const file = autoPlayTorrent.batchFiles.files?.find(n => n.index === autoPlayTorrent.batchFiles!.current + 1)
+                    if (file) {
+                        fileIndex = file.index
+                    }
+                }
                 handleDebridstreamSelection({
                     mediaId: playlistState.animeEntry.mediaId,
                     episodeNumber: episode.episodeNumber,

@@ -10,13 +10,13 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediacore"
 	"seanime/internal/mediaplayers/mediaplayer"
-	"seanime/internal/nativeplayer"
+	"seanime/internal/mpvcore"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/testmocks"
 	"seanime/internal/testutil"
 	"seanime/internal/util"
-	"seanime/internal/videocore"
 	"sync"
 	"testing"
 	"time"
@@ -248,10 +248,12 @@ func TestPlaylistManagerNativeLifecycleAdvancesToNextEpisode(t *testing.T) {
 	h.sendNativeLoadedSequence(t, "web", episodeOne)
 
 	require.Eventually(t, func() bool {
-		return h.manager.playerType.Load() == NativePlayer && h.manager.state.Load() == StateStarted
+		return h.manager.playerType.Load() == MpvCorePlayer && h.manager.state.Load() == StateStarted
 	}, time.Second, 10*time.Millisecond)
 
-	h.sendVideoCoreClientEvent("web", videocore.PlayerEventVideoCompleted, map[string]any{
+	h.sendMpvCoreClientEvent("web", mpvcore.ClientEventCompleted, map[string]any{
+		"id":          "playback-1",
+		"clientId":    "web",
 		"currentTime": 1200.0,
 		"duration":    1200.0,
 		"paused":      true,
@@ -261,7 +263,7 @@ func TestPlaylistManagerNativeLifecycleAdvancesToNextEpisode(t *testing.T) {
 		return h.manager.state.Load() == StateCompleted && episodeOne.IsCompleted
 	}, time.Second, 10*time.Millisecond)
 
-	h.sendVideoCoreClientEvent("web", videocore.PlayerEventVideoEnded, map[string]any{"autoNext": false})
+	h.sendMpvCoreClientEvent("web", mpvcore.ClientEventEnded, map[string]any{"autoNext": false})
 
 	require.Eventually(t, func() bool {
 		return h.manager.currentEpisode.IsPresent() && h.manager.currentEpisode.MustGet().Episode.AniDBEpisode == "2"
@@ -290,10 +292,14 @@ func TestPlaylistManagerNativeTerminationStopsPlaylist(t *testing.T) {
 
 	h.sendNativeLoadedSequence(t, "web", episodeOne)
 	require.Eventually(t, func() bool {
-		return h.manager.playerType.Load() == NativePlayer && h.manager.state.Load() == StateStarted
+		return h.manager.playerType.Load() == MpvCorePlayer && h.manager.state.Load() == StateStarted
 	}, time.Second, 10*time.Millisecond)
 
-	h.sendVideoCoreClientEvent("web", videocore.PlayerEventVideoTerminated, map[string]any{})
+	h.sendMpvCoreClientEvent("web", mpvcore.ClientEventTerminated, map[string]any{
+		"id":           "playback-1",
+		"clientId":     "web",
+		"playbackType": mpvcore.PlaybackTypeTorrent,
+	})
 
 	require.Eventually(t, func() bool {
 		return h.manager.currentPlaylistData.IsAbsent() && h.manager.currentEpisode.IsAbsent()
@@ -323,8 +329,7 @@ type playlistTestWrapper struct {
 	wsEventManager  *recordingPlaylistWSEventManager
 	platform        *testmocks.FakePlatform
 	playbackManager *playbackmanager.PlaybackManager
-	videoCore       *videocore.VideoCore
-	nativePlayer    *nativeplayer.NativePlayer
+	mpvCore         *mpvcore.MpvCore
 	manager         *Manager
 }
 
@@ -344,7 +349,7 @@ func newPlaylistTestWrapper(t *testing.T) *playlistTestWrapper {
 		Database:   database,
 	})
 	continuityManager.SetSettings(&continuity.Settings{WatchContinuityEnabled: false})
-	videoCore := videocore.New(videocore.NewVideoCoreOptions{
+	mpvCore := mpvcore.New(mpvcore.NewMpvCoreOptions{
 		WsEventManager:      wsEventManager,
 		Logger:              logger,
 		MetadataProviderRef: util.NewRef(provider),
@@ -352,16 +357,11 @@ func newPlaylistTestWrapper(t *testing.T) *playlistTestWrapper {
 		PlatformRef:         util.NewRef(platformInterface),
 		IsOfflineRef:        util.NewRef(false),
 	})
-	videoCore.SetSettings(&models.Settings{
+	mpvCore.SetSettings(&models.Settings{
 		Library:     &models.LibrarySettings{AutoUpdateProgress: false},
 		MediaPlayer: &models.MediaPlayerSettings{},
 	})
-	nativePlayer := nativeplayer.New(nativeplayer.NewNativePlayerOptions{
-		WsEventManager: wsEventManager,
-		Logger:         logger,
-		VideoCore:      videoCore,
-	})
-	t.Cleanup(videoCore.Shutdown)
+	t.Cleanup(mpvCore.Shutdown)
 	playbackManager := playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
 		Logger:              logger,
 		Database:            database,
@@ -376,13 +376,25 @@ func newPlaylistTestWrapper(t *testing.T) *playlistTestWrapper {
 		WSEventManager: wsEventManager,
 	}))
 
+	mediacoreCoordinator := mediacore.NewCoordinator(mediacore.NewCoordinatorOptions{
+		Logger:              logger,
+		MetadataProviderRef: util.NewRef(provider),
+		ContinuityManager:   continuityManager,
+		PlatformRef:         util.NewRef(platformInterface),
+		IsOfflineRef:        util.NewRef(false),
+		Backends: map[mediacore.Target]mediacore.Backend{
+			mediacore.TargetMpvCore: mpvcore.NewAdapter(mpvCore),
+		},
+	})
+	t.Cleanup(func() { _ = mediacoreCoordinator.Close() })
+
 	manager := NewManager(&NewManagerOptions{
-		PlaybackManager: playbackManager,
-		NativePlayer:    nativePlayer,
-		Logger:          logger,
-		PlatformRef:     util.NewRef(platformInterface),
-		WSEventManager:  wsEventManager,
-		Database:        database,
+		PlaybackManager:      playbackManager,
+		MediacoreCoordinator: mediacoreCoordinator,
+		Logger:               logger,
+		PlatformRef:          util.NewRef(platformInterface),
+		WSEventManager:       wsEventManager,
+		Database:             database,
 	})
 	manager.currentPlaylistData = mo.None[*playlistData]()
 	manager.currentEpisode = mo.None[*anime.PlaylistEpisode]()
@@ -394,8 +406,7 @@ func newPlaylistTestWrapper(t *testing.T) *playlistTestWrapper {
 		wsEventManager:  wsEventManager,
 		platform:        platformImpl,
 		playbackManager: playbackManager,
-		videoCore:       videoCore,
-		nativePlayer:    nativePlayer,
+		mpvCore:         mpvCore,
 		manager:         manager,
 	}
 }
@@ -411,13 +422,14 @@ func (h *playlistTestWrapper) sendPlaylistClientEvent(t *testing.T, clientID str
 	})
 }
 
-func (h *playlistTestWrapper) sendVideoCoreClientEvent(clientID string, eventType videocore.ClientEventType, payload interface{}) {
+func (h *playlistTestWrapper) sendMpvCoreClientEvent(clientID string, eventType mpvcore.ClientEventType, payload interface{}) {
 	h.wsEventManager.MockSendClientEvent(&events.WebsocketClientEvent{
 		ClientID: clientID,
-		Type:     events.VideoCoreEventType,
+		Type:     events.MpvCoreEventType,
 		Payload: map[string]interface{}{
-			"type":    eventType,
-			"payload": payload,
+			"clientId": clientID,
+			"type":     eventType,
+			"payload":  payload,
 		},
 	})
 }
@@ -425,19 +437,19 @@ func (h *playlistTestWrapper) sendVideoCoreClientEvent(clientID string, eventTyp
 func (h *playlistTestWrapper) sendNativeLoadedSequence(t *testing.T, clientID string, episode *anime.PlaylistEpisode) {
 	t.Helper()
 
-	h.sendVideoCoreClientEvent(clientID, videocore.PlayerEventVideoLoaded, map[string]interface{}{
-		"state": videocore.PlaybackState{
-			ClientId:   clientID,
-			PlayerType: videocore.NativePlayer,
-			PlaybackInfo: &videocore.VideoPlaybackInfo{
-				Id:           "playback-1",
-				PlaybackType: videocore.PlaybackTypeTorrent,
-				Media:        episode.Episode.BaseAnime,
-				Episode:      episode.Episode,
-			},
-		},
+	h.manager.mediacoreCoordinator.Watch(mediacore.TargetMpvCore, clientID, &mediacore.PlaybackInfo{
+		ID:           "playback-1",
+		PlaybackType: mediacore.PlaybackTypeTorrent,
+		Media:        episode.Episode.BaseAnime,
+		Episode:      episode.Episode,
 	})
-	h.sendVideoCoreClientEvent(clientID, videocore.PlayerEventVideoLoadedMetadata, map[string]interface{}{
+	h.sendMpvCoreClientEvent(clientID, mpvcore.ClientEventPlaybackLoaded, map[string]interface{}{
+		"id":       "playback-1",
+		"clientId": clientID,
+	})
+	h.sendMpvCoreClientEvent(clientID, mpvcore.ClientEventLoadedMetadata, map[string]interface{}{
+		"id":          "playback-1",
+		"clientId":    clientID,
 		"currentTime": 0.0,
 		"duration":    1200.0,
 		"paused":      false,

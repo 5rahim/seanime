@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"seanime/internal/mediacore"
 	"seanime/internal/mkvparser"
-	"seanime/internal/nativeplayer"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 
@@ -15,14 +15,14 @@ import (
 
 func TestSubtitleOffsetForTimeUsesPlaybackProgress(t *testing.T) {
 	// keeps seek-based subtitle refresh near the current playback position
-	playbackInfo := &nativeplayer.PlaybackInfo{ContentLength: defaultSubtitleBackoffBytes * 4}
+	playbackInfo := &mediacore.PlaybackInfo{ContentLength: defaultSubtitleBackoffBytes * 4}
 
 	require.Equal(t, defaultSubtitleBackoffBytes, subtitleOffsetForTime(playbackInfo, 25, 100))
 }
 
 func TestSubtitleOffsetForTimeFallsBackToMetadataDuration(t *testing.T) {
 	// falls back to mkv metadata when the player duration is not available yet
-	playbackInfo := &nativeplayer.PlaybackInfo{
+	playbackInfo := &mediacore.PlaybackInfo{
 		ContentLength: defaultSubtitleBackoffBytes * 4,
 		MkvMetadata: &mkvparser.Metadata{
 			Duration: 200,
@@ -34,7 +34,7 @@ func TestSubtitleOffsetForTimeFallsBackToMetadataDuration(t *testing.T) {
 
 func TestSubtitleOffsetForTimeClampsNearEnd(t *testing.T) {
 	// leaves enough room for the subtitle parser backoff near eof
-	playbackInfo := &nativeplayer.PlaybackInfo{ContentLength: defaultSubtitleBackoffBytes * 2}
+	playbackInfo := &mediacore.PlaybackInfo{ContentLength: defaultSubtitleBackoffBytes * 2}
 
 	require.Equal(t, defaultSubtitleBackoffBytes, subtitleOffsetForTime(playbackInfo, 199, 200))
 }
@@ -44,7 +44,7 @@ func TestStartSubtitleStreamPSkipsNearbyActiveStream(t *testing.T) {
 	reader := &trackingReadSeekCloser{}
 	stream := &BaseStream{
 		logger: util.NewLogger(),
-		playbackInfo: &nativeplayer.PlaybackInfo{
+		playbackInfo: &mediacore.PlaybackInfo{
 			MkvMetadataParser: mo.Some(&mkvparser.MetadataParser{}),
 		},
 		activeSubtitleStreams: result.NewMap[string, *SubtitleStream](),
@@ -65,9 +65,9 @@ func TestStartSubtitleStreamPSkipsNearbyActiveStream(t *testing.T) {
 
 func TestSubtitleFlushConfigForTorrentThrottlesBatches(t *testing.T) {
 	// torrent subtitle extraction can outrun the UI, so its batches stay smaller
-	defaultConfig := subtitleFlushConfigFor(nativeplayer.StreamTypeDebrid, 0)
-	torrentConfig := subtitleFlushConfigFor(nativeplayer.StreamTypeTorrent, 0)
-	torrentSeekConfig := subtitleFlushConfigFor(nativeplayer.StreamTypeTorrent, 8*1024*1024)
+	defaultConfig := subtitleFlushConfigFor(mediacore.PlaybackTypeDebrid, 0)
+	torrentConfig := subtitleFlushConfigFor(mediacore.PlaybackTypeTorrent, 0)
+	torrentSeekConfig := subtitleFlushConfigFor(mediacore.PlaybackTypeTorrent, 8*1024*1024)
 
 	require.Less(t, torrentConfig.maxBatchSize, defaultConfig.maxBatchSize)
 	require.Greater(t, torrentConfig.flushInterval, defaultConfig.flushInterval)

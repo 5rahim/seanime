@@ -20,6 +20,7 @@ type WSEventManagerInterface interface {
 	SubscribeToClientEvents(id string) *ClientEventSubscriber
 	SubscribeToClientNativePlayerEvents(id string) *ClientEventSubscriber
 	SubscribeToClientVideoCoreEvents(id string) *ClientEventSubscriber
+	SubscribeToClientMpvCoreEvents(id string) *ClientEventSubscriber
 	SubscribeToClientNakamaEvents(id string) *ClientEventSubscriber
 	SubscribeToClientPlaylistEvents(id string) *ClientEventSubscriber
 	UnsubscribeFromClientEvents(id string)
@@ -64,6 +65,7 @@ type (
 		clientEventSubscribers             *result.Map[string, *ClientEventSubscriber]
 		clientNativePlayerEventSubscribers *result.Map[string, *ClientEventSubscriber]
 		clientVideoCoreEventSubscribers    *result.Map[string, *ClientEventSubscriber]
+		clientMpvCoreEventSubscribers      *result.Map[string, *ClientEventSubscriber]
 		nakamaEventSubscribers             *result.Map[string, *ClientEventSubscriber]
 		playlistEventSubscribers           *result.Map[string, *ClientEventSubscriber]
 	}
@@ -94,6 +96,7 @@ func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
 		clientEventSubscribers:             result.NewMap[string, *ClientEventSubscriber](),
 		clientNativePlayerEventSubscribers: result.NewMap[string, *ClientEventSubscriber](),
 		clientVideoCoreEventSubscribers:    result.NewMap[string, *ClientEventSubscriber](),
+		clientMpvCoreEventSubscribers:      result.NewMap[string, *ClientEventSubscriber](),
 		nakamaEventSubscribers:             result.NewMap[string, *ClientEventSubscriber](),
 		playlistEventSubscribers:           result.NewMap[string, *ClientEventSubscriber](),
 	}
@@ -289,6 +292,8 @@ func (m *WSEventManager) OnClientEvent(event *WebsocketClientEvent) {
 		m.clientNativePlayerEventSubscribers.Range(onEvent)
 	case VideoCoreEventType:
 		m.clientVideoCoreEventSubscribers.Range(onEvent)
+	case MpvCoreEventType:
+		m.clientMpvCoreEventSubscribers.Range(onEvent)
 	case NakamaEventType:
 		m.nakamaEventSubscribers.Range(onEvent)
 	case PlaylistEvent:
@@ -322,6 +327,14 @@ func (m *WSEventManager) SubscribeToClientVideoCoreEvents(id string) *ClientEven
 	return subscriber
 }
 
+func (m *WSEventManager) SubscribeToClientMpvCoreEvents(id string) *ClientEventSubscriber {
+	subscriber := &ClientEventSubscriber{
+		Channel: make(chan *WebsocketClientEvent, 100),
+	}
+	m.clientMpvCoreEventSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
 func (m *WSEventManager) SubscribeToClientNakamaEvents(id string) *ClientEventSubscriber {
 	subscriber := &ClientEventSubscriber{
 		Channel: make(chan *WebsocketClientEvent, 100),
@@ -346,21 +359,23 @@ func (m *WSEventManager) UnsubscribeFromClientEvents(id string) {
 			m.Logger.Warn().Msg("ws: Failed to unsubscribe from client events")
 		}
 	}()
-	subscriber, ok := m.clientEventSubscribers.Get(id)
-	if !ok {
-		subscriber, ok = m.clientNativePlayerEventSubscribers.Get(id)
-		if !ok {
-			subscriber, ok = m.clientVideoCoreEventSubscribers.Get(id)
-			if !ok {
-				subscriber, ok = m.nakamaEventSubscribers.Get(id)
-			}
-		}
+	maps := []*result.Map[string, *ClientEventSubscriber]{
+		m.clientEventSubscribers,
+		m.clientNativePlayerEventSubscribers,
+		m.clientVideoCoreEventSubscribers,
+		m.clientMpvCoreEventSubscribers,
+		m.nakamaEventSubscribers,
+		m.playlistEventSubscribers,
 	}
-	if ok {
+	for _, subscribers := range maps {
+		subscriber, ok := subscribers.Pop(id)
+		if !ok {
+			continue
+		}
 		subscriber.mu.Lock()
-		defer subscriber.mu.Unlock()
 		subscriber.closed = true
-		m.clientEventSubscribers.Delete(id)
 		close(subscriber.Channel)
+		subscriber.mu.Unlock()
+		return
 	}
 }

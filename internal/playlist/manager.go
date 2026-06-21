@@ -10,12 +10,11 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediacore"
 	"seanime/internal/nakama"
-	"seanime/internal/nativeplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
-	"seanime/internal/videocore"
 	"sync"
 	"sync/atomic"
 
@@ -81,6 +80,7 @@ const (
 
 const (
 	SystemPlayer       = "system"
+	MpvCorePlayer      = "mpvcore"
 	NativePlayer       = "native"
 	ExternalPlayerLink = "externalPlayerLink"
 	Transcode          = "transcode"
@@ -106,7 +106,7 @@ type (
 
 		directstreamManager     *directstream.Manager
 		playbackManager         *playbackmanager.PlaybackManager
-		nativePlayer            *nativeplayer.NativePlayer
+		mediacoreCoordinator    *mediacore.Coordinator
 		torrentstreamRepository *torrentstream.Repository
 		debridClientRepository  *debrid_client.Repository
 		nakamaManager           *nakama.Manager
@@ -132,7 +132,7 @@ type (
 		PlaybackManager         *playbackmanager.PlaybackManager
 		TorrentstreamRepository *torrentstream.Repository
 		DebridClientRepository  *debrid_client.Repository
-		NativePlayer            *nativeplayer.NativePlayer
+		MediacoreCoordinator    *mediacore.Coordinator
 		NakamaManager           *nakama.Manager
 		Logger                  *zerolog.Logger
 		PlatformRef             *util.Ref[platform.Platform]
@@ -148,7 +148,7 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		logger:                  opts.Logger,
 		torrentstreamRepository: opts.TorrentstreamRepository,
 		debridClientRepository:  opts.DebridClientRepository,
-		nativePlayer:            opts.NativePlayer,
+		mediacoreCoordinator:    opts.MediacoreCoordinator,
 		nakamaManager:           opts.NakamaManager,
 		platformRef:             opts.PlatformRef,
 		db:                      opts.Database,
@@ -290,7 +290,10 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
 	playbackManagerSubscriber := m.playbackManager.SubscribeToPlaybackStatus("playlist-manager")
-	videoCoreSubscriber := m.nativePlayer.VideoCore().Subscribe("playlist-manager")
+	var mediacoreSubscriber *mediacore.Subscriber
+	if m.mediacoreCoordinator != nil {
+		mediacoreSubscriber = m.mediacoreCoordinator.Subscribe("playlist-manager")
+	}
 
 	m.playbackManager.SetPlaylistActive(true)
 
@@ -302,7 +305,9 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 				m.logger.Trace().Uint("dbId", playlist.DbId).Msg("playlist: Current playlist context done")
 				m.resetPlaylist()
 				m.playbackManager.UnsubscribeFromPlaybackStatus("playlist-manager")
-				m.nativePlayer.VideoCore().Unsubscribe("playlist-manager")
+				if m.mediacoreCoordinator != nil {
+					m.mediacoreCoordinator.Unsubscribe("playlist-manager")
+				}
 				return
 			case event := <-playbackManagerSubscriber.EventCh:
 				switch e := event.(type) {
@@ -367,24 +372,27 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 						}
 					}
 				}
-			case event := <-videoCoreSubscriber.Events():
-				if !event.IsNativePlayer() {
-					continue
+			case event := <-mediacoreSubscriber.Events():
+				key := event.GetSessionKey()
+				playerType := MpvCorePlayer
+				if key.Target == mediacore.TargetVideoCore {
+					playerType = NativePlayer
 				}
-				switch event.(type) {
-				case *videocore.VideoLoadedMetadataEvent:
-					m.state.Store(StateStarted)
-					m.playerType.Store(NativePlayer)
 
-				case *videocore.VideoCompletedEvent:
-					if m.playerType.Load() != NativePlayer {
+				switch event.(type) {
+				case *mediacore.LoadedMetadataEvent:
+					m.state.Store(StateStarted)
+					m.playerType.Store(playerType)
+
+				case *mediacore.CompletedEvent:
+					if m.playerType.Load() != playerType {
 						continue
 					}
 					m.markCurrentAsCompleted()
 					m.state.Store(StateCompleted)
 
-				case *videocore.VideoEndedEvent:
-					if m.playerType.Load() != NativePlayer {
+				case *mediacore.EndedEvent:
+					if m.playerType.Load() != playerType {
 						continue
 					}
 					if m.state.Load() == StateCompleted {
@@ -393,8 +401,8 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 					}
 					m.state.Store(StateIdle)
 
-				case *videocore.VideoTerminatedEvent:
-					if m.playerType.Load() != NativePlayer {
+				case *mediacore.TerminatedEvent:
+					if m.playerType.Load() != playerType {
 						continue
 					}
 					if m.state.Load() == StateStarted || m.state.Load() == StateCompleted {
@@ -580,7 +588,12 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 		(isNakama && data.options.LocalFilePlaybackMethod != ClientPlaybackMethodNativePlayer) ||
 		(isTorrentOrDebridStream && data.options.StreamPlaybackMethod != ClientPlaybackMethodNativePlayer) ||
 		episode.WatchType == anime.WatchTypeOnline {
-		m.nativePlayer.Stop()
+		if m.mediacoreCoordinator != nil {
+			session, ok := m.mediacoreCoordinator.GetActiveSession()
+			if ok {
+				m.mediacoreCoordinator.Terminate(session)
+			}
+		}
 	}
 
 	// local file and desktop media player, play it from server
@@ -640,6 +653,8 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 		},
 	})
 }
+
+// Target check methods removed as routing and filtering is handled by the Coordinator.
 
 func (m *Manager) prepareNextEpisode() {
 	m.logger.Trace().Msg("playlist: Preparing next episode")

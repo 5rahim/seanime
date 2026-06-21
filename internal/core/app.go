@@ -27,12 +27,14 @@ import (
 	"seanime/internal/library_explorer"
 	"seanime/internal/local"
 	"seanime/internal/manga"
+	"seanime/internal/mediacore"
 	"seanime/internal/mediaplayers/iina"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
+	"seanime/internal/mpvcore"
 	"seanime/internal/nakama"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/onlinestream"
@@ -100,15 +102,17 @@ type (
 		TorrentstreamRepository *torrentstream.Repository
 
 		// Players
-		NativePlayer *nativeplayer.NativePlayer
-		VideoCore    *videocore.VideoCore
-		MediaPlayer  struct {
+		NativePlayer         *nativeplayer.NativePlayer
+		VideoCore            *videocore.VideoCore
+		MediacoreCoordinator *mediacore.Coordinator
+		MediaPlayer          struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
 			Iina  *iina.Iina
 		}
 		MediaPlayerRepository *mediaplayer.Repository
+		MpvCore               *mpvcore.MpvCore
 
 		// Manga services
 		MangaRepository *manga.Repository
@@ -424,6 +428,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		DirectStreamManager:           nil, // Initialized in App.initModulesOnce
 		NativePlayer:                  nil, // Initialized in App.initModulesOnce
 		VideoCore:                     nil, // Initialized in App.initModulesOnce
+		MpvCore:                       nil, // Initialized in App.initModulesOnce
+		MediacoreCoordinator:          nil, // Initialized in App.initModulesOnce
 		NakamaManager:                 nil, // Initialized in App.initModulesOnce
 		LibraryExplorer:               nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules

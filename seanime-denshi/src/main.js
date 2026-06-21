@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog, remote, net, protocol, nativeImage, screen } = require("electron")
+const { app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog, remote, net, protocol, nativeImage, screen, webContents } = require("electron")
 const path = require("path")
 const { spawn } = require("child_process")
 const fs = require("fs")
@@ -191,7 +191,8 @@ function setupChromiumFlags() {
         "WidgetLayering",
         "ColorProviderRedirection",
         "WebContentsForceDarkMode",
-        "HardwareMediaKeyHandling"
+        "HardwareMediaKeyHandling",
+        "CalculateNativeWinOcclusion",
     ].join(","))
 
     // Hardware acceleration and GPU optimizations
@@ -211,6 +212,7 @@ function setupChromiumFlags() {
         "CanvasOopRasterization",
         "UseSkiaRenderer",
         "PlatformEncryptedDolbyVision",
+        "SharedArrayBuffer",
     ].join(","))
 
     app.commandLine.appendSwitch("enable-unsafe-webgpu")
@@ -231,6 +233,9 @@ function setupChromiumFlags() {
         app.commandLine.appendSwitch("gtk-version", "3")
     }
 }
+
+// Chromium switches must be registered before app.whenReady().
+setupChromiumFlags()
 
 // Setup update events for logging
 autoUpdater.logger = log
@@ -575,6 +580,128 @@ let serverStarted = false
 let mainWindowStartupReady = false
 let updateDownloaded = false
 let serverRestartPromise = null
+let mpvPrismMain = null
+
+const MPVCORE_TEMP_SUBTITLE_EXTENSIONS = new Set([".srt", ".ass", ".ssa", ".vtt", ".ttml", ".stl", ".txt"])
+const MPVCORE_MAX_SUBTITLE_BYTES = 20 * 1024 * 1024
+const MPVCORE_ANIME4K_MAX_SHADERS = 512
+
+function getMpvCoreTempDirectory() {
+    return path.join(app.getPath("temp"), "seanime-mpvcore")
+}
+
+function getEmbeddedShadersDirectory() {
+    let shadersPath = path.join(__dirname, "../assets/shaders")
+    if (_development) {
+        shadersPath = path.join(app.getAppPath(), "assets/shaders")
+    }
+    return shadersPath
+}
+
+function getMpvCoreAnime4KDirectory() {
+    return path.join(app.getPath("userData"), "mpvcore-shaders")
+}
+
+function createMpvCoreAnime4KDirectory() {
+    const directory = getMpvCoreAnime4KDirectory()
+    fs.mkdirSync(directory, { recursive: true })
+
+    const readmePath = path.join(directory, "README.txt")
+    if (!fs.existsSync(readmePath)) {
+        fs.writeFileSync(readmePath, [
+            "Seanime MpvCore shaders",
+            "",
+            "Place your custom shaders (e.g. .glsl, .hook) in this folder.",
+            "",
+            "You can enable individual custom shaders in the settings, or select one of the built-in Anime4K/CNN upscaler profiles.",
+        ].join("\n"), "utf8")
+    }
+
+    try {
+        const files = fs.readdirSync(directory)
+        const hasShaders = files.some(file => file.endsWith(".glsl") || file.endsWith(".hook"))
+        if (!hasShaders) {
+            const embeddedDir = getEmbeddedShadersDirectory()
+            if (fs.existsSync(embeddedDir)) {
+                for (const file of fs.readdirSync(embeddedDir)) {
+                    if (file.endsWith(".glsl") || file.endsWith(".hook")) {
+                        fs.copyFileSync(path.join(embeddedDir, file), path.join(directory, file))
+                    }
+                }
+                log.info("[MpvCore] Copied embedded shaders to mpvcore-shaders")
+            }
+        }
+    } catch (error) {
+        log.error("[MpvCore] Failed to copy embedded shaders:", error)
+    }
+
+    return directory
+}
+
+function scanMpvCoreAnime4KDirectory(dir) {
+    const directory = path.resolve(
+        typeof dir === "string" && dir.trim()
+            ? dir.trim()
+            : createMpvCoreAnime4KDirectory(),
+    )
+    const stat = fs.statSync(directory)
+    if (!stat.isDirectory()) {
+        throw new Error("Shader path must be a directory")
+    }
+
+    const shaders = []
+    const walk = (currentDirectory, depth) => {
+        if (depth > 8 || shaders.length >= MPVCORE_ANIME4K_MAX_SHADERS) return
+
+        for (const entry of fs.readdirSync(currentDirectory, { withFileTypes: true })) {
+            if (shaders.length >= MPVCORE_ANIME4K_MAX_SHADERS) break
+            const fullPath = path.join(currentDirectory, entry.name)
+            if (entry.isDirectory()) {
+                walk(fullPath, depth + 1)
+                continue
+            }
+            if (!entry.isFile()) continue
+
+            const extension = path.extname(entry.name).toLowerCase()
+            if (extension !== ".glsl" && extension !== ".hook") continue
+            shaders.push({
+                name: path.relative(directory, fullPath).split(path.sep).join("/"),
+                path: fullPath,
+            })
+        }
+    }
+
+    walk(directory, 0)
+    shaders.sort((a, b) => a.name.localeCompare(b.name))
+    return { directory, shaders }
+}
+
+function cleanupMpvCoreTempDirectory() {
+    try {
+        fs.rmSync(getMpvCoreTempDirectory(), { recursive: true, force: true })
+    } catch (error) {
+        log.warn("[MpvCore] Failed to clean temporary subtitle directory:", error)
+    }
+}
+
+function sanitizeMpvCoreFilename(filename) {
+    const extension = path.extname(String(filename || "")).toLowerCase()
+    if (!MPVCORE_TEMP_SUBTITLE_EXTENSIONS.has(extension)) {
+        throw new Error("Unsupported subtitle file type")
+    }
+
+    const stem = path.basename(String(filename), extension)
+        .replace(/[^a-zA-Z0-9._-]+/g, "-")
+        .replace(/^[.-]+|[.-]+$/g, "")
+        .slice(0, 80) || "subtitle"
+
+    return { extension, stem }
+}
+
+function createUniqueMpvCoreFilename(stem, extension) {
+    const random = Math.random().toString(36).slice(2, 10)
+    return `${stem}-${Date.now()}-${random}${extension}`
+}
 
 app.on("child-process-gone", (event, details) => {
     log.warn("[Denshi] Child process gone:", JSON.stringify(details))
@@ -1034,12 +1161,12 @@ function createMainWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            sandbox: true,
-            preload: path.join(__dirname, "preload.js"),
+            sandbox: false,
+            preload: path.join(__dirname, "preload.mjs"),
             webSecurity: true,
             allowRunningInsecureContent: true,
             enableBlinkFeatures: "FontAccess, AudioVideoTracks",
-            backgroundThrottling: true,
+            backgroundThrottling: false,
             webviewTag: true,
         }
     }
@@ -1071,14 +1198,15 @@ function createMainWindow() {
         mainWindow.setMenuBarVisibility(false)
     }
 
-    mainWindow.on("render-process-gone", (event, details) => {
+    mainWindow.webContents.on("render-process-gone", (event, details) => {
         console.log("[Main] Render process gone", details)
         log.error("[Denshi] Main window render process gone:", JSON.stringify(details))
         if (crashScreen && !crashScreen.isDestroyed()) {
             crashScreen.show()
             crashScreen.webContents.send(
                 "crash",
-                `The desktop window stopped unexpectedly (${details.reason || "unknown reason"}${typeof details.exitCode === "number" ? `, exit code ${details.exitCode}` : ""}). The background server may still be running.`
+                `The desktop window stopped unexpectedly (${details.reason || "unknown reason"}${typeof details.exitCode === "number" ? `, exit code ${details.exitCode}` : ""}). The background server may still be running.`,
+                { isRendererCrash: true }
             )
         }
     })
@@ -1113,7 +1241,11 @@ function createMainWindow() {
     })
 
 
-    mainWindow.webContents.setWindowOpenHandler(({ webContents, frameName, url }) => {
+    mainWindow.webContents.setWindowOpenHandler(({ frameName, url }) => {
+        // Allow DocumentPictureInPicture window requests which use about:blank
+        if (url === "about:blank") {
+            return { action: "allow" }
+        }
         // Open external links in the default browser
         if (url.startsWith("http://") || url.startsWith("https://")) {
             shell.openExternal(url)
@@ -1218,6 +1350,9 @@ function cleanupAndExit() {
     isShutdown = true
 
     saveMainWindowState()
+    mpvPrismMain?.dispose()
+    mpvPrismMain = null
+    cleanupMpvCoreTempDirectory()
 
     // Clean up cast
     if (__CAST_ENABLED__ && castSender) {
@@ -1280,6 +1415,22 @@ async function fetchGithubStatus() {
 app.whenReady().then(async () => {
     logStartupEvent("App ready")
 
+    try {
+        const { registerMpvPrismIpc } = await import("@mpv-prism/electron/main")
+        mpvPrismMain = registerMpvPrismIpc({
+            loader: {
+                baseDirectory: path.join(__dirname, ".."),
+            },
+        })
+        cleanupMpvCoreTempDirectory()
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        log.error("[MpvCore] Failed to initialize mpv-prism:", error)
+        dialog.showErrorBox("Seanime Denshi could not start MpvCore", message)
+        app.quit()
+        return
+    }
+
     // Load denshi settings early
     denshiSettings = loadDenshiSettings()
     if (_development) {
@@ -1329,9 +1480,6 @@ app.whenReady().then(async () => {
             openAtLogin: denshiSettings.openAtLaunch,
         })
     }
-
-    // Set up Chromium flags for better video playback
-    setupChromiumFlags()
 
     // Log environment information
     logEnvironmentInfo()
@@ -1386,6 +1534,70 @@ app.whenReady().then(async () => {
         }
         return false
     })
+
+    ipcMain.handle("mpvcore:create-temp-subtitle", async (_, filename, content) => {
+        if (typeof content !== "string") {
+            throw new Error("Subtitle content must be text")
+        }
+        if (Buffer.byteLength(content, "utf8") > MPVCORE_MAX_SUBTITLE_BYTES) {
+            throw new Error("Subtitle file exceeds the 20 MiB limit")
+        }
+
+        const { extension, stem } = sanitizeMpvCoreFilename(filename)
+        const directory = getMpvCoreTempDirectory()
+        fs.mkdirSync(directory, { recursive: true })
+        const target = path.join(directory, createUniqueMpvCoreFilename(stem, extension))
+        fs.writeFileSync(target, content, "utf8")
+        return target
+    })
+
+    ipcMain.handle("mpvcore:create-screenshot-path", async () => {
+        const directory = path.join(app.getPath("pictures"), "Seanime")
+        fs.mkdirSync(directory, { recursive: true })
+        return path.join(directory, createUniqueMpvCoreFilename("seanime", ".png"))
+    })
+
+    ipcMain.handle("mpvcore:save-screenshot", async (_, filePath, base64Data) => {
+        const buffer = Buffer.from(base64Data, "base64")
+        fs.writeFileSync(filePath, buffer)
+        return true
+    })
+
+    ipcMain.handle("mpvcore:setLoggingEnabled", async (_, enabled) => {
+        if (enabled) {
+            process.env.MPV_PRISM_DEBUG_VIDEO = "1"
+            process.env.MPV_PRISM_DEBUG_NATIVE = "1"
+            process.env.MPV_PRISM_MPV_LOG_FILE = path.join(app.getPath("userData"), "mpv-prism-libmpv.log")
+            process.env.MPV_PRISM_NATIVE_LOG_FILE = path.join(app.getPath("userData"), "mpv-prism-native.log")
+        } else {
+            delete process.env.MPV_PRISM_DEBUG_VIDEO
+            delete process.env.MPV_PRISM_DEBUG_NATIVE
+            delete process.env.MPV_PRISM_MPV_LOG_FILE
+            delete process.env.MPV_PRISM_NATIVE_LOG_FILE
+        }
+        return true
+    })
+
+    ipcMain.handle("mpvcore:get-anime4k-directory", async () => {
+        return scanMpvCoreAnime4KDirectory(createMpvCoreAnime4KDirectory())
+    })
+
+
+    ipcMain.handle("mpvcore:scan-anime4k-directory", async (_, directory) => {
+        return scanMpvCoreAnime4KDirectory(directory)
+    })
+
+    ipcMain.handle("mpvcore:open-anime4k-directory", async (_, dir) => {
+        const directory = typeof dir === "string" && dir.trim()
+            ? path.resolve(dir.trim())
+            : createMpvCoreAnime4KDirectory()
+        const stat = fs.statSync(directory)
+        if (!stat.isDirectory()) throw new Error("Anime4K path must be a directory")
+        const error = await shell.openPath(directory)
+        if (error) throw new Error(error)
+        return true
+    })
+
 
     setupAppProtocol()
     startLocalServer()
@@ -1593,6 +1805,20 @@ app.whenReady().then(async () => {
     ipcMain.on("quit-app", () => {
         console.log("EVENT quit-app")
         cleanupAndExit()
+    })
+
+    // Restart app handler
+    ipcMain.on("restart-app", () => {
+        console.log("EVENT restart-app")
+        if (crashScreen && !crashScreen.isDestroyed()) {
+            crashScreen.hide()
+        }
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.reload()
+            mainWindow.show()
+        } else {
+            createMainWindow()
+        }
     })
     ipcMain.handle("get-local-server-port", () => localServerPort)
 

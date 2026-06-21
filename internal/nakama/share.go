@@ -13,8 +13,8 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediacore"
 	"seanime/internal/util"
-	"seanime/internal/videocore"
 	"strconv"
 	"strings"
 	"time"
@@ -232,17 +232,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, client
 			return err
 		}
 
-		m.nativePlayer.VideoCore().RegisterEventCallback(func(event videocore.VideoEvent) bool {
-			if !event.IsNakama() {
-				return true // continue
-			}
-			switch event.(type) {
-			case *videocore.VideoLoadedMetadataEvent, *videocore.VideoTerminatedEvent:
-				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
-				return false
-			}
-			return true // continue
-		})
+		m.registerDenshiStreamReadyCallback("nakama-file")
 	}
 
 	return nil
@@ -311,18 +301,26 @@ func (m *Manager) PlayHostAnimeStream(streamType WatchPartyStreamType, userAgent
 			return err
 		}
 
-		m.nativePlayer.VideoCore().RegisterEventCallback(func(event videocore.VideoEvent) bool {
-			if !event.IsNakama() {
-				return true // keep listening
-			}
-			switch event.(type) {
-			case *videocore.VideoLoadedMetadataEvent, *videocore.VideoTerminatedEvent:
-				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
-				return false // stop
-			}
-			return true // keep listening
-		})
+		m.registerDenshiStreamReadyCallback("nakama-stream")
 	}
 
 	return nil
+}
+
+func (m *Manager) registerDenshiStreamReadyCallback(loaderID string) {
+	if m.mediacoreCoordinator == nil {
+		return
+	}
+	m.mediacoreCoordinator.RegisterEventCallback(func(event mediacore.Event) bool {
+		playbackState, ok := m.mediacoreCoordinator.GetActivePlaybackState()
+		if !ok || playbackState.PlaybackInfo == nil || playbackState.PlaybackInfo.PlaybackType != mediacore.PlaybackTypeNakama {
+			return true
+		}
+		switch event.(type) {
+		case *mediacore.LoadedMetadataEvent, *mediacore.TerminatedEvent:
+			m.wsEventManager.SendEvent(events.HideIndefiniteLoader, loaderID)
+			return false
+		}
+		return true
+	})
 }

@@ -1,6 +1,7 @@
 import { VideoCore_PlaybackType, VideoCore_VideoPlaybackInfo, VideoCore_VideoSource, VideoCore_VideoSubtitleTrack } from "@/api/generated/types"
 import { atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
+import { mediaCorePreferencesAtom } from "@/app/(main)/_features/media-core/media-core-preferences"
 
 export type VideoCoreLifecycleState = {
     active: boolean
@@ -167,13 +168,69 @@ export const vc_keybindingsAtom = atom(
 
 export const vc_useLibassRendererAtom = atomWithStorage("sea-video-core-use-libass-renderer", true, undefined, { getOnInit: true })
 
-export const vc_showChapterMarkersAtom = atomWithStorage("sea-video-core-chapter-markers", true, undefined, { getOnInit: true })
+export const vc_showChapterMarkersAtom = atom(
+    (get) => get(mediaCorePreferencesAtom).chapterMarkers,
+    (get, set, newValue: boolean | ((prev: boolean) => boolean)) => {
+        const current = get(mediaCorePreferencesAtom)
+        const next = typeof newValue === "function" ? newValue(current.chapterMarkers) : newValue
+        set(mediaCorePreferencesAtom, { ...current, chapterMarkers: next })
+    }
+)
 export const vc_highlightOPEDChaptersAtom = atomWithStorage("sea-video-core-highlight-op-ed-chapters", true, undefined, { getOnInit: true })
 export const vc_beautifyImageAtom = atomWithStorage("sea-video-core-increase-saturation", false, undefined, { getOnInit: true })
-export const vc_autoNextAtom = atomWithStorage("sea-video-core-auto-next", true, undefined, { getOnInit: true })
-export const vc_autoPlayVideoAtom = atomWithStorage("sea-video-core-auto-play", true, undefined, { getOnInit: true })
-export const vc_autoSkipOPEDAtom = atomWithStorage("sea-video-core-auto-skip-op-ed", false, undefined, { getOnInit: true })
-export const vc_storedVolumeAtom = atomWithStorage("sea-video-core-volume", 1, undefined, { getOnInit: true })
-export const vc_storedMutedAtom = atomWithStorage("sea-video-core-muted", false, undefined, { getOnInit: true })
-export const vc_storedPlaybackRateAtom = atomWithStorage("sea-video-core-playback-rate", 1, undefined, { getOnInit: true })
-export const vc_showStatsForNerdsAtom = atomWithStorage("sea-video-core-show-stats-for-nerds", false, undefined, { getOnInit: true })
+export const vc_autoNextAtom = atom(
+    (get) => get(mediaCorePreferencesAtom).autoNext,
+    (get, set, newValue: boolean | ((prev: boolean) => boolean)) => {
+        const current = get(mediaCorePreferencesAtom)
+        const next = typeof newValue === "function" ? newValue(current.autoNext) : newValue
+        set(mediaCorePreferencesAtom, { ...current, autoNext: next })
+    }
+)
+export const vc_autoPlayVideoAtom = atom(
+    (get) => get(mediaCorePreferencesAtom).autoPlay,
+    (get, set, newValue: boolean | ((prev: boolean) => boolean)) => {
+        const current = get(mediaCorePreferencesAtom)
+        const next = typeof newValue === "function" ? newValue(current.autoPlay) : newValue
+        set(mediaCorePreferencesAtom, { ...current, autoPlay: next })
+    }
+)
+export const vc_autoSkipOPEDAtom = atom(
+    (get) => get(mediaCorePreferencesAtom).autoSkip,
+    (get, set, newValue: boolean | ((prev: boolean) => boolean)) => {
+        const current = get(mediaCorePreferencesAtom)
+        const next = typeof newValue === "function" ? newValue(current.autoSkip) : newValue
+        set(mediaCorePreferencesAtom, { ...current, autoSkip: next })
+    }
+)
+export const vc_storedVolumeAtom = atom(
+    (get) => get(mediaCorePreferencesAtom).volume,
+    (get, set, newValue: number | ((prev: number) => number)) => {
+        const current = get(mediaCorePreferencesAtom)
+        const next = typeof newValue === "function" ? newValue(current.volume) : newValue
+        set(mediaCorePreferencesAtom, { ...current, volume: next })
+    }
+)
+export const vc_storedMutedAtom = atom(
+    (get) => get(mediaCorePreferencesAtom).muted,
+    (get, set, newValue: boolean | ((prev: boolean) => boolean)) => {
+        const current = get(mediaCorePreferencesAtom)
+        const next = typeof newValue === "function" ? newValue(current.muted) : newValue
+        set(mediaCorePreferencesAtom, { ...current, muted: next })
+    }
+)
+export const vc_storedPlaybackRateAtom = atom(
+    (get) => get(mediaCorePreferencesAtom).playbackRate,
+    (get, set, newValue: number | ((prev: number) => number)) => {
+        const current = get(mediaCorePreferencesAtom)
+        const next = typeof newValue === "function" ? newValue(current.playbackRate) : newValue
+        set(mediaCorePreferencesAtom, { ...current, playbackRate: next })
+    }
+)
+export const vc_showStatsForNerdsAtom = atom(
+    (get) => get(mediaCorePreferencesAtom).showStats,
+    (get, set, newValue: boolean | ((prev: boolean) => boolean)) => {
+        const current = get(mediaCorePreferencesAtom)
+        const next = typeof newValue === "function" ? newValue(current.showStats) : newValue
+        set(mediaCorePreferencesAtom, { ...current, showStats: next })
+    }
+)

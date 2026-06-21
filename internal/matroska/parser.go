@@ -503,6 +503,9 @@ func (mp *MatroskaParser) parseSegmentChildren() error {
 // Returns:
 //   - error: An error if the SegmentInfo element could not be read or parsed.
 func (mp *MatroskaParser) parseSegmentInfo(size uint64) error {
+	if size > 256*1024*1024 {
+		return fmt.Errorf("segment info size %d is too large", size)
+	}
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
 	if err != nil {
@@ -593,6 +596,9 @@ func (mp *MatroskaParser) parseSegmentInfo(size uint64) error {
 // Returns:
 //   - error: An error if the Tracks element could not be read or parsed.
 func (mp *MatroskaParser) parseTracks(size uint64) error {
+	if size > 256*1024*1024 {
+		return fmt.Errorf("tracks size %d is too large", size)
+	}
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
 	if err != nil {
@@ -989,6 +995,9 @@ func (mp *MatroskaParser) parseAudioTrack(data []byte, track *TrackInfo) error {
 // Returns:
 //   - error: An error if the Cues element could not be parsed.
 func (mp *MatroskaParser) parseCues(size uint64) error {
+	if size > 256*1024*1024 {
+		return fmt.Errorf("cues size %d is too large", size)
+	}
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
 	if err != nil {
@@ -1110,6 +1119,9 @@ type editionEntry struct {
 }
 
 func (mp *MatroskaParser) parseChapters(size uint64) error {
+	if size > 256*1024*1024 {
+		return fmt.Errorf("chapters size %d is too large", size)
+	}
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
 	if err != nil {
@@ -1288,6 +1300,9 @@ func (mp *MatroskaParser) parseChapterDisplay(data []byte) (ChapterDisplay, erro
 // Returns:
 //   - error: An error if the Tags element could not be parsed.
 func (mp *MatroskaParser) parseTags(size uint64) error {
+	if size > 256*1024*1024 {
+		return fmt.Errorf("tags size %d is too large", size)
+	}
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
 	if err != nil {
@@ -1434,6 +1449,9 @@ func (mp *MatroskaParser) parseSimpleTag(data []byte) (SimpleTag, error) {
 // Returns:
 //   - error: An error if the Attachments element could not be parsed.
 func (mp *MatroskaParser) parseAttachments(size uint64) error {
+	if size > 256*1024*1024 {
+		return fmt.Errorf("attachments size %d is too large", size)
+	}
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
 	if err != nil {
@@ -1658,6 +1676,9 @@ func (mp *MatroskaParser) ReadPacket() (*Packet, error) {
 // Returns:
 //   - error: An error if the cluster header could not be parsed.
 func (mp *MatroskaParser) parseClusterHeader(size uint64) error {
+	if size > 256*1024*1024 {
+		return fmt.Errorf("cluster header size %d is too large", size)
+	}
 	// We need to find the timestamp of the cluster.
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
@@ -1723,6 +1744,9 @@ func (mp *MatroskaParser) parseClusterHeader(size uint64) error {
 //     and metadata.
 //   - error: An error if the SimpleBlock element could not be parsed.
 func (mp *MatroskaParser) parseSimpleBlock(size uint64) (*Packet, error) {
+	if size > 100*1024*1024 {
+		return nil, fmt.Errorf("simple block size %d is too large", size)
+	}
 	if size < 4 {
 		data := make([]byte, size)
 		n, err := io.ReadFull(mp.reader.r, data)
@@ -1915,6 +1939,9 @@ func (mp *MatroskaParser) parseSimpleBlock(size uint64) (*Packet, error) {
 //     and metadata.
 //   - error: An error if the BlockGroup element could not be parsed.
 func (mp *MatroskaParser) parseBlockGroup(size uint64) (*Packet, error) {
+	if size > 100*1024*1024 {
+		return nil, fmt.Errorf("block group size %d is too large", size)
+	}
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
 	if err != nil {

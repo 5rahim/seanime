@@ -11,6 +11,7 @@ import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React, { useState } from "react"
 import { toast } from "sonner"
+import { getBatchSelectionParams } from "./batches.ts"
 
 const __autoplay_countdownAtom = atom(5)
 export const __autoplay_nextEpisodeAtom = atom<Anime_Episode | null>(null)
@@ -56,27 +57,6 @@ export function useAutoPlaySelectedTorrent() {
     }
 }
 
-export function getNextBatchFileSelection(
-    batchFiles: HibikeTorrent_BatchEpisodeFiles | undefined,
-    episodeNumber: number,
-    aniDBEpisode: string,
-) {
-    const file = batchFiles?.files?.find(n => n.index === batchFiles.current + 1)
-    if (!batchFiles || !file) {
-        return { fileIndex: undefined, batchEpisodeFiles: undefined }
-    }
-
-    return {
-        fileIndex: file.index,
-        batchEpisodeFiles: {
-            ...batchFiles,
-            current: file.index,
-            currentEpisodeNumber: episodeNumber,
-            currentAniDBEpisode: aniDBEpisode,
-        },
-    }
-}
-
 export function useTorrentstreamAutoplay() {
     const [info, setInfo] = useAtom(__autoPlay_stateAtom)
     const [nextEpisode, setNextEpisode] = useAtom(__autoplay_nextEpisodeAtom)
@@ -95,7 +75,7 @@ export function useTorrentstreamAutoplay() {
             torrentInfo = null
         }
 
-        const { fileIndex, batchEpisodeFiles } = getNextBatchFileSelection(torrentInfo?.batchFiles, episodeNumber, aniDBEpisode)
+        const { fileIndex, batchEpisodeFiles } = getBatchSelectionParams(torrentInfo?.batchFiles, episodeNumber, aniDBEpisode)
 
         logger("TORRENT STREAM AUTOPLAY").info("Auto playing next episode", { episodeNumber, fileIndex, preload, torrent: torrentInfo?.torrent })
 

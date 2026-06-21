@@ -1,7 +1,8 @@
 import { Anime_Entry, Anime_Playlist, Anime_PlaylistEpisode, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { useCurrentDevicePlaybackSettings } from "@/app/(main)/_atoms/playback.atoms"
-import { getNextBatchFileSelection, useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
+import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
+import { getBatchSelectionParams } from "@/app/(main)/_features/autoplay/batches.ts"
 import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { PlaylistManagerPopup } from "@/app/(main)/_features/playlists/_components/global-playlist-popup"
 import { playlist_getEpisodeKey, playlist_isSameEpisode } from "@/app/(main)/_features/playlists/_components/playlist-editor"
@@ -273,21 +274,19 @@ export function GlobalPlaylistManager() {
                             } else {
                                 if (autoPlayTorrent?.torrent?.isBatch && torrentStream_autoSelectFile && sameTorrent(autoPlayTorrent, episode)) {
                                     log.info("Previous selection matches, auto-selecting file for torrent stream")
-                                    const batchSelection = getNextBatchFileSelection(
-                                        autoPlayTorrent.batchFiles,
+                                    const batchParams = getBatchSelectionParams(autoPlayTorrent.batchFiles,
                                         episode.episode?.episodeNumber!,
-                                        episode.episode?.aniDBEpisode!,
-                                    )
+                                        episode.episode?.aniDBEpisode!)
                                     handleTorrentstreamSelection({
                                         mediaId: episode.episode?.baseAnime?.id!,
                                         episodeNumber: episode.episode?.episodeNumber!,
                                         aniDBEpisode: episode.episode?.aniDBEpisode!,
                                         torrent: autoPlayTorrent.torrent,
-                                        chosenFileIndex: batchSelection.fileIndex,
-                                        batchEpisodeFiles: batchSelection.batchEpisodeFiles,
+                                        chosenFileIndex: batchParams.fileIndex,
+                                        batchEpisodeFiles: batchParams.batchEpisodeFiles,
                                     })
-                                    if (batchSelection.batchEpisodeFiles) {
-                                        setAutoPlayTorrent(autoPlayTorrent.torrent, autoPlayTorrent.entry, batchSelection.batchEpisodeFiles)
+                                    if (batchParams.batchEpisodeFiles) {
+                                        setAutoPlayTorrent(autoPlayTorrent.torrent, autoPlayTorrent.entry, batchParams.batchEpisodeFiles)
                                     }
                                     return
                                 } else {

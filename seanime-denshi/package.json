@@ -5,13 +5,15 @@
   "main": "src/main.js",
   "author": "5rahim <talkwithrahim@gmail.com>",
   "scripts": {
-    "dev": "NODE_ENV=development electron .",
-    "build": "electron-builder build",
-    "build:mac": "electron-builder build --mac --arm64",
-    "build:win": "electron-builder build --win --x64",
-    "build:linux": "electron-builder build --linux --x64"
+    "sync:mpv-prism": "node scripts/sync-mpv-prism.mjs",
+    "dev": "npm run sync:mpv-prism && NODE_ENV=development electron .",
+    "build": "npm run sync:mpv-prism && electron-builder build",
+    "build:mac": "npm run sync:mpv-prism -- darwin-arm64 && electron-builder build --mac --arm64",
+    "build:win": "npm run sync:mpv-prism -- win32-x64 && electron-builder build --win --x64",
+    "build:linux": "npm run sync:mpv-prism -- linux-x64 && electron-builder build --linux --x64"
   },
   "dependencies": {
+    "@mpv-prism/electron": "https://seanime.app/assets/mpv-prism/0.1.0/packages/mpv-prism-electron-0.1.0.tgz",
     "castv2": "^0.1.10",
     "electron-log": "^5.4.3",
     "electron-updater": "^6.7.3",
@@ -21,13 +23,13 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "electron": "39.2.7",
+    "electron": "42.4.0",
     "electron-builder": "^25.1.8"
   },
   "build": {
     "electronDownload": {
       "mirror": "https://seanime.app/assets/electron/",
-      "customDir": "v39.2.7"
+      "customDir": "v42.4.0"
     },
     "appId": "app.seanime.denshi",
     "productName": "Seanime Denshi",
@@ -36,6 +38,10 @@
       {
         "from": "binaries",
         "to": "binaries"
+      },
+      {
+        "from": "native-builds",
+        "to": "native-builds"
       }
     ],
     "generateUpdatesFilesForAllChannels": true,

@@ -4,18 +4,17 @@ import { vc_paused } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_busy } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
-import { cn } from "@/components/ui/core/styling"
 import { useRouter } from "@/lib/navigation.ts"
 import { useThemeSettings } from "@/lib/theme/theme-hooks.ts"
-import { __isDesktop__ } from "@/types/constants"
 import { useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { startVideoCoreMiniPlayerTransition } from "./video-core"
 import { vc_fullscreenManager } from "./video-core-fullscreen"
+import { MediaCoreTopSectionView, MediaCoreTopPlaybackInfoView } from "@/app/(main)/_features/media-core/media-core-playback-info"
 
 export function VideoCoreTopSection(props: { children?: React.ReactNode, inline?: boolean }) {
-    const { children, inline, ...rest } = props
+    const { children, inline } = props
 
     const busy = useAtomValue(vc_busy)
     const paused = useAtomValue(vc_paused)
@@ -26,38 +25,20 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode, inline?
     const showTopSection = busy || paused || hoveringControlBar
 
     return (
-        <>
-            <div
-                data-vc-element="control-bar-top-section"
-                className={cn(
-                    "absolute left-0 w-full py-4 px-5 duration-200 transition-[opacity,transform] opacity-0 z-[999] transform-gpu",
-                    (__isDesktop__ && ((inline && fullscreen) || !inline)) ? "top-8" : "top-0",
-                    showTopSection && "opacity-100",
-                    isMiniPlayer && "top-0",
-                )}
-                style={{
-                    transform: showTopSection ? "translateY(0)" : "translateY(-20px)",
-                }}
-            >
-                {children}
-            </div>
-
-            <div
-                data-vc-element="control-bar-top-gradient"
-                className={cn(
-                    "pointer-events-none transform-gpu",
-                    "absolute top-0 left-0 right-0 w-full z-[5] transition-opacity duration-300 opacity-0",
-                    "bg-gradient-to-b from-black/60 to-transparent",
-                    "h-20",
-                    (isMiniPlayer && paused) && "opacity-100",
-                )}
-            />
-        </>
+        <MediaCoreTopSectionView
+            inline={inline}
+            fullscreen={fullscreen}
+            isMiniPlayer={isMiniPlayer}
+            showTopSection={showTopSection}
+            paused={paused}
+        >
+            {children}
+        </MediaCoreTopSectionView>
     )
 }
 
 export function VideoCoreTopPlaybackInfo(props: { state: VideoCoreLifecycleState, children?: React.ReactNode }) {
-    const { state, children, ...rest } = props
+    const { state } = props
 
     const ts = useThemeSettings()
     const paused = useAtomValue(vc_paused)
@@ -73,41 +54,26 @@ export function VideoCoreTopPlaybackInfo(props: { state: VideoCoreLifecycleState
         ? _episodeTitle
         : ""
 
-    if (isMiniPlayer) return null
+    const onAnimeTitleClick = React.useCallback(() => {
+        if (state.playbackInfo?.episode?.baseAnime?.id) {
+            router.push(`/entry?id=${state.playbackInfo?.episode?.baseAnime?.id}`)
+            fullscreenManager?.exitFullscreen()?.then(() => {
+                startVideoCoreMiniPlayerTransition(() => {
+                    setMiniPlayer(true)
+                })
+            })
+        }
+    }, [state.playbackInfo?.episode?.baseAnime?.id, router, fullscreenManager, setMiniPlayer])
 
     return (
-        <>
-            <div
-                data-vc-element="top-playback-info"
-                className={cn(
-                    "transition-opacity duration-200 opacity-0",
-                    (paused || hoveringControlBar) && "opacity-100",
-                )}
-            >
-                {state.playbackInfo?.episode?.baseAnime?.title?.userPreferred &&
-                    <p
-                        data-vc-element="top-playback-info-title"
-                        className="text-white/50 font-medium text-sm max-w-[400px] line-clamp-1 cursor-pointer"
-                        onClick={() => {
-                            router.push(`/entry?id=${state.playbackInfo?.episode?.baseAnime?.id}`)
-                            fullscreenManager?.exitFullscreen()?.then(() => {
-                                startVideoCoreMiniPlayerTransition(() => {
-                                    setMiniPlayer(true)
-                                })
-                            })
-                        }}
-                    >
-                        {state.playbackInfo?.episode?.baseAnime?.title?.userPreferred}
-                    </p>}
-                <div className="flex flex-row gap-2" data-vc-element="top-playback-info-episode">
-                    <p className="text-white font-bold text-base">
-                        {state.playbackInfo?.episode?.displayTitle}
-                    </p>
-                    {episodeTitle && <p className="text-white/50 text-base !font-normal max-w-[400px] line-clamp-1">
-                        {episodeTitle}
-                    </p>}
-                </div>
-            </div>
-        </>
+        <MediaCoreTopPlaybackInfoView
+            animeTitle={state.playbackInfo?.episode?.baseAnime?.title?.userPreferred}
+            episodeDisplayTitle={displayTitle}
+            episodeTitle={episodeTitle}
+            onAnimeTitleClick={onAnimeTitleClick}
+            isMiniPlayer={isMiniPlayer}
+            paused={paused}
+            hoveringControlBar={hoveringControlBar}
+        />
     )
 }

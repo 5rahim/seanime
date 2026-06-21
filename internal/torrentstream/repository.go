@@ -15,8 +15,8 @@ import (
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediacore"
 	"seanime/internal/mediaplayers/mediaplayer"
-	"seanime/internal/nativeplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrents/autoselect"
 	"seanime/internal/torrents/torrent"
@@ -52,7 +52,7 @@ type (
 		mediaPlayerRepository           *mediaplayer.Repository
 		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
 		directStreamManager             *directstream.Manager
-		nativePlayer                    *nativeplayer.NativePlayer
+		mediacoreCoordinator            *mediacore.Coordinator
 		logger                          *zerolog.Logger
 		db                              *db.Database
 
@@ -82,17 +82,17 @@ type (
 	}
 
 	NewRepositoryOptions struct {
-		Logger              *zerolog.Logger
-		TorrentRepository   *torrent.Repository
-		BaseAnimeCache      *anilist.BaseAnimeCache
-		CompleteAnimeCache  *anilist.CompleteAnimeCache
-		PlatformRef         *util.Ref[platform.Platform]
-		MetadataProviderRef *util.Ref[metadata_provider.Provider]
-		PlaybackManager     *playbackmanager.PlaybackManager
-		WSEventManager      events.WSEventManagerInterface
-		Database            *db.Database
-		DirectStreamManager *directstream.Manager
-		NativePlayer        *nativeplayer.NativePlayer
+		Logger               *zerolog.Logger
+		TorrentRepository    *torrent.Repository
+		BaseAnimeCache       *anilist.BaseAnimeCache
+		CompleteAnimeCache   *anilist.CompleteAnimeCache
+		PlatformRef          *util.Ref[platform.Platform]
+		MetadataProviderRef  *util.Ref[metadata_provider.Provider]
+		PlaybackManager      *playbackmanager.PlaybackManager
+		WSEventManager       events.WSEventManagerInterface
+		Database             *db.Database
+		DirectStreamManager  *directstream.Manager
+		MediacoreCoordinator *mediacore.Coordinator
 	}
 )
 
@@ -115,7 +115,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:                          opts.Logger,
 		db:                              opts.Database,
 		directStreamManager:             opts.DirectStreamManager,
-		nativePlayer:                    opts.NativePlayer,
+		mediacoreCoordinator:            opts.MediacoreCoordinator,
 		previousStreamOptions:           mo.None[*StartStreamOptions](),
 		preloadedStream:                 mo.None[*preloadedStream](),
 	}
@@ -213,8 +213,8 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 		return err
 	}
 
-	// Start listening to native player events
-	r.listenToNativePlayerEvents()
+	// Start listening to Mediacore events
+	r.listenToMediacoreEvents()
 
 	r.logger.Info().Msg("torrentstream: Module initialized")
 	return nil

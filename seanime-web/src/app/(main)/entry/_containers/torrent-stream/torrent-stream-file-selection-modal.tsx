@@ -43,10 +43,14 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
         if (selectedFileIdx == -1 || !selectedTorrent || !torrentSearchStreamEpisode || !torrentSearchStreamEpisode.aniDBEpisode) return
 
         // save to autoplay
-        // autoplay will increment selectedFileIdx by 1 to play the next file
         const batchFiles: HibikeTorrent_BatchEpisodeFiles = {
             current: selectedFileIdx,
-            files: filePreviews?.map(n => { return { index: n.index, name: n.displayPath, path: n.path } }) || [],
+            files: filePreviews?.map(n => ({
+                index: n.index,
+                name: n.displayPath,
+                path: n.path,
+                episodeNumber: n.episodeNumber > 0 ? n.episodeNumber : undefined,
+            })) || [],
             currentEpisodeNumber: torrentSearchStreamEpisode.episodeNumber,
             currentAniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
         }

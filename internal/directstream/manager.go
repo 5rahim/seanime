@@ -8,6 +8,7 @@ import (
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
+	"seanime/internal/mediacore"
 	"seanime/internal/mkvparser"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/platforms/platform"
@@ -37,10 +38,10 @@ type (
 		refreshAnimeCollectionFunc func()                                      // This function is called to refresh the AniList collection
 		hmacTokenFunc              func(endpoint string, symbol string) string // Generates HMAC token query param for stream URLs
 
-		nativePlayer *nativeplayer.NativePlayer
-
-		videoCore           *videocore.VideoCore
-		videoCoreSubscriber *videocore.Subscriber
+		nativePlayer         *nativeplayer.NativePlayer
+		videoCore            *videocore.VideoCore
+		mediacoreCoordinator *mediacore.Coordinator
+		mediacoreSubscriber  *mediacore.Subscriber
 
 		// --------- Playback Context -------- //
 
@@ -56,8 +57,11 @@ type (
 		replacedPlaybackId     string
 		replacedPlaybackClient string
 		preparingClientID      string
+		preparingTarget        PlaybackTarget
 		preparationCanceled    bool
 		preparationCancelFunc  func()
+		currentPlaybackTarget  PlaybackTarget
+		defaultPlaybackTarget  PlaybackTarget
 
 		// \/ Stream playback
 		// This is set by [SetStreamEpisodeCollection]
@@ -89,6 +93,7 @@ type (
 		IsOfflineRef               *util.Ref[bool]
 		NativePlayer               *nativeplayer.NativePlayer
 		VideoCore                  *videocore.VideoCore
+		MediacoreCoordinator       *mediacore.Coordinator
 		HMACTokenFunc              func(endpoint string, symbol string) string
 	}
 )
@@ -106,13 +111,39 @@ func NewManager(options NewManagerOptions) *Manager {
 		isOfflineRef:               options.IsOfflineRef,
 		currentStream:              mo.None[Stream](),
 		nativePlayer:               options.NativePlayer,
-		parserCache:                result.NewCache[string, *mkvparser.MetadataParser](),
 		videoCore:                  options.VideoCore,
+		mediacoreCoordinator:       options.MediacoreCoordinator,
+		defaultPlaybackTarget:      PlaybackTargetVideoCore,
+		parserCache:                result.NewCache[string, *mkvparser.MetadataParser](),
 	}
-	ret.videoCoreSubscriber = ret.videoCore.Subscribe("directstream")
+	if ret.mediacoreCoordinator != nil {
+		ret.mediacoreSubscriber = ret.mediacoreCoordinator.Subscribe("directstream")
+	}
 	ret.listenToPlayerEvents()
 
 	return ret
+}
+
+type PlaybackTarget string
+
+const (
+	PlaybackTargetVideoCore PlaybackTarget = "videocore"
+	PlaybackTargetMpvCore   PlaybackTarget = "mpvcore"
+)
+
+func (m *Manager) SetPlaybackTarget(target PlaybackTarget) {
+	if target != PlaybackTargetVideoCore && target != PlaybackTargetMpvCore {
+		return
+	}
+	m.playbackMu.Lock()
+	m.defaultPlaybackTarget = target
+	m.playbackMu.Unlock()
+}
+
+func (m *Manager) GetPlaybackTarget() PlaybackTarget {
+	m.playbackMu.Lock()
+	defer m.playbackMu.Unlock()
+	return m.defaultPlaybackTarget
 }
 
 func (m *Manager) SetAnimeCollection(ac *anilist.AnimeCollection) {

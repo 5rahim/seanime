@@ -11,12 +11,11 @@ import (
 	"seanime/internal/directstream"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
-	"seanime/internal/nativeplayer"
+	"seanime/internal/mediacore"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
-	"seanime/internal/videocore"
 	"strings"
 	"sync"
 	"time"
@@ -46,8 +45,7 @@ type Manager struct {
 	debridClientRepository  *debrid_client.Repository
 	directstreamManager     *directstream.Manager
 	peerId                  string
-	nativePlayer            *nativeplayer.NativePlayer
-	videoCore               *videocore.VideoCore
+	mediacoreCoordinator    *mediacore.Coordinator
 	genericPlayer           *WatchPartyGenericPlayer
 
 	// Host connections (when acting as host)
@@ -98,8 +96,7 @@ type NewManagerOptions struct {
 	PlatformRef             *util.Ref[platform.Platform]
 	ServerHost              string
 	ServerPort              int
-	NativePlayer            *nativeplayer.NativePlayer
-	VideoCore               *videocore.VideoCore
+	MediacoreCoordinator    *mediacore.Coordinator
 	DirectStreamManager     *directstream.Manager
 	IsOfflineRef            *util.Ref[bool]
 }
@@ -242,8 +239,7 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		torrentstreamRepository: opts.TorrentstreamRepository,
 		debridClientRepository:  opts.DebridClientRepository,
 		previousPath:            "",
-		nativePlayer:            opts.NativePlayer,
-		videoCore:               opts.VideoCore,
+		mediacoreCoordinator:    opts.MediacoreCoordinator,
 		useDenshiPlayer:         false,
 		directstreamManager:     opts.DirectStreamManager,
 		isOfflineRef:            opts.IsOfflineRef,
@@ -279,7 +275,11 @@ func NewManager(opts *NewManagerOptions) *Manager {
 				m.useDenshiPlayer = payload.UseDenshiPlayer
 				m.clientMu.Unlock()
 				if m.useDenshiPlayer {
-					m.genericPlayer.SetDefaultType(WatchPartyVideoCore)
+					if m.directstreamManager.GetPlaybackTarget() == directstream.PlaybackTargetVideoCore {
+						m.genericPlayer.SetDefaultType(WatchPartyVideoCore)
+					} else {
+						m.genericPlayer.SetDefaultType(WatchPartyMpvCore)
+					}
 				} else {
 					m.genericPlayer.SetDefaultType(WatchPartyPlaybackManager)
 				}

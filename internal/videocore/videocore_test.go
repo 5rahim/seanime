@@ -50,6 +50,10 @@ func (m *recordingWSEventManager) SubscribeToClientVideoCoreEvents(string) *even
 	return m.videoCoreSubscriber
 }
 
+func (m *recordingWSEventManager) SubscribeToClientMpvCoreEvents(string) *events.ClientEventSubscriber {
+	return &events.ClientEventSubscriber{Channel: make(chan *events.WebsocketClientEvent, 1)}
+}
+
 func (m *recordingWSEventManager) SubscribeToClientNakamaEvents(string) *events.ClientEventSubscriber {
 	return &events.ClientEventSubscriber{Channel: make(chan *events.WebsocketClientEvent, 1)}
 }

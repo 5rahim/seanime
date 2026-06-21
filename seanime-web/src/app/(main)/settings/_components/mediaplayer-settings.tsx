@@ -55,7 +55,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                     description={<p>For IINA to work correctly with Seanime, make sure <strong>Quit after all windows are closed</strong> is <span
                         className="underline"
                     >checked</span> and <strong>Keep window open after playback finishes</strong> is <span className="underline">unchecked</span> in
-                                    your IINA general settings.</p>}
+                        your IINA general settings.</p>}
                 />}
             </SettingsCard>
 
@@ -160,7 +160,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                                     help="Leave empty to use the CLI."
                                 />
                             </div>
-                            <div>
+                            <div className="mt-4">
                                 <Field.Text
                                     name="mpvArgs"
                                     label="Options"
@@ -220,8 +220,8 @@ export function ExternalPlayerLinkSettings() {
 
             <Alert
                 intent="info" description={<>
-                Only applies to this device.
-            </>}
+                    Only applies to this device.
+                </>}
             />
 
             <SettingsCard>

@@ -17,6 +17,7 @@ import (
 	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/manga"
+	"seanime/internal/mediacore"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediastream"
 	"seanime/internal/onlinestream"
@@ -58,6 +59,7 @@ type AppContextModules struct {
 	TorrentstreamRepository         *torrentstream.Repository
 	FillerManager                   *fillermanager.FillerManager
 	VideoCore                       *videocore.VideoCore
+	MediacoreCoordinator            *mediacore.Coordinator
 	DirectStreamManager             *directstream.Manager
 	AutoSelect                      *autoselect.AutoSelect
 	OnRefreshAnilistAnimeCollection func()
@@ -102,6 +104,7 @@ type AppContext interface {
 	Database() mo.Option[*db.Database]
 	PlaybackManager() mo.Option[*playbackmanager.PlaybackManager]
 	VideoCore() mo.Option[*videocore.VideoCore]
+	MediacoreCoordinator() mo.Option[*mediacore.Coordinator]
 	DirectStreamManager() mo.Option[*directstream.Manager]
 	MediaPlayerRepository() mo.Option[*mediaplayer.Repository]
 	AnilistPlatformRef() mo.Option[*util.Ref[platform.Platform]]
@@ -231,6 +234,7 @@ type AppContextImpl struct {
 	onRefreshAnilistAnimeCollection mo.Option[func()]
 	onRefreshAnilistMangaCollection mo.Option[func()]
 	videoCore                       mo.Option[*videocore.VideoCore]
+	mediacoreCoordinator            mo.Option[*mediacore.Coordinator]
 	directStreamManager             mo.Option[*directstream.Manager]
 	isOfflineRef                    *util.Ref[bool]
 	autoSelect                      mo.Option[*autoselect.AutoSelect]
@@ -266,6 +270,7 @@ func NewAppContext() AppContext {
 		onRefreshAnilistAnimeCollection: mo.None[func()](),
 		onRefreshAnilistMangaCollection: mo.None[func()](),
 		videoCore:                       mo.None[*videocore.VideoCore](),
+		mediacoreCoordinator:            mo.None[*mediacore.Coordinator](),
 		directStreamManager:             mo.None[*directstream.Manager](),
 		isOfflineRef:                    util.NewRef(false),
 		autoSelect:                      mo.None[*autoselect.AutoSelect](),
@@ -293,6 +298,10 @@ func (a *AppContextImpl) PlaybackManager() mo.Option[*playbackmanager.PlaybackMa
 
 func (a *AppContextImpl) VideoCore() mo.Option[*videocore.VideoCore] {
 	return a.videoCore
+}
+
+func (a *AppContextImpl) MediacoreCoordinator() mo.Option[*mediacore.Coordinator] {
+	return a.mediacoreCoordinator
 }
 
 func (a *AppContextImpl) DirectStreamManager() mo.Option[*directstream.Manager] {
@@ -411,6 +420,10 @@ func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
 
 	if modules.VideoCore != nil {
 		a.videoCore = mo.Some(modules.VideoCore)
+	}
+
+	if modules.MediacoreCoordinator != nil {
+		a.mediacoreCoordinator = mo.Some(modules.MediacoreCoordinator)
 	}
 
 	if modules.DirectStreamManager != nil {

@@ -1,0 +1,105 @@
+import { cn } from "@/components/ui/core/styling"
+import { __isDesktop__ } from "@/types/constants"
+import React from "react"
+
+export interface MediaCoreTopSectionViewProps {
+    children?: React.ReactNode
+    inline?: boolean
+    fullscreen: boolean
+    isMiniPlayer: boolean
+    showTopSection: boolean
+    paused: boolean
+}
+
+export function MediaCoreTopSectionView(props: MediaCoreTopSectionViewProps) {
+    const { children, inline, fullscreen, isMiniPlayer, showTopSection, paused } = props
+
+    return (
+        <>
+            <div
+                data-vc-element="control-bar-top-section"
+                className={cn(
+                    "absolute left-0 w-full py-4 px-5 duration-200 transition-[opacity,transform] opacity-0 z-[999] transform-gpu",
+                    (__isDesktop__ && ((inline && fullscreen) || !inline)) ? "top-8" : "top-0",
+                    showTopSection && "opacity-100",
+                    isMiniPlayer && "top-0",
+                )}
+                style={{
+                    transform: showTopSection ? "translateY(0)" : "translateY(-20px)",
+                }}
+            >
+                {children}
+            </div>
+
+            <div
+                data-vc-element="control-bar-top-gradient"
+                className={cn(
+                    "pointer-events-none transform-gpu",
+                    "absolute top-0 left-0 right-0 w-full z-[5] transition-opacity duration-300 opacity-0",
+                    "bg-gradient-to-b from-black/60 to-transparent",
+                    "h-20",
+                    (isMiniPlayer && paused) && "opacity-100",
+                )}
+            />
+        </>
+    )
+}
+
+export interface MediaCoreTopPlaybackInfoViewProps {
+    animeTitle?: string
+    episodeDisplayTitle?: string
+    episodeTitle?: string
+    onAnimeTitleClick?: () => void
+    isMiniPlayer: boolean
+    paused: boolean
+    hoveringControlBar: boolean
+}
+
+export function MediaCoreTopPlaybackInfoView(props: MediaCoreTopPlaybackInfoViewProps) {
+    const {
+        animeTitle,
+        episodeDisplayTitle,
+        episodeTitle,
+        onAnimeTitleClick,
+        isMiniPlayer,
+        paused,
+        hoveringControlBar,
+    } = props
+
+    if (isMiniPlayer) return null
+
+    const showInfo = paused || hoveringControlBar
+
+    return (
+        <div
+            data-vc-element="top-playback-info"
+            className={cn(
+                "transition-opacity duration-200 opacity-0",
+                showInfo && "opacity-100",
+            )}
+        >
+            {animeTitle && (
+                <p
+                    data-vc-element="top-playback-info-title"
+                    className={cn(
+                        "text-white/50 font-medium text-sm max-w-[400px] line-clamp-1",
+                        onAnimeTitleClick && "cursor-pointer hover:text-white/80 transition-colors"
+                    )}
+                    onClick={onAnimeTitleClick}
+                >
+                    {animeTitle}
+                </p>
+            )}
+            <div className="flex flex-row gap-2" data-vc-element="top-playback-info-episode">
+                <p className="text-white font-bold text-base">
+                    {episodeDisplayTitle}
+                </p>
+                {episodeTitle && (
+                    <p className="text-white/50 text-base !font-normal max-w-[400px] line-clamp-1">
+                        {episodeTitle}
+                    </p>
+                )}
+            </div>
+        </div>
+    )
+}

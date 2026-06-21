@@ -7721,6 +7721,46 @@
     }
   },
   {
+    "name": "HandleMpvCoreInSightGetCharacterDetails",
+    "trimmedName": "MpvCoreInSightGetCharacterDetails",
+    "comments": [
+      "HandleMpvCoreInSightGetCharacterDetails",
+      "",
+      "\t@summary returns the character details for MpvCore InSight.",
+      "\t@param malId - int - true - \"The MAL character ID\"",
+      "\t@returns mpvcore.InSightCharacterDetails",
+      "\t@route /api/v1/mpvcore/insight/character/{malId} [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/mpvcore.go",
+    "filename": "mpvcore.go",
+    "api": {
+      "summary": "returns the character details for MpvCore InSight.",
+      "descriptions": [],
+      "endpoint": "/api/v1/mpvcore/insight/character/{malId}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "malId",
+          "jsonName": "malId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "The MAL character ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "mpvcore.InSightCharacterDetails",
+      "returnGoType": "mpvcore.InSightCharacterDetails",
+      "returnTypescriptType": "MpvCore_InSightCharacterDetails"
+    }
+  },
+  {
     "name": "HandleNakamaWebSocket",
     "trimmedName": "NakamaWebSocket",
     "comments": [

@@ -2,8 +2,8 @@ package torrentstream
 
 import (
 	"context"
+	"seanime/internal/mediacore"
 	"seanime/internal/mediaplayers/mediaplayer"
-	"seanime/internal/videocore"
 )
 
 type (
@@ -76,21 +76,23 @@ func (r *Repository) listenToMediaPlayerEvents() {
 	}(ctx)
 }
 
-func (r *Repository) listenToNativePlayerEvents() {
-	r.nativePlayer.VideoCore().Unsubscribe("torrentstream")
-	r.logger.Trace().Msg("torrentstream: Subscribing to video core events")
-	videoCoreSubscriber := r.nativePlayer.VideoCore().Subscribe("torrentstream")
+func (r *Repository) listenToMediacoreEvents() {
+	if r.mediacoreCoordinator == nil {
+		return
+	}
+	r.mediacoreCoordinator.Unsubscribe("torrentstream")
+	r.logger.Trace().Msg("torrentstream: Subscribing to mediacore events")
+	subscriber := r.mediacoreCoordinator.Subscribe("torrentstream")
 
-	go func(sub *videocore.Subscriber) {
+	go func(sub *mediacore.Subscriber) {
 		defer func() {
-			r.logger.Trace().Msg("torrentstream: Stopping video core listener")
+			r.logger.Trace().Msg("torrentstream: Stopping mediacore listener")
 		}()
 		for e := range sub.Events() {
-			// get the player type from the event instead of the instance
-			if e.GetPlayerType() != videocore.NativePlayer {
-				continue
-			}
-			if !e.IsTorrent() {
+			key := e.GetSessionKey()
+
+			playbackState, ok := r.mediacoreCoordinator.GetActivePlaybackState()
+			if !ok || playbackState.PlaybackInfo.PlaybackType != mediacore.PlaybackTypeTorrent {
 				continue
 			}
 
@@ -98,43 +100,38 @@ func (r *Repository) listenToNativePlayerEvents() {
 			if !ok {
 				continue
 			}
-			if clientID != "" && e.GetClientId() != "" && e.GetClientId() != clientID {
+			if clientID != "" && key.ClientID != "" && key.ClientID != clientID {
 				continue
 			}
-			if playbackID != "" && e.GetPlaybackId() != "" && e.GetPlaybackId() != playbackID {
+			if playbackID != "" && key.PlaybackID != "" && key.PlaybackID != playbackID {
 				continue
 			}
 
 			switch event := e.(type) {
-			case *videocore.VideoLoadedEvent:
-				r.logger.Debug().Msg("torrentstream: Native player loaded event received")
+			case *mediacore.PlaybackLoadedEvent:
+				r.logger.Debug().Msg("torrentstream: PlaybackLoaded event received")
 				r.playback.currentVideoDuration = 0
 				r.resetPreloadFlag()
-			case *videocore.VideoLoadedMetadataEvent:
+			case *mediacore.LoadedMetadataEvent:
 				go func() {
 					if r.client.currentFile.IsPresent() && r.playback.currentVideoDuration == 0 {
-						// If the stored video duration is 0 but the media player status shows a duration that is not 0
-						// we know that the video has been loaded and is playing
-						if r.playback.currentVideoDuration == 0 && event.Duration > 0 {
-							// The media player has started playing the video
+						if event.Duration > 0 {
 							r.logger.Debug().Msg("torrentstream: Media player started playing the video, sending event")
 							r.sendStateEvent(eventTorrentStartedPlaying)
-							// Update the stored video duration
 							r.playback.currentVideoDuration = int(event.Duration)
 							r.resetPreloadFlag()
 						}
 					}
 				}()
-			case *videocore.VideoStatusEvent:
+			case *mediacore.StatusEvent:
 				if event.Duration > 0 && event.CurrentTime/event.Duration >= 0.5 && r.shouldPreloadStream.Load() {
 					r.shouldPreloadStream.Store(false)
 					r.sendStateEvent(eventPreloadNextStream)
 				}
-			case *videocore.VideoTerminatedEvent:
-				r.logger.Debug().Msg("torrentstream: Native player terminated event received")
+			case *mediacore.TerminatedEvent:
+				r.logger.Debug().Msg("torrentstream: Playback terminated event received")
 				r.playback.currentVideoDuration = 0
 			}
-
 		}
-	}(videoCoreSubscriber)
+	}(subscriber)
 }

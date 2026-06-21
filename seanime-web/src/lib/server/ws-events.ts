@@ -49,6 +49,7 @@ export const enum WSEvents {
     CONSOLE_WARN = "console-warn",
     NATIVE_PLAYER = "native-player",
     VIDEOCORE = "videocore",
+    MPVCORE = "mpvcore",
     NAKAMA_HOST_STARTED = "nakama-host-started",
     NAKAMA_HOST_STOPPED = "nakama-host-stopped",
     NAKAMA_PEER_CONNECTED = "nakama-peer-connected",

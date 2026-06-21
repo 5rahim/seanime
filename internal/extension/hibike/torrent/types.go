@@ -169,9 +169,10 @@ type (
 	}
 
 	AnimeTorrentFile struct {
-		Index int    `json:"index"`
-		Path  string `json:"path"`
-		Name  string `json:"name"`
+		Index         int    `json:"index"`
+		Path          string `json:"path"`
+		Name          string `json:"name"`
+		EpisodeNumber int    `json:"episodeNumber,omitempty"`
 	}
 
 	BatchEpisodeFiles struct {

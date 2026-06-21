@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"seanime/internal/directstream"
 	"seanime/internal/events"
+	"seanime/internal/mediacore"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"time"
@@ -398,6 +400,18 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		// Start the media on the peer
 		wpm.logger.Debug().Int("mediaId", payload.Session.CurrentMediaInfo.MediaId).Msg("nakama: Starting watch party media")
 
+		if payload.Session.CurrentMediaInfo.StreamType != WatchPartyStreamTypeOnlinestream {
+			if wpm.manager.GetUseDenshiPlayer() {
+				if wpm.manager.directstreamManager.GetPlaybackTarget() == directstream.PlaybackTargetVideoCore {
+					wpm.manager.genericPlayer.SetType(WatchPartyVideoCore)
+				} else {
+					wpm.manager.genericPlayer.SetType(WatchPartyMpvCore)
+				}
+			} else {
+				wpm.manager.genericPlayer.SetType(WatchPartyPlaybackManager)
+			}
+		}
+
 		switch payload.Session.CurrentMediaInfo.StreamType {
 		case WatchPartyStreamTypeTorrent:
 			// If the params are missing, the host didn't return them
@@ -436,7 +450,14 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 			// Since it's an online stream force the current player to VideoCore
 			wpm.manager.genericPlayer.SetType(WatchPartyVideoCore)
 			// Start the onlinestream using the params
-			wpm.manager.videoCore.StartOnlinestreamWatchParty(payload.Session.CurrentMediaInfo.OnlinestreamParams)
+			session := mediacore.SessionKey{
+				Target:   mediacore.TargetVideoCore,
+				ClientID: wpm.clientId,
+			}
+			err = wpm.manager.mediacoreCoordinator.Execute(session, mediacore.Command{
+				Type:    mediacore.CommandStartOnlinestreamWatchParty,
+				Payload: payload.Session.CurrentMediaInfo.OnlinestreamParams,
+			})
 		}
 		if err != nil {
 			wpm.logger.Error().Err(err).Msg("nakama: Failed to play watch party media")
@@ -663,8 +684,8 @@ func (wpm *WatchPartyManager) relayModeListenToPlayerAsOrigin() {
 					} else if event.StreamType == WatchPartyStreamTypeDebrid {
 						streamStartedPayload.DebridStreamParams, _ = wpm.manager.debridClientRepository.GetPreviousStreamOptions()
 					} else if event.StreamType == WatchPartyStreamTypeOnlinestream {
-						state, ok := wpm.manager.videoCore.GetPlaybackState()
-						if !ok {
+						state, ok := wpm.manager.mediacoreCoordinator.GetActivePlaybackState()
+						if !ok || state.PlaybackInfo == nil {
 							wpm.logger.Error().Msg("nakama: Failed to get playback state for online stream")
 							currentSession.mu.Unlock()
 							continue

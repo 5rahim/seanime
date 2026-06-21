@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"seanime/internal/database/models"
 	"seanime/internal/events"
+	"seanime/internal/mediacore"
 	"seanime/internal/mediastream/cassette"
 	"seanime/internal/mediastream/videofile"
 	"seanime/internal/util/filecache"
-	"seanime/internal/videocore"
 	"strings"
 	"sync"
 
@@ -19,46 +19,46 @@ import (
 
 type (
 	Repository struct {
-		transcoder         mo.Option[*cassette.Cassette]
-		settings           mo.Option[*models.MediastreamSettings]
-		playbackManager    *PlaybackManager
-		mediaInfoExtractor *videofile.MediaInfoExtractor
-		logger             *zerolog.Logger
-		wsEventManager     events.WSEventManagerInterface
-		videoCore          *videocore.VideoCore
-		fileCacher         *filecache.Cacher
-		reqMu              sync.Mutex
-		cacheDir           string // where attachments are stored
-		transcodeDir       string // where stream segments are stored
+		transcoder           mo.Option[*cassette.Cassette]
+		settings             mo.Option[*models.MediastreamSettings]
+		playbackManager      *PlaybackManager
+		mediaInfoExtractor   *videofile.MediaInfoExtractor
+		logger               *zerolog.Logger
+		wsEventManager       events.WSEventManagerInterface
+		mediacoreCoordinator *mediacore.Coordinator
+		fileCacher           *filecache.Cacher
+		reqMu                sync.Mutex
+		cacheDir             string // where attachments are stored
+		transcodeDir         string // where stream segments are stored
 	}
 
 	NewRepositoryOptions struct {
-		Logger         *zerolog.Logger
-		WSEventManager events.WSEventManagerInterface
-		VideoCore      *videocore.VideoCore
-		FileCacher     *filecache.Cacher
+		Logger               *zerolog.Logger
+		WSEventManager       events.WSEventManagerInterface
+		MediacoreCoordinator *mediacore.Coordinator
+		FileCacher           *filecache.Cacher
 	}
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret := &Repository{
-		logger:             opts.Logger,
-		settings:           mo.None[*models.MediastreamSettings](),
-		transcoder:         mo.None[*cassette.Cassette](),
-		wsEventManager:     opts.WSEventManager,
-		videoCore:          opts.VideoCore,
-		fileCacher:         opts.FileCacher,
-		mediaInfoExtractor: videofile.NewMediaInfoExtractor(opts.FileCacher, opts.Logger),
+		logger:               opts.Logger,
+		settings:             mo.None[*models.MediastreamSettings](),
+		transcoder:           mo.None[*cassette.Cassette](),
+		wsEventManager:       opts.WSEventManager,
+		mediacoreCoordinator: opts.MediacoreCoordinator,
+		fileCacher:           opts.FileCacher,
+		mediaInfoExtractor:   videofile.NewMediaInfoExtractor(opts.FileCacher, opts.Logger),
 	}
 	ret.playbackManager = NewPlaybackManager(ret)
 
-	if opts.VideoCore != nil {
-		opts.VideoCore.RegisterEventCallback(func(event videocore.VideoEvent) bool {
+	if opts.MediacoreCoordinator != nil {
+		opts.MediacoreCoordinator.RegisterEventCallback(func(event mediacore.Event) bool {
 			switch e := event.(type) {
-			case *videocore.VideoTerminatedEvent:
+			case *mediacore.TerminatedEvent:
 				if ret.TranscoderIsInitialized() {
-					opts.Logger.Debug().Str("clientId", e.GetClientId()).Msg("mediastream: Received VideoTerminatedEvent, killing transcoder")
-					ret.ShutdownTranscodeStream(e.GetClientId())
+					opts.Logger.Debug().Str("clientId", e.Session.ClientID).Msg("mediastream: Received TerminatedEvent, killing transcoder")
+					ret.ShutdownTranscodeStream(e.Session.ClientID)
 				}
 			}
 			return true

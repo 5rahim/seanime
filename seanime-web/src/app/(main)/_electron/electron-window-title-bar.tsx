@@ -1,4 +1,5 @@
 import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { mc_isFullscreen } from "@/app/(main)/_features/mpv-core/mpv-core.atoms"
 import { IconButton } from "@/components/ui/button"
 import { useAtomValue } from "jotai"
 import React from "react"
@@ -15,6 +16,8 @@ export function ElectronWindowTitleBar(props: ElectronWindowTitleBarProps) {
     } = props
 
     const videoCore_isFullscreen = useAtomValue(vc_isFullscreen)
+    const mpvCore_isFullscreen = useAtomValue(mc_isFullscreen)
+    const playerIsFullscreen = videoCore_isFullscreen || mpvCore_isFullscreen
 
     const [showControls, setShowControls] = React.useState(true)
     const [displayDragRegion, setDisplayDragRegion] = React.useState(true)
@@ -113,7 +116,7 @@ export function ElectronWindowTitleBar(props: ElectronWindowTitleBarProps) {
             >
                 {displayDragRegion &&
                     <div className="flex flex-1 cursor-grab active:cursor-grabbing" style={{ WebkitAppRegion: "drag" } as any}></div>}
-                {(currentPlatform === "win32" && showControls && !videoCore_isFullscreen) &&
+                {(currentPlatform === "win32" && showControls && !playerIsFullscreen) &&
                     <div className="flex h-10 items-center justify-center gap-1 mr-2 !cursor-default">
                         <IconButton
                             className="outline-none !border-0 w-11 size-8 rounded-lg duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)]"

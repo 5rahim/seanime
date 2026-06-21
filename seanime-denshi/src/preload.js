@@ -114,6 +114,16 @@ contextBridge.exposeInMainWorld(
             set: (settings) => ipcRenderer.invoke("denshi:setSettings", settings),
         },
 
+        mpvCore: {
+            createTempSubtitle: (filename, content) => ipcRenderer.invoke("mpvcore:create-temp-subtitle", filename, content),
+            createScreenshotPath: () => ipcRenderer.invoke("mpvcore:create-screenshot-path"),
+            saveScreenshot: (filePath, base64Data) => ipcRenderer.invoke("mpvcore:save-screenshot", filePath, base64Data),
+            setLoggingEnabled: (enabled) => ipcRenderer.invoke("mpvcore:setLoggingEnabled", enabled),
+            getAnime4KDirectory: () => ipcRenderer.invoke("mpvcore:get-anime4k-directory"),
+            scanAnime4KDirectory: (directory) => ipcRenderer.invoke("mpvcore:scan-anime4k-directory", directory),
+            openAnime4KDirectory: (directory) => ipcRenderer.invoke("mpvcore:open-anime4k-directory", directory),
+        },
+
         // Chromecast
         cast: {
             discover: () => ipcRenderer.invoke("cast:discover"),

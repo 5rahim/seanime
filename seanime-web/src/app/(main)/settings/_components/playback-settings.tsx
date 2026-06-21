@@ -17,7 +17,8 @@ import { __isElectronDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import React from "react"
 import { BiDesktop } from "react-icons/bi"
-import { LuCirclePlay, LuClapperboard, LuExternalLink, LuLaptop } from "react-icons/lu"
+import { usePatchSetting } from "@/api/hooks/settings.hooks"
+import { LuCirclePlay, LuClapperboard, LuExternalLink, LuLaptop, LuFileText } from "react-icons/lu"
 import { MdOutlineBroadcastOnHome } from "react-icons/md"
 import { RiSettings3Fill } from "react-icons/ri"
 import { toast } from "sonner"
@@ -47,8 +48,10 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
     const { activeOnDevice, setActiveOnDevice } = useMediastreamActiveOnDevice()
     const { externalPlayerLink } = useExternalPlayerLink()
     const setTab = useSetAtom(__settings_tabAtom)
+    const { mutate: patchSetting, isPending: isPatching } = usePatchSetting()
 
     const usingNativePlayer = __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer
+    const usingMpvPlayer = usingNativePlayer && serverStatus?.settings?.mediaPlayer?.mpvPrismEnabled
 
     return (
         <>
@@ -109,6 +112,70 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                 />
                             </div>
                         </div>
+
+                        {usingNativePlayer && (
+                            <>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex-1">
+                                        <Switch
+                                            label="Use MPV-in-Seanime (Alpha)"
+                                            side="right"
+                                            help="If enabled, native MPV player will be used instead of the default HTML5 Video Player."
+                                            value={serverStatus?.settings?.mediaPlayer?.mpvPrismEnabled ?? false}
+                                            moreHelp="Provides better codec support and faster performance."
+                                            onValueChange={v => {
+                                                patchSetting({
+                                                    path: "mediaPlayer.mpvPrismEnabled",
+                                                    value: v,
+                                                })
+                                            }}
+                                            disabled={isPatching}
+                                        />
+                                    </div>
+                                </div>
+
+                                {usingMpvPlayer && (
+                                    <div className="space-y-1 pl-4 border-l border-[--border] ml-2">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1">
+                                                <Switch
+                                                    label="Enable logging"
+                                                    side="right"
+                                                    help="If enabled, debug logs will be written to the Denshi data directory."
+                                                    value={serverStatus?.settings?.mediaPlayer?.mpvPrismLogging ?? false}
+                                                    onValueChange={v => {
+                                                        patchSetting({
+                                                            path: "mediaPlayer.mpvPrismLogging",
+                                                            value: v,
+                                                        })
+                                                    }}
+                                                    disabled={isPatching}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1">
+                                                <Switch
+                                                    label="Use Canvas presentation"
+                                                    side="right"
+                                                    help={window.electron?.platform === "linux"
+                                                        ? "Linux only supports canvas rendering."
+                                                        : "Force rendering to use HTML5 Canvas instead of native video presentation."}
+                                                    value={window.electron?.platform === "linux" ? true : (serverStatus?.settings?.mediaPlayer?.mpvPrismUseCanvas ?? false)}
+                                                    onValueChange={v => {
+                                                        patchSetting({
+                                                            path: "mediaPlayer.mpvPrismUseCanvas",
+                                                            value: v,
+                                                        })
+                                                    }}
+                                                    disabled={isPatching || window.electron?.platform === "linux"}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
                 </SettingsCard>
             )}
@@ -145,7 +212,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                     <div>
                                         <p className="font-medium">Desktop Media Player</p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400">Opens files in your system player with automatic
-                                                                                                tracking</p>
+                                            tracking</p>
                                     </div>
                                 </div>
                             </div>
@@ -242,7 +309,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                     <div>
                                         <p className="font-medium">Desktop Media Player</p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400">Opens streams in your system player with automatic
-                                                                                                tracking</p>
+                                            tracking</p>
                                     </div>
                                 </div>
                             </div>

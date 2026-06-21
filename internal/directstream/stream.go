@@ -2,16 +2,16 @@ package directstream
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/library/anime"
+	"seanime/internal/mediacore"
 	"seanime/internal/mkvparser"
-	"seanime/internal/nativeplayer"
 	"seanime/internal/util/result"
-	"seanime/internal/videocore"
 	"strconv"
 	"strings"
 	"sync"
@@ -24,7 +24,7 @@ import (
 // Stream is the common interface for all stream types.
 type Stream interface {
 	// Type returns the type of the stream.
-	Type() nativeplayer.StreamType
+	Type() mediacore.PlaybackType
 	// LoadContentType loads and returns the content type of the stream.
 	// e.g. "video/mp4", "video/webm", "video/x-matroska"
 	LoadContentType() string
@@ -39,7 +39,7 @@ type Stream interface {
 	// EpisodeCollection returns the episode collection for the media of the current stream.
 	EpisodeCollection() *anime.EpisodeCollection
 	// LoadPlaybackInfo loads and returns the playback info.
-	LoadPlaybackInfo() (*nativeplayer.PlaybackInfo, error)
+	LoadPlaybackInfo() (*mediacore.PlaybackInfo, error)
 	// GetAttachmentByName returns the attachment by name for the stream.
 	// It is used to serve fonts and other attachments.
 	GetAttachmentByName(filename string) (*mkvparser.AttachmentInfo, bool)
@@ -85,6 +85,13 @@ func (m *Manager) getStreamHandler() http.Handler {
 }
 
 func (m *Manager) BeginOpen(clientId string, step string, onCancel func()) bool {
+	return m.BeginOpenWithTarget(clientId, step, onCancel, m.GetPlaybackTarget())
+}
+
+func (m *Manager) BeginOpenWithTarget(clientId string, step string, onCancel func(), target PlaybackTarget) bool {
+	if target != PlaybackTargetVideoCore && target != PlaybackTargetMpvCore {
+		target = PlaybackTargetMpvCore
+	}
 	// if there's a current stream, stop it
 	m.playbackMu.Lock()
 	replacedPlaybackId := m.currentPlaybackId
@@ -102,6 +109,7 @@ func (m *Manager) BeginOpen(clientId string, step string, onCancel func()) bool 
 
 	m.playbackMu.Lock()
 	m.preparingClientID = clientId
+	m.preparingTarget = target
 	m.preparationCanceled = false
 	m.preparationCancelFunc = onCancel
 	ok := m.updateOpenStepLocked(clientId, step)
@@ -163,7 +171,7 @@ func (m *Manager) CloseOpen(clientId string) bool {
 	_, _ = m.cancelPreparationLocked(targetClientID, true)
 	m.playbackMu.Unlock()
 
-	m.nativePlayer.AbortOpen(targetClientID, "")
+	m.abortOpen(targetClientID, "", m.preparingTarget)
 	return true
 }
 
@@ -189,6 +197,12 @@ func (m *Manager) GetCurrentPlaybackIdentity() (playbackID string, clientID stri
 	return m.currentPlaybackId, m.currentPlaybackClient, true
 }
 
+func (m *Manager) GetCurrentPlaybackTarget() PlaybackTarget {
+	m.playbackMu.Lock()
+	defer m.playbackMu.Unlock()
+	return m.currentPlaybackTarget
+}
+
 func (m *Manager) PrepareNewStream(clientId string, step string) {
 	m.BeginOpen(clientId, step, nil)
 }
@@ -204,6 +218,7 @@ func (m *Manager) StreamError(err error) {
 // AbortOpen stops the stream preparation
 func (m *Manager) AbortOpen(clientId string, err error) {
 	m.playbackMu.Lock()
+	target := m.preparingTarget
 	previousStream, cancelPlayback, _ := m.releaseCurrentStreamLocked(nil)
 	m.clearPreparationLocked()
 	m.clearCurrentPlaybackIdentityLocked()
@@ -212,7 +227,7 @@ func (m *Manager) AbortOpen(clientId string, err error) {
 	m.cancelAndTerminateStream(previousStream, cancelPlayback)
 
 	m.Logger.Debug().Msgf("directstream: Signaling native player to abort stream preparation, reason: %s", err.Error())
-	m.nativePlayer.AbortOpen(clientId, err.Error())
+	m.abortOpen(clientId, err.Error(), target)
 }
 
 func (m *Manager) updateOpenStepLocked(clientId string, step string) bool {
@@ -226,12 +241,25 @@ func (m *Manager) updateOpenStepLocked(clientId string, step string) bool {
 	}
 
 	m.Logger.Debug().Msgf("directstream: Signaling native player that a new stream is starting")
-	m.nativePlayer.OpenAndAwait(clientId, step)
+	m.openAndAwait(clientId, step, m.preparingTarget)
 	return true
+}
+
+func (m *Manager) openAndAwait(clientID, step string, target PlaybackTarget) {
+	if m.mediacoreCoordinator != nil {
+		m.mediacoreCoordinator.OpenAndAwait(mediacore.Target(target), clientID, step)
+	}
+}
+
+func (m *Manager) abortOpen(clientID, reason string, target PlaybackTarget) {
+	if m.mediacoreCoordinator != nil {
+		m.mediacoreCoordinator.AbortOpen(mediacore.Target(target), clientID, reason)
+	}
 }
 
 func (m *Manager) clearPreparationLocked() {
 	m.preparingClientID = ""
+	m.preparingTarget = ""
 	m.preparationCanceled = false
 	m.preparationCancelFunc = nil
 }
@@ -239,6 +267,7 @@ func (m *Manager) clearPreparationLocked() {
 func (m *Manager) clearCurrentPlaybackIdentityLocked() {
 	m.currentPlaybackId = ""
 	m.currentPlaybackClient = ""
+	m.currentPlaybackTarget = ""
 }
 
 // releaseCurrentStreamLocked
@@ -291,36 +320,7 @@ func (m *Manager) clearStreamLoadingState(stream Stream) {
 	}
 }
 
-func (m *Manager) shouldHandleTerminatedEventLocked(event *videocore.VideoTerminatedEvent, stream Stream) bool {
-	if event.GetClientId() != "" && event.GetClientId() != stream.ClientId() {
-		return false
-	}
-
-	if m.currentPlaybackId == "" {
-		return true
-	}
-
-	if event.GetPlaybackId() == "" {
-		return false
-	}
-
-	return event.GetPlaybackId() == m.currentPlaybackId
-}
-
-func (m *Manager) shouldIgnoreReplacedTerminationLocked(event *videocore.VideoTerminatedEvent) bool {
-	if m.replacedPlaybackId == "" || event.GetPlaybackId() != m.replacedPlaybackId {
-		return false
-	}
-
-	if m.replacedPlaybackClient != "" && event.GetClientId() != "" && event.GetClientId() != m.replacedPlaybackClient {
-		return false
-	}
-
-	m.Logger.Debug().Str("playbackId", event.GetPlaybackId()).Msg("directstream: Ignoring terminated event from replaced stream")
-	m.replacedPlaybackId = ""
-	m.replacedPlaybackClient = ""
-	return true
-}
+// Stale termination check methods removed as routing is handled by the Coordinator.
 
 func (m *Manager) cancelPreparationLocked(clientId string, clearCancelFunc bool) (func(), bool) {
 	if clientId != "" && m.preparingClientID != "" && m.preparingClientID != clientId {
@@ -370,22 +370,34 @@ func (m *Manager) loadStream(stream Stream) {
 	}
 
 	m.playbackMu.Lock()
+	target := m.preparingTarget
+	if target != PlaybackTargetVideoCore && target != PlaybackTargetMpvCore {
+		target = m.defaultPlaybackTarget
+	}
 	m.currentStream = mo.Some(stream)
 	m.playbackCtx = ctx
 	m.playbackCtxCancelFunc = cancel
 	m.clearCurrentPlaybackIdentityLocked()
 	m.playbackMu.Unlock()
-
-	m.Logger.Debug().Msgf("directstream: Loading content type")
-	if !m.UpdateOpenStep(stream.ClientId(), "Loading metadata...") {
-		m.clearStreamLoadingState(stream)
-		return
+	if setter, ok := stream.(interface{ setPlaybackTarget(PlaybackTarget) }); ok {
+		setter.setPlaybackTarget(target)
 	}
-	// Load the content type
-	contentType := stream.LoadContentType()
-	if contentType == "" {
-		m.Logger.Error().Msg("directstream: Failed to load content type")
-		m.preStreamError(stream, fmt.Errorf("failed to load content type"))
+
+	if target == PlaybackTargetVideoCore {
+		m.Logger.Debug().Msgf("directstream: Loading content type")
+		if !m.UpdateOpenStep(stream.ClientId(), "Loading metadata...") {
+			m.clearStreamLoadingState(stream)
+			return
+		}
+		// VideoCore needs the server-side container metadata and subtitle pipeline.
+		contentType := stream.LoadContentType()
+		if contentType == "" {
+			m.Logger.Error().Msg("directstream: Failed to load content type")
+			m.preStreamError(stream, fmt.Errorf("failed to load content type"))
+			return
+		}
+	} else if !m.UpdateOpenStep(stream.ClientId(), "Loading...") {
+		m.clearStreamLoadingState(stream)
 		return
 	}
 	m.playbackMu.Lock()
@@ -415,6 +427,7 @@ func (m *Manager) loadStream(stream Stream) {
 	}
 	m.currentPlaybackId = playbackInfo.ID
 	m.currentPlaybackClient = stream.ClientId()
+	m.currentPlaybackTarget = target
 	m.clearPreparationLocked()
 	m.playbackMu.Unlock()
 
@@ -424,114 +437,106 @@ func (m *Manager) loadStream(stream Stream) {
 	//	parser.SetLoggerEnabled(false)
 	//}
 
-	m.Logger.Debug().Msgf("directstream: Signaling native player that stream is ready")
-	m.nativePlayer.Watch(stream.ClientId(), playbackInfo)
+	m.Logger.Debug().Msgf("directstream: Signaling player that stream is ready")
+	if m.mediacoreCoordinator != nil {
+		m.mediacoreCoordinator.Watch(mediacore.Target(target), stream.ClientId(), playbackInfo)
+	}
 }
 
 func (m *Manager) listenToPlayerEvents() {
+	if m.mediacoreSubscriber == nil {
+		return
+	}
 	go func() {
 		defer func() {
 			m.Logger.Trace().Msg("directstream: Stream loop goroutine exited")
 		}()
 
-		for {
-			select {
-			case event := <-m.videoCoreSubscriber.Events():
-				if !event.IsNativePlayer() {
-					continue
-				}
+		for event := range m.mediacoreSubscriber.Events() {
+			key := event.GetSessionKey()
 
-				m.playbackMu.Lock()
-				terminatedEvent, isTerminated := event.(*videocore.VideoTerminatedEvent)
-				if isTerminated && m.shouldIgnoreReplacedTerminationLocked(terminatedEvent) {
-					m.playbackMu.Unlock()
-					continue
-				}
-
-				cs, ok := m.currentStream.Get()
-				if !ok {
-					var cancelFunc func()
-					shouldCancel := false
-					if isTerminated {
-						cancelFunc, shouldCancel = m.cancelPreparationLocked(event.GetClientId(), true)
-					}
-					m.playbackMu.Unlock()
-					if shouldCancel {
-						if cancelFunc != nil {
-							cancelFunc()
-						}
-					}
-					continue
-				}
+			m.playbackMu.Lock()
+			_, isTerminated := event.(*mediacore.TerminatedEvent)
+			cs, ok := m.currentStream.Get()
+			if !ok {
+				var cancelFunc func()
+				shouldCancel := false
 				if isTerminated {
-					if !m.shouldHandleTerminatedEventLocked(terminatedEvent, cs) {
-						m.playbackMu.Unlock()
-						continue
-					}
-					m.clearPreparationLocked()
-					m.playbackMu.Unlock()
+					cancelFunc, shouldCancel = m.cancelPreparationLocked(key.ClientID, true)
+				}
+				m.playbackMu.Unlock()
+				if shouldCancel && cancelFunc != nil {
+					cancelFunc()
+				}
+				continue
+			}
 
-					m.Logger.Debug().Msgf("directstream: Video terminated")
-					m.unloadStream(cs)
+			if isTerminated {
+				if key.ClientID != "" && key.ClientID != cs.ClientId() {
+					m.playbackMu.Unlock()
 					continue
 				}
-
+				m.clearPreparationLocked()
 				m.playbackMu.Unlock()
 
-				if event.GetClientId() != cs.ClientId() {
-					continue
-				}
+				m.Logger.Debug().Msgf("directstream: Video terminated")
+				m.unloadStream(cs)
+				continue
+			}
+			m.playbackMu.Unlock()
 
-				playbackInfo, err := cs.LoadPlaybackInfo()
-				if err != nil || playbackInfo == nil {
-					continue
-				}
-				if playbackInfo.ID != "" && event.GetPlaybackId() != "" && event.GetPlaybackId() != playbackInfo.ID {
-					continue
-				}
+			if key.ClientID != cs.ClientId() {
+				continue
+			}
+			playbackInfo, err := cs.LoadPlaybackInfo()
+			if err != nil || playbackInfo == nil {
+				continue
+			}
+			if playbackInfo.ID != "" && key.PlaybackID != "" && key.PlaybackID != playbackInfo.ID {
+				continue
+			}
 
-				switch event := event.(type) {
-				case *videocore.VideoLoadedMetadataEvent:
-					m.Logger.Debug().Msgf("directstream: Video loaded metadata")
-					// Start subtitle extraction from the beginning
-					// cs.ServeSubtitlesFromTime(0.0)
+			switch ev := event.(type) {
+			case *mediacore.LoadedMetadataEvent:
+				m.Logger.Debug().Msgf("directstream: Video loaded metadata")
+				if key.Target == mediacore.TargetVideoCore {
 					if lfStream, ok := cs.(*LocalFileStream); ok {
-						subReader, err := lfStream.newReader()
-						if err != nil {
-							m.Logger.Error().Err(err).Msg("directstream: Failed to create subtitle reader")
-							cs.StreamError(fmt.Errorf("failed to create subtitle reader: %w", err))
-							return
+						reader, err := lfStream.newReader()
+						if err == nil {
+							lfStream.StartSubtitleStream(lfStream, m.playbackCtx, reader, 0)
 						}
-						lfStream.StartSubtitleStream(lfStream, m.playbackCtx, subReader, 0)
-					} else if ts, ok := cs.(*TorrentStream); ok {
-						subReader := ts.newSubtitleReader()
-						ts.StartSubtitleStream(ts, m.playbackCtx, subReader, 0)
-					}
-				case *videocore.VideoSeekedEvent:
-					m.Logger.Trace().Float64("currentTime", event.CurrentTime).Msg("directstream: Video seeked, refreshing subtitle stream")
-					go m.startSubtitleStreamForTime(cs, playbackInfo, event.CurrentTime, event.Duration)
-				case *videocore.VideoErrorEvent:
-					m.Logger.Debug().Msgf("directstream: Video error, Error: %s", event.Error)
-					cs.StreamError(fmt.Errorf("%s", event.Error))
-				case *videocore.SubtitleFileUploadedEvent:
-					m.Logger.Debug().Msgf("directstream: Subtitle file uploaded, Filename: %s", event.Filename)
-					cs.OnSubtitleFileUploaded(event.Filename, event.Content)
-				case *videocore.VideoCompletedEvent:
-					m.Logger.Debug().Msgf("directstream: Video completed")
-
-					if baseStream, ok := cs.(*BaseStream); ok {
-						baseStream.updateProgress.Do(func() {
-							mediaId := baseStream.media.GetID()
-							epNum := baseStream.episode.GetProgressNumber()
-							totalEpisodes := baseStream.media.GetTotalEpisodeCount() // total episode count or -1
-
-							_ = baseStream.manager.platformRef.Get().UpdateEntryProgress(context.Background(), mediaId, epNum, &totalEpisodes)
-						})
+					} else if torrentStream, ok := cs.(*TorrentStream); ok {
+						torrentStream.StartSubtitleStream(torrentStream, m.playbackCtx, torrentStream.newSubtitleReader(), 0)
 					}
 				}
+			case *mediacore.SeekedEvent:
+				m.Logger.Trace().Float64("currentTime", ev.CurrentTime).Msg("directstream: Player seeked")
+				if key.Target == mediacore.TargetVideoCore {
+					go m.startSubtitleStreamForTime(cs, playbackInfo, ev.CurrentTime, ev.Duration)
+				}
+			case *mediacore.ErrorEvent:
+				m.Logger.Debug().Msgf("directstream: Video error, Error: %s", ev.Error)
+				cs.StreamError(errors.New(ev.Error))
+			case *mediacore.SubtitleFileUploadedEvent:
+				m.Logger.Debug().Msgf("directstream: Subtitle file uploaded, Filename: %s", ev.Filename)
+				cs.OnSubtitleFileUploaded(ev.Filename, ev.Content)
+			case *mediacore.CompletedEvent:
+				m.Logger.Debug().Msgf("directstream: Video completed")
+				m.updateCompletedProgress(cs)
 			}
 		}
 	}()
+}
+
+func (m *Manager) updateCompletedProgress(stream Stream) {
+	if baseStream, ok := stream.(*BaseStream); ok {
+		baseStream.updateProgress.Do(func() {
+			mediaID := baseStream.media.GetID()
+			episodeNumber := baseStream.episode.GetProgressNumber()
+			totalEpisodes := baseStream.media.GetTotalEpisodeCount()
+			_ = baseStream.manager.platformRef.Get().UpdateEntryProgress(context.Background(), mediaID, episodeNumber, &totalEpisodes)
+		})
+	}
 }
 
 func (m *Manager) unloadStream(targets ...Stream) {
@@ -561,10 +566,11 @@ type BaseStream struct {
 	media                  *anilist.BaseAnime
 	listEntryData          *anime.EntryListData
 	episodeCollection      *anime.EpisodeCollection
-	playbackInfo           *nativeplayer.PlaybackInfo
+	playbackInfo           *mediacore.PlaybackInfo
 	playbackInfoErr        error
 	playbackInfoOnce       sync.Once
 	playbackCancelFunc     context.CancelFunc
+	playbackTarget         PlaybackTarget
 	subtitleEventCache     *result.Map[string, *mkvparser.SubtitleEvent]
 	subtitleSendMu         sync.Mutex
 	subtitleLastSent       time.Time
@@ -593,11 +599,11 @@ func (s *BaseStream) LoadContentType() string {
 	return s.contentType
 }
 
-func (s *BaseStream) LoadPlaybackInfo() (*nativeplayer.PlaybackInfo, error) {
+func (s *BaseStream) LoadPlaybackInfo() (*mediacore.PlaybackInfo, error) {
 	return s.playbackInfo, s.playbackInfoErr
 }
 
-func (s *BaseStream) Type() nativeplayer.StreamType {
+func (s *BaseStream) Type() mediacore.PlaybackType {
 	return ""
 }
 
@@ -623,6 +629,14 @@ func (s *BaseStream) ClientId() string {
 
 func (s *BaseStream) setPlaybackCancelFunc(cancel context.CancelFunc) {
 	s.playbackCancelFunc = cancel
+}
+
+func (s *BaseStream) setPlaybackTarget(target PlaybackTarget) {
+	s.playbackTarget = target
+}
+
+func (s *BaseStream) shouldProcessMediaOnServer() bool {
+	return s.playbackTarget != PlaybackTargetMpvCore
 }
 
 func (s *BaseStream) Terminate() {
@@ -651,9 +665,10 @@ func (s *BaseStream) StreamError(err error) {
 		s.manager.playbackMu.Unlock()
 		return
 	}
+	target := s.manager.currentPlaybackTarget
 	s.manager.playbackMu.Unlock()
 
-	s.manager.nativePlayer.Error(s.clientId, err)
+	s.manager.streamError(s.clientId, err, target)
 	s.manager.unloadStream(s)
 }
 
@@ -705,11 +720,18 @@ func (m *Manager) preStreamError(stream Stream, err error) {
 		m.playbackMu.Unlock()
 		return
 	}
+	target := m.preparingTarget
 	m.clearPreparationLocked()
 	m.playbackMu.Unlock()
 
-	m.nativePlayer.Error(stream.ClientId(), err)
+	m.streamError(stream.ClientId(), err, target)
 	m.unloadStream(stream)
+}
+
+func (m *Manager) streamError(clientID string, err error, target PlaybackTarget) {
+	if m.mediacoreCoordinator != nil {
+		m.mediacoreCoordinator.Error(mediacore.Target(target), clientID, err)
+	}
 }
 
 func overrideHeaders(dst http.Header, src http.Header) {

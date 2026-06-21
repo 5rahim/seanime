@@ -11,8 +11,8 @@ import (
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediacore"
 	"seanime/internal/util"
-	"seanime/internal/videocore"
 	"sync"
 	"time"
 
@@ -552,8 +552,11 @@ func (r *Repository) StopStream(fromNativePlayer ...bool) error {
 
 	if !fromNative {
 		go func() {
-			if playbackType, ok := r.nativePlayer.VideoCore().GetCurrentPlaybackType(); ok && playbackType == videocore.PlaybackTypeTorrent {
-				r.nativePlayer.Stop()
+			if session, ok := r.mediacoreCoordinator.GetActiveSession(); ok {
+				playbackState, okState := r.mediacoreCoordinator.GetActivePlaybackState()
+				if okState && playbackState.PlaybackInfo != nil && playbackState.PlaybackInfo.PlaybackType == mediacore.PlaybackTypeTorrent {
+					r.mediacoreCoordinator.Terminate(session)
+				}
 			}
 		}()
 	}

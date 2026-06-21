@@ -30,6 +30,7 @@ export function NativePlayer() {
     const [state, setState] = useAtom(nativePlayer_stateAtom)
     const [miniPlayer, setMiniPlayer] = useAtom(vc_miniPlayer)
     const subtitleManager = useAtomValue(vc_subtitleManager)
+    const _preserveMiniPlayerRef = React.useRef(false)
 
     // AniSkip
     const { data: aniSkipData } = useSkipData(state?.playbackInfo?.media?.idMal, state?.playbackInfo?.episode?.progressNumber ?? -1)
@@ -115,6 +116,7 @@ export function NativePlayer() {
                 case "open-and-await":
                     log.info("Open and await event received", { payload })
                     resetSubtitleBuffer()
+                    _preserveMiniPlayerRef.current = state.active && miniPlayer
                     setState(draft => {
                         draft.active = true
                         draft.loadingState = payload as string
@@ -122,12 +124,15 @@ export function NativePlayer() {
                         draft.playbackError = null
                         return
                     })
-                    setMiniPlayer(false)
+                    if (!_preserveMiniPlayerRef.current) {
+                        setMiniPlayer(false)
+                    }
 
                     break
                 case "abort-open":
                     log.info("Abort open event received", { payload })
                     resetSubtitleBuffer()
+                    _preserveMiniPlayerRef.current = false
                     if (!(payload as string)) {
                         setMiniPlayer(true)
                         setState(draft => {
@@ -161,7 +166,10 @@ export function NativePlayer() {
                         draft.playbackError = null
                         return
                     })
-                    setMiniPlayer(false)
+                    if (!_preserveMiniPlayerRef.current) {
+                        setMiniPlayer(false)
+                    }
+                    _preserveMiniPlayerRef.current = false
                     break
                 // 3. Subtitle event (MKV)
                 // We receive the subtitle events after the server received the loaded-metadata event.

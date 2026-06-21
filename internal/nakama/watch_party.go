@@ -7,8 +7,8 @@ import (
 	"fmt"
 	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/events"
+	"seanime/internal/mediacore"
 	"seanime/internal/torrentstream"
-	"seanime/internal/videocore"
 	"sync"
 	"time"
 
@@ -189,7 +189,7 @@ type WatchPartySessionMediaInfo struct {
 	StreamType    WatchPartyStreamType `json:"streamType"`
 	LocalFilePath string               `json:"localFilePath"` // Path to local file if StreamType is file
 	// OnlinestreamParams used by peers to start the same stream
-	OnlinestreamParams *videocore.OnlinestreamParams `json:"onlinestreamParams,omitempty"`
+	OnlinestreamParams *mediacore.OnlinestreamParams `json:"onlinestreamParams,omitempty"`
 	// OnlinestreamParams used by peers to start the same stream
 	TorrentStreamParams *torrentstream.StartStreamOptions `json:"torrentStreamParams,omitempty"`
 }
@@ -264,7 +264,7 @@ type (
 		LocalFilePath       string                            `json:"localFilePath,omitempty"`
 		TorrentStreamParams *torrentstream.StartStreamOptions `json:"torrentStreamParams,omitempty"`
 		DebridStreamParams  *debrid_client.StartStreamOptions `json:"debridStreamParams,omitempty"`
-		OnlinestreamParams  *videocore.OnlinestreamParams     `json:"onlinestreamParams,omitempty"`
+		OnlinestreamParams  *mediacore.OnlinestreamParams     `json:"onlinestreamParams,omitempty"`
 		Status              *WatchPartyPlaybackStatus         `json:"status"`
 		State               *WatchPartyPlaybackState          `json:"state"`
 	}

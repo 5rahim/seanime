@@ -202,6 +202,9 @@ type MediaPlayerSettings struct {
 	VcTranslateApiKey         string `gorm:"column:vc_translate_api_key" json:"vcTranslateApiKey"`
 	VcTranslateBaseUrl        string `gorm:"column:vc_translate_base_url" json:"vcTranslateBaseUrl"`
 	VcTranslateModel          string `gorm:"column:vc_translate_model" json:"vcTranslateModel"`
+	MpvPrismLogging           bool   `gorm:"column:mpv_prism_logging" json:"mpvPrismLogging"`
+	MpvPrismEnabled           bool   `gorm:"column:mpv_prism_enabled" json:"mpvPrismEnabled"`
+	MpvPrismUseCanvas         bool   `gorm:"column:mpv_prism_use_canvas" json:"mpvPrismUseCanvas"`
 }
 
 type TorrentSettings struct {

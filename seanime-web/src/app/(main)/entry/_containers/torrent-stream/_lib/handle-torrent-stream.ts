@@ -6,7 +6,8 @@ import {
     useCurrentDevicePlaybackSettings,
     useExternalPlayerLink,
 } from "@/app/(main)/_atoms/playback.atoms"
-import { getNextBatchFileSelection, useAutoPlaySelectedTorrent, useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
+import { useAutoPlaySelectedTorrent, useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
+import { getBatchSelectionParams } from "@/app/(main)/_features/autoplay/batches.ts"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -168,16 +169,14 @@ export function useTorrentStreamListener() {
                         ) {
                             logger("TORRENT STREAM LISTENER")
                                 .info("Previous selection matches, preparing next stream by auto-selecting file for torrent stream")
-                            const batchSelection = getNextBatchFileSelection(autoPlayTorrent.batchFiles,
-                                episode.episodeNumber!,
-                                episode.aniDBEpisode!)
+                            const batchParams = getBatchSelectionParams(autoPlayTorrent.batchFiles, episode.episodeNumber!, episode.aniDBEpisode!)
                             handleStreamSelection({
                                 mediaId: episode.baseAnime?.id!,
                                 episodeNumber: episode.episodeNumber!,
                                 aniDBEpisode: episode.aniDBEpisode!,
                                 torrent: autoPlayTorrent.torrent,
-                                chosenFileIndex: batchSelection.fileIndex,
-                                batchEpisodeFiles: batchSelection.batchEpisodeFiles,
+                                chosenFileIndex: batchParams.fileIndex,
+                                batchEpisodeFiles: batchParams.batchEpisodeFiles,
                                 preload: true,
                             })
                             return

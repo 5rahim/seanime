@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 	"seanime/internal/library/anime"
+	"seanime/internal/mediacore"
 	"seanime/internal/mkvparser"
-	"seanime/internal/nativeplayer"
 	httputil "seanime/internal/util/http"
 	"sync"
 	"time"
@@ -124,11 +124,11 @@ func (s *httpBaseStream) Terminate() {
 	s.BaseStream.Terminate()
 }
 
-// loadPlaybackInfo is called by concrete types, passing their own StreamType.
-func (s *httpBaseStream) loadPlaybackInfo(streamType nativeplayer.StreamType) (ret *nativeplayer.PlaybackInfo, err error) {
+// loadPlaybackInfo is called by concrete types, passing their own PlaybackType.
+func (s *httpBaseStream) loadPlaybackInfo(streamType mediacore.PlaybackType) (ret *mediacore.PlaybackInfo, err error) {
 	s.playbackInfoOnce.Do(func() {
 		if s.streamUrl == "" {
-			ret = &nativeplayer.PlaybackInfo{}
+			ret = &mediacore.PlaybackInfo{}
 			err = fmt.Errorf("stream url is not set")
 			s.playbackInfoErr = err
 			return
@@ -145,12 +145,14 @@ func (s *httpBaseStream) loadPlaybackInfo(streamType nativeplayer.StreamType) (r
 
 		contentType := s.LoadContentType()
 
-		playbackInfo := nativeplayer.PlaybackInfo{
+		streamURL := "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id + s.manager.GetHMACTokenQueryParam("/api/v1/directstream/stream", "&")
+		playbackInfo := mediacore.PlaybackInfo{
 			ID:                id,
-			StreamType:        streamType,
+			PlaybackType:      streamType,
+			PlaybackURI:       streamURL,
 			StreamPath:        s.filepath,
 			MimeType:          contentType,
-			StreamUrl:         "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id + s.manager.GetHMACTokenQueryParam("/api/v1/directstream/stream", "&"),
+			StreamURL:         streamURL,
 			ContentLength:     s.contentLength, // loaded by LoadContentType
 			MkvMetadata:       nil,
 			MkvMetadataParser: mo.None[*mkvparser.MetadataParser](),
@@ -159,8 +161,10 @@ func (s *httpBaseStream) loadPlaybackInfo(streamType nativeplayer.StreamType) (r
 			EntryListData:     entryListData,
 		}
 
-		// If the content type is an EBML content type, we can create a metadata parser
-		if isEbmlContent(s.LoadContentType()) || s.LoadContentType() == "application/octet-stream" || s.LoadContentType() == "application/force-download" {
+		// VideoCore needs server-side MKV metadata and subtitle extraction.
+		// MpvCore only needs the byte proxy; libmpv probes and demuxes the stream.
+		if s.shouldProcessMediaOnServer() &&
+			(isEbmlContent(s.LoadContentType()) || s.LoadContentType() == "application/octet-stream" || s.LoadContentType() == "application/force-download") {
 			reader, readErr := s.newMetadataReader()
 			if readErr != nil {
 				err = fmt.Errorf("failed to create reader for stream url: %w", readErr)
@@ -246,21 +250,6 @@ func (s *httpBaseStream) getStreamHandler(outer Stream) http.Handler {
 		ra, ok := handleRange(w, r, reader, s.filename, s.contentLength)
 		if !ok {
 			return
-		}
-
-		if _, ok := s.playbackInfo.MkvMetadataParser.Get(); ok {
-			subReader, err := s.getReader()
-			if err != nil {
-				s.logger.Error().Err(err).Msg("directstream(http): Failed to create subtitle reader for stream url")
-				http.Error(w, "Failed to create subtitle reader for stream url", http.StatusInternalServerError)
-				return
-			}
-			if ra.Start < s.contentLength-1024*1024 {
-				// subReader is closed inside the subtitle goroutine
-				go s.StartSubtitleStreamP(outer, s.manager.playbackCtx, subReader, ra.Start, 0)
-			} else {
-				_ = subReader.Close()
-			}
 		}
 
 		// Use the client's request context so the CDN request is cancelled when the client disconnects

@@ -83,6 +83,7 @@ seanime-webapp/public/test*
 
 codegen/generated/hooks.mdx
 
+seanime-denshi/native-builds
 
 internal/extension_repo/**/test*.*
 internal/extension_repo/goja_plugin_test

@@ -379,6 +379,15 @@ export class VideoCorePipManager extends EventTarget {
             if (animationFrameRef.current && this.video) {
                 this.video.cancelVideoFrameCallback(animationFrameRef.current)
             }
+            const stream = pipVideo.srcObject
+            if (stream && "getTracks" in stream) {
+                (stream as MediaStream).getTracks().forEach(track => {
+                    try {
+                        track.stop()
+                    } catch {}
+                })
+            }
+            pipVideo.srcObject = null
             canvas.remove()
             pipVideo.remove()
             this.pipProxy = null

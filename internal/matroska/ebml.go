@@ -672,6 +672,11 @@ func (er *EBMLReader) ReadElement() (*EBMLElement, error) {
 		return nil, fmt.Errorf("unknown size elements not supported")
 	}
 
+	// Prevent makeslice out of range panics or OOM on corrupt size
+	if size > 256*1024*1024 {
+		return nil, fmt.Errorf("element size %d is too large", size)
+	}
+
 	// Read element data
 	data := make([]byte, size)
 	if size > 0 {
