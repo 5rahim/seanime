@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.9.0
+
+- 🎉 Denshi: New built-in MPV player (Experimental)
+  - Enable in 'Settings > Video Playback'
+- 🦺 Torrent streaming: Fixed continuous batch selection
+- 🦺 VideoCore: Ability to exit fullscreen when next stream is loading
+- ⬆️ Updated Electron to 42.4.0
+
 ## v3.8.7
 
 - ⚡️ VideoCore: Improved hls.js error handling

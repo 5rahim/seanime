@@ -196,9 +196,9 @@ func (a *App) initModulesOnce() {
 		VideoCore:      a.VideoCore,
 	})
 
-	// +---------------------+
-	// | Mediacore Coordinator|
-	// +---------------------+
+	// +-----------------------+
+	// | Mediacore Coordinator |
+	// +-----------------------+
 
 	vcAdapter := videocore.NewAdapter(a.VideoCore, a.NativePlayer)
 	mcAdapter := mpvcore.NewAdapter(a.MpvCore)

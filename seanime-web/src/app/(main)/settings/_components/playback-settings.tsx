@@ -1,3 +1,4 @@
+import { usePatchSetting } from "@/api/hooks/settings.hooks"
 import {
     ElectronPlaybackMethod,
     PlaybackDownloadedMedia,
@@ -9,6 +10,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { __settings_tabAtom } from "@/app/(main)/settings/_components/settings-page.atoms"
+import { AlphaBadge } from "@/components/shared/beta-badge.tsx"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -17,8 +19,7 @@ import { __isElectronDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import React from "react"
 import { BiDesktop } from "react-icons/bi"
-import { usePatchSetting } from "@/api/hooks/settings.hooks"
-import { LuCirclePlay, LuClapperboard, LuExternalLink, LuLaptop, LuFileText } from "react-icons/lu"
+import { LuCirclePlay, LuClapperboard, LuExternalLink, LuLaptop } from "react-icons/lu"
 import { MdOutlineBroadcastOnHome } from "react-icons/md"
 import { RiSettings3Fill } from "react-icons/ri"
 import { toast } from "sonner"
@@ -118,11 +119,11 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                 <div className="flex items-center gap-4">
                                     <div className="flex-1">
                                         <Switch
-                                            label="Use MPV-in-Seanime (Alpha)"
+                                            label={<span>Use MPV-in-Seanime <AlphaBadge /></span>}
                                             side="right"
-                                            help="If enabled, native MPV player will be used instead of the default HTML5 Video Player."
+                                            help="If enabled, embedded MPV player will be used instead of the default HTML5 player."
                                             value={serverStatus?.settings?.mediaPlayer?.mpvPrismEnabled ?? false}
-                                            moreHelp="Provides better codec support and faster performance."
+                                            moreHelp="Provides better codec support and greater performance."
                                             onValueChange={v => {
                                                 patchSetting({
                                                     path: "mediaPlayer.mpvPrismEnabled",
@@ -156,11 +157,12 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                         <div className="flex items-center gap-4">
                                             <div className="flex-1">
                                                 <Switch
-                                                    label="Use Canvas presentation"
+                                                    label="Use Canvas rendering"
                                                     side="right"
                                                     help={window.electron?.platform === "linux"
                                                         ? "Linux only supports canvas rendering."
-                                                        : "Force rendering to use HTML5 Canvas instead of native video presentation."}
+                                                        : "Improves stability but increases CPU usage."}
+                                                    moreHelp="Force rendering to use HTML5 canvas instead of native HTML5 video. Can help solve renderer crashes."
                                                     value={window.electron?.platform === "linux" ? true : (serverStatus?.settings?.mediaPlayer?.mpvPrismUseCanvas ?? false)}
                                                     onValueChange={v => {
                                                         patchSetting({

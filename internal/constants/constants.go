@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	Version              = "3.8.7"
-	VersionName          = "Kanata"
+	Version              = "3.9.0-alpha.2"
+	VersionName          = "Kizami"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"
 	MalClientId          = "51cb4294feb400f3ddc66a30f9b9a00f"

@@ -1,9 +1,8 @@
-import { createWriteStream, readFileSync, existsSync, mkdirSync, rmSync, readdirSync, cpSync } from "node:fs"
+import { cpSync, createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs"
 import { get } from "node:https"
 import { createHash } from "node:crypto"
 import { execSync } from "node:child_process"
-import { homedir } from "node:os"
-import { resolve, join, basename } from "node:path"
+import { basename, join, resolve } from "node:path"
 
 const supportedTargets = new Set([
     "darwin-arm64",
@@ -13,8 +12,8 @@ const supportedTargets = new Set([
 ])
 
 // Check target
-const target = process.argv[2] || `${process.platform}-${process.arch}`
-if (!supportedTargets.has(target)) {
+const target = process.argv[2] || "all"
+if (target !== "all" && !supportedTargets.has(target)) {
     throw new Error(`Unsupported target: ${target}`)
 }
 
@@ -60,11 +59,12 @@ const sourceRoot = process.env.MPV_PRISM_SOURCE ? resolve(process.env.MPV_PRISM_
 const useLocal = sourceRoot ? existsSync(sourceRoot) : false
 
 const stagingRoot = join(denshiRoot, "native-builds")
-const stagedRuntime = join(stagingRoot, target)
 
-// Staging preparation: Clean and recreate target dir
+// Staging preparation: Clean and recreate stagingRoot
 rmSync(stagingRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 })
-mkdirSync(stagedRuntime, { recursive: true })
+mkdirSync(stagingRoot, { recursive: true })
+
+const targetsToSync = target === "all" ? Array.from(supportedTargets) : [target]
 
 if (useLocal) {
     console.log(`Local mpv-prism build detected at ${sourceRoot}. Syncing from filesystem...`)
@@ -77,76 +77,116 @@ if (useLocal) {
         }
     }
 
-    const sourceRuntime = join(sourceRoot, "native-builds", target)
-    const addonPath = join(sourceRuntime, "mpv-prism.node")
-    if (!existsSync(addonPath)) {
-        throw new Error(`mpv-prism native addon is missing: ${addonPath}`)
+    for (const t of targetsToSync) {
+        const sourceRuntime = join(sourceRoot, "native-builds", t)
+        if (!existsSync(sourceRuntime)) {
+            if (target === "all") {
+                console.log(`Skipping local native build for ${t} (not found at ${sourceRuntime})`)
+                continue
+            }
+            throw new Error(`mpv-prism native build directory is missing: ${sourceRuntime}`)
+        }
+
+        const addonPath = join(sourceRuntime, "mpv-prism.node")
+        if (!existsSync(addonPath)) {
+            throw new Error(`mpv-prism native addon is missing: ${addonPath}`)
+        }
+
+        const runtimeFiles = readdirSync(sourceRuntime)
+        const hasLibMpv = t === "win32-x64"
+            ? runtimeFiles.some(name => /^(?:lib)?mpv(?:-2)?\.dll$/i.test(name))
+            : t === "darwin-arm64"
+                ? runtimeFiles.some(name => /^libmpv(?:\.2)?\.dylib$/i.test(name))
+                : runtimeFiles.some(name => /^libmpv\.so\.2(?:\..+)?$/i.test(name))
+
+        if (!hasLibMpv) {
+            throw new Error(`mpv-prism libmpv sidecar is missing from local ${sourceRuntime}`)
+        }
+
+        const stagedRuntime = join(stagingRoot, t)
+        mkdirSync(stagedRuntime, { recursive: true })
+        cpSync(sourceRuntime, stagedRuntime, { recursive: true, dereference: true })
+        console.log(`Staged mpv-prism ${t} from local ${basename(sourceRoot)} into ${stagedRuntime}`)
     }
 
-    const runtimeFiles = readdirSync(sourceRuntime)
-    const hasLibMpv = target === "win32-x64"
-        ? runtimeFiles.some(name => /^(?:lib)?mpv(?:-2)?\.dll$/i.test(name))
-        : target === "darwin-arm64"
-            ? runtimeFiles.some(name => /^libmpv(?:\.2)?\.dylib$/i.test(name))
-            : runtimeFiles.some(name => /^libmpv\.so\.2(?:\..+)?$/i.test(name))
-
-    if (!hasLibMpv) {
-        throw new Error(`mpv-prism libmpv sidecar is missing from local ${sourceRuntime}`)
+    // Stage packages into node_modules of seanime-denshi and seanime-web to override downloaded ones
+    const stagePackage = (packageName, destNodeModules) => {
+        const pkgDist = join(sourceRoot, "packages", packageName, "dist")
+        const targetDir = join(destNodeModules, "@mpv-prism", packageName)
+        if (existsSync(targetDir)) {
+            const destDist = join(targetDir, "dist")
+            rmSync(destDist, { recursive: true, force: true })
+            cpSync(pkgDist, destDist, { recursive: true })
+            const pkgJSON = join(sourceRoot, "packages", packageName, "package.json")
+            if (existsSync(pkgJSON)) {
+                cpSync(pkgJSON, join(targetDir, "package.json"))
+            }
+            console.log(`Staged local @mpv-prism/${packageName} into ${targetDir}`)
+        }
     }
 
-    // Stage runtime
-    cpSync(sourceRuntime, stagedRuntime, { recursive: true, dereference: true })
-    console.log(`Staged mpv-prism ${target} from local ${basename(sourceRoot)} into ${stagedRuntime}`)
+    const denshiNodeModules = join(denshiRoot, "node_modules")
+    const webNodeModules = join(projectRoot, "seanime-web", "node_modules")
+
+    for (const pkg of ["core", "electron", "react"]) {
+        stagePackage(pkg, denshiNodeModules)
+        stagePackage(pkg, webNodeModules)
+    }
 } else {
     console.log(`Local mpv-prism build not found. Resolving from lockfile...`)
 
-    const nativeConfig = lockfile.native?.[target]
-    if (!nativeConfig) {
-        throw new Error(`Target ${target} is not defined in mpv-prism.lock.json`)
-    }
+    for (const t of targetsToSync) {
+        const nativeConfig = lockfile.native?.[t]
+        if (!nativeConfig) {
+            throw new Error(`Target ${t} is not defined in mpv-prism.lock.json`)
+        }
 
-    const { url, sha256: expectedSha } = nativeConfig
-    const tempArchive = join(stagingRoot, `temp-${target}.tar.gz`)
+        const stagedRuntime = join(stagingRoot, t)
+        mkdirSync(stagedRuntime, { recursive: true })
 
-    console.log(`Downloading native binaries for ${target} from ${url}...`)
+        const { url, sha256: expectedSha } = nativeConfig
+        const tempArchive = join(stagingRoot, `temp-${t}.tar.gz`)
 
-    await downloadFile(url, tempArchive)
+        console.log(`Downloading native binaries for ${t} from ${url}...`)
 
-    console.log(`Verifying checksum...`)
-    const fileBuffer = readFileSync(tempArchive)
-    const actualSha = createHash("sha256").update(fileBuffer).digest("hex")
+        await downloadFile(url, tempArchive)
 
-    if (actualSha !== expectedSha) {
+        console.log(`Verifying checksum...`)
+        const fileBuffer = readFileSync(tempArchive)
+        const actualSha = createHash("sha256").update(fileBuffer).digest("hex")
+
+        if (actualSha !== expectedSha) {
+            rmSync(tempArchive, { force: true })
+            throw new Error(
+                `Checksum mismatch for ${t}.\n` +
+                `Expected: ${expectedSha}\n` +
+                `Got:      ${actualSha}`
+            )
+        }
+
+        console.log(`Extracting binaries to ${stagedRuntime}...`)
+        execSync(`tar -xzf "${tempArchive}" -C "${stagedRuntime}"`, { stdio: "inherit" })
         rmSync(tempArchive, { force: true })
-        throw new Error(
-            `Checksum mismatch for ${target}.\n` +
-            `Expected: ${expectedSha}\n` +
-            `Got:      ${actualSha}`
-        )
+
+        // Verify extracted files
+        const addonPath = join(stagedRuntime, "mpv-prism.node")
+        if (!existsSync(addonPath)) {
+            throw new Error(`Extraction failed: mpv-prism.node is missing from staging`)
+        }
+
+        const runtimeFiles = readdirSync(stagedRuntime)
+        const hasLibMpv = t === "win32-x64"
+            ? runtimeFiles.some(name => /^(?:lib)?mpv(?:-2)?\.dll$/i.test(name))
+            : t === "darwin-arm64"
+                ? runtimeFiles.some(name => /^libmpv(?:\.2)?\.dylib$/i.test(name))
+                : runtimeFiles.some(name => /^libmpv\.so\.2(?:\..+)?$/i.test(name))
+
+        if (!hasLibMpv) {
+            throw new Error(`Extraction failed: libmpv sidecar is missing from staging`)
+        }
+
+        console.log(`Successfully staged and verified mpv-prism ${t} into ${stagedRuntime}`)
     }
-
-    console.log(`Extracting binaries to ${stagedRuntime}...`)
-    execSync(`tar -xzf "${tempArchive}" -C "${stagedRuntime}"`, { stdio: "inherit" })
-    rmSync(tempArchive, { force: true })
-
-    // Verify extracted files
-    const addonPath = join(stagedRuntime, "mpv-prism.node")
-    if (!existsSync(addonPath)) {
-        throw new Error(`Extraction failed: mpv-prism.node is missing from staging`)
-    }
-
-    const runtimeFiles = readdirSync(stagedRuntime)
-    const hasLibMpv = target === "win32-x64"
-        ? runtimeFiles.some(name => /^(?:lib)?mpv(?:-2)?\.dll$/i.test(name))
-        : target === "darwin-arm64"
-            ? runtimeFiles.some(name => /^libmpv(?:\.2)?\.dylib$/i.test(name))
-            : runtimeFiles.some(name => /^libmpv\.so\.2(?:\..+)?$/i.test(name))
-
-    if (!hasLibMpv) {
-        throw new Error(`Extraction failed: libmpv sidecar is missing from staging`)
-    }
-
-    console.log(`Successfully staged and verified mpv-prism ${target} into ${stagedRuntime}`)
 }
 
 function downloadFile(url, destPath) {
