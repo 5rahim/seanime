@@ -191,7 +191,17 @@ if (useLocal) {
 
 function downloadFile(url, destPath) {
     return new Promise((resolve, reject) => {
-        get(url, (res) => {
+        const urlObj = new URL(url)
+        urlObj.searchParams.set("cb", Date.now().toString())
+
+        const options = {
+            headers: {
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache"
+            }
+        }
+
+        get(urlObj, options, (res) => {
             if (res.statusCode === 301 || res.statusCode === 302) {
                 downloadFile(res.headers.location, destPath).then(resolve).catch(reject)
                 return

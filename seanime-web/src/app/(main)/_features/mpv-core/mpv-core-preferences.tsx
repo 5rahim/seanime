@@ -4,23 +4,8 @@ import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
-import { Textarea } from "@/components/ui/textarea"
 import { atom, useAtom, useAtomValue } from "jotai"
 import React from "react"
-
-const RECOMMENDED_ANIME_CONFIG = `deband=yes
-deband-iterations=4
-deband-threshold=48
-deband-range=16
-deband-grain=48
-dither-depth=auto
-volume-max=150
-
-sub-ass-vsfilter-aspect-compat=no
-sub-fix-timing=yes
-
-demuxer-max-bytes=150MiB
-demuxer-max-back-bytes=75MiB`
 import {
     mc_defaultKeybindings,
     mc_initialSettings,
@@ -133,10 +118,8 @@ export function MpvCorePreferencesModal(props: {
     const [editedAudioLanguage, setEditedAudioLanguage] = React.useState(settings.preferredAudioLanguage)
     const [editedSubsBlacklist, setEditedSubsBlacklist] = React.useState(settings.preferredSubtitleBlacklist)
     const [editedSubtitleDelay, setEditedSubtitleDelay] = React.useState(settings.subtitleDelay)
-    const [editedCustomMpvConfig, setEditedCustomMpvConfig] = React.useState(settings.customMpvConfig || "")
     const [recordingKey, setRecordingKey] = React.useState<string | null>(null)
     const [tab, setTab] = React.useState("keybinds")
-    const [showConfigConfirm, setShowConfigConfirm] = React.useState(false)
 
     React.useEffect(() => {
         if (!open) return
@@ -145,7 +128,6 @@ export function MpvCorePreferencesModal(props: {
         setEditedAudioLanguage(settings.preferredAudioLanguage)
         setEditedSubsBlacklist(settings.preferredSubtitleBlacklist)
         setEditedSubtitleDelay(settings.subtitleDelay)
-        setEditedCustomMpvConfig(settings.customMpvConfig || "")
     }, [open, keybindings, settings])
 
     const handleKeyRecord = (actionKey: keyof MpvCoreKeybindings) => {
@@ -172,18 +154,12 @@ export function MpvCorePreferencesModal(props: {
             preferredAudioLanguage: editedAudioLanguage,
             preferredSubtitleBlacklist: editedSubsBlacklist,
             subtitleDelay: editedSubtitleDelay,
-            customMpvConfig: editedCustomMpvConfig,
         })
         setOpen(false)
     }
 
     const handleSave = () => {
-        const hasConfigChanges = editedCustomMpvConfig !== settings.customMpvConfig
-        if (hasConfigChanges && mpvCoreState.active) {
-            setShowConfigConfirm(true)
-        } else {
-            saveSettings()
-        }
+        saveSettings()
     }
 
     const handleReset = () => {
@@ -192,7 +168,6 @@ export function MpvCorePreferencesModal(props: {
         setEditedAudioLanguage(mc_initialSettings.preferredAudioLanguage)
         setEditedSubsBlacklist(mc_initialSettings.preferredSubtitleBlacklist)
         setEditedSubtitleDelay(mc_initialSettings.subtitleDelay)
-        setEditedCustomMpvConfig(mc_initialSettings.customMpvConfig || "")
     }
 
     const formatKeyDisplay = (keyCode: string) => {
@@ -237,7 +212,6 @@ export function MpvCorePreferencesModal(props: {
                     <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
                         <TabsTrigger value="keybinds">Keyboard Shortcuts</TabsTrigger>
                         <TabsTrigger value="subtitles">Subtitles & Audio</TabsTrigger>
-                        <TabsTrigger value="advanced">MPV Config</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="keybinds" className={tabContentClass}>
@@ -340,86 +314,7 @@ export function MpvCorePreferencesModal(props: {
                                 <Button intent="primary" onClick={handleSave}>Save</Button>
                             </div>
                         </div>
-                    </TabsContent>
-
-                    <TabsContent value="advanced" className={tabContentClass}>
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <h3 className="text-lg font-semibold text-white">Custom MPV Options</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Add custom <code>mpv.conf</code> options line-by-line (e.g. <code>deband=yes</code>).
-                                </p>
-                            </div>
-
-                            <div className="space-y-2 relative">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-sm font-medium text-muted-foreground">Configuration Lines</label>
-                                    {/*<Button*/}
-                                    {/*    intent="gray-glass"*/}
-                                    {/*    size="xs"*/}
-                                    {/*    onClick={() => setEditedCustomMpvConfig(RECOMMENDED_ANIME_CONFIG)}*/}
-                                    {/*>*/}
-                                    {/*    Load Recommended Presets*/}
-                                    {/*</Button>*/}
-                                </div>
-                                <Textarea
-                                    value={editedCustomMpvConfig}
-                                    onValueChange={setEditedCustomMpvConfig}
-                                    placeholder="# Add custom settings here&#10;deband=yes"
-                                    rows={10}
-                                    className="font-mono text-sm"
-                                    size="lg"
-                                    onKeyDown={event => event.stopPropagation()}
-                                />
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-between pt-6">
-                            <Button intent="gray-outline" onClick={handleReset}>Reset all</Button>
-                            <div className="flex gap-2">
-                                <Button intent="gray-outline" onClick={() => setOpen(false)}>Cancel</Button>
-                                <Button intent="primary" onClick={handleSave}>Save</Button>
-                            </div>
-                        </div>
-                    </TabsContent>
-                </Tabs>
-            </Modal>
-
-            <Modal
-                title="Apply MPV configuration changes?"
-                description="Changing custom MPV options requires the player to restart. Would you like to end the stream and apply them now, or simply save them for the next stream?"
-                open={showConfigConfirm}
-                onOpenChange={setShowConfigConfirm}
-                contentClass="max-w-md focus:outline-none focus-visible:outline-none outline-none bg-[--background] backdrop-blur-sm z-[150]"
-                overlayClass="z-[200] bg-black/50"
-                portalContainer={fullscreen ? containerElement || undefined : undefined}
-            >
-                <div className="flex gap-2 justify-center items-center mt-4">
-                    <Button
-                        intent="primary"
-                        onClick={() => {
-                            saveSettings()
-                            onTerminate?.("config applied")
-                            setShowConfigConfirm(false)
-                        }}
-                    >
-                        End & apply
-                    </Button>
-                    <Button
-                        intent="gray-outline"
-                        onClick={() => {
-                            saveSettings()
-                            setShowConfigConfirm(false)
-                        }}
-                    >
-                        Save
-                    </Button>
-                    <Button
-                        intent="white"
-                        onClick={() => setShowConfigConfirm(false)}
-                    >
-                        Cancel
-                    </Button>
-                </div>
+                    </TabsContent> </Tabs>
             </Modal>
         </>
     )

@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import type { MpvCore_PlaybackInfo, MpvCore_SkipData, MpvCore_SubtitleTrack } from "@/api/generated/types"
 import {
     MediaCoreControlBarView,
@@ -22,11 +23,12 @@ import {
 import { MediaCoreTopPlaybackInfoView, MediaCoreTopSectionView } from "@/app/(main)/_features/media-core/media-core-playback-info"
 import { mediaCorePreferencesAtom } from "@/app/(main)/_features/media-core/media-core-preferences"
 import { startVideoCoreMiniPlayerTransition } from "@/app/(main)/_features/video-core/video-core"
-import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
+import { useVideoCoreInSight, VideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
 
 import { useVideoCorePlaylist, useVideoCorePlaylistSetup } from "@/app/(main)/_features/video-core/video-core-playlist"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { Button } from "@/components/ui/button"
@@ -36,10 +38,9 @@ import { WSEvents } from "@/lib/server/ws-events"
 import { __isDesktop__ } from "@/types/constants"
 import type { MpvPrismTrackSelection } from "@mpv-prism/core"
 import type { MpvPrismTrack } from "@mpv-prism/core"
-import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { useQueryClient } from "@tanstack/react-query"
 
 import { MpvPrismVideo, useMpvPrismEvent, useMpvPrismPlayer } from "@mpv-prism/react"
+import { useQueryClient } from "@tanstack/react-query"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import React from "react"
 import { LuCaptions, LuFilm, LuHeadphones } from "react-icons/lu"
@@ -80,6 +81,7 @@ import {
     mc_currentTime,
     mc_duration,
     mc_frameDrops,
+    mc_highlightOPEDChapters,
     mc_isFullscreen,
     mc_isPip,
     mc_keybindingsAtom,
@@ -95,9 +97,7 @@ import {
     mc_storedVolume,
     mc_tracks,
     mpvCore_stateAtom,
-    mc_highlightOPEDChapters,
 } from "./mpv-core.atoms"
-import { vc_inSight_data, vc_inSight_open, useVideoCoreInSight, VideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
 
 type DocumentPictureInPictureApi = {
     requestWindow(options?: { width?: number; height?: number }): Promise<Window>
@@ -337,7 +337,7 @@ export function MpvCorePlayerInner() {
         const anime = info.media
 
         const title = episode?.displayTitle || info.localFile?.name || "Seanime"
-        const artist = anime?.title?.userPreferred || anime?.title?.romaji || anime?.title?.english || "MpvCore Player"
+        const artist = anime?.title?.userPreferred || anime?.title?.romaji || anime?.title?.english || "Anime"
 
         const artwork: MediaImage[] = []
         const imageUrl = episode?.episodeMetadata?.image || anime?.coverImage?.large || anime?.coverImage?.medium
@@ -587,6 +587,7 @@ export function MpvCorePlayerInner() {
         onMessage: ({ type, payload }) => {
             switch (type) {
                 case "open-and-await":
+                    player?.stop().catch(() => undefined)
                     if (closeTimerRef.current !== null) {
                         window.clearTimeout(closeTimerRef.current)
                         closeTimerRef.current = null

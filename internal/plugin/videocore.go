@@ -251,7 +251,266 @@ func (p *VideoCore) getEventType(event mediacore.Event) string {
 }
 
 func (p *VideoCore) convertEventToJSObject(event mediacore.Event) goja.Value {
-	return p.vm.ToValue(event)
+	// extract base metadata first
+	session := event.GetSessionKey()
+
+	playerType := "web"
+	playbackType := "localfile"
+	playbackId := session.PlaybackID
+	clientId := session.ClientID
+
+	if coordinator, ok := p.ctx.MediacoreCoordinator().Get(); ok {
+		if info, ok := coordinator.GetActivePlaybackInfo(); ok && info != nil {
+			playerType = string(info.Renderer)
+			playbackType = string(info.PlaybackType)
+			if playbackId == "" {
+				playbackId = info.ID
+			}
+		}
+	}
+
+	if playerType == "" || playerType == "web" || playerType == "native" || playerType == "mpv" {
+		if session.Target == "mpvcore" {
+			playerType = "mpv"
+		} else {
+			wsEventManager, ok := p.ctx.WSEventManager().Get()
+			if ok && clientId != "" {
+				platform := wsEventManager.GetClientPlatform(clientId)
+				if platform == "denshi" {
+					playerType = "native"
+				} else {
+					playerType = "web"
+				}
+			} else {
+				if session.Target == "videocore" {
+					// default to web if not explicitly denshi client
+					playerType = "web"
+				}
+			}
+		}
+	}
+
+	// map playerType format
+	switch playerType {
+	case "web":
+		playerType = "web"
+	case "native":
+		playerType = "native"
+	case "mpv":
+		playerType = "mpv"
+	}
+
+	base := pluginBaseVideoEvent{
+		PlayerType:   playerType,
+		PlaybackType: playbackType,
+		PlaybackID:   playbackId,
+		ClientID:     clientId,
+	}
+
+	var jsEvent interface{}
+
+	switch ev := event.(type) {
+	case *mediacore.PlaybackLoadedEvent:
+		var pType string
+		if ev.State.PlaybackInfo != nil {
+			pType = string(ev.State.PlaybackInfo.Renderer)
+		} else {
+			pType = playerType
+		}
+		switch pType {
+		case "web":
+			pType = "web"
+		case "native":
+			pType = "native"
+		case "mpv":
+			pType = "mpv"
+		}
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			State pluginPlaybackState `json:"state"`
+		}{
+			pluginBaseVideoEvent: base,
+			State: pluginPlaybackState{
+				ClientID:     ev.State.ClientID,
+				PlayerType:   pType,
+				PlaybackInfo: p.toPluginPlaybackInfo(ev.State.PlaybackInfo),
+			},
+		}
+	case *mediacore.LoadedMetadataEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			CurrentTime float64 `json:"currentTime"`
+			Duration    float64 `json:"duration"`
+			Paused      bool    `json:"paused"`
+		}{
+			pluginBaseVideoEvent: base,
+			CurrentTime:          ev.CurrentTime,
+			Duration:             ev.Duration,
+			Paused:               ev.Paused,
+		}
+	case *mediacore.CanPlayEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			CurrentTime float64 `json:"currentTime"`
+			Duration    float64 `json:"duration"`
+			Paused      bool    `json:"paused"`
+		}{
+			pluginBaseVideoEvent: base,
+			CurrentTime:          ev.CurrentTime,
+			Duration:             ev.Duration,
+			Paused:               ev.Paused,
+		}
+	case *mediacore.PausedEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			CurrentTime float64 `json:"currentTime"`
+			Duration    float64 `json:"duration"`
+		}{
+			pluginBaseVideoEvent: base,
+			CurrentTime:          ev.CurrentTime,
+			Duration:             ev.Duration,
+		}
+	case *mediacore.ResumedEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			CurrentTime float64 `json:"currentTime"`
+			Duration    float64 `json:"duration"`
+		}{
+			pluginBaseVideoEvent: base,
+			CurrentTime:          ev.CurrentTime,
+			Duration:             ev.Duration,
+		}
+	case *mediacore.StatusEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			CurrentTime float64 `json:"currentTime"`
+			Duration    float64 `json:"duration"`
+			Paused      bool    `json:"paused"`
+		}{
+			pluginBaseVideoEvent: base,
+			CurrentTime:          ev.CurrentTime,
+			Duration:             ev.Duration,
+			Paused:               ev.Paused,
+		}
+	case *mediacore.CompletedEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			CurrentTime float64 `json:"currentTime"`
+			Duration    float64 `json:"duration"`
+		}{
+			pluginBaseVideoEvent: base,
+			CurrentTime:          ev.CurrentTime,
+			Duration:             ev.Duration,
+		}
+	case *mediacore.FullscreenChangedEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			Fullscreen bool `json:"fullscreen"`
+		}{
+			pluginBaseVideoEvent: base,
+			Fullscreen:           ev.Fullscreen,
+		}
+	case *mediacore.PipChangedEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			Pip bool `json:"pip"`
+		}{
+			pluginBaseVideoEvent: base,
+			Pip:                  ev.Pip,
+		}
+	case *mediacore.SubtitleTrackChangedEvent:
+		trackNum := 0
+		if n, ok := ev.TrackID.(int); ok {
+			trackNum = n
+		} else if f, ok := ev.TrackID.(float64); ok {
+			trackNum = int(f)
+		}
+		kind := "event"
+		if trackNum >= 1000 {
+			kind = "file"
+		}
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			TrackNumber int    `json:"trackNumber"`
+			Kind        string `json:"kind"`
+		}{
+			pluginBaseVideoEvent: base,
+			TrackNumber:          trackNum,
+			Kind:                 kind,
+		}
+	case *mediacore.AudioTrackChangedEvent:
+		trackNum := 0
+		if n, ok := ev.TrackID.(int); ok {
+			trackNum = n
+		} else if f, ok := ev.TrackID.(float64); ok {
+			trackNum = int(f)
+		}
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			TrackNumber int  `json:"trackNumber"`
+			IsHLS       bool `json:"isHLS"`
+		}{
+			pluginBaseVideoEvent: base,
+			TrackNumber:          trackNum,
+			IsHLS:                playbackType == "onlinestream",
+		}
+	case *mediacore.EndedEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			AutoNext bool `json:"autoNext"`
+		}{
+			pluginBaseVideoEvent: base,
+			AutoNext:             ev.AutoNext,
+		}
+	case *mediacore.SeekedEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			CurrentTime float64 `json:"currentTime"`
+			Duration    float64 `json:"duration"`
+			Paused      bool    `json:"paused"`
+		}{
+			pluginBaseVideoEvent: base,
+			CurrentTime:          ev.CurrentTime,
+			Duration:             ev.Duration,
+			Paused:               ev.Paused,
+		}
+	case *mediacore.ErrorEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			Error string `json:"error"`
+		}{
+			pluginBaseVideoEvent: base,
+			Error:                ev.Error,
+		}
+	case *mediacore.TerminatedEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+		}{
+			pluginBaseVideoEvent: base,
+		}
+	case *mediacore.SubtitleFileUploadedEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			Filename string `json:"filename"`
+			Content  string `json:"content"`
+		}{
+			pluginBaseVideoEvent: base,
+			Filename:             ev.Filename,
+			Content:              ev.Content,
+		}
+	case *mediacore.PlaylistStateEvent:
+		jsEvent = &struct {
+			pluginBaseVideoEvent
+			Playlist *mediacore.PlaylistState `json:"playlist"`
+		}{
+			pluginBaseVideoEvent: base,
+			Playlist:             ev.Playlist,
+		}
+	default:
+		jsEvent = event
+	}
+
+	return p.vm.ToValue(jsEvent)
 }
 
 func (p *VideoCore) subscribeToEvents() {
@@ -260,9 +519,10 @@ func (p *VideoCore) subscribeToEvents() {
 	if !ok {
 		return
 	}
-	p.mediacoreSubscriber = coordinator.Subscribe("__plugin_videocore_subscriber__" + p.ext.ID)
+	sub := coordinator.Subscribe("__plugin_videocore_subscriber__" + p.ext.ID)
+	p.mediacoreSubscriber = sub
 	go func() {
-		for event := range p.mediacoreSubscriber.Events() {
+		for event := range sub.Events() {
 			p.listeners.Range(func(eventId string, listener *VideoCoreEventListener) bool {
 				if listener.closed.Load() {
 					return true
@@ -351,54 +611,139 @@ func (p *VideoCore) removeEventListener(call goja.FunctionCall) goja.Value {
 	return goja.Undefined()
 }
 
+type pluginLibassFont struct {
+	Name *string `json:"name,omitempty"`
+	Src  string  `json:"src"`
+}
+
+type pluginSubtitleTrack struct {
+	*mediacore.SubtitleTrack
+	Src               *string `json:"src"`
+	Type              *string `json:"type"`
+	UseLibassRenderer *bool   `json:"useLibassRenderer"`
+}
+
+type pluginPlaybackInfo struct {
+	*mediacore.PlaybackInfo
+	StreamType     string                 `json:"streamType"`
+	SubtitleTracks []*pluginSubtitleTrack `json:"subtitleTracks"`
+	LibassFonts    []*pluginLibassFont    `json:"libassFonts"`
+}
+
+type pluginPlaybackState struct {
+	ClientID        string              `json:"clientId"`
+	PlayerType      string              `json:"playerType"`
+	PlaybackInfo    *pluginPlaybackInfo `json:"playbackInfo"`
+	CurrentProgress int                 `json:"currentProgress"`
+}
+
+type pluginBaseVideoEvent struct {
+	PlayerType   string `json:"playerType"`
+	PlaybackType string `json:"playbackType"`
+	PlaybackID   string `json:"playbackId"`
+	ClientID     string `json:"clientId"`
+}
+
+func (p *VideoCore) toPluginPlaybackInfo(info *mediacore.PlaybackInfo) *pluginPlaybackInfo {
+	if info == nil {
+		return nil
+	}
+
+	subTracks := make([]*pluginSubtitleTrack, 0, len(info.SubtitleTracks))
+	for _, track := range info.SubtitleTracks {
+		if track == nil {
+			continue
+		}
+		var src *string
+		if track.URI != nil {
+			src = track.URI
+		} else if track.SourceURL != nil {
+			src = track.SourceURL
+		}
+
+		var formatVal *string
+		if track.Format != nil {
+			formatVal = track.Format
+		}
+
+		trueVal := true
+		subTracks = append(subTracks, &pluginSubtitleTrack{
+			SubtitleTrack:     track,
+			Src:               src,
+			Type:              formatVal,
+			UseLibassRenderer: &trueVal,
+		})
+	}
+
+	streamType := "unknown"
+	uri := info.PlaybackURI
+	if uri == "" {
+		uri = info.StreamURL
+	}
+	if uri != "" {
+		if len(uri) > 5 && uri[len(uri)-5:] == ".m3u8" {
+			streamType = "hls"
+		} else {
+			streamType = "native"
+		}
+	}
+
+	return &pluginPlaybackInfo{
+		PlaybackInfo:   info,
+		StreamType:     streamType,
+		SubtitleTracks: subTracks,
+		LibassFonts:    make([]*pluginLibassFont, 0),
+	}
+}
+
 func (p *VideoCore) pause() error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandPause})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) resume() error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandResume})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) seek(seconds float64) error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandSeek, Payload: seconds})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) seekTo(seconds float64) error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandSeekTo, Payload: seconds})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) terminate() error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		coordinator.Terminate(session)
@@ -409,32 +754,40 @@ func (p *VideoCore) terminate() error {
 func (p *VideoCore) setFullscreen(fullscreen bool) error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandSetFullscreen, Payload: fullscreen})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) setPip(pip bool) error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandSetPip, Payload: pip})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
-func (p *VideoCore) showMessage(message string, duration int) error {
+func (p *VideoCore) showMessage(call goja.FunctionCall) goja.Value {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return goja.Undefined()
 	}
-	if session, ok := coordinator.GetActiveSession(); ok {
-		return coordinator.Execute(session, mediacore.Command{
+
+	message := gojautil.ExpectStringArg(p.vm, call, 0)
+	duration := 3000
+	durationVal := call.Argument(1)
+	if !goja.IsUndefined(durationVal) && !goja.IsNull(durationVal) {
+		duration = int(durationVal.ToInteger())
+	}
+
+	if session, ok := coordinator.GetSession(); ok {
+		_ = coordinator.Execute(session, mediacore.Command{
 			Type: mediacore.CommandShowMessage,
 			Payload: mediacore.ShowMessagePayload{
 				Message:  message,
@@ -442,7 +795,7 @@ func (p *VideoCore) showMessage(message string, duration int) error {
 			},
 		})
 	}
-	return errors.New("no active session")
+	return goja.Undefined()
 }
 
 func (p *VideoCore) setSkipData(call goja.FunctionCall) goja.Value {
@@ -474,7 +827,7 @@ func (p *VideoCore) setSkipData(call goja.FunctionCall) goja.Value {
 func (p *VideoCore) clearSkipData() error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	coordinator.ClearSkipData()
 	return nil
@@ -483,67 +836,67 @@ func (p *VideoCore) clearSkipData() error {
 func (p *VideoCore) setSubtitleTrack(trackNumber int) error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandSetSubtitleTrack, Payload: trackNumber})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) addSubtitleTrack(track mkvparser.TrackInfo) error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandAddSubtitleTrack, Payload: &track})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) addExternalSubtitleTrack(track mediacore.SubtitleTrack) error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandAddExternalSubtitleTrack, Payload: &track})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) setMediaCaptionTrack(trackIndex int) error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandSetMediaCaptionTrack, Payload: trackIndex})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) addMediaCaptionTrack(track interface{}) error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandAddMediaCaptionTrack, Payload: track})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) setAudioTrack(trackNumber int) error {
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
-		return errors.New("mediacore coordinator not found")
+		return nil
 	}
 	if session, ok := coordinator.GetActiveSession(); ok {
 		return coordinator.Execute(session, mediacore.Command{Type: mediacore.CommandSetAudioTrack, Payload: trackNumber})
 	}
-	return errors.New("no active session")
+	return nil
 }
 
 func (p *VideoCore) sendGetFullscreen() error {
@@ -599,7 +952,38 @@ func (p *VideoCore) getPlaybackState() goja.Value {
 		return goja.Undefined()
 	}
 
-	return p.vm.ToValue(state)
+	var playerType string
+	if state.PlaybackInfo != nil {
+		switch state.PlaybackInfo.Renderer {
+		case mediacore.RendererWeb:
+			playerType = "web"
+		case mediacore.RendererNative:
+			playerType = "native"
+		case mediacore.RendererMpv:
+			playerType = "mpv"
+		default:
+			playerType = string(state.PlaybackInfo.Renderer)
+		}
+	} else {
+		// fallback if playback info is nil
+		wsEventManager, ok := p.ctx.WSEventManager().Get()
+		if ok && state.ClientID != "" {
+			platform := wsEventManager.GetClientPlatform(state.ClientID)
+			if platform == "denshi" {
+				playerType = "native"
+			} else {
+				playerType = "web"
+			}
+		} else {
+			playerType = "web"
+		}
+	}
+
+	return p.vm.ToValue(&pluginPlaybackState{
+		ClientID:     state.ClientID,
+		PlayerType:   playerType,
+		PlaybackInfo: p.toPluginPlaybackInfo(state.PlaybackInfo),
+	})
 }
 
 func (p *VideoCore) getCurrentPlaybackInfo() goja.Value {
@@ -608,12 +992,12 @@ func (p *VideoCore) getCurrentPlaybackInfo() goja.Value {
 		return goja.Undefined()
 	}
 
-	state, ok := coordinator.GetActivePlaybackState()
-	if !ok || state.PlaybackInfo == nil {
+	info, ok := coordinator.GetActivePlaybackInfo()
+	if !ok || info == nil {
 		return goja.Undefined()
 	}
 
-	return p.vm.ToValue(state.PlaybackInfo)
+	return p.vm.ToValue(p.toPluginPlaybackInfo(info))
 }
 
 func (p *VideoCore) getCurrentMedia() goja.Value {
@@ -622,12 +1006,12 @@ func (p *VideoCore) getCurrentMedia() goja.Value {
 		return goja.Undefined()
 	}
 
-	state, ok := coordinator.GetActivePlaybackState()
-	if !ok || state.PlaybackInfo == nil || state.PlaybackInfo.Media == nil {
+	info, ok := coordinator.GetActivePlaybackInfo()
+	if !ok || info == nil || info.Media == nil {
 		return goja.Undefined()
 	}
 
-	return p.vm.ToValue(state.PlaybackInfo.Media)
+	return p.vm.ToValue(info.Media)
 }
 
 func (p *VideoCore) getCurrentClientId() string {
@@ -650,12 +1034,21 @@ func (p *VideoCore) getCurrentPlayerType() string {
 		return ""
 	}
 
-	state, ok := coordinator.GetActivePlaybackState()
-	if !ok || state.PlaybackInfo == nil {
+	info, ok := coordinator.GetActivePlaybackInfo()
+	if !ok || info == nil {
 		return ""
 	}
 
-	return string(state.PlaybackInfo.Renderer)
+	switch info.Renderer {
+	case mediacore.RendererWeb:
+		return "web"
+	case mediacore.RendererNative:
+		return "native"
+	case mediacore.RendererMpv:
+		return "mpv"
+	default:
+		return string(info.Renderer)
+	}
 }
 
 func (p *VideoCore) getCurrentPlaybackType() string {
@@ -664,12 +1057,12 @@ func (p *VideoCore) getCurrentPlaybackType() string {
 		return ""
 	}
 
-	state, ok := coordinator.GetActivePlaybackState()
-	if !ok || state.PlaybackInfo == nil {
+	info, ok := coordinator.GetActivePlaybackInfo()
+	if !ok || info == nil {
 		return ""
 	}
 
-	return string(state.PlaybackInfo.PlaybackType)
+	return string(info.PlaybackType)
 }
 
 func (p *VideoCore) getSkipData() goja.Value {

@@ -231,6 +231,14 @@ func (a *Adapter) toEvent(ev VideoEvent) mediacore.Event {
 				PlaybackInfo: toMediaCorePlaybackInfo(e.State.PlaybackInfo, e.PlayerType),
 			},
 		}
+	case *VideoPlaybackStateEvent:
+		return &mediacore.PlaybackLoadedEvent{
+			BaseEvent: base,
+			State: mediacore.PlaybackState{
+				ClientID:     e.ClientId,
+				PlaybackInfo: toMediaCorePlaybackInfo(e.State.PlaybackInfo, e.PlayerType),
+			},
+		}
 	case *VideoLoadedMetadataEvent:
 		return &mediacore.LoadedMetadataEvent{
 			BaseEvent:   base,

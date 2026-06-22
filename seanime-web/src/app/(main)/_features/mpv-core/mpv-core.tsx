@@ -374,27 +374,68 @@ export function mc_parseCustomMpvConfig(config: string): { parsed: Record<string
 
     const lines = config.split(/\r?\n/)
     for (const line of lines) {
-        const trimmed = line.trim()
-        if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("//")) {
+        let cleanLine = line.trim()
+        if (!cleanLine || cleanLine.startsWith("#") || cleanLine.startsWith("//")) {
             continue
         }
 
-        const eqIndex = trimmed.indexOf("=")
+        // Handle inline '#' comment (preceded by whitespace, not part of a hex color)
+        let hashIndex = cleanLine.indexOf("#")
+        while (hashIndex !== -1) {
+            if (hashIndex > 0 && /\s/.test(cleanLine[hashIndex - 1])) {
+                const remaining = cleanLine.slice(hashIndex)
+                const isHexColor = /^#[0-9a-fA-F]{3,8}(?:\b|['"]|$)/.test(remaining)
+                if (!isHexColor) {
+                    cleanLine = cleanLine.slice(0, hashIndex).trim()
+                    break
+                }
+            }
+            hashIndex = cleanLine.indexOf("#", hashIndex + 1)
+        }
+
+        // Handle inline '//' comments (not part of a URL)
+        const doubleSlashIndex = cleanLine.indexOf("//")
+        if (doubleSlashIndex !== -1) {
+            const prefix = cleanLine.slice(0, doubleSlashIndex)
+            if (!prefix.match(/https?:$/i)) {
+                cleanLine = prefix.trim()
+            }
+        }
+
+        if (!cleanLine) {
+            continue
+        }
+
+        // Skip section headers (e.g. [gpu-hq], [protocol.https])
+        if (cleanLine.startsWith("[") && cleanLine.endsWith("]")) {
+            continue
+        }
+
+        const eqIndex = cleanLine.indexOf("=")
         let rawKey = ""
         let rawValue = ""
 
         if (eqIndex === -1) {
-            rawKey = trimmed
+            rawKey = cleanLine
             rawValue = "yes"
         } else {
-            rawKey = trimmed.slice(0, eqIndex)
-            rawValue = trimmed.slice(eqIndex + 1)
+            rawKey = cleanLine.slice(0, eqIndex)
+            rawValue = cleanLine.slice(eqIndex + 1)
         }
 
         const key = rawKey.trim().replace(/^--/, "").toLowerCase().replace(/_/g, "-")
-        const value = rawValue.trim()
+        let value = rawValue.trim()
+
+        if ((value.startsWith("'") && value.endsWith("'")) || (value.startsWith("\"") && value.endsWith("\""))) {
+            value = value.slice(1, -1).trim()
+        }
 
         if (!key) continue
+
+        if (!/^[a-zA-Z0-9_\-\.\/\:@\+]+$/.test(key)) {
+            ignored.push(key)
+            continue
+        }
 
         if (BLOCKED_MPV_OPTIONS.has(key)) {
             ignored.push(key)

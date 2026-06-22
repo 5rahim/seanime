@@ -34,6 +34,7 @@ type Coordinator struct {
 	activeTarget         Target
 	activePlaybackState  *PlaybackState
 	activePlaybackStatus *PlaybackStatus
+	activePlaybackInfo   *PlaybackInfo
 
 	settingsMu sync.RWMutex
 	settings   *models.Settings
@@ -209,6 +210,24 @@ func (c *Coordinator) Terminate(session SessionKey) {
 	backend.Terminate(session)
 }
 
+func (c *Coordinator) GetSession() (SessionKey, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.session, c.session.ClientID != ""
+}
+
+func (c *Coordinator) GetActivePlaybackInfo() (*PlaybackInfo, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	if c.activePlaybackInfo != nil {
+		return c.activePlaybackInfo, true
+	}
+	if c.activePlaybackState != nil {
+		return c.activePlaybackState.PlaybackInfo, true
+	}
+	return nil, false
+}
+
 func (c *Coordinator) OpenAndAwait(target Target, clientID, state string) {
 	c.mu.Lock()
 	c.activeTarget = target
@@ -219,6 +238,7 @@ func (c *Coordinator) OpenAndAwait(target Target, clientID, state string) {
 	}
 	c.activePlaybackState = nil
 	c.activePlaybackStatus = nil
+	c.activePlaybackInfo = nil
 	c.mu.Unlock()
 
 	backend, ok := c.backends[target]
@@ -246,6 +266,7 @@ func (c *Coordinator) Watch(target Target, clientID string, info *PlaybackInfo) 
 		ClientID:   clientID,
 		PlaybackID: info.ID,
 	}
+	c.activePlaybackInfo = info
 	c.mu.Unlock()
 
 	backend, ok := c.backends[target]
@@ -303,7 +324,7 @@ func (c *Coordinator) SetSkipData(data *SkipData) {
 	session := c.session
 	c.mu.RUnlock()
 
-	if target != "" && session.PlaybackID != "" {
+	if target != "" && session.ClientID != "" {
 		_ = c.Execute(session, Command{Type: CommandSetSkipData, Payload: data})
 	}
 }
@@ -314,7 +335,7 @@ func (c *Coordinator) ClearSkipData() {
 	session := c.session
 	c.mu.RUnlock()
 
-	if target != "" && session.PlaybackID != "" {
+	if target != "" && session.ClientID != "" {
 		_ = c.Execute(session, Command{Type: CommandClearSkipData, Payload: nil})
 	}
 }
@@ -347,10 +368,19 @@ func (c *Coordinator) listenToBackendEvents(target Target, b Backend) {
 		var finalStatus *PlaybackStatus
 
 		c.mu.Lock()
-		// Session verification / stale session rejection routing:
 		if c.session.Target != key.Target || c.session.ClientID != key.ClientID {
-			c.mu.Unlock()
-			continue
+			_, isLoaded := ev.(*PlaybackLoadedEvent)
+			if c.session.Target == "" && isLoaded {
+				c.activeTarget = key.Target
+				c.session = SessionKey{
+					Target:     key.Target,
+					ClientID:   key.ClientID,
+					PlaybackID: key.PlaybackID,
+				}
+			} else {
+				c.mu.Unlock()
+				continue
+			}
 		}
 
 		if c.session.PlaybackID != "" && key.PlaybackID != "" && c.session.PlaybackID != key.PlaybackID {
@@ -366,6 +396,7 @@ func (c *Coordinator) listenToBackendEvents(target Target, b Backend) {
 		switch event := ev.(type) {
 		case *PlaybackLoadedEvent:
 			c.activePlaybackState = &event.State
+			c.activePlaybackInfo = event.State.PlaybackInfo
 		case *LoadedMetadataEvent:
 			c.activePlaybackStatus = playbackStatusFromEvent(event.BaseEvent, event.CurrentTime, event.Duration, event.Paused)
 		case *CanPlayEvent:
@@ -393,6 +424,7 @@ func (c *Coordinator) listenToBackendEvents(target Target, b Backend) {
 			}
 			c.activePlaybackState = nil
 			c.activePlaybackStatus = nil
+			c.activePlaybackInfo = nil
 			c.session = SessionKey{}
 		}
 		c.mu.Unlock()

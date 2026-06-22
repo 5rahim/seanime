@@ -55,6 +55,12 @@ function getDenshiViewTransitionTypes(info: ViewTransitionInfo) {
     }
 
     if (isFixedHeavyPath(fromPath) || isFixedHeavyPath(toPath)) return false
+
+    // Prevent view transitions when the mpv-prism video player is active.
+    if (typeof document !== "undefined" && document.querySelector("[data-mpv-prism-video]")) {
+        return false
+    }
+
     resetScrolledTransition(info, fromPath, toPath)
 
     return ["sea-denshi-route"]

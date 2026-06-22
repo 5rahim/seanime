@@ -6,6 +6,7 @@ import {
     useCurrentDevicePlaybackSettings,
     useExternalPlayerLink,
 } from "@/app/(main)/_atoms/playback.atoms"
+import { mc_settings } from "@/app/(main)/_features/mpv-core/mpv-core.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
@@ -15,8 +16,9 @@ import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
 import { __isElectronDesktop__ } from "@/types/constants"
-import { useSetAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 import React from "react"
 import { BiDesktop } from "react-icons/bi"
 import { LuCirclePlay, LuClapperboard, LuExternalLink, LuLaptop } from "react-icons/lu"
@@ -50,6 +52,8 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
     const { externalPlayerLink } = useExternalPlayerLink()
     const setTab = useSetAtom(__settings_tabAtom)
     const { mutate: patchSetting, isPending: isPatching } = usePatchSetting()
+
+    const [mpvSettings, setMpvSettings] = useAtom(mc_settings)
 
     const usingNativePlayer = __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer
     const usingMpvPlayer = usingNativePlayer && serverStatus?.settings?.mediaPlayer?.mpvPrismEnabled
@@ -173,6 +177,27 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                                     disabled={isPatching || window.electron?.platform === "linux"}
                                                 />
                                             </div>
+                                        </div>
+                                        <div className="space-y-2 pt-4 border-t border-[--border] mt-4">
+                                            <div className="flex justify-between items-center">
+                                                <label className="text-sm font-semibold">Custom MPV Options</label>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">
+                                                Add custom <code>mpv.conf</code> options line-by-line (e.g. <code>deband=yes</code>).
+                                            </p>
+                                            <Textarea
+                                                value={mpvSettings.customMpvConfig || ""}
+                                                onValueChange={value => {
+                                                    setMpvSettings({
+                                                        ...mpvSettings,
+                                                        customMpvConfig: value,
+                                                    })
+                                                }}
+                                                placeholder="# Add custom settings here&#10;deband=yes"
+                                                rows={6}
+                                                className="font-mono text-sm mt-1"
+                                                size="sm"
+                                            />
                                         </div>
                                     </div>
                                 )}
