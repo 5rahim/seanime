@@ -304,27 +304,18 @@ func (a *AllDebrid) addTorrentFile(urlStr string) (string, error) {
 	}
 
 	// Check if it's a magnet link in a text file (or HTML)
-	// If content-type is text/html, scan for magnet link
 	contentType := resp.Header.Get("Content-Type")
 	if strings.Contains(contentType, "text/html") {
-		// Try to find regex magnet
-		// Find in fileContent
-		// We limit the search to avoid memory issues if file is huge, but HTML shouldn't be too huge
 		sContent := string(fileContent)
-		// Find magnet
-		// Using a simplified approach
 		if idx := strings.Index(sContent, "magnet:?xt=urn:btih:"); idx != -1 {
-			// Extract till quote or whitespace
 			endIdx := strings.IndexAny(sContent[idx:], "\"'\n\r\t <")
 			if endIdx != -1 {
 				magnet := sContent[idx : idx+endIdx]
-				// Decode html entities if any?
 				magnet = strings.ReplaceAll(magnet, "&amp;", "&")
 				a.logger.Debug().Msgf("alldebrid: found magnet link in HTML: %s", magnet)
 				return a.AddTorrent(debrid.AddTorrentOptions{MagnetLink: magnet})
 			}
 		}
-		// If no magnet found, fail
 		return "", fmt.Errorf("invalid torrent file (html content) and no magnet found")
 	}
 
@@ -380,22 +371,13 @@ func (a *AllDebrid) GetTorrentStreamUrl(ctx context.Context, opts debrid.StreamT
 				// Check status
 				tInfo, sErr := a.GetTorrent(opts.ID)
 				if sErr != nil {
-					// Logic to retry or fail?
 					a.logger.Error().Err(sErr).Msg("alldebrid: Failed to get torrent status")
-					continue // Retry
+					continue
 				}
 
 				itemCh <- *tInfo
 
 				if tInfo.IsReady {
-					// Get download link
-					// We need to find the link that matches the file selected
-					// 'opts.FileId' should correspond to a file index or ID in the torrent.
-					// AllDebrid links are usually just a list.
-					// We need 'GetTorrentInfo' which returns files list and match?
-					// Or 'GetTorrent' logic.
-
-					// Let's call GetTorrentDownloadUrl
 					url, dErr := a.GetTorrentDownloadUrl(debrid.DownloadTorrentOptions{
 						ID:     opts.ID,
 						FileId: opts.FileId,
@@ -484,19 +466,19 @@ func (a *AllDebrid) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (s
 		return "", fmt.Errorf("no files found in torrent")
 	}
 
-	// If FileId is provided, return only that file's download URL
+	// FIX: If FileId is provided, find the matching file by index, falling back to name search
 	if opts.FileId != "" {
 		idx, err := strconv.Atoi(opts.FileId)
-		if err != nil {
-			return "", fmt.Errorf("invalid file id: %s", opts.FileId)
+		if err == nil && idx >= 0 && idx < len(flatFiles) {
+			return a.unlockLink(flatFiles[idx].Link)
 		}
-
-		if idx < 0 || idx >= len(flatFiles) {
-			return "", fmt.Errorf("file index out of range")
+		// Fallback: search by name match
+		for _, f := range flatFiles {
+			if strings.Contains(f.Name, opts.FileId) {
+				return a.unlockLink(f.Link)
+			}
 		}
-
-		// Unlock/Unrestrict the link
-		return a.unlockLink(flatFiles[idx].Link)
+		return "", fmt.Errorf("file not found for id: %s", opts.FileId)
 	}
 
 	// If no FileId is provided, return all file download URLs as comma-separated string
@@ -519,8 +501,6 @@ func (a *AllDebrid) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (s
 }
 
 func (a *AllDebrid) GetInstantAvailability(hashes []string) map[string]debrid.TorrentItemInstantAvailability {
-	// AllDebrid does not have a dedicated instant availability endpoint that checks for cached torrents without adding them.
-	// We return an empty map to indicate no instant availability check is performed.
 	return make(map[string]debrid.TorrentItemInstantAvailability)
 }
 
@@ -533,8 +513,6 @@ func (a *AllDebrid) GetTorrent(id string) (*debrid.TorrentItem, error) {
 }
 
 func (a *AllDebrid) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.TorrentInfo, error) {
-	// Similar to RealDebrid approach: Add -> Get Info -> Delete
-
 	if opts.MagnetLink == "" {
 		return nil, fmt.Errorf("magnet link required")
 	}
@@ -544,11 +522,25 @@ func (a *AllDebrid) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.T
 		return nil, fmt.Errorf("failed to add torrent for info: %w", err)
 	}
 
-	// Fetch info
-	status, err := a.getTorrent(id)
-	if err != nil {
+	// FIX: Wait until torrent is ready before fetching files
+	var status *Torrent
+	deadline := time.Now().Add(5 * time.Minute)
+	for time.Now().Before(deadline) {
+		status, err = a.getTorrent(id)
+		if err != nil {
+			a.DeleteTorrent(id)
+			return nil, err
+		}
+		if toDebridTorrentStatus(status) == debrid.TorrentItemStatusCompleted {
+			break
+		}
+		a.logger.Debug().Str("status", status.Status).Msg("alldebrid: waiting for torrent to be ready")
+		time.Sleep(4 * time.Second)
+	}
+
+	if toDebridTorrentStatus(status) != debrid.TorrentItemStatusCompleted {
 		a.DeleteTorrent(id)
-		return nil, err
+		return nil, fmt.Errorf("timed out waiting for torrent to be ready")
 	}
 
 	// Get files to list them
@@ -567,25 +559,27 @@ func (a *AllDebrid) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.T
 
 	// Create info
 	ret := &debrid.TorrentInfo{
-		ID:   &id, // we return the temporary ID
+		ID:   &id,
 		Name: status.Filename,
 		Hash: status.Hash,
 		Size: status.Size,
 	}
 
+	// FIX: Use flattenFileTree to correctly handle nested folders in batch torrents
 	if filesInfo.Files != nil {
-		for i, l := range filesInfo.Files {
+		flatFiles := flattenFileTree(filesInfo.Files, "")
+		for i, f := range flatFiles {
 			ret.Files = append(ret.Files, &debrid.TorrentItemFile{
 				ID:    strconv.Itoa(i),
 				Index: i,
-				Name:  l.Name,
-				Path:  l.Name,
-				Size:  l.Size,
+				Name:  f.Name,
+				Path:  f.Path,
+				Size:  f.Size,
 			})
 		}
 	}
 
-	// Delete
+	// Delete the temporary torrent
 	a.DeleteTorrent(id)
 
 	return ret, nil
@@ -594,7 +588,6 @@ func (a *AllDebrid) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.T
 func (a *AllDebrid) GetTorrents() ([]*debrid.TorrentItem, error) {
 	endpoint := "/magnet/status"
 
-	// v4.1 API requires POST, not GET
 	resp, err := a.doQuery("POST", endpoint, nil, "")
 	if err != nil {
 		return nil, err
@@ -644,7 +637,6 @@ func (a *AllDebrid) getTorrent(id string) (*Torrent, error) {
 	var contentType string
 
 	if id != "" {
-		// v4.1 API requires POST with form data, not GET with query params
 		var formBody bytes.Buffer
 		writer := multipart.NewWriter(&formBody)
 		writer.WriteField("id", id)
@@ -671,8 +663,6 @@ func (a *AllDebrid) getTorrent(id string) (*Torrent, error) {
 		return &data.Magnets, nil
 	}
 
-	// This branch should mostly not be used by this helper as it's typically called with ID
-	// But if it is...
 	var data GetTorrentsResponse
 	b, _ := json.Marshal(resp.Data)
 	json.Unmarshal(b, &data)
@@ -731,13 +721,11 @@ func (a *AllDebrid) unlockLink(link string) (string, error) {
 func toDebridTorrent(t *Torrent) *debrid.TorrentItem {
 	status := toDebridTorrentStatus(t)
 
-	// Convert Unix timestamp to RFC3339 format
 	addedAt := ""
 	if t.UploadDate > 0 {
 		addedAt = time.Unix(t.UploadDate, 0).Format(time.RFC3339)
 	}
 
-	// Calculate completion percentage
 	completionPercentage := 0
 	if t.Size > 0 && t.Downloaded > 0 {
 		completionPercentage = int((float64(t.Downloaded) / float64(t.Size)) * 100)
