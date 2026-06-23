@@ -11,7 +11,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { __settings_tabAtom } from "@/app/(main)/settings/_components/settings-page.atoms"
-import { AlphaBadge } from "@/components/shared/beta-badge.tsx"
+import { ExperimentalBadge } from "@/components/shared/beta-badge.tsx"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -123,7 +123,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                 <div className="flex items-center gap-4">
                                     <div className="flex-1">
                                         <Switch
-                                            label={<span>Use MPV-in-Seanime <AlphaBadge /></span>}
+                                            label={<span className="flex items-center">Use MPV-in-Seanime <ExperimentalBadge /></span>}
                                             side="right"
                                             help="If enabled, embedded MPV player will be used instead of the default HTML5 player."
                                             value={serverStatus?.settings?.mediaPlayer?.mpvPrismEnabled ?? false}

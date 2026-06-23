@@ -295,21 +295,6 @@ export function MpvCorePlayerInner() {
         lastPointerPosition.current = { x, y }
     }, [])
 
-    const handlePlayerSurfaceClick = React.useCallback(() => {
-        const now = Date.now()
-        if (!debouncedMenuOpen) {
-            const nextPaused = !pausedRef.current
-            player?.setPaused(nextPaused)
-            showMessage(nextPaused ? "PAUSE" : "PLAY", "icon")
-        }
-        if (lastClickTimeRef.current && now - lastClickTimeRef.current < 300) {
-            toggleFullscreen()
-        } else {
-            window.setTimeout(() => setBusy(false), 100)
-        }
-        lastClickTimeRef.current = now
-    }, [debouncedMenuOpen, player, showMessage])
-
     React.useEffect(() => {
         infoRef.current = state.playbackInfo
     }, [state.playbackInfo])
@@ -1159,10 +1144,25 @@ export function MpvCorePlayerInner() {
         toggleInSight,
     ])
 
-    async function toggleFullscreen(force?: boolean) {
+    const toggleFullscreen = React.useCallback(async (force?: boolean) => {
         const next = force ?? !isFullscreen
         window.electron?.window.setFullscreen(next)
-    }
+    }, [isFullscreen])
+
+    const handlePlayerSurfaceClick = React.useCallback(() => {
+        const now = Date.now()
+        if (!debouncedMenuOpen) {
+            const nextPaused = !pausedRef.current
+            player?.setPaused(nextPaused)
+            showMessage(nextPaused ? "PAUSE" : "PLAY", "icon")
+        }
+        if (lastClickTimeRef.current && now - lastClickTimeRef.current < 300) {
+            toggleFullscreen()
+        } else {
+            window.setTimeout(() => setBusy(false), 100)
+        }
+        lastClickTimeRef.current = now
+    }, [debouncedMenuOpen, player, showMessage, toggleFullscreen])
 
     async function togglePip(force?: boolean) {
         if (!player) return

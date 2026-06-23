@@ -6,7 +6,7 @@
     "@mpv-prism/core": {
       "file": "mpv-prism-core-0.1.0.tgz",
       "url": "https://seanime.app/assets/mpv-prism/0.1.0/packages/mpv-prism-core-0.1.0.tgz",
-      "sha256": "dbfba8f93cc7d159ce92066d78e04fc14918f19739c9e8eb06f6a5f847767cfd"
+      "sha256": "02cc9bb15581e23b80566f4361f78a2a0fb5db525490856e2f1dfcbabf2ea519"
     },
     "@mpv-prism/react": {
       "file": "mpv-prism-react-0.1.0.tgz",
