@@ -20,10 +20,10 @@ import {
     MediaCoreFeedbackOverlay,
     MediaCoreLoadingOverlay,
 } from "@/app/(main)/_features/media-core/media-core-overlays"
-import { MediaCoreTopPlaybackInfoView, MediaCoreTopSectionView } from "@/app/(main)/_features/media-core/media-core-playback-info"
+import { MediaCoreTopSectionView } from "@/app/(main)/_features/media-core/media-core-playback-info"
 import { mediaCorePreferencesAtom } from "@/app/(main)/_features/media-core/media-core-preferences"
 import { startVideoCoreMiniPlayerTransition } from "@/app/(main)/_features/video-core/video-core"
-import { useVideoCoreInSight, VideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
+import { useVideoCoreInSight, vc_inSight_open, VideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
 
 import { useVideoCorePlaylist, useVideoCorePlaylistSetup } from "@/app/(main)/_features/video-core/video-core-playlist"
 import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
@@ -70,6 +70,8 @@ import { MpvCorePreferencesModal, mpvCorePreferencesModalAtom } from "./mpv-core
 import { MpvCoreSettingsMenu } from "./mpv-core-settings-menu"
 import { MpvCoreStats } from "./mpv-core-stats"
 import { MpvCoreTimeRange } from "./mpv-core-time-range"
+import { MpvCoreTopPlaybackInfo } from "./mpv-core-top-section"
+import { MpvCoreWatchPartyChat } from "./mpv-core-watch-party-chat"
 
 import {
     mc_autoNext,
@@ -104,6 +106,7 @@ type DocumentPictureInPictureApi = {
 }
 
 const subtitleExts = ["srt", "ass", "ssa", "vtt", "ttml", "stl", "txt"]
+
 
 export function MpvCorePlayerInner() {
     const [state, setState] = useAtom(mpvCore_stateAtom)
@@ -173,6 +176,7 @@ export function MpvCorePlayerInner() {
     const [showStats, setShowStats] = useAtom(mc_showStats)
     const { toggleOpen: toggleInSight, setData: setInSightData } = useVideoCoreInSight()
     const inSightWasPlayingRef = React.useRef(false)
+    const inSightOpen = useAtomValue(vc_inSight_open)
     const cacheState = useAtomValue(mc_cacheState)
     const frameDrops = useAtomValue(mc_frameDrops)
     const setFrameDrops = useSetAtom(mc_frameDrops)
@@ -922,18 +926,14 @@ export function MpvCorePlayerInner() {
     }, [player, state.active, mpvSettings])
 
     React.useEffect(() => {
-        const handleInsightToggle = (e: Event) => {
-            const { open } = (e as CustomEvent).detail
-            if (open) {
-                inSightWasPlayingRef.current = !pausedRef.current
-                if (inSightWasPlayingRef.current) player?.pause()
-            } else {
-                if (inSightWasPlayingRef.current) player?.play()
-            }
+        if (!player || !state.active) return
+        if (inSightOpen) {
+            inSightWasPlayingRef.current = !pausedRef.current
+            if (inSightWasPlayingRef.current) player.setPaused(true)
+        } else {
+            if (inSightWasPlayingRef.current) player.setPaused(false)
         }
-        window.addEventListener("insight-toggle", handleInsightToggle)
-        return () => window.removeEventListener("insight-toggle", handleInsightToggle)
-    }, [player])
+    }, [inSightOpen, player, state.active])
 
     React.useEffect(() => {
         const remove = window.electron?.on?.("window:fullscreen", (value: boolean) => {
@@ -1463,12 +1463,13 @@ export function MpvCorePlayerInner() {
                                     showTopSection={busy || paused || hoveringControlBar}
                                     paused={paused}
                                 >
-                                    <MediaCoreTopPlaybackInfoView
-                                        animeTitle={state.playbackInfo?.media?.title?.userPreferred}
-                                        episodeDisplayTitle={state.playbackInfo?.episode?.displayTitle || state.playbackInfo?.localFile?.name || "MpvCore"}
+                                    <MpvCoreTopPlaybackInfo
+                                        playbackInfo={state.playbackInfo}
                                         isMiniPlayer={state.miniPlayer}
                                         paused={paused}
                                         hoveringControlBar={hoveringControlBar}
+                                        toggleFullscreen={toggleFullscreen}
+                                        setMiniPlayer={setMiniPlayer}
                                     />
                                     <div
                                         data-vc-element="floating-buttons-container"
@@ -1569,6 +1570,15 @@ export function MpvCorePlayerInner() {
 
                                     {!state.miniPlayer && (
                                         <>
+                                            <MpvCoreWatchPartyChat
+                                                isMiniPlayer={state.miniPlayer}
+                                                isFullscreen={isFullscreen}
+                                                containerElement={containerElement}
+                                                openMenu={openMenu}
+                                                setOpenMenu={setOpenMenu}
+                                                showMessage={showMessage}
+                                            />
+
                                             <MpvCoreSettingsMenu
                                                 openMenu={openMenu}
                                                 openSection={openSection}

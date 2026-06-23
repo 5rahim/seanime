@@ -10,8 +10,11 @@ All notable changes to this project will be documented in this file.
   - Uses D3D11 on Windows, OpenGL on macOS and Linux
   - Flawless codec and subtitle support on all platforms
   - Supports many 'mpv.conf' options and shaders
-- 🦺 Torrent streaming: Fixed continuous batch selection
+- 🦺 Torrent streaming: Fixed batch selection
 - 🦺 VideoCore: Ability to exit fullscreen when next stream is loading
+- 🦺 MPV/IINA: Fixed progress tracking dropping when media path is temporarily unavailable #836
+- 🦺 AllDebrid: Fixed batch torrent streaming #841
+- 🦺 Manga: Fixed unnecessary image proxy
 - ⬆️ Updated Electron to 42.4.0
   - Fixes AC3/EAC3 audio support detection on Windows for HTML5 player
   - Fixes security vulnerabilities
