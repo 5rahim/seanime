@@ -58,7 +58,8 @@ class HMACAuth {
 
 // HMAC auth instance using server password (for server endpoints)
 export function createServerPasswordHMACAuth(password: string): HMACAuth {
-    return new HMACAuth(password, 24 * 60 * 60)
+    const secret = password !== "" ? password : "seanime-default-secret"
+    return new HMACAuth(secret, 24 * 60 * 60)
 }
 
 // HMAC auth instance using Nakama password (for Nakama endpoints)

@@ -44,15 +44,13 @@ export function useMangaReaderUtils() {
         }
 
         if (!isDownloaded) {
-            const params = new URLSearchParams({
-                url,
-            })
-
             if (headers && Object.keys(headers).length > 0) {
-                params.set("headers", JSON.stringify(headers))
+                const params = new URLSearchParams({
+                    url,
+                    headers: JSON.stringify(headers),
+                })
+                return `${getServerBaseUrl()}/api/v1/image-proxy?${params.toString()}${tokenQueryParam}`
             }
-
-            return `${getServerBaseUrl()}/api/v1/image-proxy?${params.toString()}${tokenQueryParam}`
 
             return url
         }
