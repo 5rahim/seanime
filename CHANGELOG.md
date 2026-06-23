@@ -4,11 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## v3.9.0
 
-- 🎉 Denshi: New built-in MPV player (Experimental)
+- 🎉 Denshi: New libmpv-based Built-in Player (Experimental)
   - Enable in 'Settings > Video Playback'
+  - Hardware-accelerated rendering directly in the app viewport (no external window)
+  - Uses D3D11 on Windows, OpenGL on macOS and Linux
+  - Flawless codec and subtitle support on all platforms
+  - Supports many 'mpv.conf' options and shaders
 - 🦺 Torrent streaming: Fixed continuous batch selection
 - 🦺 VideoCore: Ability to exit fullscreen when next stream is loading
 - ⬆️ Updated Electron to 42.4.0
+  - Fixes AC3/EAC3 audio support detection on Windows for HTML5 player
+  - Fixes security vulnerabilities
 
 ## v3.8.7
 
