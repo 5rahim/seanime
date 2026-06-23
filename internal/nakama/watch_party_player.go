@@ -3,6 +3,7 @@ package nakama
 import (
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediacore"
+	"seanime/internal/player"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"strings"
@@ -108,7 +109,7 @@ func (m *WatchPartyGenericPlayer) Pause() {
 		return
 	}
 	if session, ok := m.manager.mediacoreCoordinator.GetActiveSession(); ok {
-		_ = m.manager.mediacoreCoordinator.Execute(session, mediacore.Command{Type: mediacore.CommandPause})
+		_ = m.manager.mediacoreCoordinator.Execute(session, player.Command{Type: player.CommandPause})
 	}
 }
 
@@ -118,7 +119,7 @@ func (m *WatchPartyGenericPlayer) Resume() {
 		return
 	}
 	if session, ok := m.manager.mediacoreCoordinator.GetActiveSession(); ok {
-		_ = m.manager.mediacoreCoordinator.Execute(session, mediacore.Command{Type: mediacore.CommandResume})
+		_ = m.manager.mediacoreCoordinator.Execute(session, player.Command{Type: player.CommandResume})
 	}
 }
 
@@ -139,7 +140,7 @@ func (m *WatchPartyGenericPlayer) SeekTo(time float64) {
 		return
 	}
 	if session, ok := m.manager.mediacoreCoordinator.GetActiveSession(); ok {
-		_ = m.manager.mediacoreCoordinator.Execute(session, mediacore.Command{Type: mediacore.CommandSeekTo, Payload: time})
+		_ = m.manager.mediacoreCoordinator.Execute(session, player.Command{Type: player.CommandSeekTo, Payload: time})
 	}
 }
 
@@ -235,25 +236,25 @@ func fromPlaybackManagerStatus(event playbackmanager.PlaybackStatusChangedEvent)
 	}
 }
 
-func fromMediacoreStatus(event *mediacore.StatusEvent, state *mediacore.PlaybackState) *WatchPartyPlayerVideoStatus {
+func fromMediacoreStatus(event *player.StatusEvent, state *player.PlaybackState) *WatchPartyPlayerVideoStatus {
 	streamType := WatchPartyStreamTypeFile
 	filename := ""
 	filepath := ""
 	if state.PlaybackInfo != nil {
 		switch state.PlaybackInfo.PlaybackType {
-		case mediacore.PlaybackTypeLocalFile:
+		case player.PlaybackTypeLocalFile:
 			streamType = WatchPartyStreamTypeFile
 			if state.PlaybackInfo.LocalFile != nil {
 				filename = state.PlaybackInfo.LocalFile.Name
 				filepath = state.PlaybackInfo.LocalFile.Path
 			}
-		case mediacore.PlaybackTypeTorrent:
+		case player.PlaybackTypeTorrent:
 			streamType = WatchPartyStreamTypeTorrent
-		case mediacore.PlaybackTypeDebrid:
+		case player.PlaybackTypeDebrid:
 			streamType = WatchPartyStreamTypeDebrid
-		case mediacore.PlaybackTypeOnlinestream:
+		case player.PlaybackTypeOnlinestream:
 			streamType = WatchPartyStreamTypeOnlinestream
-		case mediacore.PlaybackTypeNakama:
+		case player.PlaybackTypeNakama:
 			streamType = WatchPartyStreamTypeFile
 			filepath = state.PlaybackInfo.StreamPath
 		}
@@ -336,26 +337,26 @@ func (m *WatchPartyGenericPlayer) Subscribe(id string) *WatchPartyPlaybackSubscr
 				continue
 			}
 			target := e.GetSessionKey().Target
-			if target == mediacore.TargetVideoCore && !m.isVideoCore() {
+			if target == player.TargetVideoCore && !m.isVideoCore() {
 				continue
 			}
-			if target == mediacore.TargetMpvCore && !m.isMpvCore() {
+			if target == player.TargetMpvCore && !m.isMpvCore() {
 				continue
 			}
 
 			switch event := e.(type) {
-			case *mediacore.LoadedMetadataEvent:
+			case *player.LoadedMetadataEvent:
 				streamType := WatchPartyStreamTypeFile
 				playbackState, ok := m.manager.mediacoreCoordinator.GetActivePlaybackState()
 				if ok && playbackState.PlaybackInfo != nil {
 					switch playbackState.PlaybackInfo.PlaybackType {
-					case mediacore.PlaybackTypeLocalFile:
+					case player.PlaybackTypeLocalFile:
 						streamType = WatchPartyStreamTypeFile
-					case mediacore.PlaybackTypeTorrent:
+					case player.PlaybackTypeTorrent:
 						streamType = WatchPartyStreamTypeTorrent
-					case mediacore.PlaybackTypeDebrid:
+					case player.PlaybackTypeDebrid:
 						streamType = WatchPartyStreamTypeDebrid
-					case mediacore.PlaybackTypeOnlinestream:
+					case player.PlaybackTypeOnlinestream:
 						streamType = WatchPartyStreamTypeOnlinestream
 					}
 				}
@@ -363,13 +364,13 @@ func (m *WatchPartyGenericPlayer) Subscribe(id string) *WatchPartyPlaybackSubscr
 				subscriber.EventCh <- &WatchPartyPlayerVideoStarted{
 					StreamType: streamType,
 				}
-			case *mediacore.StatusEvent:
+			case *player.StatusEvent:
 				state, ok := m.manager.mediacoreCoordinator.GetActivePlaybackState()
 				if !ok {
 					continue
 				}
 				subscriber.EventCh <- fromMediacoreStatus(event, &state)
-			case *mediacore.EndedEvent, *mediacore.TerminatedEvent:
+			case *player.EndedEvent, *player.TerminatedEvent:
 				subscriber.EventCh <- &WatchPartyPlayerVideoEnded{}
 			}
 		}

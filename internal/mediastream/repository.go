@@ -9,6 +9,7 @@ import (
 	"seanime/internal/mediacore"
 	"seanime/internal/mediastream/cassette"
 	"seanime/internal/mediastream/videofile"
+	"seanime/internal/player"
 	"seanime/internal/util/filecache"
 	"strings"
 	"sync"
@@ -53,9 +54,9 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret.playbackManager = NewPlaybackManager(ret)
 
 	if opts.MediacoreCoordinator != nil {
-		opts.MediacoreCoordinator.RegisterEventCallback(func(event mediacore.Event) bool {
+		opts.MediacoreCoordinator.RegisterEventCallback(func(event player.Event) bool {
 			switch e := event.(type) {
-			case *mediacore.TerminatedEvent:
+			case *player.TerminatedEvent:
 				if ret.TranscoderIsInitialized() {
 					opts.Logger.Debug().Str("clientId", e.Session.ClientID).Msg("mediastream: Received TerminatedEvent, killing transcoder")
 					ret.ShutdownTranscodeStream(e.Session.ClientID)

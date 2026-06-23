@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/library/anime"
-	"seanime/internal/mediacore"
 	"seanime/internal/mkvparser"
+	"seanime/internal/player"
 	"seanime/internal/util/result"
 	"strconv"
 	"strings"
@@ -24,7 +24,7 @@ import (
 // Stream is the common interface for all stream types.
 type Stream interface {
 	// Type returns the type of the stream.
-	Type() mediacore.PlaybackType
+	Type() player.PlaybackType
 	// LoadContentType loads and returns the content type of the stream.
 	// e.g. "video/mp4", "video/webm", "video/x-matroska"
 	LoadContentType() string
@@ -39,7 +39,7 @@ type Stream interface {
 	// EpisodeCollection returns the episode collection for the media of the current stream.
 	EpisodeCollection() *anime.EpisodeCollection
 	// LoadPlaybackInfo loads and returns the playback info.
-	LoadPlaybackInfo() (*mediacore.PlaybackInfo, error)
+	LoadPlaybackInfo() (*player.PlaybackInfo, error)
 	// GetAttachmentByName returns the attachment by name for the stream.
 	// It is used to serve fonts and other attachments.
 	GetAttachmentByName(filename string) (*mkvparser.AttachmentInfo, bool)
@@ -247,13 +247,13 @@ func (m *Manager) updateOpenStepLocked(clientId string, step string) bool {
 
 func (m *Manager) openAndAwait(clientID, step string, target PlaybackTarget) {
 	if m.mediacoreCoordinator != nil {
-		m.mediacoreCoordinator.OpenAndAwait(mediacore.Target(target), clientID, step)
+		m.mediacoreCoordinator.OpenAndAwait(player.Target(target), clientID, step)
 	}
 }
 
 func (m *Manager) abortOpen(clientID, reason string, target PlaybackTarget) {
 	if m.mediacoreCoordinator != nil {
-		m.mediacoreCoordinator.AbortOpen(mediacore.Target(target), clientID, reason)
+		m.mediacoreCoordinator.AbortOpen(player.Target(target), clientID, reason)
 	}
 }
 
@@ -439,7 +439,7 @@ func (m *Manager) loadStream(stream Stream) {
 
 	m.Logger.Debug().Msgf("directstream: Signaling player that stream is ready")
 	if m.mediacoreCoordinator != nil {
-		m.mediacoreCoordinator.Watch(mediacore.Target(target), stream.ClientId(), playbackInfo)
+		m.mediacoreCoordinator.Watch(player.Target(target), stream.ClientId(), playbackInfo)
 	}
 }
 
@@ -456,7 +456,7 @@ func (m *Manager) listenToPlayerEvents() {
 			key := event.GetSessionKey()
 
 			m.playbackMu.Lock()
-			_, isTerminated := event.(*mediacore.TerminatedEvent)
+			_, isTerminated := event.(*player.TerminatedEvent)
 			cs, ok := m.currentStream.Get()
 			if !ok {
 				var cancelFunc func()
@@ -497,9 +497,9 @@ func (m *Manager) listenToPlayerEvents() {
 			}
 
 			switch ev := event.(type) {
-			case *mediacore.LoadedMetadataEvent:
+			case *player.LoadedMetadataEvent:
 				m.Logger.Debug().Msgf("directstream: Video loaded metadata")
-				if key.Target == mediacore.TargetVideoCore {
+				if key.Target == player.TargetVideoCore {
 					if lfStream, ok := cs.(*LocalFileStream); ok {
 						reader, err := lfStream.newReader()
 						if err == nil {
@@ -509,18 +509,18 @@ func (m *Manager) listenToPlayerEvents() {
 						torrentStream.StartSubtitleStream(torrentStream, m.playbackCtx, torrentStream.newSubtitleReader(), 0)
 					}
 				}
-			case *mediacore.SeekedEvent:
+			case *player.SeekedEvent:
 				m.Logger.Trace().Float64("currentTime", ev.CurrentTime).Msg("directstream: Player seeked")
-				if key.Target == mediacore.TargetVideoCore {
+				if key.Target == player.TargetVideoCore {
 					go m.startSubtitleStreamForTime(cs, playbackInfo, ev.CurrentTime, ev.Duration)
 				}
-			case *mediacore.ErrorEvent:
+			case *player.ErrorEvent:
 				m.Logger.Debug().Msgf("directstream: Video error, Error: %s", ev.Error)
 				cs.StreamError(errors.New(ev.Error))
-			case *mediacore.SubtitleFileUploadedEvent:
+			case *player.SubtitleFileUploadedEvent:
 				m.Logger.Debug().Msgf("directstream: Subtitle file uploaded, Filename: %s", ev.Filename)
 				cs.OnSubtitleFileUploaded(ev.Filename, ev.Content)
-			case *mediacore.CompletedEvent:
+			case *player.CompletedEvent:
 				m.Logger.Debug().Msgf("directstream: Video completed")
 				m.updateCompletedProgress(cs)
 			}
@@ -566,7 +566,7 @@ type BaseStream struct {
 	media                  *anilist.BaseAnime
 	listEntryData          *anime.EntryListData
 	episodeCollection      *anime.EpisodeCollection
-	playbackInfo           *mediacore.PlaybackInfo
+	playbackInfo           *player.PlaybackInfo
 	playbackInfoErr        error
 	playbackInfoOnce       sync.Once
 	playbackCancelFunc     context.CancelFunc
@@ -599,11 +599,11 @@ func (s *BaseStream) LoadContentType() string {
 	return s.contentType
 }
 
-func (s *BaseStream) LoadPlaybackInfo() (*mediacore.PlaybackInfo, error) {
+func (s *BaseStream) LoadPlaybackInfo() (*player.PlaybackInfo, error) {
 	return s.playbackInfo, s.playbackInfoErr
 }
 
-func (s *BaseStream) Type() mediacore.PlaybackType {
+func (s *BaseStream) Type() player.PlaybackType {
 	return ""
 }
 
@@ -730,7 +730,7 @@ func (m *Manager) preStreamError(stream Stream, err error) {
 
 func (m *Manager) streamError(clientID string, err error, target PlaybackTarget) {
 	if m.mediacoreCoordinator != nil {
-		m.mediacoreCoordinator.Error(mediacore.Target(target), clientID, err)
+		m.mediacoreCoordinator.Error(player.Target(target), clientID, err)
 	}
 }
 

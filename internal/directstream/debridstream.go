@@ -7,8 +7,8 @@ import (
 	"seanime/internal/api/anilist"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
-	"seanime/internal/mediacore"
 	"seanime/internal/mkvparser"
+	"seanime/internal/player"
 	"seanime/internal/util/result"
 )
 
@@ -25,11 +25,11 @@ type DebridStream struct {
 	streamReadyCh chan struct{} // Closed by the initiator when the stream URL is resolved
 }
 
-func (s *DebridStream) Type() mediacore.PlaybackType {
-	return mediacore.PlaybackTypeDebrid
+func (s *DebridStream) Type() player.PlaybackType {
+	return player.PlaybackTypeDebrid
 }
 
-func (s *DebridStream) LoadPlaybackInfo() (*mediacore.PlaybackInfo, error) {
+func (s *DebridStream) LoadPlaybackInfo() (*player.PlaybackInfo, error) {
 	return s.httpBaseStream.loadPlaybackInfo(s.Type())
 }
 

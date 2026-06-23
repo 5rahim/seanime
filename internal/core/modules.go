@@ -29,6 +29,7 @@ import (
 	"seanime/internal/nativeplayer"
 	"seanime/internal/notifier"
 	"seanime/internal/platforms/shared_platform"
+	"seanime/internal/player"
 	"seanime/internal/playlist"
 	"seanime/internal/plugin"
 	seanime_torrent "seanime/internal/torrent_clients/builtin_client"
@@ -213,9 +214,9 @@ func (a *App) initModulesOnce() {
 			_, _ = a.RefreshAnimeCollection()
 		},
 		IsOfflineRef: a.IsOfflineRef(),
-		Backends: map[mediacore.Target]mediacore.Backend{
-			mediacore.TargetVideoCore: vcAdapter,
-			mediacore.TargetMpvCore:   mcAdapter,
+		Backends: map[player.Target]mediacore.Backend{
+			player.TargetVideoCore: vcAdapter,
+			player.TargetMpvCore:   mcAdapter,
 		},
 	})
 

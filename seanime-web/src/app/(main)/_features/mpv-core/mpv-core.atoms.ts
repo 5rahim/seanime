@@ -1,14 +1,14 @@
-import { atom } from "jotai"
-import { atomWithStorage } from "jotai/utils"
-import { atomWithImmer } from "jotai-immer"
-import type { MpvCore_PlaybackInfo, MpvCore_SkipData } from "@/api/generated/types"
-import type { MpvPrismTrack } from "@mpv-prism/core"
+import type { Player_PlaybackInfo, Player_SkipData } from "@/api/generated/types"
 import { mediaCorePreferencesAtom } from "@/app/(main)/_features/media-core/media-core-preferences"
 import { vc_defaultKeybindings, vc_highlightOPEDChaptersAtom, type VideoCoreKeybindings } from "@/app/(main)/_features/video-core/video-core.atoms"
+import type { MpvPrismTrack } from "@mpv-prism/core"
+import { atom } from "jotai"
+import { atomWithImmer } from "jotai-immer"
+import { atomWithStorage } from "jotai/utils"
 
 export type MpvCoreState = {
     active: boolean
-    playbackInfo: MpvCore_PlaybackInfo | null
+    playbackInfo: Player_PlaybackInfo | null
     playbackError: string | null
     loadingState: string | null
     miniPlayer: boolean
@@ -31,7 +31,7 @@ export const mc_duration = atom(0)
 export const mc_buffered = atom(0)
 export const mc_buffering = atom(false)
 export const mc_tracks = atom<MpvPrismTrack[]>([])
-export const mc_skipData = atom<MpvCore_SkipData | null>(null)
+export const mc_skipData = atom<Player_SkipData | null>(null)
 export type MpvCoreOverlayFeedback = { message: string, type: "message" | "time" | "icon" }
 export const mc_overlayFeedback = atom<MpvCoreOverlayFeedback | null>(null)
 export const mc_isFullscreen = atom(false)

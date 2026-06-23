@@ -158,26 +158,6 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                                 />
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex-1">
-                                                <Switch
-                                                    label="Use Canvas rendering"
-                                                    side="right"
-                                                    help={window.electron?.platform === "linux"
-                                                        ? "Linux only supports canvas rendering."
-                                                        : "Improves stability but increases CPU usage."}
-                                                    moreHelp="Force rendering to use HTML5 canvas instead of native HTML5 video. Can help solve renderer crashes."
-                                                    value={window.electron?.platform === "linux" ? true : (serverStatus?.settings?.mediaPlayer?.mpvPrismUseCanvas ?? false)}
-                                                    onValueChange={v => {
-                                                        patchSetting({
-                                                            path: "mediaPlayer.mpvPrismUseCanvas",
-                                                            value: v,
-                                                        })
-                                                    }}
-                                                    disabled={isPatching || window.electron?.platform === "linux"}
-                                                />
-                                            </div>
-                                        </div>
                                         <div className="space-y-2 pt-4 border-t border-[--border] mt-4">
                                             <div className="flex justify-between items-center">
                                                 <label className="text-sm font-semibold">Custom MPV Options</label>

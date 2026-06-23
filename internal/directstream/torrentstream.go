@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/library/anime"
-	"seanime/internal/mediacore"
 	"seanime/internal/mkvparser"
+	"seanime/internal/player"
 	"seanime/internal/util/result"
 	"seanime/internal/util/torrentutil"
 
@@ -35,8 +35,8 @@ type TorrentStream struct {
 	streamReadyCh chan struct{} // Closed by the initiator when the stream is ready
 }
 
-func (s *TorrentStream) Type() mediacore.PlaybackType {
-	return mediacore.PlaybackTypeTorrent
+func (s *TorrentStream) Type() player.PlaybackType {
+	return player.PlaybackTypeTorrent
 }
 
 func (s *TorrentStream) completedFilePath() (string, bool) {
@@ -118,10 +118,10 @@ func (s *TorrentStream) LoadContentType() string {
 	return s.contentType
 }
 
-func (s *TorrentStream) LoadPlaybackInfo() (ret *mediacore.PlaybackInfo, err error) {
+func (s *TorrentStream) LoadPlaybackInfo() (ret *player.PlaybackInfo, err error) {
 	s.playbackInfoOnce.Do(func() {
 		if s.file == nil || s.torrent == nil {
-			ret = &mediacore.PlaybackInfo{}
+			ret = &player.PlaybackInfo{}
 			err = fmt.Errorf("torrent is not set")
 			s.playbackInfoErr = err
 			return
@@ -137,7 +137,7 @@ func (s *TorrentStream) LoadPlaybackInfo() (ret *mediacore.PlaybackInfo, err err
 		}
 
 		streamURL := "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id + s.manager.GetHMACTokenQueryParam("/api/v1/directstream/stream", "&")
-		playbackInfo := mediacore.PlaybackInfo{
+		playbackInfo := player.PlaybackInfo{
 			ID:                id,
 			PlaybackType:      s.Type(),
 			PlaybackURI:       streamURL,

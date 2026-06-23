@@ -12,7 +12,7 @@ import (
 type Adapter struct {
 	mc       *MpvCore
 	sub      *Subscriber
-	eventsCh chan mediacore.Event
+	eventsCh chan player.Event
 }
 
 var _ mediacore.Backend = (*Adapter)(nil)
@@ -24,15 +24,15 @@ func NewAdapter(mc *MpvCore) *Adapter {
 	a := &Adapter{
 		mc:       mc,
 		sub:      sub,
-		eventsCh: make(chan mediacore.Event, 100),
+		eventsCh: make(chan player.Event, 100),
 	}
 
 	a.startEventLoop()
 	return a
 }
 
-func (a *Adapter) Target() mediacore.Target {
-	return mediacore.TargetMpvCore
+func (a *Adapter) Target() player.Target {
+	return player.TargetMpvCore
 }
 
 func (a *Adapter) OpenAndAwait(clientID, state string) {
@@ -43,7 +43,7 @@ func (a *Adapter) AbortOpen(clientID, reason string) {
 	a.mc.AbortOpen(clientID, reason)
 }
 
-func (a *Adapter) Watch(clientID string, info *mediacore.PlaybackInfo) {
+func (a *Adapter) Watch(clientID string, info *player.PlaybackInfo) {
 	if info != nil {
 		a.mc.Watch(clientID, info)
 	}
@@ -53,65 +53,65 @@ func (a *Adapter) Error(clientID string, err error) {
 	a.mc.Error(clientID, err)
 }
 
-func (a *Adapter) Execute(session mediacore.SessionKey, cmd mediacore.Command) error {
+func (a *Adapter) Execute(session player.SessionKey, cmd player.Command) error {
 	switch cmd.Type {
-	case mediacore.CommandPause:
+	case player.CommandPause:
 		a.mc.Pause()
-	case mediacore.CommandResume:
+	case player.CommandResume:
 		a.mc.Resume()
-	case mediacore.CommandSeek:
+	case player.CommandSeek:
 		if sec, ok := cmd.Payload.(float64); ok {
 			a.mc.Seek(sec)
 		} else {
 			return errors.New("invalid payload type for Seek")
 		}
-	case mediacore.CommandSeekTo:
+	case player.CommandSeekTo:
 		if sec, ok := cmd.Payload.(float64); ok {
 			a.mc.SeekTo(sec)
 		} else {
 			return errors.New("invalid payload type for SeekTo")
 		}
-	case mediacore.CommandSetFullscreen:
+	case player.CommandSetFullscreen:
 		if val, ok := cmd.Payload.(bool); ok {
 			a.mc.SetFullscreen(val)
 		} else {
 			return errors.New("invalid payload type for SetFullscreen")
 		}
-	case mediacore.CommandSetPip:
+	case player.CommandSetPip:
 		if val, ok := cmd.Payload.(bool); ok {
 			a.mc.SetPip(val)
 		} else {
 			return errors.New("invalid payload type for SetPip")
 		}
-	case mediacore.CommandSetAudioTrack:
+	case player.CommandSetAudioTrack:
 		a.mc.SetAudioTrack(cmd.Payload)
-	case mediacore.CommandSetSubtitleTrack:
+	case player.CommandSetSubtitleTrack:
 		a.mc.SetSubtitleTrack(cmd.Payload)
-	case mediacore.CommandAddSubtitleTrack, mediacore.CommandAddExternalSubtitleTrack:
-		if val, ok := cmd.Payload.(*mediacore.SubtitleTrack); ok {
+	case player.CommandAddSubtitleTrack, player.CommandAddExternalSubtitleTrack:
+		if val, ok := cmd.Payload.(*player.SubtitleTrack); ok {
 			a.mc.AddSubtitleTrack(val)
 		} else {
 			return errors.New("invalid payload type for AddSubtitleTrack")
 		}
-	case mediacore.CommandPlayPlaylistEpisode:
+	case player.CommandPlayPlaylistEpisode:
 		if val, ok := cmd.Payload.(string); ok {
 			a.mc.PlayPlaylistEpisode(val)
 		} else {
 			return errors.New("invalid payload type for PlayPlaylistEpisode")
 		}
-	case mediacore.CommandShowMessage:
-		if val, ok := cmd.Payload.(mediacore.ShowMessagePayload); ok {
+	case player.CommandShowMessage:
+		if val, ok := cmd.Payload.(player.ShowMessagePayload); ok {
 			a.mc.ShowMessage(val.Message, val.Duration)
 		} else {
 			return errors.New("invalid payload type for ShowMessage")
 		}
-	case mediacore.CommandSetSkipData:
-		if val, ok := cmd.Payload.(*mediacore.SkipData); ok {
+	case player.CommandSetSkipData:
+		if val, ok := cmd.Payload.(*player.SkipData); ok {
 			a.mc.SetSkipData(val)
 		} else {
 			return errors.New("invalid payload type for SetSkipData")
 		}
-	case mediacore.CommandClearSkipData:
+	case player.CommandClearSkipData:
 		a.mc.ClearSkipData()
 	default:
 		return fmt.Errorf("unsupported command: %s", cmd.Type)
@@ -119,11 +119,11 @@ func (a *Adapter) Execute(session mediacore.SessionKey, cmd mediacore.Command) e
 	return nil
 }
 
-func (a *Adapter) Terminate(session mediacore.SessionKey) {
+func (a *Adapter) Terminate(session player.SessionKey) {
 	a.mc.Terminate()
 }
 
-func (a *Adapter) Events() <-chan mediacore.Event {
+func (a *Adapter) Events() <-chan player.Event {
 	return a.eventsCh
 }
 
@@ -132,12 +132,12 @@ func (a *Adapter) Close() error {
 	return nil
 }
 
-func (a *Adapter) PullStatus() (mediacore.PlaybackStatus, bool) {
+func (a *Adapter) PullStatus() (player.PlaybackStatus, bool) {
 	status, ok := a.mc.PullStatus()
 	if !ok {
-		return mediacore.PlaybackStatus{}, false
+		return player.PlaybackStatus{}, false
 	}
-	return mediacore.PlaybackStatus{
+	return player.PlaybackStatus{
 		ID:          status.PlaybackID,
 		ClientID:    status.ClientID,
 		Paused:      status.Paused,
@@ -146,7 +146,7 @@ func (a *Adapter) PullStatus() (mediacore.PlaybackStatus, bool) {
 	}, true
 }
 
-func (a *Adapter) GetPlaylist() (*mediacore.PlaylistState, bool) {
+func (a *Adapter) GetPlaylist() (*player.PlaylistState, bool) {
 	playlist, ok := a.mc.GetPlaylist()
 	if !ok || playlist == nil {
 		return nil, false
@@ -154,7 +154,7 @@ func (a *Adapter) GetPlaylist() (*mediacore.PlaylistState, bool) {
 	return playlist, true
 }
 
-func (a *Adapter) GetSkipData() (*mediacore.SkipData, bool) {
+func (a *Adapter) GetSkipData() (*player.SkipData, bool) {
 	skipData, ok := a.mc.GetSkipData()
 	if !ok || skipData == nil {
 		return nil, false
@@ -174,111 +174,111 @@ func (a *Adapter) startEventLoop() {
 	}()
 }
 
-func (a *Adapter) mapEvent(ev VideoEvent) mediacore.Event {
-	session := mediacore.SessionKey{
-		Target:     mediacore.TargetMpvCore,
+func (a *Adapter) mapEvent(ev VideoEvent) player.Event {
+	session := player.SessionKey{
+		Target:     player.TargetMpvCore,
 		ClientID:   ev.GetClientID(),
 		PlaybackID: ev.GetPlaybackID(),
 	}
 
-	base := mediacore.BaseEvent{Session: session}
+	base := player.BaseEvent{Session: session}
 
 	switch e := ev.(type) {
 	case *PlaybackLoadedEvent:
-		return &mediacore.PlaybackLoadedEvent{
+		return &player.PlaybackLoadedEvent{
 			BaseEvent: base,
-			State: mediacore.PlaybackState{
+			State: player.PlaybackState{
 				ClientID:     e.ClientID,
 				PlaybackInfo: toMediaCorePlaybackInfo(e.State.PlaybackInfo),
 			},
 		}
 	case *LoadedMetadataEvent:
-		return &mediacore.LoadedMetadataEvent{
+		return &player.LoadedMetadataEvent{
 			BaseEvent:   base,
 			CurrentTime: e.CurrentTime,
 			Duration:    e.Duration,
 			Paused:      e.Paused,
 		}
 	case *CanPlayEvent:
-		return &mediacore.CanPlayEvent{
+		return &player.CanPlayEvent{
 			BaseEvent:   base,
 			CurrentTime: e.CurrentTime,
 			Duration:    e.Duration,
 			Paused:      e.Paused,
 		}
 	case *PausedEvent:
-		return &mediacore.PausedEvent{
+		return &player.PausedEvent{
 			BaseEvent:   base,
 			CurrentTime: e.CurrentTime,
 			Duration:    e.Duration,
 		}
 	case *ResumedEvent:
-		return &mediacore.ResumedEvent{
+		return &player.ResumedEvent{
 			BaseEvent:   base,
 			CurrentTime: e.CurrentTime,
 			Duration:    e.Duration,
 		}
 	case *StatusEvent:
-		return &mediacore.StatusEvent{
+		return &player.StatusEvent{
 			BaseEvent:   base,
 			CurrentTime: e.CurrentTime,
 			Duration:    e.Duration,
 			Paused:      e.Paused,
 		}
 	case *SeekedEvent:
-		return &mediacore.SeekedEvent{
+		return &player.SeekedEvent{
 			BaseEvent:   base,
 			CurrentTime: e.CurrentTime,
 			Duration:    e.Duration,
 			Paused:      e.Paused,
 		}
 	case *CompletedEvent:
-		return &mediacore.CompletedEvent{
+		return &player.CompletedEvent{
 			BaseEvent:   base,
 			CurrentTime: e.CurrentTime,
 			Duration:    e.Duration,
 		}
 	case *EndedEvent:
-		return &mediacore.EndedEvent{
+		return &player.EndedEvent{
 			BaseEvent: base,
 			AutoNext:  e.AutoNext,
 		}
 	case *ErrorEvent:
-		return &mediacore.ErrorEvent{
+		return &player.ErrorEvent{
 			BaseEvent: base,
 			Error:     e.Error,
 		}
 	case *TerminatedEvent:
-		return &mediacore.TerminatedEvent{
+		return &player.TerminatedEvent{
 			BaseEvent: base,
 		}
 	case *FullscreenChangedEvent:
-		return &mediacore.FullscreenChangedEvent{
+		return &player.FullscreenChangedEvent{
 			BaseEvent:  base,
 			Fullscreen: e.Fullscreen,
 		}
 	case *PipChangedEvent:
-		return &mediacore.PipChangedEvent{
+		return &player.PipChangedEvent{
 			BaseEvent: base,
 			Pip:       e.Pip,
 		}
 	case *AudioTrackChangedEvent:
-		return &mediacore.AudioTrackChangedEvent{
+		return &player.AudioTrackChangedEvent{
 			BaseEvent: base,
 			TrackID:   e.TrackID,
 		}
 	case *SubtitleTrackChangedEvent:
-		return &mediacore.SubtitleTrackChangedEvent{
+		return &player.SubtitleTrackChangedEvent{
 			BaseEvent: base,
 			TrackID:   e.TrackID,
 		}
 	case *PlaylistStateEvent:
-		return &mediacore.PlaylistStateEvent{
+		return &player.PlaylistStateEvent{
 			BaseEvent: base,
 			Playlist:  e.Playlist,
 		}
 	case *SkipDataEvent:
-		return &mediacore.SkipDataEvent{
+		return &player.SkipDataEvent{
 			BaseEvent: base,
 			SkipData:  e.SkipData,
 		}

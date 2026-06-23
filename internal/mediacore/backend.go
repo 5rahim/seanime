@@ -1,17 +1,19 @@
 package mediacore
 
+import "seanime/internal/player"
+
 type Backend interface {
-	Target() Target
+	Target() player.Target
 	OpenAndAwait(clientID, state string)
 	AbortOpen(clientID, reason string)
-	Watch(clientID string, info *PlaybackInfo)
+	Watch(clientID string, info *player.PlaybackInfo)
 	Error(clientID string, err error)
-	Execute(session SessionKey, cmd Command) error
-	Terminate(session SessionKey)
-	Events() <-chan Event
+	Execute(session player.SessionKey, cmd player.Command) error
+	Terminate(session player.SessionKey)
+	Events() <-chan player.Event
 	Close() error
 
-	PullStatus() (PlaybackStatus, bool)
-	GetPlaylist() (*PlaylistState, bool)
-	GetSkipData() (*SkipData, bool)
+	PullStatus() (player.PlaybackStatus, bool)
+	GetPlaylist() (*player.PlaylistState, bool)
+	GetSkipData() (*player.SkipData, bool)
 }

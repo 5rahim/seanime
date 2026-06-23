@@ -7,7 +7,7 @@ import (
 	"math"
 	"seanime/internal/directstream"
 	"seanime/internal/events"
-	"seanime/internal/mediacore"
+	"seanime/internal/player"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"time"
@@ -450,12 +450,12 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 			// Since it's an online stream force the current player to VideoCore
 			wpm.manager.genericPlayer.SetType(WatchPartyVideoCore)
 			// Start the onlinestream using the params
-			session := mediacore.SessionKey{
-				Target:   mediacore.TargetVideoCore,
+			session := player.SessionKey{
+				Target:   player.TargetVideoCore,
 				ClientID: wpm.clientId,
 			}
-			err = wpm.manager.mediacoreCoordinator.Execute(session, mediacore.Command{
-				Type:    mediacore.CommandStartOnlinestreamWatchParty,
+			err = wpm.manager.mediacoreCoordinator.Execute(session, player.Command{
+				Type:    player.CommandStartOnlinestreamWatchParty,
 				Payload: payload.Session.CurrentMediaInfo.OnlinestreamParams,
 			})
 		}

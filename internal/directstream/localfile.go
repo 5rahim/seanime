@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/library/anime"
-	"seanime/internal/mediacore"
 	"seanime/internal/mkvparser"
+	"seanime/internal/player"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"time"
@@ -42,8 +42,8 @@ func (s *LocalFileStream) newReader() (io.ReadSeekCloser, error) {
 	return r, nil
 }
 
-func (s *LocalFileStream) Type() mediacore.PlaybackType {
-	return mediacore.PlaybackTypeLocalFile
+func (s *LocalFileStream) Type() player.PlaybackType {
+	return player.PlaybackTypeLocalFile
 }
 
 func (s *LocalFileStream) LoadContentType() string {
@@ -56,10 +56,10 @@ func (s *LocalFileStream) LoadContentType() string {
 	return s.contentType
 }
 
-func (s *LocalFileStream) LoadPlaybackInfo() (ret *mediacore.PlaybackInfo, err error) {
+func (s *LocalFileStream) LoadPlaybackInfo() (ret *player.PlaybackInfo, err error) {
 	s.playbackInfoOnce.Do(func() {
 		if s.localFile == nil {
-			s.playbackInfo = &mediacore.PlaybackInfo{}
+			s.playbackInfo = &player.PlaybackInfo{}
 			err = fmt.Errorf("local file is not set")
 			s.playbackInfoErr = err
 			return
@@ -109,7 +109,7 @@ func (s *LocalFileStream) LoadPlaybackInfo() (ret *mediacore.PlaybackInfo, err e
 		}
 
 		streamURL := "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id + s.manager.GetHMACTokenQueryParam("/api/v1/directstream/stream", "&")
-		playbackInfo := mediacore.PlaybackInfo{
+		playbackInfo := player.PlaybackInfo{
 			ID:                id,
 			PlaybackType:      s.Type(),
 			PlaybackURI:       absolutePlaybackPath,
@@ -160,14 +160,14 @@ func (s *LocalFileStream) LoadPlaybackInfo() (ret *mediacore.PlaybackInfo, err e
 	return s.playbackInfo, s.playbackInfoErr
 }
 
-func (s *LocalFileStream) loadLocalSubtitleTracks() []*mediacore.SubtitleTrack {
+func (s *LocalFileStream) loadLocalSubtitleTracks() []*player.SubtitleTrack {
 	files, err := util.FindLocalSubtitleFiles(s.localFile.Path)
 	if err != nil {
 		s.logger.Warn().Err(err).Str("path", s.localFile.Path).Msg("directstream(file): Failed to detect local subtitle files")
 		return nil
 	}
 
-	tracks := make([]*mediacore.SubtitleTrack, 0, len(files))
+	tracks := make([]*player.SubtitleTrack, 0, len(files))
 	for _, file := range files {
 		info, err := os.Stat(file.Path)
 		if err != nil {
@@ -189,7 +189,7 @@ func (s *LocalFileStream) loadLocalSubtitleTracks() []*mediacore.SubtitleTrack {
 		subtitleType := file.Type
 		isDefault := false
 		uri := file.Path
-		tracks = append(tracks, &mediacore.SubtitleTrack{
+		tracks = append(tracks, &player.SubtitleTrack{
 			Index:    len(tracks),
 			URI:      &uri,
 			Content:  &content,

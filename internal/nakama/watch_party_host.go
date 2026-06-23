@@ -6,8 +6,8 @@ import (
 	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
-	"seanime/internal/mediacore"
 	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/player"
 	"seanime/internal/util"
 	"strings"
 	"time"
@@ -215,7 +215,7 @@ type hostPlaybackHandleStatusOptions struct {
 	episodeNumber      int
 	aniDbEpisode       string
 	localFilePath      string
-	onlinestreamParams *mediacore.OnlinestreamParams
+	onlinestreamParams *player.OnlinestreamParams
 	paused             bool
 	currentTime        float64
 	duration           float64
@@ -381,17 +381,17 @@ func (wpm *WatchPartyManager) listenToPlaybackAsHost() {
 				return
 			case e := <-mediacoreSubscriber.Events():
 				target := e.GetSessionKey().Target
-				if target == mediacore.TargetVideoCore && !wpm.manager.genericPlayer.isVideoCore() {
+				if target == player.TargetVideoCore && !wpm.manager.genericPlayer.isVideoCore() {
 					continue
 				}
-				if target == mediacore.TargetMpvCore && !wpm.manager.genericPlayer.isMpvCore() {
+				if target == player.TargetMpvCore && !wpm.manager.genericPlayer.isMpvCore() {
 					continue
 				}
 
 				switch event := e.(type) {
-				case *mediacore.TerminatedEvent:
+				case *player.TerminatedEvent:
 					wpm.hostPlaybackStopped()
-				case *mediacore.StatusEvent:
+				case *player.StatusEvent:
 					state, ok := wpm.manager.mediacoreCoordinator.GetActivePlaybackState()
 					if !ok || state.PlaybackInfo == nil || state.PlaybackInfo.Media == nil || state.PlaybackInfo.Episode == nil {
 						continue
@@ -400,15 +400,15 @@ func (wpm *WatchPartyManager) listenToPlaybackAsHost() {
 					streamType := WatchPartyStreamTypeFile
 					localFilePath := state.PlaybackInfo.StreamPath
 					switch state.PlaybackInfo.PlaybackType {
-					case mediacore.PlaybackTypeLocalFile:
+					case player.PlaybackTypeLocalFile:
 						if state.PlaybackInfo.LocalFile != nil {
 							localFilePath = state.PlaybackInfo.LocalFile.Path
 						}
-					case mediacore.PlaybackTypeTorrent:
+					case player.PlaybackTypeTorrent:
 						streamType = WatchPartyStreamTypeTorrent
-					case mediacore.PlaybackTypeDebrid:
+					case player.PlaybackTypeDebrid:
 						streamType = WatchPartyStreamTypeDebrid
-					case mediacore.PlaybackTypeOnlinestream:
+					case player.PlaybackTypeOnlinestream:
 						streamType = WatchPartyStreamTypeOnlinestream
 					}
 

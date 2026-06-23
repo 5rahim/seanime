@@ -8,6 +8,7 @@ import (
 	"seanime/internal/database/models"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/player"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"sync"
@@ -27,20 +28,20 @@ type Coordinator struct {
 	refreshAnimeCollectionFunc func()
 	isOfflineRef               *util.Ref[bool]
 
-	backends map[Target]Backend
+	backends map[player.Target]Backend
 
 	mu                   sync.RWMutex
-	session              SessionKey
-	activeTarget         Target
-	activePlaybackState  *PlaybackState
-	activePlaybackStatus *PlaybackStatus
-	activePlaybackInfo   *PlaybackInfo
+	session              player.SessionKey
+	activeTarget         player.Target
+	activePlaybackState  *player.PlaybackState
+	activePlaybackStatus *player.PlaybackStatus
+	activePlaybackInfo   *player.PlaybackInfo
 
 	settingsMu sync.RWMutex
 	settings   *models.Settings
 
 	subscribers *result.Map[string, *Subscriber]
-	eventBus    chan Event
+	eventBus    chan player.Event
 	stopCh      chan struct{}
 	startOnce   sync.Once
 	effectsOnce sync.Once
@@ -48,13 +49,13 @@ type Coordinator struct {
 
 type Subscriber struct {
 	id        string
-	eventCh   chan Event
+	eventCh   chan player.Event
 	closed    atomic.Bool
 	closeOnce sync.Once
 }
 
-func (s *Subscriber) Events() <-chan Event { return s.eventCh }
-func (s *Subscriber) GetID() string        { return s.id }
+func (s *Subscriber) Events() <-chan player.Event { return s.eventCh }
+func (s *Subscriber) GetID() string               { return s.id }
 
 type NewCoordinatorOptions struct {
 	Logger                     *zerolog.Logger
@@ -64,7 +65,7 @@ type NewCoordinatorOptions struct {
 	PlatformRef                *util.Ref[platform.Platform]
 	RefreshAnimeCollectionFunc func()
 	IsOfflineRef               *util.Ref[bool]
-	Backends                   map[Target]Backend
+	Backends                   map[player.Target]Backend
 }
 
 func NewCoordinator(opts NewCoordinatorOptions) *Coordinator {
@@ -78,7 +79,7 @@ func NewCoordinator(opts NewCoordinatorOptions) *Coordinator {
 		isOfflineRef:               opts.IsOfflineRef,
 		backends:                   opts.Backends,
 		subscribers:                result.NewMap[string, *Subscriber](),
-		eventBus:                   make(chan Event, 100),
+		eventBus:                   make(chan player.Event, 100),
 		stopCh:                     make(chan struct{}),
 	}
 
@@ -129,7 +130,7 @@ func (c *Coordinator) SetSettings(settings *models.Settings) {
 }
 
 func (c *Coordinator) Subscribe(id string) *Subscriber {
-	sub := &Subscriber{id: id, eventCh: make(chan Event, 100)}
+	sub := &Subscriber{id: id, eventCh: make(chan player.Event, 100)}
 	if previous, ok := c.subscribers.Pop(id); ok {
 		previous.closed.Store(true)
 		previous.closeOnce.Do(func() { close(previous.eventCh) })
@@ -145,7 +146,7 @@ func (c *Coordinator) Unsubscribe(id string) {
 	}
 }
 
-func (c *Coordinator) RegisterEventCallback(callback func(Event) bool) func() {
+func (c *Coordinator) RegisterEventCallback(callback func(player.Event) bool) func() {
 	id := uuid.NewString()
 	sub := c.Subscribe(id)
 	var once sync.Once
@@ -161,31 +162,31 @@ func (c *Coordinator) RegisterEventCallback(callback func(Event) bool) func() {
 	return cancel
 }
 
-func (c *Coordinator) GetActiveSession() (SessionKey, bool) {
+func (c *Coordinator) GetActiveSession() (player.SessionKey, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.session, c.session.PlaybackID != ""
 }
 
-func (c *Coordinator) GetActivePlaybackState() (PlaybackState, bool) {
+func (c *Coordinator) GetActivePlaybackState() (player.PlaybackState, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	if c.activePlaybackState == nil {
-		return PlaybackState{}, false
+		return player.PlaybackState{}, false
 	}
 	return *c.activePlaybackState, true
 }
 
-func (c *Coordinator) GetActivePlaybackStatus() (PlaybackStatus, bool) {
+func (c *Coordinator) GetActivePlaybackStatus() (player.PlaybackStatus, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	if c.activePlaybackStatus == nil {
-		return PlaybackStatus{}, false
+		return player.PlaybackStatus{}, false
 	}
 	return *c.activePlaybackStatus, true
 }
 
-func (c *Coordinator) Execute(session SessionKey, cmd Command) error {
+func (c *Coordinator) Execute(session player.SessionKey, cmd player.Command) error {
 	backend, ok := c.backends[session.Target]
 	if !ok {
 		return fmt.Errorf("unknown target backend: %s", session.Target)
@@ -202,7 +203,7 @@ func (c *Coordinator) Execute(session SessionKey, cmd Command) error {
 	return backend.Execute(session, cmd)
 }
 
-func (c *Coordinator) Terminate(session SessionKey) {
+func (c *Coordinator) Terminate(session player.SessionKey) {
 	backend, ok := c.backends[session.Target]
 	if !ok {
 		return
@@ -210,13 +211,13 @@ func (c *Coordinator) Terminate(session SessionKey) {
 	backend.Terminate(session)
 }
 
-func (c *Coordinator) GetSession() (SessionKey, bool) {
+func (c *Coordinator) GetSession() (player.SessionKey, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.session, c.session.ClientID != ""
 }
 
-func (c *Coordinator) GetActivePlaybackInfo() (*PlaybackInfo, bool) {
+func (c *Coordinator) GetActivePlaybackInfo() (*player.PlaybackInfo, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	if c.activePlaybackInfo != nil {
@@ -228,10 +229,10 @@ func (c *Coordinator) GetActivePlaybackInfo() (*PlaybackInfo, bool) {
 	return nil, false
 }
 
-func (c *Coordinator) OpenAndAwait(target Target, clientID, state string) {
+func (c *Coordinator) OpenAndAwait(target player.Target, clientID, state string) {
 	c.mu.Lock()
 	c.activeTarget = target
-	c.session = SessionKey{
+	c.session = player.SessionKey{
 		Target:     target,
 		ClientID:   clientID,
 		PlaybackID: "",
@@ -247,21 +248,22 @@ func (c *Coordinator) OpenAndAwait(target Target, clientID, state string) {
 	}
 }
 
-func (c *Coordinator) AbortOpen(target Target, clientID, reason string) {
+func (c *Coordinator) AbortOpen(target player.Target, clientID, reason string) {
 	backend, ok := c.backends[target]
 	if ok {
 		backend.AbortOpen(clientID, reason)
 	}
 }
 
-func (c *Coordinator) Watch(target Target, clientID string, info *PlaybackInfo) {
+func (c *Coordinator) Watch(target player.Target, clientID string, info *player.PlaybackInfo) {
 	if info == nil {
 		return
 	}
+	c.populatePluginInfoFields(info)
 	c.restoreContinuity(info)
 	c.mu.Lock()
 	c.activeTarget = target
-	c.session = SessionKey{
+	c.session = player.SessionKey{
 		Target:     target,
 		ClientID:   clientID,
 		PlaybackID: info.ID,
@@ -275,26 +277,26 @@ func (c *Coordinator) Watch(target Target, clientID string, info *PlaybackInfo) 
 	}
 }
 
-func (c *Coordinator) Error(target Target, clientID string, err error) {
+func (c *Coordinator) Error(target player.Target, clientID string, err error) {
 	backend, ok := c.backends[target]
 	if ok {
 		backend.Error(clientID, err)
 	}
 }
 
-func (c *Coordinator) PullStatus() (PlaybackStatus, bool) {
+func (c *Coordinator) PullStatus() (player.PlaybackStatus, bool) {
 	c.mu.RLock()
 	target := c.activeTarget
 	c.mu.RUnlock()
 
 	backend, ok := c.backends[target]
 	if !ok {
-		return PlaybackStatus{}, false
+		return player.PlaybackStatus{}, false
 	}
 	return backend.PullStatus()
 }
 
-func (c *Coordinator) GetPlaylist() (*PlaylistState, bool) {
+func (c *Coordinator) GetPlaylist() (*player.PlaylistState, bool) {
 	c.mu.RLock()
 	target := c.activeTarget
 	c.mu.RUnlock()
@@ -306,7 +308,7 @@ func (c *Coordinator) GetPlaylist() (*PlaylistState, bool) {
 	return backend.GetPlaylist()
 }
 
-func (c *Coordinator) GetSkipData() (*SkipData, bool) {
+func (c *Coordinator) GetSkipData() (*player.SkipData, bool) {
 	c.mu.RLock()
 	target := c.activeTarget
 	c.mu.RUnlock()
@@ -318,14 +320,14 @@ func (c *Coordinator) GetSkipData() (*SkipData, bool) {
 	return backend.GetSkipData()
 }
 
-func (c *Coordinator) SetSkipData(data *SkipData) {
+func (c *Coordinator) SetSkipData(data *player.SkipData) {
 	c.mu.RLock()
 	target := c.activeTarget
 	session := c.session
 	c.mu.RUnlock()
 
 	if target != "" && session.ClientID != "" {
-		_ = c.Execute(session, Command{Type: CommandSetSkipData, Payload: data})
+		_ = c.Execute(session, player.Command{Type: player.CommandSetSkipData, Payload: data})
 	}
 }
 
@@ -336,11 +338,11 @@ func (c *Coordinator) ClearSkipData() {
 	c.mu.RUnlock()
 
 	if target != "" && session.ClientID != "" {
-		_ = c.Execute(session, Command{Type: CommandClearSkipData, Payload: nil})
+		_ = c.Execute(session, player.Command{Type: player.CommandClearSkipData, Payload: nil})
 	}
 }
 
-func (c *Coordinator) dispatch(event Event) {
+func (c *Coordinator) dispatch(event player.Event) {
 	c.subscribers.Range(func(id string, sub *Subscriber) bool {
 		if sub.closed.Load() {
 			return true
@@ -361,18 +363,18 @@ func (c *Coordinator) dispatch(event Event) {
 	})
 }
 
-func (c *Coordinator) listenToBackendEvents(target Target, b Backend) {
+func (c *Coordinator) listenToBackendEvents(target player.Target, b Backend) {
 	for ev := range b.Events() {
 		key := ev.GetSessionKey()
-		var finalState *PlaybackState
-		var finalStatus *PlaybackStatus
+		var finalState *player.PlaybackState
+		var finalStatus *player.PlaybackStatus
 
 		c.mu.Lock()
 		if c.session.Target != key.Target || c.session.ClientID != key.ClientID {
-			_, isLoaded := ev.(*PlaybackLoadedEvent)
+			_, isLoaded := ev.(*player.PlaybackLoadedEvent)
 			if c.session.Target == "" && isLoaded {
 				c.activeTarget = key.Target
-				c.session = SessionKey{
+				c.session = player.SessionKey{
 					Target:     key.Target,
 					ClientID:   key.ClientID,
 					PlaybackID: key.PlaybackID,
@@ -394,28 +396,29 @@ func (c *Coordinator) listenToBackendEvents(target Target, b Backend) {
 
 		// Update cached state/status
 		switch event := ev.(type) {
-		case *PlaybackLoadedEvent:
+		case *player.PlaybackLoadedEvent:
+			c.populatePluginFields(&event.State)
 			c.activePlaybackState = &event.State
 			c.activePlaybackInfo = event.State.PlaybackInfo
-		case *LoadedMetadataEvent:
+		case *player.LoadedMetadataEvent:
 			c.activePlaybackStatus = playbackStatusFromEvent(event.BaseEvent, event.CurrentTime, event.Duration, event.Paused)
-		case *CanPlayEvent:
+		case *player.CanPlayEvent:
 			c.activePlaybackStatus = playbackStatusFromEvent(event.BaseEvent, event.CurrentTime, event.Duration, event.Paused)
-		case *PausedEvent:
+		case *player.PausedEvent:
 			c.activePlaybackStatus = playbackStatusFromEvent(event.BaseEvent, event.CurrentTime, event.Duration, true)
-		case *ResumedEvent:
+		case *player.ResumedEvent:
 			c.activePlaybackStatus = playbackStatusFromEvent(event.BaseEvent, event.CurrentTime, event.Duration, false)
-		case *StatusEvent:
+		case *player.StatusEvent:
 			c.activePlaybackStatus = playbackStatusFromEvent(event.BaseEvent, event.CurrentTime, event.Duration, event.Paused)
-		case *SeekedEvent:
+		case *player.SeekedEvent:
 			c.activePlaybackStatus = playbackStatusFromEvent(event.BaseEvent, event.CurrentTime, event.Duration, event.Paused)
-		case *CompletedEvent:
+		case *player.CompletedEvent:
 			paused := false
 			if c.activePlaybackStatus != nil {
 				paused = c.activePlaybackStatus.Paused
 			}
 			c.activePlaybackStatus = playbackStatusFromEvent(event.BaseEvent, event.CurrentTime, event.Duration, paused)
-		case *TerminatedEvent:
+		case *player.TerminatedEvent:
 			if c.activePlaybackState != nil {
 				finalState = new(*c.activePlaybackState)
 			}
@@ -425,7 +428,7 @@ func (c *Coordinator) listenToBackendEvents(target Target, b Backend) {
 			c.activePlaybackState = nil
 			c.activePlaybackStatus = nil
 			c.activePlaybackInfo = nil
-			c.session = SessionKey{}
+			c.session = player.SessionKey{}
 		}
 		c.mu.Unlock()
 
@@ -447,16 +450,16 @@ func (c *Coordinator) SetupSharedEffects() {
 		go func() {
 			for event := range sub.Events() {
 				switch value := event.(type) {
-				case *PausedEvent:
+				case *player.PausedEvent:
 					c.updateContinuity(value.CurrentTime, value.Duration)
 					if c.discordPresence != nil && !c.isOfflineRef.Get() {
 						go c.discordPresence.UpdateAnimeActivity(int(value.CurrentTime), int(value.Duration), true)
 					}
-				case *ResumedEvent:
+				case *player.ResumedEvent:
 					if c.discordPresence != nil && !c.isOfflineRef.Get() {
 						go c.discordPresence.UpdateAnimeActivity(int(value.CurrentTime), int(value.Duration), false)
 					}
-				case *LoadedMetadataEvent:
+				case *player.LoadedMetadataEvent:
 					state, ok := c.GetActivePlaybackState()
 					if !ok || state.PlaybackInfo.Media == nil || state.PlaybackInfo.Episode == nil {
 						continue
@@ -473,7 +476,7 @@ func (c *Coordinator) SetupSharedEffects() {
 							Duration:      int(value.Duration),
 						})
 					}
-				case *StatusEvent:
+				case *player.StatusEvent:
 					state, ok := c.GetActivePlaybackState()
 					if !ok || state.PlaybackInfo.Media == nil || state.PlaybackInfo.Episode == nil {
 						continue
@@ -482,9 +485,9 @@ func (c *Coordinator) SetupSharedEffects() {
 					if c.discordPresence != nil && !c.isOfflineRef.Get() {
 						go c.discordPresence.UpdateAnimeActivity(int(value.CurrentTime), int(value.Duration), value.Paused)
 					}
-				case *SeekedEvent:
+				case *player.SeekedEvent:
 					c.updateContinuity(value.CurrentTime, value.Duration)
-				case *CompletedEvent:
+				case *player.CompletedEvent:
 					state, ok := c.GetActivePlaybackState()
 					if !ok || state.PlaybackInfo.Media == nil || state.PlaybackInfo.Episode == nil || c.platformRef == nil {
 						continue
@@ -515,7 +518,7 @@ func (c *Coordinator) SetupSharedEffects() {
 					} else if err != nil {
 						c.logger.Error().Err(err).Msgf("mediacore: Failed to update progress for media %d", mediaID)
 					}
-				case *EndedEvent, *ErrorEvent, *TerminatedEvent:
+				case *player.EndedEvent, *player.ErrorEvent, *player.TerminatedEvent:
 					if c.discordPresence != nil && !c.isOfflineRef.Get() {
 						go c.discordPresence.Close()
 					}
@@ -525,8 +528,8 @@ func (c *Coordinator) SetupSharedEffects() {
 	})
 }
 
-func playbackStatusFromEvent(base BaseEvent, currentTime, duration float64, paused bool) *PlaybackStatus {
-	return &PlaybackStatus{
+func playbackStatusFromEvent(base player.BaseEvent, currentTime, duration float64, paused bool) *player.PlaybackStatus {
+	return &player.PlaybackStatus{
 		ID:          base.Session.PlaybackID,
 		ClientID:    base.Session.ClientID,
 		Paused:      paused,
@@ -535,7 +538,7 @@ func playbackStatusFromEvent(base BaseEvent, currentTime, duration float64, paus
 	}
 }
 
-func (c *Coordinator) restoreContinuity(info *PlaybackInfo) {
+func (c *Coordinator) restoreContinuity(info *player.PlaybackInfo) {
 	if c.continuityManager == nil || info.InitialState != nil || info.Media == nil || info.Episode == nil || info.IsNakamaWatchParty {
 		return
 	}
@@ -558,7 +561,7 @@ func (c *Coordinator) restoreContinuity(info *PlaybackInfo) {
 		return
 	}
 
-	info.InitialState = &InitialState{CurrentTime: new(history.Item.CurrentTime)}
+	info.InitialState = &player.InitialState{CurrentTime: new(history.Item.CurrentTime)}
 }
 
 func (c *Coordinator) updateContinuity(currentTime, duration float64) {
@@ -569,7 +572,7 @@ func (c *Coordinator) updateContinuity(currentTime, duration float64) {
 	c.updateContinuityState(state, currentTime, duration)
 }
 
-func (c *Coordinator) updateContinuityState(state PlaybackState, currentTime, duration float64) {
+func (c *Coordinator) updateContinuityState(state player.PlaybackState, currentTime, duration float64) {
 	if c.continuityManager == nil || state.PlaybackInfo == nil || state.PlaybackInfo.Media == nil || state.PlaybackInfo.Episode == nil || duration <= 0 {
 		return
 	}
@@ -579,7 +582,7 @@ func (c *Coordinator) updateContinuityState(state PlaybackState, currentTime, du
 	}
 
 	kind := continuity.MediastreamKind
-	if state.PlaybackInfo.PlaybackType == PlaybackTypeOnlinestream {
+	if state.PlaybackInfo.PlaybackType == player.PlaybackTypeOnlinestream {
 		kind = continuity.OnlinestreamKind
 	}
 	_ = c.continuityManager.UpdateWatchHistoryItem(&continuity.UpdateWatchHistoryItemOptions{
@@ -589,4 +592,75 @@ func (c *Coordinator) updateContinuityState(state PlaybackState, currentTime, du
 		EpisodeNumber: state.PlaybackInfo.Episode.GetEpisodeNumber(),
 		Kind:          kind,
 	})
+}
+
+func (c *Coordinator) populatePluginInfoFields(info *player.PlaybackInfo) {
+	if info == nil {
+		return
+	}
+
+	uri := info.PlaybackURI
+	if uri == "" {
+		uri = info.StreamURL
+	}
+	if uri != "" {
+		if len(uri) > 5 && uri[len(uri)-5:] == ".m3u8" {
+			info.StreamType = "hls"
+		} else {
+			info.StreamType = "native"
+		}
+	} else {
+		info.StreamType = "unknown"
+	}
+
+	if info.LibassFonts == nil {
+		info.LibassFonts = make([]*player.LibassFont, 0)
+	}
+
+	trueVal := true
+	if len(info.SubtitleTracks) > 0 {
+		tracks := make([]*player.SubtitleTrack, len(info.SubtitleTracks))
+		for i, t := range info.SubtitleTracks {
+			if t == nil {
+				continue
+			}
+			trackCopy := *t
+			if trackCopy.Src == nil {
+				if trackCopy.URI != nil {
+					trackCopy.Src = trackCopy.URI
+				} else if trackCopy.SourceURL != nil {
+					trackCopy.Src = trackCopy.SourceURL
+				}
+			}
+			if trackCopy.Type == nil {
+				trackCopy.Type = trackCopy.Format
+			}
+			if trackCopy.UseLibassRenderer == nil {
+				trackCopy.UseLibassRenderer = &trueVal
+			}
+			tracks[i] = &trackCopy
+		}
+		info.SubtitleTracks = tracks
+	}
+}
+
+func (c *Coordinator) populatePluginFields(state *player.PlaybackState) {
+	if state == nil {
+		return
+	}
+
+	if state.PlaybackInfo != nil {
+		switch state.PlaybackInfo.Renderer {
+		case player.RendererWeb:
+			state.PlayerType = "web"
+		case player.RendererNative:
+			state.PlayerType = "native"
+		case player.RendererMpv:
+			state.PlayerType = "mpv"
+		default:
+			state.PlayerType = string(state.PlaybackInfo.Renderer)
+		}
+
+		c.populatePluginInfoFields(state.PlaybackInfo)
+	}
 }

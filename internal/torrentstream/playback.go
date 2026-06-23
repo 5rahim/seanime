@@ -4,6 +4,7 @@ import (
 	"context"
 	"seanime/internal/mediacore"
 	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/player"
 )
 
 type (
@@ -92,7 +93,7 @@ func (r *Repository) listenToMediacoreEvents() {
 			key := e.GetSessionKey()
 
 			playbackState, ok := r.mediacoreCoordinator.GetActivePlaybackState()
-			if !ok || playbackState.PlaybackInfo.PlaybackType != mediacore.PlaybackTypeTorrent {
+			if !ok || playbackState.PlaybackInfo.PlaybackType != player.PlaybackTypeTorrent {
 				continue
 			}
 
@@ -108,11 +109,11 @@ func (r *Repository) listenToMediacoreEvents() {
 			}
 
 			switch event := e.(type) {
-			case *mediacore.PlaybackLoadedEvent:
+			case *player.PlaybackLoadedEvent:
 				r.logger.Debug().Msg("torrentstream: PlaybackLoaded event received")
 				r.playback.currentVideoDuration = 0
 				r.resetPreloadFlag()
-			case *mediacore.LoadedMetadataEvent:
+			case *player.LoadedMetadataEvent:
 				go func() {
 					if r.client.currentFile.IsPresent() && r.playback.currentVideoDuration == 0 {
 						if event.Duration > 0 {
@@ -123,12 +124,12 @@ func (r *Repository) listenToMediacoreEvents() {
 						}
 					}
 				}()
-			case *mediacore.StatusEvent:
+			case *player.StatusEvent:
 				if event.Duration > 0 && event.CurrentTime/event.Duration >= 0.5 && r.shouldPreloadStream.Load() {
 					r.shouldPreloadStream.Store(false)
 					r.sendStateEvent(eventPreloadNextStream)
 				}
-			case *mediacore.TerminatedEvent:
+			case *player.TerminatedEvent:
 				r.logger.Debug().Msg("torrentstream: Playback terminated event received")
 				r.playback.currentVideoDuration = 0
 			}

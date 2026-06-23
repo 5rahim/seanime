@@ -1,11 +1,11 @@
-import React from "react"
-import type { MpvCore_PlaybackInfo } from "@/api/generated/types"
+import type { Player_PlaybackInfo } from "@/api/generated/types"
 import type { MpvPrismTrack } from "@mpv-prism/core"
-import type { MpvCoreShaderMode, MpvCoreAnime4KQuality } from "./mpv-core.atoms"
+import React from "react"
 import { mc_trackKind } from "./mpv-core"
+import type { MpvCoreAnime4KQuality, MpvCoreShaderMode } from "./mpv-core.atoms"
 
 export interface MpvCoreStatsProps {
-    info: MpvCore_PlaybackInfo | null
+    info: Player_PlaybackInfo | null
     tracks: MpvPrismTrack[]
     cache: unknown
     frameDrops: Record<string, number>

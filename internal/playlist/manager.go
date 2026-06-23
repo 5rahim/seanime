@@ -13,6 +13,7 @@ import (
 	"seanime/internal/mediacore"
 	"seanime/internal/nakama"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/player"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"sync"
@@ -375,23 +376,23 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 			case event := <-mediacoreSubscriber.Events():
 				key := event.GetSessionKey()
 				playerType := MpvCorePlayer
-				if key.Target == mediacore.TargetVideoCore {
+				if key.Target == player.TargetVideoCore {
 					playerType = NativePlayer
 				}
 
 				switch event.(type) {
-				case *mediacore.LoadedMetadataEvent:
+				case *player.LoadedMetadataEvent:
 					m.state.Store(StateStarted)
 					m.playerType.Store(playerType)
 
-				case *mediacore.CompletedEvent:
+				case *player.CompletedEvent:
 					if m.playerType.Load() != playerType {
 						continue
 					}
 					m.markCurrentAsCompleted()
 					m.state.Store(StateCompleted)
 
-				case *mediacore.EndedEvent:
+				case *player.EndedEvent:
 					if m.playerType.Load() != playerType {
 						continue
 					}
@@ -401,7 +402,7 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 					}
 					m.state.Store(StateIdle)
 
-				case *mediacore.TerminatedEvent:
+				case *player.TerminatedEvent:
 					if m.playerType.Load() != playerType {
 						continue
 					}

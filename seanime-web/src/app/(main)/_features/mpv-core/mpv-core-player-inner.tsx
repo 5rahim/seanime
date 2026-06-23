@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import type { MpvCore_PlaybackInfo, MpvCore_SkipData, MpvCore_SubtitleTrack } from "@/api/generated/types"
+import type { Player_PlaybackInfo, Player_SkipData, Player_SubtitleTrack } from "@/api/generated/types"
 import {
     MediaCoreControlBarView,
     MediaCoreControlButtonIcon,
@@ -187,7 +187,7 @@ export function MpvCorePlayerInner() {
         setPreferences(prev => ({ ...prev, timestampMode: mode }))
     }, [setPreferences])
 
-    const infoRef = React.useRef<MpvCore_PlaybackInfo | null>(null)
+    const infoRef = React.useRef<Player_PlaybackInfo | null>(null)
     const sessionTokenRef = React.useRef(0)
     const suppressEndRef = React.useRef(false)
     const completedRef = React.useRef(false)
@@ -518,8 +518,7 @@ export function MpvCorePlayerInner() {
     }), [clientId])
 
 
-
-    const addSubtitle = React.useCallback(async (track: MpvCore_SubtitleTrack) => {
+    const addSubtitle = React.useCallback(async (track: Player_SubtitleTrack) => {
         if (!player) return
         let path = mc_resolveSource(track.uri || track.sourceUrl)
         if (!path && track.content && window.electron?.mpvCore) {
@@ -630,7 +629,7 @@ export function MpvCorePlayerInner() {
                         draft.active = true
                         draft.miniPlayer = false
                         draft.loadingState = "Loading..."
-                        draft.playbackInfo = payload as MpvCore_PlaybackInfo
+                        draft.playbackInfo = payload as Player_PlaybackInfo
                         draft.playbackError = null
                     })
                     break
@@ -669,7 +668,7 @@ export function MpvCorePlayerInner() {
                     player?.selectTrack("subtitle", payload as MpvPrismTrackSelection)
                     break
                 case "add-subtitle-track":
-                    addSubtitle(payload as MpvCore_SubtitleTrack)
+                    addSubtitle(payload as Player_SubtitleTrack)
                     break
                 case "show-message": {
                     const value = payload as { message: string, duration?: number }
@@ -686,7 +685,7 @@ export function MpvCorePlayerInner() {
                     sendEvent("skip-data", { skipData })
                     break
                 case "set-skip-data":
-                    setSkipData(payload as MpvCore_SkipData | null)
+                    setSkipData(payload as Player_SkipData | null)
                     break
                 case "play-playlist-episode":
                     playEpisode(payload as string)
@@ -1404,7 +1403,7 @@ export function MpvCorePlayerInner() {
                         className="absolute inset-0 h-full w-full"
                         fit="contain"
                         frameTransport="auto"
-                        presentationMode={window.electron?.platform === "linux" ? "canvas" : (serverStatus?.settings?.mediaPlayer?.mpvPrismUseCanvas ? "canvas" : "auto")}
+                        presentationMode="canvas"
                         lowLatency
                         overlayStyle={{ pointerEvents: "auto", zIndex: "auto" }}
                     >

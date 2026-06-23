@@ -1,16 +1,16 @@
-import React from "react"
-import type { MpvCore_PlaybackInfo } from "@/api/generated/types"
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { __CAST_ENABLED__, __isElectronDesktop__ } from "@/types/constants"
+import type { Player_PlaybackInfo } from "@/api/generated/types"
 import { Button, IconButton } from "@/components/ui/button"
-import { Modal } from "@/components/ui/modal"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { cn } from "@/components/ui/core/styling"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Modal } from "@/components/ui/modal"
+import { __CAST_ENABLED__, __isElectronDesktop__ } from "@/types/constants"
+import React from "react"
 import { BiCast } from "react-icons/bi"
 import { mc_resolveSource } from "./mpv-core"
 
 export interface MpvCoreCastButtonProps {
-    info: MpvCore_PlaybackInfo | null
+    info: Player_PlaybackInfo | null
     paused: boolean
     onCastingStart: () => void
     onCastingEnd: () => void

@@ -1,5 +1,5 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
-import type { MpvCore_PlaybackInfo, MpvCore_ServerEvent, MpvCore_SkipData } from "@/api/generated/types"
+import type { MpvCore_ServerEvent, Player_PlaybackInfo, Player_SkipData } from "@/api/generated/types"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -60,7 +60,7 @@ export function createMpvChapterCues(chapters: MpvCoreNativeChapter[], duration:
     }), duration)
 }
 
-export function createSkipChapterCues(skipData: MpvCore_SkipData | null, duration: number): MpvCoreChapterCue[] {
+export function createSkipChapterCues(skipData: Player_SkipData | null, duration: number): MpvCoreChapterCue[] {
     if (!skipData || duration <= 0) return []
 
     const chapters = [
@@ -476,7 +476,7 @@ export function MpvCore() {
                         draft.active = true
                         draft.miniPlayer = false
                         draft.loadingState = "Loading..."
-                        draft.playbackInfo = payload as MpvCore_PlaybackInfo
+                        draft.playbackInfo = payload as Player_PlaybackInfo
                         draft.playbackError = null
                     })
                     break

@@ -4,6 +4,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/library/anime"
+	"seanime/internal/player"
 	"seanime/internal/testutil"
 	"testing"
 	"time"
@@ -13,58 +14,58 @@ import (
 )
 
 type mockBackend struct {
-	target      Target
-	eventsCh    chan Event
-	watchedInfo *PlaybackInfo
+	target      player.Target
+	eventsCh    chan player.Event
+	watchedInfo *player.PlaybackInfo
 }
 
 var _ Backend = (*mockBackend)(nil)
 
-func newMockBackend(target Target) *mockBackend {
+func newMockBackend(target player.Target) *mockBackend {
 	return &mockBackend{
 		target:   target,
-		eventsCh: make(chan Event, 10),
+		eventsCh: make(chan player.Event, 10),
 	}
 }
 
-func (m *mockBackend) Target() Target {
+func (m *mockBackend) Target() player.Target {
 	return m.target
 }
 
 func (m *mockBackend) OpenAndAwait(clientID, state string) {}
 func (m *mockBackend) AbortOpen(clientID, reason string)   {}
-func (m *mockBackend) Watch(clientID string, info *PlaybackInfo) {
+func (m *mockBackend) Watch(clientID string, info *player.PlaybackInfo) {
 	m.watchedInfo = info
 }
 func (m *mockBackend) Error(clientID string, err error) {}
-func (m *mockBackend) Execute(session SessionKey, cmd Command) error {
+func (m *mockBackend) Execute(session player.SessionKey, cmd player.Command) error {
 	return nil
 }
-func (m *mockBackend) Terminate(session SessionKey) {}
-func (m *mockBackend) Events() <-chan Event {
+func (m *mockBackend) Terminate(session player.SessionKey) {}
+func (m *mockBackend) Events() <-chan player.Event {
 	return m.eventsCh
 }
 func (m *mockBackend) Close() error {
 	close(m.eventsCh)
 	return nil
 }
-func (m *mockBackend) PullStatus() (PlaybackStatus, bool) {
-	return PlaybackStatus{}, false
+func (m *mockBackend) PullStatus() (player.PlaybackStatus, bool) {
+	return player.PlaybackStatus{}, false
 }
-func (m *mockBackend) GetPlaylist() (*PlaylistState, bool) {
+func (m *mockBackend) GetPlaylist() (*player.PlaylistState, bool) {
 	return nil, false
 }
-func (m *mockBackend) GetSkipData() (*SkipData, bool) {
+func (m *mockBackend) GetSkipData() (*player.SkipData, bool) {
 	return nil, false
 }
 
 func TestCoordinatorRoutingAndStaleRejection(t *testing.T) {
-	mbMpv := newMockBackend(TargetMpvCore)
-	mbVc := newMockBackend(TargetVideoCore)
+	mbMpv := newMockBackend(player.TargetMpvCore)
+	mbVc := newMockBackend(player.TargetVideoCore)
 
-	backends := map[Target]Backend{
-		TargetMpvCore:   mbMpv,
-		TargetVideoCore: mbVc,
+	backends := map[player.Target]Backend{
+		player.TargetMpvCore:   mbMpv,
+		player.TargetVideoCore: mbVc,
 	}
 
 	coordinator := NewCoordinator(NewCoordinatorOptions{
@@ -81,18 +82,18 @@ func TestCoordinatorRoutingAndStaleRejection(t *testing.T) {
 	require.Empty(t, sess.PlaybackID)
 
 	// mpvcore, client-1
-	coordinator.OpenAndAwait(TargetMpvCore, "client-1", "Opening...")
+	coordinator.OpenAndAwait(player.TargetMpvCore, "client-1", "Opening...")
 	sess, ok = coordinator.GetActiveSession()
 	require.False(t, ok) // session shouldnt be active
-	require.Equal(t, TargetMpvCore, sess.Target)
+	require.Equal(t, player.TargetMpvCore, sess.Target)
 	require.Equal(t, "client-1", sess.ClientID)
 	require.Empty(t, sess.PlaybackID)
 
 	// 3. send stale status event from VideoCore
-	mbVc.eventsCh <- &StatusEvent{
-		BaseEvent: BaseEvent{
-			Session: SessionKey{
-				Target:     TargetVideoCore,
+	mbVc.eventsCh <- &player.StatusEvent{
+		BaseEvent: player.BaseEvent{
+			Session: player.SessionKey{
+				Target:     player.TargetVideoCore,
 				ClientID:   "client-1",
 				PlaybackID: "stale-1",
 			},
@@ -101,25 +102,25 @@ func TestCoordinatorRoutingAndStaleRejection(t *testing.T) {
 		Duration:    100.0,
 	}
 
-	mbMpv.eventsCh <- &PlaybackLoadedEvent{
-		BaseEvent: BaseEvent{
-			Session: SessionKey{
-				Target:     TargetMpvCore,
+	mbMpv.eventsCh <- &player.PlaybackLoadedEvent{
+		BaseEvent: player.BaseEvent{
+			Session: player.SessionKey{
+				Target:     player.TargetMpvCore,
 				ClientID:   "client-1",
 				PlaybackID: "play-1",
 			},
 		},
-		State: PlaybackState{
+		State: player.PlaybackState{
 			ClientID: "client-1",
-			PlaybackInfo: &PlaybackInfo{
+			PlaybackInfo: &player.PlaybackInfo{
 				ID:           "play-1",
-				Target:       TargetMpvCore,
-				PlaybackType: PlaybackTypeLocalFile,
+				Target:       player.TargetMpvCore,
+				PlaybackType: player.PlaybackTypeLocalFile,
 			},
 		},
 	}
 
-	var lastEvent Event
+	var lastEvent player.Event
 	select {
 	case ev := <-sub.Events():
 		lastEvent = ev
@@ -127,7 +128,7 @@ func TestCoordinatorRoutingAndStaleRejection(t *testing.T) {
 		t.Fatal("Timeout waiting for event")
 	}
 
-	loadedEv, ok := lastEvent.(*PlaybackLoadedEvent)
+	loadedEv, ok := lastEvent.(*player.PlaybackLoadedEvent)
 	require.True(t, ok)
 	require.Equal(t, "play-1", loadedEv.State.PlaybackInfo.ID)
 
@@ -135,10 +136,10 @@ func TestCoordinatorRoutingAndStaleRejection(t *testing.T) {
 	require.True(t, ok)
 	require.Equal(t, "play-1", sess.PlaybackID)
 
-	mbMpv.eventsCh <- &StatusEvent{
-		BaseEvent: BaseEvent{
-			Session: SessionKey{
-				Target:     TargetMpvCore,
+	mbMpv.eventsCh <- &player.StatusEvent{
+		BaseEvent: player.BaseEvent{
+			Session: player.SessionKey{
+				Target:     player.TargetMpvCore,
 				ClientID:   "client-1",
 				PlaybackID: "play-1",
 			},
@@ -155,14 +156,14 @@ func TestCoordinatorRoutingAndStaleRejection(t *testing.T) {
 		t.Fatal("Timeout waiting for status event")
 	}
 
-	statusEv, ok := lastEvent.(*StatusEvent)
+	statusEv, ok := lastEvent.(*player.StatusEvent)
 	require.True(t, ok)
 	require.Equal(t, 20.0, statusEv.CurrentTime)
 
-	mbMpv.eventsCh <- &StatusEvent{
-		BaseEvent: BaseEvent{
-			Session: SessionKey{
-				Target:     TargetMpvCore,
+	mbMpv.eventsCh <- &player.StatusEvent{
+		BaseEvent: player.BaseEvent{
+			Session: player.SessionKey{
+				Target:     player.TargetMpvCore,
 				ClientID:   "client-1",
 				PlaybackID: "stale-2",
 			},
@@ -171,10 +172,10 @@ func TestCoordinatorRoutingAndStaleRejection(t *testing.T) {
 		Duration:    100.0,
 	}
 
-	mbMpv.eventsCh <- &StatusEvent{
-		BaseEvent: BaseEvent{
-			Session: SessionKey{
-				Target:     TargetMpvCore,
+	mbMpv.eventsCh <- &player.StatusEvent{
+		BaseEvent: player.BaseEvent{
+			Session: player.SessionKey{
+				Target:     player.TargetMpvCore,
 				ClientID:   "client-1",
 				PlaybackID: "play-1",
 			},
@@ -190,36 +191,36 @@ func TestCoordinatorRoutingAndStaleRejection(t *testing.T) {
 		t.Fatal("Timeout waiting for final status event")
 	}
 
-	statusEv, ok = lastEvent.(*StatusEvent)
+	statusEv, ok = lastEvent.(*player.StatusEvent)
 	require.True(t, ok)
 	require.Equal(t, 40.0, statusEv.CurrentTime)
 }
 
 func TestCoordinatorStaleCommandRejection(t *testing.T) {
-	mbMpv := newMockBackend(TargetMpvCore)
+	mbMpv := newMockBackend(player.TargetMpvCore)
 
 	coordinator := NewCoordinator(NewCoordinatorOptions{
 		Logger: new(zerolog.Nop()),
-		Backends: map[Target]Backend{
-			TargetMpvCore: mbMpv,
+		Backends: map[player.Target]Backend{
+			player.TargetMpvCore: mbMpv,
 		},
 	})
 	defer coordinator.Close()
 
-	coordinator.Watch(TargetMpvCore, "client-1", &PlaybackInfo{ID: "play-1"})
+	coordinator.Watch(player.TargetMpvCore, "client-1", &player.PlaybackInfo{ID: "play-1"})
 
-	err := coordinator.Execute(SessionKey{
-		Target:     TargetMpvCore,
+	err := coordinator.Execute(player.SessionKey{
+		Target:     player.TargetMpvCore,
 		ClientID:   "client-1",
 		PlaybackID: "play-1",
-	}, Command{Type: CommandPause})
+	}, player.Command{Type: player.CommandPause})
 	require.NoError(t, err)
 
-	err = coordinator.Execute(SessionKey{
-		Target:     TargetMpvCore,
+	err = coordinator.Execute(player.SessionKey{
+		Target:     player.TargetMpvCore,
 		ClientID:   "client-1",
 		PlaybackID: "stale-session",
-	}, Command{Type: CommandPause})
+	}, player.Command{Type: player.CommandPause})
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "session mismatch or stale command")
 }
@@ -240,17 +241,17 @@ func TestCoordinatorRestoresContinuityBeforeWatch(t *testing.T) {
 		Kind:          continuity.MediastreamKind,
 	}))
 
-	backend := newMockBackend(TargetMpvCore)
+	backend := newMockBackend(player.TargetMpvCore)
 	coordinator := NewCoordinator(NewCoordinatorOptions{
 		Logger:            logger,
 		ContinuityManager: continuityManager,
-		Backends: map[Target]Backend{
-			TargetMpvCore: backend,
+		Backends: map[player.Target]Backend{
+			player.TargetMpvCore: backend,
 		},
 	})
 	defer coordinator.Close()
 
-	coordinator.Watch(TargetMpvCore, "client-1", &PlaybackInfo{
+	coordinator.Watch(player.TargetMpvCore, "client-1", &player.PlaybackInfo{
 		ID:      "play-1",
 		Media:   &anilist.BaseAnime{ID: 42},
 		Episode: &anime.Episode{EpisodeNumber: 3},
@@ -271,33 +272,33 @@ func TestCoordinatorPersistsContinuityOnPause(t *testing.T) {
 	})
 	continuityManager.SetSettings(&continuity.Settings{WatchContinuityEnabled: true})
 
-	backend := newMockBackend(TargetMpvCore)
+	backend := newMockBackend(player.TargetMpvCore)
 	coordinator := NewCoordinator(NewCoordinatorOptions{
 		Logger:            logger,
 		ContinuityManager: continuityManager,
-		Backends: map[Target]Backend{
-			TargetMpvCore: backend,
+		Backends: map[player.Target]Backend{
+			player.TargetMpvCore: backend,
 		},
 	})
 	defer coordinator.Close()
 	coordinator.SetupSharedEffects()
-	coordinator.OpenAndAwait(TargetMpvCore, "client-1", "Opening...")
+	coordinator.OpenAndAwait(player.TargetMpvCore, "client-1", "Opening...")
 
-	session := SessionKey{Target: TargetMpvCore, ClientID: "client-1", PlaybackID: "play-1"}
-	backend.eventsCh <- &PlaybackLoadedEvent{
-		BaseEvent: BaseEvent{Session: session},
-		State: PlaybackState{
+	session := player.SessionKey{Target: player.TargetMpvCore, ClientID: "client-1", PlaybackID: "play-1"}
+	backend.eventsCh <- &player.PlaybackLoadedEvent{
+		BaseEvent: player.BaseEvent{Session: session},
+		State: player.PlaybackState{
 			ClientID: "client-1",
-			PlaybackInfo: &PlaybackInfo{
+			PlaybackInfo: &player.PlaybackInfo{
 				ID:           "play-1",
-				PlaybackType: PlaybackTypeLocalFile,
+				PlaybackType: player.PlaybackTypeLocalFile,
 				Media:        &anilist.BaseAnime{ID: 84},
 				Episode:      &anime.Episode{EpisodeNumber: 6},
 			},
 		},
 	}
-	backend.eventsCh <- &PausedEvent{
-		BaseEvent:   BaseEvent{Session: session},
+	backend.eventsCh <- &player.PausedEvent{
+		BaseEvent:   player.BaseEvent{Session: session},
 		CurrentTime: 61,
 		Duration:    100,
 	}

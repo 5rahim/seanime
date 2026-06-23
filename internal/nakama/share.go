@@ -13,7 +13,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
-	"seanime/internal/mediacore"
+	"seanime/internal/player"
 	"seanime/internal/util"
 	"strconv"
 	"strings"
@@ -311,13 +311,13 @@ func (m *Manager) registerDenshiStreamReadyCallback(loaderID string) {
 	if m.mediacoreCoordinator == nil {
 		return
 	}
-	m.mediacoreCoordinator.RegisterEventCallback(func(event mediacore.Event) bool {
+	m.mediacoreCoordinator.RegisterEventCallback(func(event player.Event) bool {
 		playbackState, ok := m.mediacoreCoordinator.GetActivePlaybackState()
-		if !ok || playbackState.PlaybackInfo == nil || playbackState.PlaybackInfo.PlaybackType != mediacore.PlaybackTypeNakama {
+		if !ok || playbackState.PlaybackInfo == nil || playbackState.PlaybackInfo.PlaybackType != player.PlaybackTypeNakama {
 			return true
 		}
 		switch event.(type) {
-		case *mediacore.LoadedMetadataEvent, *mediacore.TerminatedEvent:
+		case *player.LoadedMetadataEvent, *player.TerminatedEvent:
 			m.wsEventManager.SendEvent(events.HideIndefiniteLoader, loaderID)
 			return false
 		}

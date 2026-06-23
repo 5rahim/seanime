@@ -49,6 +49,11 @@ type SubtitleTrack struct {
 	Language  string  `json:"language"`
 	Format    *string `json:"format,omitempty"`
 	Default   *bool   `json:"default,omitempty"`
+
+	// Compatibility fields
+	Src               *string `json:"src,omitempty"`
+	Type              *string `json:"type,omitempty"`
+	UseLibassRenderer *bool   `json:"useLibassRenderer,omitempty"`
 }
 
 type VideoSource struct {
@@ -87,6 +92,11 @@ type SkipData struct {
 	Ed *SkipDataEntry `json:"ed,omitempty"`
 }
 
+type LibassFont struct {
+	Name *string `json:"name,omitempty"`
+	Src  string  `json:"src"`
+}
+
 type PlaybackInfo struct {
 	ID                             string                               `json:"id"`
 	Target                         Target                               `json:"target"`
@@ -111,11 +121,19 @@ type PlaybackInfo struct {
 	OnlinestreamParams             *OnlinestreamParams                  `json:"onlinestreamParams,omitempty"`
 	IsNakamaWatchParty             bool                                 `json:"isNakamaWatchParty,omitempty"`
 	MkvMetadataParser              mo.Option[*mkvparser.MetadataParser] `json:"-"`
+
+	// Compatibility fields
+	StreamType  string        `json:"streamType,omitempty"`
+	LibassFonts []*LibassFont `json:"libassFonts,omitempty"`
 }
 
 type PlaybackState struct {
 	ClientID     string        `json:"clientId"`
 	PlaybackInfo *PlaybackInfo `json:"playbackInfo"`
+
+	// Compatibility fields
+	PlayerType      string `json:"playerType,omitempty"`
+	CurrentProgress int    `json:"currentProgress,omitempty"`
 }
 
 type PlaybackStatus struct {

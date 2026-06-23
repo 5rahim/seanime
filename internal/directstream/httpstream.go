@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 	"seanime/internal/library/anime"
-	"seanime/internal/mediacore"
 	"seanime/internal/mkvparser"
+	"seanime/internal/player"
 	httputil "seanime/internal/util/http"
 	"sync"
 	"time"
@@ -125,10 +125,10 @@ func (s *httpBaseStream) Terminate() {
 }
 
 // loadPlaybackInfo is called by concrete types, passing their own PlaybackType.
-func (s *httpBaseStream) loadPlaybackInfo(streamType mediacore.PlaybackType) (ret *mediacore.PlaybackInfo, err error) {
+func (s *httpBaseStream) loadPlaybackInfo(streamType player.PlaybackType) (ret *player.PlaybackInfo, err error) {
 	s.playbackInfoOnce.Do(func() {
 		if s.streamUrl == "" {
-			ret = &mediacore.PlaybackInfo{}
+			ret = &player.PlaybackInfo{}
 			err = fmt.Errorf("stream url is not set")
 			s.playbackInfoErr = err
 			return
@@ -146,7 +146,7 @@ func (s *httpBaseStream) loadPlaybackInfo(streamType mediacore.PlaybackType) (re
 		contentType := s.LoadContentType()
 
 		streamURL := "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id + s.manager.GetHMACTokenQueryParam("/api/v1/directstream/stream", "&")
-		playbackInfo := mediacore.PlaybackInfo{
+		playbackInfo := player.PlaybackInfo{
 			ID:                id,
 			PlaybackType:      streamType,
 			PlaybackURI:       streamURL,

@@ -31237,15 +31237,6 @@
         "required": true,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "MpvPrismUseCanvas",
-        "jsonName": "mpvPrismUseCanvas",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -37354,10 +37345,10 @@
       {
         "name": "playbackInfo",
         "jsonName": "playbackInfo",
-        "goType": "mediacore.PlaybackInfo",
-        "typescriptType": "PlaybackInfo",
-        "usedTypescriptType": "PlaybackInfo",
-        "usedStructName": "mediacore.PlaybackInfo",
+        "goType": "player.PlaybackInfo",
+        "typescriptType": "Player_PlaybackInfo",
+        "usedTypescriptType": "Player_PlaybackInfo",
+        "usedStructName": "player.PlaybackInfo",
         "required": false,
         "public": false,
         "comments": []
@@ -63213,7 +63204,7 @@
       {
         "name": "backends",
         "jsonName": "backends",
-        "goType": "map[Target]Backend",
+        "goType": "map[player.Target]Backend",
         "typescriptType": "Record\u003cTarget, Backend\u003e",
         "usedTypescriptType": "Backend",
         "usedStructName": "mediacore.Backend",
@@ -63235,32 +63226,32 @@
       {
         "name": "session",
         "jsonName": "session",
-        "goType": "SessionKey",
-        "typescriptType": "SessionKey",
-        "usedTypescriptType": "SessionKey",
-        "usedStructName": "mediacore.SessionKey",
-        "required": true,
+        "goType": "player.SessionKey",
+        "typescriptType": "Player_SessionKey",
+        "usedTypescriptType": "Player_SessionKey",
+        "usedStructName": "player.SessionKey",
+        "required": false,
         "public": false,
         "comments": []
       },
       {
         "name": "activeTarget",
         "jsonName": "activeTarget",
-        "goType": "Target",
-        "typescriptType": "Target",
-        "usedTypescriptType": "Target",
-        "usedStructName": "mediacore.Target",
-        "required": true,
+        "goType": "player.Target",
+        "typescriptType": "Player_Target",
+        "usedTypescriptType": "Player_Target",
+        "usedStructName": "player.Target",
+        "required": false,
         "public": false,
         "comments": []
       },
       {
         "name": "activePlaybackState",
         "jsonName": "activePlaybackState",
-        "goType": "PlaybackState",
-        "typescriptType": "PlaybackState",
-        "usedTypescriptType": "PlaybackState",
-        "usedStructName": "mediacore.PlaybackState",
+        "goType": "player.PlaybackState",
+        "typescriptType": "Player_PlaybackState",
+        "usedTypescriptType": "Player_PlaybackState",
+        "usedStructName": "player.PlaybackState",
         "required": false,
         "public": false,
         "comments": []
@@ -63268,10 +63259,21 @@
       {
         "name": "activePlaybackStatus",
         "jsonName": "activePlaybackStatus",
-        "goType": "PlaybackStatus",
-        "typescriptType": "PlaybackStatus",
-        "usedTypescriptType": "PlaybackStatus",
-        "usedStructName": "mediacore.PlaybackStatus",
+        "goType": "player.PlaybackStatus",
+        "typescriptType": "Player_PlaybackStatus",
+        "usedTypescriptType": "Player_PlaybackStatus",
+        "usedStructName": "player.PlaybackStatus",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "activePlaybackInfo",
+        "jsonName": "activePlaybackInfo",
+        "goType": "player.PlaybackInfo",
+        "typescriptType": "Player_PlaybackInfo",
+        "usedTypescriptType": "Player_PlaybackInfo",
+        "usedStructName": "player.PlaybackInfo",
         "required": false,
         "public": false,
         "comments": []
@@ -63479,1429 +63481,11 @@
       {
         "name": "Backends",
         "jsonName": "Backends",
-        "goType": "map[Target]Backend",
+        "goType": "map[player.Target]Backend",
         "typescriptType": "Record\u003cTarget, Backend\u003e",
         "usedTypescriptType": "Backend",
         "usedStructName": "mediacore.Backend",
         "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "Target",
-    "formattedName": "Target",
-    "package": "mediacore",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"videocore\"",
-        "\"mpvcore\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "Renderer",
-    "formattedName": "Renderer",
-    "package": "mediacore",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"web\"",
-        "\"native\"",
-        "\"mpv\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "PlaybackType",
-    "formattedName": "PlaybackType",
-    "package": "mediacore",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"localfile\"",
-        "\"torrent\"",
-        "\"debrid\"",
-        "\"nakama\"",
-        "\"onlinestream\"",
-        "\"url\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "SessionKey",
-    "formattedName": "SessionKey",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Target",
-        "jsonName": "Target",
-        "goType": "Target",
-        "typescriptType": "Target",
-        "usedTypescriptType": "Target",
-        "usedStructName": "mediacore.Target",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ClientID",
-        "jsonName": "ClientID",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PlaybackID",
-        "jsonName": "PlaybackID",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "SubtitleTrack",
-    "formattedName": "SubtitleTrack",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Index",
-        "jsonName": "index",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "URI",
-        "jsonName": "uri",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SourceURL",
-        "jsonName": "sourceUrl",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Content",
-        "jsonName": "content",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Label",
-        "jsonName": "label",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Language",
-        "jsonName": "language",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Format",
-        "jsonName": "format",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Default",
-        "jsonName": "default",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "VideoSource",
-    "formattedName": "VideoSource",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Index",
-        "jsonName": "index",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Resolution",
-        "jsonName": "resolution",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "URL",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Label",
-        "jsonName": "label",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MoreInfo",
-        "jsonName": "moreInfo",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "InitialState",
-    "formattedName": "InitialState",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "CurrentTime",
-        "jsonName": "currentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Paused",
-        "jsonName": "paused",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "SkipInterval",
-    "formattedName": "SkipInterval",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "StartTime",
-        "jsonName": "startTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EndTime",
-        "jsonName": "endTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "SkipDataEntry",
-    "formattedName": "SkipDataEntry",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Interval",
-        "jsonName": "interval",
-        "goType": "SkipInterval",
-        "typescriptType": "SkipInterval",
-        "usedTypescriptType": "SkipInterval",
-        "usedStructName": "mediacore.SkipInterval",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "OnlinestreamParams",
-    "formattedName": "OnlinestreamParams",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "episodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Server",
-        "jsonName": "server",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Quality",
-        "jsonName": "quality",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Dubbed",
-        "jsonName": "dubbed",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "SkipData",
-    "formattedName": "SkipData",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Op",
-        "jsonName": "op",
-        "goType": "SkipDataEntry",
-        "typescriptType": "SkipDataEntry",
-        "usedTypescriptType": "SkipDataEntry",
-        "usedStructName": "mediacore.SkipDataEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Ed",
-        "jsonName": "ed",
-        "goType": "SkipDataEntry",
-        "typescriptType": "SkipDataEntry",
-        "usedTypescriptType": "SkipDataEntry",
-        "usedStructName": "mediacore.SkipDataEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "PlaybackInfo",
-    "formattedName": "PlaybackInfo",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Target",
-        "jsonName": "target",
-        "goType": "Target",
-        "typescriptType": "Target",
-        "usedTypescriptType": "Target",
-        "usedStructName": "mediacore.Target",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Renderer",
-        "jsonName": "renderer",
-        "goType": "Renderer",
-        "typescriptType": "Renderer",
-        "usedTypescriptType": "Renderer",
-        "usedStructName": "mediacore.Renderer",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PlaybackType",
-        "jsonName": "playbackType",
-        "goType": "PlaybackType",
-        "typescriptType": "PlaybackType",
-        "usedTypescriptType": "PlaybackType",
-        "usedStructName": "mediacore.PlaybackType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PlaybackURI",
-        "jsonName": "playbackUri",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StreamURL",
-        "jsonName": "streamUrl",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StreamPath",
-        "jsonName": "streamPath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MimeType",
-        "jsonName": "mimeType",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ContentLength",
-        "jsonName": "contentLength",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MkvMetadata",
-        "jsonName": "mkvMetadata",
-        "goType": "mkvparser.Metadata",
-        "typescriptType": "MKVParser_Metadata",
-        "usedTypescriptType": "MKVParser_Metadata",
-        "usedStructName": "mkvparser.Metadata",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SubtitleTracks",
-        "jsonName": "subtitleTracks",
-        "goType": "[]SubtitleTrack",
-        "typescriptType": "Array\u003cSubtitleTrack\u003e",
-        "usedTypescriptType": "SubtitleTrack",
-        "usedStructName": "mediacore.SubtitleTrack",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "VideoSources",
-        "jsonName": "videoSources",
-        "goType": "[]VideoSource",
-        "typescriptType": "Array\u003cVideoSource\u003e",
-        "usedTypescriptType": "VideoSource",
-        "usedStructName": "mediacore.VideoSource",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SelectedVideoSource",
-        "jsonName": "selectedVideoSource",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PlaylistExternalEpisodeNumbers",
-        "jsonName": "playlistExternalEpisodeNumbers",
-        "goType": "[]int",
-        "typescriptType": "Array\u003cnumber\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DisableRestoreFromContinuity",
-        "jsonName": "disableRestoreFromContinuity",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "InitialState",
-        "jsonName": "initialState",
-        "goType": "InitialState",
-        "typescriptType": "InitialState",
-        "usedTypescriptType": "InitialState",
-        "usedStructName": "mediacore.InitialState",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EntryListData",
-        "jsonName": "entryListData",
-        "goType": "anime.EntryListData",
-        "typescriptType": "Anime_EntryListData",
-        "usedTypescriptType": "Anime_EntryListData",
-        "usedStructName": "anime.EntryListData",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedTypescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episode",
-        "jsonName": "episode",
-        "goType": "anime.Episode",
-        "typescriptType": "Anime_Episode",
-        "usedTypescriptType": "Anime_Episode",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LocalFile",
-        "jsonName": "localFile",
-        "goType": "anime.LocalFile",
-        "typescriptType": "Anime_LocalFile",
-        "usedTypescriptType": "Anime_LocalFile",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "OnlinestreamParams",
-        "jsonName": "onlinestreamParams",
-        "goType": "OnlinestreamParams",
-        "typescriptType": "OnlinestreamParams",
-        "usedTypescriptType": "OnlinestreamParams",
-        "usedStructName": "mediacore.OnlinestreamParams",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsNakamaWatchParty",
-        "jsonName": "isNakamaWatchParty",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MkvMetadataParser",
-        "jsonName": "",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "PlaybackState",
-    "formattedName": "PlaybackState",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "ClientID",
-        "jsonName": "clientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PlaybackInfo",
-        "jsonName": "playbackInfo",
-        "goType": "PlaybackInfo",
-        "typescriptType": "PlaybackInfo",
-        "usedTypescriptType": "PlaybackInfo",
-        "usedStructName": "mediacore.PlaybackInfo",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "PlaybackStatus",
-    "formattedName": "PlaybackStatus",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ClientID",
-        "jsonName": "clientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Paused",
-        "jsonName": "paused",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CurrentTime",
-        "jsonName": "currentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "PlaylistState",
-    "formattedName": "PlaylistState",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "PlaybackType",
-        "typescriptType": "PlaybackType",
-        "usedTypescriptType": "PlaybackType",
-        "usedStructName": "mediacore.PlaybackType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "[]anime.Episode",
-        "typescriptType": "Array\u003cAnime_Episode\u003e",
-        "usedTypescriptType": "Anime_Episode",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PreviousEpisode",
-        "jsonName": "previousEpisode",
-        "goType": "anime.Episode",
-        "typescriptType": "Anime_Episode",
-        "usedTypescriptType": "Anime_Episode",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NextEpisode",
-        "jsonName": "nextEpisode",
-        "goType": "anime.Episode",
-        "typescriptType": "Anime_Episode",
-        "usedTypescriptType": "Anime_Episode",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CurrentEpisode",
-        "jsonName": "currentEpisode",
-        "goType": "anime.Episode",
-        "typescriptType": "Anime_Episode",
-        "usedTypescriptType": "Anime_Episode",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeEntry",
-        "jsonName": "animeEntry",
-        "goType": "anime.Entry",
-        "typescriptType": "Anime_Entry",
-        "usedTypescriptType": "Anime_Entry",
-        "usedStructName": "anime.Entry",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "BaseEvent",
-    "formattedName": "BaseEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Session",
-        "jsonName": "Session",
-        "goType": "SessionKey",
-        "typescriptType": "SessionKey",
-        "usedTypescriptType": "SessionKey",
-        "usedStructName": "mediacore.SessionKey",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "PlaybackLoadedEvent",
-    "formattedName": "PlaybackLoadedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "State",
-        "jsonName": "State",
-        "goType": "PlaybackState",
-        "typescriptType": "PlaybackState",
-        "usedTypescriptType": "PlaybackState",
-        "usedStructName": "mediacore.PlaybackState",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "LoadedMetadataEvent",
-    "formattedName": "LoadedMetadataEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "CurrentTime",
-        "jsonName": "CurrentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "Duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Paused",
-        "jsonName": "Paused",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "CanPlayEvent",
-    "formattedName": "CanPlayEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "CurrentTime",
-        "jsonName": "CurrentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "Duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Paused",
-        "jsonName": "Paused",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "PausedEvent",
-    "formattedName": "PausedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "CurrentTime",
-        "jsonName": "CurrentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "Duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "ResumedEvent",
-    "formattedName": "ResumedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "CurrentTime",
-        "jsonName": "CurrentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "Duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "StatusEvent",
-    "formattedName": "StatusEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "CurrentTime",
-        "jsonName": "CurrentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "Duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Paused",
-        "jsonName": "Paused",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "SeekedEvent",
-    "formattedName": "SeekedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "CurrentTime",
-        "jsonName": "CurrentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "Duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Paused",
-        "jsonName": "Paused",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "CompletedEvent",
-    "formattedName": "CompletedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "CurrentTime",
-        "jsonName": "CurrentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "Duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "EndedEvent",
-    "formattedName": "EndedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "AutoNext",
-        "jsonName": "AutoNext",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "ErrorEvent",
-    "formattedName": "ErrorEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Error",
-        "jsonName": "Error",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "TerminatedEvent",
-    "formattedName": "TerminatedEvent",
-    "package": "mediacore",
-    "fields": [],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "FullscreenChangedEvent",
-    "formattedName": "FullscreenChangedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Fullscreen",
-        "jsonName": "Fullscreen",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "PipChangedEvent",
-    "formattedName": "PipChangedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Pip",
-        "jsonName": "Pip",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "AudioTrackChangedEvent",
-    "formattedName": "AudioTrackChangedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "TrackID",
-        "jsonName": "TrackID",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "SubtitleTrackChangedEvent",
-    "formattedName": "SubtitleTrackChangedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "TrackID",
-        "jsonName": "TrackID",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "SubtitleFileUploadedEvent",
-    "formattedName": "SubtitleFileUploadedEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Filename",
-        "jsonName": "Filename",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Content",
-        "jsonName": "Content",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "PlaylistStateEvent",
-    "formattedName": "PlaylistStateEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Playlist",
-        "jsonName": "Playlist",
-        "goType": "PlaylistState",
-        "typescriptType": "PlaylistState",
-        "usedTypescriptType": "PlaylistState",
-        "usedStructName": "mediacore.PlaylistState",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "SkipDataEvent",
-    "formattedName": "SkipDataEvent",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "SkipData",
-        "jsonName": "SkipData",
-        "goType": "SkipData",
-        "typescriptType": "SkipData",
-        "usedTypescriptType": "SkipData",
-        "usedStructName": "mediacore.SkipData",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "mediacore.BaseEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "CommandType",
-    "formattedName": "CommandType",
-    "package": "mediacore",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"pause\"",
-        "\"resume\"",
-        "\"seek\"",
-        "\"seek-to\"",
-        "\"set-fullscreen\"",
-        "\"set-pip\"",
-        "\"set-audio-track\"",
-        "\"set-subtitle-track\"",
-        "\"add-subtitle-track\"",
-        "\"add-external-subtitle-track\"",
-        "\"set-media-caption-track\"",
-        "\"add-media-caption-track\"",
-        "\"play-playlist-episode\"",
-        "\"show-message\"",
-        "\"set-skip-data\"",
-        "\"clear-skip-data\"",
-        "\"start-onlinestream-watch-party\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "ShowMessagePayload",
-    "formattedName": "ShowMessagePayload",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Message",
-        "jsonName": "Message",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "Duration",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediacore/types.go",
-    "filename": "types.go",
-    "name": "Command",
-    "formattedName": "Command",
-    "package": "mediacore",
-    "fields": [
-      {
-        "name": "Type",
-        "jsonName": "Type",
-        "goType": "CommandType",
-        "typescriptType": "CommandType",
-        "usedTypescriptType": "CommandType",
-        "usedStructName": "mediacore.CommandType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Payload",
-        "jsonName": "Payload",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
         "public": true,
         "comments": []
       }
@@ -72689,26 +71273,6 @@
   {
     "filepath": "../internal/mpvcore/types.go",
     "filename": "types.go",
-    "name": "PlaybackType",
-    "formattedName": "MpvCore_PlaybackType",
-    "package": "mpvcore",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"localfile\"",
-        "\"torrent\"",
-        "\"debrid\"",
-        "\"nakama\"",
-        "\"url\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
     "name": "StreamType",
     "formattedName": "MpvCore_StreamType",
     "package": "mpvcore",
@@ -72720,590 +71284,6 @@
       "declaredValues": [],
       "usedStructName": "mpvcore.PlaybackType"
     },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
-    "name": "SubtitleTrack",
-    "formattedName": "MpvCore_SubtitleTrack",
-    "package": "mpvcore",
-    "fields": [
-      {
-        "name": "Index",
-        "jsonName": "index",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "URI",
-        "jsonName": "uri",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SourceURL",
-        "jsonName": "sourceUrl",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Content",
-        "jsonName": "content",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Label",
-        "jsonName": "label",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Language",
-        "jsonName": "language",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Format",
-        "jsonName": "format",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Default",
-        "jsonName": "default",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
-    "name": "VideoSource",
-    "formattedName": "MpvCore_VideoSource",
-    "package": "mpvcore",
-    "fields": [
-      {
-        "name": "Index",
-        "jsonName": "index",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Resolution",
-        "jsonName": "resolution",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "URL",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Label",
-        "jsonName": "label",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MoreInfo",
-        "jsonName": "moreInfo",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
-    "name": "InitialState",
-    "formattedName": "MpvCore_InitialState",
-    "package": "mpvcore",
-    "fields": [
-      {
-        "name": "CurrentTime",
-        "jsonName": "currentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Paused",
-        "jsonName": "paused",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
-    "name": "SkipInterval",
-    "formattedName": "MpvCore_SkipInterval",
-    "package": "mpvcore",
-    "fields": [
-      {
-        "name": "StartTime",
-        "jsonName": "startTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EndTime",
-        "jsonName": "endTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
-    "name": "SkipDataEntry",
-    "formattedName": "MpvCore_SkipDataEntry",
-    "package": "mpvcore",
-    "fields": [
-      {
-        "name": "Interval",
-        "jsonName": "interval",
-        "goType": "SkipInterval",
-        "typescriptType": "MpvCore_SkipInterval",
-        "usedTypescriptType": "MpvCore_SkipInterval",
-        "usedStructName": "mpvcore.SkipInterval",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
-    "name": "SkipData",
-    "formattedName": "MpvCore_SkipData",
-    "package": "mpvcore",
-    "fields": [
-      {
-        "name": "Op",
-        "jsonName": "op",
-        "goType": "SkipDataEntry",
-        "typescriptType": "MpvCore_SkipDataEntry",
-        "usedTypescriptType": "MpvCore_SkipDataEntry",
-        "usedStructName": "mpvcore.SkipDataEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Ed",
-        "jsonName": "ed",
-        "goType": "SkipDataEntry",
-        "typescriptType": "MpvCore_SkipDataEntry",
-        "usedTypescriptType": "MpvCore_SkipDataEntry",
-        "usedStructName": "mpvcore.SkipDataEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
-    "name": "PlaybackInfo",
-    "formattedName": "MpvCore_PlaybackInfo",
-    "package": "mpvcore",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PlaybackType",
-        "jsonName": "playbackType",
-        "goType": "PlaybackType",
-        "typescriptType": "MpvCore_PlaybackType",
-        "usedTypescriptType": "MpvCore_PlaybackType",
-        "usedStructName": "mpvcore.PlaybackType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PlaybackURI",
-        "jsonName": "playbackUri",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StreamURL",
-        "jsonName": "streamUrl",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StreamPath",
-        "jsonName": "streamPath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MimeType",
-        "jsonName": "mimeType",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ContentLength",
-        "jsonName": "contentLength",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "VideoSources",
-        "jsonName": "videoSources",
-        "goType": "[]VideoSource",
-        "typescriptType": "Array\u003cMpvCore_VideoSource\u003e",
-        "usedTypescriptType": "MpvCore_VideoSource",
-        "usedStructName": "mpvcore.VideoSource",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SelectedVideoSource",
-        "jsonName": "selectedVideoSource",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PlaylistExternalEpisodeNumbers",
-        "jsonName": "playlistExternalEpisodeNumbers",
-        "goType": "[]int",
-        "typescriptType": "Array\u003cnumber\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DisableRestoreFromContinuity",
-        "jsonName": "disableRestoreFromContinuity",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "InitialState",
-        "jsonName": "initialState",
-        "goType": "InitialState",
-        "typescriptType": "MpvCore_InitialState",
-        "usedTypescriptType": "MpvCore_InitialState",
-        "usedStructName": "mpvcore.InitialState",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EntryListData",
-        "jsonName": "entryListData",
-        "goType": "anime.EntryListData",
-        "typescriptType": "Anime_EntryListData",
-        "usedTypescriptType": "Anime_EntryListData",
-        "usedStructName": "anime.EntryListData",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedTypescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episode",
-        "jsonName": "episode",
-        "goType": "anime.Episode",
-        "typescriptType": "Anime_Episode",
-        "usedTypescriptType": "Anime_Episode",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LocalFile",
-        "jsonName": "localFile",
-        "goType": "anime.LocalFile",
-        "typescriptType": "Anime_LocalFile",
-        "usedTypescriptType": "Anime_LocalFile",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsNakamaWatchParty",
-        "jsonName": "isNakamaWatchParty",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
-    "name": "PlaybackState",
-    "formattedName": "MpvCore_PlaybackState",
-    "package": "mpvcore",
-    "fields": [
-      {
-        "name": "ClientID",
-        "jsonName": "clientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PlaybackInfo",
-        "jsonName": "playbackInfo",
-        "goType": "PlaybackInfo",
-        "typescriptType": "MpvCore_PlaybackInfo",
-        "usedTypescriptType": "MpvCore_PlaybackInfo",
-        "usedStructName": "mpvcore.PlaybackInfo",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
-    "name": "PlaybackStatus",
-    "formattedName": "MpvCore_PlaybackStatus",
-    "package": "mpvcore",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ClientID",
-        "jsonName": "clientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Paused",
-        "jsonName": "paused",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CurrentTime",
-        "jsonName": "currentTime",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mpvcore/types.go",
-    "filename": "types.go",
-    "name": "PlaylistState",
-    "formattedName": "MpvCore_PlaylistState",
-    "package": "mpvcore",
-    "fields": [
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "PlaybackType",
-        "typescriptType": "MpvCore_PlaybackType",
-        "usedTypescriptType": "MpvCore_PlaybackType",
-        "usedStructName": "mpvcore.PlaybackType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "[]anime.Episode",
-        "typescriptType": "Array\u003cAnime_Episode\u003e",
-        "usedTypescriptType": "Anime_Episode",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PreviousEpisode",
-        "jsonName": "previousEpisode",
-        "goType": "anime.Episode",
-        "typescriptType": "Anime_Episode",
-        "usedTypescriptType": "Anime_Episode",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NextEpisode",
-        "jsonName": "nextEpisode",
-        "goType": "anime.Episode",
-        "typescriptType": "Anime_Episode",
-        "usedTypescriptType": "Anime_Episode",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CurrentEpisode",
-        "jsonName": "currentEpisode",
-        "goType": "anime.Episode",
-        "typescriptType": "Anime_Episode",
-        "usedTypescriptType": "Anime_Episode",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeEntry",
-        "jsonName": "animeEntry",
-        "goType": "anime.Entry",
-        "typescriptType": "Anime_Entry",
-        "usedTypescriptType": "Anime_Entry",
-        "usedStructName": "anime.Entry",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
     "comments": []
   },
   {
@@ -76087,10 +74067,10 @@
       {
         "name": "OnlinestreamParams",
         "jsonName": "onlinestreamParams",
-        "goType": "mediacore.OnlinestreamParams",
-        "typescriptType": "OnlinestreamParams",
-        "usedTypescriptType": "OnlinestreamParams",
-        "usedStructName": "mediacore.OnlinestreamParams",
+        "goType": "player.OnlinestreamParams",
+        "typescriptType": "Player_OnlinestreamParams",
+        "usedTypescriptType": "Player_OnlinestreamParams",
+        "usedStructName": "player.OnlinestreamParams",
         "required": false,
         "public": true,
         "comments": []
@@ -76598,10 +74578,10 @@
       {
         "name": "OnlinestreamParams",
         "jsonName": "onlinestreamParams",
-        "goType": "mediacore.OnlinestreamParams",
-        "typescriptType": "OnlinestreamParams",
-        "usedTypescriptType": "OnlinestreamParams",
-        "usedStructName": "mediacore.OnlinestreamParams",
+        "goType": "player.OnlinestreamParams",
+        "typescriptType": "Player_OnlinestreamParams",
+        "usedTypescriptType": "Player_OnlinestreamParams",
+        "usedStructName": "player.OnlinestreamParams",
         "required": false,
         "public": true,
         "comments": []
@@ -79459,6 +77439,1517 @@
       " SimulatedPlatform used when the user is not authenticated to AniList.",
       " It acts as a dummy account using simulated collections stored locally."
     ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "Target",
+    "formattedName": "Player_Target",
+    "package": "player",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"videocore\"",
+        "\"mpvcore\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "Renderer",
+    "formattedName": "Player_Renderer",
+    "package": "player",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"web\"",
+        "\"native\"",
+        "\"mpv\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "PlaybackType",
+    "formattedName": "Player_PlaybackType",
+    "package": "player",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"localfile\"",
+        "\"torrent\"",
+        "\"debrid\"",
+        "\"nakama\"",
+        "\"onlinestream\"",
+        "\"url\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "SessionKey",
+    "formattedName": "Player_SessionKey",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Target",
+        "jsonName": "Target",
+        "goType": "Target",
+        "typescriptType": "Player_Target",
+        "usedTypescriptType": "Player_Target",
+        "usedStructName": "player.Target",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientID",
+        "jsonName": "ClientID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackID",
+        "jsonName": "PlaybackID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "SubtitleTrack",
+    "formattedName": "Player_SubtitleTrack",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Index",
+        "jsonName": "index",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "URI",
+        "jsonName": "uri",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SourceURL",
+        "jsonName": "sourceUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Content",
+        "jsonName": "content",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Format",
+        "jsonName": "format",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Default",
+        "jsonName": "default",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Src",
+        "jsonName": "src",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UseLibassRenderer",
+        "jsonName": "useLibassRenderer",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "VideoSource",
+    "formattedName": "Player_VideoSource",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Index",
+        "jsonName": "index",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Resolution",
+        "jsonName": "resolution",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "URL",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MoreInfo",
+        "jsonName": "moreInfo",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "InitialState",
+    "formattedName": "Player_InitialState",
+    "package": "player",
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "currentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "SkipInterval",
+    "formattedName": "Player_SkipInterval",
+    "package": "player",
+    "fields": [
+      {
+        "name": "StartTime",
+        "jsonName": "startTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EndTime",
+        "jsonName": "endTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "SkipDataEntry",
+    "formattedName": "Player_SkipDataEntry",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Interval",
+        "jsonName": "interval",
+        "goType": "SkipInterval",
+        "typescriptType": "Player_SkipInterval",
+        "usedTypescriptType": "Player_SkipInterval",
+        "usedStructName": "player.SkipInterval",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "OnlinestreamParams",
+    "formattedName": "Player_OnlinestreamParams",
+    "package": "player",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Server",
+        "jsonName": "server",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Quality",
+        "jsonName": "quality",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Dubbed",
+        "jsonName": "dubbed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "SkipData",
+    "formattedName": "Player_SkipData",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Op",
+        "jsonName": "op",
+        "goType": "SkipDataEntry",
+        "typescriptType": "Player_SkipDataEntry",
+        "usedTypescriptType": "Player_SkipDataEntry",
+        "usedStructName": "player.SkipDataEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ed",
+        "jsonName": "ed",
+        "goType": "SkipDataEntry",
+        "typescriptType": "Player_SkipDataEntry",
+        "usedTypescriptType": "Player_SkipDataEntry",
+        "usedStructName": "player.SkipDataEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "LibassFont",
+    "formattedName": "Player_LibassFont",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Src",
+        "jsonName": "src",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "PlaybackInfo",
+    "formattedName": "Player_PlaybackInfo",
+    "package": "player",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Target",
+        "jsonName": "target",
+        "goType": "Target",
+        "typescriptType": "Player_Target",
+        "usedTypescriptType": "Player_Target",
+        "usedStructName": "player.Target",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Renderer",
+        "jsonName": "renderer",
+        "goType": "Renderer",
+        "typescriptType": "Player_Renderer",
+        "usedTypescriptType": "Player_Renderer",
+        "usedStructName": "player.Renderer",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackType",
+        "jsonName": "playbackType",
+        "goType": "PlaybackType",
+        "typescriptType": "Player_PlaybackType",
+        "usedTypescriptType": "Player_PlaybackType",
+        "usedStructName": "player.PlaybackType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackURI",
+        "jsonName": "playbackUri",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamURL",
+        "jsonName": "streamUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamPath",
+        "jsonName": "streamPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MimeType",
+        "jsonName": "mimeType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentLength",
+        "jsonName": "contentLength",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MkvMetadata",
+        "jsonName": "mkvMetadata",
+        "goType": "mkvparser.Metadata",
+        "typescriptType": "MKVParser_Metadata",
+        "usedTypescriptType": "MKVParser_Metadata",
+        "usedStructName": "mkvparser.Metadata",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SubtitleTracks",
+        "jsonName": "subtitleTracks",
+        "goType": "[]SubtitleTrack",
+        "typescriptType": "Array\u003cPlayer_SubtitleTrack\u003e",
+        "usedTypescriptType": "Player_SubtitleTrack",
+        "usedStructName": "player.SubtitleTrack",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VideoSources",
+        "jsonName": "videoSources",
+        "goType": "[]VideoSource",
+        "typescriptType": "Array\u003cPlayer_VideoSource\u003e",
+        "usedTypescriptType": "Player_VideoSource",
+        "usedStructName": "player.VideoSource",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SelectedVideoSource",
+        "jsonName": "selectedVideoSource",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaylistExternalEpisodeNumbers",
+        "jsonName": "playlistExternalEpisodeNumbers",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableRestoreFromContinuity",
+        "jsonName": "disableRestoreFromContinuity",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InitialState",
+        "jsonName": "initialState",
+        "goType": "InitialState",
+        "typescriptType": "Player_InitialState",
+        "usedTypescriptType": "Player_InitialState",
+        "usedStructName": "player.InitialState",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EntryListData",
+        "jsonName": "entryListData",
+        "goType": "anime.EntryListData",
+        "typescriptType": "Anime_EntryListData",
+        "usedTypescriptType": "Anime_EntryListData",
+        "usedStructName": "anime.EntryListData",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "anime.Episode",
+        "typescriptType": "Anime_Episode",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFile",
+        "jsonName": "localFile",
+        "goType": "anime.LocalFile",
+        "typescriptType": "Anime_LocalFile",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnlinestreamParams",
+        "jsonName": "onlinestreamParams",
+        "goType": "OnlinestreamParams",
+        "typescriptType": "Player_OnlinestreamParams",
+        "usedTypescriptType": "Player_OnlinestreamParams",
+        "usedStructName": "player.OnlinestreamParams",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsNakamaWatchParty",
+        "jsonName": "isNakamaWatchParty",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MkvMetadataParser",
+        "jsonName": "",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamType",
+        "jsonName": "streamType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LibassFonts",
+        "jsonName": "libassFonts",
+        "goType": "[]LibassFont",
+        "typescriptType": "Array\u003cPlayer_LibassFont\u003e",
+        "usedTypescriptType": "Player_LibassFont",
+        "usedStructName": "player.LibassFont",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "PlaybackState",
+    "formattedName": "Player_PlaybackState",
+    "package": "player",
+    "fields": [
+      {
+        "name": "ClientID",
+        "jsonName": "clientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackInfo",
+        "jsonName": "playbackInfo",
+        "goType": "PlaybackInfo",
+        "typescriptType": "Player_PlaybackInfo",
+        "usedTypescriptType": "Player_PlaybackInfo",
+        "usedStructName": "player.PlaybackInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlayerType",
+        "jsonName": "playerType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentProgress",
+        "jsonName": "currentProgress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "PlaybackStatus",
+    "formattedName": "Player_PlaybackStatus",
+    "package": "player",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientID",
+        "jsonName": "clientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentTime",
+        "jsonName": "currentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "PlaylistState",
+    "formattedName": "Player_PlaylistState",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "PlaybackType",
+        "typescriptType": "Player_PlaybackType",
+        "usedTypescriptType": "Player_PlaybackType",
+        "usedStructName": "player.PlaybackType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]anime.Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PreviousEpisode",
+        "jsonName": "previousEpisode",
+        "goType": "anime.Episode",
+        "typescriptType": "Anime_Episode",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NextEpisode",
+        "jsonName": "nextEpisode",
+        "goType": "anime.Episode",
+        "typescriptType": "Anime_Episode",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentEpisode",
+        "jsonName": "currentEpisode",
+        "goType": "anime.Episode",
+        "typescriptType": "Anime_Episode",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeEntry",
+        "jsonName": "animeEntry",
+        "goType": "anime.Entry",
+        "typescriptType": "Anime_Entry",
+        "usedTypescriptType": "Anime_Entry",
+        "usedStructName": "anime.Entry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "BaseEvent",
+    "formattedName": "Player_BaseEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Session",
+        "jsonName": "Session",
+        "goType": "SessionKey",
+        "typescriptType": "Player_SessionKey",
+        "usedTypescriptType": "Player_SessionKey",
+        "usedStructName": "player.SessionKey",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "PlaybackLoadedEvent",
+    "formattedName": "Player_PlaybackLoadedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "State",
+        "jsonName": "State",
+        "goType": "PlaybackState",
+        "typescriptType": "Player_PlaybackState",
+        "usedTypescriptType": "Player_PlaybackState",
+        "usedStructName": "player.PlaybackState",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "LoadedMetadataEvent",
+    "formattedName": "Player_LoadedMetadataEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "CurrentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "Paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "CanPlayEvent",
+    "formattedName": "Player_CanPlayEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "CurrentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "Paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "PausedEvent",
+    "formattedName": "Player_PausedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "CurrentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "ResumedEvent",
+    "formattedName": "Player_ResumedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "CurrentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "StatusEvent",
+    "formattedName": "Player_StatusEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "CurrentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "Paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "SeekedEvent",
+    "formattedName": "Player_SeekedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "CurrentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "Paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "CompletedEvent",
+    "formattedName": "Player_CompletedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "CurrentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "EndedEvent",
+    "formattedName": "Player_EndedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "AutoNext",
+        "jsonName": "AutoNext",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "ErrorEvent",
+    "formattedName": "Player_ErrorEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Error",
+        "jsonName": "Error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "TerminatedEvent",
+    "formattedName": "Player_TerminatedEvent",
+    "package": "player",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "FullscreenChangedEvent",
+    "formattedName": "Player_FullscreenChangedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Fullscreen",
+        "jsonName": "Fullscreen",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "PipChangedEvent",
+    "formattedName": "Player_PipChangedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Pip",
+        "jsonName": "Pip",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "AudioTrackChangedEvent",
+    "formattedName": "Player_AudioTrackChangedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "TrackID",
+        "jsonName": "TrackID",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "SubtitleTrackChangedEvent",
+    "formattedName": "Player_SubtitleTrackChangedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "TrackID",
+        "jsonName": "TrackID",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "SubtitleFileUploadedEvent",
+    "formattedName": "Player_SubtitleFileUploadedEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Filename",
+        "jsonName": "Filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Content",
+        "jsonName": "Content",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "PlaylistStateEvent",
+    "formattedName": "Player_PlaylistStateEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Playlist",
+        "jsonName": "Playlist",
+        "goType": "PlaylistState",
+        "typescriptType": "Player_PlaylistState",
+        "usedTypescriptType": "Player_PlaylistState",
+        "usedStructName": "player.PlaylistState",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "SkipDataEvent",
+    "formattedName": "Player_SkipDataEvent",
+    "package": "player",
+    "fields": [
+      {
+        "name": "SkipData",
+        "jsonName": "SkipData",
+        "goType": "SkipData",
+        "typescriptType": "Player_SkipData",
+        "usedTypescriptType": "Player_SkipData",
+        "usedStructName": "player.SkipData",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "player.BaseEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "CommandType",
+    "formattedName": "Player_CommandType",
+    "package": "player",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"pause\"",
+        "\"resume\"",
+        "\"seek\"",
+        "\"seek-to\"",
+        "\"set-fullscreen\"",
+        "\"set-pip\"",
+        "\"set-audio-track\"",
+        "\"set-subtitle-track\"",
+        "\"add-subtitle-track\"",
+        "\"add-external-subtitle-track\"",
+        "\"set-media-caption-track\"",
+        "\"add-media-caption-track\"",
+        "\"play-playlist-episode\"",
+        "\"show-message\"",
+        "\"set-skip-data\"",
+        "\"clear-skip-data\"",
+        "\"start-onlinestream-watch-party\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "ShowMessagePayload",
+    "formattedName": "Player_ShowMessagePayload",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Message",
+        "jsonName": "Message",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/player/types.go",
+    "filename": "types.go",
+    "name": "Command",
+    "formattedName": "Player_Command",
+    "package": "player",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "Type",
+        "goType": "CommandType",
+        "typescriptType": "Player_CommandType",
+        "usedTypescriptType": "Player_CommandType",
+        "usedStructName": "player.CommandType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Payload",
+        "jsonName": "Payload",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/playlist/manager.go",

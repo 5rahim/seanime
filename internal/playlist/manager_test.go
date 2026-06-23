@@ -14,6 +14,7 @@ import (
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mpvcore"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/player"
 	"seanime/internal/testmocks"
 	"seanime/internal/testutil"
 	"seanime/internal/util"
@@ -382,8 +383,8 @@ func newPlaylistTestWrapper(t *testing.T) *playlistTestWrapper {
 		ContinuityManager:   continuityManager,
 		PlatformRef:         util.NewRef(platformInterface),
 		IsOfflineRef:        util.NewRef(false),
-		Backends: map[mediacore.Target]mediacore.Backend{
-			mediacore.TargetMpvCore: mpvcore.NewAdapter(mpvCore),
+		Backends: map[player.Target]mediacore.Backend{
+			player.TargetMpvCore: mpvcore.NewAdapter(mpvCore),
 		},
 	})
 	t.Cleanup(func() { _ = mediacoreCoordinator.Close() })
@@ -437,9 +438,9 @@ func (h *playlistTestWrapper) sendMpvCoreClientEvent(clientID string, eventType 
 func (h *playlistTestWrapper) sendNativeLoadedSequence(t *testing.T, clientID string, episode *anime.PlaylistEpisode) {
 	t.Helper()
 
-	h.manager.mediacoreCoordinator.Watch(mediacore.TargetMpvCore, clientID, &mediacore.PlaybackInfo{
+	h.manager.mediacoreCoordinator.Watch(player.TargetMpvCore, clientID, &player.PlaybackInfo{
 		ID:           "playback-1",
-		PlaybackType: mediacore.PlaybackTypeTorrent,
+		PlaybackType: player.PlaybackTypeTorrent,
 		Media:        episode.Episode.BaseAnime,
 		Episode:      episode.Episode,
 	})

@@ -12,6 +12,7 @@ import (
 	"seanime/internal/mkvparser"
 	"seanime/internal/mpvcore"
 	"seanime/internal/nativeplayer"
+	"seanime/internal/player"
 	"seanime/internal/util"
 	httputil "seanime/internal/util/http"
 	"seanime/internal/util/result"
@@ -98,9 +99,9 @@ func TestDirectStreamPlaybackTargetsRemainIndependent(t *testing.T) {
 	coordinator := mediacore.NewCoordinator(mediacore.NewCoordinatorOptions{
 		Logger:       logger,
 		IsOfflineRef: util.NewRef(false),
-		Backends: map[mediacore.Target]mediacore.Backend{
-			mediacore.TargetVideoCore: vcAdapter,
-			mediacore.TargetMpvCore:   mcAdapter,
+		Backends: map[player.Target]mediacore.Backend{
+			player.TargetVideoCore: vcAdapter,
+			player.TargetMpvCore:   mcAdapter,
 		},
 	})
 
@@ -127,15 +128,15 @@ func TestDirectStreamPlaybackTargetsRemainIndependent(t *testing.T) {
 	require.Equal(t, string(events.MpvCoreEventType), ws.Events()[len(ws.Events())-1].Type)
 }
 
-func (s *testStream) Type() mediacore.PlaybackType {
-	return mediacore.PlaybackTypeTorrent
+func (s *testStream) Type() player.PlaybackType {
+	return player.PlaybackTypeTorrent
 }
 
 func (s *testStream) GetStreamHandler() http.Handler {
 	return s.handler
 }
 
-func (s *testStream) LoadPlaybackInfo() (*mediacore.PlaybackInfo, error) {
+func (s *testStream) LoadPlaybackInfo() (*player.PlaybackInfo, error) {
 	return s.playbackInfo, s.playbackInfoErr
 }
 
@@ -152,21 +153,21 @@ type blockingStream struct {
 	startOnce      sync.Once
 }
 
-func (s *blockingStream) Type() mediacore.PlaybackType                { return mediacore.PlaybackTypeTorrent }
+func (s *blockingStream) Type() player.PlaybackType                   { return player.PlaybackTypeTorrent }
 func (s *blockingStream) LoadContentType() string                     { return "video/webm" }
 func (s *blockingStream) ClientId() string                            { return s.clientID }
 func (s *blockingStream) Media() *anilist.BaseAnime                   { return nil }
 func (s *blockingStream) Episode() *anime.Episode                     { return nil }
 func (s *blockingStream) ListEntryData() *anime.EntryListData         { return nil }
 func (s *blockingStream) EpisodeCollection() *anime.EpisodeCollection { return nil }
-func (s *blockingStream) LoadPlaybackInfo() (*mediacore.PlaybackInfo, error) {
+func (s *blockingStream) LoadPlaybackInfo() (*player.PlaybackInfo, error) {
 	s.startOnce.Do(func() {
 		if s.loadStartedCh != nil {
 			close(s.loadStartedCh)
 		}
 	})
 	<-s.loadPlaybackCh
-	return &mediacore.PlaybackInfo{ID: "blocked", PlaybackType: mediacore.PlaybackTypeTorrent}, nil
+	return &player.PlaybackInfo{ID: "blocked", PlaybackType: player.PlaybackTypeTorrent}, nil
 }
 func (s *blockingStream) GetAttachmentByName(string) (*mkvparser.AttachmentInfo, bool) {
 	return nil, false
@@ -192,8 +193,8 @@ type prevTerminateStream struct {
 	terminateOnce sync.Once
 }
 
-func (s *prevTerminateStream) Type() mediacore.PlaybackType {
-	return mediacore.PlaybackTypeTorrent
+func (s *prevTerminateStream) Type() player.PlaybackType {
+	return player.PlaybackTypeTorrent
 }
 func (s *prevTerminateStream) LoadContentType() string                     { return "video/webm" }
 func (s *prevTerminateStream) ClientId() string                            { return s.clientID }
@@ -201,8 +202,8 @@ func (s *prevTerminateStream) Media() *anilist.BaseAnime                   { ret
 func (s *prevTerminateStream) Episode() *anime.Episode                     { return nil }
 func (s *prevTerminateStream) ListEntryData() *anime.EntryListData         { return nil }
 func (s *prevTerminateStream) EpisodeCollection() *anime.EpisodeCollection { return nil }
-func (s *prevTerminateStream) LoadPlaybackInfo() (*mediacore.PlaybackInfo, error) {
-	return &mediacore.PlaybackInfo{ID: "previous-playback", PlaybackType: mediacore.PlaybackTypeTorrent}, nil
+func (s *prevTerminateStream) LoadPlaybackInfo() (*player.PlaybackInfo, error) {
+	return &player.PlaybackInfo{ID: "previous-playback", PlaybackType: player.PlaybackTypeTorrent}, nil
 }
 func (s *prevTerminateStream) GetAttachmentByName(string) (*mkvparser.AttachmentInfo, bool) {
 	return nil, false
@@ -222,19 +223,19 @@ func (s *prevTerminateStream) OnSubtitleFileUploaded(string, string) {}
 
 type eventStream struct {
 	clientID      string
-	playbackInfo  *mediacore.PlaybackInfo
+	playbackInfo  *player.PlaybackInfo
 	terminatedCh  chan struct{}
 	terminateOnce sync.Once
 }
 
-func (s *eventStream) Type() mediacore.PlaybackType                { return mediacore.PlaybackTypeTorrent }
+func (s *eventStream) Type() player.PlaybackType                   { return player.PlaybackTypeTorrent }
 func (s *eventStream) LoadContentType() string                     { return "video/webm" }
 func (s *eventStream) ClientId() string                            { return s.clientID }
 func (s *eventStream) Media() *anilist.BaseAnime                   { return nil }
 func (s *eventStream) Episode() *anime.Episode                     { return nil }
 func (s *eventStream) ListEntryData() *anime.EntryListData         { return nil }
 func (s *eventStream) EpisodeCollection() *anime.EpisodeCollection { return nil }
-func (s *eventStream) LoadPlaybackInfo() (*mediacore.PlaybackInfo, error) {
+func (s *eventStream) LoadPlaybackInfo() (*player.PlaybackInfo, error) {
 	return s.playbackInfo, nil
 }
 func (s *eventStream) GetAttachmentByName(string) (*mkvparser.AttachmentInfo, bool) {
@@ -264,8 +265,8 @@ func newDirectstreamMpvTestManager(t *testing.T) (*Manager, *events.MockWSEventM
 	coordinator := mediacore.NewCoordinator(mediacore.NewCoordinatorOptions{
 		Logger:       logger,
 		IsOfflineRef: util.NewRef(false),
-		Backends: map[mediacore.Target]mediacore.Backend{
-			mediacore.TargetMpvCore: mcAdapter,
+		Backends: map[player.Target]mediacore.Backend{
+			player.TargetMpvCore: mcAdapter,
 		},
 	})
 	manager := NewManager(NewManagerOptions{
@@ -282,7 +283,7 @@ func newDirectstreamMpvTestManager(t *testing.T) (*Manager, *events.MockWSEventM
 
 func activateMpvPlayback(t *testing.T, ws *events.MockWSEventManager, core *mediacore.Coordinator, clientID, playbackID string) {
 	t.Helper()
-	core.Watch(mediacore.TargetMpvCore, clientID, &mediacore.PlaybackInfo{ID: playbackID, PlaybackType: mediacore.PlaybackTypeTorrent})
+	core.Watch(player.TargetMpvCore, clientID, &player.PlaybackInfo{ID: playbackID, PlaybackType: player.PlaybackTypeTorrent})
 	ws.MockSendClientEvent(&events.WebsocketClientEvent{
 		ClientID: clientID,
 		Type:     events.MpvCoreEventType,
@@ -335,7 +336,7 @@ func TestGetStreamHandlerRejectsMismatchedPlaybackID(t *testing.T) {
 	stream := &testStream{
 		BaseStream: BaseStream{
 			clientId: "client-1",
-			playbackInfo: &mediacore.PlaybackInfo{
+			playbackInfo: &player.PlaybackInfo{
 				ID: "expected-playback-id",
 			},
 		},
@@ -363,7 +364,7 @@ func TestGetStreamHandlerForwardsMatchingPlaybackID(t *testing.T) {
 	stream := &testStream{
 		BaseStream: BaseStream{
 			clientId: "client-1",
-			playbackInfo: &mediacore.PlaybackInfo{
+			playbackInfo: &player.PlaybackInfo{
 				ID: "playback-id",
 			},
 		},
@@ -390,7 +391,7 @@ func TestStartSubtitleStreamPClosesReaderWhenParserMissing(t *testing.T) {
 	reader := &trackingReadSeekCloser{}
 	stream := &BaseStream{
 		logger: util.NewLogger(),
-		playbackInfo: &mediacore.PlaybackInfo{
+		playbackInfo: &player.PlaybackInfo{
 			MkvMetadataParser: mo.None[*mkvparser.MetadataParser](),
 		},
 		activeSubtitleStreams: result.NewMap[string, *SubtitleStream](),
@@ -413,7 +414,7 @@ func TestListenToPlayerEventsTerminatesWithoutWaitingForPlaybackInfo(t *testing.
 	manager.currentStream = mo.Some[Stream](stream)
 	manager.currentPlaybackId = "blocked"
 	manager.currentPlaybackClient = "player-client"
-	core.Watch(mediacore.TargetMpvCore, "player-client", &mediacore.PlaybackInfo{ID: "blocked", PlaybackType: mediacore.PlaybackTypeTorrent})
+	core.Watch(player.TargetMpvCore, "player-client", &player.PlaybackInfo{ID: "blocked", PlaybackType: player.PlaybackTypeTorrent})
 
 	t.Cleanup(func() {
 		close(stream.loadPlaybackCh)
@@ -465,7 +466,7 @@ func TestStream_beginOpenIgnoresReplacedPlaybackTermination(t *testing.T) {
 
 	stream := &eventStream{
 		clientID:     "player-client",
-		playbackInfo: &mediacore.PlaybackInfo{ID: "previous-playback-id", PlaybackType: mediacore.PlaybackTypeTorrent},
+		playbackInfo: &player.PlaybackInfo{ID: "previous-playback-id", PlaybackType: player.PlaybackTypeTorrent},
 		terminatedCh: make(chan struct{}),
 	}
 	manager.currentStream = mo.Some[Stream](stream)
@@ -527,7 +528,7 @@ func TestStream_listenToPlayerEventsIgnoresStalePlaybackTermination(t *testing.T
 
 	stream := &eventStream{
 		clientID:     "player-client",
-		playbackInfo: &mediacore.PlaybackInfo{ID: "current-playback-id", PlaybackType: mediacore.PlaybackTypeTorrent},
+		playbackInfo: &player.PlaybackInfo{ID: "current-playback-id", PlaybackType: player.PlaybackTypeTorrent},
 		terminatedCh: make(chan struct{}),
 	}
 	manager.currentStream = mo.Some[Stream](stream)

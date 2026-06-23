@@ -7,8 +7,8 @@ import (
 	"seanime/internal/api/anilist"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
-	"seanime/internal/mediacore"
 	"seanime/internal/mkvparser"
+	"seanime/internal/player"
 	"seanime/internal/util/result"
 )
 
@@ -25,11 +25,11 @@ type Nakama struct {
 	streamReadyCh chan struct{} // Closed by the initiator when the stream is ready
 }
 
-func (s *Nakama) Type() mediacore.PlaybackType {
-	return mediacore.PlaybackTypeNakama
+func (s *Nakama) Type() player.PlaybackType {
+	return player.PlaybackTypeNakama
 }
 
-func (s *Nakama) LoadPlaybackInfo() (*mediacore.PlaybackInfo, error) {
+func (s *Nakama) LoadPlaybackInfo() (*player.PlaybackInfo, error) {
 	return s.httpBaseStream.loadPlaybackInfo(s.Type())
 }
 
