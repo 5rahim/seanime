@@ -15,7 +15,7 @@ import {
     __torrentstream__isLoadedAtom,
     __torrentstream__loadingStateAtom,
     TorrentStreamEvents,
-} from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
+} from "@/app/(main)/entry/_containers/torrent-stream/playback-play-pill"
 import {
     __torrentStream_autoSelectFileAtom,
     __torrentStream_currentSessionAutoSelectAtom,

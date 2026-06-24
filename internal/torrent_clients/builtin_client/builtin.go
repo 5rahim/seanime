@@ -433,14 +433,20 @@ func (c *Client) RemoveTorrent(hash string, deleteFiles bool) error {
 		if entry.torrent != nil {
 			paths, root, err = torrentFilePaths(entry.model.Destination, entry.torrent)
 			if err != nil {
-				return err
+				c.logger.Warn().Err(err).Str("hash", hash).Msg("builtin torrent: could not determine file paths for deletion")
+				root, err = torrentRootFromModel(entry.model.Destination, entry.model.Name)
+				if err != nil {
+					c.logger.Warn().Err(err).Str("hash", hash).Msg("builtin torrent: could not determine fallback root for deletion")
+					root = ""
+				}
+				err = nil
 			}
-		} else if entry.model.Name != "" {
-			rootPath := filepath.Join(entry.model.Destination, entry.model.Name)
-			destClean := filepath.Clean(entry.model.Destination)
-			rootClean := filepath.Clean(rootPath)
-			if rootClean != destClean && strings.HasPrefix(rootClean, destClean+string(filepath.Separator)) {
-				_ = os.RemoveAll(rootClean)
+		} else {
+			root, err = torrentRootFromModel(entry.model.Destination, entry.model.Name)
+			if err != nil {
+				c.logger.Warn().Err(err).Str("hash", hash).Msg("builtin torrent: could not determine fallback root for deletion")
+				root = ""
+				err = nil
 			}
 		}
 	}
@@ -494,6 +500,23 @@ func torrentFilePaths(destination string, t *anacrolix.Torrent) ([]string, strin
 	return paths, root, nil
 }
 
+func torrentRootFromModel(destination, name string) (string, error) {
+	if name == "" {
+		return "", errors.New("torrent name is empty")
+	}
+	base, err := filepath.Abs(destination)
+	if err != nil {
+		return "", err
+	}
+	root := filepath.Join(base, filepath.FromSlash(name))
+	root = filepath.Clean(root)
+	rel, err := filepath.Rel(base, root)
+	if err != nil || rel == "." || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", errors.New("torrent root path escapes destination")
+	}
+	return root, nil
+}
+
 func removeTorrentFiles(paths []string, root string) error {
 	var retErr error
 	for _, path := range paths {
@@ -505,7 +528,7 @@ func removeTorrentFiles(paths []string, root string) error {
 		}
 	}
 	if root != "" {
-		if err := os.Remove(root); err != nil && !os.IsNotExist(err) {
+		if err := os.RemoveAll(root); err != nil && !os.IsNotExist(err) {
 			retErr = errors.Join(retErr, err)
 		}
 	}

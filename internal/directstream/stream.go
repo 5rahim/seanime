@@ -222,6 +222,8 @@ func (m *Manager) AbortOpen(clientId string, err error) {
 	previousStream, cancelPlayback, _ := m.releaseCurrentStreamLocked(nil)
 	m.clearPreparationLocked()
 	m.clearCurrentPlaybackIdentityLocked()
+	m.replacedPlaybackId = ""
+	m.replacedPlaybackClient = ""
 	m.playbackMu.Unlock()
 
 	m.cancelAndTerminateStream(previousStream, cancelPlayback)
@@ -429,6 +431,8 @@ func (m *Manager) loadStream(stream Stream) {
 	m.currentPlaybackClient = stream.ClientId()
 	m.currentPlaybackTarget = target
 	m.clearPreparationLocked()
+	m.replacedPlaybackId = ""
+	m.replacedPlaybackClient = ""
 	m.playbackMu.Unlock()
 
 	// Shut the mkv parser logger
@@ -462,7 +466,12 @@ func (m *Manager) listenToPlayerEvents() {
 				var cancelFunc func()
 				shouldCancel := false
 				if isTerminated {
-					cancelFunc, shouldCancel = m.cancelPreparationLocked(key.ClientID, true)
+					isReplacedSession := key.PlaybackID != "" && m.replacedPlaybackId != "" && key.PlaybackID == m.replacedPlaybackId
+					if !isReplacedSession {
+						cancelFunc, shouldCancel = m.cancelPreparationLocked(key.ClientID, true)
+					} else {
+						m.Logger.Debug().Str("playbackId", key.PlaybackID).Msg("directstream: Ignoring termination event of replaced playback session during preparation")
+					}
 				}
 				m.playbackMu.Unlock()
 				if shouldCancel && cancelFunc != nil {
@@ -474,6 +483,11 @@ func (m *Manager) listenToPlayerEvents() {
 			if isTerminated {
 				if key.ClientID != "" && key.ClientID != cs.ClientId() {
 					m.playbackMu.Unlock()
+					continue
+				}
+				if key.PlaybackID != "" && m.currentPlaybackId != "" && key.PlaybackID != m.currentPlaybackId {
+					m.playbackMu.Unlock()
+					m.Logger.Debug().Str("playbackId", key.PlaybackID).Str("currentPlaybackId", m.currentPlaybackId).Msg("directstream: Ignoring termination event of older playback session for active stream")
 					continue
 				}
 				m.clearPreparationLocked()

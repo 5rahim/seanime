@@ -32855,6 +32855,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "DisableAcceleratedStartup",
+        "jsonName": "disableAcceleratedStartup",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -94386,6 +94395,26 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "onStatus",
+        "jsonName": "onStatus",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "statusMu",
+        "jsonName": "statusMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -94440,6 +94469,15 @@
       {
         "name": "OnEvent",
         "jsonName": "OnEvent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnStatus",
+        "jsonName": "OnStatus",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -94528,6 +94566,160 @@
         "public": true,
         "comments": [
           " The original torrent object"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/autoselect/autoselect.go",
+    "filename": "autoselect.go",
+    "name": "StreamAutoSelectStatusPayload",
+    "formattedName": "StreamAutoSelectStatusPayload",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "Active",
+        "jsonName": "active",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaTitle",
+        "jsonName": "mediaTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Resolutions",
+        "jsonName": "resolutions",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinSeeders",
+        "jsonName": "minSeeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Step",
+        "jsonName": "step",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"searching\", \"ranking\", \"analyzing\", \"completed\""
+        ]
+      },
+      {
+        "name": "StepDetail",
+        "jsonName": "stepDetail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Description of the current action"
+        ]
+      },
+      {
+        "name": "Candidates",
+        "jsonName": "candidates",
+        "goType": "[]AutoSelectCandidate",
+        "typescriptType": "Array\u003cAutoSelectCandidate\u003e",
+        "usedTypescriptType": "AutoSelectCandidate",
+        "usedStructName": "autoselect.AutoSelectCandidate",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SelectedFile",
+        "jsonName": "selectedFile",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/autoselect/autoselect.go",
+    "filename": "autoselect.go",
+    "name": "AutoSelectCandidate",
+    "formattedName": "AutoSelectCandidate",
+    "package": "autoselect",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"waiting\", \"analyzing\", \"skipped\", \"selected\""
         ]
       }
     ],
@@ -95251,6 +95443,17 @@
         ]
       },
       {
+        "name": "lastBytesReadUseful",
+        "jsonName": "lastBytesReadUseful",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Track the last bytes read useful data"
+        ]
+      },
+      {
         "name": "lastBytesWrittenData",
         "jsonName": "lastBytesWrittenData",
         "goType": "int64",
@@ -95270,6 +95473,31 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "lastMetadataDuration",
+        "jsonName": "lastMetadataDuration",
+        "goType": "time.Duration",
+        "typescriptType": "Duration",
+        "usedTypescriptType": "Duration",
+        "usedStructName": "time.Duration",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Track the duration of the last metadata fetch"
+        ]
+      },
+      {
+        "name": "lastProgressLog",
+        "jsonName": "lastProgressLog",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Track when we last logged progress"
+        ]
       }
     ],
     "comments": []
@@ -96063,6 +96291,15 @@
         "comments": [
           " Flag on whether the client should prepare a stream"
         ]
+      },
+      {
+        "name": "acceleratedStartup",
+        "jsonName": "acceleratedStartup",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []

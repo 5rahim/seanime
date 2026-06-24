@@ -29,7 +29,7 @@ import { useVideoCorePlaylist, useVideoCorePlaylistSetup } from "@/app/(main)/_f
 import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
+import { PlaybackPlayPill } from "@/app/(main)/entry/_containers/torrent-stream/playback-play-pill"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -1338,10 +1338,7 @@ export function MpvCorePlayerInner() {
                 onTerminate={terminate}
             />
 
-            <TorrentStreamOverlay
-                isNativePlayerComponent="overlay"
-                show={state.active && state.miniPlayer}
-            />
+
 
             <MediaCoreDrawer
                 open={state.active}
@@ -1407,10 +1404,7 @@ export function MpvCorePlayerInner() {
                         lowLatency
                         overlayStyle={{ pointerEvents: "auto", zIndex: "auto" }}
                     >
-                        <TorrentStreamOverlay
-                            isNativePlayerComponent="top-section"
-                            show={!state.miniPlayer && !hasPlayback}
-                        />
+
 
                         <MediaCoreErrorOverlay
                             playbackError={state.playbackError}
@@ -1563,7 +1557,7 @@ export function MpvCorePlayerInner() {
 
                                     <div className="flex flex-1" data-vc-element="control-bar-separator" />
 
-                                    <TorrentStreamOverlay
+                                    <PlaybackPlayPill
                                         isNativePlayerComponent="control-bar"
                                         show={!state.miniPlayer}
                                     />

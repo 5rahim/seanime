@@ -66,6 +66,8 @@ type (
 		startCancel           context.CancelFunc
 		startCancelId         uint64
 		shouldPreloadStream   atomic.Bool // Flag on whether the client should prepare a stream
+
+		acceleratedStartup bool
 	}
 
 	Settings struct {
@@ -118,6 +120,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		mediacoreCoordinator:            opts.MediacoreCoordinator,
 		previousStreamOptions:           mo.None[*StartStreamOptions](),
 		preloadedStream:                 mo.None[*preloadedStream](),
+		acceleratedStartup:              true,
 	}
 
 	ret.autoSelect = autoselect.New(&autoselect.NewAutoSelectOptions{
@@ -125,6 +128,9 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		TorrentRepository: opts.TorrentRepository,
 		MetadataProvider:  opts.MetadataProviderRef,
 		Platform:          opts.PlatformRef,
+		OnStatus: func(status autoselect.StreamAutoSelectStatusPayload) {
+			opts.WSEventManager.SendEvent(events.StreamAutoSelectStatus, status)
+		},
 	})
 
 	ret.client = NewClient(ret)
@@ -177,6 +183,8 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 		r.settings = mo.None[Settings]()
 		return nil
 	}
+
+	r.acceleratedStartup = !s.DisableAcceleratedStartup
 
 	// Set default download directory, which is a temporary directory
 	if s.DownloadDir == "" {

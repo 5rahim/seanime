@@ -27,9 +27,8 @@ import { useExternalPlayerLinkListener } from "@/app/(main)/_listeners/external-
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
 import { useMiscEventListeners } from "@/app/(main)/_listeners/misc-events.listeners"
 import { useSyncListener } from "@/app/(main)/_listeners/sync.listeners"
-import { DebridStreamOverlay } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-overlay"
 import { useTorrentStreamListener } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
-import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
+import { PlaybackPlayPill } from "@/app/(main)/entry/_containers/torrent-stream/playback-play-pill"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
@@ -58,8 +57,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <PlaylistListModal />
             <GlobalPlaylistManager />
             <ChapterDownloadsDrawer />
-            <TorrentStreamOverlay />
-            <DebridStreamOverlay />
+            <PlaybackPlayPill />
             <MediaPreviewModal />
             <PlaybackManagerProgressTracking />
             <ManualProgressTracking />

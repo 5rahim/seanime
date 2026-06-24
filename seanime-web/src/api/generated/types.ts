@@ -1897,6 +1897,49 @@ export type AutoDownloader_SimulationResult = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Autoselect
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/torrents/autoselect/autoselect.go
+ * - Filename: autoselect.go
+ * - Package: autoselect
+ */
+export type AutoSelectCandidate = {
+    name: string
+    provider: string
+    seeders: number
+    score: number
+    /**
+     * "waiting", "analyzing", "skipped", "selected"
+     */
+    status: string
+}
+
+/**
+ * - Filepath: internal/torrents/autoselect/autoselect.go
+ * - Filename: autoselect.go
+ * - Package: autoselect
+ */
+export type StreamAutoSelectStatusPayload = {
+    active: boolean
+    mediaTitle: string
+    episode: number
+    resolutions?: Array<string>
+    minSeeders: number
+    /**
+     * "searching", "ranking", "analyzing", "completed"
+     */
+    step: string
+    /**
+     * Description of the current action
+     */
+    stepDetail: string
+    candidates?: Array<AutoSelectCandidate>
+    selectedFile: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ChapterDownloader
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -4141,6 +4184,7 @@ export type Models_TorrentstreamSettings = {
     streamUrlAddress: string
     slowSeeding: boolean
     preloadNextStream: boolean
+    disableAcceleratedStartup: boolean
     id: number
     createdAt?: string
     updatedAt?: string

@@ -500,7 +500,8 @@ type TorrentstreamSettings struct {
 	// v2.7+
 	SlowSeeding bool `gorm:"column:slow_seeding" json:"slowSeeding"`
 	// v3+
-	PreloadNextStream bool `gorm:"column:preload_next_stream" json:"preloadNextStream"`
+	PreloadNextStream         bool `gorm:"column:preload_next_stream" json:"preloadNextStream"`
+	DisableAcceleratedStartup bool `gorm:"column:disable_accelerated_startup" json:"disableAcceleratedStartup"`
 }
 
 // TorrentstreamHistory used by both torrent streaming and debrid streaming to store the last selected batch that was used for each media.

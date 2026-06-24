@@ -2,6 +2,7 @@ package autoselect
 
 import (
 	"cmp"
+	"context"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
@@ -45,7 +46,12 @@ type TorrentWithCacheStatus struct {
 }
 
 // filterAndSort filters and sorts the torrents based on the profile or defaults.
-func (s *AutoSelect) filterAndSort(torrents []*hibiketorrent.AnimeTorrent, profile *anime.AutoSelectProfile, postSearchSort func([]*hibiketorrent.AnimeTorrent) []*TorrentWithCacheStatus) []*hibiketorrent.AnimeTorrent {
+func (s *AutoSelect) filterAndSort(
+	ctx context.Context,
+	torrents []*hibiketorrent.AnimeTorrent,
+	profile *anime.AutoSelectProfile,
+	postSearchSort func([]*hibiketorrent.AnimeTorrent) []*TorrentWithCacheStatus,
+) []*hibiketorrent.AnimeTorrent {
 	s.log("Filtering and sorting torrents")
 	s.logger.Debug().Int("count", len(torrents)).Msg("autoselect: Filtering and sorting torrents")
 
@@ -69,22 +75,44 @@ func (s *AutoSelect) filterAndSort(torrents []*hibiketorrent.AnimeTorrent, profi
 	// Sort by profile scores first
 	s.sortCandidates(candidates, profile)
 
+	var filteredTorrents []*hibiketorrent.AnimeTorrent
+
 	// apply torrent prioritization if provided
 	if postSearchSort != nil {
-		filteredTorrents := make([]*hibiketorrent.AnimeTorrent, len(candidates))
+		filteredTorrents = make([]*hibiketorrent.AnimeTorrent, len(candidates))
 		for i, c := range candidates {
 			filteredTorrents[i] = c.torrent
 		}
-		return s.smartCachedPrioritization(filteredTorrents, candidates, profile, postSearchSort)
+		filteredTorrents = s.smartCachedPrioritization(filteredTorrents, candidates, profile, postSearchSort)
+	} else {
+		filteredTorrents = make([]*hibiketorrent.AnimeTorrent, len(candidates))
+		for i, c := range candidates {
+			if i < 3 {
+				s.logger.Debug().Str("name", c.torrent.Name).Int("seeders", c.torrent.Seeders).Int("score", c.score).Str("provider", c.torrent.Provider).Msg("autoselect: Top selection")
+			}
+			filteredTorrents[i] = c.torrent
+		}
 	}
 
-	filteredTorrents := make([]*hibiketorrent.AnimeTorrent, len(candidates))
-	for i, c := range candidates {
-		if i < 3 {
-			s.logger.Debug().Str("name", c.torrent.Name).Int("seeders", c.torrent.Seeders).Int("score", c.score).Str("provider", c.torrent.Provider).Msg("autoselect: Top selection")
+	// Populate the candidates list for the status updates
+	candidatesList := make([]AutoSelectCandidate, len(filteredTorrents))
+	for i, t := range filteredTorrents {
+		score := 0
+		for _, c := range candidates {
+			if c.torrent.InfoHash == t.InfoHash {
+				score = c.score
+				break
+			}
 		}
-		filteredTorrents[i] = c.torrent
+		candidatesList[i] = AutoSelectCandidate{
+			Name:     t.Name,
+			Provider: t.Provider,
+			Seeders:  t.Seeders,
+			Score:    score,
+			Status:   "waiting",
+		}
 	}
+	s.updateCandidates(ctx, candidatesList)
 
 	return filteredTorrents
 }

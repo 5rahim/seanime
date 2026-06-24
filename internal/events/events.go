@@ -77,6 +77,8 @@ const (
 	DebridDownloadProgress = "debrid-download-progress"
 	DebridStreamState      = "debrid-stream-state"
 
+	StreamAutoSelectStatus = "stream-auto-select-status"
+
 	InvalidateQueries = "invalidate-queries"
 	ConsoleLog        = "console-log"
 	ConsoleWarn       = "console-warn"

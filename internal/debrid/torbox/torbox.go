@@ -303,34 +303,67 @@ func (t *TorBox) GetTorrentStreamUrl(ctx context.Context, opts debrid.StreamTorr
 			close(doneCh)
 		}()
 
+		var errRetries int
+
+		checkTorrentReady := func() (string, bool, bool, error) {
+			torrent, _err := t.GetTorrent(opts.ID)
+			if _err != nil {
+				errRetries++
+				if errRetries >= 5 {
+					return "", false, false, fmt.Errorf("torbox: Failed to get torrent: %w", _err)
+				}
+				t.logger.Warn().Err(_err).Msg("torbox: Failed to get torrent status, retrying...")
+				return "", false, false, nil
+			}
+			errRetries = 0
+
+			select {
+			case itemCh <- *torrent:
+			default:
+			}
+
+			if torrent.IsReady {
+				downloadUrl, dErr := t.GetTorrentDownloadUrl(debrid.DownloadTorrentOptions{
+					ID:     opts.ID,
+					FileId: opts.FileId,
+				})
+				if dErr != nil {
+					t.logger.Warn().Err(dErr).Msg("torbox: Failed to get download URL, retrying...")
+					return "", true, false, nil
+				}
+
+				return downloadUrl, true, true, nil
+			}
+
+			return "", false, false, nil
+		}
+
+		sUrl, _, ok, checkErr := checkTorrentReady()
+		if checkErr != nil {
+			err = checkErr
+			return
+		}
+		if ok {
+			streamUrl = sUrl
+			return
+		}
+
+		ticker := time.NewTicker(1500 * time.Millisecond)
+		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ctx.Done():
 				err = ctx.Err()
 				return
-			case <-time.After(4 * time.Second):
-				torrent, _err := t.GetTorrent(opts.ID)
-				if _err != nil {
-					t.logger.Error().Err(_err).Msg("torbox: Failed to get torrent")
-					err = fmt.Errorf("torbox: Failed to get torrent: %w", _err)
+			case <-ticker.C:
+				sUrl, _, ok, checkErr = checkTorrentReady()
+				if checkErr != nil {
+					err = checkErr
 					return
 				}
-
-				itemCh <- *torrent
-
-				// Check if the torrent is ready
-				if torrent.IsReady {
-					time.Sleep(1 * time.Second)
-					downloadUrl, err := t.GetTorrentDownloadUrl(debrid.DownloadTorrentOptions{
-						ID:     opts.ID,
-						FileId: opts.FileId, // Filename
-					})
-					if err != nil {
-						t.logger.Error().Err(err).Msg("torbox: Failed to get download URL")
-						return
-					}
-
-					streamUrl = downloadUrl
+				if ok {
+					streamUrl = sUrl
 					return
 				}
 			}

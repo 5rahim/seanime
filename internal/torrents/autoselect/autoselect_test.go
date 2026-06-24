@@ -1,6 +1,7 @@
 package autoselect
 
 import (
+	"context"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
 	"testing"
@@ -475,7 +476,7 @@ func TestAutoSelect_SmartCachedPrioritization(t *testing.T) {
 			testTorrents := make([]*hibiketorrent.AnimeTorrent, len(tt.torrents))
 			copy(testTorrents, tt.torrents)
 
-			sorted := s.filterAndSort(testTorrents, tt.profile, postSearchSort)
+			sorted := s.filterAndSort(context.Background(), testTorrents, tt.profile, postSearchSort)
 
 			var sortedNames []string
 			for _, st := range sorted {
@@ -495,7 +496,7 @@ func TestAutoSelect_SmartCachedPrioritization_EdgeCases(t *testing.T) {
 			return []*TorrentWithCacheStatus{}
 		}
 
-		result := s.filterAndSort([]*hibiketorrent.AnimeTorrent{}, nil, postSearchSort)
+		result := s.filterAndSort(context.Background(), []*hibiketorrent.AnimeTorrent{}, nil, postSearchSort)
 		assert.Empty(t, result)
 	})
 
@@ -510,7 +511,7 @@ func TestAutoSelect_SmartCachedPrioritization_EdgeCases(t *testing.T) {
 			return []*TorrentWithCacheStatus{{Torrent: torrents[0], IsCached: true}}
 		}
 
-		result := s.filterAndSort([]*hibiketorrent.AnimeTorrent{torrent}, nil, postSearchSort)
+		result := s.filterAndSort(context.Background(), []*hibiketorrent.AnimeTorrent{torrent}, nil, postSearchSort)
 		assert.Len(t, result, 1)
 		assert.Equal(t, torrent.Name, result[0].Name)
 	})
@@ -522,7 +523,7 @@ func TestAutoSelect_SmartCachedPrioritization_EdgeCases(t *testing.T) {
 			Seeders:  100,
 		}
 
-		result := s.filterAndSort([]*hibiketorrent.AnimeTorrent{torrent}, nil, nil)
+		result := s.filterAndSort(context.Background(), []*hibiketorrent.AnimeTorrent{torrent}, nil, nil)
 		assert.Len(t, result, 1)
 		assert.Equal(t, torrent.Name, result[0].Name)
 	})
@@ -553,7 +554,7 @@ func TestAutoSelect_SmartCachedPrioritization_EdgeCases(t *testing.T) {
 			}
 		}
 
-		result := s.filterAndSort([]*hibiketorrent.AnimeTorrent{highQuality, thresholdQuality}, profile, postSearchSort)
+		result := s.filterAndSort(context.Background(), []*hibiketorrent.AnimeTorrent{highQuality, thresholdQuality}, profile, postSearchSort)
 		assert.Len(t, result, 2)
 		assert.NotNil(t, result[0])
 	})

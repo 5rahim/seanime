@@ -5,8 +5,6 @@ import (
 	"seanime/internal/util/torrentutil"
 	"strconv"
 	"time"
-
-	"github.com/anacrolix/torrent"
 )
 
 var _ = http.Handler(&handler{})
@@ -50,18 +48,13 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.repository.logger.Trace().Str("file", file.DisplayPath()).Msg("torrentstream: New reader")
-	tr := file.NewReader()
-	defer func(tr torrent.Reader) {
+	tr := torrentutil.NewReadSeeker(h.repository.client.currentTorrent.MustGet(), file, h.repository.logger)
+	defer func() {
 		h.repository.logger.Trace().Msg("torrentstream: Closing reader")
 		_ = tr.Close()
-	}(tr)
+	}()
 
-	tr.SetResponsive()
-	// Read ahead 5MB for better streaming performance
-	// DEVNOTE: Not sure if dynamic prioritization overwrites this but whatever
-	tr.SetReadahead(5 * 1024 * 1024)
-
-	// If this is a range request for a later part of the file, prioritize those pieces
+	// If this is a range request for a later part of the file, prioritize those pieces initially
 	rangeHeader := r.Header.Get("Range")
 	if rangeHeader != "" && h.repository.client.currentTorrent.IsPresent() {
 		t := h.repository.client.currentTorrent.MustGet()

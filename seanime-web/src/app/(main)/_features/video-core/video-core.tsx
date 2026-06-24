@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useDirectstreamConvertSubs } from "@/api/hooks/directstream.hooks"
 import { useCancelDiscordActivity } from "@/api/hooks/discord.hooks"
+import { MediaCoreBufferingOverlay, MediaCoreErrorOverlay, MediaCoreLoadingOverlay } from "@/app/(main)/_features/media-core/media-core-overlays"
 import { useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { nativePlayer_initialState, nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { type NormalizedSkipData } from "@/app/(main)/_features/video-core/_lib/aniskip.utils"
@@ -31,7 +32,7 @@ import { vc_seekingTargetProgress } from "@/app/(main)/_features/video-core/vide
 import { vc_timeRanges } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_ended } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_paused } from "@/app/(main)/_features/video-core/video-core-atoms"
-import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_globalMiniPlayerAtom, vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_cursorBusy } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_cursorPosition } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_busy } from "@/app/(main)/_features/video-core/video-core-atoms"
@@ -122,12 +123,9 @@ import {
     __torrentSearch_selectionAtom,
     __torrentSearch_selectionEpisodeAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
-import { GradientBackground } from "@/components/shared/gradient-background"
-import { LuffyError } from "@/components/shared/luffy-error"
+import { PlaybackPlayPill } from "@/app/(main)/entry/_containers/torrent-stream/playback-play-pill"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { useDisclosure } from "@/hooks/use-disclosure"
 import { logger } from "@/lib/helpers/debug"
@@ -137,13 +135,10 @@ import { ErrorData } from "hls.js"
 import { atom } from "jotai"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
-import { MediaCoreBufferingOverlay, MediaCoreErrorOverlay, MediaCoreLoadingOverlay } from "@/app/(main)/_features/media-core/media-core-overlays"
 import React, { useMemo, useRef, useState } from "react"
 import { flushSync } from "react-dom"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
-import { ImSpinner2 } from "react-icons/im"
-import { PiSpinnerDuotone } from "react-icons/pi"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { useUnmount, useUpdateEffect, useWindowSize } from "react-use"
 
@@ -367,10 +362,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
 
     return (
         <>
-            <TorrentStreamOverlay
-                isNativePlayerComponent="top-section"
-                show={!isMiniPlayer && !(!!state.playbackInfo?.streamUrl && !state.loadingState)}
-            />
+
 
             <MediaCoreErrorOverlay playbackError={state.playbackError} isMiniPlayer={isMiniPlayer} onClose={onTerminateStream} />
 
@@ -560,7 +552,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             <VideoCoreVolumeButton />
                             <VideoCoreTimestamp />
                             <div className="flex flex-1" data-vc-element="control-bar-separator" />
-                            {!inline && <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
+                            {!inline && <PlaybackPlayPill isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
                             <VideoCoreWatchPartyChat />
                             <VideoCoreSettingsMenu />
                             <VideoCoreResolutionMenu state={state} onVideoSourceChange={onVideoSourceChange} />
@@ -734,6 +726,13 @@ export function VideoCore(props: VideoCoreProps) {
     const qc = useQueryClient()
     const settings = useAtomValue(vc_settings)
     const [isMiniPlayer, setIsMiniPlayer] = useAtom(vc_miniPlayer)
+    const setGlobalMiniPlayer = useSetAtom(vc_globalMiniPlayerAtom)
+    React.useEffect(() => {
+        setGlobalMiniPlayer(isMiniPlayer)
+        return () => {
+            setGlobalMiniPlayer(false)
+        }
+    }, [isMiniPlayer, setGlobalMiniPlayer])
     const [busy, setBusy] = useAtom(vc_busy)
     const [buffering, setBuffering] = useAtom(vc_buffering)
     const duration = useAtomValue(vc_duration)
@@ -1738,7 +1737,6 @@ export function VideoCore(props: VideoCoreProps) {
                 <VideoCorePreferencesModal isWebPlayer={props.id !== "native-player"} />
                 {state.active && !isMiniPlayer && <RemoveScrollBar />}
 
-                <TorrentStreamOverlay isNativePlayerComponent="overlay" show={(state.active && isMiniPlayer)} />
 
                 <VideoCoreDrawer
                     open={state.active}

@@ -479,9 +479,9 @@ func TestStream_beginOpenIgnoresReplacedPlaybackTermination(t *testing.T) {
 
 	sendMpvTerminated(ws, "player-client", "previous-playback-id")
 
-	require.Eventually(t, func() bool {
-		return manager.IsOpenActive("player-client")
-	}, time.Second, 10*time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
+
+	require.True(t, manager.IsOpenActive("player-client"))
 
 	require.True(t, manager.CloseOpen("player-client"))
 }

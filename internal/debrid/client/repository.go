@@ -92,6 +92,9 @@ func NewRepository(opts *NewRepositoryOptions) (ret *Repository) {
 		TorrentRepository: opts.TorrentRepository,
 		MetadataProvider:  opts.MetadataProviderRef,
 		Platform:          opts.PlatformRef,
+		OnStatus: func(status autoselect.StreamAutoSelectStatusPayload) {
+			opts.WSEventManager.SendEvent(events.StreamAutoSelectStatus, status)
+		},
 	})
 
 	return

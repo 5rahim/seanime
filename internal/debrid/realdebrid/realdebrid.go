@@ -331,65 +331,99 @@ func (t *RealDebrid) GetTorrentStreamUrl(ctx context.Context, opts debrid.Stream
 		defer func() {
 			close(doneCh)
 		}()
+
+		var errRetries int
+
+		checkTorrentReady := func() (string, bool, bool, error) {
+			ti, _err := t.getTorrentInfo(opts.ID)
+			if _err != nil {
+				errRetries++
+				if errRetries >= 5 {
+					return "", false, false, fmt.Errorf("realdebrid: Failed to get torrent: %w", _err)
+				}
+				t.logger.Warn().Err(_err).Msg("realdebrid: Failed to get torrent info, retrying...")
+				return "", false, false, nil
+			}
+			errRetries = 0
+
+			dt := toDebridTorrent(&Torrent{
+				ID:       ti.ID,
+				Filename: ti.Filename,
+				Hash:     ti.Hash,
+				Bytes:    ti.Bytes,
+				Host:     ti.Host,
+				Split:    ti.Split,
+				Progress: ti.Progress,
+				Status:   ti.Status,
+				Added:    ti.Added,
+				Links:    ti.Links,
+				Ended:    ti.Ended,
+				Speed:    ti.Speed,
+				Seeders:  ti.Seeders,
+			})
+
+			select {
+			case itemCh <- *dt:
+			default:
+			}
+
+			if dt.IsReady {
+				files := make([]*TorrentInfoFile, 0)
+				for _, f := range ti.Files {
+					if f.Selected == 1 {
+						files = append(files, f)
+					}
+				}
+
+				if len(files) == 0 {
+					return "", true, false, fmt.Errorf("realdebrid: No files downloaded")
+				}
+
+				for idx, f := range files {
+					if strconv.Itoa(f.ID) == opts.FileId {
+						if len(ti.Links) <= idx {
+							return "", true, false, nil
+						}
+						resp, _err := t.unrestrictLink(ti.Links[idx])
+						if _err != nil {
+							t.logger.Error().Err(_err).Msg("realdebrid: Failed to get download URL")
+							return "", true, false, nil
+						}
+
+						return resp.Download, true, true, nil
+					}
+				}
+				return "", true, false, fmt.Errorf("realdebrid: File not found")
+			}
+			return "", false, false, nil
+		}
+
+		sUrl, _, ok, checkErr := checkTorrentReady()
+		if checkErr != nil {
+			err = checkErr
+			return
+		}
+		if ok {
+			streamUrl = sUrl
+			return
+		}
+
+		ticker := time.NewTicker(1500 * time.Millisecond)
+		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ctx.Done():
 				err = ctx.Err()
 				return
-			case <-time.After(4 * time.Second):
-				ti, _err := t.getTorrentInfo(opts.ID)
-				if _err != nil {
-					t.logger.Error().Err(_err).Msg("realdebrid: Failed to get torrent")
-					err = fmt.Errorf("realdebrid: Failed to get torrent: %w", _err)
+			case <-ticker.C:
+				sUrl, _, ok, checkErr = checkTorrentReady()
+				if checkErr != nil {
+					err = checkErr
 					return
 				}
-
-				dt := toDebridTorrent(&Torrent{
-					ID:       ti.ID,
-					Filename: ti.Filename,
-					Hash:     ti.Hash,
-					Bytes:    ti.Bytes,
-					Host:     ti.Host,
-					Split:    ti.Split,
-					Progress: ti.Progress,
-					Status:   ti.Status,
-					Added:    ti.Added,
-					Links:    ti.Links,
-					Ended:    ti.Ended,
-					Speed:    ti.Speed,
-					Seeders:  ti.Seeders,
-				})
-				itemCh <- *dt
-
-				// Check if the torrent is ready
-				if dt.IsReady {
-					time.Sleep(1 * time.Second)
-
-					files := make([]*TorrentInfoFile, 0)
-					for _, f := range ti.Files {
-						if f.Selected == 1 {
-							files = append(files, f)
-						}
-					}
-
-					if len(files) == 0 {
-						err = fmt.Errorf("realdebrid: No files downloaded")
-						return
-					}
-
-					for idx, f := range files {
-						if strconv.Itoa(f.ID) == opts.FileId {
-							resp, err := t.unrestrictLink(ti.Links[idx])
-							if err != nil {
-								t.logger.Error().Err(err).Msg("realdebrid: Failed to get download URL")
-								return
-							}
-
-							streamUrl = resp.Download
-							return
-						}
-					}
-					err = fmt.Errorf("realdebrid: File not found")
+				if ok {
+					streamUrl = sUrl
 					return
 				}
 			}

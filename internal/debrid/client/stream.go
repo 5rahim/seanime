@@ -150,7 +150,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 			Message:     "Selecting best torrent...",
 		})
 
-		pt, err := s.repository.findBestTorrent(provider, media, opts.EpisodeNumber)
+		pt, err := s.repository.findBestTorrent(ctx, provider, media, opts.EpisodeNumber)
 		if err != nil {
 			if opts.PlaybackType == PlaybackTypeNativePlayer {
 				s.repository.directStreamManager.AbortOpen(opts.ClientId, err)
@@ -238,7 +238,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 		return fmt.Errorf("debridstream: Failed to add torrent: %w", err)
 	}
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(150 * time.Millisecond)
 
 	// Save the current torrent item id
 	s.currentTorrentItemId = torrentItemId

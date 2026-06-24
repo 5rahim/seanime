@@ -362,32 +362,60 @@ func (a *AllDebrid) GetTorrentStreamUrl(ctx context.Context, opts debrid.StreamT
 	go func(ctx context.Context) {
 		defer close(doneCh)
 
+		checkTorrentReady := func() (string, bool, bool, error) {
+			tInfo, sErr := a.GetTorrent(opts.ID)
+			if sErr != nil {
+				a.logger.Warn().Err(sErr).Msg("alldebrid: Failed to get torrent status, retrying...")
+				return "", false, false, nil
+			}
+
+			select {
+			case itemCh <- *tInfo:
+			default:
+			}
+
+			if tInfo.IsReady {
+				url, dErr := a.GetTorrentDownloadUrl(debrid.DownloadTorrentOptions{
+					ID:     opts.ID,
+					FileId: opts.FileId,
+				})
+				if dErr != nil {
+					a.logger.Warn().Err(dErr).Msg("alldebrid: failed to get download url, retrying...")
+					return "", true, false, nil
+				}
+
+				return url, true, true, nil
+			}
+
+			return "", false, false, nil
+		}
+
+		sUrl, _, ok, checkErr := checkTorrentReady()
+		if checkErr != nil {
+			err = checkErr
+			return
+		}
+		if ok {
+			streamUrl = sUrl
+			return
+		}
+
+		ticker := time.NewTicker(1500 * time.Millisecond)
+		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ctx.Done():
 				err = ctx.Err()
 				return
-			case <-time.After(time.Second * 5):
-				// Check status
-				tInfo, sErr := a.GetTorrent(opts.ID)
-				if sErr != nil {
-					a.logger.Error().Err(sErr).Msg("alldebrid: Failed to get torrent status")
-					continue
+			case <-ticker.C:
+				sUrl, _, ok, checkErr = checkTorrentReady()
+				if checkErr != nil {
+					err = checkErr
+					return
 				}
-
-				itemCh <- *tInfo
-
-				if tInfo.IsReady {
-					url, dErr := a.GetTorrentDownloadUrl(debrid.DownloadTorrentOptions{
-						ID:     opts.ID,
-						FileId: opts.FileId,
-					})
-					if dErr != nil {
-						a.logger.Error().Err(dErr).Msg("alldebrid: failed to get download url")
-						return
-					}
-
-					streamUrl = url
+				if ok {
+					streamUrl = sUrl
 					return
 				}
 			}

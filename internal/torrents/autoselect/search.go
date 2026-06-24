@@ -166,6 +166,9 @@ func (s *AutoSelect) searchFromProvider(
 	for _, resolution := range resolutions {
 		if resolution != "" {
 			s.logger.Debug().Str("provider", provider).Str("resolution", resolution).Msg("autoselect: Trying resolution")
+			s.updateStep(ctx, "searching", fmt.Sprintf("Querying %s for Episode %d [%s]...", provider, episodeNumber, resolution))
+		} else {
+			s.updateStep(ctx, "searching", fmt.Sprintf("Querying %s for Episode %d...", provider, episodeNumber))
 		}
 
 		// Build search options for this resolution

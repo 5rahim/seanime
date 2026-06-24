@@ -444,31 +444,57 @@ func (rs *ReadSeeker) Close() error {
 	return nil
 }
 
-// PrioritizeDownloadPieces sets high priority for the first 3% of pieces and the last few pieces to ensure faster loading.
+// PrioritizeDownloadPieces sets piece priorities for the initial download windows.
+// First 8 MiB: Immediate (torrent.PiecePriorityNow)
+// Next 24 MiB: Readahead (torrent.PiecePriorityReadahead)
+// Last 4 MiB: High (torrent.PiecePriorityHigh)
 func PrioritizeDownloadPieces(t *torrent.Torrent, file *torrent.File, logger *zerolog.Logger) {
-	// Calculate file's pieces
-	firstPieceIdx := file.Offset() * int64(t.NumPieces()) / t.Length()
-	endPieceIdx := (file.Offset() + file.Length()) * int64(t.NumPieces()) / t.Length()
-
-	// Prioritize more pieces at the beginning for faster initial loading (3% for beginning)
-	numPiecesForStart := (endPieceIdx - firstPieceIdx + 1) * 3 / 100
-	if logger != nil {
-		logger.Debug().Msgf("torrentuil: Setting high priority for first 3%% - pieces %d to %d (total %d)",
-			firstPieceIdx, firstPieceIdx+numPiecesForStart, numPiecesForStart)
+	if t == nil || file == nil || t.Info() == nil {
+		return
 	}
-	for idx := firstPieceIdx; idx <= firstPieceIdx+numPiecesForStart; idx++ {
-		t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
+	pieceLength := t.Info().PieceLength
+	if pieceLength <= 0 {
+		return
 	}
 
-	// Also prioritize the last few pieces
-	numPiecesForEnd := (endPieceIdx - firstPieceIdx + 1) * 1 / 100
-	if logger != nil {
-		logger.Debug().Msgf("torrentuil: Setting priority for last pieces %d to %d (total %d)",
-			endPieceIdx-numPiecesForEnd, endPieceIdx, numPiecesForEnd)
+	fileOffset := file.Offset()
+	fileLength := file.Length()
+	numTorrentPieces := int64(t.NumPieces())
+
+	firstPieceIdx := fileOffset / pieceLength
+	endPieceIdx := (fileOffset + fileLength - 1) / pieceLength
+
+	getPieceIdx := func(offset int64) int64 {
+		if offset < 0 {
+			offset = 0
+		}
+		if offset > fileLength {
+			offset = fileLength
+		}
+		return (fileOffset + offset) / pieceLength
 	}
-	for idx := endPieceIdx - numPiecesForEnd; idx <= endPieceIdx; idx++ {
-		if idx >= 0 && int(idx) < t.NumPieces() {
-			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
+
+	immediateEndIdx := getPieceIdx(8 * 1024 * 1024)
+	readaheadEndIdx := getPieceIdx((8 + 24) * 1024 * 1024)
+	finalStartIdx := getPieceIdx(fileLength - 4*1024*1024)
+
+	if logger != nil {
+		logger.Debug().Msgf("torrentutil: Prioritizing pieces for file %s. Immediate: [%d-%d], Readahead: [%d-%d], Final: [%d-%d]",
+			file.DisplayPath(), firstPieceIdx, immediateEndIdx, immediateEndIdx+1, readaheadEndIdx, finalStartIdx, endPieceIdx)
+	}
+
+	for idx := firstPieceIdx; idx <= endPieceIdx; idx++ {
+		if idx >= 0 && idx < numTorrentPieces {
+			piece := t.Piece(int(idx))
+			if idx <= immediateEndIdx {
+				piece.SetPriority(torrent.PiecePriorityNow)
+			} else if idx <= readaheadEndIdx {
+				piece.SetPriority(torrent.PiecePriorityReadahead)
+			} else if idx >= finalStartIdx {
+				piece.SetPriority(torrent.PiecePriorityHigh)
+			} else {
+				piece.SetPriority(torrent.PiecePriorityNormal)
+			}
 		}
 	}
 }

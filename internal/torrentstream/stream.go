@@ -112,6 +112,7 @@ func (r *Repository) dropStalePlaybackTorrent(stream *playbackTorrent) {
 // StartStream is called by the client to start streaming a torrent
 func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) (err error) {
 	defer util.HandlePanicInModuleWithError("torrentstream/stream/StartStream", &err)
+	startLaunchTime := time.Now()
 	requestId := r.incStartRequestId()
 	ctx, finishStart := r.beginStartRequest(ctx, requestId)
 	defer finishStart()
@@ -256,6 +257,14 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 		return fmt.Errorf("torrentstream: No torrent selected")
 	}
 
+	torrentSelectionDuration := time.Since(startLaunchTime)
+	var metadataRetrievalDuration time.Duration
+	if usedPreparedStream {
+		metadataRetrievalDuration = 0
+	} else {
+		metadataRetrievalDuration = r.client.lastMetadataDuration
+	}
+
 	if !r.isLatestStartRequest(requestId) {
 		r.logger.Debug().Msg("torrentstream: Dropping stale stream selection")
 		r.dropStalePlaybackTorrent(torrentToStream)
@@ -275,6 +284,7 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 	//
 	r.client.currentFile = mo.Some(torrentToStream.File)
 	r.client.currentTorrent = mo.Some(torrentToStream.Torrent)
+	r.client.ResetBaselines()
 	r.resetPreloadFlag()
 	r.client.cleanupActiveTorrentFiles()
 
@@ -299,20 +309,18 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 			r.sendStateEvent(eventTorrentStartedPlaying)
 		case PlaybackTypeNoneAndAwait:
 			r.logger.Warn().Msg("torrentstream: Playback type is set to 'noneAndAwait'")
-			// Signal to the client that the torrent has started playing (remove loading status)
-			// There will be no tracking
-			for {
-				if r.client.readyToStream() {
-					break
-				}
-				time.Sleep(3 * time.Second) // Wait for 3 secs before checking again
+			firstUsefulBytesTime, waitErr := r.waitForReadyToStream(context.Background(), "", false, startLaunchTime)
+			if waitErr != nil {
+				r.logger.Error().Err(waitErr).Msg("torrentstream: wait for ready failed")
+				return
 			}
+			r.logDiagnostics(startLaunchTime, torrentSelectionDuration, metadataRetrievalDuration, firstUsefulBytesTime)
 			r.sendStateEvent(eventTorrentStartedPlaying)
 		//
 		// External player
 		//
 		case PlaybackTypeExternal, PlaybackTypeExternalPlayerLink:
-			r.sendStreamToExternalPlayer(opts, media, aniDbEpisode)
+			r.sendStreamToExternalPlayer(context.Background(), opts, media, aniDbEpisode, startLaunchTime, torrentSelectionDuration, metadataRetrievalDuration)
 		//
 		// Direct stream
 		//
@@ -347,21 +355,13 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 			}
 
 			// Make sure the client is ready and the torrent is partially downloaded
-			for {
-				if !r.directStreamManager.IsOpenActive(opts.ClientId) {
-					closeReadyCh()
-					return
-				}
-				if r.client.readyToStream() {
-					break
-				}
-				// If for some reason the torrent is dropped, we kill the goroutine
-				if r.client.torrentClient.IsAbsent() || r.client.currentTorrent.IsAbsent() {
-					return
-				}
-				r.logger.Debug().Msg("torrentstream: Waiting for playable threshold to be reached")
-				time.Sleep(3 * time.Second) // Wait for 3 secs before checking again
+			firstUsefulBytesTime, waitErr := r.waitForReadyToStream(context.Background(), opts.ClientId, true, startLaunchTime)
+			if waitErr != nil {
+				r.logger.Error().Err(waitErr).Msg("torrentstream: wait for ready failed")
+				closeReadyCh()
+				return
 			}
+			r.logDiagnostics(startLaunchTime, torrentSelectionDuration, metadataRetrievalDuration, firstUsefulBytesTime)
 			readyChOnce.Do(func() {
 				close(readyCh)
 			})
@@ -381,7 +381,15 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 
 // sendStreamToExternalPlayer sends the stream to the desktop player or external player link.
 // It blocks until the some pieces have been downloaded before sending the stream for faster playback.
-func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, completeAnime *anilist.CompleteAnime, aniDbEpisode string) {
+func (r *Repository) sendStreamToExternalPlayer(
+	ctx context.Context,
+	opts *StartStreamOptions,
+	completeAnime *anilist.CompleteAnime,
+	aniDbEpisode string,
+	startLaunchTime time.Time,
+	torrentSelectionDuration time.Duration,
+	metadataRetrievalDuration time.Duration,
+) {
 
 	baseAnime := completeAnime.ToBaseAnime()
 
@@ -391,17 +399,12 @@ func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, comple
 	}()
 
 	// Make sure the client is ready and the torrent is partially downloaded
-	for {
-		if r.client.readyToStream() {
-			break
-		}
-		// If for some reason the torrent is dropped, we kill the goroutine
-		if r.client.torrentClient.IsAbsent() || r.client.currentTorrent.IsAbsent() {
-			return
-		}
-		r.logger.Debug().Msg("torrentstream: Waiting for playable threshold to be reached")
-		time.Sleep(3 * time.Second) // Wait for 3 secs before checking again
+	firstUsefulBytesTime, waitErr := r.waitForReadyToStream(ctx, "", false, startLaunchTime)
+	if waitErr != nil {
+		r.logger.Error().Err(waitErr).Msg("torrentstream: wait for ready failed")
+		return
 	}
+	r.logDiagnostics(startLaunchTime, torrentSelectionDuration, metadataRetrievalDuration, firstUsefulBytesTime)
 
 	event := &TorrentStreamSendStreamToMediaPlayerEvent{
 		WindowTitle:  "",
@@ -773,4 +776,68 @@ func (r *Repository) cancelPreparedStream() {
 		}
 		r.preloadedStream = mo.None[*preloadedStream]()
 	}
+}
+
+// waitForReadyToStream blocks until the client is ready to stream or the context is cancelled.
+// It uses piece state changes and a 250 ms ticker to poll readiness.
+func (r *Repository) waitForReadyToStream(ctx context.Context, clientId string, checkOpenActive bool, startTime time.Time) (firstUsefulBytesTime time.Duration, err error) {
+	if r.client.torrentClient.IsAbsent() || r.client.currentTorrent.IsAbsent() {
+		return 0, errors.New("torrent is absent")
+	}
+
+	t := r.client.currentTorrent.MustGet()
+	sub := t.SubscribePieceStateChanges()
+	defer sub.Close()
+
+	ticker := time.NewTicker(250 * time.Millisecond)
+	defer ticker.Stop()
+
+	var firstUsefulBytesMeasured bool
+
+	for {
+		if checkOpenActive && !r.directStreamManager.IsOpenActive(clientId) {
+			return 0, errors.New("stream opening was cancelled")
+		}
+
+		if r.client.readyToStream() {
+			return firstUsefulBytesTime, nil
+		}
+
+		if r.client.torrentClient.IsAbsent() || r.client.currentTorrent.IsAbsent() || r.client.currentTorrent.MustGet().InfoHash() != t.InfoHash() {
+			return 0, errors.New("torrent was dropped or changed")
+		}
+
+		stats := t.Stats()
+		if !firstUsefulBytesMeasured && stats.BytesReadUsefulData.Int64() > 0 {
+			firstUsefulBytesTime = time.Since(startTime)
+			firstUsefulBytesMeasured = true
+		}
+
+		select {
+		case <-ctx.Done():
+			return 0, ctx.Err()
+		case <-sub.Values:
+			// Recheck immediately on piece state changes
+		case <-ticker.C:
+			// Fallback check
+		}
+	}
+}
+
+func (r *Repository) logDiagnostics(startLaunchTime time.Time, torrentSelection time.Duration, metadataRetrieval time.Duration, firstUsefulBytes time.Duration) {
+	if r.client.currentTorrent.IsAbsent() {
+		return
+	}
+	t := r.client.currentTorrent.MustGet()
+	totalLaunchTime := time.Since(startLaunchTime)
+	peerCountAtReady := len(t.PeerConns())
+
+	r.logger.Info().
+		Str("torrentSelectionTime", torrentSelection.String()).
+		Str("metadataRetrievalTime", metadataRetrieval.String()).
+		Str("firstUsefulBytesTime", firstUsefulBytes.String()).
+		Str("playableReadinessTime", totalLaunchTime.String()).
+		Int("peerCountAtReady", peerCountAtReady).
+		Str("totalLaunchTime", totalLaunchTime.String()).
+		Msg("torrentstream: Startup diagnostics completed")
 }

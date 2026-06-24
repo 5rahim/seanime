@@ -32,6 +32,7 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     streamUrlAddress: z.string().optional().default(""),
     slowSeeding: z.boolean().optional().default(false),
     preloadNextStream: z.boolean().optional().default(false),
+    disableAcceleratedStartup: z.boolean().optional().default(false),
 }))
 
 
@@ -103,6 +104,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     streamUrlAddress: settings.streamUrlAddress || "",
                     slowSeeding: settings.slowSeeding,
                     preloadNextStream: settings.preloadNextStream,
+                    disableAcceleratedStartup: settings.disableAcceleratedStartup,
                 }}
                 stackClass="space-y-4"
             >
@@ -212,7 +214,15 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                                         side="right"
                                         name="slowSeeding"
                                         label="Slow seeding"
-                                        moreHelp="This can help avoid issues with your network."
+                                        moreHelp="This can help avoid issues with your network. Note: Slow seeding can significantly delay startup."
+                                    />
+
+                                    <Field.Switch
+                                        side="right"
+                                        name="disableAcceleratedStartup"
+                                        label="Disable accelerated startup"
+                                        disabled={f.watch("slowSeeding")}
+                                        moreHelp="Turn this on to disable aggressive peer discovery and connection limits during startup."
                                     />
                                 </AccordionContent>
                             </AccordionItem>
