@@ -385,10 +385,64 @@ function useSetupTour(): Record<string, () => TourStep[]> {
         ]
     }
 
+    const get3_9_0 = (): TourStep[] => {
+        return [
+            {
+                id: "changelog-1",
+                content: (
+                    <div>
+                        <h4 className="text-xl font-bold text-white">What's New in 3.9.0?</h4>
+                        <p>Let's take a look at the biggest additions in this release.</p>
+                    </div>
+                ),
+                route: "/",
+                nextLabel: "Start",
+                ignoreOutsideClick: true,
+            },
+            {
+                id: "libmpv-player",
+                target: "[data-tab-trigger='playback']",
+                title: "New Built-in Player (Denshi)",
+                content: "Denshi now features a libmpv-based built-in player. It offers hardware-accelerated rendering directly in the app viewport, flawless codec & subtitle support, and supports mpv.conf options and shaders.",
+                route: "/settings",
+                prepare: async () => {
+                    setSettingsTab("playback")
+                    await tourHelpers.waitForSelector("[data-tab-trigger='playback']")
+                },
+                ignoreOutsideClick: true,
+                popoverWidth: 460,
+                condition: () => typeof window !== "undefined" && !!window.electron,
+                conditionFailBehavior: "skip",
+            },
+            {
+                id: "torrent-streaming-perf",
+                title: "Faster Torrent Streaming",
+                content: "Torrent streaming startup is now up to 20% faster depending on seeding, with more accurate download progress reporting and fixed batch selection.",
+                route: "/",
+                ignoreOutsideClick: true,
+            },
+            {
+                id: "debrid-streaming-perf",
+                title: "Faster Debrid Streaming",
+                content: "Debrid streaming launch is now up to 5 seconds faster for cached streams.",
+                route: "/",
+                ignoreOutsideClick: true,
+            },
+            {
+                id: "changelog-2",
+                title: "Bug Fixes",
+                content: "Several bugs have been fixed in this release, including progress tracking for MPV/IINA, manga image proxy issues, and Seanime Denshi's Electron has been updated to 42.4.0. Read the full changelog for more details.",
+                route: "/",
+                ignoreOutsideClick: true,
+            },
+        ]
+    }
+
     return {
         "3.5.0": get3_5_0,
         "3.7.0": get3_7_0,
         "3.8.0": get3_8_0,
+        "3.9.0": get3_9_0,
     }
 }
 

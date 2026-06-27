@@ -7,14 +7,16 @@ All notable changes to this project will be documented in this file.
 - 🎉 Denshi: New libmpv-based Built-in Player (Experimental)
   - Enable in 'Settings > Video Playback'
   - Hardware-accelerated rendering directly in the app viewport (no external window)
-  - Uses D3D11 on Windows, OpenGL on macOS and Linux
   - Flawless codec and subtitle support on all platforms
   - Supports many 'mpv.conf' options and shaders
-- 🦺 Torrent streaming: Fixed batch selection
+- ⚡️ Torrent Streaming: Up to 20% faster startup depending on seeding
+- ⚡️ Debrid Streaming: Up to 5 seconds faster launch for cached streams
+- 🦺 Torrent Streaming: Fixed batch selection
 - 🦺 VideoCore: Ability to exit fullscreen when next stream is loading
 - 🦺 MPV/IINA: Fixed progress tracking dropping when media path is temporarily unavailable #836
 - 🦺 AllDebrid: Fixed batch torrent streaming #841
 - 🦺 Manga: Fixed unnecessary image proxy
+- 🦺 Torrent Streaming: More accurate download progress reporting
 - ⬆️ Updated Electron to 42.4.0
   - Fixes AC3/EAC3 audio support detection on Windows for HTML5 player
   - Fixes security vulnerabilities

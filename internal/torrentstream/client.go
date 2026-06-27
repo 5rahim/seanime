@@ -684,44 +684,68 @@ func (c *Client) getTorrentPercentage(t mo.Option[*torrent.Torrent], f mo.Option
 	return float64(f.MustGet().BytesCompleted()) / float64(f.MustGet().Length()) * 100
 }
 
-// readyToStream determines if enough of the file has been downloaded to begin streaming
-// Uses both absolute size (minimum buffer) and a percentage-based approach
+// readyToStream determines if enough of the file has been downloaded to begin streaming.
+// Requires the first contiguous playback window to be complete.
 func (c *Client) readyToStream() bool {
 	if c.currentTorrent.IsAbsent() || c.currentFile.IsAbsent() {
 		return false
 	}
 
 	file := c.currentFile.MustGet()
+	torrent := c.currentTorrent.MustGet()
 
-	// Always need at least 1MB to start playback (typical header size for many formats)
-	const minimumBufferBytes int64 = 1 * 1024 * 1024 // 1MB
+	// If metadata/info is not loaded yet, fallback to aggregate check
+	if torrent.Info() == nil {
+		const minBuffBytes int64 = 1 * 1024 * 1024 // 1MB
+		return file.BytesCompleted() >= minBuffBytes
+	}
 
-	// For large files, use a smaller percentage
-	var percentThreshold float64
+	pieceLen := torrent.Info().PieceLength
+	if pieceLen <= 0 {
+		const minBuffBytes int64 = 1 * 1024 * 1024 // 1MB
+		return file.BytesCompleted() >= minBuffBytes
+	}
+
+	fileOffset := file.Offset()
 	fileSize := file.Length()
 	if fileSize == 0 {
 		return false
 	}
 
-	bytesCompleted := file.BytesCompleted()
-
-	if bytesCompleted == fileSize {
+	if file.BytesCompleted() == fileSize {
 		return true
 	}
 
-	switch {
-	case fileSize > 5*1024*1024*1024: // > 5GB
-		percentThreshold = 0.1 // 0.1% for very large files
-	case fileSize > 1024*1024*1024: // > 1GB
-		percentThreshold = 0.5 // 0.5% for large files
-	default:
-		percentThreshold = 0.5 // 0.5% for smaller files
+	// Calculate the starting piece index of the file
+	firstPieceIdx := fileOffset / pieceLen
+	fileLastPieceIdx := (fileOffset + fileSize - 1) / pieceLen
+
+	// Determine how many contiguous pieces we need from the start of the file.
+	// - If piece size is >= 2 MiB, require 1 piece
+	// - If piece size is < 2 MiB, require 2 pieces
+	var numRequiredPieces int64 = 2
+	if pieceLen >= 2*1024*1024 {
+		numRequiredPieces = 1
 	}
 
-	percentCompleted := float64(bytesCompleted) / float64(fileSize) * 100
+	// Calculate the piece index that ends the check range
+	endPieceIdx := firstPieceIdx + numRequiredPieces - 1
+	if endPieceIdx > fileLastPieceIdx {
+		endPieceIdx = fileLastPieceIdx
+	}
 
-	// Ready when both minimum buffer is met AND percentage threshold is reached
-	return bytesCompleted >= minimumBufferBytes && percentCompleted >= percentThreshold
+	if firstPieceIdx < 0 || endPieceIdx >= int64(torrent.NumPieces()) {
+		return false
+	}
+
+	// Check if all pieces in the range are complete
+	for idx := firstPieceIdx; idx <= endPieceIdx; idx++ {
+		if !torrent.Piece(int(idx)).State().Complete {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (c *Client) ResetBaselines() {

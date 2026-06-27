@@ -31,7 +31,7 @@ import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_h
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { PlaybackPlayPill } from "@/app/(main)/entry/_containers/torrent-stream/playback-play-pill"
 import { clientIdAtom } from "@/app/websocket-provider"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -43,7 +43,7 @@ import { MpvPrismVideo, useMpvPrismEvent, useMpvPrismPlayer } from "@mpv-prism/r
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import React from "react"
-import { LuCaptions, LuFilm, LuHeadphones } from "react-icons/lu"
+import { LuCaptions, LuFilm, LuHeadphones, LuPaintbrush } from "react-icons/lu"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { toast } from "sonner"
 
@@ -53,6 +53,8 @@ import {
     createSkipChapterCues,
     isEditableKeyboardTarget,
     mc_cacheBufferedSeconds,
+    mc_formatAudioTrack,
+    mc_formatSubtitleTrack,
     mc_parseCustomMpvConfig,
     mc_resolveAnime4KProfile,
     mc_resolveSource,
@@ -1674,16 +1676,24 @@ export function MpvCorePlayerInner() {
                                                         />
                                                     }
                                                 >
-                                                    <MediaCoreMenuTitle>Subtitles</MediaCoreMenuTitle>
+                                                    <MediaCoreMenuTitle>Subtitles
+                                                        <IconButton
+                                                            intent="gray-link" size="xs"
+                                                            onClick={() => {
+                                                                setOpenMenu("settings")
+                                                                React.startTransition(() => {
+                                                                    setOpenSection("Subtitle Styles")
+                                                                })
+                                                            }}
+                                                            icon={<LuPaintbrush />}
+                                                            className="absolute right-2 top-[calc(50%-1rem)]"
+                                                        />
+                                                    </MediaCoreMenuTitle>
                                                     <MediaCoreMenuBody>
                                                         <MediaCoreSettingSelect
                                                             options={[
                                                                 { label: "Off", value: "no" },
-                                                                ...subtitleTracks.map(track => ({
-                                                                    label: mc_trackLabel(track),
-                                                                    value: track.id,
-                                                                    moreInfo: track.lang?.toUpperCase(),
-                                                                })),
+                                                                ...subtitleTracks.map(mc_formatSubtitleTrack),
                                                             ]}
                                                             value={selectedSubtitle}
                                                             onValueChange={value => player?.selectTrack("subtitle", value)}
@@ -1717,11 +1727,7 @@ export function MpvCorePlayerInner() {
                                                     <MediaCoreMenuTitle>Audio</MediaCoreMenuTitle>
                                                     <MediaCoreMenuBody>
                                                         <MediaCoreSettingSelect
-                                                            options={audioTracks.map(track => ({
-                                                                label: mc_trackLabel(track),
-                                                                value: track.id,
-                                                                moreInfo: track.lang?.toUpperCase(),
-                                                            }))}
+                                                            options={audioTracks.map(mc_formatAudioTrack)}
                                                             value={selectedAudio}
                                                             onValueChange={value => player?.selectTrack("audio", value)}
                                                             isFullscreen={isFullscreen}

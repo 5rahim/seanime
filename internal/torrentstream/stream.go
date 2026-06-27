@@ -116,6 +116,8 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 	requestId := r.incStartRequestId()
 	ctx, finishStart := r.beginStartRequest(ctx, requestId)
 	defer finishStart()
+
+	r.playback.currentVideoDuration = 0
 	// DEVNOTE: Do not
 	//r.Shutdown()
 
@@ -513,6 +515,8 @@ func (r *Repository) StopStream(fromNativePlayer ...bool) error {
 	if r.directStreamManager != nil {
 		r.directStreamManager.CloseOpen("")
 	}
+
+	r.playback.currentVideoDuration = 0
 
 	r.streamActionMu.Lock()
 	defer r.streamActionMu.Unlock()

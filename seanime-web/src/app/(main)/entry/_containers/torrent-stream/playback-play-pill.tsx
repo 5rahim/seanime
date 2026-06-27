@@ -14,7 +14,6 @@ import { Spinner } from "@/components/ui/loading-spinner"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
-import { atomWithStorage } from "jotai/utils"
 import { AnimatePresence, motion } from "motion/react"
 import React, { useEffect, useRef, useState } from "react"
 import { BiChevronDown, BiChevronUp, BiDownArrow, BiGroup, BiStop, BiUpArrow } from "react-icons/bi"
@@ -34,7 +33,7 @@ export const enum TorrentStreamEvents {
 export const __torrentstream__loadingStateAtom = atom<string | null>(null)
 export const __torrentstream__isLoadedAtom = atom<boolean>(false)
 export const __debridstream_stateAtom = atom<DebridClient_StreamState | null>(null)
-export const playPillMinimizedAtom = atomWithStorage<boolean>("sea-stream-pill-minimized", false)
+export const playPillMinimizedAtom = atom<boolean>(true)
 
 export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
     isNativePlayerComponent?: "control-bar" | "top-section" | "overlay",
@@ -400,6 +399,10 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
                             {isTorrentLoaded && status && (
                                 <div className="flex items-center gap-2 text-[11px] font-medium text-[--muted] flex-shrink-0 mr-1 bg-gray-950/40 px-2.5 py-1 rounded-full">
                                     <span className="font-bold text-[--foreground]">{status.progressPercentage.toFixed(1)}%</span>
+                                    <span className="flex items-center gap-0.5">
+                                        <BiGroup className="size-3" />
+                                        {status.seeders || "0"}
+                                    </span>
                                     <span className="flex items-center gap-0.5">
                                         <BiDownArrow className="size-3" />
                                         {status.downloadSpeed || "0 B/s"}

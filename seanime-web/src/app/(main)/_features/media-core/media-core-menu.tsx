@@ -42,7 +42,7 @@ export function MediaCoreMenu(props: MediaCoreMenuProps) {
 
     const t = useRef<NodeJS.Timeout | null>(null)
     React.useEffect(() => {
-        if (openMenu !== name) {
+        if (openMenu === null) {
             t.current = setTimeout(() => {
                 onOpenSectionChange?.(null)
                 onOpenSubSectionChange?.(null)
@@ -53,7 +53,7 @@ export function MediaCoreMenu(props: MediaCoreMenuProps) {
                 clearTimeout(t.current)
             }
         }
-    }, [openMenu, name])
+    }, [openMenu])
 
     if (isDrawer) {
         return (

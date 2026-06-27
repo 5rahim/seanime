@@ -345,6 +345,60 @@ export function mc_trackLabel(track: MpvPrismTrack) {
     return detail || `${mc_trackKind(track) ?? "track"} ${track.id ?? ""}`
 }
 
+export function getMpvSubtitleCodecType(codec: string) {
+    const clean = codec.toLowerCase()
+    if (clean.includes("ass")) return "ASS"
+    if (clean.includes("ssa")) return "SSA"
+    if (clean.includes("pgs") || clean.includes("hdmv")) return "PGS"
+    if (clean.includes("srt") || clean.includes("subrip")) return "SRT"
+    if (clean.includes("vtt") || clean.includes("webvtt")) return "VTT"
+    return codec.toUpperCase()
+}
+
+export function getMpvAudioCodecType(codec: string) {
+    const clean = codec.toLowerCase()
+    if (clean.includes("aac")) return "AAC"
+    if (clean.includes("ac3") || clean.includes("ac-3")) return "AC3"
+    if (clean.includes("dts")) return "DTS"
+    if (clean.includes("flac")) return "FLAC"
+    if (clean.includes("opus")) return "OPUS"
+    if (clean.includes("truehd")) return "TRUEHD"
+    return codec.toUpperCase()
+}
+
+export function mc_formatSubtitleTrack(track: MpvPrismTrack) {
+    const codecStr = track.codec ? String(track.codec) : undefined
+    const formattedCodec = codecStr ? getMpvSubtitleCodecType(codecStr) : undefined
+    const label = track.title || track.lang?.toUpperCase() || `Track ${track.id}`
+    const isLangSameAsLabel = track.lang?.toLowerCase() === track.title?.toLowerCase() || track.lang?.toUpperCase() === label
+    const moreInfo = track.lang && !isLangSameAsLabel
+        ? `${track.lang.toUpperCase()}${formattedCodec ? "/" + formattedCodec : ""}`
+        : formattedCodec
+
+    return {
+        label,
+        value: track.id,
+        moreInfo,
+    }
+}
+
+export function mc_formatAudioTrack(track: MpvPrismTrack) {
+    const codecStr = track.codec ? String(track.codec) : undefined
+    const formattedCodec = codecStr ? getMpvAudioCodecType(codecStr) : undefined
+    const label = track.title || track.lang?.toUpperCase() || `Track ${track.id}`
+    const isLangSameAsLabel = track.lang?.toLowerCase() === track.title?.toLowerCase() || track.lang?.toUpperCase() === label
+    const moreInfo = track.lang && !isLangSameAsLabel
+        ? `${track.lang.toUpperCase()}${formattedCodec ? "/" + formattedCodec : ""}`
+        : formattedCodec
+
+    return {
+        label,
+        value: track.id,
+        moreInfo,
+    }
+}
+
+
 export function mc_cacheBufferedSeconds(value: unknown, duration: number, currentTime: number) {
     if (!value || typeof value !== "object") return currentTime
     const state = value as Record<string, unknown>

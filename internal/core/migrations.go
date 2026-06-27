@@ -15,6 +15,7 @@ var Tours = map[string][]string{
 	"3.5.0": {"< 3.5.0", "< 3.6.0, >= 3.5.0"},
 	"3.7.0": {"< 3.7.0", "< 3.8.0, >= 3.7.0"},
 	"3.8.0": {"< 3.8.0", "< 3.9.0, >= 3.8.0"},
+	"3.9.0": {"< 3.9.0", "< 3.10.0, >= 3.9.0"},
 }
 
 // runMigrations checks the previous version and runs any necessary migrations based on the version difference.

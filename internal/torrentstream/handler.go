@@ -1,7 +1,10 @@
 package torrentstream
 
 import (
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"seanime/internal/util/torrentutil"
 	"strconv"
 	"time"
@@ -23,14 +26,18 @@ func newHandler(repository *Repository) *handler {
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.repository.logger.Trace().Str("range", r.Header.Get("Range")).Msg("torrentstream: Stream endpoint hit")
-
 	file, found := h.repository.client.currentFile.Get()
 	if !found || h.repository.client.currentTorrent.IsAbsent() {
 		h.repository.logger.Error().Msg("torrentstream: No torrent to stream")
 		http.Error(w, "No torrent to stream", http.StatusNotFound)
 		return
 	}
+
+	h.repository.logger.Debug().
+		Str("range", r.Header.Get("Range")).
+		Int64("bytesCompleted", file.BytesCompleted()).
+		Int64("fileSize", file.Length()).
+		Msg("torrentstream: Stream endpoint hit")
 
 	if r.Method == http.MethodHead {
 		length := file.Length()
@@ -47,20 +54,37 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.repository.logger.Trace().Str("file", file.DisplayPath()).Msg("torrentstream: New reader")
-	tr := torrentutil.NewReadSeeker(h.repository.client.currentTorrent.MustGet(), file, h.repository.logger)
+	var tr io.ReadSeekCloser
+	useCompletedFile := false
+	downloadDir := h.repository.GetDownloadDir()
+	torrent := h.repository.client.currentTorrent.MustGet()
+	if downloadDir != "" && torrent != nil && file.Length() > 0 {
+		completedPath := filepath.Join(downloadDir, torrent.InfoHash().HexString(), filepath.FromSlash(file.Path()))
+		if info, err := os.Stat(completedPath); err == nil && !info.IsDir() && info.Size() == file.Length() {
+			if reader, err := os.Open(completedPath); err == nil {
+				tr = reader
+				useCompletedFile = true
+				h.repository.logger.Debug().Str("path", completedPath).Msg("torrentstream: Using completed file from disk")
+			}
+		}
+	}
+
+	if !useCompletedFile {
+		h.repository.logger.Trace().Str("file", file.DisplayPath()).Msg("torrentstream: New reader")
+		tr = torrentutil.NewReadSeeker(torrent, file, h.repository.logger)
+
+		// If this is a range request for a later part of the file, prioritize those pieces initially
+		rangeHeader := r.Header.Get("Range")
+		if rangeHeader != "" {
+			// Attempt to prioritize the pieces requested in the range
+			torrentutil.PrioritizeRangeRequestPieces(rangeHeader, torrent, file, h.repository.logger)
+		}
+	}
+
 	defer func() {
 		h.repository.logger.Trace().Msg("torrentstream: Closing reader")
 		_ = tr.Close()
 	}()
-
-	// If this is a range request for a later part of the file, prioritize those pieces initially
-	rangeHeader := r.Header.Get("Range")
-	if rangeHeader != "" && h.repository.client.currentTorrent.IsPresent() {
-		t := h.repository.client.currentTorrent.MustGet()
-		// Attempt to prioritize the pieces requested in the range
-		torrentutil.PrioritizeRangeRequestPieces(rangeHeader, t, file, h.repository.logger)
-	}
 
 	h.repository.logger.Trace().Str("file", file.DisplayPath()).Msg("torrentstream: Serving file content")
 	w.Header().Set("Content-Type", "video/mp4")
