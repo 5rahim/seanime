@@ -1,3 +1,5 @@
+import { useSaveMediaPlayerSettings } from "@/api/hooks/settings.hooks"
+import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
@@ -6,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { atom, useAtom, useAtomValue } from "jotai"
 import React from "react"
+import { useServerStatus } from "../../_hooks/use-server-status"
 import {
     mc_defaultKeybindings,
     mc_initialSettings,
@@ -121,6 +124,11 @@ export function MpvCorePreferencesModal(props: {
     const [recordingKey, setRecordingKey] = React.useState<string | null>(null)
     const [tab, setTab] = React.useState("keybinds")
 
+    const serverStatus = useServerStatus()
+    const { mutate: saveMediaPlayerSettings } = useSaveMediaPlayerSettings()
+    const mediaPlayerSettings = serverStatus?.settings?.mediaPlayer
+    const [editedScreenshotDir, setEditedScreenshotDir] = React.useState(mediaPlayerSettings?.screenshotDir ?? "")
+
     React.useEffect(() => {
         if (!open) return
         setEditedKeybindings(keybindings)
@@ -128,7 +136,8 @@ export function MpvCorePreferencesModal(props: {
         setEditedAudioLanguage(settings.preferredAudioLanguage)
         setEditedSubsBlacklist(settings.preferredSubtitleBlacklist)
         setEditedSubtitleDelay(settings.subtitleDelay)
-    }, [open, keybindings, settings])
+        setEditedScreenshotDir(mediaPlayerSettings?.screenshotDir ?? "")
+    }, [open, keybindings, settings, mediaPlayerSettings])
 
     const handleKeyRecord = (actionKey: keyof MpvCoreKeybindings) => {
         setRecordingKey(actionKey)
@@ -155,6 +164,16 @@ export function MpvCorePreferencesModal(props: {
             preferredSubtitleBlacklist: editedSubsBlacklist,
             subtitleDelay: editedSubtitleDelay,
         })
+
+        const currentMediaPlayer = serverStatus?.settings?.mediaPlayer
+        if (currentMediaPlayer) {
+            saveMediaPlayerSettings({
+                mediaPlayer: {
+                    ...currentMediaPlayer,
+                    screenshotDir: editedScreenshotDir,
+                },
+            })
+        }
         setOpen(false)
     }
 
@@ -168,6 +187,7 @@ export function MpvCorePreferencesModal(props: {
         setEditedAudioLanguage(mc_initialSettings.preferredAudioLanguage)
         setEditedSubsBlacklist(mc_initialSettings.preferredSubtitleBlacklist)
         setEditedSubtitleDelay(mc_initialSettings.subtitleDelay)
+        setEditedScreenshotDir(mediaPlayerSettings?.screenshotDir ?? "")
     }
 
     const formatKeyDisplay = (keyCode: string) => {
@@ -212,7 +232,42 @@ export function MpvCorePreferencesModal(props: {
                     <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
                         <TabsTrigger value="keybinds">Keyboard Shortcuts</TabsTrigger>
                         <TabsTrigger value="subtitles">Subtitles & Audio</TabsTrigger>
+                        <TabsTrigger value="general">General</TabsTrigger>
                     </TabsList>
+
+                    <TabsContent value="general" className={tabContentClass}>
+                        <div className="space-y-4">
+                            <DirectorySelector
+                                value={editedScreenshotDir}
+                                onSelect={setEditedScreenshotDir}
+                                label="Screenshot Directory"
+                                help="Configure the directory where screenshots will be saved"
+                            />
+
+                            <div className="flex items-center justify-between pt-6">
+                                <Button
+                                    intent="gray-outline"
+                                    onClick={handleReset}
+                                >
+                                    Reset all
+                                </Button>
+                                <div className="flex gap-2">
+                                    <Button
+                                        intent="gray-outline"
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        intent="primary"
+                                        onClick={handleSave}
+                                    >
+                                        Save
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
 
                     <TabsContent value="keybinds" className={tabContentClass}>
                         <div className="space-y-3 hidden lg:block">

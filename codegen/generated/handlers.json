@@ -12000,6 +12000,61 @@
     }
   },
   {
+    "name": "HandleVideoCoreSaveScreenshot",
+    "trimmedName": "VideoCoreSaveScreenshot",
+    "comments": [
+      "HandleVideoCoreSaveScreenshot",
+      "",
+      "\t@summary saves a screenshot to a local directory.",
+      "\t@route /api/v1/videocore/screenshot [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/videocore.go",
+    "filename": "videocore.go",
+    "api": {
+      "summary": "saves a screenshot to a local directory.",
+      "descriptions": [],
+      "endpoint": "/api/v1/videocore/screenshot",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Dir",
+          "jsonName": "dir",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Filename",
+          "jsonName": "filename",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Base64Data",
+          "jsonName": "base64Data",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "webSocketEventHandler",
     "trimmedName": "webSocketEventHandler",
     "comments": [

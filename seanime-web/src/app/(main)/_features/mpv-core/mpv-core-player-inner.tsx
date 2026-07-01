@@ -1,5 +1,6 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import type { Player_PlaybackInfo, Player_SkipData, Player_SubtitleTrack } from "@/api/generated/types"
+import { useVideoCoreSaveScreenshot } from "@/api/hooks/videocore.hooks"
 import {
     MediaCoreControlBarView,
     MediaCoreControlButtonIcon,
@@ -69,6 +70,7 @@ import { MpvCoreCastButton } from "./mpv-core-cast-button"
 import { MpvCoreFloatingButtons } from "./mpv-core-floating-buttons"
 
 import { MpvCorePreferencesModal, mpvCorePreferencesModalAtom } from "./mpv-core-preferences"
+import { MpvCoreScreenshotDirPrompt } from "./mpv-core-screenshot-prompt"
 import { MpvCoreSettingsMenu } from "./mpv-core-settings-menu"
 import { MpvCoreStats } from "./mpv-core-stats"
 import { MpvCoreTimeRange } from "./mpv-core-time-range"
@@ -91,6 +93,8 @@ import {
     mc_keybindingsAtom,
     mc_overlayFeedback,
     mc_paused,
+    mc_pendingScreenshotAtom,
+    mc_screenshotPromptOpenAtom,
     mc_settings,
     mc_shaderSettings,
     mc_showChapterMarkers,
@@ -222,6 +226,10 @@ export function MpvCorePlayerInner() {
     const [anime4kError, setAnime4kError] = React.useState<string | null>(null)
     const [diagnostics, setDiagnostics] = React.useState<Record<string, unknown>>({})
     const [nativeChapters, setNativeChapters] = React.useState<MpvCoreNativeChapter[]>([])
+
+    const setPromptOpen = useSetAtom(mc_screenshotPromptOpenAtom)
+    const setPendingScreenshot = useSetAtom(mc_pendingScreenshotAtom)
+    const { mutateAsync: saveScreenshotMutation } = useVideoCoreSaveScreenshot()
 
     const overlayFeedbackTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
     React.useEffect(() => {
@@ -1257,10 +1265,22 @@ export function MpvCorePlayerInner() {
             const dataUrl = canvas.toDataURL("image/png")
             const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "")
 
-            const path = await window.electron.mpvCore.createScreenshotPath()
-            await window.electron.mpvCore.saveScreenshot(path, base64Data)
+            const screenshotDir = serverStatus?.settings?.mediaPlayer?.screenshotDir
 
-            showMessage(`Screenshot saved to ${path}`, "message", 4000)
+            if (!screenshotDir) {
+                setPendingScreenshot({ base64Data })
+                setPromptOpen(true)
+                return
+            }
+
+            const filename = `seanime_screenshot_${new Date().getTime()}.png`
+            await saveScreenshotMutation({
+                dir: screenshotDir,
+                filename,
+                base64Data,
+            })
+
+            showMessage(`Screenshot saved to ${screenshotDir}`, "message", 4000)
         } catch (error) {
             console.error("Screenshot capture failed:", error)
             toast.error(error instanceof Error ? error.message : "Failed to capture screenshot")
@@ -1355,6 +1375,11 @@ export function MpvCorePlayerInner() {
                 fullscreen={isFullscreen}
                 containerElement={containerElement}
                 onTerminate={terminate}
+            />
+
+            <MpvCoreScreenshotDirPrompt
+                isFullscreen={isFullscreen}
+                containerElement={containerElement}
             />
 
 

@@ -242,3 +242,6 @@ export const mc_showStats = atom(
 
 export const mc_cacheState = atom<any>(null)
 export const mc_frameDrops = atom<Record<string, number>>({})
+
+export const mc_screenshotPromptOpenAtom = atom(false)
+export const mc_pendingScreenshotAtom = atom<{ base64Data: string } | null>(null)

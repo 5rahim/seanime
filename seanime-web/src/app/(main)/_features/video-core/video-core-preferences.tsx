@@ -27,6 +27,7 @@ import {
     VideoCoreKeybindings,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
+import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
@@ -183,6 +184,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
     const [editedAudioLanguage, setEditedAudioLanguage] = useState(settings.preferredAudioLanguage)
     const [editedSubsBlacklist, setEditedSubsBlacklist] = useState(settings.preferredSubtitleBlacklist)
     const [editedSubtitleDelay, setEditedSubtitleDelay] = useState(settings.subtitleDelay ?? 0)
+    const [editedScreenshotDir, setEditedScreenshotDir] = useState(mediaPlayerSettings?.screenshotDir ?? "")
     // const [editedSubCustomization, setEditedSubCustomization] = useState<VideoCoreSettings["subtitleCustomization"]>(
     //     settings.subtitleCustomization || vc_initialSettings.subtitleCustomization
     // )
@@ -198,9 +200,10 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
             setEditedSubsBlacklist(settings.preferredSubtitleBlacklist)
             setEditedSubtitleDelay(settings.subtitleDelay ?? 0)
             setEditedUseLibassRenderer(useLibassRenderer)
+            setEditedScreenshotDir(mediaPlayerSettings?.screenshotDir ?? "")
             // setEditedSubCustomization(settings.subtitleCustomization || vc_initialSettings.subtitleCustomization)
         }
-    }, [open, keybindings, settings, useLibassRenderer])
+    }, [open, keybindings, settings, useLibassRenderer, mediaPlayerSettings])
 
     const handleKeyRecord = (actionKey: keyof VideoCoreKeybindings) => {
         setRecordingKey(actionKey)
@@ -237,6 +240,17 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
         }
         setSettings(newSettings)
         setUseLibassRenderer(editedUseLibassRenderer)
+
+        const currentMediaPlayer = serverStatus?.settings?.mediaPlayer
+        if (currentMediaPlayer) {
+            saveMediaPlayerSettings({
+                mediaPlayer: {
+                    ...currentMediaPlayer,
+                    screenshotDir: editedScreenshotDir,
+                },
+            })
+        }
+
         // Update subtitle manager with new settings
         subtitleManager?.updateSettings(newSettings)
         mediaCaptionsManager?.updateSettings(newSettings)
@@ -250,6 +264,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
         setEditedSubsBlacklist(vc_initialSettings.preferredSubtitleBlacklist)
         setEditedSubtitleDelay(vc_initialSettings.subtitleDelay)
         setEditedUseLibassRenderer(true)
+        setEditedScreenshotDir(mediaPlayerSettings?.screenshotDir ?? "")
         // setEditedSubCustomization(vc_initialSettings.subtitleCustomization)
     }
 
@@ -314,9 +329,44 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                 <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
                     <TabsTrigger value="keybinds">Keyboard Shortcuts</TabsTrigger>
                     <TabsTrigger value="subtitles">Subtitles & Audio</TabsTrigger>
+                    <TabsTrigger value="general">General</TabsTrigger>
                     <TabsTrigger value="translation">Translation</TabsTrigger>
                     {/*<TabsTrigger value="browser-client">Rendering</TabsTrigger>*/}
                 </TabsList>
+
+                <TabsContent value="general" className={tabContentClass}>
+                    <div className="space-y-4">
+                        <DirectorySelector
+                            value={editedScreenshotDir}
+                            onSelect={setEditedScreenshotDir}
+                            label="Screenshot Directory"
+                            help="Configure the directory where screenshots will be saved"
+                        />
+
+                        <div className="flex items-center justify-between pt-6">
+                            <Button
+                                intent="gray-outline"
+                                onClick={handleReset}
+                            >
+                                Reset all
+                            </Button>
+                            <div className="flex gap-2">
+                                <Button
+                                    intent="gray-outline"
+                                    onClick={() => setOpen(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    intent="primary"
+                                    onClick={handleSave}
+                                >
+                                    Save
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </TabsContent>
 
                 <TabsContent value="keybinds" className={tabContentClass}>
                     <div className="space-y-3 hidden lg:block">

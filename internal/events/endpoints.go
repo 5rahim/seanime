@@ -260,4 +260,5 @@ const (
 	UpdatePlaylistEndpoint                             = "PLAYLIST-update-playlist"
 	UpdateThemeEndpoint                                = "THEME-update-theme"
 	VideoCoreInSightGetCharacterDetailsEndpoint        = "VIDEOCORE-video-core-in-sight-get-character-details"
+	VideoCoreSaveScreenshotEndpoint                    = "VIDEOCORE-video-core-save-screenshot"
 )

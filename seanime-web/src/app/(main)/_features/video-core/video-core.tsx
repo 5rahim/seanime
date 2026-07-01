@@ -141,6 +141,7 @@ import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { useUnmount, useUpdateEffect, useWindowSize } from "react-use"
+import { VideoCoreScreenshotDirPrompt } from "./video-core-screenshot-prompt"
 
 const log = logger("VIDEO CORE")
 
@@ -1685,6 +1686,7 @@ export function VideoCore(props: VideoCoreProps) {
             <ScopeProvider atoms={[__torrentSearch_selectionAtom, __torrentSearch_selectionEpisodeAtom, __torrentSearch_selectedTorrentsAtom]}>
                 <VideoCoreAnime4K />
                 <VideoCorePreferencesModal isWebPlayer={props.id !== "native-player"} />
+                <VideoCoreScreenshotDirPrompt />
                 {fullscreen && <RemoveScrollBar />}
                 <div
                     data-vc-element="inline-container"
@@ -1735,6 +1737,7 @@ export function VideoCore(props: VideoCoreProps) {
 
                 <VideoCoreAnime4K />
                 <VideoCorePreferencesModal isWebPlayer={props.id !== "native-player"} />
+                <VideoCoreScreenshotDirPrompt />
                 {state.active && !isMiniPlayer && <RemoveScrollBar />}
 
 

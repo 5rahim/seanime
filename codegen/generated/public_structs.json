@@ -31237,6 +31237,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ScreenshotDir",
+        "jsonName": "screenshotDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []

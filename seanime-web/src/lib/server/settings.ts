@@ -126,6 +126,7 @@ export const settingsSchema = z.object({
     vcTranslateModel: z.string().optional().default(""),
     mpvPrismLogging: z.boolean().optional().default(false),
     mpvPrismEnabled: z.boolean().optional().default(false),
+    screenshotDir: z.string().optional().default(""),
     scannerUseLegacyMatching: z.boolean().optional().default(false),
     scannerConfig: z.string().optional().default(""),
     updateChannel: z.string().optional().default("github"),
@@ -211,6 +212,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         vcTranslateModel: "",
         mpvPrismLogging: data.mpvPrismLogging ?? false,
         mpvPrismEnabled: data.mpvPrismEnabled ?? false,
+        screenshotDir: data.screenshotDir || "",
     },
     discord: {
         enableRichPresence: data.enableRichPresence,

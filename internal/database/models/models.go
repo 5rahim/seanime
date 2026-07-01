@@ -204,6 +204,7 @@ type MediaPlayerSettings struct {
 	VcTranslateModel          string `gorm:"column:vc_translate_model" json:"vcTranslateModel"`
 	MpvPrismLogging           bool   `gorm:"column:mpv_prism_logging" json:"mpvPrismLogging"`
 	MpvPrismEnabled           bool   `gorm:"column:mpv_prism_enabled" json:"mpvPrismEnabled"`
+	ScreenshotDir             string `gorm:"column:screenshot_dir" json:"screenshotDir"`
 }
 
 type TorrentSettings struct {

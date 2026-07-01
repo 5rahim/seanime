@@ -3982,6 +3982,7 @@ export type Models_MediaPlayerSettings = {
     vcTranslateModel: string
     mpvPrismLogging: boolean
     mpvPrismEnabled: boolean
+    screenshotDir: string
 }
 
 /**
