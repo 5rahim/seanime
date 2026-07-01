@@ -228,11 +228,21 @@ func (p *Premiumize) doQueryCtx(ctx context.Context, method, endpoint string, pa
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // AddTorrent creates a new transfer from a magnet link (or a direct URL to a .torrent file, which
-// Premiumize also accepts as "src"). Unlike other providers, Premiumize does not expose the info
-// hash of a transfer anywhere in its API, so we cannot check whether the torrent was already added
-// by comparing hashes and instead always create a new transfer.
+// Premiumize also accepts as "src"). Since the Premiumize API never exposes the info hash of a
+// transfer (see hashCache), the only way to avoid creating duplicate transfers for a torrent we
+// already added is to check our own in-memory hashCache first.
 func (p *Premiumize) AddTorrent(opts debrid.AddTorrentOptions) (string, error) {
 	p.logger.Debug().Str("src", opts.MagnetLink).Msg("premiumize: AddTorrent called")
+
+	hash := opts.InfoHash
+	if hash == "" {
+		hash = extractInfoHash(opts.MagnetLink)
+	}
+
+	if id, found := p.findExistingTransferId(hash); found {
+		p.logger.Debug().Str("torrentId", id).Msg("premiumize: Torrent already added")
+		return id, nil
+	}
 
 	params := url.Values{}
 	params.Set("src", opts.MagnetLink)
@@ -251,10 +261,6 @@ func (p *Premiumize) AddTorrent(opts debrid.AddTorrentOptions) (string, error) {
 		return "", fmt.Errorf("premiumize: no transfer id returned")
 	}
 
-	hash := opts.InfoHash
-	if hash == "" {
-		hash = extractInfoHash(opts.MagnetLink)
-	}
 	if hash != "" {
 		p.hashCache.Set(data.ID, hash)
 	}
@@ -262,6 +268,26 @@ func (p *Premiumize) AddTorrent(opts debrid.AddTorrentOptions) (string, error) {
 	p.logger.Debug().Str("torrentId", data.ID).Str("torrentName", data.Name).Msg("premiumize: Torrent added")
 
 	return data.ID, nil
+}
+
+// findExistingTransferId looks up a transfer ID we previously created for the given hash.
+func (p *Premiumize) findExistingTransferId(hash string) (string, bool) {
+	if hash == "" {
+		return "", false
+	}
+
+	var id string
+	found := false
+	p.hashCache.Range(func(tID string, h string) bool {
+		if h == hash {
+			id = tID
+			found = true
+			return false
+		}
+		return true
+	})
+
+	return id, found
 }
 
 // GetTorrentStreamUrl blocks until the torrent is downloaded and returns the stream URL for the torrent file by calling GetTorrentDownloadUrl.
@@ -444,61 +470,115 @@ func (p *Premiumize) GetTorrent(id string) (*debrid.TorrentItem, error) {
 	return item, nil
 }
 
-// GetTorrentInfo resolves a magnet link's contents without adding it to the user's cloud storage,
-// using /transfer/directdl. This only succeeds if the torrent is already cached by Premiumize;
-// otherwise the API returns an error and there is no way to inspect an uncached torrent's files.
+// GetTorrentInfo resolves a magnet link's contents. Premiumize has no metadata-only resolution
+// step like other providers (RealDebrid/AllDebrid can add a torrent and read its file list before
+// any data is downloaded); a Premiumize transfer only exposes its files once it has *finished*
+// downloading into the user's cloud storage (see the "transfer" type and resolveFiles).
+//
+// So this uses a three-step strategy:
+//  1. If we previously started downloading this exact torrent (tracked via hashCache), check its
+//     current status: if finished, return its real files; if still in progress, report progress.
+//  2. Otherwise, try /transfer/directdl, which resolves files instantly but only succeeds if the
+//     torrent is already cached by Premiumize (shared cache, independent of the user's account).
+//  3. Otherwise, the torrent isn't cached and there is no way to preview it without downloading
+//     it first: start a real transfer (so the download begins, matching what a user expects when
+//     picking a torrent to watch/download) and return an error explaining that its files aren't
+//     known yet. Callers should retry later, at which point step 1 will resolve it.
 func (p *Premiumize) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.TorrentInfo, error) {
 	if opts.MagnetLink == "" {
 		return nil, fmt.Errorf("premiumize: magnet link required")
 	}
-
-	params := url.Values{}
-	params.Set("src", opts.MagnetLink)
-
-	resp, err := p.doQuery("POST", "/transfer/directdl", params)
-	if err != nil {
-		return nil, fmt.Errorf("premiumize: failed to get torrent info: %w", err)
-	}
-
-	var data directDLResponse
-	if err := json.Unmarshal(resp, &data); err != nil {
-		return nil, fmt.Errorf("premiumize: failed to parse torrent info: %w", err)
-	}
-
-	if len(data.Content) == 0 {
-		return nil, fmt.Errorf("premiumize: torrent not cached")
-	}
-
-	var files []*debrid.TorrentItemFile
-	var totalSize int64
-	for idx, c := range data.Content {
-		name := c.Path
-		if i := strings.LastIndex(c.Path, "/"); i != -1 {
-			name = c.Path[i+1:]
-		}
-		files = append(files, &debrid.TorrentItemFile{
-			ID:    strconv.Itoa(idx),
-			Index: idx,
-			Name:  name,
-			Path:  c.Path,
-			Size:  c.Size,
-		})
-		totalSize += c.Size
-	}
-
-	name := files[0].Name
 
 	hash := opts.InfoHash
 	if hash == "" {
 		hash = extractInfoHash(opts.MagnetLink)
 	}
 
+	if id, found := p.findExistingTransferId(hash); found {
+		tr, err := p.getTransfer(id)
+		if err == nil {
+			if isReady(tr.Status) {
+				files, size, fErr := p.resolveFiles(tr)
+				if fErr == nil {
+					return filesToTorrentInfo(&id, tr.Name, hash, size, toTorrentItemFiles(files)), nil
+				}
+			} else if tr.Status != "error" {
+				return nil, fmt.Errorf("premiumize: torrent is downloading (%.0f%%%s), it must finish before its files can be previewed", tr.Progress*100, statusSuffix(tr.Message))
+			}
+			// If the transfer errored out, fall through and try adding it again below.
+		}
+	}
+
+	params := url.Values{}
+	params.Set("src", opts.MagnetLink)
+
+	resp, err := p.doQuery("POST", "/transfer/directdl", params)
+	if err == nil {
+		var data directDLResponse
+		if jErr := json.Unmarshal(resp, &data); jErr == nil && len(data.Content) > 0 {
+			var files []*debrid.TorrentItemFile
+			var totalSize int64
+			for idx, c := range data.Content {
+				name := c.Path
+				if i := strings.LastIndex(c.Path, "/"); i != -1 {
+					name = c.Path[i+1:]
+				}
+				files = append(files, &debrid.TorrentItemFile{
+					ID:    strconv.Itoa(idx),
+					Index: idx,
+					Name:  name,
+					Path:  c.Path,
+					Size:  c.Size,
+				})
+				totalSize += c.Size
+			}
+			return filesToTorrentInfo(nil, files[0].Name, hash, totalSize, files), nil
+		}
+	}
+
+	// Not cached: start the actual download so it isn't just dropped on the floor, and report
+	// that its files can't be previewed yet.
+	id, addErr := p.AddTorrent(debrid.AddTorrentOptions{MagnetLink: opts.MagnetLink, InfoHash: opts.InfoHash})
+	if addErr != nil {
+		return nil, fmt.Errorf("premiumize: failed to get torrent info: %w", addErr)
+	}
+
+	p.logger.Info().Str("torrentId", id).Msg("premiumize: Torrent is not cached, started download so it can be previewed later")
+
+	return nil, fmt.Errorf("premiumize: torrent is not cached, download started (id=%s); its files will be available once it finishes", id)
+}
+
+func statusSuffix(message string) string {
+	if message == "" {
+		return ""
+	}
+	return ", " + message
+}
+
+func toTorrentItemFiles(files []*flatFile) []*debrid.TorrentItemFile {
+	ret := make([]*debrid.TorrentItemFile, 0, len(files))
+	for idx, f := range files {
+		ret = append(ret, &debrid.TorrentItemFile{
+			ID:    strconv.Itoa(idx),
+			Index: idx,
+			Name:  f.Name,
+			Path:  f.Path,
+			Size:  f.Size,
+		})
+	}
+	return ret
+}
+
+// filesToTorrentInfo builds a debrid.TorrentInfo. When id is non-nil, the torrent has actually
+// been added to the user's cloud storage (id is set per the debrid.TorrentInfo.ID contract).
+func filesToTorrentInfo(id *string, name, hash string, size int64, files []*debrid.TorrentItemFile) *debrid.TorrentInfo {
 	return &debrid.TorrentInfo{
+		ID:    id,
 		Name:  name,
 		Hash:  hash,
-		Size:  totalSize,
+		Size:  size,
 		Files: files,
-	}, nil
+	}
 }
 
 func (p *Premiumize) GetTorrents() ([]*debrid.TorrentItem, error) {
