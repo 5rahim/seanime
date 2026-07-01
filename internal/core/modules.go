@@ -687,7 +687,7 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 
 	if settings.Nakama != nil {
-		go a.NakamaManager.SetSettings(settings.Nakama)
+		a.NakamaManager.SetSettings(settings.Nakama)
 	}
 
 	a.Logger.Info().Msg("app: Refreshed modules")

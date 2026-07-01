@@ -405,6 +405,7 @@ export default function Page() {
                                         vcTranslateModel: data.vcTranslateModel || "",
                                         mpvPrismLogging: data.mpvPrismLogging ?? false,
                                         mpvPrismEnabled: data.mpvPrismEnabled ?? false,
+                                        screenshotDir: data.screenshotDir || "",
                                     },
                                     torrent: {
                                         defaultTorrentClient: data.defaultTorrentClient,
@@ -574,6 +575,7 @@ export default function Page() {
                                 vcTranslateModel: status?.settings?.mediaPlayer?.vcTranslateModel ?? "",
                                 mpvPrismLogging: status?.settings?.mediaPlayer?.mpvPrismLogging ?? false,
                                 mpvPrismEnabled: status?.settings?.mediaPlayer?.mpvPrismEnabled ?? false,
+                                screenshotDir: status?.settings?.mediaPlayer?.screenshotDir ?? "",
                                 scannerUseLegacyMatching: status?.settings?.library?.scannerUseLegacyMatching ?? false,
                                 scannerConfig: status?.settings?.library?.scannerConfig ?? "",
                                 updateChannel: status?.settings?.library?.updateChannel || "github",

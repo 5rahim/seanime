@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import {
     Nakama_NakamaStatus,
     Nakama_WatchPartySession,
@@ -33,6 +34,7 @@ import { copyToClipboard } from "@/lib/helpers/browser"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useThemeSettings } from "@/lib/theme/theme-hooks"
 import { __isElectronDesktop__ } from "@/types/constants"
+import { useQueryClient } from "@tanstack/react-query"
 import { atom, useAtom, useAtomValue } from "jotai"
 import React from "react"
 import { BiCog } from "react-icons/bi"
@@ -84,6 +86,7 @@ export function useNakamaWatchParty() {
 
 export function NakamaManager() {
     const { sendMessage } = useWebsocketSender()
+    const queryClient = useQueryClient()
     const [isModalOpen, setIsModalOpen] = useAtom(nakamaModalOpenAtom)
     const [nakamaStatus, setNakamaStatus] = useAtom(nakamaStatusAtom)
     const clientId = useAtomValue(clientIdAtom)
@@ -131,6 +134,25 @@ export function NakamaManager() {
         type: WSEvents.NAKAMA_STATUS,
         onMessage: (data: Nakama_NakamaStatus | null) => {
             setNakamaStatus(data ?? null)
+        },
+    })
+
+    function refetchNakamaLibrary() {
+        refetchStatus()
+        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+    }
+
+    useWebsocketMessageListener({
+        type: WSEvents.NAKAMA_HOST_CONNECTED,
+        onMessage: () => {
+            refetchNakamaLibrary()
+        },
+    })
+
+    useWebsocketMessageListener({
+        type: WSEvents.NAKAMA_HOST_DISCONNECTED,
+        onMessage: () => {
+            refetchNakamaLibrary()
         },
     })
 
