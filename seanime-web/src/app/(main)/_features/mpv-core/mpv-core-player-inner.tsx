@@ -116,12 +116,14 @@ export function MpvCorePlayerInner() {
     const qc = useQueryClient()
     const [mpvSettings, setMpvSettings] = useAtom(mc_settings)
     const [activeMpvConfig, setActiveMpvConfig] = React.useState(mpvSettings.customMpvConfig)
+    const [initialDeband, setInitialDeband] = React.useState(mpvSettings.deband)
 
     React.useEffect(() => {
         if (!state.active) {
             setActiveMpvConfig(mpvSettings.customMpvConfig)
+            setInitialDeband(mpvSettings.deband)
         }
-    }, [state.active, mpvSettings.customMpvConfig])
+    }, [state.active, mpvSettings.customMpvConfig, mpvSettings.deband])
 
     const [playerGeneration, setPlayerGeneration] = React.useState(0)
     const mpvOptions = React.useMemo(() => {
@@ -130,6 +132,7 @@ export function MpvCorePlayerInner() {
             options: {
                 "keep-open": "yes",
                 "hwdec": "auto-safe",
+                "deband": initialDeband ? "yes" : "no",
                 ...parsed,
             },
             observe: [
@@ -140,6 +143,7 @@ export function MpvCorePlayerInner() {
                 "file-format",
                 "hwdec-current",
                 "chapter-list",
+                "vo-passes",
             ],
         }
     }, [activeMpvConfig])
@@ -929,6 +933,17 @@ export function MpvCorePlayerInner() {
 
     React.useEffect(() => {
         if (!player || !state.active) return
+        const { parsed } = mc_parseCustomMpvConfig(mpvSettings.customMpvConfig)
+        if ("deband" in parsed) {
+            const customVal = parsed["deband"] !== "no" && parsed["deband"] !== "false" ? "yes" : "no"
+            player.setProperty("deband", customVal).catch(() => undefined)
+            return
+        }
+        player.setProperty("deband", mpvSettings.deband ? "yes" : "no").catch(() => undefined)
+    }, [player, state.active, mpvSettings.deband, mpvSettings.customMpvConfig])
+
+    React.useEffect(() => {
+        if (!player || !state.active) return
         if (inSightOpen) {
             inSightWasPlayingRef.current = !pausedRef.current
             if (inSightWasPlayingRef.current) player.setPaused(true)
@@ -1328,6 +1343,8 @@ export function MpvCorePlayerInner() {
         "audio-bitrate",
         "file-format",
         "hwdec-current",
+        "avsync",
+        "vo-passes",
     ]), [])
 
     return (

@@ -1169,7 +1169,7 @@ export function getDefaultSubtitleTrackNumber(
     let tracks = _tracks ?? []
     // remove blacklisted tracks if there are more than one
     if (blacklistLabels.length && tracks.length > 1) {
-        tracks = tracks?.filter?.(t => !t.label || !blacklistLabels.includes(t.label?.toLowerCase())) ?? []
+        tracks = tracks?.filter?.(t => !t.label || !blacklistLabels.some(bl => t.label?.toLowerCase().includes(bl))) ?? []
     }
 
     // Try each preferred language in order

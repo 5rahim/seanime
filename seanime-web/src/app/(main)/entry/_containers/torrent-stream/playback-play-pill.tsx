@@ -1,10 +1,10 @@
 import { DebridClient_StreamState, StreamAutoSelectStatusPayload, Torrentstream_TorrentStatus } from "@/api/generated/types"
 import { useDebridCancelStream } from "@/api/hooks/debrid.hooks"
 import { useTorrentstreamStopStream } from "@/api/hooks/torrentstream.hooks"
-import { mpvCore_stateAtom } from "@/app/(main)/_features/mpv-core/mpv-core.atoms"
+import { mc_currentTime, mpvCore_stateAtom } from "@/app/(main)/_features/mpv-core/mpv-core.atoms"
 import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { PlaybackManager_PlaybackState } from "@/app/(main)/_features/progress-tracking/_lib/playback-manager.types"
-import { vc_globalMiniPlayerAtom, vc_miniPlayer, vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_currentTime, vc_globalMiniPlayerAtom, vc_miniPlayer, vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { clientIdAtom } from "@/app/websocket-provider"
@@ -342,8 +342,12 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
     const isMiniPlayer = (mpvCoreState.active && mpvCoreState.miniPlayer) || (nativePlayerState.active && videoCoreMiniPlayer)
     const isExpandedPlayerActive = (mpvCoreState.active && !mpvCoreState.miniPlayer) || (nativePlayerState.active && !videoCoreMiniPlayer)
 
+    const mpvCurrentTime = useAtomValue(mc_currentTime)
+    const videoCoreCurrentTime = useAtomValue(vc_currentTime)
+    const isPlayerLoading = (mpvCoreState.active && !!mpvCoreState.loadingState) || (nativePlayerState.active && !!nativePlayerState.loadingState)
+
     // Hide the floating pill if the player is active in expanded (fullscreen) mode and the media has started playing
-    const shouldHideFloating = isExpandedPlayerActive && mediaPlayerStartedPlaying
+    const shouldHideFloating = isExpandedPlayerActive && (mediaPlayerStartedPlaying || mpvCurrentTime > 0 || videoCoreCurrentTime > 0 || !isPlayerLoading)
     const showFloatingPill = isActive && !shouldHideFloating
 
     // Reset mediaPlayerStartedPlaying to false when loading/selecting starts

@@ -152,9 +152,16 @@ export function useVideoCoreSetupEvents(id: string,
 
         subtitleManager.addEventListener("trackselected", handleTrackSelected)
         subtitleManager.addEventListener("trackdeselected", handleTrackDeselected)
+
+        const initialTrack = subtitleManager.getSelectedTrackNumberOrNull()
+        if (initialTrack !== null) {
+            log.trace(`Sending initial selected subtitle track: ${initialTrack}`)
+            sendEvent<VideoCoreSubtitleTrackEventPayload>("video-subtitle-track", { trackNumber: initialTrack, kind: "event" })
+        }
+
         return () => {
             subtitleManager.removeEventListener("trackselected", handleTrackSelected)
-            subtitleManager.addEventListener("trackdeselected", handleTrackDeselected)
+            subtitleManager.removeEventListener("trackdeselected", handleTrackDeselected)
         }
     }, [isActivePlayer, state, subtitleManager])
 

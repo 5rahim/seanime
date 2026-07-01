@@ -3,6 +3,7 @@ package db
 import (
 	"seanime/internal/database/models"
 	"seanime/internal/util"
+	"strings"
 
 	"gorm.io/gorm/clause"
 )
@@ -10,6 +11,12 @@ import (
 var CurrSettings *models.Settings
 
 func (db *Database) UpsertSettings(settings *models.Settings) (*models.Settings, error) {
+	if settings != nil && settings.Torrent != nil {
+		settings.Torrent.QBittorrentHost = strings.TrimSpace(strings.Trim(settings.Torrent.QBittorrentHost, "\""))
+		settings.Torrent.TransmissionHost = strings.TrimSpace(strings.Trim(settings.Torrent.TransmissionHost, "\""))
+		settings.Torrent.QBittorrentPath = strings.TrimSpace(strings.Trim(settings.Torrent.QBittorrentPath, "\""))
+		settings.Torrent.TransmissionPath = strings.TrimSpace(strings.Trim(settings.Torrent.TransmissionPath, "\""))
+	}
 	dbSettings := CloneSettings(settings)
 	VirtualizeSettingsPaths(dbSettings)
 

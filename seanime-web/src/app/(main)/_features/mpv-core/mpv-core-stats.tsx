@@ -44,6 +44,7 @@ export function MpvCoreStats(props: MpvCoreStatsProps) {
     const videoWidth = Number(videoParams.dw ?? videoParams.w ?? video?.["demux-w"] ?? 0)
     const videoHeight = Number(videoParams.dh ?? videoParams.h ?? video?.["demux-h"] ?? 0)
     const fps = Number(props.diagnostics["estimated-vf-fps"] ?? video?.["demux-fps"] ?? 0)
+    const displayFps = Number(props.diagnostics["display-fps"] ?? 0)
     const videoBitrate = Number(props.diagnostics["video-bitrate"] ?? video?.["demux-bitrate"] ?? 0)
     const audioBitrate = Number(props.diagnostics["audio-bitrate"] ?? audio?.["demux-bitrate"] ?? 0)
     const outputDrops = props.frameDrops["frame-drop-count"] ?? 0
@@ -53,6 +54,53 @@ export function MpvCoreStats(props: MpvCoreStatsProps) {
     const cacheDuration = Number.isFinite(rawCacheDuration)
         ? rawCacheDuration
         : Math.max(0, props.buffered - props.currentTime)
+
+    const pixelFormat = String(videoParams.pixelformat ?? "")
+    const colmatrix = String(videoParams.colmatrix ?? "")
+    const primaries = String(videoParams.primaries ?? "")
+    const colorLevels = String(videoParams.colorlevels ?? "")
+    const videoDetails = [
+        pixelFormat,
+        colmatrix,
+        primaries && primaries !== colmatrix && primaries,
+        colorLevels && `${colorLevels} range`,
+    ].filter(Boolean).join(" - ")
+
+    const fwBytes = Number(cache?.["fw-bytes"] ?? 0)
+    const totalBytes = Number(cache?.["total-bytes"] ?? 0)
+    const cacheSizeBytes = totalBytes || fwBytes
+    const cacheSizeMB = cacheSizeBytes > 0 ? (cacheSizeBytes / (1024 * 1024)).toFixed(1) : null
+
+    const voPasses = (props.diagnostics["vo-passes"] ?? {}) as Record<string, unknown>
+    const freshPasses = (voPasses.fresh ?? []) as Array<Record<string, unknown>>
+    let totalRenderTimeNs = 0
+    let hasRenderPasses = false
+    if (Array.isArray(freshPasses) && freshPasses.length > 0) {
+        hasRenderPasses = true
+        for (const pass of freshPasses) {
+            totalRenderTimeNs += Number(pass.avg ?? pass.last ?? 0)
+        }
+    }
+    const renderTimeMs = hasRenderPasses ? (totalRenderTimeNs / 1_000_000).toFixed(2) : null
+
+    const videoLang = video?.lang ? `[${video.lang.toUpperCase()}]` : ""
+    const videoTitle = video?.title ? ` - ${video.title}` : ""
+    const audioLang = audio?.lang ? `[${audio.lang.toUpperCase()}]` : ""
+    const audioTitle = audio?.title ? ` - ${audio.title}` : ""
+    const remainingTime = Math.max(0, props.duration - props.currentTime)
+
+    function formatTime(seconds: number): string {
+        const h = Math.floor(seconds / 3600)
+        const m = Math.floor((seconds % 3600) / 60)
+        const s = Math.floor(seconds % 60)
+        const ms = Math.floor((seconds % 1) * 100)
+        const parts = [
+            h > 0 ? String(h) : null,
+            String(m).padStart(h > 0 ? 2 : 1, "0"),
+            String(s).padStart(2, "0"),
+        ].filter(Boolean)
+        return `${parts.join(":")}.${String(ms).padStart(2, "0")}`
+    }
 
     const StatLine = ({ label, value }: { label: string; value: React.ReactNode }) => (
         <div className="flex gap-2">
@@ -67,13 +115,63 @@ export function MpvCoreStats(props: MpvCoreStatsProps) {
             <div className="space-y-1">
                 <StatLine label="Source" value={props.info?.streamPath || props.info?.playbackUri || "unknown"} />
                 <StatLine label="Display / Video" value={`${displaySize.width}x${displaySize.height} / ${videoWidth || "?"}x${videoHeight || "?"}`} />
-                <StatLine label="Video" value={`${String(video?.codec ?? "unknown")}${videoBitrate > 0 ? ` - ${(videoBitrate / 1_000_000).toFixed(2)} Mbps` : ""}`} />
-                <StatLine label="Audio" value={`${String(audio?.codec ?? "unknown")}${audioBitrate > 0 ? ` - ${(audioBitrate / 1000).toFixed(0)} kbps` : ""}`} />
-                <StatLine label="Framerate" value={fps > 0 ? `${fps.toFixed(2)} fps` : "unknown"} />
-                <StatLine label="Frames (Output / Decoder Drops)" value={`${outputDrops} / ${decoderDrops}`} />
-                <StatLine label="Buffer Ahead" value={`${Math.max(0, cacheDuration).toFixed(2)} s${props.buffering ? " - buffering" : ""}`} />
+                <StatLine
+                    label="Video"
+                    value={`${String(video?.codec ?? "unknown")}${videoLang ? ` ${videoLang}` : ""}${videoTitle}${videoBitrate > 0
+                        ? ` @ ${(videoBitrate / 1_000_000).toFixed(2)} Mbps`
+                        : ""}`}
+                />
+                {videoDetails && <StatLine label="Color / Format" value={videoDetails} />}
+                <StatLine
+                    label="Audio"
+                    value={`${String(audio?.codec ?? "unknown")}${audioLang ? ` ${audioLang}` : ""}${audioTitle}${audioBitrate > 0
+                        ? ` @ ${(audioBitrate / 1000).toFixed(0)} kbps`
+                        : ""}`}
+                />
+                <StatLine
+                    label="Framerate"
+                    value={`${fps > 0 ? `${fps.toFixed(2)} fps` : "unknown"}${displayFps > 0 ? ` (Display: ${displayFps.toFixed(2)} Hz)` : ""}`}
+                />
+                <StatLine label="Frame Drops (Output / Decoder)" value={`${outputDrops} / ${decoderDrops}`} />
+                <StatLine
+                    label="Presenter Drops (Queue / Browser)"
+                    value={`${props.frameDrops["presenter-queue-drops"] ?? 0} / ${props.frameDrops["presenter-browser-drops"] ?? 0}`}
+                />
+                {renderTimeMs && (
+                    <>
+                        <StatLine label="Avg Render Time" value={`${renderTimeMs} ms`} />
+                        <div className="pl-4 border-l border-gray-800 space-y-0.5 my-1">
+                            {freshPasses.map((pass, idx) => {
+                                const name = String(pass.desc ?? `pass-${idx}`)
+                                const avgTime = (Number(pass.avg ?? pass.last ?? 0) / 1_000_000).toFixed(3)
+                                return (
+                                    <div key={idx} className="text-[10px] text-gray-400 flex justify-between gap-4">
+                                        <span className="truncate" title={name}>{name}</span>
+                                        <span className="flex-none font-semibold">{avgTime} ms</span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </>
+                )}
+                {/*<StatLine label="Mistimed / Delayed" value={`${props.frameDrops["mistimed-frame-count"] ?? 0} / ${props.frameDrops["vo-delayed-frame-count"] ?? 0}`} />*/}
+                <StatLine
+                    label="A/V Sync"
+                    value={`${typeof props.diagnostics["avsync"] === "number"
+                        ? (props.diagnostics["avsync"] * 1000).toFixed(1) + " ms"
+                        : "unknown"}`}
+                />
+                <StatLine
+                    label="Buffer Ahead"
+                    value={`${Math.max(0, cacheDuration).toFixed(2)} s${cacheSizeMB ? ` (${cacheSizeMB} MB)` : ""}${props.buffering
+                        ? " - buffering"
+                        : ""}`}
+                />
                 <StatLine label="Playback Rate" value={`${props.speed.toFixed(2)}x`} />
-                <StatLine label="Time / Duration" value={`${props.currentTime.toFixed(2)}s / ${props.duration.toFixed(2)}s`} />
+                <StatLine
+                    label="Time / Duration"
+                    value={`${formatTime(props.currentTime)} / ${formatTime(props.duration)} (Remaining: ${formatTime(remainingTime)})`}
+                />
                 <StatLine label="Hardware Decode" value={String(props.diagnostics["hwdec-current"] || "no")} />
                 <StatLine label="Container" value={String(props.diagnostics["file-format"] || props.info?.mimeType || "unknown")} />
                 {props.shaderMode === "anime4k" && (

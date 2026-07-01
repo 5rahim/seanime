@@ -73,6 +73,7 @@ export interface MpvCoreSettings {
     subtitleDelay: number
     subtitleCustomization: MpvCoreSubtitleCustomization
     customMpvConfig: string
+    deband: boolean
 }
 
 export const mc_initialSettings: MpvCoreSettings = {
@@ -92,6 +93,7 @@ export const mc_initialSettings: MpvCoreSettings = {
         shadow: 0,
     },
     customMpvConfig: "",
+    deband: false,
 }
 
 const mc_settingsRaw = atomWithStorage<Partial<MpvCoreSettings>>(

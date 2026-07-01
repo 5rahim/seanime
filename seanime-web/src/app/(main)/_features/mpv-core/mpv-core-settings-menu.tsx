@@ -1,38 +1,29 @@
-import React from "react"
-import {
-    LuChevronUp,
-    LuHeading,
-    LuPalette,
-    LuSettings2,
-    LuSparkles,
-    LuTvMinimalPlay,
-    LuPaintbrush,
-    LuVideotape,
-} from "react-icons/lu"
-import { HiFastForward } from "react-icons/hi"
-import { ImFileText } from "react-icons/im"
-import { IoCaretForwardCircleOutline } from "react-icons/io5"
-import { MdOutlineSubtitles, MdSpeed, MdOutlineAccessTime } from "react-icons/md"
-import { RiShadowLine } from "react-icons/ri"
-import { TbArrowForwardUp } from "react-icons/tb"
-import { Switch } from "@/components/ui/switch"
-import { Button } from "@/components/ui/button"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { usePatchSetting } from "@/api/hooks/settings.hooks"
+import { MediaCoreControlButtonIcon } from "@/app/(main)/_features/media-core/media-core-control-bar"
 import {
     MediaCoreMenu,
-    MediaCoreMenuTitle,
+    MediaCoreMenuOption,
     MediaCoreMenuSectionBody,
+    MediaCoreMenuSubmenuBody,
     MediaCoreMenuSubOption,
     MediaCoreMenuSubSubmenuBody,
-    MediaCoreMenuSubmenuBody,
-    MediaCoreMenuOption,
+    MediaCoreMenuTitle,
     MediaCoreSettingSelect,
     MediaCoreSettingTextInput,
 } from "@/app/(main)/_features/media-core/media-core-menu"
-import { MediaCoreControlButtonIcon } from "@/app/(main)/_features/media-core/media-core-control-bar"
-import type { MpvCoreSettings, MpvCoreShaderSettings, MpvCoreShaderMode, MpvCoreAnime4KQuality } from "./mpv-core.atoms"
-import { mc_resolveAnime4KProfile } from "./mpv-core"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import React from "react"
+import { HiFastForward } from "react-icons/hi"
+import { ImFileText } from "react-icons/im"
+import { IoCaretForwardCircleOutline } from "react-icons/io5"
+import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings2, LuSparkles, LuTvMinimalPlay } from "react-icons/lu"
+import { MdOutlineAccessTime, MdOutlineSubtitles, MdSpeed } from "react-icons/md"
+import { RiShadowLine } from "react-icons/ri"
+import { TbArrowForwardUp } from "react-icons/tb"
+import { mc_parseCustomMpvConfig, mc_resolveAnime4KProfile } from "./mpv-core"
+import type { MpvCoreAnime4KQuality, MpvCoreSettings, MpvCoreShaderMode, MpvCoreShaderSettings } from "./mpv-core.atoms"
 
 const mpvSubtitleFontSizeOptions = [
     { label: "Small", value: 28 },
@@ -147,6 +138,14 @@ export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
     } = props
     const serverStatus = useServerStatus()
     const { mutate: patchSetting } = usePatchSetting()
+
+    const { parsed: parsedCustomConfig } = React.useMemo(() => mc_parseCustomMpvConfig(mpvSettings.customMpvConfig), [mpvSettings.customMpvConfig])
+    const hasCustomDeband = "deband" in parsedCustomConfig
+    const customDebandEnabled = hasCustomDeband
+        ? (parsedCustomConfig["deband"] !== "no" && parsedCustomConfig["deband"] !== "false")
+        : false
+    const debandActive = hasCustomDeband ? customDebandEnabled : mpvSettings.deband
+
     const [subFontName, setSubFontName] = React.useState(mpvSettings.subtitleCustomization.fontName)
 
     React.useEffect(() => {
@@ -220,11 +219,14 @@ export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
                 <MediaCoreMenuOption
                     title="Shaders"
                     icon={LuSparkles}
-                    value={shaderSettings.mode === "off"
-                        ? "Off"
-                        : shaderSettings.mode === "custom"
-                            ? "Custom"
-                            : `${shaderSettings.anime4kMode.replace("mode-", "").toUpperCase()} - ${shaderSettings.anime4kQuality.toUpperCase()}`}
+                    value={[
+                        debandActive && "Deband",
+                        shaderSettings.mode !== "off" && (
+                            shaderSettings.mode === "custom"
+                                ? "Custom"
+                                : `${shaderSettings.anime4kMode.replace("mode-", "").toUpperCase()} (${shaderSettings.anime4kQuality.toUpperCase()})`
+                        ),
+                    ].filter(Boolean).join(", ") || "Off"}
                     openSection={openSection}
                     onOpenSectionChange={setOpenSection}
                 />
@@ -437,6 +439,18 @@ export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
                     openSection={openSection}
                     onOpenSectionChange={setOpenSection}
                 >
+                    <div className="border-b border-[--border] pb-3 mb-3">
+                        <Switch
+                            label="Debanding"
+                            side="right"
+                            fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
+                            size="sm"
+                            value={debandActive}
+                            disabled={hasCustomDeband}
+                            help={hasCustomDeband ? "Written in MPV config" : undefined}
+                            onValueChange={checked => setMpvSettings(current => ({ ...current, deband: checked }))}
+                        />
+                    </div>
                     <p className="text-[--muted] text-sm mb-2">
                         Real-time sharpening and restoration. GPU-intensive.
                     </p>
