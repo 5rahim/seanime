@@ -18,7 +18,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Tooltip } from "@/components/ui/tooltip"
 import { WSEvents } from "@/lib/server/ws-events"
-import { formatDate } from "date-fns"
+import { formatDate, isValid } from "date-fns"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
@@ -43,6 +43,12 @@ function getServiceName(provider: string) {
         default:
             return provider
     }
+}
+
+function formatAddedDate(added: string) {
+    const date = new Date(added)
+    if (!added || !isValid(date)) return null
+    return formatDate(date, "yyyy-MM-dd HH:mm")
 }
 
 function getDashboardLink(provider: string) {
@@ -285,10 +291,12 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending, downlo
                         <BiTime className="inline-block mx-2 mb-0.5" />
                         {torrent.eta}
                     </>}
-                    {` - `}
-                    <span className="text-[--muted]">
-                        {formatDate(torrent.added, "yyyy-MM-dd HH:mm")}
-                    </span>
+                    {!!formatAddedDate(torrent.added) && <>
+                        {` - `}
+                        <span className="text-[--muted]">
+                            {formatAddedDate(torrent.added)}
+                        </span>
+                    </>}
                     {` - `}
                     <strong
                         className={cn(
