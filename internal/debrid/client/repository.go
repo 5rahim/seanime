@@ -10,6 +10,7 @@ import (
 	"seanime/internal/database/models"
 	"seanime/internal/debrid/alldebrid"
 	"seanime/internal/debrid/debrid"
+	"seanime/internal/debrid/premiumize"
 	"seanime/internal/debrid/realdebrid"
 	"seanime/internal/debrid/torbox"
 	"seanime/internal/directstream"
@@ -131,6 +132,8 @@ func (r *Repository) InitializeProvider(settings *models.DebridSettings) error {
 		r.provider = mo.Some(realdebrid.NewRealDebrid(r.logger))
 	case "alldebrid":
 		r.provider = mo.Some(alldebrid.NewAllDebrid(r.logger))
+	case "premiumize":
+		r.provider = mo.Some(premiumize.NewPremiumize(r.logger))
 	default:
 		r.provider = mo.None[debrid.Provider]()
 	}

@@ -38,6 +38,8 @@ function getServiceName(provider: string) {
             return "TorBox"
         case "alldebrid":
             return "AllDebrid"
+        case "premiumize":
+            return "Premiumize"
         default:
             return provider
     }
@@ -51,6 +53,8 @@ function getDashboardLink(provider: string) {
             return "https://real-debrid.com/torrents"
         case "alldebrid":
             return "https://alldebrid.com/magnets/"
+        case "premiumize":
+            return "https://www.premiumize.me/transfers"
         default:
             return ""
     }

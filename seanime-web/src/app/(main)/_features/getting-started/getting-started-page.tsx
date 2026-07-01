@@ -546,6 +546,7 @@ function DebridStep({ form }: { form: any }) {
                             { label: "TorBox", value: "torbox" },
                             { label: "Real-Debrid", value: "realdebrid" },
                             { label: "AllDebrid", value: "alldebrid" },
+                            { label: "Premiumize", value: "premiumize" },
                         ]}
                     />
 

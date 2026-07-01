@@ -24,6 +24,7 @@ export const enum DEBRID_SERVICE {
     TORBOX = "torbox",
     REALDEBRID = "realdebrid",
     ALLDEBRID = "alldebrid",
+    PREMIUMIZE = "premiumize",
 }
 
 export const _gettingStartedSchema = z.object({
