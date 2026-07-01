@@ -2,12 +2,15 @@ package goja_bindings
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"reflect"
 	gojautil "seanime/internal/util/goja"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog/log"
@@ -192,6 +195,9 @@ func (c *ChromeDP) NewBrowser(call goja.FunctionCall) goja.Value {
 			browserObj.Set("fullScreenshot", browser.FullScreenshot)
 			browserObj.Set("sleep", browser.Sleep)
 			browserObj.Set("close", browser.Close)
+			browserObj.Set("listenBrowser", browser.ListenBrowser)
+			browserObj.Set("listenTarget", browser.ListenTarget)
+			browserObj.Set("executeCDP", browser.ExecuteCDP)
 
 			resolve(browserObj)
 		}
@@ -757,6 +763,159 @@ func (b *Browser) Close(call goja.FunctionCall) goja.Value {
 	}()
 
 	return b.chromedp.vm.ToValue(promise)
+}
+
+// ListenBrowser registers a callback to listen to browser-level events
+func (b *Browser) ListenBrowser(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		PanicThrowErrorString(b.chromedp.vm, "listenBrowser requires a callback function")
+	}
+
+	callback, ok := goja.AssertFunction(call.Argument(0))
+	if !ok {
+		PanicThrowErrorString(b.chromedp.vm, "listenBrowser argument must be a function")
+	}
+
+	chromedp.ListenBrowser(b.ctx, func(ev interface{}) {
+		method := getEventMethod(ev)
+		var params map[string]interface{}
+		if evBytes, err := json.Marshal(ev); err == nil {
+			_ = json.Unmarshal(evBytes, &params)
+		}
+
+		b.chromedp.responseCh <- func() {
+			defer func() {
+				if r := recover(); r != nil {
+					log.Warn().Msgf("extension: chromedp listenBrowser callback panic: %v", r)
+				}
+			}()
+			eventObj := b.chromedp.vm.NewObject()
+			_ = eventObj.Set("method", method)
+			_ = eventObj.Set("params", params)
+			_, _ = callback(goja.Undefined(), eventObj)
+		}
+	})
+
+	return goja.Undefined()
+}
+
+// ListenTarget registers a callback to listen to target-level events
+func (b *Browser) ListenTarget(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		PanicThrowErrorString(b.chromedp.vm, "listenTarget requires a callback function")
+	}
+
+	callback, ok := goja.AssertFunction(call.Argument(0))
+	if !ok {
+		PanicThrowErrorString(b.chromedp.vm, "listenTarget argument must be a function")
+	}
+
+	chromedp.ListenTarget(b.ctx, func(ev interface{}) {
+		method := getEventMethod(ev)
+		var params map[string]interface{}
+		if evBytes, err := json.Marshal(ev); err == nil {
+			_ = json.Unmarshal(evBytes, &params)
+		}
+
+		b.chromedp.responseCh <- func() {
+			defer func() {
+				if r := recover(); r != nil {
+					log.Warn().Msgf("extension: chromedp listenTarget callback panic: %v", r)
+				}
+			}()
+			eventObj := b.chromedp.vm.NewObject()
+			_ = eventObj.Set("method", method)
+			_ = eventObj.Set("params", params)
+			_, _ = callback(goja.Undefined(), eventObj)
+		}
+	})
+
+	return goja.Undefined()
+}
+
+// ExecuteCDP executes an arbitrary CDP command and returns a promise
+func (b *Browser) ExecuteCDP(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		PanicThrowErrorString(b.chromedp.vm, "executeCDP requires at least a method argument")
+	}
+
+	method := call.Argument(0).String()
+	var params interface{}
+	if len(call.Arguments) > 1 {
+		params = call.Argument(1).Export()
+	}
+
+	promise, resolve, reject := b.chromedp.vm.NewPromise()
+
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				b.chromedp.responseCh <- func() {
+					reject(NewErrorString(b.chromedp.vm, fmt.Sprintf("executeCDP panic: %v", r)))
+				}
+			}
+		}()
+
+		ctx, cancel := context.WithTimeout(b.ctx, b.timeout)
+		defer cancel()
+
+		var result json.RawMessage
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(ctx context.Context) error {
+			executor := cdp.ExecutorFromContext(ctx)
+			return executor.Execute(ctx, method, params, &result)
+		}))
+
+		if err != nil {
+			b.chromedp.responseCh <- func() {
+				reject(NewError(b.chromedp.vm, err))
+			}
+			return
+		}
+
+		var resVal interface{}
+		if len(result) > 0 {
+			_ = json.Unmarshal(result, &resVal)
+		}
+
+		b.chromedp.responseCh <- func() {
+			resolve(b.chromedp.vm.ToValue(resVal))
+		}
+	}()
+
+	return b.chromedp.vm.ToValue(promise)
+}
+
+func getEventMethod(ev interface{}) string {
+	if ev == nil {
+		return ""
+	}
+	t := reflect.TypeOf(ev)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		return t.String()
+	}
+	name := t.Name()
+	pkg := t.PkgPath()
+
+	pkgName := ""
+	if idx := strings.LastIndex(pkg, "/"); idx != -1 {
+		pkgName = pkg[idx+1:]
+	} else {
+		pkgName = pkg
+	}
+
+	if strings.HasPrefix(name, "Event") && pkgName != "" {
+		domain := strings.Title(pkgName)
+		eventName := strings.TrimPrefix(name, "Event")
+		if len(eventName) > 0 {
+			eventName = strings.ToLower(eventName[:1]) + eventName[1:]
+		}
+		return domain + "." + eventName
+	}
+
+	return pkgName + "." + name
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

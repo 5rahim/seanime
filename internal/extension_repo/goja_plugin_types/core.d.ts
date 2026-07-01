@@ -603,6 +603,26 @@ declare interface ChromeBrowser {
     sleep(milliseconds: number): Promise<void>;
 
     /**
+     * Listen to browser-level events
+     * @param callback - Event handler callback
+     */
+    listenBrowser(callback: (event: { method: string, params: any }) => void): void;
+
+    /**
+     * Listen to target-level events
+     * @param callback - Event handler callback
+     */
+    listenTarget(callback: (event: { method: string, params: any }) => void): void;
+
+    /**
+     * Execute an arbitrary CDP command
+     * @param method - CDP method name
+     * @param params - Method parameters
+     * @returns Promise resolving to the command result
+     */
+    executeCDP(method: string, params?: any): Promise<any>;
+
+    /**
      * Close the browser instance
      */
     close(): Promise<void>;

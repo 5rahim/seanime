@@ -393,3 +393,112 @@ func TestBrowserAPI_ReuseAndNavigate(t *testing.T) {
 	assert.Equal(t, "1", counter1)
 	assert.Equal(t, "2", counter2)
 }
+
+func TestBrowserAPI_ExecuteCDP(t *testing.T) {
+	vm, chrome, server := setupChromeVMWithServer(t)
+	defer server.Close()
+	defer chrome.Close()
+
+	url := server.URL
+
+	jsCode := fmt.Sprintf(`
+		(async () => {
+			const browser = await ChromeDP.newBrowser();
+			await browser.navigate(%q);
+			
+			// Execute a CDP command to enable network domain
+			await browser.executeCDP("Network.enable", {});
+			
+			await browser.close();
+			return "success";
+		})();
+	`, url)
+
+	result, err := vm.RunString(jsCode)
+	require.NoError(t, err)
+
+	promise := result.Export().(*goja.Promise)
+	waitForPromise(t, promise, 15*time.Second)
+
+	if promise.State() == goja.PromiseStateRejected {
+		t.Fatalf("Promise was rejected: %v", promise.Result())
+	}
+
+	require.Equal(t, goja.PromiseStateFulfilled, promise.State())
+	val := promise.Result().String()
+	assert.Equal(t, "success", val)
+}
+
+func TestBrowserAPI_ListenTarget_Network(t *testing.T) {
+	vm, chrome, server := setupChromeVMWithServer(t)
+	defer server.Close()
+	defer chrome.Close()
+
+	url := server.URL
+
+	jsCode := fmt.Sprintf(`
+		(async () => {
+			const browser = await ChromeDP.newBrowser();
+			
+			const events = [];
+			
+			// Setup listener before enabling network and navigating
+			browser.listenTarget((ev) => {
+				if (ev.method === "Network.requestWillBeSent" || ev.method === "Network.responseReceived") {
+					events.push(ev);
+				}
+			});
+			
+			await browser.executeCDP("Network.enable", {});
+			await browser.navigate(%q);
+			
+			// Sleep a bit to allow asynchronous events to be processed
+			await browser.sleep(500);
+			await browser.close();
+			
+			return events;
+		})();
+	`, url)
+
+	result, err := vm.RunString(jsCode)
+	require.NoError(t, err)
+
+	promise := result.Export().(*goja.Promise)
+	waitForPromise(t, promise, 15*time.Second)
+
+	if promise.State() == goja.PromiseStateRejected {
+		t.Fatalf("Promise was rejected: %v", promise.Result())
+	}
+
+	require.Equal(t, goja.PromiseStateFulfilled, promise.State())
+
+	eventsObj := promise.Result().ToObject(vm)
+	require.NotNil(t, eventsObj)
+
+	// Convert array of events to Go slice
+	var events []map[string]interface{}
+	err = vm.ExportTo(eventsObj, &events)
+	require.NoError(t, err)
+
+	assert.GreaterOrEqual(t, len(events), 1, "Should capture at least 1 network event")
+
+	foundRequest := false
+	foundResponse := false
+	for _, ev := range events {
+		method := ev["method"].(string)
+		params := ev["params"].(map[string]interface{})
+
+		if method == "Network.requestWillBeSent" {
+			foundRequest = true
+			req := params["request"].(map[string]interface{})
+			assert.Contains(t, req["url"].(string), url)
+		} else if method == "Network.responseReceived" {
+			foundResponse = true
+			resp := params["response"].(map[string]interface{})
+			assert.Contains(t, resp["url"].(string), url)
+		}
+	}
+
+	assert.True(t, foundRequest, "Should have received Network.requestWillBeSent event")
+	assert.True(t, foundResponse, "Should have received Network.responseReceived event")
+}
