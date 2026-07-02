@@ -43,7 +43,7 @@ const statusName: Record<string, string> = {
 }
 
 const statusColors: Record<string, ChartColor> = {
-    CURRENT: "brand",
+    CURRENT: "purple",
     COMPLETED: "green",
     PLANNING: "blue",
     PAUSED: "amber",
@@ -172,7 +172,7 @@ function AnimeStatsView({ stats }: { stats?: AL_Stats }) {
                             data={scoreData}
                             index="name"
                             categories={["Titles"]}
-                            colors={["brand"]}
+                            colors={["blue"]}
                             showLegend={false}
                             allowDecimals={false}
                         />
@@ -220,7 +220,7 @@ function AnimeStatsView({ stats }: { stats?: AL_Stats }) {
                         data={startYearData}
                         index="name"
                         categories={["Titles"]}
-                        colors={["brand"]}
+                        colors={["blue"]}
                         curveType="linear"
                         showDots={false}
                         showLegend={false}
@@ -327,7 +327,7 @@ function MangaStatsView({ stats }: { stats?: AL_Stats }) {
                             data={scoreData}
                             index="name"
                             categories={["Titles"]}
-                            colors={["brand"]}
+                            colors={["blue"]}
                             showLegend={false}
                             allowDecimals={false}
                         />
@@ -364,7 +364,7 @@ function MangaStatsView({ stats }: { stats?: AL_Stats }) {
                         data={startYearData}
                         index="name"
                         categories={["Titles"]}
-                        colors={["brand"]}
+                        colors={["blue"]}
                         curveType="linear"
                         showDots={false}
                         showLegend={false}
@@ -784,7 +784,7 @@ function RankedProgressRow({ rank, row }: {
                 </div>
                 <div className="h-1.5 rounded-full bg-[--subtle] overflow-hidden">
                     <div
-                        className="h-full rounded-full bg-[--brand] transition-all duration-500"
+                        className="h-full rounded-full bg-[--blue] transition-all duration-500"
                         style={{ width: `${pct}%` }}
                     />
                 </div>

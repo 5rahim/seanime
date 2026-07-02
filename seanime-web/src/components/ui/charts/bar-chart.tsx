@@ -31,6 +31,10 @@ export type BarChartProps = React.ComponentPropsWithRef<"div"> & BaseChartProps 
      * @default "equidistantPreserveStart"
      */
     intervalType?: "preserveStart" | "preserveEnd" | "preserveStartEnd" | "equidistantPreserveStart"
+    /**
+     * Radius of the bar corners
+     */
+    radius?: number | [number, number, number, number]
 }
 
 export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>((props, ref) => {
@@ -61,6 +65,7 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>((props, 
         allowDecimals = true,
         intervalType = "equidistantPreserveStart",
         emptyDisplay = <></>,
+        radius,
         ...rest
     } = props
 
@@ -68,6 +73,7 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>((props, 
 
     const categoryColors = constructCategoryColors(categories, colors)
     const yAxisDomain = getYAxisDomain(autoMinValue, minValue, maxValue)
+    const roundedRadius = radius !== undefined ? radius : ((stack || relative) ? 0 : (layout === "vertical" ? [0, 4, 4, 0] : [4, 4, 0, 0]))
 
     return (
         <div
@@ -176,6 +182,7 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>((props, 
                                 dataKey={category}
                                 fill={`var(--${categoryColors.get(category)})`}
                                 isAnimationActive={showAnimation}
+                                radius={roundedRadius as any}
                             />
                         ))}
 

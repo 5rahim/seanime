@@ -18,6 +18,7 @@ export function CustomThemeProvider(props: CustomColorProviderProps) {
         const variables = [
             "--background",
             "--paper",
+            "--paper-lighter",
             "--media-card-popup-background",
             "--hover-from-background-color",
             "--border",
@@ -68,10 +69,11 @@ export function CustomThemeProvider(props: CustomColorProviderProps) {
         // BACKGROUND CALCULATIONS
         const bg = colord(ts.backgroundColor)
         const darkest = bg
-        const lightest = colord("#f8fafc").mix(bg, 0.05) // 5% background tint into near-white
+        const lightest = colord("#f8fafc").mix(bg, 0.15) // 15% background tint into near-white
 
         setVal("--background", bg.toHex())
         setVal("--paper", darkest.mix(lightest, 0.03).toHex())
+        setVal("--paper-lighter", darkest.mix(lightest, 0.05).toHex())
         setVal("--media-card-popup-background", darkest.mix(lightest, 0.04).toHex())
         setVal("--hover-from-background-color", darkest.mix(lightest, 0.06).toHex())
 

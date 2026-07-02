@@ -229,6 +229,9 @@ var (
 		Assets: &discordrpc_client.Assets{
 			LargeImage: "",
 			LargeText:  "",
+			// SmallImage: "https://seanime.app/images/circular-logo.png",
+			// SmallText:  "Seanime v" + constants.Version,
+			// SmallURL:   "https://seanime.app",
 			SmallImage: "https://seanime.app/images/circular-logo.png",
 			SmallText:  "Seanime v" + constants.Version,
 			SmallURL:   "https://seanime.app",
@@ -251,15 +254,16 @@ var (
 )
 
 func isSeanimeButtonPresent(activity *discordrpc_client.Activity) bool {
-	if activity == nil || activity.Buttons == nil {
-		return false
-	}
-	for _, button := range activity.Buttons {
-		if button.Label == "Seanime" && button.Url == "https://seanime.app" {
-			return true
-		}
-	}
-	return false
+	return true
+	// if activity == nil || activity.Buttons == nil {
+	// 	return false
+	// }
+	// for _, button := range activity.Buttons {
+	// 	if button.Label == "Seanime" && button.Url == "https://seanime.app" {
+	// 		return true
+	// 	}
+	// }
+	// return false
 }
 
 type AnimeActivity struct {

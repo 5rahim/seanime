@@ -181,7 +181,7 @@ export default function Page() {
                             <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
 
                             </div>
-                            <div className="overflow-x-none overflow-y-hidden rounded-[--radius-md] space-y-1 lg:space-y-3 flex justify-center flex-wrap lg:block">
+                            <div className="overflow-x-none overflow-y-hidden rounded-[--radius-md] space-y-1 lg:space-y-3 lg:block">
 
                                 <Card className="bg-transparent border-transparent">
                                     <div className="space-y-2 p-0 w-full">
@@ -189,7 +189,7 @@ export default function Page() {
 
                                     </div>
                                 </Card>
-                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] overflow-clip p-1">
+                                <Card className="block border-0 bg-transparent lg:border lg:bg-[--paper] overflow-clip p-1">
                                     <TabsTrigger
                                         value="seanime"
                                         className="group"
@@ -306,30 +306,32 @@ export default function Page() {
                             </div>
                         </SettingsNavCard>
 
-                        <div className="space-y-1">
-                            <p className="text-[--muted] text-xs w-full text-center">
-                                <span className="font-semibold">{status?.version}</span> {status?.versionName} • {capitalize(status?.os)}{__isElectronDesktop__ &&
-                                <span className="font-medium"> • Denshi</span>}
-                            </p>
-                            <p className="text-[--muted] text-sm w-full">
+                        <div className="space-y-3">
+                            <div className="space-y-1">
+                                <p className="text-[--muted] text-xs w-full text-center">
+                                    <span className="font-semibold">{status?.version}</span> {status?.versionName} • {capitalize(status?.os)}{__isElectronDesktop__ &&
+                                    <span className="font-medium"> • Denshi</span>}
+                                </p>
+                                <p className="text-[--muted] text-sm w-full">
 
-                            </p>
-                        </div>
+                                </p>
+                            </div>
 
-                        <div className="flex justify-center !mt-0 pb-4">
-                            <SeaLink
-                                href="https://github.com/sponsors/5rahim"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Button
-                                    intent="gray-link"
-                                    size="md"
-                                    leftIcon={<BiDonateHeart className="text-lg" />}
+                            <div className="flex justify-center !mt-0 pb-4">
+                                <SeaLink
+                                    href="https://github.com/sponsors/5rahim"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
-                                    Donate
-                                </Button>
-                            </SeaLink>
+                                    <Button
+                                        intent="gray-link"
+                                        size="md"
+                                        leftIcon={<BiDonateHeart className="text-lg" />}
+                                    >
+                                        Donate
+                                    </Button>
+                                </SeaLink>
+                            </div>
                         </div>
                     </TabsList>
 
