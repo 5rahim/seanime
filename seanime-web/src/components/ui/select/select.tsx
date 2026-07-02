@@ -34,7 +34,7 @@ export const SelectAnatomy = defineStyleAnatomy({
     ]),
     item: cva([
         "UI-Select__item",
-        "text-base leading-none rounded-[--radius] flex items-center h-8 pr-2 pl-8 relative",
+        "text-base leading-none rounded-[--radius] flex items-center h-8 pr-2 pl-8 relative text-sm",
         "select-none disabled:opacity-50 disabled:pointer-events-none",
         "data-highlighted:outline-none data-highlighted:bg-[--subtle]",
         "data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none",

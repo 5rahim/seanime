@@ -65,7 +65,7 @@ export const SwitchAnatomy = defineStyleAnatomy({
     }),
     label: cva([
         "UI-Switch__label",
-        "relative font-normal",
+        "relative font-normal text-sm",
         "data-[disabled=true]:text-gray-300 cursor-pointer user-select-none select-none",
     ]),
 })
@@ -145,7 +145,7 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
                 "w-fit",
                 // side === "right" && "w-full group/switch transition-all duration-200 hover:bg-gray-600/10 rounded-[--radius] p-2
                 // w-[calc(100%_+_1rem)] -ml-2 border border-transparent hover:border-[--subtle]",
-                side === "right" && "w-full group/switch py-1",
+                side === "right" && "w-full group/switch",
                 basicFieldProps.fieldClass,
             )}
             fieldHelpTextClass={cn("")}
@@ -188,7 +188,7 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
                 </div>}
 
                 {icon &&
-                    <div className="text-2xl text-[--muted] group-hover/switch:text-[--foreground] transition-transform group-hover/switch:-rotate-12">{icon}</div>}
+                    <div className="text-xl text-[--muted] group-hover/switch:text-[--foreground] transition-transform group-hover/switch:-rotate-12">{icon}</div>}
 
 
                 <input

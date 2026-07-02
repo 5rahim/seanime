@@ -153,7 +153,7 @@
         --pink: theme('colors.pink.300');
         --rose: theme('colors.rose.300');
 
-        --border: rgba(255, 255, 255, 0.08);
+        --border: rgba(255, 255, 255, 0.1);
         --ring: theme('colors.brand.200');
 
         --muted: rgba(255, 255, 255, 0.4);

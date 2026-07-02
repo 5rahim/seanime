@@ -42,7 +42,7 @@ export const CommandAnatomy = defineStyleAnatomy({
     ]),
     item: cva([
         "UI-Command__item",
-        "relative flex cursor-default select-none items-center rounded-[--radius] px-2 py-1.5 text-base outline-none",
+        "relative flex cursor-default select-none items-center rounded-[--radius] px-2 py-1.5 text-sm outline-none",
         "aria-selected:bg-[--subtle] data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
         "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
     ]),

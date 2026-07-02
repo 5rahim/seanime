@@ -39,11 +39,11 @@ export const ComboboxAnatomy = defineStyleAnatomy({
     ]),
     item: cva([
         "UI-Combobox__item",
-        "flex gap-1 items-center flex-none truncate bg-gray-100 dark:bg-gray-800 px-2 pr-1 rounded-[--radius] max-w-96",
+        "flex gap-1 text-sm items-center flex-none truncate bg-gray-100 dark:bg-gray-800 px-2 pr-1 rounded-[--radius] max-w-96",
     ]),
     placeholder: cva([
         "UI-Combobox__placeholder",
-        "text-[--muted] truncate",
+        "text-[--muted] truncate text-sm",
     ]),
     inputValuesContainer: cva([
         "UI-Combobox__inputValuesContainer",
