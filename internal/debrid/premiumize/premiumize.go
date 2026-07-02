@@ -311,7 +311,10 @@ func (p *Premiumize) GetTorrentStreamUrl(ctx context.Context, opts debrid.Stream
 					continue
 				}
 
-				itemCh <- *item
+				select {
+				case itemCh <- *item:
+				default:
+				}
 
 				if item.IsReady {
 					time.Sleep(1 * time.Second)
