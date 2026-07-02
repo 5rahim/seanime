@@ -456,6 +456,8 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
         ...rest
     } = props
 
+    const ts = useThemeSettings()
+
     return (
         <>
             <SeaLink
@@ -501,7 +503,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                         <div data-media-entry-card-body-library-badge className="absolute z-[1] left-0 top-0">
                             <Badge
                                 size="xl" intent="warning-solid"
-                                className="rounded-[--radius] rounded-bl-none rounded-tr-none text-orange-900"
+                                className="rounded-[--radius] rounded-bl-none rounded-tr-none bg-amber-600/80 text-amber-950"
                             ><IoLibrarySharp /></Badge>
                         </div>}
 
@@ -630,7 +632,8 @@ export const MediaEntryCardHoverPopupBanner = memo(({
     >
         <div
             data-media-entry-card-hover-popup-banner-container
-            className="aspect-[4/2] relative rounded-[--radius] mb-2 cursor-pointer overflow-hidden isolate"
+            className={cn("aspect-[4/2] relative rounded-t-[--radius] mb-2 cursor-pointer overflow-hidden isolate",
+                ts.enableMediaCardBlurredBackground && "rounded-[--radius]")}
         >
             {(showProgressBar && progress && listStatus && progressTotal && progress !== progressTotal) &&
                 <div

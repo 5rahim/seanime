@@ -232,9 +232,9 @@ var (
 			// SmallImage: "https://seanime.app/images/circular-logo.png",
 			// SmallText:  "Seanime v" + constants.Version,
 			// SmallURL:   "https://seanime.app",
-			SmallImage: "https://seanime.app/images/circular-logo.png",
-			SmallText:  "Seanime v" + constants.Version,
-			SmallURL:   "https://seanime.app",
+			SmallImage: "",
+			SmallText:  "",
+			SmallURL:   "",
 		},
 		Timestamps: &discordrpc_client.Timestamps{
 			Start: &discordrpc_client.Epoch{

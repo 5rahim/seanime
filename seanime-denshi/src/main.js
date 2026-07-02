@@ -1305,20 +1305,24 @@ function createMainWindow() {
 function createSplashScreen() {
     logStartupEvent("Creating splash screen")
     splashScreen = new BrowserWindow({
-        width: 800, height: 600, frame: false, resizable: false, show: !denshiSettings.openInBackground, backgroundColor: "#0c0c0c", webPreferences: {
-            nodeIntegration: false, contextIsolation: true, sandbox: true, preload: path.join(__dirname, "preload.js")
+        width: 800, height: 600, frame: false, resizable: false, show: false, backgroundColor: "#070707", webPreferences: {
+            nodeIntegration: false, contextIsolation: true, sandbox: true
         }
     })
 
-    // Load the web content
-    if (_development) {
-        // In development, load from the dev server
-        logStartupEvent("Loading splash from dev server", "http://127.0.0.1:43210/splashscreen")
-        splashScreen.loadURL("http://127.0.0.1:43210/splashscreen")
-    } else {
-        logStartupEvent("Loading splash screen with custom protocol")
-        splashScreen.loadURL("app://-/splashscreen")
+    function showSplashScreen() {
+        if (denshiSettings.openInBackground || !splashScreen || splashScreen.isDestroyed() || splashScreen.isVisible()) {
+            return
+        }
+
+        splashScreen.show()
     }
+
+    splashScreen.once("ready-to-show", showSplashScreen)
+    setTimeout(showSplashScreen, 500)
+
+    logStartupEvent("Loading splash screen")
+    splashScreen.loadFile(path.join(__dirname, "splash.html"))
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

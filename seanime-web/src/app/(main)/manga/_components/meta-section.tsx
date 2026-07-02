@@ -111,7 +111,7 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                 {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <Details />}
 
 
-                <div className="w-full flex flex-wrap gap-4 items-center" data-manga-meta-section-buttons-row>
+                <div className="w-full flex flex-wrap gap-2 items-center" data-manga-meta-section-buttons-row>
 
                     {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <div className="flex-1 hidden lg:flex"></div>}
 

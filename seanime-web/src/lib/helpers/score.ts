@@ -5,7 +5,7 @@ export function getScoreColor(score: number, kind: "audience" | "user"): string 
         return cn(
             // kind === "audience" && "bg-red-800 bg-opacity-70",
             kind === "audience" && "text-audienceScore-300 bg-black bg-opacity-20",
-            kind === "user" && "bg-red-800 bg-opacity-90",
+            kind === "user" && "bg-red-600 bg-opacity-90",
             // "text-red-200",
         )
     }
@@ -21,7 +21,7 @@ export function getScoreColor(score: number, kind: "audience" | "user"): string 
         return cn(
             // kind === "audience" && "bg-lime-800 bg-opacity-70",
             kind === "audience" && "text-audienceScore-600 bg-black bg-opacity-20",
-            kind === "user" && "bg-lime-800 bg-opacity-90",
+            kind === "user" && "bg-lime-600 bg-opacity-90",
             // "text-lime-200",
         )
     }
@@ -30,7 +30,7 @@ export function getScoreColor(score: number, kind: "audience" | "user"): string 
     //         // kind === "audience" && "bg-emerald-800 bg-opacity-70",
     //         // "text-emerald-100",
     //         kind === "audience" && "text-emerald-300 bg-black bg-opacity-20",
-    //         kind === "user" && "bg-emerald-800 bg-opacity-90 text-white",
+    //         kind === "user" && "bg-emerald-600 bg-opacity-90 text-white",
     //     )
     // }
     if (score < 82) {
@@ -38,7 +38,7 @@ export function getScoreColor(score: number, kind: "audience" | "user"): string 
             // kind === "audience" && "bg-emerald-800 bg-opacity-70",
             // "text-emerald-100",
             kind === "audience" && "text-audienceScore-700 bg-black bg-opacity-20",
-            kind === "user" && "bg-emerald-800 bg-opacity-90 text-white",
+            kind === "user" && "bg-green-600 bg-opacity-90 text-white",
         )
     }
     // 90-100

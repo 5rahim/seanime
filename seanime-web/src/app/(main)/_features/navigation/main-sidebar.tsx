@@ -209,7 +209,7 @@ function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean
             href: "/schedule",
             isCurrent: pathname === "/schedule",
             addon: missingEpisodeCount > 0 ? <Badge
-                className="absolute right-0 top-0" size="sm"
+                className="absolute right-0 top-0 bg-red-400" size="sm"
                 intent="alert-solid"
             >{missingEpisodeCount}</Badge> : undefined,
         },
@@ -286,7 +286,7 @@ function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean
             href: "/auto-downloader",
             isCurrent: pathname === "/auto-downloader",
             addon: autoDownloaderQueueCount > 0 ? <Badge
-                className="absolute right-0 top-0" size="sm"
+                className="absolute right-0 top-0 bg-red-400" size="sm"
                 intent="alert-solid"
             >{autoDownloaderQueueCount}</Badge> : undefined,
         }] : [],
@@ -557,7 +557,7 @@ function SidebarFooter({ isCollapsed, onLogout }: { isCollapsed: boolean, onLogo
                         isCurrent: pathname.includes("/extensions"),
                         addon: (!!updateData?.length || !!pluginWithIssuesCount)
                             ? <Badge
-                                className="absolute right-0 top-0 bg-red-500 animate-pulse" size="sm"
+                                className="absolute right-0 top-0 bg-red-400 animate-pulse" size="sm"
                                 intent="alert-solid"
                             >
                                 {updateData?.length || pluginWithIssuesCount || 1}

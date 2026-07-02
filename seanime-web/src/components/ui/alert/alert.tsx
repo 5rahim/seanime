@@ -42,7 +42,7 @@ export const AlertAnatomy = defineStyleAnatomy({
     ]),
     description: cva([
         "UI-Alert__description",
-        "text-xs md:text-sm text-[--muted] dark:text-gray-200/70 mt-0.5",
+        "text-xs md:text-sm text-[--muted] dark:text-gray-200 mt-0.5",
     ]),
     icon: cva([
         "UI-Alert__icon",

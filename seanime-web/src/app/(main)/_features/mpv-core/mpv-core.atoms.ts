@@ -154,7 +154,7 @@ export const mc_shaderSettings = atom(
             directory: "",
             mode: "off",
             anime4kMode: "mode-a",
-            anime4kQuality: "hq",
+            anime4kQuality: "fast",
             customShaders: [],
             ...stored,
         } as MpvCoreShaderSettings
@@ -165,7 +165,7 @@ export const mc_shaderSettings = atom(
             directory: "",
             mode: "off",
             anime4kMode: "mode-a",
-            anime4kQuality: "hq",
+            anime4kQuality: "fast",
             customShaders: [],
             ...current,
         } as MpvCoreShaderSettings

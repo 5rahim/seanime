@@ -18,25 +18,25 @@ export const ButtonAnatomy = defineStyleAnatomy({
             intent: {
                 "primary": "text-white border bg-brand-500 border-brand-400/20 active:bg-opacity-100 dark:bg-opacity-70 dark:hover:bg-opacity-90",
                 "primary-outline": "text-[--brand] border border-brand-500/40 bg-transparent hover:bg-brand-500/10 active:bg-brand-500/20 dark:border-brand-400/30 dark:hover:bg-brand-500/15 dark:active:bg-brand-500/25",
-                "primary-subtle": "text-[--brand] border bg-brand-50 border-brand-300/10 hover:bg-brand-100 active:bg-brand-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
+                "primary-subtle": "text-[--brand] border bg-brand-50 border-transparent --border-brand-300/10 hover:bg-brand-100 active:bg-brand-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
                 "primary-link": "text-[--brand] border border-transparent bg-transparent hover:underline active:text-brand-700 dark:active:text-brand-300",
                 "primary-basic": "text-[--brand] border border-transparent bg-transparent hover:bg-brand-100 active:bg-brand-200 dark:hover:bg-opacity-10 dark:active:text-brand-300",
 
                 "warning": "text-white border bg-orange-500 border-orange-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
                 "warning-outline": "text-[--orange] border border-orange-500/40 bg-transparent hover:bg-orange-500/10 active:bg-orange-500/20 dark:border-orange-400/30 dark:hover:bg-orange-500/15 dark:active:bg-orange-500/25",
-                "warning-subtle": "text-[--orange] border bg-orange-50 border-orange-300/10 hover:bg-orange-100 active:bg-orange-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
+                "warning-subtle": "text-[--orange] border bg-orange-50 border-transparent --border-orange-300/10 hover:bg-orange-100 active:bg-orange-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
                 "warning-link": "text-[--orange] border border-transparent bg-transparent hover:underline active:text-orange-700 dark:active:text-orange-300",
                 "warning-basic": "text-[--orange] border border-transparent bg-transparent hover:bg-orange-100 active:bg-orange-200 dark:hover:bg-opacity-10 dark:active:text-orange-300",
 
                 "success": "text-white border bg-green-500 border-green-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
                 "success-outline": "text-[--green] border border-green-500/40 bg-transparent hover:bg-green-500/10 active:bg-green-500/20 dark:border-green-400/30 dark:hover:bg-green-500/15 dark:active:bg-green-500/25",
-                "success-subtle": "text-[--green] border bg-green-50 border-green-300/10 hover:bg-green-100 active:bg-green-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
+                "success-subtle": "text-[--green] border bg-green-50 border-transparent --border-green-300/10 hover:bg-green-100 active:bg-green-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
                 "success-link": "text-[--green] border border-transparent bg-transparent hover:underline active:text-green-700 dark:active:text-green-300",
                 "success-basic": "text-[--green] border border-transparent bg-transparent hover:bg-green-100 active:bg-green-200 dark:hover:bg-opacity-10 dark:active:text-green-300",
 
                 "alert": "text-white border bg-red-500 border-red-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
                 "alert-outline": "text-[--red] border border-red-500/40 bg-transparent hover:bg-red-500/10 active:bg-red-500/20 dark:border-red-400/30 dark:hover:bg-red-500/15 dark:active:bg-red-500/25",
-                "alert-subtle": "text-[--red] border bg-red-50 border-red-300/10 hover:bg-red-100 active:bg-red-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
+                "alert-subtle": "text-[--red] border bg-red-50 border-transparent --border-red-300/10 hover:bg-red-100 active:bg-red-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
                 "alert-link": "text-[--red] border border-transparent bg-transparent hover:underline active:text-red-700 dark:active:text-red-300",
                 "alert-basic": "text-[--red] border border-transparent bg-transparent hover:bg-red-100 active:bg-red-200 dark:hover:bg-opacity-10 dark:active:text-red-300",
 

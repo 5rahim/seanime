@@ -1,5 +1,4 @@
 import { defineConfig, loadEnv, RsbuildPluginAPI } from "@rsbuild/core"
-import { pluginBabel } from "@rsbuild/plugin-babel"
 import { pluginNodePolyfill } from "@rsbuild/plugin-node-polyfill"
 import { pluginReact } from "@rsbuild/plugin-react"
 import { RsdoctorRspackPlugin } from "@rsdoctor/rspack-plugin"
@@ -15,7 +14,9 @@ const distPath = isElectronDesktop ? "out-denshi" : "out"
 
 export default defineConfig({
     plugins: [
-        pluginReact(),
+        pluginReact({
+            reactCompiler: true,
+        }),
         pluginNodePolyfill({
             include: ["buffer", "crypto"],
         }),
@@ -54,13 +55,6 @@ export default defineConfig({
                 }
             },
         },
-        pluginBabel({
-            include: /\.(?:jsx|tsx)$/,
-            babelLoaderOptions(opts) {
-                opts.plugins ??= []
-                opts.plugins.push(["babel-plugin-react-compiler"])
-            },
-        }),
     ].filter(Boolean),
     source: {
         entry: {

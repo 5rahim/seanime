@@ -18,8 +18,6 @@
     "preview": "rsbuild preview"
   },
   "dependencies": {
-    "@mpv-prism/core": "https://seanime.app/assets/mpv-prism/0.1.0/packages/mpv-prism-core-0.1.0.tgz",
-    "@mpv-prism/react": "https://seanime.app/assets/mpv-prism/0.1.0/packages/mpv-prism-react-0.1.0.tgz",
     "@codemirror/autocomplete": "^6.20.1",
     "@codemirror/lang-javascript": "^6.2.5",
     "@codemirror/language": "^6.12.3",
@@ -29,6 +27,8 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@fontsource-variable/inter": "^5.2.8",
     "@hookform/resolvers": "^5.1.1",
+    "@mpv-prism/core": "https://seanime.app/assets/mpv-prism/0.1.0/packages/mpv-prism-core-0.1.0.tgz",
+    "@mpv-prism/react": "https://seanime.app/assets/mpv-prism/0.1.0/packages/mpv-prism-react-0.1.0.tgz",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-checkbox": "^1.3.3",
@@ -111,7 +111,6 @@
     "path-browserify": "^1.0.1",
     "react": "^19",
     "react-colorful": "^5.6.1",
-    "react-compiler-runtime": "19.0.0-beta-e993439-20250405",
     "react-cookie": "^8.1.0",
     "react-currency-input-field": "^3.10.0",
     "react-day-picker": "^9.14.0",
@@ -140,8 +139,7 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
-    "@rsbuild/core": "^2.0.15",
-    "@rsbuild/plugin-babel": "^2.0.0",
+    "@rsbuild/core": "^2.1.3",
     "@rsbuild/plugin-node-polyfill": "^1.4.6",
     "@rsbuild/plugin-react": "^2.1.0",
     "@rsdoctor/rspack-plugin": "^1.5.8",
@@ -161,7 +159,6 @@
     "@types/react-window": "^1.8.8",
     "@typescript/native-preview": "beta",
     "autoprefixer": "^10",
-    "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250405",
     "encoding": "^0.1.13",
     "patch-package": "^8.0.1",
     "postcss": "^8",

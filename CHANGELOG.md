@@ -9,17 +9,23 @@ All notable changes to this project will be documented in this file.
   - Hardware-accelerated rendering directly in the app viewport (no external window)
   - Flawless codec and subtitle support on all platforms
   - Supports many 'mpv.conf' options and shaders
+- ⚡️ UI: New splashcreen, updated components and colors
 - ⚡️ Torrent Streaming: Up to 20% faster startup depending on seeding
 - ⚡️ Debrid Streaming: Up to 5 seconds faster launch for cached streams
+- ⚡️ UI: Support for alt + mouse wheel horizontal scrolling on carousels
+- ⚡️ VideoCore: Support for screenshot directory
+- ⚡️ Plugins: Added new ChromeDP APIs
 - 🦺 Torrent Streaming: Fixed batch selection
 - 🦺 VideoCore: Ability to exit fullscreen when next stream is loading
 - 🦺 MPV/IINA: Fixed progress tracking dropping when media path is temporarily unavailable #836
 - 🦺 AllDebrid: Fixed batch torrent streaming #841
 - 🦺 Manga: Fixed unnecessary image proxy
 - 🦺 Torrent Streaming: More accurate download progress reporting
+- 🦺 Nakama: Refresh collection when turning off host library sharing
 - ⬆️ Updated Electron to 42.4.0
   - Fixes AC3/EAC3 audio support detection on Windows for HTML5 player
   - Fixes security vulnerabilities
+- ⬆️ Upgraded to Rust-based React Compiler
 
 ## v3.8.7
 

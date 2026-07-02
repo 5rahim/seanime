@@ -233,11 +233,11 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
             let delta = 0
 
             if (isVertical) {
-                isScrollIntent = Math.abs(e.deltaY) > Math.abs(e.deltaX) && !e.shiftKey
+                isScrollIntent = Math.abs(e.deltaY) > Math.abs(e.deltaX) && !e.altKey
                 delta = e.deltaY
             } else {
-                isScrollIntent = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey
-                delta = e.deltaX !== 0 ? e.deltaX : (e.shiftKey ? e.deltaY : 0)
+                isScrollIntent = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.altKey
+                delta = e.deltaX !== 0 ? e.deltaX : (e.altKey ? e.deltaY : 0)
             }
 
             if (!isScrollIntent || delta === 0) return

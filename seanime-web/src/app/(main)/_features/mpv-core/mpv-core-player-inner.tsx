@@ -455,11 +455,11 @@ export function MpvCorePlayerInner() {
         refreshAnime4KDirectory(shaderSettings.directory || undefined)
     }, [shaderSettings.directory, refreshAnime4KDirectory])
 
-    React.useEffect(() => {
-        if (!player) return
-        const apply = async () => {
+    const applyShaderSettings = React.useCallback(async (p: typeof player) => {
+        if (!p) return
+        try {
             if (shaderSettings.mode === "off") {
-                await player.clearShaders()
+                await p.clearShaders()
                 setAnime4kError(null)
                 return
             }
@@ -473,29 +473,28 @@ export function MpvCorePlayerInner() {
                 }).filter((p): p is string => !!p)
 
                 if (selectedPaths.length === 0) {
-                    await player.clearShaders()
+                    await p.clearShaders()
                     setAnime4kError(null)
                     return
                 }
-                await player.setShaders(selectedPaths)
+                await p.setShaders(selectedPaths)
                 setAnime4kError(null)
                 return
             }
 
             const profile = mc_resolveAnime4KProfile(directory, shaderSettings.anime4kMode, shaderSettings.anime4kQuality)
             if (profile.missing.length) {
-                await player.clearShaders()
+                await p.clearShaders()
                 setAnime4kError(`Missing ${profile.missing.join(", ")}`)
                 return
             }
-            await player.setShaders(profile.paths)
+            await p.setShaders(profile.paths)
             setAnime4kError(null)
         }
-        apply().catch(error => {
+        catch (error) {
             setAnime4kError(error instanceof Error ? error.message : String(error))
-        })
+        }
     }, [
-        player,
         anime4kDirectory,
         shaderSettings.directory,
         shaderSettings.mode,
@@ -504,6 +503,15 @@ export function MpvCorePlayerInner() {
         shaderSettings.customShaders,
         refreshAnime4KDirectory,
     ])
+
+    const applyShaderSettingsRef = React.useRef(applyShaderSettings)
+    React.useEffect(() => {
+        applyShaderSettingsRef.current = applyShaderSettings
+    }, [applyShaderSettings])
+
+    React.useEffect(() => {
+        applyShaderSettings(player)
+    }, [player, applyShaderSettings])
 
     const sendEvent = React.useCallback((type: string, payload: unknown = {}) => {
         sendMessage({
@@ -737,6 +745,7 @@ export function MpvCorePlayerInner() {
                     player.setMute(muted),
                     player.setSpeed(speed),
                     applyMpvSubtitleSettings(player, mpvSettings),
+                    applyShaderSettingsRef.current(player).catch(() => undefined),
                 ])
                 if (!autoPlay || info.initialState?.paused) {
                     await player.pause()
@@ -866,6 +875,7 @@ export function MpvCorePlayerInner() {
                     player.setMute(muted).catch(() => undefined),
                     player.setSpeed(speed).catch(() => undefined),
                     applyMpvSubtitleSettings(player, mpvSettings).catch(() => undefined),
+                    applyShaderSettingsRef.current(player).catch(() => undefined),
                 ])
                 metadataReadyRef.current = true
                 setState(draft => {
