@@ -27,7 +27,7 @@ export const InputAnatomy = defineStyleAnatomy({
             },
             intent: {
                 basic: "hover:border-gray-300 dark:hover:border-gray-600",
-                filled: "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 border-transparent focus:bg-white dark:focus:bg-gray-900 shadow-none",
+                filled: "bg-[--subtle] hover:bg-[--subtle-highlight] dark:hover:bg-gray-700 border-transparent focus:bg-[--paper] dark:focus:bg-gray-900 shadow-none",
                 unstyled: "bg-transparent hover:bg-transparent border-0 shadow-none focus:ring-0 rounded-none p-0 text-base",
             },
             hasError: {
@@ -36,7 +36,7 @@ export const InputAnatomy = defineStyleAnatomy({
             },
             isDisabled: {
                 false: null,
-                true: "shadow-none pointer-events-none opacity-50 cursor-not-allowed bg-gray-50 dark:bg-gray-800",
+                true: "shadow-none pointer-events-none opacity-50 cursor-not-allowed bg-[--subtle]",
             },
             isReadonly: {
                 false: null,
@@ -138,8 +138,7 @@ export const InputAddonsAnatomy = defineStyleAnatomy({
     }),
     addon: cva([
         "UI-Input__addons--addon",
-        "bg-gray-50 inline-flex items-center flex-none px-3 border border-gray-300 text-gray-800 shadow-sm text-sm sm:text-md",
-        "dark:bg-[--paper] dark:border-[--border] dark:text-gray-300",
+        "bg-[--paper-elevated] dark:bg-[--paper] inline-flex items-center flex-none px-3 border border-[--border] text-[--foreground] shadow-sm text-sm sm:text-md",
     ], {
         variants: {
             size: { sm: "text-sm", md: "text-md", lg: "text-lg" },

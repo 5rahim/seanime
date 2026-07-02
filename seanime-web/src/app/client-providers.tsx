@@ -2,6 +2,7 @@ import { serverAuthTokenAtom, serverStatusAtom } from "@/app/(main)/_atoms/serve
 import { WebsocketProvider } from "@/app/websocket-provider"
 import { CustomCSSProvider } from "@/components/shared/custom-css-provider"
 import { CustomThemeProvider } from "@/components/shared/custom-theme-provider"
+import { ThemeModeSync } from "@/components/shared/theme-mode-sync"
 import { Toaster } from "@/components/ui/toaster"
 import { initEntryPreloader } from "@/lib/entry-preloader"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -35,13 +36,14 @@ initEntryPreloader(
 export const ClientProviders: React.FC<ClientProvidersProps> = ({ children }) => {
 
     return (
-        <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme={"dark"}>
+        <ThemeProvider attribute="class" themes={["light", "dark"]} defaultTheme="dark" enableSystem disableTransitionOnChange>
             <CookiesProvider>
                 <JotaiProvider store={store}>
                     <QueryClientProvider client={queryClient}>
                         <WebsocketProvider>
                             {children}
                             <CustomThemeProvider />
+                            <ThemeModeSync />
                             <Toaster />
                         </WebsocketProvider>
                         <CustomCSSProvider />

@@ -272,7 +272,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending, downlo
                     })}
                 >{torrent.name}</div>
                 <div className="text-[--muted]">
-                    <span className={cn({ "text-green-300": torrent.status === "downloading" })}>{torrent.completionPercentage}%</span>
+                    <span className={cn({ "text-[--green]": torrent.status === "downloading" })}>{torrent.completionPercentage}%</span>
                     {` `}
                     <BiDownArrow className="inline-block mx-2" />
                     {torrent.speed}
@@ -289,8 +289,8 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending, downlo
                     <strong
                         className={cn(
                             "text-sm",
-                            torrent.status === "seeding" && "text-blue-300",
-                            torrent.status === "completed" && "text-green-300",
+                            torrent.status === "seeding" && "text-[--blue]",
+                            torrent.status === "completed" && "text-[--green]",
                         )}
                     >{(torrent.status === "other" || !torrent.isReady) ? "" : capitalize(torrent.status)}</strong>
                     {localDownloadStatus && (

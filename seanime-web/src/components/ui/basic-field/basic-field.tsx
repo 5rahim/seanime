@@ -10,13 +10,13 @@ export const BasicFieldAnatomy = defineStyleAnatomy({
     fieldLabel: cva([
         "UI-BasicField__fieldLabel",
         "text-base w-fit font-semibold self-start",
-        "data-[error=true]:text-red-500",
+        "data-[error=true]:text-[--red] dark:data-[error=true]:text-red-500",
     ]),
-    fieldAsterisk: cva("UI-BasicField__fieldAsterisk ml-1 text-red-500 text-sm"),
+    fieldAsterisk: cva("UI-BasicField__fieldAsterisk ml-1 text-[--red] text-sm"),
     fieldDetails: cva("UI-BasicField__fieldDetails"),
     field: cva("UI-BasicField__field relative w-full space-y-1"),
     fieldHelpText: cva("UI-BasicField__fieldHelpText text-sm text-[--muted] break-all"),
-    fieldErrorText: cva("UI-BasicField__fieldErrorText text-sm text-red-500"),
+    fieldErrorText: cva("UI-BasicField__fieldErrorText text-sm text-[--red]"),
 })
 
 /* -------------------------------------------------------------------------------------------------

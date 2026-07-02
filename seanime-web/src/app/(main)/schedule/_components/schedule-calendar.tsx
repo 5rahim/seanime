@@ -761,8 +761,8 @@ function CalendarDay({ day, index }: { day: CalendarDayItem, index: number }) {
                 dateTime={day.date}
                 className={
                     day.isToday
-                        ? "z-[1] relative flex h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-sm sm:text-base lg:text-lg items-center justify-center rounded-full bg-white font-bold group-hover:rotate-12 transition-transform duration-300 ease-out text-black"
-                        : "text-xs sm:text-sm lg:text-base group-hover:text-white group-hover:font-bold transition-transform duration-300 ease-out"
+                        ? "z-[1] relative flex h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-sm sm:text-base lg:text-lg items-center justify-center rounded-full bg-[--foreground] font-bold group-hover:rotate-12 transition-transform duration-300 ease-out text-[--background]"
+                        : "text-xs sm:text-sm lg:text-base group-hover:text-[--foreground] dark:group-hover:text-white group-hover:font-bold transition-transform duration-300 ease-out"
                 }
                 data-schedule-calendar-day-date
             >

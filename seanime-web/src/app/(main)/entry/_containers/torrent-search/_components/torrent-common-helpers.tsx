@@ -33,12 +33,12 @@ export type TorrentFilters = {
 export const getSortIcon = (sortField: SortField, field: SortField, sortDirection: SortDirection) => {
     if (sortField !== field) return <TbArrowsSort className="opacity-50 text-lg" />
     return sortDirection === "asc" ?
-        <TbSortAscending className="text-brand-200 text-lg" /> :
-        <TbSortDescending className="text-brand-200 text-lg" />
+        <TbSortAscending className="text-[--brand] text-lg" /> :
+        <TbSortDescending className="text-[--brand] text-lg" />
 }
 
 export const getFilterIcon = (active: boolean) => {
-    return active ? <TbFilter className="text-brand-200 animate-bounce text-lg" /> : <TbFilter className="opacity-50 text-lg" />
+    return active ? <TbFilter className="text-[--brand] animate-bounce text-lg" /> : <TbFilter className="opacity-50 text-lg" />
 }
 
 // Sort handler function

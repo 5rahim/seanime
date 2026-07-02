@@ -123,7 +123,7 @@ export function LibraryWatcher(props: LibraryWatcherProps) {
                     <Card className="w-full max-w-[400px] min-h-[150px] relative">
                         <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <BiSolidBinoculars className="text-brand-400" />
+                                <BiSolidBinoculars className="text-[--brand]" />
                                 Library watcher
                             </CardTitle>
                             <CardDescription className="flex items-center gap-2 text-base">

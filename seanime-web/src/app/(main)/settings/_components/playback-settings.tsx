@@ -59,9 +59,9 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                     icon={LuCirclePlay}
                 />
 
-                <div className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 border border-gray-200 dark:border-gray-800">
+                <div className="flex items-center gap-2 text-sm bg-[--subtle] rounded-lg p-3 border border-[--border]">
                     <BiDesktop className="text-lg text-gray-500" />
-                    <span className="text-gray-600 dark:text-gray-400">Device:</span>
+                    <span className="text-[--muted]">Device:</span>
                     <span className="font-medium">{serverStatus?.clientDevice || "-"}</span>
                     <span className="text-gray-400">•</span>
                     <span className="font-medium">{serverStatus?.clientPlatform || "-"}</span>
@@ -95,7 +95,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
 
                         <div className="flex items-center gap-4">
                             <div className="p-3 rounded-lg bg-gradient-to-br from-indigo-500/20 to-indigo-500/20 border border-indigo-500/20">
-                                <LuClapperboard className="text-2xl text-indigo-600 dark:text-indigo-400" />
+                                <LuClapperboard className="text-2xl text-[--indigo]" />
                             </div>
                             <div className="flex-1">
                                 <Switch
@@ -140,7 +140,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                             }}
                         >
                             <div className="flex items-start gap-3">
-                                <LuLaptop className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
+                                <LuLaptop className="text-xl text-[--brand] mt-1" />
                                 <div className="flex-1 space-y-2">
                                     <div>
                                         <p className="font-medium">Desktop Media Player</p>
@@ -169,7 +169,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                             }}
                         >
                             <div className="flex items-start gap-3">
-                                <MdOutlineBroadcastOnHome className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
+                                <MdOutlineBroadcastOnHome className="text-xl text-[--brand] mt-1" />
                                 <div className="flex-1 space-y-2">
                                     <div>
                                         <p className="font-medium">Transcoding / Direct Play</p>
@@ -198,7 +198,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                             }}
                         >
                             <div className="flex items-start gap-3">
-                                <LuExternalLink className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
+                                <LuExternalLink className="text-xl text-[--brand] mt-1" />
                                 <div className="flex-1 space-y-2">
                                     <div>
                                         <p className="font-medium">External Player Link</p>
@@ -237,7 +237,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                             }}
                         >
                             <div className="flex items-start gap-3">
-                                <LuLaptop className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
+                                <LuLaptop className="text-xl text-[--brand] mt-1" />
                                 <div className="flex-1 space-y-2">
                                     <div>
                                         <p className="font-medium">Desktop Media Player</p>
@@ -262,7 +262,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                             }}
                         >
                             <div className="flex items-start gap-3">
-                                <LuExternalLink className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
+                                <LuExternalLink className="text-xl text-[--brand] mt-1" />
                                 <div className="flex-1 space-y-2">
                                     <div>
                                         <p className="font-medium">External Player Link</p>
@@ -275,7 +275,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 </div>
             </SettingsCard>
 
-            <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 dark:bg-gray-900/30 rounded-lg p-3 border border-gray-200 dark:border-gray-800 border-dashed">
+            <div className="flex items-center gap-2 text-sm text-[--muted] dark:text-gray-500 bg-[--subtle] rounded-lg p-3 border border-[--border] border-dashed">
                 <RiSettings3Fill className="text-base" />
                 <span>Settings are saved automatically</span>
             </div>

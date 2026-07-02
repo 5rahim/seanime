@@ -372,7 +372,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
                     {episodeCollection?.hasMappingError && (
                         <div data-torrent-stream-page-no-metadata-message-container>
-                            <p className="text-red-200 opacity-50">
+                            <p className="text-[--red] opacity-50">
                                 No metadata info available for this anime. You may need to manually select the file to stream.
                             </p>
                         </div>

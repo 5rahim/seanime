@@ -260,10 +260,10 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                 >{torrent.name}</div>
                 <div data-torrent-item-info className="text-[--muted]">
                     {torrent.error ? (
-                        <span className="text-red-400 font-medium" title={torrent.error}>{torrent.error}</span>
+                        <span className="text-[--red] font-medium" title={torrent.error}>{torrent.error}</span>
                     ) : (
                         <>
-                            <span className={cn({ "text-green-300": torrent.status === "downloading" })}>{progress}</span>
+                            <span className={cn({ "text-[--green]": torrent.status === "downloading" })}>{progress}</span>
                             {` `}
                             <BiDownArrow className="inline-block mx-2" />
                             {torrent.downSpeed}
@@ -282,8 +282,8 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     {` - `}
                     <strong
                         className={cn({
-                            "text-blue-300": torrent.status === "seeding",
-                            "text-red-400": torrent.status === "error",
+                            "text-[--blue]": torrent.status === "seeding",
+                            "text-[--red]": torrent.status === "error",
                         }, "text-sm")}
                     >{capitalize(torrent.status)}</strong>
                 </div>

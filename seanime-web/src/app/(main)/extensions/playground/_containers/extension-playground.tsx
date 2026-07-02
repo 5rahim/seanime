@@ -392,23 +392,23 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                                 "w-full hover:bg-gray-800 hover:text-white text-sm py-1 px-2 tracking-wide leading-6",
                                                                 i % 2 === 0 ? "bg-gray-950" : "bg-gray-900",
                                                                 l.includes("|ERR|") && "text-white bg-red-800/10",
-                                                                l.includes("|WRN|") && "text-orange-500",
-                                                                l.includes("|INF|") && "text-blue-200",
+                                                                l.includes("|WRN|") && "text-[--orange]",
+                                                                l.includes("|INF|") && "text-[--blue]",
                                                                 l.includes("|TRC|") && "text-[--muted]",
-                                                                l.includes("extension > (console.warn):") && "text-orange-200/80",
+                                                                l.includes("extension > (console.warn):") && "text-[--orange] dark:text-orange-200/80",
                                                             )}
                                                         >
                                                             {l.includes(" |") ? (
                                                                 <>
                                                                     <span className="opacity-40 tracking-normal">{l.split(" |")?.[0]} </span>
                                                                     {l.includes("|DBG|") &&
-                                                                        <span className="text-yellow-200/40 font-medium">|DBG|</span>}
-                                                                    {l.includes("|ERR|") && <span className="text-red-400 font-medium">|ERR|</span>}
+                                                                        <span className="text-[--yellow] dark:text-yellow-200/40 font-medium">|DBG|</span>}
+                                                                    {l.includes("|ERR|") && <span className="text-[--red] font-medium">|ERR|</span>}
                                                                     {l.includes("|WRN|") &&
-                                                                        <span className="text-orange-400 font-medium">|WRN|</span>}
-                                                                    {l.includes("|INF|") && <span className="text-blue-400 font-medium">|INF|</span>}
+                                                                        <span className="text-[--orange] font-medium">|WRN|</span>}
+                                                                    {l.includes("|INF|") && <span className="text-[--blue] font-medium">|INF|</span>}
                                                                     {l.includes("|TRC|") &&
-                                                                        <span className="text-purple-400 font-medium">|TRC|</span>}
+                                                                        <span className="text-[--purple] font-medium">|TRC|</span>}
                                                                     <span>{l.split("|")?.[2]
                                                                         ?.replace("extension > (console.log):", "log >")
                                                                         ?.replace("extension > (console.error):", "error >")

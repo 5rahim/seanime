@@ -4085,6 +4085,7 @@ export type Models_Theme = {
     hideAnimeSpoilerTitles: boolean
     hideAnimeSpoilerDescriptions: boolean
     hideAnimeSpoilerSkipNextEpisode: boolean
+    themeMode: string
     id: number
     createdAt?: string
     updatedAt?: string

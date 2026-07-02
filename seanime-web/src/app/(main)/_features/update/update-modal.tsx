@@ -85,7 +85,7 @@ export function UpdateModal(props: UpdateModalProps) {
                         onClick: () => setUpdateModalOpen(true),
                     },
                 ]}
-                itemIconClass="text-brand-300"
+                itemIconClass="text-[--brand]"
             />
             <Modal
                 open={updateModalOpen}
@@ -98,7 +98,7 @@ export function UpdateModal(props: UpdateModalProps) {
                     <h3 className="text-center">A new update is available!</h3>
                     <h4 className="font-bold flex gap-2 text-center items-center justify-center">
                         <span className="text-[--muted]">{updateData?.current_version}</span> <FiArrowRight />
-                        <span className="text-indigo-200">{updateData?.release?.version}</span></h4>
+                        <span className="text-[--indigo]">{updateData?.release?.version}</span></h4>
 
                     {serverStatus?.isDesktopSidecar && <Alert
                         intent="info"
@@ -189,7 +189,7 @@ export function Downloader(props: DownloaderProps) {
                     itemLabelClass="font-normal tracking-wide line-clamp-1 truncate flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
                     itemContainerClass={cn(
                         "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-2 w-full",
-                        "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
+                        "bg-transparent hover:bg-[--subtle] dark:bg-gray-900",
                         "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
                         "focus:ring-2 ring-transparent dark:ring-transparent outline-none ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
                         "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",

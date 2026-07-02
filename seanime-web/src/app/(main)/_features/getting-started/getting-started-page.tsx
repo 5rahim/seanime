@@ -261,7 +261,7 @@ function LibraryStep({ form }: { form: any }) {
                     <Field.DirectorySelector
                         name="libraryPath"
                         label="Anime Library Path"
-                        leftIcon={<BiFolder className="text-blue-500" />}
+                        leftIcon={<BiFolder className="text-[--blue]" />}
                         shouldExist
                         help="Select the main folder containing your anime collection. You can add more folders later."
                         className="w-full"
@@ -306,7 +306,7 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                             ? "MPV is recommended for better subtitle rendering, torrent streaming."
                             : "Both MPV and IINA are recommended for macOS."}
                         required
-                        leftIcon={<BiPlay className="text-green-500" />}
+                        leftIcon={<BiPlay className="text-[--green]" />}
                         options={[
                             { label: "MPV (Recommended)", value: "mpv" },
                             { label: "VLC", value: "vlc" },
@@ -329,7 +329,7 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                                     className="space-y-4 p-4 rounded-lg bg-gray-800/30"
                                 >
                                     <div className="flex items-center space-x-3">
-                                        <SiMpv className="w-6 h-6 text-indigo-400" />
+                                        <SiMpv className="w-6 h-6 text-[--indigo]" />
                                         <h4 className="font-semibold">MPV Configuration</h4>
                                     </div>
                                     <Field.Text
@@ -350,7 +350,7 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                                 className="space-y-4 p-4 rounded-lg bg-gray-800/30"
                             >
                                 <div className="flex items-center space-x-3">
-                                    <IoPlayForwardCircleSharp className="w-6 h-6 text-blue-400" />
+                                    <IoPlayForwardCircleSharp className="w-6 h-6 text-[--blue]" />
                                     <h4 className="font-semibold">IINA Configuration</h4>
                                 </div>
                                 <Field.Text
@@ -380,7 +380,7 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                                 className="space-y-4 p-4 rounded-lg bg-gray-800/30"
                             >
                                 <div className="flex items-center space-x-3">
-                                    <SiVlcmediaplayer className="w-6 h-6 text-orange-500" />
+                                    <SiVlcmediaplayer className="w-6 h-6 text-[--orange]" />
                                     <h4 className="font-semibold">VLC Configuration</h4>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
@@ -404,7 +404,7 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                                 className="space-y-4 p-4 rounded-lg bg-gray-800/30"
                             >
                                 <div className="flex items-center space-x-3">
-                                    <HiOutlineDesktopComputer className="w-6 h-6 text-blue-500" />
+                                    <HiOutlineDesktopComputer className="w-6 h-6 text-[--blue]" />
                                     <h4 className="font-semibold">MPC-HC Configuration</h4>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
@@ -445,7 +445,7 @@ function TorrentStep({ form }: { form: any }) {
                 <StepCard>
                     <motion.div variants={itemVariants} className="space-y-4">
                         <div className="flex items-center space-x-3 mb-4">
-                            <ImDownload className="w-6 h-6 text-blue-500" />
+                            <ImDownload className="w-6 h-6 text-[--blue]" />
                             <h3 className="text-xl font-semibold">Torrent Client</h3>
                         </div>
                         <p className="text-sm text-[--muted]">

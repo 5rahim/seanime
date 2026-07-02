@@ -131,8 +131,8 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                         value={input}
                         rightIcon={<div className="flex">
                             {isLoading ? null : (data?.exists ?
-                                <BiCheck className="text-green-500" /> : shouldExist ?
-                                    input.length > 0 ? <BiX className="text-red-500" /> : null : <BiFolderPlus />)}
+                                <BiCheck className="text-[--green] dark:text-green-500" /> : shouldExist ?
+                                    input.length > 0 ? <BiX className="text-[--red] dark:text-red-500" /> : null : <BiFolderPlus />)}
                         </div>}
                         onChange={e => {
                             setInput(e.target.value ?? "")
@@ -173,8 +173,8 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                         leftIcon={<FaFolder />}
                         value={input}
                         rightIcon={isLoading ? null : (data?.exists ?
-                            <BiCheck className="text-green-500" /> : shouldExist ?
-                                <BiX className="text-red-500" /> : <BiFolderPlus />)}
+                            <BiCheck className="text-[--green] dark:text-green-500" /> : shouldExist ?
+                                <BiX className="text-[--red] dark:text-red-500" /> : <BiFolderPlus />)}
                         onChange={e => {
                             setInput(e.target.value ?? "")
                         }}

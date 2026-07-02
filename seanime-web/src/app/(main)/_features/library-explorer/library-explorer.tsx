@@ -776,17 +776,17 @@ const VirtualizedTreeNode = memo(({
 
     const getFileIcon = () => {
         if (isDirectory) {
-            if (level === 0) return <FiHardDrive className="size-5 text-brand-400" />
+            if (level === 0) return <FiHardDrive className="size-5 text-[--brand]" />
             return isExpanded ?
                 <RiFolderOpenFill
                     className={cn(
-                        "size-5 text-brand-400/90",
+                        "size-5 text-[--brand] dark:text-brand-400/90",
                         !node.mediaIds?.length && "text-[--muted]",
                     )}
                 /> :
                 <FiFolder
                     className={cn(
-                        "size-5 text-brand-400/80",
+                        "size-5 text-[--brand] dark:text-brand-400/80",
                         !node.mediaIds?.length && "text-[--muted]",
                     )}
                 />
@@ -797,8 +797,8 @@ const VirtualizedTreeNode = memo(({
         return <LuFileVideo2
             className={cn(
                 "size-4 text-[--muted]",
-                node.localFile.metadata?.type === "main" && "text-brand-400/70",
-                node.localFile.metadata?.type === "special" && "text-cyan-200/50",
+                node.localFile.metadata?.type === "main" && "text-[--brand] dark:text-brand-400/70",
+                node.localFile.metadata?.type === "special" && "text-[--cyan] dark:text-cyan-200/50",
                 node.localFile.metadata?.type === "nc" && "text-gray-200/30",
             )}
         />
@@ -1010,7 +1010,7 @@ const VirtualizedTreeNode = memo(({
                         </ContextMenuItem>
                         {(isDirectory && allFileIgnored) && <ContextMenuItem
                             onClick={handleUnignoreDirectory}
-                            className={cn("text-purple-300", isPending && "opacity-50 pointer-events-none")}
+                            className={cn("text-[--purple]", isPending && "opacity-50 pointer-events-none")}
                         >
                             <LuClipboardPlus className="text-lg" /> Un-ignore files
                         </ContextMenuItem>}
@@ -1061,7 +1061,7 @@ const VirtualizedTreeNode = memo(({
                             </ContextMenuItem>}
                             {node?.localFile?.ignored && <ContextMenuItem
                                 onClick={handleUnignoreSingleFile}
-                                className={cn("text-purple-300", isPending && "opacity-50 pointer-events-none")}
+                                className={cn("text-[--purple]", isPending && "opacity-50 pointer-events-none")}
                             >
                                 <LuClipboardPlus className="text-lg" /> Un-ignore file
                             </ContextMenuItem>}
@@ -1095,7 +1095,7 @@ const VirtualizedTreeNode = memo(({
                         className={cn(
                             "flex items-center px-2 h-10 rounded-md cursor-pointer select-none group/tree-node transition-colors",
                             !isSelected && "hover:bg-gray-800/50",
-                            isSelected && "bg-brand-500/20 text-brand-100",
+                            isSelected && "bg-brand-500/20 text-[--brand]",
                             contextMenuOpen && "bg-gray-800/30",
                         )}
                         style={{ paddingLeft }}
@@ -1147,8 +1147,8 @@ const VirtualizedTreeNode = memo(({
                                 <span
                                     className={cn(
                                         "truncate min-w-0",
-                                        !isDirectory && !!node.localFile && !node.localFile.mediaId && "text-orange-200",
-                                        !isDirectory && !isScannedFile && "text-red-200",
+                                        !isDirectory && !!node.localFile && !node.localFile.mediaId && "text-[--orange]",
+                                        !isDirectory && !isScannedFile && "text-[--red]",
                                         !isDirectory && node.localFile?.ignored && "text-[--muted] italic",
                                     )}
                                 >{node.name === "root" ? "Anime Libraries" : node.name}</span>
@@ -1197,12 +1197,12 @@ const VirtualizedTreeNode = memo(({
                         )}
 
                         {!isDirectory && isScannedFile && !node.localFile?.mediaId && !node.localFile?.ignored && (
-                            <div className="text-xs text-orange-200">
+                            <div className="text-xs text-[--orange]">
                                 Not matched
                             </div>
                         )}
                         {!isDirectory && !isScannedFile && (
-                            <div className="text-xs text-red-200">
+                            <div className="text-xs text-[--red]">
                                 Not scanned
                             </div>
                         )}
@@ -1346,7 +1346,7 @@ function LibraryInfoPanel({}: { localFiles: Record<string, Anime_LocalFile> | un
                     {isDirectory ? (
                         <FiFolder
                             className={cn(
-                                "w-12 h-12 text-brand-400",
+                                "w-12 h-12 text-[--brand]",
                                 !selectedNode.mediaIds?.length && "text-[--muted]",
                             )}
                         />
@@ -1354,8 +1354,8 @@ function LibraryInfoPanel({}: { localFiles: Record<string, Anime_LocalFile> | un
                         <MdVideoFile
                             className={cn(
                                 "w-12 h-12 text-[--muted]",
-                                selectedNode.localFile?.metadata?.type === "main" && "text-brand-400/80",
-                                selectedNode.localFile?.metadata?.type === "special" && "text-cyan-200/50",
+                                selectedNode.localFile?.metadata?.type === "main" && "text-[--brand] dark:text-brand-400/80",
+                                selectedNode.localFile?.metadata?.type === "special" && "text-[--cyan] dark:text-cyan-200/50",
                                 selectedNode.localFile?.metadata?.type === "nc" && "text-gray-200/30",
                             )}
                         />

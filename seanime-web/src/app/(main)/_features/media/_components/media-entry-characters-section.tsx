@@ -92,7 +92,7 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
                                 <SeaLink href={edge?.node?.siteUrl || "#"} target="_blank" data-media-entry-characters-section-grid-item-content-link>
                                     <p
                                         className={cn(
-                                            "text-lg font-semibold transition line-clamp-2 leading-5 hover:text-brand-100",
+                                            "text-lg font-semibold transition line-clamp-2 leading-5 hover:text-[--brand] dark:hover:text-brand-100",
                                         )}
                                     >
                                         {edge?.node?.name?.full}

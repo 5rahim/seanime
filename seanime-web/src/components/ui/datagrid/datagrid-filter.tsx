@@ -73,7 +73,7 @@ export function DataGridFilter<T extends Record<string, any>>(props: DataGridFil
             {...rest}
         >
             {(filterParams.type === "select" && (!options || options.length === 0)) && (
-                <div className="text-red-500">/!\ "Select" filtering option passed without options</div>
+                <div className="text-[--red]">/!\ "Select" filtering option passed without options</div>
             )}
             {/*Select*/}
             {(filterParams.type === "select" && !!options && options.length > 0) && (

@@ -335,7 +335,7 @@ export function PlaybackManagerProgressTracking() {
                         </p>
                     )}
                     {(state?.progressUpdated) && (
-                        <p data-progress-tracking-progress-updated className="text-green-300 text-center">
+                        <p data-progress-tracking-progress-updated className="text-[--green] text-center">
                             Progress updated
                         </p>
                     )}

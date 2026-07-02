@@ -22,7 +22,7 @@ export function ErrorExplainer() {
             >
                 <div
                     className={cn(
-                        "p-4 bg-gray-900 border text-white rounded-xl",
+                        "p-4 bg-gray-900 border text-[--foreground] rounded-xl",
                         "transition-colors duration-300",
                         // isRecording && "p-0 border-transparent bg-transparent",
                     )}

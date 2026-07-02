@@ -394,7 +394,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     <div className="space-y-2" data-media-page-header-entry-details-title-container>
                         <TextGenerateEffect
                             className={cn(
-                                "[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white/95 line-clamp-2 pb-1 text-center lg:text-left text-pretty text-[1.5rem] lg:text-[2rem] 2xl:text-[2.6rem] 2xl:leading-[3rem] xl:max-w-[50vw]",
+                                "[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-[--foreground] line-clamp-2 pb-1 text-center lg:text-left text-pretty text-[1.5rem] lg:text-[2rem] 2xl:text-[2.6rem] 2xl:leading-[3rem] xl:max-w-[50vw]",
                                 smallerTitle && "text-3xl 2xl:text-3xl",
                             )}
                             words={title || ""}
@@ -425,7 +425,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             {(listData?.status || listData?.repeat) &&
                                 <div
                                     data-media-page-header-entry-details-status
-                                    className="text-base text-white md:text-md font-medium tracking-wide flex items-center"
+                                    className="text-base text-[--foreground] md:text-md font-medium tracking-wide flex items-center"
                                 >{capitalize(listData?.status === "CURRENT"
                                     ? type === "anime" ? "watching" : "reading"
                                     : listData?.status)}
@@ -546,7 +546,7 @@ export function MediaPageHeaderScoreAndProgress({ score, progress, episodes }: {
             <Badge
                 size="xl"
                 intent="basic"
-                className="!text-xl font-bold !text-white px-0 gap-0 rounded-none"
+                className="!text-xl font-bold !text-[--foreground] px-0 gap-0 rounded-none"
                 data-media-page-header-progress-badge
             >
                 <span data-media-page-header-progress-badge-progress>{`${progress ?? 0}`}</span><span

@@ -901,12 +901,12 @@ export function LibraryExplorerSuperUpdateDrawer(props: LibraryExplorerSuperUpda
                                                     {item.originalName}
                                                 </div>
                                                 {item.willChange && (
-                                                    <div className="text-md text-green-200 truncate tracking-wide">
+                                                    <div className="text-md text-[--green] truncate tracking-wide">
                                                         {item.newName}
                                                     </div>
                                                 )}
                                                 {item.metadataWillChange && item.originalMetadata && item.newMetadata && (
-                                                    <div className="text-xs text-blue-300 mt-1 space-y-1">
+                                                    <div className="text-xs text-[--blue] mt-1 space-y-1">
                                                         {item.originalMetadata.episode !== item.newMetadata.episode && (
                                                             <div>Episode: {item.originalMetadata.episode} → {item.newMetadata.episode}</div>
                                                         )}
@@ -925,14 +925,14 @@ export function LibraryExplorerSuperUpdateDrawer(props: LibraryExplorerSuperUpda
                                                     {item.willChange && (
                                                         <div
                                                             className={cn(
-                                                                item.newName === item.originalName ? "text-yellow-500" : "text-green-500",
+                                                                item.newName === item.originalName ? "text-[--yellow]" : "text-[--green]",
                                                             )}
                                                         >
                                                             {item.newName === item.originalName ? "No Change" : "Renamed"}
                                                         </div>
                                                     )}
                                                     {item.metadataWillChange && (
-                                                        <div className="text-blue-500">Metadata</div>
+                                                        <div className="text-[--blue]">Metadata</div>
                                                     )}
                                                 </div>
                                             )}

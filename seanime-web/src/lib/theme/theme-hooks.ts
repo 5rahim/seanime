@@ -3,6 +3,12 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import React from "react"
 import { useWindowSize } from "react-use"
 
+export const enum ThemeMode {
+    Dark = "dark",
+    Light = "light",
+    System = "system",
+}
+
 export const enum ThemeLibraryScreenBannerType {
     Dynamic = "dynamic",
     Custom = "custom",
@@ -84,6 +90,7 @@ export const ThemeMediaPageInfoBoxSizeOptions = [
 
 export type ThemeSettings = Omit<Models_Theme, "id">
 export const THEME_DEFAULT_VALUES: ThemeSettings = {
+    themeMode: ThemeMode.Dark,
     enableColorSettings: false,
     animeEntryScreenLayout: "stacked",
     smallerEpisodeCarouselSize: false,
@@ -138,6 +145,7 @@ export type ThemeSettingsHook = {
 export function useThemeSettings(): ThemeSettingsHook {
     const serverStatus = useServerStatus()
     return {
+        themeMode: getThemeValue("themeMode", serverStatus?.themeSettings),
         enableColorSettings: getThemeValue("enableColorSettings", serverStatus?.themeSettings),
         animeEntryScreenLayout: getThemeValue("animeEntryScreenLayout", serverStatus?.themeSettings),
         smallerEpisodeCarouselSize: getThemeValue("smallerEpisodeCarouselSize", serverStatus?.themeSettings),

@@ -64,7 +64,7 @@ export function DenshiSettings() {
                 />
             </SettingsCard>
 
-            <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 dark:bg-gray-900/30 rounded-lg p-3 border border-gray-200 dark:border-gray-800 border-dashed">
+            <div className="flex items-center gap-2 text-sm text-[--muted] dark:text-gray-500 bg-[--subtle] rounded-lg p-3 border border-[--border] border-dashed">
                 <RiSettings3Fill className="text-base" />
                 <span>Settings are saved automatically and applied after a restart</span>
             </div>

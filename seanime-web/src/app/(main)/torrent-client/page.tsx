@@ -52,9 +52,9 @@ const getBadgeClass = (value: StatusFilter, isSelected: boolean, count: number) 
     if (count > 0) {
         switch (value) {
             case "downloading":
-                return "bg-green-500/15 text-green-400"
+                return "bg-green-500/15 text-[--green]"
             case "seeding":
-                return "bg-blue-500/15 text-blue-400"
+                return "bg-blue-500/15 text-[--blue]"
             case "paused":
                 return "bg-gray-500/20 text-gray-300"
             case "active":
@@ -509,12 +509,12 @@ function Dashboard() {
 
                             <div className="hidden lg:flex items-center gap-4 text-xs font-semibold tabular-nums text-[--muted] bg-gray-950/40 px-3 py-1.5 h-10 rounded-xl border border-[--border] whitespace-nowrap flex-shrink-0">
                                 <span className="flex items-center gap-1.5 whitespace-nowrap" title="Global download speed">
-                                    <BiDownArrow className="text-green-500 flex-shrink-0" />
+                                    <BiDownArrow className="text-[--green] flex-shrink-0" />
                                     <span>DL: {formatSpeed(totalDownSpeed)}</span>
                                 </span>
                                 <span className="mx-0.5 h-3 w-px bg-[--border] flex-shrink-0" />
                                 <span className="flex items-center gap-1.5 whitespace-nowrap" title="Global upload speed">
-                                    <BiUpArrow className="text-blue-400 flex-shrink-0" />
+                                    <BiUpArrow className="text-[--blue] flex-shrink-0" />
                                     <span>UL: {formatSpeed(totalUpSpeed)}</span>
                                 </span>
                             </div>
@@ -641,7 +641,7 @@ function Dashboard() {
                                             </ContextMenuItem>
                                             <ContextMenuSeparator />
                                             <ContextMenuItem
-                                                className="text-red-500 hover:text-red-600 focus:bg-red-500/10 focus:text-red-500"
+                                                className="text-[--red] hover:text-red-600 focus:bg-red-500/10 focus:text-[--red] dark:focus:text-red-500"
                                                 disabled={action.isPending}
                                                 onClick={() => {
                                                     setSelected(new Set([torrent.hash]))
@@ -864,7 +864,7 @@ const TorrentRow = React.forwardRef<HTMLTableRowElement, {
                     <span>{(torrent.progress * 100).toFixed(1)}%</span>
                     <span>·</span>
                     {torrent.error ? (
-                        <span className="text-red-400 font-medium" title={torrent.error}>
+                        <span className="text-[--red] font-medium" title={torrent.error}>
                             {torrent.error}
                         </span>
                     ) : (
@@ -1024,11 +1024,11 @@ function Status({ status, forceStart }: { status: TorrentClient_TorrentStatus, f
     return <span
         className={cn(
             "inline-flex items-center rounded-full px-2 py-1 text-xs capitalize",
-            status === "downloading" && "bg-green-500/15 text-green-300",
-            status === "seeding" && "bg-blue-500/15 text-blue-300",
+            status === "downloading" && "bg-green-500/15 text-[--green]",
+            status === "seeding" && "bg-blue-500/15 text-[--blue]",
             status === "paused" && "bg-gray-500/20 text-gray-300",
-            status === "queued" && "bg-orange-500/15 text-orange-200",
-            status === "error" && "bg-red-500/15 text-red-300",
+            status === "queued" && "bg-orange-500/15 text-[--orange]",
+            status === "error" && "bg-red-500/15 text-[--red]",
         )}
     >{forceStart ? "Forced" : status}</span>
 }

@@ -472,7 +472,7 @@ export function ServerSettings(props: ServerSettingsProps) {
 const cardCheckboxStyles = {
     itemContainerClass: cn(
         "block border border-[--border] cursor-pointer transition overflow-hidden w-full",
-        "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-950 border-dashed",
+        "bg-transparent hover:bg-[--subtle] dark:bg-gray-950 border-dashed",
         "data-[checked=false]:opacity-30",
         "data-[checked=true]:bg-white dark:data-[checked=true]:bg-gray-950",
         "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",

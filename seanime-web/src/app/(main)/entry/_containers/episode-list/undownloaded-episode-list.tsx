@@ -63,7 +63,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media, watchedProgress, 
                                             setTorrentSearchIsOpen("download")
                                         })
                                     }}
-                                    className="inline-block text-orange-200 text-2xl animate-pulse cursor-pointer py-2"
+                                    className="inline-block text-[--orange] text-2xl animate-pulse cursor-pointer py-2"
                                 >
                                     <BiDownload />
                                 </div>}

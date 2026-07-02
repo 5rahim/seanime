@@ -141,7 +141,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
 
                     <AccordionItem value="mpv">
                         <AccordionTrigger>
-                            <h4 className="flex gap-2 items-center"><HiPlay className="mr-1 text-purple-100" /> MPV</h4>
+                            <h4 className="flex gap-2 items-center"><HiPlay className="mr-1 text-[--purple]" /> MPV</h4>
                         </AccordionTrigger>
                         <AccordionContent>
                             <div className="flex gap-4">
@@ -172,7 +172,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
 
                     <AccordionItem value="iina">
                         <AccordionTrigger>
-                            <h4 className="flex gap-2 items-center"><IoPlayForwardCircleSharp className="mr-1 text-purple-100" /> IINA</h4>
+                            <h4 className="flex gap-2 items-center"><IoPlayForwardCircleSharp className="mr-1 text-[--purple]" /> IINA</h4>
                         </AccordionTrigger>
                         <AccordionContent>
                             <div className="flex gap-4">
@@ -246,7 +246,7 @@ export function ExternalPlayerLinkSettings() {
                 />
             </SettingsCard>
 
-            <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 dark:bg-gray-900/30 rounded-lg p-3 border border-gray-200 dark:border-gray-800 border-dashed">
+            <div className="flex items-center gap-2 text-sm text-[--muted] dark:text-gray-500 bg-[--subtle] rounded-lg p-3 border border-[--border] border-dashed">
                 <RiSettings3Fill className="text-base" />
                 <span>Settings are saved automatically</span>
             </div>

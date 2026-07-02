@@ -13,14 +13,14 @@ export const AlertAnatomy = defineStyleAnatomy({
     ], {
         variants: {
             intent: {
-                "info": "bg-blue-50 text-blue-500 dark:bg-opacity-10 dark:text-blue-200",
-                "success": "bg-green-50 text-green-500 dark:bg-opacity-10 dark:text-green-200",
-                "warning": "bg-orange-50 text-orange-500 dark:bg-opacity-10 dark:text-orange-200",
-                "alert": "bg-red-50 text-red-500 dark:bg-opacity-10 dark:text-red-200",
-                "info-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
-                "success-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
-                "warning-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
-                "alert-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
+                "info": "bg-blue-50 text-[--blue] dark:bg-opacity-10",
+                "success": "bg-green-50 text-[--green] dark:bg-opacity-10",
+                "warning": "bg-orange-50 text-[--orange] dark:bg-opacity-10",
+                "alert": "bg-red-50 text-[--red] dark:bg-opacity-10",
+                "info-basic": "bg-[--paper] text-[--foreground] border",
+                "success-basic": "bg-[--paper] text-[--foreground] border",
+                "warning-basic": "bg-[--paper] text-[--foreground] border",
+                "alert-basic": "bg-[--paper] text-[--foreground] border",
             },
         },
         defaultVariants: {
@@ -48,14 +48,14 @@ export const AlertAnatomy = defineStyleAnatomy({
     ], {
         variants: {
             intent: {
-                "info-basic": "text-blue-500",
-                "success-basic": "text-green-500",
-                "warning-basic": "text-orange-500",
-                "alert-basic": "text-red-500",
-                "info": "text-blue-500",
-                "success": "text-green-500",
-                "warning": "text-orange-500",
-                "alert": "text-red-500",
+                "info-basic": "text-[--blue]",
+                "success-basic": "text-[--green]",
+                "warning-basic": "text-[--orange]",
+                "alert-basic": "text-[--red]",
+                "info": "text-[--blue]",
+                "success": "text-[--green]",
+                "warning": "text-[--orange]",
+                "alert": "text-[--red]",
             },
         },
         defaultVariants: {

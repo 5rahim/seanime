@@ -312,8 +312,8 @@ const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                 </div>
 
                 <div className="relative overflow-hidden space-y-1 w-full" data-torrent-preview-item-metadata>
-                    {isInvalid && <p className="flex gap-2 text-red-300 items-center"><AiFillWarning
-                        className="text-lg text-red-500"
+                    {isInvalid && <p className="flex gap-2 text-[--red] items-center"><AiFillWarning
+                        className="text-lg text-[--red]"
                     /> Unidentified</p>}
 
                     {mainTitle && <div
@@ -333,8 +333,8 @@ const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
 
                     {!!torrentName && <p
                         className={cn(
-                            "text-[.8rem] tracking-wide group-hover/torrent-preview-item:opacity-60 line-clamp-2 break-all",
-                            "opacity-30",
+                            "text-[.8rem] tracking-wide dark:group-hover/torrent-preview-item:opacity-60 line-clamp-2 break-all text-[--muted] dark:text-inherit",
+                            "dark:opacity-30",
                         )}
                         data-torrent-preview-item-subtitle
                     >

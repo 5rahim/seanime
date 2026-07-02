@@ -61,7 +61,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                     <p>
                         Code: <strong>{extension.code}</strong>
                     </p>
-                    <code className="code text-red-200">
+                    <code className="code text-[--red]">
                         {extension.reason}
                     </code>
 
@@ -134,7 +134,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                 </div>
 
                 <div>
-                    <p className="text-red-400 text-sm">
+                    <p className="text-[--red] text-sm">
                         {extension.code === "invalid_manifest" && "Manifest error"}
                         {extension.code === "invalid_semver_constraint" && "Incompatible with this version of Seanime"}
                         {extension.code === "invalid_payload" && "Invalid or incompatible code"}
@@ -346,7 +346,7 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                 </div>
 
                 <div>
-                    <p className="text-red-400 text-sm">
+                    <p className="text-[--red] text-sm">
                         {extension.code === "invalid_manifest" && "Manifest error"}
                         {extension.code === "invalid_payload" && "Invalid or incompatible code"}
                     </p>

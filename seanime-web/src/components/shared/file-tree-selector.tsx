@@ -371,7 +371,7 @@ const FileTreeMultiNodeComponent: React.FC<FileTreeMultiNodeProps> = ({
                 className={cn(
                     "flex items-center py-1.5 px-2 border rounded-[--radius] cursor-pointer transition-colors",
                     // File selection styles
-                    node.type === "file" && isFileSelected && "border bg-gray-900 text-white",
+                    node.type === "file" && isFileSelected && "border bg-gray-900 text-[--foreground]",
                     node.type === "file" && !isFileSelected && "border-transparent",
                     // Directory selection styles
                     node.type === "directory" && getDirectorySelectionState.isSelected && "border bg-gray-900",

@@ -116,7 +116,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                                     <h4 className="font-semibold flex gap-2 items-center">
                                         <span>Matched to{" "}</span>
                                         <p
-                                            className="underline cursor-pointer text-brand-200 flex gap-1.5 items-center"
+                                            className="underline cursor-pointer text-[--brand] flex gap-1.5 items-center"
                                             onClick={() => { setPreviewModalMediaId(group.mediaId, "anime") }}
                                         >
                                             {group.mediaId} <LuScanEye />

@@ -57,13 +57,13 @@ export function TorrentSeedersBadge({ seeders }: { seeders: number }) {
             leftIcon={<Icon
                 className={cn(
                     "text-xl mr-0.5",
-                    seeders >= 50 ? "text-[--indigo]" : seeders >= 10 ? "text-[--green]" : seeders >= 5 ? "text-orange-300" : "text-[--red]",
+                    seeders >= 50 ? "text-[--indigo]" : seeders >= 10 ? "text-[--green]" : seeders >= 5 ? "text-[--orange]" : "text-[--red]",
                 )}
             />}
         >
             <span
                 className={cn("text-[.9rem] font-normal",
-                    seeders >= 50 ? "text-[--indigo]" : seeders >= 10 ? "text-[--green]" : seeders >= 5 ? "text-orange-300" : "text-[--red]",
+                    seeders >= 50 ? "text-[--indigo]" : seeders >= 10 ? "text-[--green]" : seeders >= 5 ? "text-[--orange]" : "text-[--red]",
                 )}
             >{seeders || "No"}</span><span className="text-[--muted] text-[.9rem]">seeder{seeders != 1
             ? "s"

@@ -742,7 +742,7 @@ export function IssueReport() {
                         "transition-colors duration-300",
                         isRecording
                             ? "p-3 bg-gray-950/95 border-red-900/50"
-                            : "p-4 bg-gray-900/95 border-[--border] text-white",
+                            : "p-4 bg-gray-900/95 border-[--border] text-[--foreground] dark:text-white",
                     )}
                 >
                     {!isRecording ? <div className="space-y-3 min-w-[280px]">
@@ -786,7 +786,7 @@ export function IssueReport() {
                                 <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
                                 <div className="absolute inset-0 w-3 h-3 rounded-full bg-red-500 animate-ping opacity-50" />
                             </div>
-                            <span className="text-sm font-semibold text-red-400">Recording</span>
+                            <span className="text-sm font-semibold text-[--red] dark:text-red-400">Recording</span>
                             <span className="text-xs text-gray-400 tabular-nums font-mono bg-gray-800 px-1.5 py-0.5 rounded">
                                 {formatElapsed(recordingElapsed)}
                             </span>
@@ -814,7 +814,7 @@ export function IssueReport() {
                                         className={cn(
                                             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors border",
                                             description
-                                                ? "bg-brand-900/30 border-brand-700/50 text-brand-300"
+                                                ? "bg-brand-900/30 border-brand-700/50 text-[--brand] dark:text-brand-300"
                                                 : "bg-gray-800 hover:bg-gray-700 text-gray-300 border-gray-700",
                                         )}
                                     >

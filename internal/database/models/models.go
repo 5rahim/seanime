@@ -411,6 +411,10 @@ type Theme struct {
 	HideAnimeSpoilerTitles          bool `gorm:"column:hide_anime_spoiler_titles" json:"hideAnimeSpoilerTitles"`
 	HideAnimeSpoilerDescriptions    bool `gorm:"column:hide_anime_spoiler_descriptions" json:"hideAnimeSpoilerDescriptions"`
 	HideAnimeSpoilerSkipNextEpisode bool `gorm:"column:hide_anime_spoiler_skip_next_episode" json:"hideAnimeSpoilerSkipNextEpisode"`
+
+	// v4+
+	// ThemeMode: "dark" (default), "light", "system"
+	ThemeMode string `gorm:"column:theme_mode" json:"themeMode"`
 }
 
 type HomeItem struct {

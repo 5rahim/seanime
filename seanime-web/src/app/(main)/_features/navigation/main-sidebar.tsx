@@ -29,7 +29,9 @@ import { usePathname, useRouter } from "@/lib/navigation"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
-import { useThemeSettings } from "@/lib/theme/theme-hooks"
+import { useUpdateTheme } from "@/api/hooks/theme.hooks"
+import { ThemeMode, useThemeSettings } from "@/lib/theme/theme-hooks"
+import { useTheme } from "next-themes"
 import { __isDesktop__, __isElectronDesktop__ } from "@/types/constants"
 import { useAtom } from "jotai"
 import React from "react"
@@ -37,7 +39,7 @@ import { BiChevronRight, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
 import { FiLogIn, FiSearch } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoHomeOutline } from "react-icons/io5"
-import { LuBookOpen, LuCalendar, LuCompass, LuRefreshCw, LuRss, LuSettings } from "react-icons/lu"
+import { LuBookOpen, LuCalendar, LuCheck, LuCompass, LuMonitor, LuMoon, LuRefreshCw, LuRss, LuSettings, LuSun } from "react-icons/lu"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
 import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone } from "react-icons/pi"
 import { RiListCheck3 } from "react-icons/ri"
@@ -489,6 +491,28 @@ function SidebarFooter({ isCollapsed, onLogout }: { isCollapsed: boolean, onLogo
     const serverStatus = useServerStatus()
     const user = useCurrentUser()
 
+    const ts = useThemeSettings()
+    const { setTheme } = useTheme()
+    const { mutate: updateTheme } = useUpdateTheme()
+
+    const themeMode = (ts.themeMode as ThemeMode) ?? ThemeMode.Dark
+    const themeIcon = themeMode === ThemeMode.Light ? LuSun : themeMode === ThemeMode.System ? LuMonitor : LuMoon
+    const themeName = themeMode === ThemeMode.Light ? "Light theme" : themeMode === ThemeMode.System ? "System theme" : "Dark theme"
+
+    function selectThemeMode(next: ThemeMode) {
+        if (next === themeMode) return
+        setTheme(next) // instant visual feedback
+        if (serverStatus?.themeSettings) {
+            updateTheme({ theme: { ...serverStatus.themeSettings, id: 0, themeMode: next } })
+        }
+    }
+
+    const themeChoices: { mode: ThemeMode, name: string, icon: React.ReactNode }[] = [
+        { mode: ThemeMode.Dark, name: "Dark", icon: <LuMoon /> },
+        { mode: ThemeMode.Light, name: "Light", icon: <LuSun /> },
+        { mode: ThemeMode.System, name: "System", icon: <LuMonitor /> },
+    ]
+
     // Extensions
     const { data: updateData } = useGetExtensionUpdateData()
     const pluginWithIssuesCount = usePluginWithIssuesCount()
@@ -592,6 +616,26 @@ function SidebarFooter({ isCollapsed, onLogout }: { isCollapsed: boolean, onLogo
                     ] : []),
                 ]}
             />
+            <DropdownMenu
+                trigger={<div className="cursor-pointer" data-sidebar-theme-switcher>
+                    <VerticalMenu
+                        isSidebar
+                        collapsed={isCollapsed}
+                        items={[{ iconType: themeIcon, name: themeName }]}
+                    />
+                </div>}
+            >
+                {themeChoices.map(c => (
+                    <DropdownMenuItem
+                        key={c.mode}
+                        onClick={() => selectThemeMode(c.mode)}
+                        className={cn("gap-2", c.mode === themeMode && "text-[--brand] font-semibold")}
+                    >
+                        {c.icon} {c.name}
+                        {c.mode === themeMode && <LuCheck className="ml-auto" />}
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenu>
             <ConfirmationDialog {...confirmSignOut} />
         </div>
     )

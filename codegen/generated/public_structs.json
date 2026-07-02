@@ -32380,6 +32380,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ThemeMode",
+        "jsonName": "themeMode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],

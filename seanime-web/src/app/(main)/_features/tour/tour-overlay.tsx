@@ -332,7 +332,7 @@ function TourLoadingIndicator() {
         >
             <div className="flex items-center gap-3 rounded-xl bg-gray-900 border border-[rgba(255,255,255,0.1)] px-5 py-3 shadow-xl">
                 <svg
-                    className="animate-spin h-4 w-4 text-brand-400"
+                    className="animate-spin h-4 w-4 text-[--brand] dark:text-brand-400"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"

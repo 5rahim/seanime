@@ -99,7 +99,7 @@ export function SettingsPageHeader({ title, description, icon: Icon }: { title: 
     return (
         <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-gradient-to-br from-brand-500/10 to-purple-500/10 border border-brand-500/15">
-                <Icon className="text-2xl text-brand-600 dark:text-brand-400" />
+                <Icon className="text-2xl text-[--brand]" />
             </div>
             <div>
                 <h3 className="text-xl font-semibold">{title}</h3>

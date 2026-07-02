@@ -1,90 +1,84 @@
 import { THEME_DEFAULT_VALUES, useThemeSettings } from "@/lib/theme/theme-hooks"
-import { colord, extend, RgbColor } from "colord"
+import { colord, extend } from "colord"
 import mixPlugin from "colord/plugins/mix"
+import { useTheme } from "next-themes"
 import React from "react"
 
 extend([mixPlugin])
 
+type Colord = ReturnType<typeof colord>
 
-type CustomColorProviderProps = {}
+// Tailwind `--color-*` tokens expect space-separated "R G B" channels (so `<alpha-value>`
+// modifiers work); the standalone color tokens (--background, --brand, ...) take a full color.
+const rgb = (c: Colord) => {
+    const { r, g, b } = c.toRgb()
+    return `${r} ${g} ${b}`
+}
 
+type Derivation = { variable: string; derive: (base: Colord) => string }
 
-export function CustomThemeProvider(props: CustomColorProviderProps) {
+// When inactive these are cleared (removeProperty), not just skipped: inline styles beat class
+// selectors, so a stale inline `--color-gray-*` would otherwise override the `.light` ramp.
+const BG_DERIVATIONS: Derivation[] = [
+    { variable: "--background", derive: c => c.toHex() },
+    { variable: "--paper", derive: c => c.lighten(0.025).toHex() },
+    { variable: "--media-card-popup-background", derive: c => c.lighten(0.025).toHex() },
+    { variable: "--hover-from-background-color", derive: c => c.lighten(0.025).desaturate(0.05).toHex() },
+    { variable: "--color-gray-400", derive: c => rgb(c.lighten(0.3).desaturate(0.2)) },
+    { variable: "--color-gray-500", derive: c => rgb(c.lighten(0.15).desaturate(0.2)) },
+    { variable: "--color-gray-600", derive: c => rgb(c.lighten(0.1).desaturate(0.2)) },
+    { variable: "--color-gray-700", derive: c => rgb(c.lighten(0.08).desaturate(0.2)) },
+    { variable: "--color-gray-800", derive: c => rgb(c.lighten(0.06).desaturate(0.2)) },
+    { variable: "--color-gray-900", derive: c => rgb(c.lighten(0.04).desaturate(0.05)) },
+    { variable: "--color-gray-950", derive: c => rgb(c.lighten(0.008).desaturate(0.05)) },
+]
 
-    const {} = props
+const ACCENT_DERIVATIONS: Derivation[] = [
+    { variable: "--color-brand-200", derive: c => rgb(c.lighten(0.35).desaturate(0.05)) },
+    { variable: "--color-brand-300", derive: c => rgb(c.lighten(0.3).desaturate(0.05)) },
+    { variable: "--color-brand-400", derive: c => rgb(c.lighten(0.1)) },
+    { variable: "--color-brand-500", derive: c => rgb(c) },
+    { variable: "--color-brand-600", derive: c => rgb(c.darken(0.1)) },
+    { variable: "--color-brand-700", derive: c => rgb(c.darken(0.15)) },
+    { variable: "--color-brand-800", derive: c => rgb(c.darken(0.2)) },
+    { variable: "--color-brand-900", derive: c => rgb(c.darken(0.25)) },
+    { variable: "--color-brand-950", derive: c => rgb(c.darken(0.3)) },
+    { variable: "--brand", derive: c => c.lighten(0.35).desaturate(0.1).toHex() },
+]
 
+function applyDerivations(derivations: Derivation[], base: Colord | null) {
+    const root = document.documentElement
+    for (const d of derivations) {
+        if (base) {
+            root.style.setProperty(d.variable, d.derive(base))
+        } else {
+            root.style.removeProperty(d.variable)
+        }
+    }
+}
+
+export function CustomThemeProvider() {
     const ts = useThemeSettings()
+    const { resolvedTheme } = useTheme()
 
-    function setBgColor(r: any, variable: string, defaultColor: string | null, customColor: string | RgbColor) {
-        if (ts.backgroundColor === THEME_DEFAULT_VALUES.backgroundColor) {
-            if (defaultColor) r.style.setProperty(variable, defaultColor)
-            return
-        }
-        if (typeof customColor === "string") {
-            r.style.setProperty(variable, customColor)
-        } else {
-            r.style.setProperty(variable, `${customColor.r} ${customColor.g} ${customColor.b}`)
-        }
-    }
-
-    function setColor(r: any, variable: string, defaultColor: string | null, customColor: string | RgbColor) {
-        if (ts.accentColor === THEME_DEFAULT_VALUES.accentColor) {
-            if (defaultColor) r.style.setProperty(variable, defaultColor)
-            return
-        }
-        if (typeof customColor === "string") {
-            r.style.setProperty(variable, customColor)
-        } else {
-            r.style.setProperty(variable, `${customColor.r} ${customColor.g} ${customColor.b}`)
-        }
-    }
-
-
-    // e.g. #0a050d -> dark purple
-    // e.g. #11040d -> dark pink-ish purple
-    // #050a0d -> dark blue
-    React.useEffect(() => {
-        let r = document.querySelector(":root") as any
-
-        if (!ts.enableColorSettings) return
-
-        setBgColor(r, "--background", "#070707", ts.backgroundColor)
-        setBgColor(r, "--paper", colord("rgba(11 11 11)").toHex(), colord(ts.backgroundColor).lighten(0.025).toHex())
-        setBgColor(r, "--media-card-popup-background", colord("rgb(16 16 16)").toHex(), colord(ts.backgroundColor).lighten(0.025).toHex())
-        setBgColor(r,
-            "--hover-from-background-color",
-            colord("rgb(23 23 23)").toHex(),
-            colord(ts.backgroundColor).lighten(0.025).desaturate(0.05).toHex())
-
-
-        setBgColor(r, "--color-gray-400", "143 143 143", colord(ts.backgroundColor).lighten(0.3).desaturate(0.2).toRgb())
-        setBgColor(r, "--color-gray-500", "90 90 90", colord(ts.backgroundColor).lighten(0.15).desaturate(0.2).toRgb())
-        setBgColor(r, "--color-gray-600", "72 72 72", colord(ts.backgroundColor).lighten(0.1).desaturate(0.2).toRgb())
-        setBgColor(r, "--color-gray-700", "54 54 54", colord(ts.backgroundColor).lighten(0.08).desaturate(0.2).toRgb())
-        setBgColor(r, "--color-gray-800", "28 28 28", colord(ts.backgroundColor).lighten(0.06).desaturate(0.2).toRgb())
-        setBgColor(r, "--color-gray-900", "16 16 16", colord(ts.backgroundColor).lighten(0.04).desaturate(0.05).toRgb())
-        setBgColor(r, "--color-gray-950", "11 11 11", colord(ts.backgroundColor).lighten(0.008).desaturate(0.05).toRgb())
-        // setColor(r, "--color-gray-300", null, colord(ts.backgroundColor).lighten(0.4).desaturate(0.2).toRgb())
-
-    }, [ts.enableColorSettings, ts.backgroundColor])
+    // The customization derives its ramp by *lightening* the chosen color, which only makes
+    // sense on a dark base. In light mode (or when disabled / left at default) the props are
+    // cleared and the static globals.css ramp takes over.
+    const enabled = resolvedTheme != null && resolvedTheme !== "light" && ts.enableColorSettings
 
     React.useEffect(() => {
-        let r = document.querySelector(":root") as any
+        // Wait for next-themes to resolve before touching :root, else we flash dark-derived
+        // colors on a light page during hydration.
+        if (resolvedTheme == null) return
+        const custom = enabled && ts.backgroundColor !== THEME_DEFAULT_VALUES.backgroundColor
+        applyDerivations(BG_DERIVATIONS, custom ? colord(ts.backgroundColor) : null)
+    }, [resolvedTheme, enabled, ts.backgroundColor])
 
-        if (!ts.enableColorSettings) return
-
-        setColor(r, "--color-brand-200", "212 208 255", colord(ts.accentColor).lighten(0.35).desaturate(0.05).toRgb())
-        setColor(r, "--color-brand-300", "199 194 255", colord(ts.accentColor).lighten(0.3).desaturate(0.05).toRgb())
-        setColor(r, "--color-brand-400", "159 146 255", colord(ts.accentColor).lighten(0.1).toRgb())
-        setColor(r, "--color-brand-500", "97 82 223", colord(ts.accentColor).toRgb())
-        setColor(r, "--color-brand-600", "82 67 203", colord(ts.accentColor).darken(0.1).toRgb())
-        setColor(r, "--color-brand-700", "63 46 178", colord(ts.accentColor).darken(0.15).toRgb())
-        setColor(r, "--color-brand-800", "49 40 135", colord(ts.accentColor).darken(0.2).toRgb())
-        setColor(r, "--color-brand-900", "35 28 107", colord(ts.accentColor).darken(0.25).toRgb())
-        setColor(r, "--color-brand-950", "26 20 79", colord(ts.accentColor).darken(0.3).toRgb())
-        setColor(r, "--brand", colord("rgba(199 194 255)").toHex(), colord(ts.accentColor).lighten(0.35).desaturate(0.1).toHex())
-    }, [ts.enableColorSettings, ts.accentColor])
+    React.useEffect(() => {
+        if (resolvedTheme == null) return
+        const custom = enabled && ts.accentColor !== THEME_DEFAULT_VALUES.accentColor
+        applyDerivations(ACCENT_DERIVATIONS, custom ? colord(ts.accentColor) : null)
+    }, [resolvedTheme, enabled, ts.accentColor])
 
     return null
 }
-

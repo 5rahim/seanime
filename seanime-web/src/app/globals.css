@@ -111,10 +111,14 @@
 
         --muted: theme('colors.gray.500');
         --muted-highlight: theme('colors.gray.700');
+        --faint: rgba(255, 255, 255, 0.3);
 
         --paper: theme('colors.gray.950');
+        --paper-elevated: #18181a;
         --subtle: rgba(0, 0, 0, 0.04);
         --subtle-highlight: rgba(0, 0, 0, 0.06);
+        --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+        --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
 
         --media-card-popup-background: theme('colors.gray.950');
         --hover-from-background-color: theme('colors.gray.900');
@@ -158,12 +162,87 @@
 
         --muted: rgba(255, 255, 255, 0.4);
         --muted-highlight: rgba(255, 255, 255, 0.6);
+        --faint: rgba(255, 255, 255, 0.3);
 
         --paper: theme('colors.gray.950');
+        --paper-elevated: #18181a;
         --paper-highlighter: theme('colors.gray.950');
         --subtle: rgba(255, 255, 255, 0.06);
         --subtle-highlight: rgba(255, 255, 255, 0.08);
+        --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+        --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
 
+    }
+
+    .light,
+    [data-mode="light"] {
+        /* Inverted neutral ramp: low shades = dark text, high shades = light surfaces.
+           This keeps the existing dark-theme gray utilities (bg-gray-900, text-gray-300, ...)
+           semantically correct in light mode. */
+        --color-gray-50: 24 24 27;
+        --color-gray-100: 39 39 42;
+        --color-gray-200: 52 52 56;
+        --color-gray-300: 82 82 91;
+        --color-gray-400: 106 106 114;
+        --color-gray-500: 120 120 128;
+        --color-gray-600: 150 150 158;
+        --color-gray-700: 200 200 206;
+        --color-gray-800: 224 224 228;
+        --color-gray-900: 238 238 241;
+        --color-gray-950: 248 248 250;
+        --color-gray-default: 120 120 128;
+
+        --foreground: theme('colors.gray.100');
+        --background: #f7f7f8;
+
+        /* Accent identity. Without this, --brand stays brand.300 (pale lavender) from :root
+           and is invisible on light surfaces. brand.600 gives ~6.9:1 on white. */
+        --brand: theme('colors.brand.600');
+
+        /* Chromatic accents are used predominantly as TEXT (text-[--red/orange/green/...]),
+           so they need >=4.5:1 on light surfaces. The 600 shades fail (orange 3.6, yellow 2.7,
+           green/teal/sky/etc ~3); 700 passes while remaining legible as icons/borders/fills. */
+        --slate: theme('colors.slate.600');
+        /* explicit (not the inverted ramp): used as label/body text, needs >=4.5:1 (~5.5:1 here) */
+        --gray: rgb(105 105 110);
+        --zinc: theme('colors.zinc.600');
+        --neutral: theme('colors.neutral.600');
+        --stone: theme('colors.stone.600');
+        --red: theme('colors.red.700');
+        --orange: theme('colors.orange.700');
+        --amber: theme('colors.amber.700');
+        --yellow: theme('colors.yellow.700');
+        --lime: theme('colors.lime.700');
+        --green: theme('colors.green.700');
+        --emerald: theme('colors.emerald.700');
+        --teal: theme('colors.teal.700');
+        --cyan: theme('colors.cyan.700');
+        --sky: theme('colors.sky.700');
+        --blue: theme('colors.blue.700');
+        --indigo: theme('colors.indigo.700');
+        --violet: theme('colors.violet.700');
+        --purple: theme('colors.purple.700');
+        --fuchsia: theme('colors.fuchsia.700');
+        --pink: theme('colors.pink.700');
+        --rose: theme('colors.rose.700');
+
+        --border: rgba(0, 0, 0, 0.1);
+        --ring: theme('colors.brand.500');
+
+        --muted: rgba(0, 0, 0, 0.55);
+        --muted-highlight: rgba(0, 0, 0, 0.75);
+        --faint: rgba(0, 0, 0, 0.4);
+
+        --paper: #ffffff;
+        --paper-elevated: #f1f1f3;
+        --paper-highlighter: #ffffff;
+        --subtle: rgba(0, 0, 0, 0.04);
+        --subtle-highlight: rgba(0, 0, 0, 0.06);
+        --scrollbar-thumb: rgba(0, 0, 0, 0.25);
+        --scrollbar-thumb-hover: rgba(0, 0, 0, 0.35);
+
+        --media-card-popup-background: #ffffff;
+        --hover-from-background-color: #ececef;
     }
 }
 
@@ -388,12 +467,12 @@ h6 {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--scrollbar-thumb);
     @apply rounded-full border-2 border-transparent bg-clip-padding transition-colors duration-300
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: var(--scrollbar-thumb-hover);
 }
 
 ::-webkit-scrollbar-corner {

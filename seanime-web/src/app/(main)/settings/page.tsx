@@ -166,7 +166,7 @@ export default function Page() {
                     onValueChange={setTab}
                     className={cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")}
                     triggerClass={cn(
-                        "text-base px-6 rounded-[--radius-md] w-fit lg:w-full rounded-lg border-0 data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
+                        "text-base px-6 rounded-[--radius-md] w-fit lg:w-full rounded-lg border-0 data-[state=active]:bg-[--subtle] data-[state=active]:text-[--foreground] dark:data-[state=active]:text-white dark:hover:text-white",
                         "h-9 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform",
                     )}
                     listClass={cn(
@@ -738,7 +738,7 @@ export default function Page() {
                                                 name="torrentProvider"
                                                 label="Default Provider"
                                                 help="Used by the search engine. Select 'None' if you don't need torrent support."
-                                                leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
+                                                leftIcon={<RiFolderDownloadFill className="text-[--orange]" />}
                                                 options={[
                                                     ...(torrentProviderExtensions?.filter(ext => ext?.settings?.type === "main")?.map(ext => ({
                                                         label: ext.name,
@@ -817,7 +817,7 @@ export default function Page() {
                                             <AccordionItem value="qbittorrent">
                                                 <AccordionTrigger>
                                                     <h4 className="flex gap-2 items-center">
-                                                        <SiQbittorrent className="text-blue-400" /> qBittorrent
+                                                        <SiQbittorrent className="text-[--blue]" /> qBittorrent
                                                     </h4>
                                                 </AccordionTrigger>
                                                 <AccordionContent className="p-0 py-4 space-y-4">
@@ -862,7 +862,7 @@ export default function Page() {
                                             <AccordionItem value="transmission">
                                                 <AccordionTrigger>
                                                     <h4 className="flex gap-2 items-center">
-                                                        <SiTransmission className="text-orange-200" /> Transmission</h4>
+                                                        <SiTransmission className="text-[--orange]" /> Transmission</h4>
                                                 </AccordionTrigger>
                                                 <AccordionContent className="p-0 py-4 space-y-4 !border-b-0">
                                                     <Field.Text

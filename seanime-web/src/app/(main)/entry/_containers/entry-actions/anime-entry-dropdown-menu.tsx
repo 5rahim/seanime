@@ -120,14 +120,14 @@ export function AnimeEntryDropdownMenu({ entry, details }: { entry: Anime_Entry,
                         <span className="flex items-center gap-2"><FiDownload className="text-lg" /> Download some files</span> <BiRightArrowAlt />
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                        className="text-orange-500 dark:text-orange-200 flex justify-between"
+                        className="text-[--orange] flex justify-between"
                         onClick={() => setAnimeEntryUnmatchFilesModalOpen(true)}
                     >
                         <span className="flex items-center gap-2"><MdOutlineRemoveDone className="text-lg" /> Unmatch some files</span>
                         <BiRightArrowAlt />
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                        className="text-red-500 dark:text-red-200 flex justify-between"
+                        className="text-[--red] flex justify-between"
                         onClick={() => setBulkDeleteFilesModalOpen(true)}
                     >
                         <span className="flex items-center gap-2"><FiTrash className="text-lg" /> Delete some files</span> <BiRightArrowAlt />

@@ -58,7 +58,7 @@ export default function Page() {
                                                 <li key={param.name + i} className="flex gap-2 items-center">
                                                     <p className="font-medium">
                                                         {param.name}
-                                                        {param.required && <span className="text-red-500">*</span>}
+                                                        {param.required && <span className="text-[--red]">*</span>}
                                                     </p>
                                                     <p className="text-[--muted]">{param.typescriptType}</p>
                                                     {param.descriptions?.map((desc, i) => (

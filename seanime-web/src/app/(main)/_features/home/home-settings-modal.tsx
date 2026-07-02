@@ -427,7 +427,7 @@ function SortableHomeItem({ item, onRemove, onEditOptions, isUpdating, index }: 
             </div>
 
             <div className="flex-1">
-                <div className="font-medium text-white">{homeItemConfig.name}{!!item.options?.name && `: "${item.options.name}"`}
+                <div className="font-medium text-[--foreground]">{homeItemConfig.name}{!!item.options?.name && `: "${item.options.name}"`}
                     {(item.type === "centered-title" && item.options?.text) && `: "${item.options.text}"`}
                     {(item.type === "my-lists") && `: ${item.options?.type === "manga" ? "Manga" : "Anime"}`}
                 </div>
@@ -447,7 +447,7 @@ function SortableHomeItem({ item, onRemove, onEditOptions, isUpdating, index }: 
                         onClick={() => onEditOptions(item.id)}
                         disabled={isUpdating}
                         className={cn(
-                            "hover:bg-blue-500/20 hover:text-blue-400",
+                            "hover:bg-blue-500/20 hover:text-[--blue] dark:hover:text-blue-400",
                             homeItemConfig.options?.find(n => n.name === "name") && !item.options?.name?.length && "bg-fuchsia-600 animate-bounce",
                         )}
                         icon={<BiCog className="size-4" />}
@@ -460,7 +460,7 @@ function SortableHomeItem({ item, onRemove, onEditOptions, isUpdating, index }: 
                     size="sm"
                     onClick={() => onRemove(item.id)}
                     disabled={isUpdating}
-                    className="hover:bg-red-500/20 hover:text-red-400"
+                    className="hover:bg-red-500/20 hover:text-[--red] dark:hover:text-red-400"
                     icon={<BiTrash className="size-4" />}
                     onPointerDown={(e) => e.stopPropagation()}
                 />
@@ -489,7 +489,7 @@ function AvailableHomeItem({ id, type, onAdd, isUpdating }: AvailableHomeItemPro
             </div>
 
             <div className="flex-1">
-                <div className="font-medium text-white">{homeItemConfig.name}</div>
+                <div className="font-medium text-[--foreground]">{homeItemConfig.name}</div>
                 <p className="text-xs text-[--muted]">
                     {homeItemConfig.description}
                 </p>
@@ -616,7 +616,7 @@ function OptionField({ option, value, onChange }: OptionFieldProps) {
         case "text":
             return (
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-white">{label}</label>
+                    <label className="text-sm font-medium text-[--foreground]">{label}</label>
                     <TextInput
                         value={value || ""}
                         onChange={(e) => onChange(e.target.value)}
@@ -628,7 +628,7 @@ function OptionField({ option, value, onChange }: OptionFieldProps) {
         case "number":
             return (
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-white">{label}</label>
+                    <label className="text-sm font-medium text-[--foreground]">{label}</label>
                     <NumberInput
                         value={value || min || 0}
                         onValueChange={(valueAsNumber) => onChange(valueAsNumber)}
@@ -642,7 +642,7 @@ function OptionField({ option, value, onChange }: OptionFieldProps) {
         case "select":
             return (
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-white">{label}</label>
+                    <label className="text-sm font-medium text-[--foreground]">{label}</label>
                     <Select
                         value={value || ""}
                         onValueChange={onChange}
@@ -658,7 +658,7 @@ function OptionField({ option, value, onChange }: OptionFieldProps) {
             const selectedValues = Array.isArray(value) ? value : []
             return (
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-white">{label}</label>
+                    <label className="text-sm font-medium text-[--foreground]">{label}</label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto p-3 bg-gray-900/30 rounded-lg border border-gray-800">
                         {options.map((opt: any) => (
                             <button
@@ -668,7 +668,7 @@ function OptionField({ option, value, onChange }: OptionFieldProps) {
                                 className={cn(
                                     "p-2 text-sm rounded-md border transition-colors text-left",
                                     selectedValues.includes(opt.value)
-                                        ? "bg-brand-500/20 border-brand-500 text-brand-300"
+                                        ? "bg-brand-500/20 border-brand-500 text-[--brand]"
                                         : "bg-gray-800/50 border-gray-700 text-gray-300 hover:border-gray-600",
                                 )}
                             >

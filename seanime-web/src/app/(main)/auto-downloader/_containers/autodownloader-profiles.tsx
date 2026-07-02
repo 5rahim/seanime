@@ -103,14 +103,14 @@ function ProfileItem({ profile, onEdit }: { profile: Anime_AutoDownloaderProfile
                         <PiTargetBold
                             className={cn(
                                 "text-xl opacity-50",
-                                profile.global && "text-blue-300",
+                                profile.global && "text-[--blue]",
                             )}
                         />
                     </div>
                     <div className="w-full">
                         <h5 className="font-semibold flex items-center gap-2 line-clamp-1">
                             {profile.name}
-                            {profile.global && <span className="text-xs bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-md">Global</span>}
+                            {profile.global && <span className="text-xs bg-blue-500/20 text-[--blue] px-1.5 py-0.5 rounded-md">Global</span>}
                         </h5>
                         <div className="text-sm text-[--muted] line-clamp-1 gap-2 space-x-3">
                             {!!profile.resolutions?.length && <span className="!pl-0">{profile.resolutions.join(", ")}</span>}

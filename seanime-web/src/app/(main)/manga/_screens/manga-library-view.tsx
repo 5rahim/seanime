@@ -79,7 +79,7 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
 
                             <div className="!mt-4">
                                 <SeaLink href="/discover?type=manga">
-                                    <Button intent="white-outline" rounded>
+                                    <Button intent="gray-outline" rounded>
                                         Browse manga
                                     </Button>
                                 </SeaLink>

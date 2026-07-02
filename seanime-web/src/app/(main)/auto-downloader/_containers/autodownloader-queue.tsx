@@ -57,9 +57,9 @@ function AutoDownloaderQueueItem(props: AutoDownloaderQueueItemProps) {
                         onClick={() => openTab(item.link)}
                     >{item.torrentName}</h3>
                     <p className="text-md text-gray-400 flex gap-2 items-center">
-                        {item.downloaded && <span className="text-green-200">File downloaded</span>}
-                        {!item.downloaded && !item.isDelayed && <span className="text-blue-300 italic">Manual action required</span>}
-                        {item.isDelayed && <span className="text-indigo-300 italic">Delayed</span>}
+                        {item.downloaded && <span className="text-[--green]">File downloaded</span>}
+                        {!item.downloaded && !item.isDelayed && <span className="text-[--blue] italic">Manual action required</span>}
+                        {item.isDelayed && <span className="text-[--indigo] italic">Delayed</span>}
                         {item.isDelayed && item.delayUntil &&
                             <span>for {formatDistanceToNowSafe(item.delayUntil, { addSuffix: false })}.</span>}
                     </p>

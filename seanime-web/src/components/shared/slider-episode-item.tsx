@@ -67,7 +67,7 @@ export const SliderEpisodeItem = React.forwardRef<HTMLDivElement, SliderEpisodeI
                     {!!episode.episodeMetadata?.length &&
                         <p className="text-[--muted] text-sm md:text-base">{episode.episodeMetadata?.length + "m" || ""}</p>}
                 </div>
-                {episode.isInvalid && <p className="text-red-300">No metadata found</p>}
+                {episode.isInvalid && <p className="text-[--red]">No metadata found</p>}
             </div>
         </div>
     )

@@ -64,7 +64,7 @@ export function AdvancedSearchOptions() {
                 <Select
                     // label="Sorting"
                     leftAddon={
-                        <FaSortAmountDown className={cn((params.sorting !== null && params.sorting?.[0] !== "SCORE_DESC") && "text-indigo-300 font-bold text-xl")} />}
+                        <FaSortAmountDown className={cn((params.sorting !== null && params.sorting?.[0] !== "SCORE_DESC") && "text-[--indigo] font-bold text-xl")} />}
                     className="w-full"
                     options={params.type === "anime" ? ADVANCED_SEARCH_SORTING : ADVANCED_SEARCH_SORTING_MANGA}
                     value={params.sorting?.[0] || "SCORE_DESC"}
@@ -80,7 +80,7 @@ export function AdvancedSearchOptions() {
             >
                 <Combobox
                     multiple
-                    leftAddon={<TbSwords className={cn((params.genre !== null && !!params.genre.length) && "text-indigo-300 font-bold text-xl")} />}
+                    leftAddon={<TbSwords className={cn((params.genre !== null && !!params.genre.length) && "text-[--indigo] font-bold text-xl")} />}
                     emptyMessage="No options found"
                     label="Genre" placeholder="All genres" className="w-full"
                     options={ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({ value: genre, label: genre, textValue: genre }))}
@@ -93,7 +93,7 @@ export function AdvancedSearchOptions() {
                 />
                 <Combobox
                     multiple
-                    leftAddon={<TbTagsFilled className={cn((params.tags !== null && !!params.tags.length) && "text-indigo-300 font-bold text-xl")} />}
+                    leftAddon={<TbTagsFilled className={cn((params.tags !== null && !!params.tags.length) && "text-[--indigo] font-bold text-xl")} />}
                     emptyMessage="No options found"
                     label="Tags" placeholder="All tags" className="w-full"
                     options={ADVANCED_SEARCH_MEDIA_TAGS
@@ -113,7 +113,7 @@ export function AdvancedSearchOptions() {
                     data-advanced-search-options-tags
                 />
                 {params.type === "anime" && <Select
-                    leftAddon={<MdPersonalVideo className={cn((params.format !== null && !!params.format) && "text-indigo-300 font-bold text-xl")} />}
+                    leftAddon={<MdPersonalVideo className={cn((params.format !== null && !!params.format) && "text-[--indigo] font-bold text-xl")} />}
                     label="Format" placeholder="All formats" className="w-full"
                     options={ADVANCED_SEARCH_FORMATS}
                     value={params.format || ""}
@@ -125,7 +125,7 @@ export function AdvancedSearchOptions() {
                 />}
                 {params.type === "manga" && <Select
                     leftAddon={
-                        <BiWorld className={cn((params.countryOfOrigin !== null && !!params.countryOfOrigin) && "text-indigo-300 font-bold text-xl")} />}
+                        <BiWorld className={cn((params.countryOfOrigin !== null && !!params.countryOfOrigin) && "text-[--indigo] font-bold text-xl")} />}
                     label="Format" placeholder="All countries" className="w-full"
                     options={ADVANCED_SEARCH_COUNTRIES_MANGA}
                     value={params.countryOfOrigin || ""}
@@ -136,7 +136,7 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />}
                 {params.type === "manga" && <Select
-                    leftAddon={<MdOutlineBook className={cn((params.format !== null && !!params.format) && "text-indigo-300 font-bold text-xl")} />}
+                    leftAddon={<MdOutlineBook className={cn((params.format !== null && !!params.format) && "text-[--indigo] font-bold text-xl")} />}
                     label="Format" placeholder="All formats" className="w-full"
                     options={ADVANCED_SEARCH_FORMATS_MANGA}
                     value={params.format || ""}
@@ -147,7 +147,7 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />}
                 {params.type === "anime" && <Select
-                    leftAddon={<LuLeaf className={cn((params.season !== null && !!params.season) && "text-indigo-300 font-bold text-xl")} />}
+                    leftAddon={<LuLeaf className={cn((params.season !== null && !!params.season) && "text-[--indigo] font-bold text-xl")} />}
                     placeholder="All seasons" className="w-full"
                     options={ADVANCED_SEARCH_SEASONS.map(season => ({ value: season.toUpperCase(), label: season }))}
                     value={params.season || ""}
@@ -158,7 +158,7 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />}
                 <Select
-                    leftAddon={<LuCalendar className={cn((params.year !== null && !!params.year) && "text-indigo-300 font-bold text-xl")} />}
+                    leftAddon={<LuCalendar className={cn((params.year !== null && !!params.year) && "text-[--indigo] font-bold text-xl")} />}
                     label="Year" placeholder="Timeless" className="w-full"
                     options={[...Array(70)].map((v, idx) => getYear(new Date()) - idx + 2).map(year => ({
                         value: String(year),
@@ -173,7 +173,7 @@ export function AdvancedSearchOptions() {
                 />
                 <Select
                     leftAddon={
-                        <RiSignalTowerLine className={cn((params.status !== null && !!params.status.length) && "text-indigo-300 font-bold text-xl")} />}
+                        <RiSignalTowerLine className={cn((params.status !== null && !!params.status.length) && "text-[--indigo] font-bold text-xl")} />}
                     label="Status" placeholder="All statuses" className="w-full"
                     options={ADVANCED_SEARCH_STATUS}
                     value={params.status?.[0] || ""}
@@ -184,7 +184,7 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />
                 <Select
-                    leftAddon={<FaRegStar className={cn((params.minScore !== null && !!params.minScore) && "text-indigo-300 font-bold text-xl")} />}
+                    leftAddon={<FaRegStar className={cn((params.minScore !== null && !!params.minScore) && "text-[--indigo] font-bold text-xl")} />}
                     placeholder="All scores" className="w-full"
                     options={[...Array(9)].map((v, idx) => 9 - idx).map(score => ({
                         value: String(score),

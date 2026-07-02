@@ -205,7 +205,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                             {extension.type === "custom-source" && <LuSearch className="ml-1 text-lg inline-block" />}
                         </p>
                         <Popover
-                            className="text-sm cursor-pointer" trigger={<p className="opacity-30 mt-1 text-xs line-clamp-1 tracking-wide">
+                            className="text-sm cursor-pointer" trigger={<p className="text-[--muted] dark:text-inherit dark:opacity-30 mt-1 text-xs line-clamp-1 tracking-wide">
                             {extension.description}
                         </p>}
                         >
@@ -215,10 +215,10 @@ export function ExtensionCard(props: ExtensionCardProps) {
                 </div>
 
                 <div className="flex gap-2 flex-wrap pt-4 flex-1 items-end">
-                    {isBuiltin && <Badge className="rounded-md tracking-wide border-transparent px-0 italic opacity-50" intent="unstyled">
+                    {isBuiltin && <Badge className="rounded-md tracking-wide border-transparent px-0 italic dark:opacity-50" intent="unstyled">
                         Built-in
                     </Badge>}
-                    {isDisabled && <Badge className="rounded-md tracking-wide border-transparent bg-transparent opacity-50 px-0" intent="warning">
+                    {isDisabled && <Badge className="rounded-md tracking-wide border-transparent bg-transparent dark:opacity-50 px-0" intent="warning">
                         Disabled
                     </Badge>}
                     {!!extension.version && !updateData && <Badge className="rounded-md tracking-wide" intent={!!updateData ? "success" : "unstyled"}>

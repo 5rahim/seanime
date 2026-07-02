@@ -316,7 +316,7 @@ export function SearchOptions() {
             >
                 <Select
                     label="Sorting"
-                    leftAddon={<FaSortAmountDown className={cn(params.sorting !== "TITLE" && "text-indigo-300 font-bold text-xl")} />}
+                    leftAddon={<FaSortAmountDown className={cn(params.sorting !== "TITLE" && "text-[--indigo] font-bold text-xl")} />}
                     className="w-full"
                     fieldClass="flex items-center"
                     inputContainerClass="w-full"
@@ -331,7 +331,7 @@ export function SearchOptions() {
                 />
                 <Select
                     leftAddon={
-                        <MdPersonalVideo className={cn((params.format as any) !== null && (params.format as any) !== "" && "text-indigo-300 font-bold text-xl")} />}
+                        <MdPersonalVideo className={cn((params.format as any) !== null && (params.format as any) !== "" && "text-[--indigo] font-bold text-xl")} />}
                     label="Format" placeholder="All formats"
                     className="w-full"
                     fieldClass="w-full"
@@ -345,7 +345,7 @@ export function SearchOptions() {
                 />
                 <Select
                     leftAddon={
-                        <RiSignalTowerLine className={cn((params.status as any) !== null && (params.status as any) !== "" && "text-indigo-300 font-bold text-xl")} />}
+                        <RiSignalTowerLine className={cn((params.status as any) !== null && (params.status as any) !== "" && "text-[--indigo] font-bold text-xl")} />}
                     label="Status" placeholder="All statuses"
                     className="w-full"
                     fieldClass="w-full"
@@ -385,7 +385,7 @@ export function SearchOptions() {
                 />
                 <Select
                     leftAddon={
-                        <LuLeaf className={cn((params.season as any) !== null && (params.season as any) !== "" && "text-indigo-300 font-bold text-xl")} />}
+                        <LuLeaf className={cn((params.season as any) !== null && (params.season as any) !== "" && "text-[--indigo] font-bold text-xl")} />}
                     label="Season"
                     placeholder="All seasons"
                     className="w-full"
@@ -400,7 +400,7 @@ export function SearchOptions() {
                     fieldLabelClass="hidden"
                 />
                 <Select
-                    leftAddon={<LuCalendar className={cn((params.year !== null && params.year !== "") && "text-indigo-300 font-bold text-xl")} />}
+                    leftAddon={<LuCalendar className={cn((params.year !== null && params.year !== "") && "text-[--indigo] font-bold text-xl")} />}
                     label="Year" placeholder="Timeless"
                     className="w-full"
                     fieldClass="w-full"

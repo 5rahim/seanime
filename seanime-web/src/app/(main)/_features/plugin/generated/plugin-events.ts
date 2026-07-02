@@ -1,6 +1,6 @@
 // This file is auto-generated. Do not edit.
-import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
-import { useCallback } from "react"
+	import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+	import { useCallback } from "react"
 
 export enum PluginClientEvents {
     RenderTray = "tray:render",
@@ -394,14 +394,13 @@ export function usePluginSendActionRenderMangaPageButtonsEvent() {
     }
 }
 
-export type Plugin_Client_ActionRenderMangaPageDropdownItemsEventPayload = {}
+export type Plugin_Client_ActionRenderMangaPageDropdownItemsEventPayload = {
+}
 
 export function usePluginSendActionRenderMangaPageDropdownItemsEvent() {
     const { sendPluginMessage } = useWebsocketSender()
 
-    const sendActionRenderMangaPageDropdownItemsEvent = useCallback((payload: Plugin_Client_ActionRenderMangaPageDropdownItemsEventPayload,
-        extensionID?: string,
-    ) => {
+    const sendActionRenderMangaPageDropdownItemsEvent = useCallback((payload: Plugin_Client_ActionRenderMangaPageDropdownItemsEventPayload, extensionID?: string) => {
         sendPluginMessage(PluginClientEvents.ActionRenderMangaPageDropdownItems, payload, extensionID)
     }, [])
 
@@ -410,14 +409,13 @@ export function usePluginSendActionRenderMangaPageDropdownItemsEvent() {
     }
 }
 
-export type Plugin_Client_ActionRenderMangaLibraryDropdownItemsEventPayload = {}
+export type Plugin_Client_ActionRenderMangaLibraryDropdownItemsEventPayload = {
+}
 
 export function usePluginSendActionRenderMangaLibraryDropdownItemsEvent() {
     const { sendPluginMessage } = useWebsocketSender()
 
-    const sendActionRenderMangaLibraryDropdownItemsEvent = useCallback((payload: Plugin_Client_ActionRenderMangaLibraryDropdownItemsEventPayload,
-        extensionID?: string,
-    ) => {
+    const sendActionRenderMangaLibraryDropdownItemsEvent = useCallback((payload: Plugin_Client_ActionRenderMangaLibraryDropdownItemsEventPayload, extensionID?: string) => {
         sendPluginMessage(PluginClientEvents.ActionRenderMangaLibraryDropdownItems, payload, extensionID)
     }, [])
 
@@ -1059,9 +1057,7 @@ export type Plugin_Server_ActionRenderMangaPageDropdownItemsEventPayload = {
     items: any
 }
 
-export function usePluginListenActionRenderMangaPageDropdownItemsEvent(cb: (payload: Plugin_Server_ActionRenderMangaPageDropdownItemsEventPayload,
-    extensionId: string,
-) => void, extensionID: string) {
+export function usePluginListenActionRenderMangaPageDropdownItemsEvent(cb: (payload: Plugin_Server_ActionRenderMangaPageDropdownItemsEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_ActionRenderMangaPageDropdownItemsEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ActionRenderMangaPageDropdownItems,
@@ -1073,9 +1069,7 @@ export type Plugin_Server_ActionRenderMangaLibraryDropdownItemsEventPayload = {
     items: any
 }
 
-export function usePluginListenActionRenderMangaLibraryDropdownItemsEvent(cb: (payload: Plugin_Server_ActionRenderMangaLibraryDropdownItemsEventPayload,
-    extensionId: string,
-) => void, extensionID: string) {
+export function usePluginListenActionRenderMangaLibraryDropdownItemsEvent(cb: (payload: Plugin_Server_ActionRenderMangaLibraryDropdownItemsEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_ActionRenderMangaLibraryDropdownItemsEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ActionRenderMangaLibraryDropdownItems,

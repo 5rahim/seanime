@@ -209,10 +209,10 @@ export function Announcements() {
                         <div className="flex items-center gap-2">
                             <span
                                 className={cn(
-                                    announcement.severity === "info" && "text-blue-300",
-                                    announcement.severity === "warning" && "text-amber-300",
-                                    announcement.severity === "error" && "text-red-300",
-                                    announcement.severity === "critical" && "text-red-300",
+                                    announcement.severity === "info" && "text-[--blue]",
+                                    announcement.severity === "warning" && "text-[--amber]",
+                                    announcement.severity === "error" && "text-[--red]",
+                                    announcement.severity === "critical" && "text-[--red]",
                                 )}
                             >
                                 {getSeverityIcon(announcement.severity)}

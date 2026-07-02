@@ -25,7 +25,7 @@ export function UpdateChangelogBody(props: UpdateChangelogBodyProps) {
     function RenderLines({ lines }: { lines: string[] }) {
         return <>
             {lines.map((line, index) => {
-                if (line.includes("🚑️")) return <p key={index} className="text-red-300 font-semibold flex gap-2 items-center">{line}
+                if (line.includes("🚑️")) return <p key={index} className="text-[--red] font-semibold flex gap-2 items-center">{line}
                     <AiFillExclamationCircle /></p>
                 if (line.includes("🎉")) return <p key={index} className="text-white">{line}</p>
                 if (line.includes("✨")) return <p key={index} className="text-white">{line}</p>
@@ -58,7 +58,7 @@ export function UpdateChangelogBody(props: UpdateChangelogBodyProps) {
         <>
             <div className="bg-gray-950/50 rounded-[--radius] p-4 max-h-[70vh] overflow-y-auto halo-2">
                 {body.some(n => n.includes("🚑️")) &&
-                    <p className="text-red-300 font-semibold flex gap-2 items-center">This update includes a critical patch</p>}
+                    <p className="text-[--red] font-semibold flex gap-2 items-center">This update includes a critical patch</p>}
                 <div className="rounded-[--radius] space-y-1">
                     <h5>What's new?</h5>
                     <RenderLines lines={body} />

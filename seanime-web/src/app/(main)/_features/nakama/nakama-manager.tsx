@@ -367,7 +367,7 @@ export function NakamaManager() {
                     {nakamaStatus?.isHost && (
                         <>
                             <div className="flex items-center justify-between">
-                                <Badge intent="success-solid" className="px-0 text-indigo-300 bg-transparent">Currently hosting</Badge>
+                                <Badge intent="success-solid" className="px-0 text-[--indigo] bg-transparent">Currently hosting</Badge>
                                 <Button
                                     onClick={handleCleanupStaleConnections}
                                     disabled={isCleaningUp}

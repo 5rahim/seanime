@@ -20,7 +20,7 @@ export const NavigationMenuAnatomy = defineStyleAnatomy({
         "UI-NavigationMenu__item",
         "relative group/navigationMenu_item inline-flex !text-[1.15rem] items-center h-full select-none rounded-[--radius] leading-none no-underline outline-none transition-colors",
         "text-[--muted] hover:text-[--foreground]",
-        "data-[current=true]:text-white", // Selected
+        "data-[current=true]:text-[--foreground] dark:data-[current=true]:text-white", // Selected
         "font-[600] leading-none",
         "focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[--ring]",
     ], {

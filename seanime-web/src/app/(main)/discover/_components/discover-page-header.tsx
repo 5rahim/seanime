@@ -301,7 +301,7 @@ function MediaMetadata({ media, pageType, isTransitioning, onHoverChange }: Medi
                     )}
 
                     {(media as AL_BaseAnime)?.nextAiringEpisode?.airingAt && (
-                        <p className="text-base text-brand-200 inline-flex items-center gap-1.5">
+                        <p className="text-base text-[--brand] inline-flex items-center gap-1.5">
                             <RiSignalTowerLine /> Releasing now
                         </p>
                     )}

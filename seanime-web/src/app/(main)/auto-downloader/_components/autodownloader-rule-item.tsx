@@ -72,8 +72,8 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                             <FaSquareRss
                                 className={cn(
                                     "text-xl",
-                                    rule.enabled ? "text-green-500" : "text-gray-500",
-                                    (!media) && "text-red-300",
+                                    rule.enabled ? "text-[--green]" : "text-gray-500",
+                                    (!media) && "text-[--red]",
                                 )}
                             />
                             {!!(rule.providers?.length || profiles?.some(p => p.global && !!p.providers?.length)) &&
@@ -97,10 +97,10 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                             {!!media ? (
                                 <>
                                     {media.status === "FINISHED" &&
-                                        <span className="text-orange-300 opacity-70">No longer airing</span>}
+                                        <span className="text-[--orange] opacity-70">No longer airing</span>}
                                 </>
                             ) : (
-                                <span className="text-red-300">This anime is not in your library</span>
+                                <span className="text-[--red]">This anime is not in your library</span>
                             )}
                         </div>
                     </div>

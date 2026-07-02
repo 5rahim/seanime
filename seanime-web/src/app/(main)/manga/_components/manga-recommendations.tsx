@@ -45,7 +45,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
                                     showLibraryBadge
                                     showTrailer
                                     overlay={<p
-                                        className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg"
+                                        className="font-semibold text-[--foreground] bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg"
                                     >{capitalize(edge.relationType || "").replace("_", " ")}{edge?.node?.format === "MOVIE" ? " (Movie)" : ""}</p>}
                                     type="anime"
                                 />

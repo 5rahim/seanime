@@ -50,13 +50,13 @@ function formatDebugValue(value: any) {
 function levelClass(level: string) {
     switch (level) {
         case "error":
-            return "border-red-500/40 bg-red-500/10 text-red-200"
+            return "border-red-500/40 bg-red-500/10 text-[--red]"
         case "warn":
-            return "border-yellow-500/40 bg-yellow-500/10 text-yellow-100"
+            return "border-yellow-500/40 bg-yellow-500/10 text-[--yellow]"
         case "info":
-            return "border-sky-500/40 bg-sky-500/10 text-sky-100"
+            return "border-sky-500/40 bg-sky-500/10 text-[--sky]"
         case "debug":
-            return "border-violet-500/40 bg-violet-500/10 text-violet-100"
+            return "border-violet-500/40 bg-violet-500/10 text-[--violet]"
         default:
             return "border-[--border] bg-[--subtle] text-[--foreground]"
     }

@@ -16,6 +16,7 @@ import {
     ThemeMediaPageBannerSizeOptions,
     ThemeMediaPageBannerType,
     ThemeMediaPageBannerTypeOptions,
+    ThemeMode,
     useThemeSettings,
 } from "@/lib/theme/theme-hooks.ts"
 import { __isDesktop__ } from "@/types/constants"
@@ -34,6 +35,7 @@ import { SettingsCard } from "../_components/settings-card"
 import { SettingsIsDirty } from "../_components/settings-submit-button"
 
 const themeSchema = defineSchema(({ z }) => z.object({
+    themeMode: z.string().default(THEME_DEFAULT_VALUES.themeMode),
     animeEntryScreenLayout: z.string().min(0).default(THEME_DEFAULT_VALUES.animeEntryScreenLayout),
     smallerEpisodeCarouselSize: z.boolean().default(THEME_DEFAULT_VALUES.smallerEpisodeCarouselSize),
     expandSidebarOnHover: z.boolean().default(THEME_DEFAULT_VALUES.expandSidebarOnHover),
@@ -83,7 +85,7 @@ const selectUISettingTabAtom = atom("main")
 const tabsRootClass = cn("w-full contents space-y-4")
 
 const tabsTriggerClass = cn(
-    "text-base px-6 rounded-[--radius-md] w-fit border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
+    "text-base px-6 rounded-[--radius-md] w-fit border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-[--foreground] dark:data-[state=active]:text-white dark:hover:text-white",
     "h-10 lg:justify-center px-3 flex-1",
 )
 
@@ -466,6 +468,7 @@ export function UISettings() {
             mRef={formRef}
             onSubmit={handleSave}
             defaultValues={{
+                themeMode: themeSettings?.themeMode,
                 enableColorSettings: themeSettings?.enableColorSettings,
                 animeEntryScreenLayout: themeSettings?.animeEntryScreenLayout,
                 smallerEpisodeCarouselSize: themeSettings?.smallerEpisodeCarouselSize,
@@ -574,6 +577,22 @@ export function UISettings() {
                         </TabsContent>
 
                         <TabsContent value="main" className={tabContentClass} data-settings-ui-panel-general>
+
+                            <SettingsCard title="Appearance">
+                                <Field.RadioCards
+                                    label="Theme"
+                                    name="themeMode"
+                                    options={[
+                                        { value: ThemeMode.Dark, label: "Dark" },
+                                        { value: ThemeMode.Light, label: "Light" },
+                                        { value: ThemeMode.System, label: "System" },
+                                    ]}
+                                    itemClass="opacity-0"
+                                    itemContainerClass="justify-center border border-[--border] min-w-[7rem] data-[state=checked]:border-[--brand] data-[state=checked]:bg-brand-50 dark:data-[state=checked]:bg-brand-500/10"
+                                    stackClass="flex flex-col md:flex-row flex-wrap gap-2 space-y-0"
+                                    help="'System' follows your device's appearance setting and switches automatically."
+                                />
+                            </SettingsCard>
 
                             <SettingsCard title="Sorting">
 
@@ -841,7 +860,7 @@ export function UISettings() {
                                     help="Applies to media pages on this client. Preloading can cause you to hit rate limits faster."
                                 />
                                 {isSimulatedUser && (
-                                    <p className="text-orange-300/50 text-sm">
+                                    <p className="text-[--orange] dark:text-orange-300/50 text-sm">
                                         Navigation preloading is disabled for use without an AniList account due to rate limits.
                                     </p>
                                 )}

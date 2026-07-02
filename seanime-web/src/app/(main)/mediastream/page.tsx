@@ -504,7 +504,7 @@ function MediastreamPlaybackInfo({
                     }
                     contentClass="max-w-3xl"
                 >
-                    <pre className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-300px)] whitespace-pre-wrap p-2 rounded-[--radius-md] bg-gray-900 text-xs text-white">
+                    <pre className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-300px)] whitespace-pre-wrap p-2 rounded-[--radius-md] bg-gray-900 text-xs text-[--foreground]">
                         {JSON.stringify(mediaContainer, null, 2)}
                     </pre>
                 </Modal>

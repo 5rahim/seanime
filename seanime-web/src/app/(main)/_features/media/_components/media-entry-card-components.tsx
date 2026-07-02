@@ -351,7 +351,7 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
                 <SeaLink
                     href={!onClick ? link : undefined}
                     bypassEntryPreloadBudget={bypassEntryPreloadBudget}
-                    className="block text-center text-pretty font-medium text-sm lg:text-base px-2 leading-none line-clamp-2 hover:text-brand-100"
+                    className="block text-center text-pretty font-medium text-sm lg:text-base px-2 leading-none line-clamp-2 hover:text-[--brand] dark:hover:text-brand-100"
                     onClick={onClick}
                 >
                     {title}

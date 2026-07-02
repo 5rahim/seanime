@@ -232,8 +232,8 @@ function LogModal(props: { filename: string }) {
                                         "w-full",
                                         i % 2 === 0 ? "bg-gray-800" : "bg-gray-900",
                                         line.includes("|ERR|") && "text-white bg-red-800",
-                                        line.includes("|WRN|") && "text-orange-500",
-                                        line.includes("|INF|") && "text-blue-200",
+                                        line.includes("|WRN|") && "text-[--orange]",
+                                        line.includes("|INF|") && "text-[--blue]",
                                         line.includes("|TRC|") && "text-[--muted]",
                                     )}
                                 >{line}</p>
@@ -363,7 +363,7 @@ function MemoryProfilingSettings() {
                     <div className="space-y-4">
                         <div>
                             <h4 className="text-md font-medium mb-2 flex items-center gap-2">
-                                <FaMemory className="text-blue-400" />
+                                <FaMemory className="text-[--blue]" />
                                 Memory
                             </h4>
                             <div className="flex flex-wrap gap-2">
@@ -401,7 +401,7 @@ function MemoryProfilingSettings() {
 
                         <div>
                             <h4 className="text-md font-medium mb-2 flex items-center gap-2">
-                                <FaMicrochip className="text-green-400" />
+                                <FaMicrochip className="text-[--green]" />
                                 CPU
                             </h4>
                             <div className="space-y-2">

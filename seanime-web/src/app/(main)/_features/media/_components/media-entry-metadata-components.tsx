@@ -183,7 +183,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                             size="lg"
                             intent="gray"
                             leftIcon={<LuTrophy className="text-sm" />}
-                            iconClass="text-yellow-500/70 group-hover/badge:text-yellow-400"
+                            iconClass="text-[--yellow] dark:text-yellow-500/70 group-hover/badge:text-[--yellow] dark:group-hover/badge:text-yellow-400"
                             className="transition-all hover:opacity-100 rounded-full bg-transparent dark:text-[--muted] border-transparent px-0 hover:bg-transparent dark:hover:text-[--foreground]"
                         >
                             #{String(allTimeHighestRated.rank)} Highest Rated {formatFormat(allTimeHighestRated.format)}
@@ -200,7 +200,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                             size="lg"
                             intent="gray"
                             leftIcon={<AiOutlineStar />}
-                            iconClass="text-yellow-500/70 group-hover/badge:text-yellow-400"
+                            iconClass="text-[--yellow] dark:text-yellow-500/70 group-hover/badge:text-[--yellow] dark:group-hover/badge:text-yellow-400"
                             className="transition-all hover:opacity-100 rounded-full bg-transparent dark:text-[--muted] border-transparent px-0 hover:bg-transparent dark:hover:text-[--foreground]"
                         >
                             #{String(seasonHighestRated.rank)} {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
@@ -219,7 +219,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                             size="lg"
                             intent="gray"
                             leftIcon={<AiOutlineHeart />}
-                            iconClass="text-[--muted] group-hover/badge:text-pink-400/70"
+                            iconClass="text-[--muted] group-hover/badge:text-[--pink] dark:group-hover/badge:text-pink-400/70"
                             className="transition-all hover:opacity-100 rounded-full bg-transparent dark:text-[--muted] border-transparent px-0 hover:bg-transparent dark:hover:text-[--foreground]"
                         >
                             #{(String(seasonMostPopular.rank))} Popular {formatFormat(seasonMostPopular.format)} {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}

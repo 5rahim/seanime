@@ -208,7 +208,7 @@ function MediaMetadata({ episode, episodes, onHoverChange }: MediaMetadataProps)
                         )}
 
                         {anime.nextAiringEpisode?.airingAt && (
-                            <p className="text-base text-brand-200 inline-flex items-center gap-1.5">
+                            <p className="text-base text-[--brand] inline-flex items-center gap-1.5">
                                 <RiSignalTowerLine /> Releasing now
                             </p>
                         )}

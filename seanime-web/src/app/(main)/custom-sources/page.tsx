@@ -121,7 +121,7 @@ export default function Page() {
 
                     <div className="flex gap-2">
                         <Select
-                            leftAddon={<MdDataSaverOn className={cn("text-indigo-300 font-bold text-xl")} />}
+                            leftAddon={<MdDataSaverOn className={cn("text-[--indigo] font-bold text-xl")} />}
                             placeholder="Select a source" className="w-full"
                             options={customSources?.map(s => ({
                                 label: s.name,

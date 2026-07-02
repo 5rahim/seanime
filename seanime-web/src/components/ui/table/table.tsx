@@ -21,7 +21,7 @@ export const TableAnatomy = defineStyleAnatomy({
     ]),
     tableFooter: cva([
         "UI-Table__tableFooter",
-        "border-t bg-gray-100 dark:bg-gray-900 bg-opacity-40 font-medium [&>tr]:last:border-b-0",
+        "border-t bg-[--subtle] dark:bg-opacity-40 font-medium [&>tr]:last:border-b-0",
     ]),
     tableRow: cva([
         "UI-Table__tableRow",

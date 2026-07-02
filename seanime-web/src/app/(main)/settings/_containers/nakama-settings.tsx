@@ -18,7 +18,7 @@ type Props = {
 const tabsRootClass = cn("w-full contents space-y-4")
 
 const tabsTriggerClass = cn(
-    "text-base px-6 rounded-[--radius-md] w-fit border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
+    "text-base px-6 rounded-[--radius-md] w-fit border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-[--foreground] dark:data-[state=active]:text-white dark:hover:text-white",
     "h-10 lg:justify-center px-3 flex-1",
 )
 
