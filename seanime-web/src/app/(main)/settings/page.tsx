@@ -186,15 +186,7 @@ export default function Page() {
                                 <Card className="bg-transparent border-transparent">
                                     <div className="space-y-2 p-0 w-full">
                                         <h4 className=" text-xl font-bold">Settings</h4>
-                                        <div className="space-y-1">
-                                            <p className="text-[--muted] text-sm w-full">
-                                                {status?.version} {status?.versionName} - {capitalize(status?.os)}{__isElectronDesktop__ &&
-                                                <span className="font-medium"> - Denshi</span>}
-                                            </p>
-                                            <p className="text-[--muted] text-sm w-full">
 
-                                            </p>
-                                        </div>
                                     </div>
                                 </Card>
                                 <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] overflow-clip p-1">
@@ -313,6 +305,16 @@ export default function Page() {
                                 </Card>
                             </div>
                         </SettingsNavCard>
+
+                        <div className="space-y-1">
+                            <p className="text-[--muted] text-xs w-full text-center">
+                                <span className="font-semibold">{status?.version}</span> {status?.versionName} • {capitalize(status?.os)}{__isElectronDesktop__ &&
+                                <span className="font-medium"> • Denshi</span>}
+                            </p>
+                            <p className="text-[--muted] text-sm w-full">
+
+                            </p>
+                        </div>
 
                         <div className="flex justify-center !mt-0 pb-4">
                             <SeaLink

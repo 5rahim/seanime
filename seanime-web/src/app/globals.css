@@ -160,8 +160,8 @@
         --muted: rgba(255, 255, 255, 0.4);
         --muted-highlight: rgba(255, 255, 255, 0.6);
 
-        --paper: rgb(12 12 12);
-        --paper-highlighter: theme('colors.gray.950');
+        --paper: rgb(11 11 11);
+        --paper-lighter: rgb(13 13 13);
         --subtle: rgba(255, 255, 255, 0.06);
         --subtle-highlight: rgba(255, 255, 255, 0.08);
 
