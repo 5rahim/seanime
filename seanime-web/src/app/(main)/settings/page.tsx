@@ -164,10 +164,11 @@ export default function Page() {
                 <Tabs
                     value={tab}
                     onValueChange={setTab}
+                    variant="pill"
                     className={cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")}
                     triggerClass={cn(
-                        "text-sm font-normal px-6 w-fit lg:w-full border-0 data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
-                        "h-8 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform",
+                        "text-sm font-medium w-fit lg:w-full border-0 data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white py-0",
+                        "h-9 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform rounded-lg",
                     )}
                     listClass={cn(
                         "w-full flex flex-wrap lg:flex-nowrap h-fit",
@@ -175,7 +176,7 @@ export default function Page() {
                     )}
                     data-settings-page-tabs
                 >
-                    <TabsList className="flex-wrap max-w-full lg:space-y-2 lg:sticky lg:top-10">
+                    <TabsList variant="none" className="flex-wrap max-w-full lg:space-y-2 lg:sticky lg:top-10">
                         <SettingsNavCard>
                             <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
 
@@ -196,7 +197,7 @@ export default function Page() {
                                         </div>
                                     </div>
                                 </Card>
-                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] p-0 overflow-clip">
+                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] overflow-clip p-1">
                                     <TabsTrigger
                                         value="seanime"
                                         className="group"
@@ -219,7 +220,7 @@ export default function Page() {
                                 {/*    Anime playback*/}
                                 {/*</div>*/}
 
-                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] p-0 overflow-clip">
+                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] overflow-clip p-1">
                                     <TabsTrigger
                                         value="playback"
                                         className="group"
@@ -233,19 +234,19 @@ export default function Page() {
                                         value="external-player-link"
                                         className="group"
                                     ><LuCircleArrowOutUpRight className="text-base mr-2 transition-transform duration-200" /> External Player
-                                                                                                                            Link</TabsTrigger>
+                                                                                                                              Link</TabsTrigger>
                                     <TabsTrigger
                                         value="mediastream"
                                         className="relative group"
                                     ><LuTabletSmartphone className="text-base mr-2 transition-transform duration-200" /> Transcoding / Direct
-                                                                                                                       Play</TabsTrigger>
+                                                                                                                         Play</TabsTrigger>
                                 </Card>
 
                                 {/*<div className="text-sm lg:text-[--foreground] py-1.5 px-3 tracking-wide font-medium hidden lg:block">*/}
                                 {/*    Torrenting*/}
                                 {/*</div>*/}
 
-                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] p-0 overflow-clip">
+                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] overflow-clip p-1">
                                     <TabsTrigger
                                         value="torrent"
                                         className="group"
@@ -270,7 +271,7 @@ export default function Page() {
                                 {/*    Other features*/}
                                 {/*</div>*/}
 
-                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] p-0 overflow-clip">
+                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] overflow-clip p-1">
                                     <TabsTrigger
                                         value="onlinestream"
                                         className="group"
@@ -294,7 +295,7 @@ export default function Page() {
                                 {/*    App*/}
                                 {/*</div>*/}
 
-                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] p-0 overflow-clip">
+                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] overflow-clip p-1">
                                     {__isElectronDesktop__ && (
                                         <TabsTrigger
                                             value="denshi"

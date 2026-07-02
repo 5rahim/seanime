@@ -92,7 +92,7 @@ const KeybindingRow = ({
         </div>
         <div className="flex items-center gap-2">
             <Button
-                intent={recordingKey === actionKey ? "white-subtle" : "gray-glass"}
+                intent={recordingKey === actionKey ? "white-subtle" : "gray-subtle"}
                 size="sm"
                 onClick={() => handleKeyRecord(actionKey)}
                 className={cn(

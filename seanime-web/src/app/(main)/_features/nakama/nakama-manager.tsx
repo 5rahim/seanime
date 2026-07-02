@@ -331,7 +331,7 @@ export function NakamaManager() {
         onConfirm: () => {
             handleCreateRoom()
         },
-        actionIntent: "white-glass",
+        actionIntent: "white-subtle",
     })
 
     return <>
@@ -488,7 +488,7 @@ export function NakamaManager() {
                                                     onClick={confirmRoom.open}
                                                     disabled={isCreatingRoom}
                                                     size="sm"
-                                                    intent="white-glass"
+                                                    intent="white-subtle"
                                                     leftIcon={<TbCloudPlus className="text-2xl" />}
                                                 >
                                                     {isCreatingRoom ? "Creating..." : "Create a Cloud Room"}

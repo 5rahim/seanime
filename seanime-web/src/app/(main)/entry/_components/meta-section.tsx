@@ -149,15 +149,15 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
                         {(detailsLoading && !details) ? <Skeleton className="h-6 w-36 rounded-full opacity-70" /> : !isCustomSource(entry.mediaId) ?
                             <AnimeEntryStudio studios={details?.studios} /> : (
-                            <Badge
-                                size="lg"
-                                intent="gray"
-                                className="rounded-full px-0 border-transparent bg-transparent transition-all hover:bg-transparent hover:text-white hover:-translate-y-0.5"
-                                data-anime-entry-studio-badge
-                            >
-                                {details?.studios?.nodes?.[0]?.name}
-                            </Badge>
-                        )}
+                                <Badge
+                                    size="lg"
+                                    intent="gray"
+                                    className="rounded-full px-0 border-transparent bg-transparent transition-all hover:bg-transparent hover:text-white hover:-translate-y-0.5"
+                                    data-anime-entry-studio-badge
+                                >
+                                    {details?.studios?.nodes?.[0]?.name}
+                                </Badge>
+                            )}
 
                         {(detailsLoading && !details) ? <Skeleton className="h-6 w-52 rounded-full opacity-60" /> :
                             <MediaEntryGenresList genres={details?.genres} />}
@@ -186,7 +186,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                     <div
                         data-anime-meta-section-buttons-row
                         className={cn(
-                            "flex xl:w-fit flex-row gap-3 items-center justify-center lg:justify-start lg:max-w-[65vw]",
+                            "flex xl:w-fit flex-row gap-2 items-center justify-center lg:justify-start lg:max-w-[65vw]",
                             "flex-wrap xl:flex-nowrap",
                         )}
                     >

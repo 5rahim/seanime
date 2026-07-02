@@ -87,7 +87,7 @@ export function LogsSettings(props: LogsSettingsProps) {
                 <div className="pb-3 flex gap-2">
                     <Button
                         size="sm"
-                        intent="gray-glass"
+                        intent="gray-subtle"
                         onClick={handleCopyLatestLogs}
                     >
                         Copy current server logs
@@ -104,7 +104,7 @@ export function LogsSettings(props: LogsSettingsProps) {
                     </Button>}
                     <Button
                         size="sm"
-                        intent="warning-glass"
+                        intent="warning-subtle"
                         onClick={handleOpenIssueRecorder}
                         leftIcon={<VscDebugAlt className="transition-transform duration-200 group-hover:scale-110" />}
                         className="transition-all duration-200 hover:scale-105 hover:shadow-md group"

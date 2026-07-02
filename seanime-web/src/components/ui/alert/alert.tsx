@@ -9,18 +9,19 @@ import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 export const AlertAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-Alert__root",
-        "py-3 px-4 flex justify-between rounded-[--radius]",
+        "py-3 px-4 flex justify-between rounded-lg border text-sm transition-colors duration-200",
     ], {
         variants: {
             intent: {
-                "info": "bg-blue-50 text-blue-500 dark:bg-opacity-10 dark:text-blue-200",
-                "success": "bg-green-50 text-green-500 dark:bg-opacity-10 dark:text-green-200",
-                "warning": "bg-orange-50 text-orange-500 dark:bg-opacity-10 dark:text-orange-200",
-                "alert": "bg-red-50 text-red-500 dark:bg-opacity-10 dark:text-red-200",
-                "info-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
-                "success-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
-                "warning-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
-                "alert-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
+                "info": "bg-blue-500/10 border-blue-500/20 text-gray-900 dark:bg-blue-900/70 dark:border-[--border] dark:text-gray-200",
+                "success": "bg-green-500/10 border-green-500/20 text-gray-900 dark:bg-green-900/70 dark:border-[--border] dark:text-gray-200",
+                "warning": "bg-orange-500/10 border-orange-500/20 text-gray-900 dark:bg-orange-900/70 dark:border-[--border] dark:text-gray-200",
+                "alert": "bg-red-500/10 border-red-500/20 text-gray-900 dark:bg-red-900/70 dark:border-[--border] dark:text-gray-200",
+
+                "info-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-gray-800/80 dark:text-gray-200",
+                "success-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-gray-800/80 dark:text-gray-200",
+                "warning-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-gray-800/80 dark:text-gray-200",
+                "alert-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-gray-800/80 dark:text-gray-200",
             },
         },
         defaultVariants: {
@@ -29,33 +30,34 @@ export const AlertAnatomy = defineStyleAnatomy({
     }),
     detailsContainer: cva([
         "UI-Alert__detailsContainer",
-        "flex",
+        "flex w-full items-start",
     ]),
     textContainer: cva([
         "UI-Alert__textContainer",
-        "flex flex-col self-center ml-3 gap-.5",
+        "flex flex-col self-start ml-3 gap-0.5",
     ]),
     title: cva([
         "UI-Alert__title",
-        "font-bold",
+        "font-semibold text-gray-900 dark:text-[--foreground]",
     ]),
     description: cva([
         "UI-Alert__description",
+        "text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-0.5",
     ]),
     icon: cva([
         "UI-Alert__icon",
-        "text-2xl content-evenly",
+        "text-xl content-evenly flex-none self-start mt-0.5",
     ], {
         variants: {
             intent: {
-                "info-basic": "text-blue-500",
-                "success-basic": "text-green-500",
-                "warning-basic": "text-orange-500",
-                "alert-basic": "text-red-500",
-                "info": "text-blue-500",
-                "success": "text-green-500",
-                "warning": "text-orange-500",
-                "alert": "text-red-500",
+                "info-basic": "text-blue-500 dark:text-blue-400",
+                "success-basic": "text-green-500 dark:text-green-400",
+                "warning-basic": "text-orange-500 dark:text-orange-400",
+                "alert-basic": "text-red-500 dark:text-red-400",
+                "info": "text-blue-600 dark:text-blue-400",
+                "success": "text-green-600 dark:text-green-400",
+                "warning": "text-orange-600 dark:text-orange-400",
+                "alert": "text-red-600 dark:text-red-400",
             },
         },
         defaultVariants: {
@@ -64,7 +66,7 @@ export const AlertAnatomy = defineStyleAnatomy({
     }),
     closeButton: cva([
         "UI-Alert__closeButton",
-        "flex-none self-start text-2xl hover:opacity-50 transition ease-in cursor-pointer h-5 w-5",
+        "flex-none self-start text-lg hover:opacity-80 active:opacity-100 transition-opacity duration-150 cursor-pointer h-5 w-5 ml-4 opacity-50 dark:text-gray-400 dark:hover:text-gray-200",
     ]),
 })
 
@@ -124,8 +126,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
     if (intent === "info-basic" || intent === "info") {
         Icon = <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            className="h-5 w-5"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -140,8 +141,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
     } else if (intent === "alert-basic" || intent === "alert") {
         Icon = <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            className="h-5 w-5"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -156,8 +156,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
     } else if (intent === "warning-basic" || intent === "warning") {
         Icon = <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            className="h-5 w-5"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -172,8 +171,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
     } else if (intent === "success-basic" || intent === "success") {
         Icon = <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            className="h-5 w-5"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -200,9 +198,9 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
                     {Icon && Icon}
                 </div>}
                 <div className={cn(AlertAnatomy.textContainer(), textContainerClass)}>
-                    <span className={cn(AlertAnatomy.title(), titleClass)}>
+                    {!!title && <span className={cn(AlertAnatomy.title(), titleClass)}>
                         {title}
-                    </span>
+                    </span>}
                     {!!(description || children) && <div className={cn(AlertAnatomy.description(), descriptionClass)}>
                         {description || children}
                     </div>}
@@ -211,6 +209,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
             {onClose && <button className={cn(AlertAnatomy.closeButton(), closeButtonClass)} onClick={onClose}>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"

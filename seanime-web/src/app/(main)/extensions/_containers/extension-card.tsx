@@ -107,7 +107,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                             <Tooltip
                                 trigger={<IconButton
                                     size="sm"
-                                    intent={!updateData ? "gray-basic" : "gray-glass"}
+                                    intent={!updateData ? "gray-basic" : "gray-subtle"}
                                     icon={<LuEllipsisVertical />}
                                 />}
                             >Info</Tooltip>
@@ -400,7 +400,7 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
                                 <ExtensionCodeModal extension={extension} diff={updateData?.payload ?? ""} readOnly>
                                     <Button
                                         size="md"
-                                        intent="gray-glass"
+                                        intent="gray-subtle"
                                     >
                                         View updated code
                                     </Button>

@@ -631,7 +631,7 @@ export function VideoCoreSettingsMenu() {
                                 />
                                 <div className="flex w-full">
                                     <Button
-                                        size="sm" intent="gray-glass" onClick={() => {
+                                        size="sm" intent="gray-subtle" onClick={() => {
                                         handleSubtitleCustomizationChange("fontName", subFontName)
                                     }}
                                     >

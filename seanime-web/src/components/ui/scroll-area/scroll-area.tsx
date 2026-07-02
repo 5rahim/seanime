@@ -24,8 +24,8 @@ export const ScrollAreaAnatomy = defineStyleAnatomy({
         ], {
             variants: {
                 orientation: {
-                    vertical: "h-full w-2.5 border-l border-l-transparent p-[1px]",
-                    horizontal: "h-2.5 flex-col border-t border-t-transparent p-[1px]",
+                    vertical: "h-full w-2.5 border-l border-l-transparent p-[1px] py-1.5",
+                    horizontal: "h-2.5 flex-col border-t border-t-transparent p-[1px] px-1.5",
                 },
             },
             defaultVariants: {

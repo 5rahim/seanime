@@ -22,8 +22,9 @@ export function LibraryExplorerDrawer(props: {}) {
 
             <VaulContent
                 className={cn(
-                    "bg-gray-950 h-[90%] lg:h-[80%] bg-opacity-95 firefox:bg-opacity-100 lg:mx-[2rem] overflow-hidden",
+                    "bg-gray-950 h-[90%] lg:h-[80%] bg-opacity-100 lg:mx-[2rem] overflow-hidden",
                 )}
+                // overlayClass="bg-gray-900/80"
             >
                 <ScopeProvider atoms={[__unmatchedFileManagerIsOpen, __unknownMedia_drawerIsOpen]}>
                     <LibraryExplorer />

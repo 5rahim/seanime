@@ -199,8 +199,8 @@ export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibr
                     Home
                 </div>}
                 contentClass={cn(
-                    "max-w-5xl bg-gray-950 bg-opacity-90 sm:rounded-3xl",
-                    ts.enableBlurringEffects && "bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none",
+                    "max-w-5xl sm:rounded-3xl",
+                    // ts.enableBlurringEffects && "bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none",
                 )}
                 overlayClass={cn(ts.enableBlurringEffects && "bg-gray-950/70 backdrop-blur-sm")}
             >
@@ -264,13 +264,13 @@ export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibr
                                 ),
                                 stackClass: "space-y-0 flex flex-row gap-2",
                                 itemIndicatorClass: "hidden",
-                                itemLabelClass: "font-normal tracking-wide line-clamp-1 truncate flex flex-col items-center data-[state=checked]:text-[--gray] cursor-pointer",
+                                itemLabelClass: "font-normal text-center tracking-wide line-clamp-1 truncate flex flex-col items-center data-[state=checked]:text-[--gray] cursor-pointer",
                                 itemContainerClass: cn(
-                                    "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-3 w-full",
-                                    "hover:bg-[--subtle] dark:bg-gray-900",
-                                    "data-[state=checked]:bg-white dark:data-[state=unchecked]:hover:bg-gray-800 dark:data-[state=checked]:bg-gray-900",
+                                    "items-center cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-3 w-full",
+                                    "hover:bg-[--subtle] --dark:bg-gray-900",
+                                    "data-[state=checked]:bg-white dark:data-[state=unchecked]:hover:bg-[--subtle] dark:data-[state=checked]:bg-gray-900",
                                     "focus:ring-2 ring-transparent dark:ring-transparent outline-none ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
-                                    "border border-transparent data-[state=checked]:border-gray-500 data-[state=checked]:ring-offset-0",
+                                    "border border-transparent data-[state=checked]:border-[--border] data-[state=checked]:ring-offset-0",
                                 ),
                             }}
                             // value={pageFit}

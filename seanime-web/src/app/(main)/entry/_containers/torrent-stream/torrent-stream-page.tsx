@@ -327,7 +327,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                                     <div className="flex items-center gap-2">
                                         <div className="flex flex-none items-center justify-center">
                                             <IconButton
-                                                intent="alert-glass"
+                                                intent="alert-subtle"
                                                 icon={<BiX />}
                                                 size="xs"
                                                 onClick={() => confirmPreviousBatchAction.open()}

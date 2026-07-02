@@ -558,14 +558,14 @@ export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
                     <div className="flex flex-wrap gap-2">
                         <Button
                             size="sm"
-                            intent="gray-glass"
+                            intent="gray-subtle"
                             onClick={() => window.electron?.mpvCore.openAnime4KDirectory(
                                 anime4kDirectory?.directory || shaderSettings.directory,
                             )}
                         >
                             Open folder
                         </Button>
-                        <Button size="sm" intent="gray-glass" onClick={onRefreshAnime4K}>
+                        <Button size="sm" intent="gray-subtle" onClick={onRefreshAnime4K}>
                             Refresh
                         </Button>
                     </div>
@@ -611,7 +611,7 @@ export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
                         help="Example: Noto Sans JP"
                     />
                     <div className="flex w-full mt-2">
-                        <Button size="sm" intent="gray-glass" onClick={() => updateSubtitleStyle("fontName", subFontName)}>
+                        <Button size="sm" intent="gray-subtle" onClick={() => updateSubtitleStyle("fontName", subFontName)}>
                             Save
                         </Button>
                     </div>

@@ -40,14 +40,14 @@ function useDrawerBodyBehavior(id: string, open: boolean | undefined) {
 export const DrawerAnatomy = defineStyleAnatomy({
     overlay: cva([
         "UI-Drawer__overlay",
-        "fixed inset-0 z-[50] bg-gray-800/70",
+        "fixed inset-0 z-[50] bg-black/80",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         // "transition-opacity duration-300",
     ]),
     content: cva([
         "UI-Drawer__content",
-        "fixed z-50 w-full gap-4 bg-[--background] p-6 shadow-lg overflow-y-auto",
+        "fixed z-50 w-full gap-4 bg-[--paper] p-6 shadow-lg overflow-y-auto",
         "transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-500 data-[state=open]:duration-500",
         "focus:outline-none focus-visible:outline-none",
         __isDesktop__ && "select-none",
@@ -235,7 +235,7 @@ export function Drawer(props: DrawerProps) {
                     className={cn(
                         DrawerAnatomy.content({ size, side: drawerSide }),
                         // __isDesktop__ && "pt-12",
-                        !mangaReader && "lg:m-[10px] rounded-[--radius]",
+                        !mangaReader && "lg:m-[10px] rounded-xl scroll-mt-2",
                         contentClass,
                     )}
                     style={{

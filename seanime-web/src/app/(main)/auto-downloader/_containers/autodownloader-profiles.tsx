@@ -97,7 +97,7 @@ function ProfileItem({ profile, onEdit }: { profile: Anime_AutoDownloaderProfile
 
     return (
         <>
-            <Card className="p-3 flex items-center justify-between gap-4">
+            <Card className="p-3 flex items-center justify-between gap-4 bg-gray-900 border-transparent">
                 <div className="flex items-center gap-3 w-full">
                     <div className="size-10 rounded-full bg-[--subtle] flex items-center justify-center">
                         <PiTargetBold

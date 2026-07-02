@@ -97,7 +97,7 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
 
                 {!!extension.readme && <div className="">
                     <Button
-                        intent="gray-glass"
+                        intent="gray-subtle"
                         leftIcon={<FaFileAlt />}
                         rightIcon={<FaArrowRight />}
                         onClick={() => openTab(extension.readme)}

@@ -18,7 +18,6 @@ type Props = {
 const tabsRootClass = cn("w-full contents space-y-4")
 
 const tabsTriggerClass = cn(
-    "text-base px-6 rounded-[--radius-md] w-fit border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
     "h-10 lg:justify-center px-3 flex-1",
 )
 
@@ -75,11 +74,12 @@ export function NakamaSettings(props: Props) {
             <Tabs
                 value={tab}
                 onValueChange={setTab}
+                variant="pill"
                 className={tabsRootClass}
                 triggerClass={tabsTriggerClass}
                 listClass={tabsListClass}
             >
-                <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
+                <TabsList>
                     <TabsTrigger value="peer">Connect as a Peer</TabsTrigger>
                     <TabsTrigger value="host">Hosting {serverStatus?.settings?.nakama?.isHost &&
                         <Badge intent="info" className="ml-3">Currently hosting</Badge>}</TabsTrigger>

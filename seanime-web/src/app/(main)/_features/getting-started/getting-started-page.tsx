@@ -844,7 +844,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 ) : (
                                     <Button
                                         type="button"
-                                        intent="gray-glass"
+                                        intent="gray-subtle"
                                         onClick={e => {
                                             e.preventDefault()
                                             nextStep()

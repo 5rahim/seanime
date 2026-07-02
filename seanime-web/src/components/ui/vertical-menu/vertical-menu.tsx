@@ -28,7 +28,7 @@ export const VerticalMenuAnatomy = defineStyleAnatomy({
                 false: null,
             },
             isSidebar: {
-                true: "rounded-full",
+                true: "rounded-2xl",
                 false: null,
             },
         },

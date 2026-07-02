@@ -115,10 +115,9 @@ export function AutoDownloaderPage() {
 
             <Tabs
                 defaultValue="rules"
-                triggerClass={"text-base px-6 h-auto py-2 rounded-[--radius-md] w-fit md:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white"}
-                listClass={"w-full flex flex-wrap md:flex-nowrap h-fit"}
+                variant="pill"
             >
-                <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
+                <TabsList>
                     <TabsTrigger value="rules">Rules</TabsTrigger>
                     <TabsTrigger value="profiles">Profiles</TabsTrigger>
                     <TabsTrigger value="queue">

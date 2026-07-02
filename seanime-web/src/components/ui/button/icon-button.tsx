@@ -11,11 +11,11 @@ export const IconButtonAnatomy = defineStyleAnatomy({
     root: cva("UI-IconButton_root p-0 flex-none", {
         variants: {
             size: {
-                xs: "text-xl h-6 w-6",
-                sm: "text-xl h-8 w-8",
-                md: "text-2xl h-10 w-10",
-                lg: "text-3xl h-12 w-12",
-                xl: "text-4xl h-14 w-14",
+                xs: "text-lg h-6 w-6",
+                sm: "text-lg h-8 w-8",
+                md: "text-xl h-9 w-9",
+                lg: "text-2xl h-10 w-10",
+                xl: "text-3xl h-12 w-12",
             },
         },
         defaultVariants: {

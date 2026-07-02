@@ -23,7 +23,7 @@ export const DropdownMenuAnatomy = defineStyleAnatomy({
     ]),
     root: cva([
         "UI-DropdownMenu__root",
-        "z-50 min-w-[15rem] overflow-hidden rounded-xl border bg-[--paper] p-2 text-[--foreground] shadow-sm",
+        "z-50 min-w-[15rem] overflow-hidden rounded-xl border bg-[--paper] p-1 text-[--foreground] shadow-sm",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-100 data-[state=open]:zoom-in-95",
@@ -32,7 +32,7 @@ export const DropdownMenuAnatomy = defineStyleAnatomy({
     ]),
     item: cva([
         "UI-DropdownMenu__item",
-        "relative flex cursor-default select-none items-center rounded-xl cursor-pointer px-2 py-2 text-sm outline-none transition-colors",
+        "relative flex cursor-default select-none items-center rounded-lg cursor-pointer px-2 py-2 text-sm outline-none transition-colors",
         "focus:bg-[--subtle] data-[disabled]:pointer-events-none",
         "data-[disabled]:opacity-50",
         "[&>svg]:mr-2 [&>svg]:text-lg",
@@ -46,7 +46,7 @@ export const DropdownMenuAnatomy = defineStyleAnatomy({
     ]),
     separator: cva([
         "UI-DropdownMenu__separator",
-        "-mx-1 my-2 h-px bg-[--border]",
+        "-mx-1 my-1 h-px bg-[--border]",
     ]),
     shortcut: cva([
         "UI-DropdownMenu__shortcut",

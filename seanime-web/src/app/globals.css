@@ -391,7 +391,11 @@ h6 {
 
 ::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);
-    @apply rounded-full border-2 border-transparent bg-clip-padding transition-colors duration-300
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
+    @apply rounded-full bg-clip-padding transition-colors duration-300
 }
 
 ::-webkit-scrollbar-thumb:hover {

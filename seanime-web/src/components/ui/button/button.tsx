@@ -9,58 +9,48 @@ import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 export const ButtonAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-Button_root",
-        "shadow-sm whitespace-nowrap font-semibold rounded-lg",
-        "inline-flex items-center text-white transition ease-in text-center text-base justify-center",
+        "whitespace-nowrap font-medium rounded-lg",
+        "inline-flex items-center text-white text-center justify-center",
         "focus-visible:outline-none focus-visible:ring-2 ring-offset-1 ring-offset-[--background] focus-visible:ring-[--ring]",
-        "disabled:opacity-50 disabled:pointer-events-none",
+        "disabled:opacity-50 disabled:pointer-events-none disabled:transform-none",
     ], {
         variants: {
             intent: {
-                // "primary": "bg-brand-500 hover:bg-brand-600 active:bg-brand-700 border border-transparent",
-                "primary": "shadow-none text-white border bg-brand-500 border-brand-400/20 active:bg-opacity-100 dark:bg-opacity-70 dark:hover:bg-opacity-90",
-                "primary-outline": "text-[--brand] border border-[--brand] bg-transparent hover:bg-brand-500 active:bg-brand-600 active:border-transparent hover:text-white dark:hover:border-brand-500 dark:active:bg-brand-600 dark:hover:text-white dark:active:border-transparent dark:active:text-white",
-                "primary-subtle": "shadow-none text-[--brand] border bg-brand-50 border-transparent hover:bg-brand-100 active:bg-brand-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
-                "primary-glass": "shadow-none text-[--brand] border bg-brand-50 border-brand-300/20 hover:bg-brand-100 active:bg-brand-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
-                "primary-link": "shadow-none text-[--brand] border border-transparent bg-transparent hover:underline active:text-brand-700 dark:active:text-brand-300",
-                "primary-basic": "shadow-none text-[--brand] border border-transparent bg-transparent hover:bg-brand-100 active:bg-brand-200 dark:hover:bg-opacity-10 dark:active:text-brand-300",
+                "primary": "text-white border bg-brand-500 border-brand-400/20 active:bg-opacity-100 dark:bg-opacity-70 dark:hover:bg-opacity-90",
+                "primary-outline": "text-[--brand] border border-brand-500/40 bg-transparent hover:bg-brand-500/10 active:bg-brand-500/20 dark:border-brand-400/30 dark:hover:bg-brand-500/15 dark:active:bg-brand-500/25",
+                "primary-subtle": "text-[--brand] border bg-brand-50 border-brand-300/10 hover:bg-brand-100 active:bg-brand-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
+                "primary-link": "text-[--brand] border border-transparent bg-transparent hover:underline active:text-brand-700 dark:active:text-brand-300",
+                "primary-basic": "text-[--brand] border border-transparent bg-transparent hover:bg-brand-100 active:bg-brand-200 dark:hover:bg-opacity-10 dark:active:text-brand-300",
 
-                "warning": "shadow-none text-white border bg-orange-500 border-orange-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
-                "warning-outline": "text-[--orange] border border-[--orange] bg-transparent hover:bg-orange-500 active:bg-orange-600 active:border-transparent hover:text-white dark:hover:border-orange-500 dark:active:bg-orange-600 dark:hover:text-white dark:active:border-transparent dark:active:text-white",
-                "warning-subtle": "shadow-none text-[--orange] border bg-orange-50 border-transparent hover:bg-orange-100 active:bg-orange-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
-                "warning-glass": "shadow-none text-[--orange] border bg-orange-50 border-orange-300/20 hover:bg-orange-100 active:bg-orange-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
-                "warning-link": "shadow-none text-[--orange] border border-transparent bg-transparent hover:underline active:text-orange-700 dark:active:text-orange-300",
-                "warning-basic": "shadow-none text-[--orange] border border-transparent bg-transparent hover:bg-orange-100 active:bg-orange-200 dark:hover:bg-opacity-10 dark:active:text-orange-300",
+                "warning": "text-white border bg-orange-500 border-orange-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
+                "warning-outline": "text-[--orange] border border-orange-500/40 bg-transparent hover:bg-orange-500/10 active:bg-orange-500/20 dark:border-orange-400/30 dark:hover:bg-orange-500/15 dark:active:bg-orange-500/25",
+                "warning-subtle": "text-[--orange] border bg-orange-50 border-orange-300/10 hover:bg-orange-100 active:bg-orange-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
+                "warning-link": "text-[--orange] border border-transparent bg-transparent hover:underline active:text-orange-700 dark:active:text-orange-300",
+                "warning-basic": "text-[--orange] border border-transparent bg-transparent hover:bg-orange-100 active:bg-orange-200 dark:hover:bg-opacity-10 dark:active:text-orange-300",
 
-                "success": "shadow-none text-white border bg-green-500 border-green-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
-                "success-outline": "text-[--green] border border-[--green] bg-transparent hover:bg-green-500 active:bg-green-600 active:border-transparent hover:text-white dark:hover:border-green-500 dark:active:bg-green-600 dark:hover:text-white dark:active:border-transparent dark:active:text-white",
-                "success-subtle": "shadow-none text-[--green] border bg-green-50 border-transparent hover:bg-green-100 active:bg-green-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
-                "success-glass": "shadow-none text-[--green] border bg-green-50 border-green-300/20 hover:bg-green-100 active:bg-green-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
-                "success-link": "shadow-none text-[--green] border border-transparent bg-transparent hover:underline active:text-green-700 dark:active:text-green-300",
-                "success-basic": "shadow-none text-[--green] border border-transparent bg-transparent hover:bg-green-100 active:bg-green-200 dark:hover:bg-opacity-10 dark:active:text-green-300",
+                "success": "text-white border bg-green-500 border-green-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
+                "success-outline": "text-[--green] border border-green-500/40 bg-transparent hover:bg-green-500/10 active:bg-green-500/20 dark:border-green-400/30 dark:hover:bg-green-500/15 dark:active:bg-green-500/25",
+                "success-subtle": "text-[--green] border bg-green-50 border-green-300/10 hover:bg-green-100 active:bg-green-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
+                "success-link": "text-[--green] border border-transparent bg-transparent hover:underline active:text-green-700 dark:active:text-green-300",
+                "success-basic": "text-[--green] border border-transparent bg-transparent hover:bg-green-100 active:bg-green-200 dark:hover:bg-opacity-10 dark:active:text-green-300",
 
-                // "alert": "bg-red-500 hover:bg-red-600 active:bg-red-700 border border-transparent",
-                "alert": "shadow-none text-white border bg-red-500 border-red-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
-                "alert-outline": "text-[--red] border border-[--red] bg-transparent hover:bg-red-500 active:bg-red-600 active:border-transparent hover:text-white dark:hover:border-red-500 dark:active:bg-red-600 dark:hover:text-white dark:active:border-transparent dark:active:text-white",
-                "alert-subtle": "shadow-none text-[--red] border bg-red-50 border-transparent hover:bg-red-100 active:bg-red-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
-                "alert-glass": "shadow-none text-[--red] border bg-red-50 border-red-300/20 hover:bg-red-100 active:bg-red-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
-                "alert-link": "shadow-none text-[--red] border border-transparent bg-transparent hover:underline active:text-red-700 dark:active:text-red-300",
-                "alert-basic": "shadow-none text-[--red] border border-transparent bg-transparent hover:bg-red-100 active:bg-red-200 dark:hover:bg-opacity-10 dark:active:text-red-300",
+                "alert": "text-white border bg-red-500 border-red-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
+                "alert-outline": "text-[--red] border border-red-500/40 bg-transparent hover:bg-red-500/10 active:bg-red-500/20 dark:border-red-400/30 dark:hover:bg-red-500/15 dark:active:bg-red-500/25",
+                "alert-subtle": "text-[--red] border bg-red-50 border-red-300/10 hover:bg-red-100 active:bg-red-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
+                "alert-link": "text-[--red] border border-transparent bg-transparent hover:underline active:text-red-700 dark:active:text-red-300",
+                "alert-basic": "text-[--red] border border-transparent bg-transparent hover:bg-red-100 active:bg-red-200 dark:hover:bg-opacity-10 dark:active:text-red-300",
 
                 "gray": "bg-gray-500 hover:bg-gray-600 active:bg-gray-700 border border-transparent",
-                "gray-outline": "text-gray-600 border  bg-transparent hover:bg-gray-100 active:border-transparent active:bg-gray-200 dark:text-gray-300 dark: dark:hover:bg-gray-800 dark:hover:bg-opacity-50 dark:active:bg-gray-700 dark:active:border-transparent dark:hover:text-gray-100",
-                "gray-subtle": "shadow-none text-[--gray] border bg-gray-100 border-transparent hover:bg-gray-200 active:bg-gray-300 dark:text-gray-300 dark:bg-opacity-10 dark:hover:bg-opacity-20",
-                "gray-glass": "shadow-none text-[--gray] border bg-gray-100 border-[--border] hover:bg-gray-200 active:bg-gray-300 dark:text-gray-300 dark:bg-opacity-10 dark:hover:bg-opacity-20",
-                "gray-link": "shadow-none text-[--gray] border border-transparent bg-transparent hover:underline active:text-gray-700 dark:text-gray-300 dark:active:text-gray-200",
-                "gray-basic": "shadow-none text-[--gray] border border-transparent bg-transparent hover:bg-gray-100 active:bg-gray-200 dark:active:bg-opacity-20 dark:text-gray-200 dark:hover:bg-opacity-10 dark:active:text-gray-200",
+                "gray-outline": "text-gray-600 border border-gray-500/30 bg-transparent hover:bg-gray-500/10 active:bg-gray-500/20 dark:text-gray-300 dark:border-gray-400/20 dark:hover:bg-gray-500/15 dark:active:bg-gray-500/25",
+                "gray-subtle": "text-[--gray] border bg-gray-100 border-transparent --border-gray-500/20 hover:bg-gray-200 active:bg-gray-300 dark:text-gray-100 dark:bg-opacity-10 dark:hover:bg-opacity-20",
+                "gray-link": "text-[--gray] border border-transparent bg-transparent hover:underline active:text-gray-700 dark:text-gray-300 dark:active:text-gray-200",
+                "gray-basic": "text-[--gray] border border-transparent bg-transparent hover:bg-gray-100 active:bg-gray-200 dark:active:bg-opacity-20 dark:text-gray-200 dark:hover:bg-opacity-10 dark:active:text-gray-200",
 
                 "white": "text-[#000] bg-white hover:bg-gray-200 active:bg-gray-300 border border-transparent",
-                // "white": "shadow-none text-black border bg-white/70 border-white/90 active:bg-opacity-100 dark:bg-opacity-70
-                // dark:hover:bg-opacity-90",
-                "white-outline": "text-white border border-gray-200 bg-transparent hover:bg-white hover:text-black active:bg-gray-100 active:text-[#000]",
-                "white-subtle": "shadow-none text-white bg-white bg-opacity-15 hover:bg-opacity-20 border border-transparent active:bg-opacity-25",
-                "white-glass": "shadow-none text-white bg-white bg-opacity-15 hover:bg-opacity-20 border border-[--border] active:bg-opacity-25",
-                "white-link": "shadow-none text-white border border-transparent bg-transparent hover:underline active:text-gray-200",
-                "white-basic": "shadow-none text-white border border-transparent bg-transparent hover:bg-white hover:bg-opacity-15 active:bg-opacity-20 active:text-white-300",
+                "white-outline": "text-white border border-white/30 bg-transparent hover:bg-white/10 active:bg-white/20",
+                "white-subtle": "text-white bg-white bg-opacity-15 hover:bg-opacity-20 border border-transparent --border-white/10 active:bg-opacity-25",
+                "white-link": "text-white border border-transparent bg-transparent hover:underline active:text-gray-200",
+                "white-basic": "text-white border border-transparent bg-transparent hover:bg-white hover:bg-opacity-15 active:bg-opacity-20 active:text-white-300",
             },
             rounded: {
                 true: "rounded-full",
@@ -71,11 +61,11 @@ export const ButtonAnatomy = defineStyleAnatomy({
                 false: null,
             },
             size: {
-                xs: "text-sm h-6 px-2",
-                sm: "text-sm h-8 px-3",
-                md: "text-sm h-10 px-4",
-                lg: "h-12 px-6 text-lg",
-                xl: "text-2xl h-14 px-8",
+                xs: "text-xs h-6 px-2",
+                sm: "text-xs h-8 px-2.5",
+                md: "text-sm h-9 px-3",
+                lg: "text-sm h-10 px-4",
+                xl: "text-base h-12 px-6",
             },
         },
         defaultVariants: {
@@ -123,6 +113,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
         ...rest
     } = props
 
+    const hasCustomAnimation = className?.includes("animate-")
+    const isIconButton = className?.includes("UI-IconButton_root")
+
     return (
         <button
             type="button"
@@ -133,6 +126,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
                     rounded,
                     contentWidth,
                 }),
+                !hasCustomAnimation && (
+                    isIconButton
+                        ? "transition-all duration-150 ease-[cubic-bezier(0.25,1,0.5,1)] motion-safe:hover:scale-[1.04] motion-safe:active:scale-[0.96]"
+                        : "transition-all duration-150 ease-[cubic-bezier(0.25,1,0.5,1)] motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.98]"
+                ),
                 className,
             )}
             disabled={disabled || loading}

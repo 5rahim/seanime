@@ -184,7 +184,7 @@ export function HomeScreen() {
 
                     {!!serverStatus?.settings?.library?.libraryPath && <>
                         <Button
-                            intent="primary-glass"
+                            intent="primary-subtle"
                             leftIcon={<FiSearch />}
                             size="xl"
                             rounded
@@ -197,7 +197,7 @@ export function HomeScreen() {
                     {!serverStatus?.settings?.library?.libraryPath && noMediaInCollection && <>
                         <SeaLink href="/discover" className="block">
                             <Button
-                                intent="gray-glass"
+                                intent="gray-subtle"
                                 leftIcon={<LuPlus />}
                                 size="lg"
                                 rounded
@@ -209,7 +209,7 @@ export function HomeScreen() {
 
                     {!serverStatus?.settings?.library?.libraryPath && !noMediaInCollection && <>
                         {animeLibraryType === "local" && <Button
-                            intent="gray-glass"
+                            intent="gray-subtle"
                             leftIcon={<LiaPlayCircle className="text-2xl" />}
                             size="lg"
                             rounded

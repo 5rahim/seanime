@@ -45,7 +45,7 @@ function IsomorphicPopover(props: PopoverProps & ModalProps & { media?: AL_BaseA
     if ((width && width > 1024) && !forceModal) {
         return <Popover
             {...rest}
-            className="max-w-5xl !w-full overflow-hidden bg-gray-950/95 backdrop-blur-sm rounded-xl"
+            className="max-w-5xl !w-full overflow-hidden rounded-2xl"
         >
             <p className="mb-4 font-semibold text-center px-6 line-clamp-1">
                 {media?.title?.userPreferred}

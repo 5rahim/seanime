@@ -99,7 +99,7 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>((props, ref) 
         className,
         size,
         intent,
-        tag = false,
+        tag = true,
         isClosable,
         onClose,
         leftIcon,

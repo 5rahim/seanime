@@ -115,7 +115,7 @@ export function PlaylistEditor(props: PlaylistEditorProps) {
                     contentClass="max-w-4xl"
                     trigger={<Button
                         leftIcon={<BiPlus className="text-2xl" />}
-                        intent="white-glass"
+                        intent="white-subtle"
                         className="rounded-full"
                         disabled={episodes.length >= 10}
                     >Add episodes</Button>}

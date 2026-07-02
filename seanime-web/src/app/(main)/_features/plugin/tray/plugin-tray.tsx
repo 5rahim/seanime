@@ -273,7 +273,7 @@ export function PluginTray(props: TrayPluginProps) {
                                 <IconButton
                                     icon={<BiX />}
                                     data-plugin-tray-vaul-close-button
-                                    intent="gray-glass"
+                                    intent="gray-subtle"
                                     size="sm"
                                     className="rounded-full"
                                     onClick={() => setOpen(false)}

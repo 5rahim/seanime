@@ -83,7 +83,6 @@ const selectUISettingTabAtom = atom("main")
 const tabsRootClass = cn("w-full contents space-y-4")
 
 const tabsTriggerClass = cn(
-    "text-base px-6 rounded-[--radius-md] w-fit border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
     "h-10 lg:justify-center px-3 flex-1",
 )
 
@@ -513,11 +512,12 @@ export function UISettings() {
                     <Tabs
                         value={tab}
                         onValueChange={setTab}
+                        variant="pill"
                         className={tabsRootClass}
                         triggerClass={tabsTriggerClass}
                         listClass={tabsListClass}
                     >
-                        <TabsList data-settings-ui-panel-tabs className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
+                        <TabsList data-settings-ui-panel-tabs>
                             <TabsTrigger value="main">General</TabsTrigger>
                             <TabsTrigger value="css">CSS</TabsTrigger>
                         </TabsList>

@@ -27,7 +27,7 @@ export function HomeSettingsButton(props: HomeSettingsButtonProps) {
     //             sideOffset={5}
     //             trigger={<IconButton
     //                 data-library-toolbar-switch-view-button
-    //                 intent="white-glass"
+    //                 intent="white-subtle"
     //                 icon={<BsHouseGear className="text-2xl" />}
     //                 className={cn(
     //                     "animate-bounce",

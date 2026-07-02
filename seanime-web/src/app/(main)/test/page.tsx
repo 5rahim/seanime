@@ -17,7 +17,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
 import React from "react"
-import { FiDownload, FiEye, FiHeart, FiHelpCircle, FiPlus, FiSearch, FiSettings, FiShare2, FiTrash, FiX } from "react-icons/fi"
+import { FiEye, FiHeart, FiHelpCircle, FiPlus, FiSearch, FiSettings, FiShare2, FiTrash, FiX } from "react-icons/fi"
+import { toast } from "sonner"
 
 const SECTIONS = [
     { id: "buttons", name: "Buttons & Action" },
@@ -108,84 +109,403 @@ export default function TestPage() {
                                 <CardTitle className="text-lg">Button Intents & Variants</CardTitle>
                                 <CardDescription>Displaying permutations of intent classes and styled states.</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-6">
-                                {/* Primary Intents Row */}
-                                <div className="space-y-2">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Primary Intent Variants</p>
-                                    <div className="flex flex-wrap gap-3">
-                                        <Button intent="primary" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Primary
-                                                                                                                                           Solid</Button>
-                                        <Button intent="primary-outline" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Primary
-                                                                                                                                                   Outline</Button>
-                                        <Button intent="primary-subtle" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Primary
-                                                                                                                                                  Subtle</Button>
-                                        <Button intent="primary-glass" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Primary
-                                                                                                                                                 Glass</Button>
-                                        <Button intent="primary-basic" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Primary
-                                                                                                                                                 Basic</Button>
-                                        <Button intent="primary-link" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Primary
-                                                                                                                                                Link</Button>
+                            <CardContent className="space-y-8">
+                                {/* Intents Grid */}
+                                <div className="space-y-4">
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Button Intents & Variants</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr] gap-x-6 gap-y-4 items-center">
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Primary</div>
+                                        <div className="flex flex-wrap gap-2.5">
+                                            <Button
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Solid</Button>
+                                            <Button
+                                                intent="primary-outline"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Outline</Button>
+                                            <Button
+                                                intent="primary-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Subtle</Button>
+                                            <Button
+                                                intent="primary-basic"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Basic</Button>
+                                            <Button
+                                                intent="primary-link"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Link</Button>
+                                        </div>
+
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Success</div>
+                                        <div className="flex flex-wrap gap-2.5">
+                                            <Button
+                                                intent="success"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Solid</Button>
+                                            <Button
+                                                intent="success-outline"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Outline</Button>
+                                            <Button
+                                                intent="success-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Subtle</Button>
+                                            <Button
+                                                intent="success-basic"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Basic</Button>
+                                            <Button
+                                                intent="success-link"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Link</Button>
+                                        </div>
+
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Warning</div>
+                                        <div className="flex flex-wrap gap-2.5">
+                                            <Button
+                                                intent="warning"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Solid</Button>
+                                            <Button
+                                                intent="warning-outline"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Outline</Button>
+                                            <Button
+                                                intent="warning-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Subtle</Button>
+                                            <Button
+                                                intent="warning-basic"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Basic</Button>
+                                            <Button
+                                                intent="warning-link"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Link</Button>
+                                        </div>
+
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Alert</div>
+                                        <div className="flex flex-wrap gap-2.5">
+                                            <Button
+                                                intent="alert"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Solid</Button>
+                                            <Button
+                                                intent="alert-outline"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Outline</Button>
+                                            <Button
+                                                intent="alert-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Subtle</Button>
+                                            <Button
+                                                intent="alert-basic"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Basic</Button>
+                                            <Button
+                                                intent="alert-link"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Link</Button>
+                                        </div>
+
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Gray</div>
+                                        <div className="flex flex-wrap gap-2.5">
+                                            <Button
+                                                intent="gray"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Solid</Button>
+                                            <Button
+                                                intent="gray-outline"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Outline</Button>
+                                            <Button
+                                                intent="gray-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Subtle</Button>
+                                            <Button
+                                                intent="gray-basic"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Basic</Button>
+                                            <Button
+                                                intent="gray-link"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Link</Button>
+                                        </div>
+
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">White</div>
+                                        <div className="flex flex-wrap gap-2.5">
+                                            <Button
+                                                intent="white"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Solid</Button>
+                                            <Button
+                                                intent="white-outline"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Outline</Button>
+                                            <Button
+                                                intent="white-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Subtle</Button>
+                                            <Button
+                                                intent="white-basic"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Basic</Button>
+                                            <Button
+                                                intent="white-link"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >Link</Button>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Warning & Success Row */}
-                                <div className="space-y-2">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Warning & Success Intents</p>
-                                    <div className="flex flex-wrap gap-3">
-                                        <Button intent="warning" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Warning
-                                                                                                                                           Solid</Button>
-                                        <Button intent="warning-outline" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Warning
-                                                                                                                                                   Outline</Button>
-                                        <Button intent="success" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Success
-                                                                                                                                           Solid</Button>
-                                        <Button intent="success-subtle" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Success
-                                                                                                                                                  Subtle</Button>
-                                    </div>
-                                </div>
+                                <Separator className="bg-white/5" />
 
-                                {/* Alert & Gray & White Row */}
-                                <div className="space-y-2">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Alert & Neutral Intents</p>
-                                    <div className="flex flex-wrap gap-3">
-                                        <Button intent="alert" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Alert
-                                                                                                                                         Solid</Button>
-                                        <Button intent="alert-glass" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Alert
-                                                                                                                                               Glass</Button>
-                                        <Button intent="gray" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Gray
-                                                                                                                                        Solid</Button>
-                                        <Button intent="gray-outline" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>Gray
-                                                                                                                                                Outline</Button>
-                                        <Button intent="white" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>White
-                                                                                                                                         Solid</Button>
-                                        <Button intent="white-subtle" loading={globalLoading} disabled={globalDisabled} rounded={globalRounded}>White
-                                                                                                                                                Subtle</Button>
-                                    </div>
-                                </div>
-
-                                {/* Button Sizes */}
-                                <div className="space-y-2">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Button Sizes</p>
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <Button size="xs" intent="primary">Size XS</Button>
-                                        <Button size="sm" intent="primary">Size SM</Button>
-                                        <Button size="md" intent="primary">Size MD</Button>
-                                        <Button size="lg" intent="primary">Size LG</Button>
-                                        <Button size="xl" intent="primary">Size XL</Button>
-                                    </div>
-                                </div>
-
-                                {/* Button with Icons & IconButtons */}
-                                <div className="space-y-2">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Icons & Icon Buttons</p>
-                                    <div className="flex flex-wrap items-center gap-4">
-                                        <Button leftIcon={<FiPlus />} intent="primary">Left Icon</Button>
-                                        <Button rightIcon={<FiSettings />} intent="gray-outline">Right Icon</Button>
-                                        <Button leftIcon={<FiPlus />} rightIcon={<FiSettings />} intent="warning-subtle">Both Icons</Button>
-                                        <Separator orientation="vertical" className="h-8 bg-white/10 hidden sm:block" />
-                                        <IconButton icon={<FiHeart />} intent="alert-glass" size="sm" aria-label="Favorite" />
-                                        <IconButton icon={<FiSettings />} intent="gray-outline" size="md" aria-label="Settings" />
-                                        <IconButton icon={<FiTrash />} intent="alert" size="lg" aria-label="Delete" />
-                                        <IconButton icon={<FiDownload />} intent="primary" size="xl" aria-label="Download" />
+                                {/* Aligned Sizes Row */}
+                                <div className="space-y-4">
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Aligned Sizes & Icon Button
+                                                                                                                Alignment</p>
+                                    <div className="space-y-4">
+                                        <div className="flex flex-wrap items-center gap-4">
+                                            <span className="text-xs font-mono text-gray-500 w-8">XS</span>
+                                            <Button
+                                                size="xs"
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >XS Button</Button>
+                                            <Button
+                                                size="xs"
+                                                intent="gray-outline"
+                                                leftIcon={<FiPlus />}
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >With Icon</Button>
+                                            <IconButton
+                                                size="xs"
+                                                icon={<FiSettings />}
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                                aria-label="Settings"
+                                            />
+                                            <IconButton
+                                                size="xs"
+                                                icon={<FiHeart />}
+                                                intent="alert-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                                aria-label="Favorite"
+                                            />
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-4">
+                                            <span className="text-xs font-mono text-gray-500 w-8">SM</span>
+                                            <Button
+                                                size="sm"
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >SM Button</Button>
+                                            <Button
+                                                size="sm"
+                                                intent="gray-outline"
+                                                leftIcon={<FiPlus />}
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >With Icon</Button>
+                                            <IconButton
+                                                size="sm"
+                                                icon={<FiSettings />}
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                                aria-label="Settings"
+                                            />
+                                            <IconButton
+                                                size="sm"
+                                                icon={<FiHeart />}
+                                                intent="alert-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                                aria-label="Favorite"
+                                            />
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-4">
+                                            <span className="text-xs font-mono text-gray-500 w-8">MD</span>
+                                            <Button
+                                                size="md"
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >MD Button</Button>
+                                            <Button
+                                                size="md"
+                                                intent="gray-outline"
+                                                leftIcon={<FiPlus />}
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >With Icon</Button>
+                                            <IconButton
+                                                size="md"
+                                                icon={<FiSettings />}
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                                aria-label="Settings"
+                                            />
+                                            <IconButton
+                                                size="md"
+                                                icon={<FiHeart />}
+                                                intent="alert-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                                aria-label="Favorite"
+                                            />
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-4">
+                                            <span className="text-xs font-mono text-gray-500 w-8">LG</span>
+                                            <Button
+                                                size="lg"
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >LG Button</Button>
+                                            <Button
+                                                size="lg"
+                                                intent="gray-outline"
+                                                leftIcon={<FiPlus />}
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >With Icon</Button>
+                                            <IconButton
+                                                size="lg"
+                                                icon={<FiSettings />}
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                                aria-label="Settings"
+                                            />
+                                            <IconButton
+                                                size="lg"
+                                                icon={<FiHeart />}
+                                                intent="alert-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalRounded}
+                                                aria-label="Favorite"
+                                            />
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-4">
+                                            <span className="text-xs font-mono text-gray-500 w-8">XL</span>
+                                            <Button
+                                                size="xl"
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >XL Button</Button>
+                                            <Button
+                                                size="xl"
+                                                intent="gray-outline"
+                                                leftIcon={<FiPlus />}
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                            >With Icon</Button>
+                                            <IconButton
+                                                size="xl"
+                                                icon={<FiSettings />}
+                                                intent="primary"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                                aria-label="Settings"
+                                            />
+                                            <IconButton
+                                                size="xl"
+                                                icon={<FiHeart />}
+                                                intent="alert-subtle"
+                                                loading={globalLoading}
+                                                disabled={globalDisabled}
+                                                rounded={globalRounded}
+                                                aria-label="Favorite"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </CardContent>
@@ -309,7 +629,7 @@ export default function TestPage() {
                             <CardContent className="space-y-6">
                                 <div className="flex flex-wrap gap-4">
                                     {/* Modal Variant 1: Controlled */}
-                                    <Button intent="primary-glass" leftIcon={<FiShare2 />} onClick={() => setModal1Open(true)}>
+                                    <Button intent="primary-subtle" leftIcon={<FiShare2 />} onClick={() => setModal1Open(true)}>
                                         Open Modal (Controlled)
                                     </Button>
 
@@ -363,7 +683,7 @@ export default function TestPage() {
                                     </Modal>
 
                                     {/* Drawer Component */}
-                                    <Button intent="success-glass" leftIcon={<FiPlus />} onClick={() => setDrawerOpen(true)}>
+                                    <Button intent="success-subtle" leftIcon={<FiPlus />} onClick={() => setDrawerOpen(true)}>
                                         Open Drawer
                                     </Button>
 
@@ -425,7 +745,7 @@ export default function TestPage() {
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuGroup>
-                                            <DropdownMenuItem className="text-red-500">
+                                            <DropdownMenuItem className="text-red-300">
                                                 <FiTrash />
                                                 <span>Delete entry</span>
                                             </DropdownMenuItem>
@@ -524,6 +844,60 @@ export default function TestPage() {
                                         isClosable
                                         onClose={() => console.log("Closed alert")}
                                     />
+                                </div>
+
+                                <Separator className="bg-white/5" />
+
+                                {/* Toast Notifications */}
+                                <div className="space-y-4">
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Toast Notifications (Sonner)</p>
+                                    <div className="flex flex-wrap gap-3">
+                                        <Button
+                                            intent="primary-basic"
+                                            onClick={() => toast("Default Toast notification")}
+                                        >
+                                            Default
+                                        </Button>
+                                        <Button
+                                            intent="primary-subtle"
+                                            onClick={() => toast.info("Info Toast notification", {
+                                                description: "This is a detailed description of the info toast.",
+                                            })}
+                                        >
+                                            Info
+                                        </Button>
+                                        <Button
+                                            intent="success"
+                                            onClick={() => toast.success("Successfully sync'd!", {})}
+                                        >
+                                            Success
+                                        </Button>
+                                        <Button
+                                            intent="warning"
+                                            onClick={() => toast.warning("Slow network detected", {
+                                                description: "Retrying to fetch the metadata provider.",
+                                            })}
+                                        >
+                                            Warning
+                                        </Button>
+                                        <Button
+                                            intent="alert"
+                                            onClick={() => toast.error("Failed to connect", {})}
+                                        >
+                                            Error
+                                        </Button>
+                                        <Button
+                                            intent="gray-outline"
+                                            onClick={() => toast("Undo action toast", {
+                                                action: {
+                                                    label: "Undo",
+                                                    onClick: () => toast("Action undone"),
+                                                },
+                                            })}
+                                        >
+                                            With Action
+                                        </Button>
+                                    </div>
                                 </div>
 
                                 <Separator className="bg-white/5" />

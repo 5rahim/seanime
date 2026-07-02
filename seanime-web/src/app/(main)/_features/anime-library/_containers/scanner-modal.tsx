@@ -99,8 +99,8 @@ export function ScannerModal() {
                 title="Library Scanner"
                 titleClass="text-center"
                 contentClass={cn(
-                    "space-y-4 max-w-2xl bg-gray-950 bg-opacity-90 rounded-xl",
-                    ts.enableBlurringEffects && "bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none",
+                    "space-y-4 max-w-2xl rounded-xl",
+                    // ts.enableBlurringEffects && "bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none",
                 )}
                 overlayClass={cn(ts.enableBlurringEffects && "bg-gray-950/70 backdrop-blur-sm")}
             >

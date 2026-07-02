@@ -467,7 +467,7 @@ export function EntrySectionTabs(props: EntrySectionTabs) {
             >
                 <StaticTabs
                     className="lg:h-10 w-fit flex-wrap lg:flex-nowrap overflow-hidden justify-center lg:justify-start"
-                    triggerClass="px-4 py-1 text-[1.1rem] data-[current=true]:text-[1.19rem] border border-transparent data-[current=true]:text-white opacity-80 data-[current=true]:border-transparent data-[current=true]:opacity-100 data-[current=true]:bg-gray-300 data-[current=true]:bg-opacity-10 rounded-xl data-[current=false]:scale-95 lg:scale-100 "
+                    triggerClass="px-4 py-1 text-[1.1rem] data-[current=true]:!text-[1.1rem] border border-transparent data-[current=true]:text-white opacity-80 --data-[current=true]:border-gray-600/50 data-[current=true]:opacity-100 data-[current=true]:bg-gray-300/10 rounded-xl data-[current=false]:scale-95 lg:scale-100"
                     iconClass="size-5 hidden data-[current=true]:block"
                     items={[
                         { name: "Local library", iconType: IoLibraryOutline, isCurrent: isLibraryView, onClick: () => setView("library") },

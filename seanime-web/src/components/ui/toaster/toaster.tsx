@@ -22,28 +22,28 @@ export const ToasterAnatomy = defineStyleAnatomy({
         "group-[.toaster]:text-[--foreground] group-[.toaster]:border-[--border]",
         "group-[.toaster]:ring-[--border]",
         // Success
-        "group-[.toaster]:data-[type=success]:bg-gradient-to-br",
-        "group-[.toaster]:data-[type=success]:from-emerald-950/95 group-[.toaster]:data-[type=success]:to-emerald-900/60",
+        "group-[.toaster]:data-[type=success]:bg-green-800",
+        // "group-[.toaster]:data-[type=success]:from-emerald-950/95 group-[.toaster]:data-[type=success]:to-emerald-900/60",
         "group-[.toaster]:data-[type=success]:text-emerald-100",
-        "group-[.toaster]:data-[type=success]:border-emerald-800/50",
+        "group-[.toaster]:data-[type=success]:border-green-700/50",
         "group-[.toaster]:data-[type=success]:ring-emerald-700/40",
         // Warning
-        "group-[.toaster]:data-[type=warning]:bg-gradient-to-br",
-        "group-[.toaster]:data-[type=warning]:from-amber-950/95 group-[.toaster]:data-[type=warning]:to-amber-900/60",
-        "group-[.toaster]:data-[type=warning]:text-amber-100",
-        "group-[.toaster]:data-[type=warning]:border-amber-800/50",
-        "group-[.toaster]:data-[type=warning]:ring-amber-700/40",
+        "group-[.toaster]:data-[type=warning]:bg-orange-800",
+        // "group-[.toaster]:data-[type=warning]:from-orange-950/95 group-[.toaster]:data-[type=warning]:to-orange-900/60",
+        "group-[.toaster]:data-[type=warning]:text-orange-100",
+        "group-[.toaster]:data-[type=warning]:border-orange-700/50",
+        "group-[.toaster]:data-[type=warning]:ring-orange-700/40",
         // Error
-        "group-[.toaster]:data-[type=error]:bg-gradient-to-br",
-        "group-[.toaster]:data-[type=error]:from-red-950/95 group-[.toaster]:data-[type=error]:to-red-900/60",
+        "group-[.toaster]:data-[type=error]:bg-red-800",
+        // "group-[.toaster]:data-[type=error]:from-red-950/95 group-[.toaster]:data-[type=error]:to-red-900/60",
         "group-[.toaster]:data-[type=error]:text-red-100",
-        "group-[.toaster]:data-[type=error]:border-red-800/50",
+        "group-[.toaster]:data-[type=error]:border-red-700/50",
         "group-[.toaster]:data-[type=error]:ring-red-700/40",
         // Info
-        "group-[.toaster]:data-[type=info]:bg-gradient-to-br",
-        "group-[.toaster]:data-[type=info]:from-blue-950/95 group-[.toaster]:data-[type=info]:to-blue-900/60",
+        "group-[.toaster]:data-[type=info]:bg-blue-800",
+        // "group-[.toaster]:data-[type=info]:from-blue-950/95 group-[.toaster]:data-[type=info]:to-blue-900/60",
         "group-[.toaster]:data-[type=info]:text-blue-100",
-        "group-[.toaster]:data-[type=info]:border-blue-800/50",
+        "group-[.toaster]:data-[type=info]:border-blue-700/50",
         "group-[.toaster]:data-[type=info]:ring-blue-700/40",
     ]),
     description: cva([
@@ -77,7 +77,7 @@ export const ToasterAnatomy = defineStyleAnatomy({
 
 export type ToasterProps = React.ComponentProps<typeof Sonner>
 
-export const Toaster = ({ position = "top-center", ...props }: ToasterProps) => {
+export const Toaster = ({ position = "top-right", ...props }: ToasterProps) => {
 
     const allProps = React.useMemo(() => ({
         position,
