@@ -478,15 +478,20 @@ func (p *Premiumize) GetTorrent(id string) (*debrid.TorrentItem, error) {
 // any data is downloaded); a Premiumize transfer only exposes its files once it has *finished*
 // downloading into the user's cloud storage (see the "transfer" type and resolveFiles).
 //
-// So this uses a three-step strategy:
+// This never adds/starts a transfer as a side effect of a lookup: this is also called by
+// autoselect to evaluate multiple candidate torrents per episode, and silently kicking off real
+// downloads for candidates that end up rejected would be wasteful and surprising. So it only
+// ever reads existing state:
 //  1. If we previously started downloading this exact torrent (tracked via hashCache), check its
 //     current status: if finished, return its real files; if still in progress, report progress.
 //  2. Otherwise, try /transfer/directdl, which resolves files instantly but only succeeds if the
 //     torrent is already cached by Premiumize (shared cache, independent of the user's account).
 //  3. Otherwise, the torrent isn't cached and there is no way to preview it without downloading
-//     it first: start a real transfer (so the download begins, matching what a user expects when
-//     picking a torrent to watch/download) and return an error explaining that its files aren't
-//     known yet. Callers should retry later, at which point step 1 will resolve it.
+//     it first, so this fails. Callers that want to actually download an uncached torrent should
+//     go through AddTorrent instead.
+//
+// (Reached out to Premiumize about exposing the file list before a transfer finishes, like RD/
+// TorBox/AllDebrid do - if/when that lands this whole function gets a lot simpler.)
 func (p *Premiumize) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.TorrentInfo, error) {
 	if opts.MagnetLink == "" {
 		return nil, fmt.Errorf("premiumize: magnet link required")
@@ -508,7 +513,7 @@ func (p *Premiumize) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.
 			} else if tr.Status != "error" {
 				return nil, fmt.Errorf("premiumize: torrent is downloading (%.0f%%%s), it must finish before its files can be previewed", tr.Progress*100, statusSuffix(tr.Message))
 			}
-			// If the transfer errored out, fall through and try adding it again below.
+			// If the transfer errored out, fall through and try the cache check below.
 		}
 	}
 
@@ -539,16 +544,7 @@ func (p *Premiumize) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.
 		}
 	}
 
-	// Not cached: start the actual download so it isn't just dropped on the floor, and report
-	// that its files can't be previewed yet.
-	id, addErr := p.AddTorrent(debrid.AddTorrentOptions{MagnetLink: opts.MagnetLink, InfoHash: opts.InfoHash})
-	if addErr != nil {
-		return nil, fmt.Errorf("premiumize: failed to get torrent info: %w", addErr)
-	}
-
-	p.logger.Info().Str("torrentId", id).Msg("premiumize: Torrent is not cached, started download so it can be previewed later")
-
-	return nil, fmt.Errorf("premiumize: torrent is not cached, download started (id=%s); its files will be available once it finishes", id)
+	return nil, fmt.Errorf("premiumize: torrent is not cached and cannot be previewed without downloading it first")
 }
 
 func statusSuffix(message string) string {
