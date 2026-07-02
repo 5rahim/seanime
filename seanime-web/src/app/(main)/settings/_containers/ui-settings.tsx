@@ -1,3 +1,4 @@
+import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useUpdateTheme } from "@/api/hooks/theme.hooks"
 import { useCustomCSS } from "@/components/shared/custom-css-provider"
 import { Alert } from "@/components/ui/alert"
@@ -25,7 +26,7 @@ import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React, { useState } from "react"
 import { useFormContext, UseFormReturn, useWatch } from "react-hook-form"
-import { LuChevronRight } from "react-icons/lu"
+import { LuChevronRight, LuFolderOpen } from "react-icons/lu"
 import { toast } from "sonner"
 import { z } from "zod"
 import { useIsSimulatedUser } from "../../_hooks/use-server-status"
@@ -320,6 +321,8 @@ function swLabel(thumb: React.ReactNode, text: React.ReactNode) {
 export function UISettings() {
     const themeSettings = useThemeSettings()
     const serverStatus = useServerStatus()
+
+    const { mutate: openInExplorer } = useOpenInExplorer()
 
     const { mutate, isPending } = useUpdateTheme()
     // const [fixBorderRenderingArtifacts, setFixBorerRenderingArtifacts] = useAtom(__ui_fixBorderRenderingArtifacts)
@@ -761,6 +764,17 @@ export function UISettings() {
                                         min={1}
                                         max={100}
                                     />
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <Button
+                                        size="sm"
+                                        intent="gray-outline"
+                                        onClick={() => openInExplorer({ path: `${serverStatus?.dataDir}/assets` })}
+                                        leftIcon={<LuFolderOpen />}
+                                    >
+                                        Open assets directory
+                                    </Button>
                                 </div>
 
                                 <Field.RadioCards
