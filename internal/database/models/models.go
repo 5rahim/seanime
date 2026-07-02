@@ -575,6 +575,16 @@ type DebridTorrentItem struct {
 	MediaId       int    `gorm:"column:media_id" json:"mediaId"`
 }
 
+// DebridTransferHash persists the info hash a debrid provider transfer was created from.
+// Some providers (e.g. Premiumize) never expose a transfer's info hash via their own API,
+// so this is the only way to recover the hash <-> transfer id mapping across restarts.
+type DebridTransferHash struct {
+	BaseModel
+	Provider   string `gorm:"column:provider;uniqueIndex:idx_debrid_transfer_hash" json:"provider"`
+	TransferID string `gorm:"column:transfer_id;uniqueIndex:idx_debrid_transfer_hash" json:"transferId"`
+	Hash       string `gorm:"column:hash;index" json:"hash"`
+}
+
 // +---------------------+
 // |       Plugin        |
 // +---------------------+

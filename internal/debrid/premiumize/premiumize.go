@@ -21,16 +21,29 @@ import (
 )
 
 type (
+	// HashStore persists the info hash a transfer was created from, keyed by transfer ID.
+	// The Premiumize API never returns the info hash of a transfer (only id, name, status,
+	// progress, message, folder_id and file_id are exposed by /transfer/list), so this is the
+	// only way to know a transfer's hash after it has been created, and the only way for that
+	// knowledge to survive a process restart (needed e.g. for auto-downloader hash matching).
+	// Implementations are expected to persist durably, e.g. to a database.
+	HashStore interface {
+		// LoadAll returns every persisted transfer id -> hash mapping.
+		LoadAll() (map[string]string, error)
+		// Save persists a single transfer id -> hash mapping.
+		Save(transferId, hash string)
+		// Delete removes a persisted mapping, e.g. once its transfer is deleted.
+		Delete(transferId string)
+	}
+
 	Premiumize struct {
-		baseUrl string
-		apiKey  mo.Option[string]
-		client  *http.Client
-		logger  *zerolog.Logger
-		// hashCache maps a transfer ID to the info hash used to create it.
-		// The Premiumize API never returns the info hash of a transfer (only id, name,
-		// status, progress, message, folder_id and file_id are exposed by /transfer/list),
-		// so this is the only way to know a transfer's hash after it has been created.
-		// It is best-effort and only lives for the duration of the process.
+		baseUrl   string
+		apiKey    mo.Option[string]
+		client    *http.Client
+		logger    *zerolog.Logger
+		hashStore HashStore
+		// hashCache is an in-memory, write-through cache in front of hashStore so lookups
+		// don't hit the store on every call. Seeded from hashStore.LoadAll() at construction.
 		hashCache *result.Map[string, string]
 	}
 
@@ -133,15 +146,52 @@ func extractInfoHash(magnet string) string {
 	return strings.ToLower(m[1])
 }
 
-func NewPremiumize(logger *zerolog.Logger) debrid.Provider {
-	return &Premiumize{
+// NewPremiumize creates a Premiumize provider. hashStore may be nil, in which case transfer
+// hashes are only kept in memory and won't survive a restart (see HashStore).
+func NewPremiumize(logger *zerolog.Logger, hashStore HashStore) debrid.Provider {
+	p := &Premiumize{
 		baseUrl: "https://www.premiumize.me/api",
 		apiKey:  mo.None[string](),
 		client: &http.Client{
 			Timeout: 30 * time.Second,
 		},
 		logger:    logger,
+		hashStore: hashStore,
 		hashCache: result.NewMap[string, string](),
+	}
+
+	if hashStore != nil {
+		hashes, err := hashStore.LoadAll()
+		if err != nil {
+			logger.Warn().Err(err).Msg("premiumize: Failed to load persisted transfer hashes")
+		} else {
+			for id, hash := range hashes {
+				p.hashCache.Set(id, hash)
+			}
+		}
+	}
+
+	return p
+}
+
+// rememberHash records the info hash a transfer was created from, both in memory and (if
+// configured) in the persistent hashStore.
+func (p *Premiumize) rememberHash(transferId, hash string) {
+	if hash == "" {
+		return
+	}
+	p.hashCache.Set(transferId, hash)
+	if p.hashStore != nil {
+		p.hashStore.Save(transferId, hash)
+	}
+}
+
+// forgetHash removes a transfer's recorded hash, both in memory and (if configured) in the
+// persistent hashStore.
+func (p *Premiumize) forgetHash(transferId string) {
+	p.hashCache.Delete(transferId)
+	if p.hashStore != nil {
+		p.hashStore.Delete(transferId)
 	}
 }
 
@@ -261,9 +311,7 @@ func (p *Premiumize) AddTorrent(opts debrid.AddTorrentOptions) (string, error) {
 		return "", fmt.Errorf("premiumize: no transfer id returned")
 	}
 
-	if hash != "" {
-		p.hashCache.Set(data.ID, hash)
-	}
+	p.rememberHash(data.ID, hash)
 
 	p.logger.Debug().Str("torrentId", data.ID).Str("torrentName", data.Name).Msg("premiumize: Torrent added")
 
@@ -602,7 +650,7 @@ func (p *Premiumize) DeleteTorrent(id string) error {
 		return fmt.Errorf("premiumize: failed to delete torrent: %w", err)
 	}
 
-	p.hashCache.Delete(id)
+	p.forgetHash(id)
 
 	return nil
 }
