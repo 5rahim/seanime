@@ -32,8 +32,9 @@ export default function Page() {
                 {/*<div className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-lg">*/}
                 <StaticTabs
                     data-anilist-collection-lists-tabs
-                    className="h-10 w-fit border rounded-full mx-auto"
-                    triggerClass="px-4 py-1 text-md"
+                    className="w-fit border rounded-full mx-auto py-0"
+                    triggerClass="px-4 py-1 text-md h-full rounded-full"
+                    pillClass="rounded-full border-transparent"
                     items={[
                         {
                             name: "Installed",

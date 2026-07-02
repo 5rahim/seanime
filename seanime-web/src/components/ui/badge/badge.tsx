@@ -55,7 +55,7 @@ export const BadgeAnatomy = defineStyleAnatomy({
     closeButton: cva([
         "UI-Badge__close-button",
         "appearance-none outline-none text-lg -mr-1 cursor-pointer transition ease-in hover:opacity-60",
-        "focus-visible:ring-2 focus-visible:ring-[--ring]",
+        "focus-visible:outline-none focus-visible:ring-1 ring-offset-1 ring-offset-[--background] focus-visible:ring-white/40",
     ]),
     icon: cva([
         "UI-Badge__icon",
@@ -99,7 +99,7 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>((props, ref) 
         className,
         size,
         intent,
-        tag = true,
+        tag = false,
         isClosable,
         onClose,
         leftIcon,

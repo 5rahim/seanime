@@ -185,7 +185,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                     <DropdownMenu
                         trigger={<IconButton
                             data-home-toolbar-dropdown-menu-trigger
-                            icon={<BiDotsVerticalRounded />} intent="gray-basic"
+                            icon={<BiDotsVerticalRounded className="text-2xl" />} intent="gray-basic"
                         />}
                     >
 

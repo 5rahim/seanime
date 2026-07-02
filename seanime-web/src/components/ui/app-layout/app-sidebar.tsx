@@ -44,7 +44,7 @@ export const AppSidebarTriggerAnatomy = defineStyleAnatomy({
         "UI-AppSidebarTrigger__trigger",
         "block lg:hidden",
         "items-center justify-center rounded-[--radius] p-2 text-[--muted] hover:bg-[--subtle] hover:text-[--foreground] transition-colors",
-        "focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[--ring]",
+        "focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset ring-offset-1 ring-offset-[--background] focus-visible:ring-white/40",
     ]),
 })
 

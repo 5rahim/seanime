@@ -297,7 +297,7 @@ export function SearchOptions() {
         <AppLayoutStack className="px-4 xl:px-0" data-detailed-library-view-search-options-container>
             <div className="flex w-full justify-center">
                 <StaticTabs
-                    className="h-10 w-fit pb-6"
+                    className="w-fit mb-6"
                     triggerClass="px-4 py-1"
                     items={[
                         { name: "Lists", isCurrent: selectedIndex === "-", onClick: () => setSelectedIndex("-") },

@@ -22,7 +22,7 @@ export const NavigationMenuAnatomy = defineStyleAnatomy({
         "text-[--muted] hover:text-[--foreground]",
         "data-[current=true]:text-white", // Selected
         "font-[600] leading-none",
-        "focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[--ring]",
+        "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset ring-offset-1 ring-offset-[--background] focus-visible:ring-white/40",
     ], {
         variants: {
             size: {
@@ -74,7 +74,7 @@ export const NavigationMenuAnatomy = defineStyleAnatomy({
     mobileTrigger: cva([
         "UI-VerticalNav__mobileTrigger",
         "items-center justify-center rounded-[--radius] p-2 text-[--muted] hover:bg-[--subtle] hover:text-[--foreground]",
-        "focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[--ring]",
+        "focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset ring-offset-1 ring-offset-[--background] focus-visible:ring-white/40",
     ], {
         variants: {
             switchToDrawerBelow: {

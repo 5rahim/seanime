@@ -36,7 +36,7 @@ export function MediaGenreSelector(props: MediaGenreSelectorProps) {
                         staticTabsClass,
                     )}
                     triggerClass={cn(
-                        "text-base rounded-xl ring-1 ring-transparent data-[current=true]:ring-gray-700 data-[current=true]:text-white",
+                        "text-base",
                         staticTabsTriggerClass,
                     )}
                     items={items}

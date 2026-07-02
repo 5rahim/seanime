@@ -26,7 +26,8 @@ export const InputAnatomy = defineStyleAnatomy({
                 lg: "h-12 px-4 py-3 text-md",
             },
             intent: {
-                basic: "hover:border-gray-300 dark:hover:border-gray-600",
+                // basic: "hover:border-gray-300 dark:hover:border-gray-600",
+                basic: "bg-gray-100 hover:bg-gray-200 dark:bg-[--paper-lighter] dark:hover:bg-gray-800 focus:bg-white dark:focus:bg-[--paper-lighter] shadow-none focus:ring-0",
                 filled: "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 border-transparent focus:bg-white dark:focus:bg-gray-900 shadow-none",
                 unstyled: "bg-transparent hover:bg-transparent border-0 shadow-none focus:ring-0 rounded-none p-0 text-base",
             },
@@ -139,7 +140,7 @@ export const InputAddonsAnatomy = defineStyleAnatomy({
     addon: cva([
         "UI-Input__addons--addon",
         "bg-gray-50 inline-flex items-center flex-none px-3 border border-gray-300 text-gray-800 shadow-sm text-sm sm:text-md",
-        "dark:bg-[--paper] dark:border-[--border] dark:text-gray-300",
+        "dark:bg-[--paper-lighter] dark:border-[--border] dark:text-gray-300",
     ], {
         variants: {
             size: { sm: "text-sm", md: "text-md", lg: "text-lg" },

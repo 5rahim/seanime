@@ -17,7 +17,7 @@ export const RadioGroupAnatomy = defineStyleAnatomy({
     item: cva([
         "UI-RadioGroup__item",
         "block aspect-square rounded-full border text-brand ring-offset-1 ring-offset-[--background]",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[--ring] focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40",
         "disabled:cursor-not-allowed data-[disabled=true]:opacity-50 data-[readonly=true]:cursor-not-allowed",
         "data-[state=unchecked]:bg-white dark:data-[state=unchecked]:bg-gray-700", // Unchecked
         "data-[state=unchecked]:hover:bg-gray-100 dark:data-[state=unchecked]:hover:bg-gray-600", // Unchecked hover

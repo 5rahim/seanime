@@ -30,7 +30,7 @@ export const TabsAnatomy = defineStyleAnatomy({
     trigger: cva([
         "UI-Tabs__trigger appearance-none shadow-none",
         "inline-flex h-full items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-[--background]",
-        "transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "transition-all focus-visible:outline-none focus-visible:ring-1 ring-offset-1 ring-offset-[--background] focus-visible:ring-white/40",
         "disabled:pointer-events-none disabled:opacity-50",
     ], {
         variants: {
@@ -55,8 +55,7 @@ export const TabsAnatomy = defineStyleAnatomy({
     }),
     content: cva([
         "UI-Tabs__content",
-        "ring-offset-[--background]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--ring] focus-visible:ring-offset-2",
+        "focus-visible:outline-none",
     ]),
 })
 
@@ -66,8 +65,9 @@ export const TabsAnatomy = defineStyleAnatomy({
 
 function getActiveBgClass(classes?: string): string {
     if (!classes) return "bg-[--subtle]"
-    const match = classes.match(/data-\[state=active\]:(bg-\S+)/)
-    return match ? match[1] : "bg-[--subtle]"
+    const matches = classes.match(/data-\[state=active\]:(bg-\S+)/g)
+    if (!matches) return "bg-[--subtle]"
+    return matches.map(m => m.replace("data-\[state=active\]:", "")).join(" ")
 }
 
 function getRoundedClass(classes?: string): string {
@@ -235,14 +235,14 @@ export const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>
                         <motion.span
                             layoutId={layoutId}
                             className="absolute bottom-0 left-0 right-0 h-[2px] bg-[--brand] z-10"
-                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 38 }}
                         />
                     )}
                     {isActive && variant === "pill" && (
                         <motion.span
                             layoutId={layoutId}
                             className={cn("absolute inset-0 -z-10", activeBgClass, roundedClass)}
-                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 38 }}
                         />
                     )}
                 </>

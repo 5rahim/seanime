@@ -30,7 +30,7 @@ export const AutocompleteAnatomy = defineStyleAnatomy({
     ]),
     command: cva([
         "UI-Autocomplete__command",
-        "focus-within:ring-2 ring-[--ring] transition",
+        "focus-within:outline-none focus-within:ring-1 ring-offset-1 ring-offset-[--background] focus-within:ring-white/40 transition",
     ]),
 })
 

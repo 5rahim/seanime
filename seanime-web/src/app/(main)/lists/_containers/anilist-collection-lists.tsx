@@ -83,8 +83,9 @@ export function AnilistCollectionLists() {
             <div className="w-full flex justify-center" data-anilist-collection-lists-tabs-container>
                 <StaticTabs
                     data-anilist-collection-lists-tabs
-                    className="h-10 w-fit border rounded-full"
-                    triggerClass="px-4 py-1"
+                    className="w-fit border rounded-full py-0"
+                    triggerClass="px-4 py-2 h-full rounded-full"
+                    pillClass="rounded-full border-transparent"
                     items={[
                         { name: "Anime", isCurrent: pageType === "anime", onClick: () => setPageType("anime") },
                         ...[serverStatus?.settings?.library?.enableManga && {

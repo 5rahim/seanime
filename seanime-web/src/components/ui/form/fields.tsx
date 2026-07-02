@@ -332,7 +332,7 @@ const RadioCardsField = React.memo(withControlledInput(forwardRef<HTMLButtonElem
                 "items-start cursor-pointer transition border-transparent rounded-[--radius] p-3 w-full md:w-fit",
                 "bg-transparent dark:hover:bg-gray-900 dark:bg-transparent",
                 "data-[state=checked]:bg-brand-500/5 dark:data-[state=checked]:bg-gray-900",
-                "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-transparent transition",
+                "focus:outline-none focus:ring-1 ring-offset-1 ring-offset-[--background] focus:ring-white/40 focus-within:ring-transparent transition",
                 "dark:border dark:data-[state=checked]:border-[--border] data-[state=checked]:ring-offset-0",
                 itemContainerClass,
             )}

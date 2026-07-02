@@ -25,7 +25,6 @@ import { Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Popover } from "@/components/ui/popover"
-import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
 import { upath } from "@/lib/helpers/upath"
@@ -490,11 +489,12 @@ export function LibraryExplorer() {
                                 fileNodes={fileNodes}
                             />
                             {!selectedFilter && <Popover
+                                className="p-1 w-48 shadow-lg border border-gray-800/80 bg-gray-950/95"
                                 trigger={<Button
                                     leftIcon={<LuFilter className="text-xl" />}
                                     size="sm"
                                     intent={!!selectedFilter ? "white" : "gray-subtle"}
-                                    onClick={() => {handleToggleFilter()}}
+                                    onClick={() => { handleToggleFilter() }}
                                     className={cn(
                                         !!selectedFilter && "animate-pulse",
                                     )}
@@ -502,25 +502,47 @@ export function LibraryExplorer() {
                                     Filter
                                 </Button>}
                             >
-                                <Button intent="gray-link" size="sm" className="w-full" onClick={() => handleToggleFilter("UNMATCHED")}>
-                                    Unmatched files
-                                </Button>
-                                <Button intent="gray-link" size="sm" className="w-full" onClick={() => handleToggleFilter("UNLOCKED")}>
-                                    Unlocked files
-                                </Button>
-                                <Button intent="gray-link" size="sm" className="w-full" onClick={() => handleToggleFilter("IGNORED")}>
-                                    Ignored files
-                                </Button>
-                                <Button intent="gray-link" size="sm" className="w-full" onClick={() => handleToggleFilter("UNKNOWN_MEDIA")}>
-                                    Unknown media
-                                </Button>
+                                <div className="flex flex-col gap-1 p-1">
+                                    <Button
+                                        intent="gray-basic"
+                                        size="sm"
+                                        className="w-full justify-start font-normal text-xs"
+                                        onClick={() => handleToggleFilter("UNMATCHED")}
+                                    >
+                                        Unmatched files
+                                    </Button>
+                                    <Button
+                                        intent="gray-basic"
+                                        size="sm"
+                                        className="w-full justify-start font-normal text-xs"
+                                        onClick={() => handleToggleFilter("UNLOCKED")}
+                                    >
+                                        Unlocked files
+                                    </Button>
+                                    <Button
+                                        intent="gray-basic"
+                                        size="sm"
+                                        className="w-full justify-start font-normal text-xs"
+                                        onClick={() => handleToggleFilter("IGNORED")}
+                                    >
+                                        Ignored files
+                                    </Button>
+                                    <Button
+                                        intent="gray-basic"
+                                        size="sm"
+                                        className="w-full justify-start font-normal text-xs"
+                                        onClick={() => handleToggleFilter("UNKNOWN_MEDIA")}
+                                    >
+                                        Unknown media
+                                    </Button>
+                                </div>
                             </Popover>}
                             {!!selectedFilter && (
                                 <Button
                                     leftIcon={<LuFilterX className="text-xl" />}
                                     size="sm"
                                     intent={"white"}
-                                    onClick={() => {handleToggleFilter()}}
+                                    onClick={() => { handleToggleFilter() }}
                                     className={cn(
                                         "animate-pulse",
                                     )}
@@ -603,7 +625,7 @@ export function LibraryExplorer() {
                     </div>
                 </div>
 
-                <div className="flex flex-col flex-none bg-gray-950/50 w-80">
+                <div className="flex flex-col flex-none bg-gray-950/50 w-80 overflow-y-auto">
                     <LibraryInfoPanel localFiles={fileTree?.localFiles} />
                 </div>
             </div>
@@ -824,7 +846,7 @@ const VirtualizedTreeNode = memo(({
         onPathSelection(node, isChecked)
     }, [node])
 
-    const paddingLeft = level * 32 + 8
+    const paddingLeft = level * 20 + 8
 
     const media = node.mediaIds?.length === 1 ? userMedia?.find(n => n.id === node.mediaIds?.[0]) : undefined
     const isUnknownMedia = node.mediaIds?.length === 1 && !media
@@ -960,6 +982,14 @@ const VirtualizedTreeNode = memo(({
 
     const isScannedFile = !!node.localFile
 
+    const selectedNode = useAtomValue(libraryExplorer_selectedNodeAtom)
+
+    const isInSelectedGroup = React.useMemo(() => {
+        if (!selectedNode || selectedNode.kind !== "file") return false
+        const groupPath = upath.dirname(selectedNode.path)
+        return node.path === groupPath || node.path.startsWith(groupPath + "/")
+    }, [selectedNode, node.path])
+
     const [contextMenuOpen, setContextMenuOpen] = React.useState(false)
 
     const confirmLockDialog = useConfirmationDialog({
@@ -1093,23 +1123,26 @@ const VirtualizedTreeNode = memo(({
                 <ContextMenuTrigger>
                     <div
                         className={cn(
-                            "flex items-center px-2 h-10 rounded-md cursor-pointer select-none group/tree-node transition-colors",
-                            !isSelected && "hover:bg-gray-800/50",
-                            isSelected && "bg-brand-500/20 text-brand-100",
-                            contextMenuOpen && "bg-gray-800/30",
+                            "flex items-center px-2 h-10 rounded-md cursor-pointer select-none group/tree-node transition-all duration-150 border border-transparent",
+                            !isSelected && "hover:bg-white/[0.03]",
+                            isSelected && "bg-gray-700/60 border-transparent text-gray-100 font-semibold",
+                            (!isSelected && isInSelectedGroup) && "bg-white/[0.015] border-white/[0.02]",
+                            contextMenuOpen && "bg-white/[0.06]",
                         )}
                         style={{ paddingLeft }}
                         onClick={handleClick}
                     >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                            {isDirectory && hasChildren && (
-                                <div className="w-4 h-4 flex items-center justify-center">
+                            {isDirectory && hasChildren ? (
+                                <div className="w-4 h-4 flex-none flex items-center justify-center">
                                     {isExpanded ? (
-                                        <BiChevronDown className="size-4 text-gray-400" />
+                                        <BiChevronDown className="size-4 text-gray-400 transition-transform duration-150" />
                                     ) : (
-                                        <BiChevronRight className="size-4 text-gray-400" />
+                                        <BiChevronRight className="size-4 text-gray-400 transition-transform duration-150" />
                                     )}
                                 </div>
+                            ) : (
+                                <div className="w-4 h-4 flex-none" />
                             )}
 
                             {(isSelectingPaths && (isDirectory || isScannedFile)) && <div className="flex h-full items-center">
@@ -1141,40 +1174,39 @@ const VirtualizedTreeNode = memo(({
                                 </div>}
 
                             <span
-                                className="text-md tracking-wide text-gray-200 break-all group-hover/tree-node:text-gray-100 flex gap-1 items-center w-full overflow-hidden"
+                                className="text-sm font-medium tracking-wide text-gray-200 break-all group-hover/tree-node:text-gray-100 flex gap-1 items-center w-full overflow-hidden"
                                 style={{ maxWidth: maxNameWidth + "px" }}
                             >
                                 <span
                                     className={cn(
                                         "truncate min-w-0",
-                                        !isDirectory && !!node.localFile && !node.localFile.mediaId && "text-orange-200",
-                                        !isDirectory && !isScannedFile && "text-red-200",
-                                        !isDirectory && node.localFile?.ignored && "text-[--muted] italic",
+                                        !isDirectory && !!node.localFile && !node.localFile.mediaId && "text-orange-300",
+                                        !isDirectory && !isScannedFile && "text-red-300",
+                                        !isDirectory && node.localFile?.ignored && "text-gray-500 italic",
                                     )}
                                 >{node.name === "root" ? "Anime Libraries" : node.name}</span>
                                 {(!!media || isUnknownMedia) && (
                                     <span
-                                        className={cn(
-                                            "hidden tracking-normal 2xl:flex text-[--muted] text-sm flex-shrink whitespace-nowrap line-clamp-1 items-center gap-1",
-                                        )}
-                                        style={{ maxWidth: 200 }}
+                                        className="hidden 2xl:inline-flex items-center text-[11px] font-medium text-gray-300 bg-gray-900 border border-gray-800 px-1.5 py-0.5 rounded-md flex-shrink max-w-[150px] leading-none select-none ml-1.5 overflow-hidden"
                                     >
-                                        <span> - </span>
-                                        <span>{!isUnknownMedia ? media?.title?.userPreferred : "(?)"}</span>
+                                        <span className="truncate">
+                                            {!isUnknownMedia ? media?.title?.userPreferred : "Unknown anime"}
+                                        </span>
                                     </span>
                                 )}
-                                {isUnknownMedia && <Tooltip trigger={<Badge intent="unstyled">Unknown media</Badge>}>
+                                {isUnknownMedia && <Tooltip
+                                    trigger={<Badge
+                                        intent="unstyled"
+                                        className="text-[11px] font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded-md ml-1.5"
+                                    >Unknown media</Badge>}
+                                >
                                     This media is not in your collection.
                                 </Tooltip>}
                                 {(allFileIgnored && isDirectory) && (
                                     <span
-                                        className={cn(
-                                            "hidden 2xl:flex text-[--muted] text-sm flex-shrink whitespace-nowrap line-clamp-1 items-center gap-1",
-                                        )}
-                                        style={{ maxWidth: 200 }}
+                                        className="hidden 2xl:inline-flex items-center text-[11px] font-medium text-gray-400 bg-gray-900/30 border border-gray-800/50 px-1.5 py-0.5 rounded-md flex-shrink leading-none select-none ml-1.5 italic"
                                     >
-                                        <span> </span>
-                                        <span>(Ignored)</span>
+                                        Ignored
                                     </span>
                                 )}
                             </span>
@@ -1330,10 +1362,12 @@ function LibraryInfoPanel({}: { localFiles: Record<string, Anime_LocalFile> | un
 
     if (!selectedNode) {
         return (
-            <div className="p-4 flex-1 flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                    <FiFolder className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p className="text-sm">Select a file or folder to view details</p>
+            <div className="p-6 flex-1 flex flex-col items-center justify-center h-full">
+                <div className="text-center max-w-[200px] flex flex-col items-center">
+                    <div className="size-12 rounded-xl bg-gray-900 border border-gray-800/80 flex items-center justify-center mb-3 text-gray-500 shadow-inner">
+                        <FiFolder className="size-10 opacity-60" />
+                    </div>
+                    <p className="text-xs text-gray-400 font-medium">Select a file or folder to view details</p>
                 </div>
             </div>
         )
@@ -1341,107 +1375,120 @@ function LibraryInfoPanel({}: { localFiles: Record<string, Anime_LocalFile> | un
 
     return (
         <div className="p-4 flex flex-col">
-            <div className="flex flex-col items-center text-center mb-6">
-                <div className="w-16 h-16 flex items-center justify-center mb-3">
+            <div className="flex flex-col items-center text-center p-4 bg-gray-900/30 border border-gray-800/60 rounded-xl mb-4 shadow-sm">
+                <div className="size-14 rounded-lg bg-gray-950 flex items-center justify-center mb-3 border border-gray-800 shadow-inner">
                     {isDirectory ? (
                         <FiFolder
                             className={cn(
-                                "w-12 h-12 text-brand-400",
-                                !selectedNode.mediaIds?.length && "text-[--muted]",
+                                "size-7 text-brand-400",
+                                !selectedNode.mediaIds?.length && "text-gray-500",
                             )}
                         />
                     ) : (
                         <MdVideoFile
                             className={cn(
-                                "w-12 h-12 text-[--muted]",
-                                selectedNode.localFile?.metadata?.type === "main" && "text-brand-400/80",
-                                selectedNode.localFile?.metadata?.type === "special" && "text-cyan-200/50",
-                                selectedNode.localFile?.metadata?.type === "nc" && "text-gray-200/30",
+                                "size-7 text-gray-500",
+                                selectedNode.localFile?.metadata?.type === "main" && "text-brand-400",
+                                selectedNode.localFile?.metadata?.type === "special" && "text-cyan-400",
+                                selectedNode.localFile?.metadata?.type === "nc" && "text-gray-400",
                             )}
                         />
                     )}
                 </div>
-                <h3 className="font-semibold text-gray-100 break-all text-sm leading-tight">
+                <h3 className="font-semibold text-gray-100 break-all text-sm leading-snug max-w-full px-2">
                     {selectedNode.name}
                 </h3>
                 {fileExtension && (
-                    <span className="text-xs text-gray-400 mt-1">{fileExtension} File</span>
+                    <span className="text-[10px] font-bold text-gray-400 bg-gray-800 px-1.5 py-0.5 rounded-md mt-2 border border-gray-700/40 uppercase tracking-wide">
+                        {fileExtension} File
+                    </span>
                 )}
             </div>
 
-            <Separator className="mb-4" />
-
-            <div className="space-y-3 text-sm">
-                <div>
-                    <dt className="text-gray-400 text-sm uppercase tracking-wide mb-1">Type</dt>
-                    <dd className="text-gray-200">{isDirectory ? "Folder" : "File"}</dd>
-                </div>
-
-                <div>
-                    <dt className="text-gray-400 text-sm uppercase tracking-wide mb-1">Path</dt>
-                    <dd className="text-gray-200 text-xs font-mono bg-gray-900 p-2 rounded break-all">
-                        {selectedNode.path}
-                    </dd>
-                </div>
-
-                {selectedNode.size && (
-                    <div>
-                        <dt className="text-gray-400 text-sm uppercase tracking-wide mb-1">Size</dt>
-                        <dd className="text-gray-200">{formatFileSize(selectedNode.size)}</dd>
+            <div className="bg-gray-900/40 border border-gray-800/60 rounded-xl p-4 space-y-4 shadow-sm">
+                <dl className="space-y-3.5">
+                    <div className="flex flex-col">
+                        <dt className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Type</dt>
+                        <dd className="text-sm text-gray-200 font-medium">{isDirectory ? "Folder" : "File"}</dd>
                     </div>
-                )}
 
-                {isDirectory && selectedNode.mediaIds && selectedNode.mediaIds.length > 0 && (
-                    <div>
-                        <dt className="text-gray-400 text-sm uppercase tracking-wide mb-1">
-                            Associated Media
-                        </dt>
-                        <dd className="text-gray-200">
-                            {selectedNode.mediaIds.length} anime series
+                    <div className="flex flex-col">
+                        <dt className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Path</dt>
+                        <dd className="text-[11px] font-mono text-gray-300 bg-gray-950/60 border border-gray-800/80 p-2 rounded-lg break-all select-all leading-normal">
+                            {selectedNode.path}
                         </dd>
-                        {selectedNode.mediaIds.length > 1 && selectedNode.mediaIds.length <= 5 && associatedMedia?.map(media => (
-                            <dd
-                                key={media.id}
-                                onClick={() => setPreviewModalMediaId(media.id, "anime")}
-                                className="text-gray-200 cursor-pointer underline line-clamp-2 hover:opacity-80"
-                            >
-                                {media.title?.userPreferred}
+                    </div>
+
+                    {selectedNode.size && (
+                        <div className="flex flex-col">
+                            <dt className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Size</dt>
+                            <dd className="text-sm text-gray-200 font-medium">{formatFileSize(selectedNode.size)}</dd>
+                        </div>
+                    )}
+
+                    {isDirectory && selectedNode.mediaIds && selectedNode.mediaIds.length > 0 && (
+                        <div className="flex flex-col">
+                            <dt className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Associated Media</dt>
+                            <dd className="text-sm text-gray-200 font-medium mb-1">
+                                {selectedNode.mediaIds.length} anime series
                             </dd>
-                        ))}
-                    </div>
-                )}
+                            {selectedNode.mediaIds.length > 1 && selectedNode.mediaIds.length <= 5 && (
+                                <div className="space-y-1 mt-1 pl-2 border-l border-brand-500/20">
+                                    {associatedMedia?.map(media => (
+                                        <button
+                                            key={media.id}
+                                            onClick={() => setPreviewModalMediaId(media.id, "anime")}
+                                            className="text-[11px] text-brand-400 hover:text-brand-300 transition-colors text-left block w-full truncate underline"
+                                        >
+                                            {media.title?.userPreferred}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-                {selectedNode.localFile && (
-                    <div className="space-y-1.5">
-                        <dt className="text-gray-400 text-sm uppercase tracking-wide">
-                            Library File
-                        </dt>
-                        {selectedNode.localFile?.mediaId > 0 && <dd className="text-[--green] text-sm">✓ Matched</dd>}
-                        {selectedNode.localFile?.mediaId === 0 && <dd className="text-[--orange] text-sm">Not matched</dd>}
-                        <dd className="text-gray-200 text-sm">
-                            Episode: <span className="font-semibold">{selectedNode.localFile?.metadata?.episode ?? "N/A"}</span>
-                        </dd>
-                        <dd className="text-gray-200 text-sm">
-                            AniDB Episode: <span className="font-semibold">{selectedNode.localFile?.metadata?.aniDBEpisode ?? "N/A"}</span>
-                        </dd>
-                        <dd className="text-gray-200 text-sm">
-                            Type: <span className="font-semibold">{selectedNode.localFile?.metadata?.type?.toUpperCase()}</span>
-                        </dd>
-                    </div>
-                )}
+                    {selectedNode.localFile && (
+                        <div className="flex flex-col gap-1.5 pt-1">
+                            <dt className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Library File</dt>
+                            <div className="flex items-center gap-1.5">
+                                {selectedNode.localFile?.mediaId > 0 ? (
+                                    <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-green-500/10 text-green-400 border border-green-500/20">✓
+                                                                                                                                                                Matched</span>
+                                ) : (
+                                    <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">Not
+                                                                                                                                                                   matched</span>
+                                )}
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 mt-1">
+                                <div className="bg-gray-950/40 p-1.5 rounded border border-gray-800/80">
+                                    <span className="block text-[10px] font-medium text-gray-400 uppercase">Episode</span>
+                                    <span className="text-sm font-semibold text-gray-300">{selectedNode.localFile?.metadata?.episode ?? "N/A"}</span>
+                                </div>
+                                <div className="bg-gray-950/40 p-1.5 rounded border border-gray-800/80">
+                                    <span className="block text-[10px] font-medium text-gray-400 uppercase">AniDB Ep</span>
+                                    <span className="text-sm font-semibold text-gray-300">{selectedNode.localFile?.metadata?.aniDBEpisode ?? "N/A"}</span>
+                                </div>
+                            </div>
+                            <div className="bg-gray-950/40 p-1.5 rounded border border-gray-800/80 mt-0.5">
+                                <span className="block text-[10px] font-medium text-gray-400 uppercase">Type</span>
+                                <span className="text-sm font-semibold text-brand-300">{selectedNode.localFile?.metadata?.type?.toUpperCase()}</span>
+                            </div>
+                        </div>
+                    )}
 
-                {isDirectory && selectedNode.children && (
-                    <div>
-                        <dt className="text-gray-400 text-sm uppercase tracking-wide mb-1">Contents</dt>
-                        <dd className="text-gray-200">
-                            {directoryCount} folder{directoryCount != 1 ? "s" : ""}, {" "}
-                            {fileCount} file{fileCount != 1 ? "s" : ""}
-                        </dd>
-                    </div>
-                )}
+                    {isDirectory && selectedNode.children && (
+                        <div className="flex flex-col">
+                            <dt className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Contents</dt>
+                            <dd className="text-sm text-gray-200 font-medium">
+                                {directoryCount} folder{directoryCount != 1 ? "s" : ""}, {fileCount} file{fileCount != 1 ? "s" : ""}
+                            </dd>
+                        </div>
+                    )}
+                </dl>
 
                 {!!media && (
-                    <div className="p-4">
+                    <div className="mt-4 pt-4 border-t border-gray-850">
                         <MediaEntryCard
                             media={media}
                             type="anime"

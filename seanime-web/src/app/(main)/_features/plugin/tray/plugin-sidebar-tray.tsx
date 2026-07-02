@@ -139,7 +139,7 @@ const ExtensionList = ({
                         {trayIcons?.map(trayIcon => (
                             <div
                                 key={trayIcon.extensionId}
-                                className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md px-2 py-1 max-w-full"
+                                className="flex items-center gap-2 justify-between bg-gray-900 hover:bg-[--subtle] transition-colors rounded-md px-2 py-1 max-w-full"
                             >
                                 <div
                                     className="flex items-center gap-2 cursor-pointer max-w-full"

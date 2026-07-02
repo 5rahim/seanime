@@ -16,7 +16,7 @@ export const SwitchAnatomy = defineStyleAnatomy({
         "UI-Switch__root",
         "peer inline-flex shrink-0 cursor-pointer items-center rounded-full border transition-colors",
         "disabled:cursor-not-allowed data-[disabled=true]:opacity-50",
-        "outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--ring] focus-visible:ring-offset-1",
+        "outline-none focus-visible:outline-none focus-visible:ring-1 ring-offset-1 ring-offset-[--background] focus-visible:ring-white/40",
         "data-[state=unchecked]:bg-gray-200 dark:data-[state=unchecked]:bg-gray-900", // Unchecked
         "data-[state=unchecked]:hover:bg-gray-300 dark:data-[state=unchecked]:hover:bg-gray-800", // Unchecked hover
         "data-[state=checked]:bg-brand", // Checked

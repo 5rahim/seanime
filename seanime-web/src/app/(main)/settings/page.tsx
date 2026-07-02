@@ -167,7 +167,7 @@ export default function Page() {
                     variant="pill"
                     className={cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")}
                     triggerClass={cn(
-                        "text-sm font-medium w-fit lg:w-full border-0 data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white py-0",
+                        "text-base font-medium w-fit lg:w-full border-0 data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white py-0",
                         "h-9 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform rounded-lg",
                     )}
                     listClass={cn(

@@ -15,7 +15,7 @@ export const SimpleDropzoneAnatomy = defineStyleAnatomy({
         "UI-SimpleDropzone__root",
         "appearance-none w-full mb-2 cursor-pointer hover:text-[--foreground] flex items-center justify-center p-4 border rounded-[--radius] border-dashed",
         "gap-3 text-sm sm:text-base",
-        "outline-none ring-[--ring] focus-visible:ring-2",
+        "outline-none focus-visible:outline-none focus-visible:ring-1 ring-offset-1 ring-offset-[--background] focus-visible:ring-white/40",
         "text-[--muted] transition ease-in-out hover:border-[--foreground]",
         "data-[drag-active=true]:border-brand-500",
         "data-[drag-reject=true]:border-[--red]",

@@ -189,6 +189,8 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
         [scrollPrev, scrollNext],
     )
 
+    const localRef = React.useRef<HTMLDivElement>(null)
+
     React.useEffect(() => {
         if (!api || !setApi) return
 
@@ -207,6 +209,91 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
         }
     }, [api, onSelect])
 
+    React.useEffect(() => {
+        if (!ref) return
+        if (typeof ref === "function") {
+            ref(localRef.current)
+        } else {
+            (ref as React.MutableRefObject<HTMLDivElement | null>).current = localRef.current
+        }
+    }, [ref])
+
+    React.useEffect(() => {
+        const container = localRef.current
+        if (!container || !api) return
+
+        let lastDeltas: number[] = [0, 0, 0]
+        let cooldown = false
+        let cooldownTimeout: any = null
+        let lastDirection = 0
+
+        const handleWheel = (e: WheelEvent) => {
+            const isVertical = orientation === "vertical"
+            let isScrollIntent = false
+            let delta = 0
+
+            if (isVertical) {
+                isScrollIntent = Math.abs(e.deltaY) > Math.abs(e.deltaX) && !e.shiftKey
+                delta = e.deltaY
+            } else {
+                isScrollIntent = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey
+                delta = e.deltaX !== 0 ? e.deltaX : (e.shiftKey ? e.deltaY : 0)
+            }
+
+            if (!isScrollIntent || delta === 0) return
+
+            // Prevent default behavior to prevent page scroll/navigation
+            e.preventDefault()
+
+            // Reset history and cooldown if direction changed
+            const direction = Math.sign(delta)
+            if (direction !== lastDirection) {
+                lastDeltas = [0, 0, 0]
+                lastDirection = direction
+                cooldown = false
+                if (cooldownTimeout) {
+                    clearTimeout(cooldownTimeout)
+                    cooldownTimeout = null
+                }
+            }
+
+            // Add the new delta to our list of recent deltas
+            const absDelta = Math.abs(delta)
+            lastDeltas.push(absDelta)
+            lastDeltas.shift()
+
+            if (cooldown) return
+
+            // Detect if the user is scrolling/accelerating or if it's decaying momentum.
+            const isAccelerating = lastDeltas[2] > lastDeltas[1] && lastDeltas[1] >= lastDeltas[0]
+            const isSignificant = absDelta > 2
+
+            if (isSignificant && isAccelerating) {
+                if (delta > 0) {
+                    api.scrollNext()
+                } else {
+                    api.scrollPrev()
+                }
+
+                // Trigger cooldown to prevent triggering again in the next few milliseconds of the same acceleration peak
+                cooldown = true
+                lastDeltas = [0, 0, 0]
+
+                if (cooldownTimeout) clearTimeout(cooldownTimeout)
+                cooldownTimeout = setTimeout(() => {
+                    cooldown = false
+                }, 120)
+            }
+        }
+
+        container.addEventListener("wheel", handleWheel, { passive: false })
+
+        return () => {
+            container.removeEventListener("wheel", handleWheel)
+            if (cooldownTimeout) clearTimeout(cooldownTimeout)
+        }
+    }, [api, orientation])
+
     return (
         <__CarouselContext.Provider
             value={{
@@ -222,7 +309,7 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
             }}
         >
             <div
-                ref={ref}
+                ref={localRef}
                 onKeyDownCapture={handleKeyDown}
                 className={cn(CarouselAnatomy.root(), className)}
                 role="region"

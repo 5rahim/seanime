@@ -48,10 +48,11 @@ export default function Page() {
                     className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center justify-center flex-wrap"
                     data-discover-page-header-tabs-container
                 >
-                    <div className="max-w-fit border rounded-full" data-discover-page-header-tabs-inner-container>
+                    <div className="max-w-fit border rounded-full overflow-hidden" data-discover-page-header-tabs-inner-container>
                         <StaticTabs
-                            className="h-10 overflow-hidden"
-                            triggerClass="px-4 py-1"
+                            className="h-full py-0"
+                            triggerClass="px-4 py-2 h-full rounded-full border-transparent"
+                            pillClass="rounded-full border-transparent"
                             items={[
                                 { name: "Anime", isCurrent: pageType === "anime", onClick: () => setPageType("anime") },
                                 { name: "Schedule", isCurrent: pageType === "schedule", onClick: () => setPageType("schedule") },

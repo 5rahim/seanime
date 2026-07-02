@@ -54,7 +54,7 @@ export const DrawerAnatomy = defineStyleAnatomy({
     ], {
         variants: {
             side: {
-                mangaReader: "w-full inset-x-0 top-0 border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+                mangaReader: "w-full inset-x-0 top-0 border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom !bg-[#000]",
                 top: "w-full lg:w-[calc(100%_-_20px)] inset-x-0 top-0 border data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
                 bottom: "w-full lg:w-[calc(100%_-_20px)] inset-x-0 bottom-0 border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
                 left: "inset-y-0 left-0 h-full lg:h-[calc(100%_-_20px)] border data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",

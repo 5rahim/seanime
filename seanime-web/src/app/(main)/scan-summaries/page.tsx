@@ -7,6 +7,7 @@ import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
@@ -148,7 +149,7 @@ export default function Page() {
                                 )}
                             </div>
                             {!!selectedSummary && (
-                                <div className="space-y-4 rounded-[--radius] ">
+                                <Card className="p-4">
                                     <div>
                                         <p className="text-[--muted]">
                                             Seanime successfully scanned {selectedSummary.groups?.length} media
@@ -280,7 +281,7 @@ export default function Page() {
                                             ) : null)}
                                         </div>
                                     </div>}
-                                </div>
+                                </Card>
                             )}
                         </div>
                     )}
