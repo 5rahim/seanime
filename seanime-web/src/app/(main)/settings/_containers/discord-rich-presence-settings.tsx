@@ -22,27 +22,29 @@ export function DiscordRichPresenceSettings(props: DiscordRichPresenceSettingsPr
     return (
         <>
             <SettingsCard title="Rich Presence" description="Show what you are watching or reading in Discord.">
-                <Field.Switch
-                    side="right"
-                    name="enableRichPresence"
-                    label={<span className="flex gap-1 items-center">Enable</span>}
-                />
-                <div
-                    className={cn(
-                        "flex gap-4 items-center flex-col md:flex-row !mt-3",
-                        enableRichPresence ? "opacity-100" : "opacity-50 pointer-events-none",
-                    )}
-                >
-                    <Field.Checkbox
-                        name="enableAnimeRichPresence"
-                        label="Anime"
-                        fieldClass="w-fit"
+                <div className="space-y-3">
+                    <Field.Switch
+                        side="right"
+                        name="enableRichPresence"
+                        label={<span className="flex gap-1 items-center">Enable</span>}
                     />
-                    <Field.Checkbox
-                        name="enableMangaRichPresence"
-                        label="Manga"
-                        fieldClass="w-fit"
-                    />
+                    <div
+                        className={cn(
+                            "flex gap-4 items-center flex-col md:flex-row !mt-3",
+                            enableRichPresence ? "opacity-100" : "opacity-50 pointer-events-none",
+                        )}
+                    >
+                        <Field.Checkbox
+                            name="enableAnimeRichPresence"
+                            label="Anime"
+                            fieldClass="w-fit"
+                        />
+                        <Field.Checkbox
+                            name="enableMangaRichPresence"
+                            label="Manga"
+                            fieldClass="w-fit"
+                        />
+                    </div>
                 </div>
 
                 <Field.Switch

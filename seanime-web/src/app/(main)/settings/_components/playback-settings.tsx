@@ -123,7 +123,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                 <div className="flex items-center gap-4">
                                     <div className="flex-1">
                                         <Switch
-                                            label={<span className="flex items-center">Use MPV-in-Seanime <ExperimentalBadge /></span>}
+                                            label={<span className="flex items-center">Use Libmpv-based Player <ExperimentalBadge /></span>}
                                             side="right"
                                             help="If enabled, embedded MPV player will be used instead of the default HTML5 player."
                                             value={serverStatus?.settings?.mediaPlayer?.mpvPrismEnabled ?? false}

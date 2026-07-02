@@ -92,7 +92,7 @@ const tabsListClass = cn(
 )
 
 const tabContentClass = cn(
-    "space-y-4 animate-in fade-in-0 duration-300",
+    "space-y-8 animate-in fade-in-0 duration-300",
 )
 
 // compact thumbnail for radio card option labels
@@ -611,7 +611,7 @@ export function UISettings() {
 
                             </SettingsCard>
 
-                            <SettingsCard>
+                            <SettingsCard title="Theme">
                                 <Field.Switch
                                     side="right"
                                     label={swLabel(

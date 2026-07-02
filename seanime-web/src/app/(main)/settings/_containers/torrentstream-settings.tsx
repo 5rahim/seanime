@@ -106,7 +106,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     preloadNextStream: settings.preloadNextStream,
                     disableAcceleratedStartup: settings.disableAcceleratedStartup,
                 }}
-                stackClass="space-y-4"
+                stackClass="space-y-8"
             >
                 {(f) => (
                     <>

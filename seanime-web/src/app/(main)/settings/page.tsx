@@ -76,7 +76,7 @@ import { LocalSettings } from "./_containers/local-settings"
 import { NakamaSettings } from "./_containers/nakama-settings"
 
 const tabContentClass = cn(
-    "space-y-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+    "space-y-8 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
 )
 
 
@@ -166,8 +166,8 @@ export default function Page() {
                     onValueChange={setTab}
                     className={cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")}
                     triggerClass={cn(
-                        "text-base px-6 rounded-[--radius-md] w-fit lg:w-full rounded-lg border-0 data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
-                        "h-9 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform",
+                        "text-sm font-normal px-6 w-fit lg:w-full border-0 data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
+                        "h-8 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform",
                     )}
                     listClass={cn(
                         "w-full flex flex-wrap lg:flex-nowrap h-fit",
@@ -182,131 +182,133 @@ export default function Page() {
                             </div>
                             <div className="overflow-x-none overflow-y-hidden rounded-[--radius-md] space-y-1 lg:space-y-3 flex justify-center flex-wrap lg:block">
 
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
-                                    <div className="space-y-2 p-4 w-full">
-                                        <h4 className="text-center text-xl font-bold">Settings</h4>
+                                <Card className="bg-transparent border-transparent">
+                                    <div className="space-y-2 p-0 w-full">
+                                        <h4 className=" text-xl font-bold">Settings</h4>
                                         <div className="space-y-1">
-                                            <p className="text-[--muted] text-sm text-center w-full">
-                                                {status?.version} {status?.versionName}
-                                            </p>
-                                            <p className="text-[--muted] text-sm text-center w-full">
-                                                {capitalize(status?.os)}{__isElectronDesktop__ &&
+                                            <p className="text-[--muted] text-sm w-full">
+                                                {status?.version} {status?.versionName} - {capitalize(status?.os)}{__isElectronDesktop__ &&
                                                 <span className="font-medium"> - Denshi</span>}
+                                            </p>
+                                            <p className="text-[--muted] text-sm w-full">
+
                                             </p>
                                         </div>
                                     </div>
                                 </Card>
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
+                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] p-0 overflow-clip">
                                     <TabsTrigger
                                         value="seanime"
                                         className="group"
-                                    ><LuWandSparkles className="text-xl mr-3 transition-transform duration-200" /> App</TabsTrigger>
+                                    ><LuWandSparkles className="text-base mr-2 transition-transform duration-200" /> App</TabsTrigger>
                                     <TabsTrigger
                                         value="ui"
                                         className="group"
-                                    ><MdOutlinePalette className="text-xl mr-3 transition-transform duration-200" /> User Interface</TabsTrigger>
+                                    ><MdOutlinePalette className="text-base mr-2 transition-transform duration-200" /> User Interface</TabsTrigger>
                                     {/* <TabsTrigger
                                      value="local"
                                      className="group"
-                                     ><LuUserCog className="text-xl mr-3 transition-transform duration-200" /> Local Account</TabsTrigger> */}
+                                     ><LuUserCog className="text-base mr-2 transition-transform duration-200" /> Local Account</TabsTrigger> */}
                                     <TabsTrigger
                                         value="library"
                                         className="group"
-                                    ><LuLibrary className="text-xl mr-3 transition-transform duration-200" /> Local Anime Library</TabsTrigger>
+                                    ><LuLibrary className="text-base mr-2 transition-transform duration-200" /> Local Anime Library</TabsTrigger>
                                 </Card>
 
-                                {/*<div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">*/}
+                                {/*<div className="text-sm lg:text-[--foreground] py-1.5 px-3 tracking-wide font-medium hidden lg:block">*/}
                                 {/*    Anime playback*/}
                                 {/*</div>*/}
 
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
+                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] p-0 overflow-clip">
                                     <TabsTrigger
                                         value="playback"
                                         className="group"
-                                    ><LuCirclePlay className="text-xl mr-3 transition-transform duration-200" /> Video Playback</TabsTrigger>
+                                    ><LuCirclePlay className="text-base mr-2 transition-transform duration-200" /> Video Playback</TabsTrigger>
 
                                     <TabsTrigger
                                         value="media-player"
                                         className="group"
-                                    ><LuMonitorPlay className="text-xl mr-3 transition-transform duration-200" /> Desktop Media Player</TabsTrigger>
+                                    ><LuMonitorPlay className="text-base mr-2 transition-transform duration-200" /> Desktop Media Player</TabsTrigger>
                                     <TabsTrigger
                                         value="external-player-link"
                                         className="group"
-                                    ><LuCircleArrowOutUpRight className="text-xl mr-3 transition-transform duration-200" /> External Player
+                                    ><LuCircleArrowOutUpRight className="text-base mr-2 transition-transform duration-200" /> External Player
                                                                                                                             Link</TabsTrigger>
                                     <TabsTrigger
                                         value="mediastream"
                                         className="relative group"
-                                    ><LuTabletSmartphone className="text-xl mr-3 transition-transform duration-200" /> Transcoding / Direct
+                                    ><LuTabletSmartphone className="text-base mr-2 transition-transform duration-200" /> Transcoding / Direct
                                                                                                                        Play</TabsTrigger>
                                 </Card>
 
-                                {/*<div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">*/}
+                                {/*<div className="text-sm lg:text-[--foreground] py-1.5 px-3 tracking-wide font-medium hidden lg:block">*/}
                                 {/*    Torrenting*/}
                                 {/*</div>*/}
 
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
+                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] p-0 overflow-clip">
                                     <TabsTrigger
                                         value="torrent"
                                         className="group"
-                                    ><LuFileSearch className="text-xl mr-3 transition-transform duration-200" /> Torrent Provider</TabsTrigger>
+                                    ><LuFileSearch className="text-base mr-2 transition-transform duration-200" /> Torrent Provider</TabsTrigger>
                                     <TabsTrigger
                                         value="torrent-client"
                                         className="group"
-                                    ><MdOutlineDownloading className="text-xl mr-3 transition-transform duration-200" /> Torrent Client</TabsTrigger>
+                                    ><MdOutlineDownloading className="text-base mr-2 transition-transform duration-200" /> Torrent
+                                                                                                                           Client</TabsTrigger>
                                     <TabsTrigger
                                         value="torrentstream"
                                         className="relative group"
-                                    ><SiBittorrent className="text-xl mr-3 transition-transform duration-200" /> Torrent Streaming</TabsTrigger>
+                                    ><SiBittorrent className="text-base mr-2 transition-transform duration-200" /> Torrent Streaming</TabsTrigger>
                                     <TabsTrigger
                                         value="debrid"
                                         className="group"
-                                    ><HiOutlineServerStack className="text-xl mr-3 transition-transform duration-200" /> Debrid Service</TabsTrigger>
+                                    ><HiOutlineServerStack className="text-base mr-2 transition-transform duration-200" /> Debrid
+                                                                                                                           Service</TabsTrigger>
                                 </Card>
 
-                                {/*<div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">*/}
+                                {/*<div className="text-sm lg:text-[--foreground] py-1.5 px-3 tracking-wide font-medium hidden lg:block">*/}
                                 {/*    Other features*/}
                                 {/*</div>*/}
 
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
+                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] p-0 overflow-clip">
                                     <TabsTrigger
                                         value="onlinestream"
                                         className="group"
-                                    ><CgMediaPodcast className="text-xl mr-3 transition-transform duration-200" /> Online Streaming</TabsTrigger>
+                                    ><CgMediaPodcast className="text-base mr-2 transition-transform duration-200" /> Online Streaming</TabsTrigger>
 
                                     <TabsTrigger
                                         value="manga"
                                         className="group"
-                                    ><LuBookOpen className="text-xl mr-3 transition-transform duration-200" /> Manga</TabsTrigger>
+                                    ><LuBookOpen className="text-base mr-2 transition-transform duration-200" /> Manga</TabsTrigger>
                                     <TabsTrigger
                                         value="nakama"
                                         className="group relative"
-                                    ><MdOutlineConnectWithoutContact className="text-xl mr-3 transition-transform duration-200" /> Nakama</TabsTrigger>
+                                    ><MdOutlineConnectWithoutContact className="text-base mr-2 transition-transform duration-200" /> Nakama</TabsTrigger>
                                     <TabsTrigger
                                         value="discord"
                                         className="group"
-                                    ><FaDiscord className="text-xl mr-3 transition-transform duration-200" /> Discord</TabsTrigger>
+                                    ><FaDiscord className="text-base mr-2 transition-transform duration-200" /> Discord</TabsTrigger>
                                 </Card>
 
-                                {/*<div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">*/}
-                                {/*    Server & Interface*/}
+                                {/*<div className="text-sm lg:text-[--foreground] py-1.5 px-3 tracking-wide font-medium hidden lg:block">*/}
+                                {/*    App*/}
                                 {/*</div>*/}
 
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
+                                <Card className="contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper] p-0 overflow-clip">
                                     {__isElectronDesktop__ && (
                                         <TabsTrigger
                                             value="denshi"
                                             className="group"
-                                        ><LuMonitor className="text-xl mr-3 transition-transform duration-200" /> Denshi</TabsTrigger>
+                                        ><LuMonitor className="text-base mr-2 transition-transform duration-200" /> Denshi</TabsTrigger>
                                     )}
                                     {/* <TabsTrigger
                                      value="cache"
                                      className="group"
-                                     ><TbDatabaseExclamation className="text-xl mr-3 transition-transform duration-200" /> Cache</TabsTrigger> */}
+                                     ><TbDatabaseExclamation className="text-base mr-2 transition-transform duration-200" /> Cache</TabsTrigger> */}
                                     <TabsTrigger
                                         value="logs"
                                         className="group"
-                                    ><LuBookKey className="text-xl mr-3 transition-transform duration-200" /> Logs & Cache</TabsTrigger>
+                                    ><LuBookKey className="text-base mr-2 transition-transform duration-200" /> Logs & Cache</TabsTrigger>
                                 </Card>
                             </div>
                         </SettingsNavCard>
@@ -594,67 +596,69 @@ export default function Page() {
                                     <SettingsIsDirty />
                                     <TabsContent value="seanime" className={tabContentClass}>
 
-                                        <SettingsPageHeader
-                                            title="App"
-                                            description="General app settings"
-                                            icon={LuWandSparkles}
-                                        />
+                                        <div className="space-y-3">
+                                            <SettingsPageHeader
+                                                title="App"
+                                                description="General app settings"
+                                                icon={LuWandSparkles}
+                                            />
 
-                                        <div className="flex flex-wrap gap-2 slide-in-from-bottom duration-500 delay-150">
-                                            {!!status?.dataDir && <Button
-                                                size="sm"
-                                                intent="gray-outline"
-                                                onClick={() => openInExplorer({
-                                                    path: status?.dataDir,
-                                                })}
-                                                className="transition-all duration-200 hover:scale-105 hover:shadow-md"
-                                                leftIcon={
-                                                    <RiFolderDownloadFill className="transition-transform duration-200 group-hover:scale-110" />}
-                                            >
-                                                Open Data directory
-                                            </Button>}
-                                            <Button
-                                                size="sm"
-                                                intent="gray-outline"
-                                                onClick={handleOpenIssueRecorder}
-                                                leftIcon={<VscDebugAlt className="transition-transform duration-200 group-hover:scale-110" />}
-                                                className="transition-all duration-200 hover:scale-105 hover:shadow-md group"
-                                                data-open-issue-recorder-button
-                                            >
-                                                Record an issue
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                intent="gray-outline"
-                                                onClick={() => {
-                                                    checkForUpdates(undefined, {
-                                                        onSuccess: (data) => {
-                                                            if (data?.release) {
-                                                                queryClient.setQueryData([API_ENDPOINTS.RELEASES.GetLatestUpdate.key], data)
+                                            <div className="flex flex-wrap gap-2 slide-in-from-bottom duration-500 delay-150">
+                                                {!!status?.dataDir && <Button
+                                                    size="sm"
+                                                    intent="gray-outline"
+                                                    onClick={() => openInExplorer({
+                                                        path: status?.dataDir,
+                                                    })}
+                                                    className="transition-all duration-200 hover:scale-105 hover:shadow-md"
+                                                    leftIcon={
+                                                        <RiFolderDownloadFill className="transition-transform duration-200 group-hover:scale-110" />}
+                                                >
+                                                    Open Data directory
+                                                </Button>}
+                                                <Button
+                                                    size="sm"
+                                                    intent="gray-outline"
+                                                    onClick={handleOpenIssueRecorder}
+                                                    leftIcon={<VscDebugAlt className="transition-transform duration-200 group-hover:scale-110" />}
+                                                    className="transition-all duration-200 hover:scale-105 hover:shadow-md group"
+                                                    data-open-issue-recorder-button
+                                                >
+                                                    Record an issue
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    intent="gray-outline"
+                                                    onClick={() => {
+                                                        checkForUpdates(undefined, {
+                                                            onSuccess: (data) => {
+                                                                if (data?.release) {
+                                                                    queryClient.setQueryData([API_ENDPOINTS.RELEASES.GetLatestUpdate.key], data)
 
-                                                                if (__isElectronDesktop__) {
-                                                                    // Also trigger Electron update
-                                                                    if (window.electron) {
-                                                                        window.electron.checkForUpdates().catch(() => { })
+                                                                    if (__isElectronDesktop__) {
+                                                                        // Also trigger Electron update
+                                                                        if (window.electron) {
+                                                                            window.electron.checkForUpdates().catch(() => { })
+                                                                        }
+                                                                        setElectronUpdateModalOpen(true)
+                                                                    } else {
+                                                                        setWebUpdateModalOpen(true)
                                                                     }
-                                                                    setElectronUpdateModalOpen(true)
                                                                 } else {
-                                                                    setWebUpdateModalOpen(true)
+                                                                    toast.success("You are running the latest version")
                                                                 }
-                                                            } else {
-                                                                toast.success("You are running the latest version")
-                                                            }
 
-                                                        },
-                                                    })
-                                                }}
-                                                loading={isCheckingForUpdates}
-                                                leftIcon={<LuRefreshCw className="transition-transform duration-200 group-hover:rotate-180" />}
-                                                className="transition-all duration-200 hover:scale-105 hover:shadow-md group"
-                                                data-check-for-updates-button
-                                            >
-                                                Check for updates
-                                            </Button>
+                                                            },
+                                                        })
+                                                    }}
+                                                    loading={isCheckingForUpdates}
+                                                    leftIcon={<LuRefreshCw className="transition-transform duration-200 group-hover:rotate-180" />}
+                                                    className="transition-all duration-200 hover:scale-105 hover:shadow-md group"
+                                                    data-check-for-updates-button
+                                                >
+                                                    Check for updates
+                                                </Button>
+                                            </div>
                                         </div>
 
                                         <ServerSettings isPending={isPending} />
@@ -813,9 +817,9 @@ export default function Page() {
                                         {/*<SettingsCard>*/}
                                         <Accordion
                                             type="single"
-                                            className="group/settings-card relative bg-gray-950/70 rounded-xl border overflow-hidden"
+                                            className="group/settings-card relative bg-[--paper] rounded-xl border overflow-hidden"
                                             triggerClass="px-4 py-3 text-[--muted] dark:data-[state=open]:text-white dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white !font-medium transition-all duration-200 hover:translate-x-1"
-                                            itemClass="border-b border-[--border] rounded-none transition-all duration-200 hover:border-[--brand]/30"
+                                            itemClass="border-b border-[--border] rounded-none transition-all duration-200 hover:border-[--brand]/30 hover:bg-gray-900"
                                             contentClass="!p-4 animate-in duration-300"
                                             collapsible
                                             defaultValue={status?.settings?.torrent?.defaultTorrentClient}

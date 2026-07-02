@@ -45,7 +45,7 @@ export function SettingsIsDirty({ className }: { className?: string }) {
     return isDirty ? <Alert
         intent="info"
         className={cn(
-            "fixed right-4 z-[50] h-auto w-fit p-5 !mt-0 hidden lg:block rounded-xl bg-[--background] border shadow-2xl mx-auto animate-in slide-in-from-top-2 duration-300",
+            "fixed right-4 z-[50] h-auto w-fit p-5 !mt-0 hidden lg:block rounded-2xl bg-[--background] border shadow-2xl mx-auto animate-in slide-in-from-top-2 duration-300",
             className,
             "top-[2rem]",
         )}

@@ -153,13 +153,13 @@
         --pink: theme('colors.pink.300');
         --rose: theme('colors.rose.300');
 
-        --border: rgba(255, 255, 255, 0.1);
+        --border: rgba(255, 255, 255, 0.08);
         --ring: theme('colors.brand.200');
 
         --muted: rgba(255, 255, 255, 0.4);
         --muted-highlight: rgba(255, 255, 255, 0.6);
 
-        --paper: theme('colors.gray.950');
+        --paper: rgb(12 12 12);
         --paper-highlighter: theme('colors.gray.950');
         --subtle: rgba(255, 255, 255, 0.06);
         --subtle-highlight: rgba(255, 255, 255, 0.08);
@@ -296,6 +296,7 @@ html[data-denshi-view-transitions]::view-transition-new(denshi-main) {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     html[data-denshi-view-transitions]::view-transition-old(denshi-main),
     html[data-denshi-view-transitions]::view-transition-new(denshi-main) {
         animation: none;
@@ -338,6 +339,7 @@ html[data-vc-miniplayer-view-transition]::view-transition-new(vc-player) {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     html[data-vc-miniplayer-view-transition]::view-transition-group(vc-player),
     html[data-vc-miniplayer-view-transition]::view-transition-old(vc-player),
     html[data-vc-miniplayer-view-transition]::view-transition-new(vc-player) {

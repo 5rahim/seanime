@@ -35,6 +35,7 @@ import { useAtom } from "jotai"
 import React from "react"
 import { BiChevronRight, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
 import { FiLogIn, FiSearch } from "react-icons/fi"
+import { GrTest } from "react-icons/gr"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoHomeOutline } from "react-icons/io5"
 import { LuBookOpen, LuCalendar, LuCompass, LuRefreshCw, LuRss, LuSettings } from "react-icons/lu"
@@ -194,13 +195,13 @@ function SidebarNavigation({ isCollapsed, containerRef }: { isCollapsed: boolean
             href: "/",
             isCurrent: pathname === "/",
         },
-        // ...(import.meta.env.MODE === "development" ? [{
-        //     id: "test",
-        //     iconType: GrTest,
-        //     name: "Test",
-        //     href: "/test",
-        //     isCurrent: pathname === "/test",
-        // }] : []),
+        ...(import.meta.env.MODE === "development" ? [{
+            id: "test",
+            iconType: GrTest,
+            name: "Test",
+            href: "/test",
+            isCurrent: pathname === "/test",
+        }] : []),
         {
             id: "schedule",
             iconType: LuCalendar,

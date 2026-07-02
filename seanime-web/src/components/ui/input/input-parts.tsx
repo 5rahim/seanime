@@ -11,7 +11,7 @@ export const InputAnatomy = defineStyleAnatomy({
         "UI-Input__root",
         "flex items-center",
         "w-full rounded-xl",
-        "bg-[--paper] border border-[--border] placeholder-gray-400 dark:placeholder-gray-500",
+        "bg-gray-950 border border-[--border] placeholder-gray-400 dark:placeholder-gray-500",
         "disabled:cursor-not-allowed",
         "data-[disable=true]:shadow-none data-[disable=true]:opacity-50",
         "focus:dark:border-gray-600 focus:ring-[0.5px] focus:ring-inset focus:dark:ring-gray-700",

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import React, { useRef, useState } from "react"
 
@@ -54,10 +54,16 @@ export function SettingsCard({ title, description, children, className }: Settin
     }
 
     return (
-        <>
+        <div className="space-y-4">
+            {(title || description) && (
+                <div>
+                    {title && <p className="font-semibold">{title}</p>}
+                    {!!description && <p className="text-sm text-[--muted]">{description}</p>}
+                </div>
+            )}
             <Card
                 ref={cardRef}
-                className={cn("group/settings-card relative lg:bg-gray-950/80 rounded-xl", className)}
+                className={cn("group/settings-card relative lg:dark:bg-[--paper] rounded-xl divide-y-2 divide-gray-700/20 overflow-clip", className)}
                 onMouseMove={handleMouseMove}
             >
                 {/* <div
@@ -66,41 +72,41 @@ export function SettingsCard({ title, description, children, className }: Settin
                  background: `radial-gradient(700px circle at ${position.x}px ${position.y}px, rgb(255 255 255 / 0.025), transparent 40%)`,
                  }}
                  /> */}
-                {title && <CardHeader className="p-0 pb-2 flex flex-col lg:flex-row items-center gap-0 mx-3 mt-3 space-y-0">
-                    {/* <CardTitle className="font-semibold tracking-wide text-base transition-colors duration-300 group-hover/settings-card:text-white bg-gradient-to-br group-hover/settings-card:from-brand-500/10 group-hover/settings-card:to-purple-500/5 px-4 py-2 bg-[--subtle] w-fit rounded-tl-md rounded-br-md ">
-                     {title}
-                     </CardTitle> */}
-                    <CardTitle
-                        className={cn(
-                            "font-semibold text-[1rem] tracking-wide transition-colors duration-300 px-4 py-1 border w-fit rounded-xl bg-gray-800/40",
-                            "group-hover/settings-card:bg-brand-500/10 group-hover/settings-card:text-white flex-none",
-                        )}
-                    >
-                        {title}
-                    </CardTitle>
-                    {description && <CardDescription className="px-4 py-2 lg:py-0 w-fit">
-                        {description}
-                    </CardDescription>}
-                </CardHeader>}
-                <CardContent
-                    className={cn(
-                        !title && "pt-4",
-                        "space-y-3 flex-wrap",
-                    )}
-                >
-                    {children}
-                </CardContent>
+                {/*{title && <CardHeader className="p-0 pb-2 flex flex-col lg:flex-row items-center gap-0 mx-3 mt-3 space-y-0">*/}
+                {/*    /!* <CardTitle className="font-semibold tracking-wide text-base transition-colors duration-300 group-hover/settings-card:text-white bg-gradient-to-br group-hover/settings-card:from-brand-500/10 group-hover/settings-card:to-purple-500/5 px-4 py-2 bg-[--subtle] w-fit rounded-tl-md rounded-br-md ">*/}
+                {/*     {title}*/}
+                {/*     </CardTitle> *!/*/}
+                {/*    <CardTitle*/}
+                {/*        className={cn(*/}
+                {/*            "font-semibold text-[1rem] tracking-wide transition-colors duration-300 px-4 py-1 border w-fit rounded-xl bg-gray-800/40",*/}
+                {/*            "group-hover/settings-card:bg-brand-500/10 group-hover/settings-card:text-white flex-none",*/}
+                {/*        )}*/}
+                {/*    >*/}
+                {/*        {title}*/}
+                {/*    </CardTitle>*/}
+                {/*    {description && <CardDescription className="px-4 py-2 lg:py-0 w-fit">*/}
+                {/*        {description}*/}
+                {/*    </CardDescription>}*/}
+                {/*</CardHeader>}*/}
+                {React.Children.map(children, (child) => {
+                    if (!child) return null
+                    return (
+                        <CardContent className="p-4 hover:bg-gray-900">
+                            {child}
+                        </CardContent>
+                    )
+                })}
             </Card>
-        </>
+        </div>
     )
 }
 
-export function SettingsPageHeader({ title, description, icon: Icon }: { title: string, description: string, icon: React.ElementType }) {
+export function SettingsPageHeader({ title, description, icon: Icon }: { title: string, description: string, icon?: React.ElementType }) {
     return (
         <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-brand-500/10 to-purple-500/10 border border-brand-500/15">
+            {!!Icon && <div className="p-2 rounded-lg bg-gradient-to-br from-brand-500/10 to-brand-500/10 border border-[--border]">
                 <Icon className="text-2xl text-brand-600 dark:text-brand-400" />
-            </div>
+            </div>}
             <div>
                 <h3 className="text-xl font-semibold">{title}</h3>
                 <p className="text-base text-[--muted]">{description}</p>
