@@ -35,8 +35,8 @@ export default function TestPage() {
     const [globalRounded, setGlobalRounded] = React.useState(false)
 
     // Form states
-    const [textValue, setTextValue] = React.useState("Hello Seanime")
-    const [passValue, setPassValue] = React.useState("password123")
+    const [textValue, setTextValue] = React.useState("Lorem ipsum")
+    const [passValue, setPassValue] = React.useState("lorem123")
     const [checkboxVal, setCheckboxVal] = React.useState<boolean | "indeterminate">(true)
     const [switchVal, setSwitchVal] = React.useState(false)
     const [selectVal, setSelectVal] = React.useState("opt2")
@@ -47,7 +47,7 @@ export default function TestPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false)
 
     // Dismissable badge list
-    const [badges, setBadges] = React.useState(["Interactive", "Closable", "Badges"])
+    const [badges, setBadges] = React.useState(["Lorem", "Ipsum", "Dolor"])
 
     return (
         <PageWrapper className="p-4 md:p-8 space-y-8">
@@ -56,7 +56,7 @@ export default function TestPage() {
                 <div className="relative z-10 space-y-4">
                     <div className="flex flex-wrap gap-6 items-center bg-black/20 p-4 rounded-xl border border-white/5 w-fit">
                         <Switch
-                            label="Simulate Loading"
+                            label="Loading"
                             value={globalLoading}
                             onValueChange={setGlobalLoading}
                             size="sm"
@@ -68,7 +68,7 @@ export default function TestPage() {
                             size="sm"
                         />
                         <Switch
-                            label="Force Rounded"
+                            label="Rounded"
                             value={globalRounded}
                             onValueChange={setGlobalRounded}
                             size="sm"
@@ -102,220 +102,220 @@ export default function TestPage() {
                     <section id="buttons" className="space-y-6 scroll-mt-24">
                         <div className="flex items-center gap-2">
                             <h2 className="text-xl md:text-2xl font-bold text-white">Buttons & Action</h2>
-                            <Badge intent="gray-solid" size="sm">ui/button</Badge>
+                            <Badge intent="gray-solid" size="sm">Lorem</Badge>
                         </div>
                         <Card className="border-white/5 bg-gray-900/20">
                             <CardHeader>
-                                <CardTitle className="text-lg">Button Intents & Variants</CardTitle>
-                                <CardDescription>Displaying permutations of intent classes and styled states.</CardDescription>
+                                <CardTitle className="text-lg">Lorem Ipsum</CardTitle>
+                                <CardDescription>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-8">
                                 {/* Intents Grid */}
                                 <div className="space-y-4">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Button Intents & Variants</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
                                     <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr] gap-x-6 gap-y-4 items-center">
-                                        <div className="text-xs font-semibold text-gray-500 uppercase">Primary</div>
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Lorem</div>
                                         <div className="flex flex-wrap gap-2.5">
                                             <Button
                                                 intent="primary"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Solid</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 intent="primary-outline"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Outline</Button>
+                                            >Ipsum</Button>
                                             <Button
                                                 intent="primary-subtle"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Subtle</Button>
+                                            >Dolor</Button>
                                             <Button
                                                 intent="primary-basic"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Basic</Button>
+                                            >Sit</Button>
                                             <Button
                                                 intent="primary-link"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Link</Button>
+                                            >Amet</Button>
                                         </div>
 
-                                        <div className="text-xs font-semibold text-gray-500 uppercase">Success</div>
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Lorem</div>
                                         <div className="flex flex-wrap gap-2.5">
                                             <Button
                                                 intent="success"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Solid</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 intent="success-outline"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Outline</Button>
+                                            >Ipsum</Button>
                                             <Button
                                                 intent="success-subtle"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Subtle</Button>
+                                            >Dolor</Button>
                                             <Button
                                                 intent="success-basic"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Basic</Button>
+                                            >Sit</Button>
                                             <Button
                                                 intent="success-link"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Link</Button>
+                                            >Amet</Button>
                                         </div>
 
-                                        <div className="text-xs font-semibold text-gray-500 uppercase">Warning</div>
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Lorem</div>
                                         <div className="flex flex-wrap gap-2.5">
                                             <Button
                                                 intent="warning"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Solid</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 intent="warning-outline"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Outline</Button>
+                                            >Ipsum</Button>
                                             <Button
                                                 intent="warning-subtle"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Subtle</Button>
+                                            >Dolor</Button>
                                             <Button
                                                 intent="warning-basic"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Basic</Button>
+                                            >Sit</Button>
                                             <Button
                                                 intent="warning-link"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Link</Button>
+                                            >Amet</Button>
                                         </div>
 
-                                        <div className="text-xs font-semibold text-gray-500 uppercase">Alert</div>
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Lorem</div>
                                         <div className="flex flex-wrap gap-2.5">
                                             <Button
                                                 intent="alert"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Solid</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 intent="alert-outline"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Outline</Button>
+                                            >Ipsum</Button>
                                             <Button
                                                 intent="alert-subtle"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Subtle</Button>
+                                            >Dolor</Button>
                                             <Button
                                                 intent="alert-basic"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Basic</Button>
+                                            >Sit</Button>
                                             <Button
                                                 intent="alert-link"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Link</Button>
+                                            >Amet</Button>
                                         </div>
 
-                                        <div className="text-xs font-semibold text-gray-500 uppercase">Gray</div>
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Lorem</div>
                                         <div className="flex flex-wrap gap-2.5">
                                             <Button
                                                 intent="gray"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Solid</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 intent="gray-outline"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Outline</Button>
+                                            >Ipsum</Button>
                                             <Button
                                                 intent="gray-subtle"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Subtle</Button>
+                                            >Dolor</Button>
                                             <Button
                                                 intent="gray-basic"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Basic</Button>
+                                            >Sit</Button>
                                             <Button
                                                 intent="gray-link"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Link</Button>
+                                            >Amet</Button>
                                         </div>
 
-                                        <div className="text-xs font-semibold text-gray-500 uppercase">White</div>
+                                        <div className="text-xs font-semibold text-gray-500 uppercase">Lorem</div>
                                         <div className="flex flex-wrap gap-2.5">
                                             <Button
                                                 intent="white"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Solid</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 intent="white-outline"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Outline</Button>
+                                            >Ipsum</Button>
                                             <Button
                                                 intent="white-subtle"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Subtle</Button>
+                                            >Dolor</Button>
                                             <Button
                                                 intent="white-basic"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Basic</Button>
+                                            >Sit</Button>
                                             <Button
                                                 intent="white-link"
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >Link</Button>
+                                            >Amet</Button>
                                         </div>
                                     </div>
                                 </div>
@@ -324,8 +324,7 @@ export default function TestPage() {
 
                                 {/* Aligned Sizes Row */}
                                 <div className="space-y-4">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Aligned Sizes & Icon Button
-                                                                                                                Alignment</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
                                     <div className="space-y-4">
                                         <div className="flex flex-wrap items-center gap-4">
                                             <span className="text-xs font-mono text-gray-500 w-8">XS</span>
@@ -335,7 +334,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >XS Button</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 size="xs"
                                                 intent="gray-outline"
@@ -343,7 +342,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >With Icon</Button>
+                                            >Lorem</Button>
                                             <IconButton
                                                 size="xs"
                                                 icon={<FiSettings />}
@@ -351,7 +350,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                                aria-label="Settings"
+                                                aria-label="Lorem"
                                             />
                                             <IconButton
                                                 size="xs"
@@ -360,7 +359,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                                aria-label="Favorite"
+                                                aria-label="Lorem"
                                             />
                                         </div>
                                         <div className="flex flex-wrap items-center gap-4">
@@ -371,7 +370,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >SM Button</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 size="sm"
                                                 intent="gray-outline"
@@ -379,7 +378,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >With Icon</Button>
+                                            >Lorem</Button>
                                             <IconButton
                                                 size="sm"
                                                 icon={<FiSettings />}
@@ -387,7 +386,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                                aria-label="Settings"
+                                                aria-label="Lorem"
                                             />
                                             <IconButton
                                                 size="sm"
@@ -396,7 +395,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                                aria-label="Favorite"
+                                                aria-label="Lorem"
                                             />
                                         </div>
                                         <div className="flex flex-wrap items-center gap-4">
@@ -407,7 +406,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >MD Button</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 size="md"
                                                 intent="gray-outline"
@@ -415,7 +414,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >With Icon</Button>
+                                            >Lorem</Button>
                                             <IconButton
                                                 size="md"
                                                 icon={<FiSettings />}
@@ -423,7 +422,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                                aria-label="Settings"
+                                                aria-label="Lorem"
                                             />
                                             <IconButton
                                                 size="md"
@@ -432,7 +431,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                                aria-label="Favorite"
+                                                aria-label="Lorem"
                                             />
                                         </div>
                                         <div className="flex flex-wrap items-center gap-4">
@@ -443,7 +442,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >LG Button</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 size="lg"
                                                 intent="gray-outline"
@@ -451,7 +450,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >With Icon</Button>
+                                            >Lorem</Button>
                                             <IconButton
                                                 size="lg"
                                                 icon={<FiSettings />}
@@ -459,7 +458,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                                aria-label="Settings"
+                                                aria-label="Lorem"
                                             />
                                             <IconButton
                                                 size="lg"
@@ -467,7 +466,7 @@ export default function TestPage() {
                                                 intent="alert-subtle"
                                                 loading={globalLoading}
                                                 disabled={globalRounded}
-                                                aria-label="Favorite"
+                                                aria-label="Lorem"
                                             />
                                         </div>
                                         <div className="flex flex-wrap items-center gap-4">
@@ -478,7 +477,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >XL Button</Button>
+                                            >Lorem</Button>
                                             <Button
                                                 size="xl"
                                                 intent="gray-outline"
@@ -486,7 +485,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                            >With Icon</Button>
+                                            >Lorem</Button>
                                             <IconButton
                                                 size="xl"
                                                 icon={<FiSettings />}
@@ -494,7 +493,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                                aria-label="Settings"
+                                                aria-label="Lorem"
                                             />
                                             <IconButton
                                                 size="xl"
@@ -503,7 +502,7 @@ export default function TestPage() {
                                                 loading={globalLoading}
                                                 disabled={globalDisabled}
                                                 rounded={globalRounded}
-                                                aria-label="Favorite"
+                                                aria-label="Lorem"
                                             />
                                         </div>
                                     </div>
@@ -516,52 +515,52 @@ export default function TestPage() {
                     <section id="forms" className="space-y-6 scroll-mt-24">
                         <div className="flex items-center gap-2">
                             <h2 className="text-xl md:text-2xl font-bold text-white">Forms & Controls</h2>
-                            <Badge intent="gray-solid" size="sm">ui/input & selectors</Badge>
+                            <Badge intent="gray-solid" size="sm">Lorem</Badge>
                         </div>
                         <Card className="border-white/5 bg-gray-900/20">
                             <CardHeader>
-                                <CardTitle className="text-lg">Form Inputs & Selectors</CardTitle>
-                                <CardDescription>Displaying native form components and validations.</CardDescription>
+                                <CardTitle className="text-lg">Lorem Ipsum</CardTitle>
+                                <CardDescription>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-8">
                                 {/* Text Inputs */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <TextInput
-                                        label="Standard Text Field"
-                                        placeholder="Type something..."
+                                        label="Lorem Ipsum"
+                                        placeholder="Lorem ipsum..."
                                         value={textValue}
                                         onValueChange={setTextValue}
-                                        help="Dynamic text sync is fully active."
+                                        help="Lorem ipsum dolor sit amet."
                                     />
                                     <TextInput
-                                        label="Password Field"
+                                        label="Lorem Ipsum"
                                         type="password"
-                                        placeholder="Enter password..."
+                                        placeholder="Lorem ipsum..."
                                         value={passValue}
                                         onValueChange={setPassValue}
-                                        help="Includes built-in interactive show/hide toggle."
+                                        help="Lorem ipsum dolor sit amet."
                                     />
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <TextInput
-                                        label="Input with Left & Right Icons"
-                                        placeholder="Search directories..."
+                                        label="Lorem Ipsum"
+                                        placeholder="Lorem ipsum..."
                                         leftIcon={<FiSearch />}
                                         rightIcon={<FiX className="cursor-pointer" onClick={() => setTextValue("")} />}
                                         value={textValue}
                                         onValueChange={setTextValue}
                                     />
                                     <Select
-                                        label="Option Selector"
+                                        label="Lorem Ipsum"
                                         value={selectVal}
                                         onValueChange={setSelectVal}
                                         options={[
-                                            { value: "opt1", label: "Option One (Standard)" },
-                                            { value: "opt2", label: "Option Two (Recommended)" },
-                                            { value: "opt3", label: "Option Three (Disabled)", disabled: true },
+                                            { value: "opt1", label: "Lorem Ipsum" },
+                                            { value: "opt2", label: "Lorem Ipsum" },
+                                            { value: "opt3", label: "Lorem Ipsum", disabled: true },
                                         ]}
-                                        help="Select options from clean overlay menu."
+                                        help="Lorem ipsum dolor sit amet."
                                     />
                                 </div>
 
@@ -570,41 +569,41 @@ export default function TestPage() {
                                 {/* Checkbox & Switch controls */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-4">
-                                        <p className="text-sm font-semibold text-gray-300">Checkbox States</p>
+                                        <p className="text-sm font-semibold text-gray-300">Lorem Ipsum</p>
                                         <Checkbox
-                                            label="Controlled Checkbox"
+                                            label="Lorem Ipsum"
                                             value={checkboxVal === true}
                                             onValueChange={(checked) => setCheckboxVal(checked)}
-                                            help="Supports checked, unchecked, and custom state toggle."
+                                            help="Lorem ipsum dolor sit amet."
                                         />
                                         <Checkbox
-                                            label="Indeterminate State"
+                                            label="Lorem Ipsum"
                                             value="indeterminate"
-                                            help="Useful for parent/child hierarchies."
+                                            help="Lorem ipsum dolor sit amet."
                                         />
                                         <Checkbox
-                                            label="Disabled Option"
+                                            label="Lorem Ipsum"
                                             disabled
                                             value={true}
                                         />
                                     </div>
 
                                     <div className="space-y-4">
-                                        <p className="text-sm font-semibold text-gray-300">Switch / Toggle States</p>
+                                        <p className="text-sm font-semibold text-gray-300">Lorem Ipsum</p>
                                         <Switch
-                                            label="Switch Toggle Control"
+                                            label="Lorem Ipsum"
                                             value={switchVal}
                                             onValueChange={setSwitchVal}
-                                            help="Simple binary state switch."
+                                            help="Lorem ipsum dolor sit amet."
                                         />
                                         <Switch
-                                            label="Switch with Tooltip/Help Icon"
+                                            label="Lorem Ipsum"
                                             value={switchVal}
                                             onValueChange={setSwitchVal}
-                                            moreHelp="Additional detailed support description inside this popover."
+                                            moreHelp="Lorem ipsum dolor sit amet."
                                         />
                                         <Switch
-                                            label="Switch Align Right"
+                                            label="Lorem Ipsum"
                                             value={switchVal}
                                             onValueChange={setSwitchVal}
                                             side="right"
@@ -619,64 +618,64 @@ export default function TestPage() {
                     <section id="dialogs" className="space-y-6 scroll-mt-24">
                         <div className="flex items-center gap-2">
                             <h2 className="text-xl md:text-2xl font-bold text-white">Dialogs & Overlays</h2>
-                            <Badge intent="gray-solid" size="sm">ui/modal & overlays</Badge>
+                            <Badge intent="gray-solid" size="sm">Lorem</Badge>
                         </div>
                         <Card className="border-white/5 bg-gray-900/20">
                             <CardHeader>
-                                <CardTitle className="text-lg">Modals, Drawers, Popovers & Tooltips</CardTitle>
-                                <CardDescription>Triggers and anchors for layered overlay panels.</CardDescription>
+                                <CardTitle className="text-lg">Lorem Ipsum</CardTitle>
+                                <CardDescription>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <div className="flex flex-wrap gap-4">
                                     {/* Modal Variant 1: Controlled */}
                                     <Button intent="primary-subtle" leftIcon={<FiShare2 />} onClick={() => setModal1Open(true)}>
-                                        Open Modal (Controlled)
+                                        Lorem Ipsum
                                     </Button>
 
                                     <Modal
                                         open={modal1Open}
                                         onOpenChange={setModal1Open}
-                                        title="System Administration Warning"
-                                        description="You are entering the master database control interface."
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                         footer={
                                             <div className="flex gap-2 justify-end w-full">
-                                                <Button intent="gray-outline" onClick={() => setModal1Open(false)}>Cancel</Button>
-                                                <Button intent="warning" onClick={() => setModal1Open(false)}>Confirm Access</Button>
+                                                <Button intent="gray-outline" onClick={() => setModal1Open(false)}>Lorem</Button>
+                                                <Button intent="warning" onClick={() => setModal1Open(false)}>Lorem</Button>
                                             </div>
                                         }
                                     >
                                         <div className="py-4 space-y-3">
                                             <Alert
                                                 intent="warning"
-                                                title="Critical Node"
-                                                description="Ensure you have backups before completing changes."
+                                                title="Lorem Ipsum"
+                                                description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                             />
                                             <p className="text-sm text-gray-300">
-                                                This database operations action cannot be undone. Changing server states could cause active streams to
-                                                terminate abruptly.
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
+                                                dolore magna aliqua.
                                             </p>
                                         </div>
                                     </Modal>
 
                                     {/* Modal Variant 2: Uncontrolled with Trigger prop */}
                                     <Modal
-                                        trigger={<Button intent="primary-outline">Open Modal (Trigger Prop)</Button>}
-                                        title="Standard Media Options"
-                                        description="Update settings for active directory folder."
+                                        trigger={<Button intent="primary-outline">Lorem Ipsum</Button>}
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet."
                                         footer={
                                             <div className="flex justify-end gap-2 w-full">
-                                                <Button intent="gray" size="sm">Close</Button>
+                                                <Button intent="gray" size="sm">Lorem</Button>
                                             </div>
                                         }
                                     >
                                         <div className="py-4 space-y-4">
-                                            <TextInput label="Directory Alias" placeholder="Anime collection..." />
+                                            <TextInput label="Lorem Ipsum" placeholder="Lorem ipsum..." />
                                             <Select
-                                                label="Import Speed Limit"
+                                                label="Lorem Ipsum"
                                                 options={[
-                                                    { value: "1", label: "Slow (1 MB/s)" },
-                                                    { value: "2", label: "Medium (5 MB/s)" },
-                                                    { value: "3", label: "Uncapped" },
+                                                    { value: "1", label: "Lorem" },
+                                                    { value: "2", label: "Ipsum" },
+                                                    { value: "3", label: "Dolor" },
                                                 ]}
                                             />
                                         </div>
@@ -684,30 +683,30 @@ export default function TestPage() {
 
                                     {/* Drawer Component */}
                                     <Button intent="success-subtle" leftIcon={<FiPlus />} onClick={() => setDrawerOpen(true)}>
-                                        Open Drawer
+                                        Lorem Ipsum
                                     </Button>
 
                                     <Drawer
                                         open={drawerOpen}
                                         onOpenChange={setDrawerOpen}
-                                        title="Manga Chapter Reader Settings"
-                                        description="Customize viewing preferences for local reader canvas."
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet."
                                         footer={
                                             <div className="flex gap-2 w-full justify-end">
-                                                <Button intent="gray-outline" onClick={() => setDrawerOpen(false)}>Cancel</Button>
-                                                <Button intent="success" onClick={() => setDrawerOpen(false)}>Apply Custom Settings</Button>
+                                                <Button intent="gray-outline" onClick={() => setDrawerOpen(false)}>Lorem</Button>
+                                                <Button intent="success" onClick={() => setDrawerOpen(false)}>Lorem</Button>
                                             </div>
                                         }
                                     >
                                         <div className="py-6 space-y-6">
-                                            <Switch label="Double Page Layout" defaultValue={true} />
-                                            <Switch label="Fit to Screen Height" defaultValue={false} />
+                                            <Switch label="Lorem Ipsum" defaultValue={true} />
+                                            <Switch label="Lorem Ipsum" defaultValue={false} />
                                             <Select
-                                                label="Transition Animation Style"
+                                                label="Lorem Ipsum"
                                                 options={[
-                                                    { value: "fade", label: "Cross-fade Blend" },
-                                                    { value: "slide", label: "Horizontal Slide" },
-                                                    { value: "none", label: "No Animation" },
+                                                    { value: "fade", label: "Lorem" },
+                                                    { value: "slide", label: "Ipsum" },
+                                                    { value: "none", label: "Dolor" },
                                                 ]}
                                             />
                                         </div>
@@ -715,14 +714,14 @@ export default function TestPage() {
 
                                     {/* Popover Component */}
                                     <Popover
-                                        trigger={<Button intent="gray-outline" leftIcon={<FiHelpCircle />}>Open Popover</Button>}
+                                        trigger={<Button intent="gray-outline" leftIcon={<FiHelpCircle />}>Lorem Ipsum</Button>}
                                     >
                                         <div className="space-y-2">
-                                            <p className="font-semibold text-white">Need Support?</p>
+                                            <p className="font-semibold text-white">Lorem Ipsum</p>
                                             <p className="text-sm text-gray-300">
-                                                Popovers are perfect for showing light contextual fields or details.
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                                             </p>
-                                            <Button size="xs" intent="primary-subtle" className="w-full">Get Help</Button>
+                                            <Button size="xs" intent="primary-subtle" className="w-full">Lorem</Button>
                                         </div>
                                     </Popover>
 
@@ -730,24 +729,24 @@ export default function TestPage() {
                                     <DropdownMenu
                                         trigger={
                                             <Button intent="gray-outline" leftIcon={<FiSettings />}>
-                                                Open Dropdown
+                                                Lorem Ipsum
                                             </Button>
                                         }
                                     >
-                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                        <DropdownMenuLabel>Lorem Ipsum</DropdownMenuLabel>
                                         <DropdownMenuItem>
                                             <FiEye />
-                                            <span>View details</span>
+                                            <span>Lorem Ipsum</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <FiSettings />
-                                            <span>Configure</span>
+                                            <span>Lorem Ipsum</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuGroup>
                                             <DropdownMenuItem className="text-red-300">
                                                 <FiTrash />
-                                                <span>Delete entry</span>
+                                                <span>Lorem Ipsum</span>
                                             </DropdownMenuItem>
                                         </DropdownMenuGroup>
                                     </DropdownMenu>
@@ -757,27 +756,27 @@ export default function TestPage() {
 
                                 {/* Tooltips */}
                                 <div className="space-y-3">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Hover Tooltips</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
                                     <div className="flex flex-wrap gap-4">
                                         <Tooltip
-                                            trigger={<Button size="sm" intent="gray-outline">Tooltip Top</Button>}
+                                            trigger={<Button size="sm" intent="gray-outline">Lorem Ipsum</Button>}
                                             side="top"
                                         >
-                                            Top position hint
+                                            Lorem Ipsum
                                         </Tooltip>
 
                                         <Tooltip
-                                            trigger={<Button size="sm" intent="gray-outline">Tooltip Right</Button>}
+                                            trigger={<Button size="sm" intent="gray-outline">Lorem Ipsum</Button>}
                                             side="right"
                                         >
-                                            Right position hint
+                                            Lorem Ipsum
                                         </Tooltip>
 
                                         <Tooltip
-                                            trigger={<Button size="sm" intent="gray-outline">Tooltip Bottom</Button>}
+                                            trigger={<Button size="sm" intent="gray-outline">Lorem Ipsum</Button>}
                                             side="bottom"
                                         >
-                                            Bottom position hint
+                                            Lorem Ipsum
                                         </Tooltip>
                                     </div>
                                 </div>
@@ -789,58 +788,58 @@ export default function TestPage() {
                     <section id="feedback" className="space-y-6 scroll-mt-24">
                         <div className="flex items-center gap-2">
                             <h2 className="text-xl md:text-2xl font-bold text-white">Feedback & Tabs</h2>
-                            <Badge intent="gray-solid" size="sm">ui/alert & ui/badge</Badge>
+                            <Badge intent="gray-solid" size="sm">Lorem</Badge>
                         </div>
                         <Card className="border-white/5 bg-gray-900/20">
                             <CardHeader>
-                                <CardTitle className="text-lg">Status Banners & Content Tabs</CardTitle>
-                                <CardDescription>Alert feeds, responsive tags, and sub-panels.</CardDescription>
+                                <CardTitle className="text-lg">Lorem Ipsum</CardTitle>
+                                <CardDescription>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-8">
                                 {/* Alert Banners */}
                                 <div className="space-y-4">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Alert Banner Layouts</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
                                     <Alert
                                         intent="info"
-                                        title="Informational Alert"
-                                        description="This notification informs you that an automated import scan is schedule for midnight."
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                     />
                                     <Alert
                                         intent="success"
-                                        title="Successfully Connected"
-                                        description="Local server is actively sync'd with AniList database servers."
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                     />
                                     <Alert
                                         intent="warning"
-                                        title="Caution Advised"
-                                        description="You have 3 unregistered folders which might contain misnamed episodes."
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                     />
                                     <Alert
                                         intent="alert"
-                                        title="Connection Dropped"
-                                        description="Server failed to authenticate with the API endpoint. Retrying..."
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                         isClosable
                                         onClose={() => console.log("Closed alert")}
                                     />
                                     <Alert
                                         intent="info-basic"
-                                        title="Informational Alert"
-                                        description="This notification informs you that an automated import scan is schedule for midnight."
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                     />
                                     <Alert
                                         intent="success-basic"
-                                        title="Successfully Connected"
-                                        description="Local server is actively sync'd with AniList database servers."
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                     />
                                     <Alert
                                         intent="warning-basic"
-                                        title="Caution Advised"
-                                        description="You have 3 unregistered folders which might contain misnamed episodes."
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                     />
                                     <Alert
                                         intent="alert-basic"
-                                        title="Connection Dropped"
-                                        description="Server failed to authenticate with the API endpoint. Retrying..."
+                                        title="Lorem Ipsum"
+                                        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                         isClosable
                                         onClose={() => console.log("Closed alert")}
                                     />
@@ -850,52 +849,52 @@ export default function TestPage() {
 
                                 {/* Toast Notifications */}
                                 <div className="space-y-4">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Toast Notifications (Sonner)</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
                                     <div className="flex flex-wrap gap-3">
                                         <Button
                                             intent="primary-basic"
-                                            onClick={() => toast("Default Toast notification")}
+                                            onClick={() => toast("Lorem ipsum dolor sit amet")}
                                         >
-                                            Default
+                                            Lorem
                                         </Button>
                                         <Button
                                             intent="primary-subtle"
-                                            onClick={() => toast.info("Info Toast notification", {
-                                                description: "This is a detailed description of the info toast.",
+                                            onClick={() => toast.info("Lorem ipsum dolor sit amet", {
+                                                description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                                             })}
                                         >
-                                            Info
+                                            Lorem
                                         </Button>
                                         <Button
                                             intent="success"
-                                            onClick={() => toast.success("Successfully sync'd!", {})}
+                                            onClick={() => toast.success("Lorem ipsum dolor sit amet", {})}
                                         >
-                                            Success
+                                            Lorem
                                         </Button>
                                         <Button
                                             intent="warning"
-                                            onClick={() => toast.warning("Slow network detected", {
-                                                description: "Retrying to fetch the metadata provider.",
+                                            onClick={() => toast.warning("Lorem ipsum dolor sit amet", {
+                                                description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                                             })}
                                         >
-                                            Warning
+                                            Lorem
                                         </Button>
                                         <Button
                                             intent="alert"
-                                            onClick={() => toast.error("Failed to connect", {})}
+                                            onClick={() => toast.error("Lorem ipsum dolor sit amet", {})}
                                         >
-                                            Error
+                                            Lorem
                                         </Button>
                                         <Button
                                             intent="gray-outline"
-                                            onClick={() => toast("Undo action toast", {
+                                            onClick={() => toast("Lorem ipsum dolor sit amet", {
                                                 action: {
-                                                    label: "Undo",
-                                                    onClick: () => toast("Action undone"),
+                                                    label: "Lorem",
+                                                    onClick: () => toast("Lorem ipsum dolor sit amet"),
                                                 },
                                             })}
                                         >
-                                            With Action
+                                            Lorem
                                         </Button>
                                     </div>
                                 </div>
@@ -904,45 +903,45 @@ export default function TestPage() {
 
                                 {/* Badges */}
                                 <div className="space-y-4">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Badges & Tags</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
 
                                     {/* Badge Intents */}
                                     <div className="space-y-2">
-                                        <p className="text-xs text-gray-500">Standard Soft Badges</p>
+                                        <p className="text-xs text-gray-500">Lorem Ipsum</p>
                                         <div className="flex flex-wrap gap-2">
-                                            <Badge intent="gray">GraySoft</Badge>
-                                            <Badge intent="primary">PrimarySoft</Badge>
-                                            <Badge intent="success">SuccessSoft</Badge>
-                                            <Badge intent="warning">WarningSoft</Badge>
-                                            <Badge intent="alert">AlertSoft</Badge>
-                                            <Badge intent="blue">BlueSoft</Badge>
-                                            <Badge intent="indigo">IndigoSoft</Badge>
-                                            <Badge intent="info">InfoSoft</Badge>
-                                            <Badge intent="white">WhiteSoft</Badge>
+                                            <Badge intent="gray">Lorem</Badge>
+                                            <Badge intent="primary">Lorem</Badge>
+                                            <Badge intent="success">Lorem</Badge>
+                                            <Badge intent="warning">Lorem</Badge>
+                                            <Badge intent="alert">Lorem</Badge>
+                                            <Badge intent="blue">Lorem</Badge>
+                                            <Badge intent="indigo">Lorem</Badge>
+                                            <Badge intent="info">Lorem</Badge>
+                                            <Badge intent="white">Lorem</Badge>
                                         </div>
                                     </div>
 
                                     {/* Solid Badges */}
                                     <div className="space-y-2">
-                                        <p className="text-xs text-gray-500">Solid / Filled Badges</p>
+                                        <p className="text-xs text-gray-500">Lorem Ipsum</p>
                                         <div className="flex flex-wrap gap-2">
-                                            <Badge intent="primary-solid">PrimarySolid</Badge>
-                                            <Badge intent="success-solid">SuccessSolid</Badge>
-                                            <Badge intent="warning-solid">WarningSolid</Badge>
-                                            <Badge intent="alert-solid">AlertSolid</Badge>
-                                            <Badge intent="info-solid">InfoSolid</Badge>
-                                            <Badge intent="gray-solid">GraySolid</Badge>
+                                            <Badge intent="primary-solid">Lorem</Badge>
+                                            <Badge intent="success-solid">Lorem</Badge>
+                                            <Badge intent="warning-solid">Lorem</Badge>
+                                            <Badge intent="alert-solid">Lorem</Badge>
+                                            <Badge intent="info-solid">Lorem</Badge>
+                                            <Badge intent="gray-solid">Lorem</Badge>
                                         </div>
                                     </div>
 
                                     {/* Sizes & Interactive */}
                                     <div className="space-y-2">
-                                        <p className="text-xs text-gray-500">Badge Sizes & Closable (Interactive)</p>
+                                        <p className="text-xs text-gray-500">Lorem Ipsum</p>
                                         <div className="flex flex-wrap items-center gap-3">
-                                            <Badge size="sm" intent="primary">Small Badge</Badge>
-                                            <Badge size="md" intent="primary">Medium Badge</Badge>
-                                            <Badge size="lg" intent="primary">Large Badge</Badge>
-                                            <Badge size="xl" intent="primary">Extra Large</Badge>
+                                            <Badge size="sm" intent="primary">Lorem</Badge>
+                                            <Badge size="md" intent="primary">Lorem</Badge>
+                                            <Badge size="lg" intent="primary">Lorem</Badge>
+                                            <Badge size="xl" intent="primary">Lorem</Badge>
                                             <Separator orientation="vertical" className="h-6 bg-white/10" />
                                             {badges.map(text => (
                                                 <Badge
@@ -958,8 +957,8 @@ export default function TestPage() {
                                                 <Button
                                                     size="xs"
                                                     intent="gray-outline"
-                                                    onClick={() => setBadges(["Interactive", "Closable", "Badges"])}
-                                                >Reset Tags</Button>
+                                                    onClick={() => setBadges(["Lorem", "Ipsum", "Dolor"])}
+                                                >Lorem</Button>
                                             )}
                                         </div>
                                     </div>
@@ -969,26 +968,26 @@ export default function TestPage() {
 
                                 {/* Tabs */}
                                 <div className="space-y-4">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tabbed Panels</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
                                     <Tabs defaultValue="tab1" className="w-full border rounded-xl overflow-hidden bg-black/10">
                                         <TabsList className="bg-gray-900/50 border-b p-0 flex justify-start">
-                                            <TabsTrigger value="tab1">Active Queue</TabsTrigger>
-                                            <TabsTrigger value="tab2">Download Settings</TabsTrigger>
-                                            <TabsTrigger value="tab3">History Logs</TabsTrigger>
+                                            <TabsTrigger value="tab1">Lorem</TabsTrigger>
+                                            <TabsTrigger value="tab2">Ipsum</TabsTrigger>
+                                            <TabsTrigger value="tab3">Dolor</TabsTrigger>
                                         </TabsList>
                                         <div className="p-4 min-h-[100px] text-sm text-gray-300">
                                             <TabsContent value="tab1" className="space-y-2">
-                                                <p className="font-semibold text-white">Download Queue Status</p>
-                                                <p>All items in the scheduler are currently processing. Estimated finish: 14 mins.</p>
+                                                <p className="font-semibold text-white">Lorem Ipsum</p>
+                                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
                                             </TabsContent>
                                             <TabsContent value="tab2" className="space-y-4">
-                                                <p className="font-semibold text-white">Client Overrides</p>
-                                                <TextInput label="Target Folder" placeholder="/volume1/media/anime" size="sm" className="max-w-md" />
+                                                <p className="font-semibold text-white">Lorem Ipsum</p>
+                                                <TextInput label="Lorem Ipsum" placeholder="Lorem ipsum..." size="sm" className="max-w-md" />
                                             </TabsContent>
                                             <TabsContent value="tab3">
-                                                <p className="font-semibold text-white">Log entries (last 24 hours)</p>
+                                                <p className="font-semibold text-white">Lorem Ipsum</p>
                                                 <p className="font-mono text-xs text-brand-400 mt-2 bg-black/40 p-2 rounded">
-                                                    [INFO] 2026-07-02 07:11:00 - Scheduled library scan complete. found 0 changes.
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                                                 </p>
                                             </TabsContent>
                                         </div>
@@ -1002,30 +1001,30 @@ export default function TestPage() {
                     <section id="layout" className="space-y-6 scroll-mt-24">
                         <div className="flex items-center gap-2">
                             <h2 className="text-xl md:text-2xl font-bold text-white">Layout & Skeletons</h2>
-                            <Badge intent="gray-solid" size="sm">ui/accordion & skeleton</Badge>
+                            <Badge intent="gray-solid" size="sm">Lorem</Badge>
                         </div>
                         <Card className="border-white/5 bg-gray-900/20">
                             <CardHeader>
-                                <CardTitle className="text-lg">Accordions & Visual Placeholders</CardTitle>
-                                <CardDescription>Folding structures and content loaders.</CardDescription>
+                                <CardTitle className="text-lg">Lorem Ipsum</CardTitle>
+                                <CardDescription>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-8">
                                 {/* Accordion */}
                                 <div className="space-y-3">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Accordion Expanders</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
                                     <Accordion type="single" collapsible className="border rounded-xl bg-black/10 overflow-hidden divide-y">
                                         <AccordionItem value="item-1">
-                                            <AccordionTrigger>What is Seanime server sidecar mode?</AccordionTrigger>
+                                            <AccordionTrigger>Lorem ipsum dolor sit amet?</AccordionTrigger>
                                             <AccordionContent>
-                                                Sidecar mode enables Seanime to run locally on desktop computers while executing requests
-                                                asynchronously in the background. It integrates directly with MPV media players.
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
+                                                dolore magna aliqua.
                                             </AccordionContent>
                                         </AccordionItem>
                                         <AccordionItem value="item-2">
-                                            <AccordionTrigger>How do I change Torrent streaming caching limits?</AccordionTrigger>
+                                            <AccordionTrigger>Lorem ipsum dolor sit amet?</AccordionTrigger>
                                             <AccordionContent>
-                                                Navigate to Settings &gt; Torrent stream settings. You can set the RAM buffer caching parameters and
-                                                maximum download speeds from that dashboard.
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
+                                                dolore magna aliqua.
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
@@ -1035,34 +1034,35 @@ export default function TestPage() {
 
                                 {/* Card Showcase */}
                                 <div className="space-y-3">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Card Component Anatomy</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <Card>
                                             <CardHeader>
-                                                <CardTitle className="text-base font-bold">Standard Card Title</CardTitle>
-                                                <CardDescription>Description or subtitle goes here</CardDescription>
+                                                <CardTitle className="text-base font-bold">Lorem Ipsum</CardTitle>
+                                                <CardDescription>Lorem ipsum dolor sit amet</CardDescription>
                                             </CardHeader>
                                             <CardContent className="text-sm text-gray-300">
-                                                This is the main card body content. You can place standard list items, options, or details in this
-                                                area.
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
+                                                dolore magna aliqua.
                                             </CardContent>
                                             <CardFooter className="justify-between border-t border-white/5 pt-3">
-                                                <span className="text-xs text-[--muted]">Last updated: 2 mins ago</span>
-                                                <Button size="xs" intent="primary-subtle">Action</Button>
+                                                <span className="text-xs text-[--muted]">Lorem ipsum</span>
+                                                <Button size="xs" intent="primary-subtle">Lorem</Button>
                                             </CardFooter>
                                         </Card>
 
                                         <Card className="bg-gray-900/40 border-brand-500/20">
                                             <CardHeader>
-                                                <CardTitle className="text-base font-bold text-brand-300">Styled Banner Card</CardTitle>
-                                                <CardDescription className="text-brand-400/80">Highlight critical system details</CardDescription>
+                                                <CardTitle className="text-base font-bold text-brand-300">Lorem Ipsum</CardTitle>
+                                                <CardDescription className="text-brand-400/80">Lorem ipsum dolor sit amet</CardDescription>
                                             </CardHeader>
                                             <CardContent className="text-sm text-gray-200">
-                                                Premium card styling using subtle background colors and higher contrast borders to separate sections.
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
+                                                dolore magna aliqua.
                                             </CardContent>
                                             <CardFooter className="justify-end gap-2">
-                                                <Button size="xs" intent="gray-basic">Ignore</Button>
-                                                <Button size="xs" intent="primary">Acknowledge</Button>
+                                                <Button size="xs" intent="gray-basic">Lorem</Button>
+                                                <Button size="xs" intent="primary">Lorem</Button>
                                             </CardFooter>
                                         </Card>
                                     </div>
@@ -1072,7 +1072,7 @@ export default function TestPage() {
 
                                 {/* Skeletons */}
                                 <div className="space-y-4">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Skeleton Loaders</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         {/* Skeleton Example 1 */}
                                         <div className="space-y-3 border p-4 rounded-xl bg-black/5">

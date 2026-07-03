@@ -3,7 +3,6 @@ import { useGettingStarted } from "@/api/hooks/settings.hooks"
 import { useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
-import { SeaImage as Image } from "@/components/shared/sea-image"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardProps } from "@/components/ui/card"
@@ -25,12 +24,14 @@ import { useFormContext, useWatch } from "react-hook-form"
 import { BiChevronLeft, BiChevronRight, BiDownload, BiFolder, BiPlay, BiRocket } from "react-icons/bi"
 import { FaBook, FaDiscord } from "react-icons/fa"
 import { HiOutlineDesktopComputer } from "react-icons/hi"
+import { HiOutlineServerStack } from "react-icons/hi2"
 import { HiEye, HiGlobeAlt, HiServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
-import { IoPlayForwardCircleSharp } from "react-icons/io5"
+import { IoLibraryOutline } from "react-icons/io5"
+import { LuMonitorPlay } from "react-icons/lu"
 import { LuSparkles } from "react-icons/lu"
 import { MdOutlineBroadcastOnHome } from "react-icons/md"
-import { SiMpv, SiQbittorrent, SiTransmission, SiVlcmediaplayer } from "react-icons/si"
+import { SiQbittorrent, SiTransmission, SiVlcmediaplayer } from "react-icons/si"
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -87,14 +88,14 @@ const STEPS = [
         id: "library",
         title: "Local Anime Library",
         description: "Choose your anime library folder",
-        icon: BiFolder,
+        icon: IoLibraryOutline,
         gradient: "from-blue-500 to-cyan-500",
     },
     {
         id: "player",
         title: "Media Player",
         description: "Configure your video player",
-        icon: BiPlay,
+        icon: LuMonitorPlay,
         gradient: "from-green-500 to-emerald-500",
     },
     {
@@ -108,7 +109,7 @@ const STEPS = [
         id: "debrid",
         title: "Debrid Service",
         description: "Optional premium streaming",
-        icon: HiServerStack,
+        icon: HiOutlineServerStack,
         gradient: "from-indigo-500 to-indigo-500",
     },
     {
@@ -159,17 +160,17 @@ function StepIndicator({ currentStep, totalSteps, onStepClick }: { currentStep: 
                         onClick={(e) => {
                             onStepClick(i)
                         }}
-                        className={cn("flex flex-col items-center relative group transition-all duration-200 focus:outline-none rounded-lg p-2 w-36",
+                        className={cn("flex flex-col items-center relative group transition-all duration-200 focus:outline-none rounded-lg p-2 w-full",
                             "cursor-pointer")}
                     >
                         <motion.div
                             className={cn(
-                                "w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-all duration-200",
+                                "w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-all duration-200",
                                 // i <= currentStep
                                 //     ? `bg-gradient-to-r ${step.gradient} text-white`
                                 //     : "bg-gray-700 text-gray-500",
                                 i <= currentStep
-                                    ? "bg-gradient-to-br from-brand-500/20 to-indigo-500/20 border border-brand-500/20"
+                                    ? "bg-brand-500/20 border-brand-500/20"
                                     : "bg-[--subtle] text-[--muted]",
                                 i <= currentStep && "group-hover:shadow-md",
                             )}
@@ -318,26 +319,26 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                     <AnimatePresence mode="wait">
                         {defaultPlayer === "mpv" && (
                             <>
-                                <p>
+                                <p className="text-pretty">
                                     On Windows, install MPV easily using Scoop or Chocolatey. On macOS, install MPV using Homebrew.
                                 </p>
-                                <motion.div
-                                    key="mpv"
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    className="space-y-4 p-4 rounded-lg bg-gray-800/30"
-                                >
-                                    <div className="flex items-center space-x-3">
-                                        <SiMpv className="w-6 h-6 text-indigo-400" />
-                                        <h4 className="font-semibold">MPV Configuration</h4>
-                                    </div>
-                                    <Field.Text
-                                        name="mpvSocket"
-                                        label="Socket / Pipe Path"
-                                        help="Path for MPV IPC communication"
-                                    />
-                                </motion.div>
+                                {/*<motion.div*/}
+                                {/*    key="mpv"*/}
+                                {/*    initial={{ opacity: 0, height: 0 }}*/}
+                                {/*    animate={{ opacity: 1, height: "auto" }}*/}
+                                {/*    exit={{ opacity: 0, height: 0 }}*/}
+                                {/*    className="space-y-4 p-4 rounded-lg bg-gray-800/30"*/}
+                                {/*>*/}
+                                {/*    <div className="flex items-center space-x-3">*/}
+                                {/*        <SiMpv className="w-6 h-6 text-indigo-400" />*/}
+                                {/*        <h4 className="font-semibold">MPV Configuration</h4>*/}
+                                {/*    </div>*/}
+                                {/*    <Field.Text*/}
+                                {/*        name="mpvSocket"*/}
+                                {/*        label="Socket / Pipe Path"*/}
+                                {/*        help="Path for MPV IPC communication"*/}
+                                {/*    />*/}
+                                {/*</motion.div>*/}
                             </>
                         )}
 
@@ -347,17 +348,17 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: "auto" }}
                                 exit={{ opacity: 0, height: 0 }}
-                                className="space-y-4 p-4 rounded-lg bg-gray-800/30"
+                                className="space-y-4"
                             >
-                                <div className="flex items-center space-x-3">
-                                    <IoPlayForwardCircleSharp className="w-6 h-6 text-blue-400" />
-                                    <h4 className="font-semibold">IINA Configuration</h4>
-                                </div>
-                                <Field.Text
-                                    name="iinaSocket"
-                                    label="Socket / Pipe Path"
-                                    help="Path for IINA IPC communication"
-                                />
+                                {/*<div className="flex items-center space-x-3">*/}
+                                {/*    <IoPlayForwardCircleSharp className="w-6 h-6 text-blue-400" />*/}
+                                {/*    <h4 className="font-semibold">IINA Configuration</h4>*/}
+                                {/*</div>*/}
+                                {/*<Field.Text*/}
+                                {/*    name="iinaSocket"*/}
+                                {/*    label="Socket / Pipe Path"*/}
+                                {/*    help="Path for IINA IPC communication"*/}
+                                {/*/>*/}
 
                                 <Alert
                                     intent="info-basic"
@@ -578,14 +579,14 @@ function FeaturesStep({ form }: { form: any }) {
             icon: FaBook,
             title: "Manga",
             description: "Read and download manga chapters",
-            gradient: "from-orange-500 to-yellow-700",
+            gradient: "from-orange-500 to-yellow-500",
         },
         {
             name: "enableTorrentStreaming",
             icon: BiDownload,
             title: "Torrent Streaming",
             description: "Stream torrents without waiting for download",
-            gradient: "from-cyan-500 to-teal-500",
+            gradient: "from-violet-500 to-indigo-500",
         },
         {
             name: "enableAdultContent",
@@ -599,7 +600,7 @@ function FeaturesStep({ form }: { form: any }) {
             icon: HiGlobeAlt,
             title: "Online Streaming",
             description: "Watch anime from online sources",
-            gradient: "from-indigo-500 to-violet-500",
+            gradient: "from-green-500 to-emerald-500",
         },
         {
             name: "enableRichPresence",
@@ -666,7 +667,7 @@ function FeaturesStep({ form }: { form: any }) {
                                 "border border-gray-700/50",
                                 // "hover:shadow-lg hover:scale-[1.02]",
                                 "data-[checked=true]:bg-gradient-to-br data-[checked=true]:from-gray-900 data-[checked=true]:to-gray-900",
-                                "data-[checked=true]:border-gray-400",
+                                "data-[checked=true]:border-white/30",
                                 // "data-[checked=true]:shadow-lg data-[checked=true]:scale-[1.02]"
                             )}
                             containerClass="flex items-center justify-between h-full"
@@ -730,16 +731,16 @@ export function GettingStartedPage({ status }: { status: Status }) {
     if (isPending) return <LoadingOverlayWithLogo />
 
     if (!data) return (
-        <div className="min-h-screen bg-gradient-to-br from-[--background] via-[--background] to-indigo-900/10 relative">
+        <div className="min-h-screen bg-gradient-to-br from-[--paper] via-[--paper] to-[--paper] relative">
             <div className="fixed h-100vh w-100vw inset-0 ">
                 <div className="fixed h-100vh w-100vw bg-gray-950/20 z-[1] backdrop-blur-sm firefox:backdrop-blur-none inset-0"></div>
-                <Image
-                    src="/background.jpeg"
-                    alt="bg"
-                    fill
-                    sizes="100vw"
-                    className="opacity-[0.05] firefox:opacity-[0.01]"
-                />
+                {/*<Image*/}
+                {/*    src="/background.jpeg"*/}
+                {/*    alt="bg"*/}
+                {/*    fill*/}
+                {/*    sizes="100vw"*/}
+                {/*    className="opacity-[0.05] firefox:opacity-[0.01]"*/}
+                {/*/>*/}
             </div>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 {/* <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" /> */}

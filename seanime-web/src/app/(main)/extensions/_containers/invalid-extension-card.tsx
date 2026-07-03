@@ -218,14 +218,14 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                         The plugin <span className="font-bold">{extension.extension?.name}</span> is requesting the following permissions:
                     </p>
 
-                    <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-md leading-relaxed text-left bg-[--subtle] p-3 rounded-xl">
+                    <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-md leading-relaxed text-left bg-gray-800 border p-3 rounded-xl">
                         {extension.pluginPermissionDescription?.split("\n").map((line, index) => {
                             line = line.trimEnd()
                             if (line.startsWith("•") && !line.startsWith("*")) {
                                 const l = line.replace("• ", "")
-                                return <span key={index} className="pl-4 mb-1 block">
+                                return <span key={index} className="mb-1 block">
                                     {l.startsWith("Domain:") ? <>
-                                            <span className="font-bold bg-gray-950 border px-2 py-[0.1rem] rounded-lg inline-block">{l
+                                            <span className="font-bold bg-gray-900 border px-2 py-[0.08rem] rounded-lg inline-block">{l
                                                 .split(":")[0].trim()}</span>: {l.substring(l.indexOf(":") + 1)}<br />
                                         </> :
                                         <>
@@ -256,30 +256,34 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                         {extension.path}
                     </p>
 
-                    <ExtensionCodeModal extension={extension.extension} readOnly>
+                    <div className="flex gap-2 w-full">
+                        <ExtensionCodeModal extension={extension.extension} readOnly>
+                            <Button
+                                size="md"
+                                intent="gray-subtle"
+                                className="w-full"
+                            >
+                                View code
+                            </Button>
+                        </ExtensionCodeModal>
+
                         <Button
                             size="md"
-                            intent="gray-subtle"
+                            intent="warning-subtle"
+                            leftIcon={<LuShieldCheck className="size-5" />}
+                            className="w-full"
+                            onClick={() => {
+                                if (!extension.extension?.id) return toast.error("Extension has no ID")
+                                pendingGrantRef.current = true
+                                React.startTransition(() => {
+                                    grantPluginPermissions({ id: extension.extension?.id ?? "", clientId: "" })
+                                })
+                            }}
+                            loading={isGrantingPluginPermissions}
                         >
-                            View code
+                            Grant permissions
                         </Button>
-                    </ExtensionCodeModal>
-
-                    <Button
-                        size="md"
-                        intent="success-subtle"
-                        leftIcon={<LuShieldCheck className="size-5" />}
-                        onClick={() => {
-                            if (!extension.extension?.id) return toast.error("Extension has no ID")
-                            pendingGrantRef.current = true
-                            React.startTransition(() => {
-                                grantPluginPermissions({ id: extension.extension?.id ?? "", clientId: "" })
-                            })
-                        }}
-                        loading={isGrantingPluginPermissions}
-                    >
-                        Grant permissions
-                    </Button>
+                    </div>
                 </Modal>
                 {/*Show settings if extension has an ID and manifest URI*/}
                 {/*This will allow the user to fetch updates or uninstall the extension*/}

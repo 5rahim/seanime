@@ -63,7 +63,7 @@ export function SettingsCard({ title, description, children, className }: Settin
             )}
             <Card
                 ref={cardRef}
-                className={cn("group/settings-card relative lg:dark:bg-[--paper] rounded-xl divide-y-2 divide-gray-700/20 overflow-clip", className)}
+                className={cn("group/settings-card relative lg:dark:bg-[--paper] rounded-xl divide-y-2 divide-gray-700/40 overflow-clip", className)}
                 onMouseMove={handleMouseMove}
             >
                 {/* <div
@@ -91,7 +91,7 @@ export function SettingsCard({ title, description, children, className }: Settin
                 {React.Children.map(children, (child) => {
                     if (!child) return null
                     return (
-                        <CardContent className="p-4 hover:bg-gray-900 transition-colors">
+                        <CardContent className="p-3 hover:bg-gray-900 transition-colors">
                             {child}
                         </CardContent>
                     )

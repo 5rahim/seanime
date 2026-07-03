@@ -179,7 +179,7 @@ export function HomeScreen() {
                     )}
                 />
 
-                <div className="text-center space-y-6 py-10">
+                <div className="text-center space-y-6 py-10 z-[10] relative">
                     <h2>Your home screen is empty</h2>
 
                     {!!serverStatus?.settings?.library?.libraryPath && <>

@@ -9,7 +9,7 @@ import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 export const AlertAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-Alert__root",
-        "py-3 px-4 flex justify-between rounded-lg border text-sm transition-colors duration-200",
+        "py-3 px-4 flex justify-between rounded-xl border text-sm transition-colors duration-200",
     ], {
         variants: {
             intent: {
@@ -18,10 +18,10 @@ export const AlertAnatomy = defineStyleAnatomy({
                 "warning": "bg-orange-500/10 border-orange-500/20 text-gray-900 dark:bg-orange-900/70 dark:border-[--border] dark:text-gray-200",
                 "alert": "bg-red-500/10 border-red-500/20 text-gray-900 dark:bg-red-900/70 dark:border-[--border] dark:text-gray-200",
 
-                "info-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-gray-800/80 dark:text-gray-200",
-                "success-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-gray-800/80 dark:text-gray-200",
-                "warning-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-gray-800/80 dark:text-gray-200",
-                "alert-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-gray-800/80 dark:text-gray-200",
+                "info-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-[--border] dark:text-gray-200",
+                "success-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-[--border] dark:text-gray-200",
+                "warning-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-[--border] dark:text-gray-200",
+                "alert-basic": "bg-white text-gray-800 border-gray-200 dark:bg-gray-900/50 dark:border-[--border] dark:text-gray-200",
             },
         },
         defaultVariants: {

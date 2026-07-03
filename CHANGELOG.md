@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - ⚡️ UI: Support for alt + mouse wheel horizontal scrolling on carousels
 - ⚡️ VideoCore: Support for screenshot directory
 - ⚡️ Plugins: Added new ChromeDP APIs
+- ⚡️ Discord: Seanime logo no longer displayed in Rich Presence
 - 🦺 Torrent Streaming: Fixed batch selection
 - 🦺 VideoCore: Ability to exit fullscreen when next stream is loading
 - 🦺 MPV/IINA: Fixed progress tracking dropping when media path is temporarily unavailable #836

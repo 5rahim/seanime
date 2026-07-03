@@ -338,9 +338,9 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
                 {!!missingDefaultTypes.length && (
                     <Alert
                         intent="warning"
-                        title="Update the repository!"
+                        title="No content providers available"
                         description={<div>
-                            <p>To protect Seanime, some extensions have been removed. Find a new repository URL online and add it.</p>
+                            <p>The Seanime default marketplace no longer indexes content providers. Find a new repository URL online and add it.</p>
                             <Button
                                 intent="primary"
                                 size="sm"
