@@ -123,6 +123,7 @@ export function DebridSettings(props: DebridSettingsProps) {
                                     { label: "TorBox", value: "torbox" },
                                     { label: "Real-Debrid", value: "realdebrid" },
                                     { label: "AllDebrid", value: "alldebrid" },
+                                    { label: "Premiumize", value: "premiumize" },
                                 ]}
                                 name="provider"
                                 label="Provider"
