@@ -77,6 +77,7 @@ declare global {
             };
             mpvCore: {
                 createTempSubtitle: (filename: string, content: string) => Promise<string>;
+                writeConfigFile: (content: string) => Promise<string | null>;
                 createScreenshotPath: () => Promise<string>;
                 saveScreenshot: (filePath: string, base64Data: string) => Promise<boolean>;
                 setLoggingEnabled: (enabled: boolean) => Promise<boolean>;

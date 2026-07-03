@@ -37,8 +37,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { WSEvents } from "@/lib/server/ws-events"
 import { __isDesktop__ } from "@/types/constants"
-import type { MpvPrismTrackSelection } from "@mpv-prism/core"
-import type { MpvPrismTrack } from "@mpv-prism/core"
+import type { MpvPrismMpvInitOptions, MpvPrismTrack, MpvPrismTrackSelection } from "@mpv-prism/core"
 
 import { MpvPrismVideo, useMpvPrismEvent, useMpvPrismPlayer } from "@mpv-prism/react"
 import { useQueryClient } from "@tanstack/react-query"
@@ -113,32 +112,91 @@ type DocumentPictureInPictureApi = {
 
 const subtitleExts = ["srt", "ass", "ssa", "vtt", "ttml", "stl", "txt"]
 
+type MpvCorePlayerContentProps = {
+    activeMpvConfig: string
+    customMpvConfigPath: string | null
+    initialDeband: boolean
+}
 
 export function MpvCorePlayerInner() {
+    const [mpvSettings] = useAtom(mc_settings)
+    const [activeMpvConfig] = React.useState(mpvSettings.customMpvConfig)
+    const [initialDeband] = React.useState(mpvSettings.deband)
+    const [configState, setConfigState] = React.useState({
+        ready: !activeMpvConfig.trim(),
+        path: null as string | null,
+    })
+
+    React.useEffect(() => {
+        let cancelled = false
+
+        async function writeConfig() {
+            if (!activeMpvConfig.trim()) {
+                setConfigState({ ready: true, path: null })
+                return
+            }
+
+            const writeConfigFile = window.electron?.mpvCore?.writeConfigFile
+            if (!writeConfigFile) {
+                toast.error("MPV config files are unavailable in this Denshi build")
+                setConfigState({ ready: true, path: null })
+                return
+            }
+
+            setConfigState({ ready: false, path: null })
+            try {
+                const path = await writeConfigFile(activeMpvConfig)
+                if (!cancelled) {
+                    setConfigState({ ready: true, path })
+                }
+            }
+            catch (error) {
+                if (!cancelled) {
+                    toast.error(error instanceof Error ? error.message : "Failed to write MPV config")
+                    setConfigState({ ready: true, path: null })
+                }
+            }
+        }
+
+        writeConfig()
+        return () => {
+            cancelled = true
+        }
+    }, [activeMpvConfig])
+
+    if (!configState.ready) return null
+
+    return (
+        <MpvCorePlayerContent
+            activeMpvConfig={activeMpvConfig}
+            customMpvConfigPath={configState.path}
+            initialDeband={initialDeband}
+        />
+    )
+}
+
+function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
+    const { activeMpvConfig, customMpvConfigPath, initialDeband } = props
     const [state, setState] = useAtom(mpvCore_stateAtom)
     const serverStatus = useServerStatus()
     const qc = useQueryClient()
     const [mpvSettings, setMpvSettings] = useAtom(mc_settings)
-    const [activeMpvConfig, setActiveMpvConfig] = React.useState(mpvSettings.customMpvConfig)
-    const [initialDeband, setInitialDeband] = React.useState(mpvSettings.deband)
-
-    React.useEffect(() => {
-        if (!state.active) {
-            setActiveMpvConfig(mpvSettings.customMpvConfig)
-            setInitialDeband(mpvSettings.deband)
-        }
-    }, [state.active, mpvSettings.customMpvConfig, mpvSettings.deband])
 
     const [playerGeneration, setPlayerGeneration] = React.useState(0)
-    const mpvOptions = React.useMemo(() => {
+    const mpvOptions = React.useMemo<MpvPrismMpvInitOptions>(() => {
         const { parsed } = mc_parseCustomMpvConfig(activeMpvConfig)
-        return {
-            options: {
-                "keep-open": "yes",
-                "hwdec": "auto-safe",
-                "deband": initialDeband ? "yes" : "no",
-                ...parsed,
-            },
+        const options: NonNullable<MpvPrismMpvInitOptions["options"]> = {
+            "keep-open": "yes",
+        }
+        if (!("hwdec" in parsed)) {
+            options["hwdec"] = "auto-safe"
+        }
+        if (!("deband" in parsed)) {
+            options["deband"] = initialDeband ? "yes" : "no"
+        }
+
+        const result: MpvPrismMpvInitOptions = {
+            options,
             observe: [
                 "estimated-vf-fps",
                 "display-fps",
@@ -150,7 +208,11 @@ export function MpvCorePlayerInner() {
                 "vo-passes",
             ],
         }
-    }, [activeMpvConfig])
+        if (customMpvConfigPath) {
+            result.config = { files: [customMpvConfigPath] }
+        }
+        return result
+    }, [activeMpvConfig, customMpvConfigPath, initialDeband])
     const expectedPlayerId = `seanime-mpv-core-active-${playerGeneration}`
     const createdPlayer = useMpvPrismPlayer({
         playerId: expectedPlayerId,
@@ -951,14 +1013,12 @@ export function MpvCorePlayerInner() {
 
     React.useEffect(() => {
         if (!player || !state.active) return
-        const { parsed } = mc_parseCustomMpvConfig(mpvSettings.customMpvConfig)
+        const { parsed } = mc_parseCustomMpvConfig(activeMpvConfig)
         if ("deband" in parsed) {
-            const customVal = parsed["deband"] !== "no" && parsed["deband"] !== "false" ? "yes" : "no"
-            player.setProperty("deband", customVal).catch(() => undefined)
             return
         }
         player.setProperty("deband", mpvSettings.deband ? "yes" : "no").catch(() => undefined)
-    }, [player, state.active, mpvSettings.deband, mpvSettings.customMpvConfig])
+    }, [player, state.active, mpvSettings.deband, activeMpvConfig])
 
     React.useEffect(() => {
         if (!player || !state.active) return

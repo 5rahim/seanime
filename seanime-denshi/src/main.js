@@ -585,9 +585,18 @@ let mpvPrismMain = null
 const MPVCORE_TEMP_SUBTITLE_EXTENSIONS = new Set([".srt", ".ass", ".ssa", ".vtt", ".ttml", ".stl", ".txt"])
 const MPVCORE_MAX_SUBTITLE_BYTES = 20 * 1024 * 1024
 const MPVCORE_ANIME4K_MAX_SHADERS = 512
+const MPVCORE_MAX_CONFIG_BYTES = 1024 * 1024
 
 function getMpvCoreTempDirectory() {
     return path.join(app.getPath("temp"), "seanime-mpvcore")
+}
+
+function getMpvCoreConfigDirectory() {
+    return path.join(app.getPath("userData"), "mpvcore")
+}
+
+function getMpvCoreConfigFilePath() {
+    return path.join(getMpvCoreConfigDirectory(), "mpv.conf")
 }
 
 function getEmbeddedShadersDirectory() {
@@ -1553,6 +1562,26 @@ app.whenReady().then(async () => {
         const target = path.join(directory, createUniqueMpvCoreFilename(stem, extension))
         fs.writeFileSync(target, content, "utf8")
         return target
+    })
+
+    ipcMain.handle("mpvcore:write-config-file", async (_, content) => {
+        if (typeof content !== "string") {
+            throw new Error("MPV config must be text")
+        }
+
+        const filePath = getMpvCoreConfigFilePath()
+        if (!content.trim()) {
+            fs.rmSync(filePath, { force: true })
+            return null
+        }
+
+        if (Buffer.byteLength(content, "utf8") > MPVCORE_MAX_CONFIG_BYTES) {
+            throw new Error("MPV config exceeds the 1 MiB limit")
+        }
+
+        fs.mkdirSync(getMpvCoreConfigDirectory(), { recursive: true })
+        fs.writeFileSync(filePath, content, "utf8")
+        return filePath
     })
 
     ipcMain.handle("mpvcore:create-screenshot-path", async () => {

@@ -427,6 +427,7 @@ export function mc_parseCustomMpvConfig(config: string): { parsed: Record<string
     if (!config) return { parsed, ignored }
 
     const lines = config.split(/\r?\n/)
+    let inSection = false
     for (const line of lines) {
         let cleanLine = line.trim()
         if (!cleanLine || cleanLine.startsWith("#") || cleanLine.startsWith("//")) {
@@ -460,10 +461,12 @@ export function mc_parseCustomMpvConfig(config: string): { parsed: Record<string
             continue
         }
 
-        // Skip section headers (e.g. [gpu-hq], [protocol.https])
+        // Only parse global options before the first profile block.
         if (cleanLine.startsWith("[") && cleanLine.endsWith("]")) {
+            inSection = true
             continue
         }
+        if (inSection) continue
 
         const eqIndex = cleanLine.indexOf("=")
         let rawKey = ""
@@ -543,4 +546,3 @@ export function MpvCore() {
 
     return <MpvCorePlayerInner />
 }
-

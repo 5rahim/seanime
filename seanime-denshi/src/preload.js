@@ -116,6 +116,7 @@ contextBridge.exposeInMainWorld(
 
         mpvCore: {
             createTempSubtitle: (filename, content) => ipcRenderer.invoke("mpvcore:create-temp-subtitle", filename, content),
+            writeConfigFile: (content) => ipcRenderer.invoke("mpvcore:write-config-file", content),
             createScreenshotPath: () => ipcRenderer.invoke("mpvcore:create-screenshot-path"),
             saveScreenshot: (filePath, base64Data) => ipcRenderer.invoke("mpvcore:save-screenshot", filePath, base64Data),
             setLoggingEnabled: (enabled) => ipcRenderer.invoke("mpvcore:setLoggingEnabled", enabled),
