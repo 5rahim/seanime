@@ -23,9 +23,12 @@ import { __isElectronDesktop__ } from "@/types/constants"
 import { useAtom, useSetAtom } from "jotai"
 import React from "react"
 import { BiDesktop } from "react-icons/bi"
-import { LuCheck, LuCirclePlay, LuClapperboard, LuExternalLink, LuLaptop, LuPlay, LuSparkles, LuTvMinimalPlay } from "react-icons/lu"
+import { FaHtml5 } from "react-icons/fa"
+import { LuCheck, LuCirclePlay, LuExternalLink, LuLaptop, LuPlay } from "react-icons/lu"
 import { MdOutlineBroadcastOnHome } from "react-icons/md"
+import { PiVideoDuotone } from "react-icons/pi"
 import { RiSettings3Fill } from "react-icons/ri"
+import { SiMpv } from "react-icons/si"
 import { toast } from "sonner"
 
 type PlaybackChoice = {
@@ -164,7 +167,7 @@ export function PlaybackSettings() {
                     <div className="space-y-5">
                         <div className="flex items-center gap-4">
                             <div className="p-3 rounded-lg border border-[--border] bg-[--subtle]">
-                                <LuClapperboard className="text-2xl text-[--brand]" />
+                                <PiVideoDuotone className="text-2xl text-[--brand]" />
                             </div>
                             <div className="flex-1">
                                 <Switch
@@ -198,14 +201,14 @@ export function PlaybackSettings() {
                                             value: "videocore",
                                             title: "VideoCore",
                                             description: "HTML5 player powered by Chromium's video handling.",
-                                            icon: LuTvMinimalPlay,
+                                            icon: FaHtml5,
                                             preview: <VideoCorePreview />,
                                         },
                                         {
                                             value: "mpvcore",
                                             title: "MpvCore",
-                                            description: "Libmpv renderer with native codec, track, and subtitle handling.",
-                                            icon: LuSparkles,
+                                            description: "Native player powered by libmpv, with broader codec support.",
+                                            icon: SiMpv,
                                             badge: <ExperimentalBadge />,
                                             preview: <MpvCorePreview />,
                                         },
@@ -277,7 +280,7 @@ export function PlaybackSettings() {
                             {
                                 value: PlaybackDownloadedMedia.Default,
                                 title: "Desktop media player",
-                                description: "Open local files in MPV, VLC, IINA, or MPC-HC with progress tracking.",
+                                description: "Open the stream in your configured player with automatic tracking.",
                                 icon: LuLaptop,
                                 preview: <DesktopPlayerPreview />,
                             },
@@ -285,8 +288,8 @@ export function PlaybackSettings() {
                                 value: "mediastream",
                                 title: "Transcoding / Direct Play",
                                 description: isMediastreamEnabled
-                                    ? "Play the file on this device through Seanime's stream view."
-                                    : "Enable Media Stream first to use the browser player.",
+                                    ? "Play local files through an HTML5 video player, available on web."
+                                    : "Enable transcoding first to use the browser player.",
                                 icon: MdOutlineBroadcastOnHome,
                                 preview: <MediastreamPreview disabled={!isMediastreamEnabled} />,
                                 badge: !isMediastreamEnabled ? <Badge intent="warning" size="sm">Disabled</Badge> : undefined,
@@ -322,14 +325,14 @@ export function PlaybackSettings() {
                             {
                                 value: PlaybackTorrentStreaming.Default,
                                 title: "Desktop media player",
-                                description: "Open the live stream in your configured player with automatic tracking.",
+                                description: "Open the stream in your configured player with automatic tracking.",
                                 icon: LuLaptop,
                                 preview: <TorrentDesktopPreview />,
                             },
                             {
                                 value: PlaybackTorrentStreaming.ExternalPlayerLink,
                                 title: "External player link",
-                                description: "Forward the stream to another application through the custom link.",
+                                description: "Send the stream URL to another app using your custom scheme.",
                                 icon: LuExternalLink,
                                 preview: <TorrentExternalPreview />,
                             },
@@ -361,17 +364,17 @@ function PlaybackChoiceGroup(props: PlaybackChoiceGroupProps) {
             }))}
             className={cn(
                 "w-full",
-                columns === "two" ? "max-w-2xl" : "max-w-4xl",
+                columns === "two" ? "max-w-2xl" : "max-w-5xl",
             )}
             stackClass={cn(
                 "grid grid-cols-1 gap-4",
                 columns === "two" ? "lg:grid-cols-2" : "xl:grid-cols-3",
             )}
             itemContainerClass={cn(
-                "group/playback-choice block relative min-w-0 overflow-hidden rounded-xl border bg-white/70 p-0 transition-colors",
+                "group/playback-choice block relative min-w-0 max-w-sm overflow-hidden rounded-xl border bg-white/70 p-0 transition-colors",
                 "dark:bg-gray-950/30 border-gray-200 dark:border-gray-800",
                 "hover:border-gray-300 dark:hover:border-gray-700 hover:bg-[--subtle]",
-                "data-[state=checked]:border-[--border] data-[state=checked]:ring-1 data-[state=checked]:ring-[--border]",
+                "data-[state=checked]:border-[--border] data-[state=checked]:ring-1 data-[state=checked]:ring-white/20",
                 "data-[state=checked]:bg-brand-50/40 dark:data-[state=checked]:bg-gray-800",
                 "data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-55",
             )}
@@ -393,13 +396,13 @@ function PlaybackChoiceLabel({ choice, selected }: { choice: PlaybackChoice, sel
                 <div
                     className={cn(
                         "mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-lg border bg-[--paper] text-[--muted]",
-                        selected && "border-[--brand] bg-brand-500/10 text-[--brand]",
+                        selected && "bg-brand-500/10 text-[--brand]",
                     )}
                 >
                     <Icon className="text-lg" />
                 </div>
                 <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-0">
                         <p className="font-semibold leading-snug text-sm">{choice.title}</p>
                         {choice.badge}
                     </div>
@@ -509,7 +512,7 @@ function VideoCorePreview() {
                 <MockLine w="w-12" className="ml-1" />
             </div>
             <div className="relative h-[calc(100%-1.25rem)]">
-                <div className="absolute inset-0 flex items-center justify-center text-[22px] font-semibold tracking-wider text-white/[0.04] select-none pointer-events-none font-mono">
+                <div className="absolute inset-0 flex items-center justify-center text-[22px] font-semibold tracking-wider text-white/[0.1] select-none pointer-events-none font-mono">
                     HTML5
                 </div>
                 {/* <div className="absolute inset-0 flex items-center justify-center">
@@ -541,7 +544,7 @@ function MpvCorePreview() {
                 <MockLine w="w-12" className="ml-1" />
             </div>
             <div className="relative h-[calc(100%-1.25rem)]">
-                <div className="absolute inset-0 flex items-center justify-center text-[22px] font-semibold tracking-wider text-white/[0.04] select-none pointer-events-none font-mono">
+                <div className="absolute inset-0 flex items-center justify-center text-[22px] font-semibold tracking-wider text-white/[0.1] select-none pointer-events-none font-mono">
                     MPV
                 </div>
                 {/* <div className="absolute right-2.5 top-2.5 w-20 rounded border border-white/10 bg-gray-900/95 p-1.5 space-y-1.5 shadow-lg z-10">

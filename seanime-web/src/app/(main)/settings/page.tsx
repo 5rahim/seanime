@@ -76,7 +76,7 @@ import { LocalSettings } from "./_containers/local-settings"
 import { NakamaSettings } from "./_containers/nakama-settings"
 
 const tabContentClass = cn(
-    "space-y-8 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+    "space-y-8 animate-in fade-in-0 duration-400",
 )
 
 
@@ -178,14 +178,11 @@ export default function Page() {
                 >
                     <TabsList variant="none" className="flex-wrap max-w-full lg:space-y-2 lg:sticky lg:top-10">
                         <SettingsNavCard>
-                            <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
-
-                            </div>
                             <div className="overflow-x-none overflow-y-hidden rounded-[--radius-md] space-y-1 lg:space-y-3 lg:block">
 
                                 <Card className="bg-transparent border-transparent">
                                     <div className="space-y-2 p-0 w-full">
-                                        <h4 className=" text-xl font-bold">Settings</h4>
+                                        <h4 className=" text-xl font-bold text-center">Settings</h4>
 
                                     </div>
                                 </Card>

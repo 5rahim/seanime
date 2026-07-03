@@ -32,7 +32,7 @@ export const DropdownMenuAnatomy = defineStyleAnatomy({
     ]),
     item: cva([
         "UI-DropdownMenu__item",
-        "relative flex cursor-default select-none items-center rounded-lg cursor-pointer px-2 py-2 text-sm outline-none transition-colors",
+        "relative flex cursor-default select-none items-center rounded-lg cursor-pointer px-2 py-1.5 text-sm outline-none transition-colors",
         "focus:bg-[--subtle] data-[disabled]:pointer-events-none",
         "data-[disabled]:opacity-50",
         "[&>svg]:mr-2 [&>svg]:text-lg",

@@ -223,7 +223,7 @@ export default function Page() {
 
             {(!!unsavedAnime?.length || !!unsavedManga?.length) && (
                 <Alert
-                    intent="info-basic"
+                    intent="info"
                     className="border-transparent"
                     description={
                         <div className="space-y-2">

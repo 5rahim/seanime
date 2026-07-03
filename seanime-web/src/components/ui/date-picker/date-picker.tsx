@@ -225,7 +225,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>((
 
                 <div className="hidden sm:block w-full">
                     <Popover
-                        className="w-auto p-0"
+                        className="w-auto p-0 bg-[--paper-lighter]"
                         trigger={Input}
                     >
                         {Picker}

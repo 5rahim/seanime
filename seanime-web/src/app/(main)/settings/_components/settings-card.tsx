@@ -91,7 +91,7 @@ export function SettingsCard({ title, description, children, className }: Settin
                 {React.Children.map(children, (child) => {
                     if (!child) return null
                     return (
-                        <CardContent className="p-4 hover:bg-gray-900">
+                        <CardContent className="p-4 hover:bg-gray-900 transition-colors">
                             {child}
                         </CardContent>
                     )

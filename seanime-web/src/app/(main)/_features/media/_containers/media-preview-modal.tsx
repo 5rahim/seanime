@@ -42,9 +42,6 @@ import { BiX } from "react-icons/bi"
 import { GoArrowLeft } from "react-icons/go"
 import { SiAnilist } from "react-icons/si"
 
-
-// unused
-
 type AnimePreviewModalProps = {
     children?: React.ReactNode
 }
@@ -81,7 +78,8 @@ export function MediaPreviewModal(props: AnimePreviewModalProps) {
             <Modal
                 open={!!info}
                 onOpenChange={v => setInfo(prev => v ? prev : undefined)}
-                contentClass="max-w-7xl relative"
+                contentClass="max-w-7xl relative bg-[--background]"
+                overlayClass="bg-gray-800/80"
                 hideCloseButton
                 {...rest}
             >

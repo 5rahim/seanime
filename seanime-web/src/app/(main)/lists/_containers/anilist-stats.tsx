@@ -646,7 +646,7 @@ function formatScore(score: number | undefined) {
 
 function formatAvg(score: number | undefined) {
     if (!score) return undefined
-    return `avg ${formatScore(score)}`
+    return `Score Avg ${formatScore(score)}`
 }
 
 function formatScoreBucket(score: number | undefined) {

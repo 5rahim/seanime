@@ -15,7 +15,7 @@ export const BasicFieldAnatomy = defineStyleAnatomy({
     fieldAsterisk: cva("UI-BasicField__fieldAsterisk ml-1 text-red-500 text-sm"),
     fieldDetails: cva("UI-BasicField__fieldDetails"),
     field: cva("UI-BasicField__field relative w-full space-y-1"),
-    fieldHelpText: cva("UI-BasicField__fieldHelpText text-[0.83rem] text-[--muted] break-all"),
+    fieldHelpText: cva("UI-BasicField__fieldHelpText text-[0.83rem] text-[--muted] break-words"),
     fieldErrorText: cva("UI-BasicField__fieldErrorText text-[0.83rem] text-red-500"),
 })
 
@@ -175,7 +175,11 @@ export const BasicField = React.memo(React.forwardRef<HTMLDivElement, BasicField
             {(!!help || !!error) &&
                 <div className={cn(BasicFieldAnatomy.fieldDetails(), fieldDetailsClass)}>
                     {!!help &&
-                        <div className={cn(BasicFieldAnatomy.fieldHelpText(), fieldHelpTextClass)}>{help}</div>}
+                        <div
+                            className={cn(BasicFieldAnatomy.fieldHelpText(),
+                                fieldHelpTextClass,
+                                (typeof help === "string" && help.length > 40 && !help.includes(" ")) && "break-all")}
+                        >{help}</div>}
                     {!!error &&
                         <div className={cn(BasicFieldAnatomy.fieldErrorText(), fieldErrorTextClass)}>{error}</div>}
                 </div>
