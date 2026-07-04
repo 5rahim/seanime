@@ -7,7 +7,7 @@
 <h1 align="center"><b>Seanime</b></h1>
 
 <p align="center">
-<img src="https://seanime.app/bucket/img-20260508-090529-ioc20pjr--sq2.webp" alt="preview" width="100%"/>
+<img src="https://s3.seanime.app/sea/img-20260508-090529-ioc20pjr--sq2.webp" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
@@ -47,7 +47,7 @@ Seanime is a **media server** with a **web interface** and **desktop app** for m
 ## Features
 
 - **Cross-platform**: Web interface and desktop app for Windows, Linux, and macOS
-- **Seanime Denshi**: Desktop client with built-in video player (support for SSA/ASS subtitles, Anime4K sharpening, auto translation, and more)
+- **Seanime Denshi**: Desktop client with built-in libmpv-based video player (support for SSA/ASS subtitles, shaders, and more)
 - **AniList Integration**: Browse and manage your lists, discover anime and manga
 - **Custom Sources**: Support for adding non-AniList anime and manga series 
 - **Library Management**: Fast and smart scanning of local files without strict naming conventions or folder structures
