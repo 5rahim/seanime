@@ -165,7 +165,7 @@ if (useLocal) {
         }
 
         console.log(`Extracting binaries to ${stagedRuntime}...`)
-        execSync(`tar -xzf "${tempArchive}" -C "${stagedRuntime}"`, { stdio: "inherit" })
+        execSync(`tar -xzf "temp-${t}.tar.gz" -C "${t}"`, { stdio: "inherit", cwd: stagingRoot })
         rmSync(tempArchive, { force: true })
 
         // Verify extracted files
