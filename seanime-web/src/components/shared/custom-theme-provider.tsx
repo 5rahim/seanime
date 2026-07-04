@@ -70,12 +70,13 @@ export function CustomThemeProvider(props: CustomColorProviderProps) {
         const bg = colord(ts.backgroundColor)
         const darkest = bg
         const lightest = colord("#f8fafc").mix(bg, 0.15) // 15% background tint into near-white
+        const _lightest = colord("#f8fafc").mix(bg, 0.7)
 
         setVal("--background", bg.toHex())
-        setVal("--paper", darkest.mix(lightest, 0.03).toHex())
-        setVal("--paper-lighter", darkest.mix(lightest, 0.05).toHex())
-        setVal("--media-card-popup-background", darkest.mix(lightest, 0.04).toHex())
-        setVal("--hover-from-background-color", darkest.mix(lightest, 0.06).toHex())
+        setVal("--paper", darkest.mix(_lightest, 0.03).toHex())
+        setVal("--paper-lighter", darkest.mix(_lightest, 0.05).toHex())
+        setVal("--media-card-popup-background", darkest.mix(_lightest, 0.04).toHex())
+        setVal("--hover-from-background-color", darkest.mix(_lightest, 0.06).toHex())
 
         // Default dark-mode transparency overlays
         setVal("--border", "rgba(255, 255, 255, 0.08)")
@@ -85,9 +86,9 @@ export function CustomThemeProvider(props: CustomColorProviderProps) {
         setVal("--subtle-highlight", "rgba(255, 255, 255, 0.08)")
 
         // GRAY SCALE GENERATION (Interpolated & tinted)
-        setRgbVal("--color-gray-950", darkest.mix(lightest, 0.02))
-        setRgbVal("--color-gray-900", darkest.mix(lightest, 0.05))
-        setRgbVal("--color-gray-800", darkest.mix(lightest, 0.10))
+        setRgbVal("--color-gray-950", darkest.mix(_lightest, 0.02))
+        setRgbVal("--color-gray-900", darkest.mix(_lightest, 0.05))
+        setRgbVal("--color-gray-800", darkest.mix(_lightest, 0.10))
         setRgbVal("--color-gray-700", darkest.mix(lightest, 0.18))
         setRgbVal("--color-gray-600", darkest.mix(lightest, 0.32))
         setRgbVal("--color-gray-500", darkest.mix(lightest, 0.48))

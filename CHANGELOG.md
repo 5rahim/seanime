@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - ⚡️ VideoCore: Support for screenshot directory
 - ⚡️ Plugins: Added new ChromeDP APIs
 - ⚡️ Discord: Seanime logo no longer displayed in Rich Presence
+- ⚡️ Debrid: Premiumize support #845
 - 🦺 Torrent Streaming: Fixed batch selection
 - 🦺 VideoCore: Ability to exit fullscreen when next stream is loading
 - 🦺 MPV/IINA: Fixed progress tracking dropping when media path is temporarily unavailable #836
@@ -23,6 +24,9 @@ All notable changes to this project will be documented in this file.
 - 🦺 Manga: Fixed unnecessary image proxy
 - 🦺 Torrent Streaming: More accurate download progress reporting
 - 🦺 Nakama: Refresh collection when turning off host library sharing
+- 🦺 Torrent Client: Fixed runtime error when display name is null
+- 🦺 Torrent Client: Use classic file-based downloading instead of memory-mapped files
+- 🦺 Mobile: Potential fixes for debrid downloading
 - ⬆️ Updated Electron to 42.4.0
   - Fixes AC3/EAC3 audio support detection on Windows for HTML5 player
   - Fixes security vulnerabilities

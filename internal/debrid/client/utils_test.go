@@ -3,6 +3,7 @@ package debrid_client
 import (
 	"archive/zip"
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -64,6 +65,14 @@ func writeFixtureFile(t testing.TB, root string, fixturePath string) string {
 	}
 
 	return target
+}
+
+func failRename(t *testing.T) {
+	t.Helper()
+
+	old := renamePath
+	renamePath = func(_, _ string) error { return errors.New("cross-device link") }
+	t.Cleanup(func() { renamePath = old })
 }
 
 func TestCreateTempDir(t *testing.T) {
@@ -228,6 +237,40 @@ func TestMoveContentsTo(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMoveContentsToReturnsRenameError(t *testing.T) {
+	failRename(t)
+
+	root := t.TempDir()
+	writeFixtureFile(t, root, "/Anime/Ep1.mkv")
+	writeFixtureFile(t, root, "/Anime/Ep2.mkv")
+
+	dest := t.TempDir()
+	err := moveContentsTo(root, dest)
+
+	require.Error(t, err)
+	_, statErr := os.Stat(filepath.Join(dest, "Anime"))
+	require.True(t, os.IsNotExist(statErr))
+}
+
+func TestMoveContentsToMobileCopiesWhenRenameFails(t *testing.T) {
+	failRename(t)
+
+	root := t.TempDir()
+	writeFixtureFile(t, root, "/Anime/Ep1.mkv")
+	writeFixtureFile(t, root, "/Anime/Ep2.mkv")
+
+	dest := t.TempDir()
+	err := moveContentsToMobile(root, dest)
+	require.NoError(t, err)
+
+	_, err = os.Stat(filepath.Join(dest, "Anime", "Ep1.mkv"))
+	require.NoError(t, err)
+	_, err = os.Stat(filepath.Join(dest, "Anime", "Ep2.mkv"))
+	require.NoError(t, err)
+	_, err = os.Stat(filepath.Join(root, "Anime"))
+	require.True(t, os.IsNotExist(err))
 }
 
 func TestUnzipFileRejectsArchiveTraversal(t *testing.T) {

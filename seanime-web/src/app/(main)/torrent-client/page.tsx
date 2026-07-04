@@ -21,27 +21,28 @@ import { Pagination, PaginationEllipsis, PaginationItem, PaginationTrigger } fro
 import { Popover } from "@/components/ui/popover"
 import { Select } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { StaticTabs, Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
 import React from "react"
-import {
-    BiDownArrow,
-    BiFolder,
-    BiFolderOpen,
-    BiPause,
-    BiPlay,
-    BiPlus,
-    BiRefresh,
-    BiRename,
-    BiSearch,
-    BiStop,
-    BiTrash,
-    BiUpArrow,
-} from "react-icons/bi"
+import { BiDownArrow, BiFolder, BiFolderOpen, BiPause, BiPlay, BiPlus, BiRefresh, BiRename, BiSearch, BiTrash, BiUpArrow } from "react-icons/bi"
 import { FcFolder } from "react-icons/fc"
 import { FiChevronDown, FiChevronUp } from "react-icons/fi"
-import { LuFileCheck2, LuGauge, LuMagnet, LuNetwork, LuRadioTower, LuSettings2, LuZap } from "react-icons/lu"
+import {
+    LuCircleStop,
+    LuDownload,
+    LuFileCheck2,
+    LuFolder,
+    LuGauge,
+    LuMagnet,
+    LuNetwork,
+    LuPause,
+    LuPlay,
+    LuRadioTower,
+    LuSettings2,
+    LuUpload,
+    LuZap,
+} from "react-icons/lu"
 
 type StatusFilter = "all" | "downloading" | "seeding" | "paused" | "active" | "inactive"
 
@@ -164,13 +165,13 @@ function getVisiblePages(currentPage: number, totalPages: number) {
     return pages
 }
 
-const filters: Array<{ value: StatusFilter, label: string, icon: React.ReactNode }> = [
-    { value: "all", label: "All", icon: <BiFolder /> },
-    { value: "downloading", label: "Downloading", icon: <BiDownArrow className="text-[--muted] text-lg" /> },
-    { value: "seeding", label: "Seeding", icon: <BiUpArrow className="text-[--muted] text-lg" /> },
-    { value: "paused", label: "Paused", icon: <BiPause className="text-[--muted] text-lg" /> },
-    { value: "active", label: "Active", icon: <BiPlay className="text-[--muted] text-lg" /> },
-    { value: "inactive", label: "Inactive", icon: <BiStop className="text-[--muted] text-lg" /> },
+const filters: Array<{ value: StatusFilter, label: string, iconType: React.ElementType }> = [
+    { value: "all", label: "All", iconType: LuFolder },
+    { value: "downloading", label: "Downloading", iconType: LuDownload },
+    { value: "seeding", label: "Seeding", iconType: LuUpload },
+    { value: "paused", label: "Paused", iconType: LuPause },
+    { value: "active", label: "Active", iconType: LuPlay },
+    { value: "inactive", label: "Inactive", iconType: LuCircleStop },
 ]
 
 export default function Page() {
@@ -326,33 +327,30 @@ function Dashboard() {
                 >Resume all</Button>
             </div>
         </header>
-
         <div className="grid xl:min-h-[68vh] grid-cols-1 gap-4 xl:grid-cols-[12rem_minmax(0,1fr)]">
-            <div className="flex items-center h-fit gap-4 border-b border-[--border] pb-px overflow-x-auto xl:flex-col xl:items-stretch xl:gap-1 xl:border-b-0 xl:pb-0 xl:overflow-visible">
-                {filters.map(item => {
-                    const count = torrents.filter(torrent => matchesFilter(torrent.status, item.value)).length
-                    return <button
-                        key={item.value}
-                        className={cn(
-                            "group/filter flex min-w-max items-center gap-2.5 text-sm text-[--muted] transition-colors hover:text-[--foreground] pb-3 px-1 border-b-2 border-transparent xl:pb-2 xl:pl-3 xl:pr-3.5 xl:py-2 xl:border-b-0 xl:border-l-2 xl:border-transparent xl:rounded-r-lg xl:rounded-l-none xl:w-full xl:justify-between xl:hover:bg-[--subtle]",
-                            filter === item.value
-                                ? "border-[--brand] text-[--foreground] xl:bg-gray-800/80 xl:border-b-0 xl:border-l-[--brand] xl:text-white"
-                                : "xl:hover:bg-[--subtle]",
-                        )}
-                        onClick={() => setFilter(item.value)}
-                    >
-                        <div className="flex items-center gap-2">
-                            {item.icon}
-                            <span>{item.label}</span>
-                        </div>
-                        <span
-                            className={cn(
-                                "rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums transition-colors",
-                                getBadgeClass(item.value, filter === item.value, count),
-                            )}
-                        >{count}</span>
-                    </button>
-                })}
+            <div className="flex flex-col gap-1 min-w-0">
+                <StaticTabs
+                    className="flex-wrap w-full xl:flex-col xl:gap-1"
+                    triggerClass="rounded-lg text-sm xl:justify-start xl:px-3 xl:py-2 xl:h-auto xl:w-full"
+                    pillClass="rounded-lg border-transparent"
+                    items={filters.map(item => {
+                        const count = torrents.filter(torrent => matchesFilter(torrent.status, item.value)).length
+                        return {
+                            name: item.label,
+                            isCurrent: filter === item.value,
+                            onClick: () => setFilter(item.value),
+                            iconType: item.iconType,
+                            addon: (
+                                <span
+                                    className={cn(
+                                        "ml-2 rounded-full px-1.5 py-[0.5px] text-[10px] font-bold tabular-nums transition-colors",
+                                        getBadgeClass(item.value, filter === item.value, count),
+                                    )}
+                                >{count}</span>
+                            ),
+                        }
+                    })}
+                />
                 <div className="hidden xl:block mt-auto text-xs text-[--muted] px-3 py-2">
                     {torrents.length} torrents
                 </div>
@@ -469,7 +467,7 @@ function Dashboard() {
                                                 </Tooltip>
                                             </div>
                                         }
-                                        className="w-72 space-y-3 p-4"
+                                        className="w-72 space-y-3 p-3"
                                     >
                                         <p>Global speed limits</p>
                                         <TextInput

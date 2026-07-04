@@ -239,7 +239,7 @@ export function PlaybackSettings() {
                                                 <label className="text-sm font-semibold">Custom MPV Options</label>
                                             </div>
                                             <p className="text-xs text-muted-foreground">
-                                                Add custom <code>mpv.conf</code> options line-by-line (e.g. <code>deband=yes</code>).
+                                                Add custom <code>mpv.conf</code> options.
                                             </p>
                                             <Textarea
                                                 value={mpvSettings.customMpvConfig || ""}
@@ -250,8 +250,8 @@ export function PlaybackSettings() {
                                                     })
                                                 }}
                                                 placeholder="# Add custom settings here&#10;deband=yes"
-                                                rows={6}
-                                                className="font-mono text-sm mt-1"
+                                                className="font-mono text-sm mt-1 h-[300px]"
+                                                fieldClass=""
                                                 size="sm"
                                             />
                                         </div>
@@ -374,7 +374,7 @@ function PlaybackChoiceGroup(props: PlaybackChoiceGroupProps) {
                 "group/playback-choice block relative min-w-0 max-w-sm overflow-hidden rounded-xl border bg-white/70 p-0 transition-colors",
                 "dark:bg-gray-950/30 border-gray-200 dark:border-gray-800",
                 "hover:border-gray-300 dark:hover:border-gray-700 hover:bg-[--subtle]",
-                "data-[state=checked]:border-[--border] data-[state=checked]:ring-1 data-[state=checked]:ring-white/20",
+                "data-[state=checked]:border-[--border] data-[state=checked]:ring-1 data-[state=checked]:ring-white/30",
                 "data-[state=checked]:bg-brand-50/40 dark:data-[state=checked]:bg-gray-800",
                 "data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-55",
             )}
@@ -509,7 +509,7 @@ function VideoCorePreview() {
                 <span className="size-[4px] rounded-full bg-white/20" />
                 <span className="size-[4px] rounded-full bg-white/20" />
                 <span className="size-[4px] rounded-full bg-white/20" />
-                <MockLine w="w-12" className="ml-1" />
+                {/*<MockLine w="w-12" className="ml-1" />*/}
             </div>
             <div className="relative h-[calc(100%-1.25rem)]">
                 <div className="absolute inset-0 flex items-center justify-center text-[22px] font-semibold tracking-wider text-white/[0.1] select-none pointer-events-none font-mono">
@@ -580,8 +580,17 @@ function MpvCorePreview() {
 
 function DesktopPlayerPreview() {
     return (
-        <PreviewFrame className="bg-gray-900 p-3 flex items-center justify-center">
-            <div className="w-[78%] aspect-video bg-gray-950 rounded border border-white/10 shadow-2xl overflow-hidden relative">
+        <PreviewFrame className="bg-gray-900 p-3 flex items-center justify-center w-full">
+            <PreviewFrame className="bg-gray-950 w-full">
+                <div className="flex h-5 items-center gap-1.5 bg-gray-900 border-b border-white/5 px-2.5">
+                    <span className="size-[4px] rounded-full bg-white/20" />
+                    <span className="size-[4px] rounded-full bg-white/20" />
+                    <span className="size-[4px] rounded-full bg-white/20" />
+                </div>
+                <div className="relative h-[calc(100%-1.25rem)]">
+                </div>
+            </PreviewFrame>
+            <div className="absolute w-[58%] aspect-video bg-gray-950 rounded border border-white/10 shadow-2xl overflow-hidden">
                 <div className="flex h-4 items-center gap-1 bg-gray-900 border-b border-white/5 px-1.5">
                     <span className="size-[3px] rounded-full bg-white/20" />
                     <span className="size-[3px] rounded-full bg-white/20" />

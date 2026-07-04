@@ -56,6 +56,43 @@ func hasDebridDownloadStatus(ws *events.MockWSEventManager, status string) bool 
 	return false
 }
 
+func setMobileDownload(t *testing.T, mobile bool) {
+	t.Helper()
+
+	old := isMobileDownload
+	isMobileDownload = func() bool { return mobile }
+	t.Cleanup(func() { isMobileDownload = old })
+}
+
+func TestCreateDownloadTempDirUsesAppTempOnMobile(t *testing.T) {
+	setMobileDownload(t, true)
+
+	tempRoot := t.TempDir()
+	t.Setenv("TMPDIR", tempRoot)
+	destination := t.TempDir()
+
+	tmpDir, err := createDownloadTempDir(destination)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = os.RemoveAll(tmpDir) })
+
+	require.Equal(t, tempRoot, filepath.Dir(tmpDir))
+	require.NotEqual(t, destination, filepath.Dir(tmpDir))
+	require.Contains(t, filepath.Base(tmpDir), "seanime-debrid-")
+}
+
+func TestCreateDownloadTempDirUsesDestinationOffMobile(t *testing.T) {
+	setMobileDownload(t, false)
+
+	destination := t.TempDir()
+
+	tmpDir, err := createDownloadTempDir(destination)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = os.RemoveAll(tmpDir) })
+
+	require.Equal(t, destination, filepath.Dir(tmpDir))
+	require.Contains(t, filepath.Base(tmpDir), ".tmp-")
+}
+
 func TestDownloadFileRetriesOnPartialRead(t *testing.T) {
 	initTestDownload(t, 2, func(int) time.Duration { return 0 })
 

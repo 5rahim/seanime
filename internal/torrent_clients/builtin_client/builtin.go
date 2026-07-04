@@ -177,11 +177,7 @@ func New(opts *NewClientOptions) (*Client, error) {
 	cfg.DownloadRateLimiter = downloadLimiter
 	cfg.UploadRateLimiter = uploadLimiter
 	cfg.Logger = alog.Logger{}.FilterLevel(alog.Never)
-	cfg.DefaultStorage = storage.NewFileOpts(storage.NewFileClientOpts{
-		ClientBaseDir:   opts.Dir,
-		PieceCompletion: noClosePieceCompletion{pc},
-		UsePartFiles:    g.Some(false),
-	})
+	cfg.DefaultStorage = newTorrentStorage(opts.Dir, pc)
 	if opts.DisableNetwork {
 		cfg.NoDHT = true
 		cfg.DisablePEX = true
@@ -236,6 +232,17 @@ func newRateLimiter(limitKB int) *rate.Limiter {
 	bytesPerSecond := limitKB * 1024
 	burst := max(bytesPerSecond, 1<<20)
 	return rate.NewLimiter(rate.Limit(bytesPerSecond), burst)
+}
+
+func newTorrentStorage(baseDir string, pc storage.PieceCompletion) storage.ClientImplCloser {
+	if util.IsMobile() {
+		return newClassicFileStorage(baseDir, pc)
+	}
+	return storage.NewFileOpts(storage.NewFileClientOpts{
+		ClientBaseDir:   baseDir,
+		PieceCompletion: noClosePieceCompletion{pc},
+		UsePartFiles:    g.Some(false),
+	})
 }
 
 func (c *Client) Start() bool {
@@ -361,11 +368,7 @@ func (c *Client) addPersisted(item *models.LocalTorrent) (*anacrolix.Torrent, er
 	if err != nil {
 		return nil, fmt.Errorf("parse persisted magnet: %w", err)
 	}
-	fc := storage.NewFileOpts(storage.NewFileClientOpts{
-		ClientBaseDir:   item.Destination,
-		PieceCompletion: noClosePieceCompletion{c.pieceCompletion},
-		UsePartFiles:    g.Some(false),
-	})
+	fc := newTorrentStorage(item.Destination, c.pieceCompletion)
 	spec.Storage = fc
 	spec.DisallowDataDownload = true
 	spec.DisallowDataUpload = true
@@ -892,11 +895,7 @@ func (c *Client) MoveStorage(hash, newDestination string) (err error) {
 	}
 	entry.torrent.Drop()
 	spec := anacrolix.TorrentSpecFromMetaInfo(new(entry.torrent.Metainfo()))
-	fc := storage.NewFileOpts(storage.NewFileClientOpts{
-		ClientBaseDir:   newDestination,
-		PieceCompletion: noClosePieceCompletion{c.pieceCompletion},
-		UsePartFiles:    g.Some(false),
-	})
+	fc := newTorrentStorage(newDestination, c.pieceCompletion)
 	spec.Storage = fc
 	spec.DisallowDataDownload = true
 	spec.DisallowDataUpload = wasPaused
@@ -1050,8 +1049,10 @@ func displayName(entry *torrentEntry) string {
 	if entry.model.Name != "" {
 		return entry.model.Name
 	}
-	if name := entry.torrent.Name(); name != "" {
-		return name
+	if entry.torrent != nil {
+		if name := entry.torrent.Name(); name != "" {
+			return name
+		}
 	}
 	return entry.model.Hash
 }
@@ -1296,6 +1297,15 @@ func (c *Client) sampleRates(now time.Time) {
 		entry.lastDownload = downloaded
 		entry.lastUpload = uploaded
 		entry.lastSample = now
+
+		if entry.torrent.Info() != nil && entry.model.Name == "" {
+			if name := entry.torrent.Name(); name != "" {
+				entry.model.Name = name
+				go func(hash, name string) {
+					_ = c.database.UpdateLocalTorrent(hash, map[string]interface{}{"name": name})
+				}(entry.model.Hash, name)
+			}
+		}
 
 		if _, err := os.Stat(entry.model.Destination); err != nil {
 			if os.IsNotExist(err) || errors.Is(err, os.ErrNotExist) {

@@ -489,7 +489,7 @@ export function LibraryExplorer() {
                                 fileNodes={fileNodes}
                             />
                             {!selectedFilter && <Popover
-                                className="p-1 w-48 shadow-lg border border-gray-800/80 bg-gray-950/95"
+                                className="p-1 w-48 shadow-lg border"
                                 trigger={<Button
                                     leftIcon={<LuFilter className="text-xl" />}
                                     size="sm"
