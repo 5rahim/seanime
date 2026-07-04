@@ -249,7 +249,7 @@ export function PlaybackSettings() {
                                                         customMpvConfig: value,
                                                     })
                                                 }}
-                                                placeholder="# Add custom settings here&#10;deband=yes"
+                                                placeholder="# Add custom settings here"
                                                 className="font-mono text-sm mt-1 h-[300px]"
                                                 fieldClass=""
                                                 size="sm"

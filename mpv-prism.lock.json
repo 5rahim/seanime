@@ -23,7 +23,7 @@
     "darwin-arm64": {
       "file": "darwin-arm64.tar.gz",
       "url": "https://seanime.app/assets/mpv-prism/0.1.0/native/darwin-arm64.tar.gz",
-      "sha256": "47713d319d379f65578bffc56700aab9eaaf1ed6267eae01a64e7058194a46d4"
+      "sha256": "3209fe9c8b264bb0fcc2266962fccc470dc23a109e7dc0267a4923897ed4b52f"
     },
     "win32-x64": {
       "file": "win32-x64.tar.gz",
