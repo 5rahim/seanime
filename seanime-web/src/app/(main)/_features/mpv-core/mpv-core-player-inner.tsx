@@ -35,6 +35,7 @@ import { clientIdAtom } from "@/app/websocket-provider"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
+import { upath } from "@/lib/helpers/upath"
 import { WSEvents } from "@/lib/server/ws-events"
 import { __isDesktop__ } from "@/types/constants"
 import type { MpvPrismMpvInitOptions, MpvPrismTrack, MpvPrismTrackSelection } from "@mpv-prism/core"
@@ -355,6 +356,47 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
             if (resetMiniPlayerTimerRef.current !== null) window.clearTimeout(resetMiniPlayerTimerRef.current)
         }
     }, [])
+
+    React.useEffect(() => {
+        const psb = window.electron?.powerSaveBlocker
+        if (!psb) return
+
+        const { start, stop } = psb
+        let id: number | null = null
+
+        async function updateBlocker() {
+            if (player && !paused) {
+                if (id === null) {
+                    try {
+                        id = await start()
+                    }
+                    catch (e) {
+                        console.error("Failed to start power save blocker", e)
+                    }
+                }
+            } else {
+                if (id !== null) {
+                    try {
+                        await stop(id)
+                        id = null
+                    }
+                    catch (e) {
+                        console.error("Failed to stop power save blocker", e)
+                    }
+                }
+            }
+        }
+
+        updateBlocker()
+
+        return () => {
+            if (id !== null) {
+                stop(id).catch((e: any) => {
+                    console.error("Failed to stop power save blocker on unmount", e)
+                })
+            }
+        }
+    }, [player, paused])
 
     const handleContainerPointerMove = React.useCallback((e: React.PointerEvent<HTMLDivElement>) => {
         const { clientX: x, clientY: y } = e
@@ -1335,22 +1377,42 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
             const dataUrl = canvas.toDataURL("image/png")
             const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "")
 
+            // Copy to clipboard first
+            try {
+                const res = await fetch(dataUrl)
+                const blob = await res.blob()
+                await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })])
+            }
+            catch (e) {
+                console.error("Failed to copy screenshot to clipboard", e)
+            }
+
             const screenshotDir = serverStatus?.settings?.mediaPlayer?.screenshotDir
 
-            if (!screenshotDir) {
+            if (!screenshotDir || !upath.isAbsolute(screenshotDir)) {
                 setPendingScreenshot({ base64Data })
                 setPromptOpen(true)
                 return
             }
 
             const filename = `seanime_screenshot_${new Date().getTime()}.png`
-            await saveScreenshotMutation({
-                dir: screenshotDir,
-                filename,
-                base64Data,
-            })
+            try {
+                await saveScreenshotMutation({
+                    dir: screenshotDir,
+                    filename,
+                    base64Data,
+                })
 
-            showMessage(`Screenshot saved to ${screenshotDir}`, "message", 4000)
+                showMessage(`Screenshot saved to ${screenshotDir}`, "message", 4000)
+            }
+            catch (error) {
+                console.error("Failed to save screenshot:", error)
+                toast.error("Failed to save screenshot to server")
+
+                // Reprompt the screenshot dir when saving fails
+                setPendingScreenshot({ base64Data })
+                setPromptOpen(true)
+            }
         } catch (error) {
             console.error("Screenshot capture failed:", error)
             toast.error(error instanceof Error ? error.message : "Failed to capture screenshot")

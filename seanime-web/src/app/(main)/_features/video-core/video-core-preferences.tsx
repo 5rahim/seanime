@@ -37,6 +37,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { logger } from "@/lib/helpers/debug"
+import { upath } from "@/lib/helpers/upath"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
@@ -185,6 +186,11 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
     const [editedSubsBlacklist, setEditedSubsBlacklist] = useState(settings.preferredSubtitleBlacklist)
     const [editedSubtitleDelay, setEditedSubtitleDelay] = useState(settings.subtitleDelay ?? 0)
     const [editedScreenshotDir, setEditedScreenshotDir] = useState(mediaPlayerSettings?.screenshotDir ?? "")
+
+    const isAbsolute = React.useMemo(() => {
+        if (!editedScreenshotDir) return true
+        return upath.isAbsolute(editedScreenshotDir)
+    }, [editedScreenshotDir])
     // const [editedSubCustomization, setEditedSubCustomization] = useState<VideoCoreSettings["subtitleCustomization"]>(
     //     settings.subtitleCustomization || vc_initialSettings.subtitleCustomization
     // )
@@ -341,6 +347,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                             onSelect={setEditedScreenshotDir}
                             label="Screenshot Directory"
                             help="Configure the directory where screenshots will be saved"
+                            error={!isAbsolute ? "Must be an absolute path" : ""}
                         />
 
                         <div className="flex items-center justify-between pt-6">
@@ -360,6 +367,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                 <Button
                                     intent="primary"
                                     onClick={handleSave}
+                                    disabled={!isAbsolute}
                                 >
                                     Save
                                 </Button>

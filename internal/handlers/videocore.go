@@ -58,7 +58,22 @@ func (h *Handler) HandleVideoCoreSaveScreenshot(c echo.Context) error {
 	if err := h.guardPrivilegedMediaPlayer(c, settings); err != nil {
 		return err
 	}
-	if err := h.guardStrictFilesystemPath(c, req.Dir); err != nil {
+
+	dir := req.Dir
+	if !filepath.IsAbs(dir) {
+		home, err := os.UserHomeDir()
+		if err == nil {
+			dir = filepath.Join(home, dir)
+		} else {
+			absDir, err := filepath.Abs(dir)
+			if err == nil {
+				dir = absDir
+			}
+		}
+	}
+	dir = filepath.Clean(dir)
+
+	if err := h.guardStrictFilesystemPath(c, dir); err != nil {
 		return err
 	}
 
@@ -67,11 +82,11 @@ func (h *Handler) HandleVideoCoreSaveScreenshot(c echo.Context) error {
 		return h.RespondWithError(c, fmt.Errorf("failed to decode base64 data: %w", err))
 	}
 
-	if err := os.MkdirAll(req.Dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return h.RespondWithError(c, fmt.Errorf("failed to create directory: %w", err))
 	}
 
-	filePath := filepath.Join(req.Dir, req.Filename)
+	filePath := filepath.Join(dir, req.Filename)
 
 	if err := os.WriteFile(filePath, data, 0644); err != nil {
 		return h.RespondWithError(c, fmt.Errorf("failed to write file: %w", err))

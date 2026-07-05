@@ -104,7 +104,7 @@ export const Tabs = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => 
         listClass,
         triggerClass,
         contentClass,
-        variant = "underline",
+        variant = "pill",
         value: valueProp,
         defaultValue,
         onValueChange,

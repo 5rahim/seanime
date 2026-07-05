@@ -4,6 +4,7 @@ import { vc_anime4kManager } from "@/app/(main)/_features/video-core/video-core"
 import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_showOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { upath } from "@/lib/helpers/upath"
 import { atom, useAtomValue, useSetAtom } from "jotai"
 import React from "react"
 import { toast } from "sonner"
@@ -41,9 +42,17 @@ export function useVideoCoreScreenshot() {
     }
 
     async function saveScreenshot(blob: Blob, isAnime4K: boolean = false) {
+        // Copy to clipboard first
+        try {
+            await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })])
+        }
+        catch (e) {
+            console.error("Failed to copy screenshot to clipboard", e)
+        }
+
         const screenshotDir = serverStatus?.settings?.mediaPlayer?.screenshotDir
 
-        if (!screenshotDir) {
+        if (!screenshotDir || !upath.isAbsolute(screenshotDir)) {
             setPendingScreenshot({ blob, isAnime4K })
             setPromptOpen(true)
             return
@@ -59,18 +68,16 @@ export function useVideoCoreScreenshot() {
                 base64Data,
             })
 
-            try {
-                await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })])
-            }
-            catch (e) {
-            }
-
             showOverlayFeedback({ message: "Screenshot saved", type: "message" })
         }
         catch (error) {
             console.error("Failed to save screenshot:", error)
             showOverlayFeedback({ message: "Screenshot failed" })
             toast.error("Failed to save screenshot to server")
+
+            // Reprompt the screenshot dir when saving fails
+            setPendingScreenshot({ blob, isAnime4K })
+            setPromptOpen(true)
         }
     }
 

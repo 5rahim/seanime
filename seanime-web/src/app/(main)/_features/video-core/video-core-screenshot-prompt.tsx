@@ -36,7 +36,7 @@ export function VideoCoreScreenshotDirPrompt() {
 
     const handleSave = async (path: string) => {
         const currentMediaPlayer = serverStatus?.settings?.mediaPlayer
-        if (!currentMediaPlayer) return
+        if (!currentMediaPlayer) return false
 
         try {
             // 1. Save settings to DB
@@ -63,10 +63,12 @@ export function VideoCoreScreenshotDirPrompt() {
                 setPendingScreenshot(null)
             }
             toast.success("Screenshot folder saved")
+            return true
         }
         catch (error) {
             console.error("Failed to setup screenshot folder:", error)
-            toast.error("Failed to save screenshot folder")
+            toast.error(error instanceof Error ? error.message : "Failed to save screenshot folder")
+            return false
         }
     }
 

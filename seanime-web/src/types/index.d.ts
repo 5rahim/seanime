@@ -85,6 +85,10 @@ declare global {
                 scanAnime4KDirectory: (directory: string) => Promise<MpvCoreAnime4KDirectory>;
                 openAnime4KDirectory: (directory?: string) => Promise<boolean>;
             };
+            powerSaveBlocker?: {
+                start: () => Promise<number>;
+                stop: (id: number) => Promise<void>;
+            };
             cast?: {
                 discover: () => Promise<void>;
                 stopDiscovery: () => Promise<void>;

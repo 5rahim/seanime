@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
+import { upath } from "@/lib/helpers/upath"
 import { atom, useAtom, useAtomValue } from "jotai"
 import React from "react"
 import { useServerStatus } from "../../_hooks/use-server-status"
@@ -129,6 +130,11 @@ export function MpvCorePreferencesModal(props: {
     const mediaPlayerSettings = serverStatus?.settings?.mediaPlayer
     const [editedScreenshotDir, setEditedScreenshotDir] = React.useState(mediaPlayerSettings?.screenshotDir ?? "")
 
+    const isAbsolute = React.useMemo(() => {
+        if (!editedScreenshotDir) return true
+        return upath.isAbsolute(editedScreenshotDir)
+    }, [editedScreenshotDir])
+
     React.useEffect(() => {
         if (!open) return
         setEditedKeybindings(keybindings)
@@ -228,6 +234,7 @@ export function MpvCorePreferencesModal(props: {
                     className={tabsRootClass}
                     triggerClass={tabsTriggerClass}
                     listClass={tabsListClass}
+                    variant="pill"
                 >
                     <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
                         <TabsTrigger value="keybinds">Keyboard Shortcuts</TabsTrigger>
@@ -242,6 +249,7 @@ export function MpvCorePreferencesModal(props: {
                                 onSelect={setEditedScreenshotDir}
                                 label="Screenshot Directory"
                                 help="Configure the directory where screenshots will be saved"
+                                error={!isAbsolute ? "Must be an absolute path" : ""}
                             />
 
                             <div className="flex items-center justify-between pt-6">
@@ -261,6 +269,7 @@ export function MpvCorePreferencesModal(props: {
                                     <Button
                                         intent="primary"
                                         onClick={handleSave}
+                                        disabled={!isAbsolute}
                                     >
                                         Save
                                     </Button>

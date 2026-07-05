@@ -125,6 +125,11 @@ contextBridge.exposeInMainWorld(
             openAnime4KDirectory: (directory) => ipcRenderer.invoke("mpvcore:open-anime4k-directory", directory),
         },
 
+        powerSaveBlocker: {
+            start: () => ipcRenderer.invoke("power-save-blocker:start"),
+            stop: (id) => ipcRenderer.invoke("power-save-blocker:stop", id),
+        },
+
         // Chromecast
         cast: {
             discover: () => ipcRenderer.invoke("cast:discover"),
