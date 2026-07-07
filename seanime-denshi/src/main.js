@@ -205,6 +205,7 @@ function setupChromiumFlags() {
 
     app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required")
     app.commandLine.appendSwitch("force_high_performance_gpu")
+    process.env.MPV_PRISM_HIGH_PERFORMANCE_GPU ||= "1"
 
     app.commandLine.appendSwitch("disk-cache-size", (400 * 1000 * 1000).toString())
     app.commandLine.appendSwitch("force-effective-connection-type", "4g")

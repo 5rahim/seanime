@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"seanime/internal/api/anilist"
 	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/events"
 	"seanime/internal/player"
@@ -188,6 +189,7 @@ type WatchPartySessionMediaInfo struct {
 	AniDBEpisode  string               `json:"aniDbEpisode"`
 	StreamType    WatchPartyStreamType `json:"streamType"`
 	LocalFilePath string               `json:"localFilePath"` // Path to local file if StreamType is file
+	Media         *anilist.BaseAnime   `json:"media,omitempty"`
 	// OnlinestreamParams used by peers to start the same stream
 	OnlinestreamParams *player.OnlinestreamParams `json:"onlinestreamParams,omitempty"`
 	// OnlinestreamParams used by peers to start the same stream
@@ -262,6 +264,7 @@ type (
 		Filepath            string                            `json:"filepath"`
 		StreamType          WatchPartyStreamType              `json:"streamType"`
 		LocalFilePath       string                            `json:"localFilePath,omitempty"`
+		Media               *anilist.BaseAnime                `json:"media,omitempty"`
 		TorrentStreamParams *torrentstream.StartStreamOptions `json:"torrentStreamParams,omitempty"`
 		DebridStreamParams  *debrid_client.StartStreamOptions `json:"debridStreamParams,omitempty"`
 		OnlinestreamParams  *player.OnlinestreamParams        `json:"onlinestreamParams,omitempty"`
@@ -484,6 +487,39 @@ func (mi *WatchPartySessionMediaInfo) Equals(other *WatchPartySessionMediaInfo) 
 		mi.AniDBEpisode == other.AniDBEpisode &&
 		mi.StreamType == other.StreamType &&
 		mi.LocalFilePath == other.LocalFilePath
+}
+
+func (wpm *WatchPartyManager) getSessionMedia(ctx context.Context, info *WatchPartySessionMediaInfo) (*anilist.BaseAnime, error) {
+	if info == nil {
+		return nil, errors.New("missing media info")
+	}
+	if info.Media != nil {
+		return info.Media, nil
+	}
+	if wpm.manager == nil || wpm.manager.platformRef.IsAbsent() {
+		return nil, errors.New("platform is not available")
+	}
+	return wpm.manager.platformRef.Get().GetAnime(ctx, info.MediaId)
+}
+
+func (m *Manager) currentPlaybackMedia() (*anilist.BaseAnime, bool) {
+	if m == nil {
+		return nil, false
+	}
+	if m.genericPlayer != nil && m.genericPlayer.isPlaybackManager() && m.playbackManager != nil {
+		if media, ok := m.playbackManager.GetCurrentMedia(); ok {
+			return media, true
+		}
+	}
+	if m.mediacoreCoordinator != nil {
+		if state, ok := m.mediacoreCoordinator.GetActivePlaybackState(); ok && state.PlaybackInfo != nil && state.PlaybackInfo.Media != nil {
+			return state.PlaybackInfo.Media, true
+		}
+	}
+	if m.playbackManager != nil {
+		return m.playbackManager.GetCurrentMedia()
+	}
+	return nil, false
 }
 
 // SendChatMessage sends a chat message to all participants in the watch party

@@ -125,17 +125,13 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 
 	// ------- Discord ------- //
 	if pm.discordPresence != nil && !pm.isOfflineRef.Get() {
-		go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
-			ID:                  pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
-			Title:               pm.currentMediaListEntry.MustGet().GetMedia().GetPreferredTitle(),
-			Image:               pm.currentMediaListEntry.MustGet().GetMedia().GetCoverImageSafe(),
-			IsMovie:             pm.currentMediaListEntry.MustGet().GetMedia().IsMovie(),
-			EpisodeNumber:       pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet()),
-			Progress:            int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds),
-			Duration:            int(pm.currentMediaPlaybackStatus.DurationInSeconds),
-			TotalEpisodes:       pm.currentMediaListEntry.MustGet().GetMedia().Episodes,
-			CurrentEpisodeCount: pm.currentMediaListEntry.MustGet().GetMedia().GetCurrentEpisodeCountOrNil(),
-		})
+		go pm.discordPresence.SetAnimeActivity(discordrpc_presence.NewAnimeActivity(
+			pm.currentMediaListEntry.MustGet().GetMedia(),
+			pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet()),
+			pm.currentLocalFile.MustGet().GetParsedEpisodeTitle(),
+			int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds),
+			int(pm.currentMediaPlaybackStatus.DurationInSeconds),
+		))
 	}
 }
 
@@ -313,17 +309,13 @@ func (pm *PlaybackManager) handleStreamingTrackingStarted(status *mediaplayer.Pl
 
 	// ------- Discord ------- //
 	if pm.discordPresence != nil && !pm.isOfflineRef.Get() {
-		go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
-			ID:                  pm.currentStreamMedia.MustGet().GetID(),
-			Title:               pm.currentStreamMedia.MustGet().GetPreferredTitle(),
-			Image:               pm.currentStreamMedia.MustGet().GetCoverImageSafe(),
-			IsMovie:             pm.currentStreamMedia.MustGet().IsMovie(),
-			EpisodeNumber:       pm.currentStreamEpisode.MustGet().GetProgressNumber(),
-			Progress:            int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds),
-			Duration:            int(pm.currentMediaPlaybackStatus.DurationInSeconds),
-			TotalEpisodes:       pm.currentStreamMedia.MustGet().Episodes,
-			CurrentEpisodeCount: pm.currentStreamMedia.MustGet().GetCurrentEpisodeCountOrNil(),
-		})
+		go pm.discordPresence.SetAnimeActivity(discordrpc_presence.NewAnimeActivity(
+			pm.currentStreamMedia.MustGet(),
+			pm.currentStreamEpisode.MustGet().GetProgressNumber(),
+			pm.currentStreamEpisode.MustGet().EpisodeTitle,
+			int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds),
+			int(pm.currentMediaPlaybackStatus.DurationInSeconds),
+		))
 	}
 }
 

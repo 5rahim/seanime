@@ -1,7 +1,7 @@
 {
   "version": "0.1.1",
   "electronVersion": "42.4.0",
-  "commit": "c11ddf38d834f6a28ab384f0975d3d8bd92964b3",
+  "commit": "faccc94653d2a22d02d4c27b335fa4851f8fce39",
   "packages": {
     "@mpv-prism/core": {
       "file": "mpv-prism-core-0.1.1.tgz",
@@ -23,22 +23,22 @@
     "darwin-arm64": {
       "file": "darwin-arm64.tar.gz",
       "url": "https://seanime.app/assets/mpv-prism/0.1.1/native/darwin-arm64.tar.gz",
-      "sha256": "10685ab407a38f5a754da891cfa37299fb4889b380415f9dda7a2181e0b801af"
+      "sha256": "198dea0c3c39d1d9c8b91c75302cde9b3ea26acb9c837c7020988253efbdf8bf"
     },
     "win32-x64": {
       "file": "win32-x64.tar.gz",
       "url": "https://seanime.app/assets/mpv-prism/0.1.1/native/win32-x64.tar.gz",
-      "sha256": "00fda975899352c52e37035b7791e699704ee8f17251251b0ca7d1eb2906e5fd"
+      "sha256": "563c23c768d04fd90a4ffdcea0580674bc72c063bb7eddcd8ca535460f590127"
     },
     "linux-x64": {
       "file": "linux-x64.tar.gz",
       "url": "https://seanime.app/assets/mpv-prism/0.1.1/native/linux-x64.tar.gz",
-      "sha256": "e7a74a64ec80f7eb8fc2bfb96e3b994c41fd47a956246dc66c5afe8172c1343e"
+      "sha256": "96d163fe2f60e0121127535794eefaafe8cde332229d2f40b1aa1c5555f08360"
     },
     "linux-arm64": {
       "file": "linux-arm64.tar.gz",
       "url": "https://seanime.app/assets/mpv-prism/0.1.1/native/linux-arm64.tar.gz",
-      "sha256": "fa433c857260752cc0865b82808579e0423ab1c6f0022f2a04e376689f1b9553"
+      "sha256": "18661ce30dba64d25f2bf20edf4b7c7c65667a15b582308c4d0035f8192153f0"
     }
   }
 }

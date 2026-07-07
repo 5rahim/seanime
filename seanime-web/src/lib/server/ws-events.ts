@@ -1,6 +1,7 @@
 export const enum WSEvents {
     CLIENT_IDENTITY = "client-identity",
     ANILIST_DATA_LOADED = "server-ready",
+    ANILIST_RATE_LIMIT = "anilist-rate-limit",
     SERVER_LOGGED_OUT_ANILIST = "server-logged-out-anilist",
     SCAN_PROGRESS = "scan-progress",
     SCAN_STATUS = "scan-status",

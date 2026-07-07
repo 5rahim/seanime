@@ -33233,6 +33233,50 @@
   {
     "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
+    "name": "DebridTransferHash",
+    "formattedName": "Models_DebridTransferHash",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TransferID",
+        "jsonName": "transferId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " DebridTransferHash persists the info hash a debrid provider transfer was created from.",
+      " Some providers (e.g. Premiumize) never expose a transfer's info hash via their own API,",
+      " so this is the only way to recover the hash \u003c-\u003e transfer id mapping across restarts."
+    ],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
     "name": "PluginData",
     "formattedName": "Models_PluginData",
     "package": "models",
@@ -35459,6 +35503,76 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/premiumize/premiumize.go",
+    "filename": "premiumize.go",
+    "name": "Premiumize",
+    "formattedName": "Premiumize",
+    "package": "premiumize",
+    "fields": [
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "apiKey",
+        "jsonName": "apiKey",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedTypescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "hashStore",
+        "jsonName": "hashStore",
+        "goType": "HashStore",
+        "typescriptType": "HashStore",
+        "usedTypescriptType": "HashStore",
+        "usedStructName": "premiumize.HashStore",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "hashCache",
+        "jsonName": "hashCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -74083,6 +74197,17 @@
         ]
       },
       {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "OnlinestreamParams",
         "jsonName": "onlinestreamParams",
         "goType": "player.OnlinestreamParams",
@@ -74567,6 +74692,17 @@
         "jsonName": "localFilePath",
         "goType": "string",
         "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
         "required": false,
         "public": true,
         "comments": []
@@ -96602,6 +96738,17 @@
         "usedStructName": "hibiketorrent.BatchEpisodeFiles",
         "required": false,
         "public": true,
+        "comments": []
+      },
+      {
+        "name": "media",
+        "jsonName": "",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],

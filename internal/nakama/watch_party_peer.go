@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"seanime/internal/customsource"
 	"seanime/internal/directstream"
 	"seanime/internal/events"
 	"seanime/internal/player"
@@ -390,11 +391,14 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		// Reset the player params
 		wpm.manager.genericPlayer.Reset()
 
-		// Fetch the media info
-		media, err := wpm.manager.platformRef.Get().GetAnime(context.Background(), payload.Session.CurrentMediaInfo.MediaId)
+		media, err := wpm.getSessionMedia(context.Background(), payload.Session.CurrentMediaInfo)
 		if err != nil {
 			wpm.logger.Error().Err(err).Msg("nakama: Failed to fetch media info for watch party")
 			return
+		}
+
+		if customsource.IsExtensionId(media.ID) {
+			wpm.manager.wsEventManager.SendEvent(events.WarningToast, "Progress tracking will not be available for custom sources.")
 		}
 
 		// Start the media on the peer
@@ -430,6 +434,7 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 			if wpm.manager.GetUseDenshiPlayer() {
 				payload.Session.CurrentMediaInfo.TorrentStreamParams.PlaybackType = torrentstream.PlaybackTypeNativePlayer
 			}
+			payload.Session.CurrentMediaInfo.TorrentStreamParams.SetMedia(media)
 
 			wpm.logger.Debug().Interface("params", payload.Session.CurrentMediaInfo.TorrentStreamParams).Msg("nakama: Starting torrent stream")
 
@@ -708,11 +713,13 @@ func (wpm *WatchPartyManager) relayModeListenToPlayerAsOrigin() {
 						newStream = false
 
 						// relay origin started a new stream, send the payload to the relay host
+						media, _ := wpm.manager.currentPlaybackMedia()
 						_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyRelayModeOriginStreamStarted, &WatchPartyRelayModeOriginStreamStartedPayload{
 							Filename:            event.Filename,
 							Filepath:            event.Filepath,
 							StreamType:          event.State.StreamType,
 							LocalFilePath:       streamStartedPayload.LocalFilePath,
+							Media:               media,
 							TorrentStreamParams: streamStartedPayload.TorrentStreamParams,
 							DebridStreamParams:  streamStartedPayload.DebridStreamParams,
 							OnlinestreamParams:  streamStartedPayload.OnlinestreamParams,

@@ -41,6 +41,7 @@ import { Announcements } from "../announcements"
 import { NakamaManager } from "../nakama/nakama-manager"
 import { NakamaWatchPartyChat, NakamaWatchPartyChatProvider } from "../nakama/nakama-watch-party-chat"
 import { TopIndefiniteLoader } from "../top-indefinite-loader"
+import { RateLimitLoader } from "../rate-limit-loader"
 
 const MpvCoreLazyWrapper = React.lazy(() => import("@/app/(main)/_features/mpv-core/mpv-core-lazy-wrapper"))
 const NativePlayerLazyWrapper = React.lazy(() => import("@/app/(main)/_features/native-player/native-player-lazy-wrapper"))
@@ -79,6 +80,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <NakamaWatchPartyChatProvider />
             <NakamaWatchPartyChat />
             <TopIndefiniteLoader />
+            <RateLimitLoader />
             <Announcements />
             <LibraryExplorerDrawer />
             <PluginWebviewSlot slot="fixed" />

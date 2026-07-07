@@ -3,6 +3,7 @@ package nakama
 import (
 	"context"
 	"errors"
+	"seanime/internal/api/anilist"
 	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
@@ -214,6 +215,7 @@ type hostPlaybackHandleStatusOptions struct {
 	mediaId            int
 	episodeNumber      int
 	aniDbEpisode       string
+	media              *anilist.BaseAnime
 	localFilePath      string
 	onlinestreamParams *player.OnlinestreamParams
 	paused             bool
@@ -231,6 +233,7 @@ func (wpm *WatchPartyManager) hostPlaybackHandleStatus(opts hostPlaybackHandleSt
 		AniDBEpisode:        opts.aniDbEpisode,
 		StreamType:          opts.streamType,
 		LocalFilePath:       opts.localFilePath,
+		Media:               opts.media,
 		TorrentStreamParams: torrentStreamStartOptions,
 		OnlinestreamParams:  opts.onlinestreamParams,
 	}
@@ -349,12 +352,14 @@ func (wpm *WatchPartyManager) listenToPlaybackAsHost() {
 								streamType = WatchPartyStreamTypeDebrid
 							}
 						}
+						media, _ := wpm.manager.currentPlaybackMedia()
 
 						wpm.hostPlaybackHandleStatus(hostPlaybackHandleStatusOptions{
 							streamType:    streamType,
 							mediaId:       event.State.MediaId,
 							episodeNumber: event.State.EpisodeNumber,
 							aniDbEpisode:  event.State.AniDbEpisode,
+							media:         media,
 							localFilePath: event.Status.Filepath,
 							paused:        !event.Status.Playing,
 							currentTime:   event.Status.CurrentTimeInSeconds,
@@ -417,6 +422,7 @@ func (wpm *WatchPartyManager) listenToPlaybackAsHost() {
 						mediaId:            state.PlaybackInfo.Media.GetID(),
 						episodeNumber:      state.PlaybackInfo.Episode.EpisodeNumber,
 						aniDbEpisode:       state.PlaybackInfo.Episode.AniDBEpisode,
+						media:              state.PlaybackInfo.Media,
 						onlinestreamParams: state.PlaybackInfo.OnlinestreamParams,
 						localFilePath:      localFilePath,
 						paused:             event.Paused,
@@ -865,13 +871,15 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 	case WatchPartyStreamTypeTorrent:
 		// Do nothing, peers start their own stream
 	case WatchPartyStreamTypeDebrid:
-		// Start the debrid stream and wait for it to be ready
 		if event.DebridStreamParams != nil {
+			// Start the debrid stream and wait for it to be ready
 			options := *event.DebridStreamParams
 			options.PlaybackType = debrid_client.PlaybackTypeNoneAndAwait
 			err := wpm.manager.debridClientRepository.StartStream(context.Background(), &options)
 			if err != nil {
 				wpm.logger.Error().Err(err).Msg("nakama: Failed to start debrid stream")
+				wpm.manager.wsEventManager.SendEvent(events.ErrorToast, "Watch party: Failed to prepare debrid stream")
+				return
 			}
 		} else {
 			wpm.logger.Warn().Msg("nakama: Received debrid stream started event without debrid stream params")
@@ -892,6 +900,7 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 		AniDBEpisode:        event.State.AniDBEpisode,
 		StreamType:          event.StreamType,
 		LocalFilePath:       localFilePath,
+		Media:               event.Media,
 		TorrentStreamParams: event.TorrentStreamParams,
 		OnlinestreamParams:  event.OnlinestreamParams,
 	}

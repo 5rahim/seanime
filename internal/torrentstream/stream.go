@@ -41,6 +41,11 @@ type StartStreamOptions struct {
 	ClientId          string                           `json:"clientId"`
 	PlaybackType      PlaybackType                     `json:"playbackType"`
 	BatchEpisodeFiles *hibiketorrent.BatchEpisodeFiles `json:"batchEpisodeFiles"`
+	media             *anilist.BaseAnime               `json:"-"`
+}
+
+func (opts *StartStreamOptions) SetMedia(media *anilist.BaseAnime) {
+	opts.media = media
 }
 
 func (r *Repository) incStartRequestId() uint64 {
@@ -166,7 +171,7 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 	//
 	// Get the media info
 	//
-	media, _, err := r.GetMediaInfo(ctx, opts.MediaId)
+	media, _, err := r.GetMediaInfoFromOptions(ctx, opts)
 	if err != nil {
 		if r.isStaleStartError(err, requestId) {
 			return nil
@@ -598,11 +603,24 @@ func (r *Repository) DropTorrent() error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func (r *Repository) GetMediaInfoFromOptions(ctx context.Context, opts *StartStreamOptions) (media *anilist.CompleteAnime, animeMetadata *metadata.AnimeMetadata, err error) {
+	if opts != nil && opts.media != nil {
+		return r.getMediaInfo(ctx, opts.media.GetID(), opts.media.ToCompleteAnime())
+	}
+	return r.GetMediaInfo(ctx, opts.MediaId)
+}
+
 func (r *Repository) GetMediaInfo(ctx context.Context, mediaId int) (media *anilist.CompleteAnime, animeMetadata *metadata.AnimeMetadata, err error) {
+	return r.getMediaInfo(ctx, mediaId, nil)
+}
+
+func (r *Repository) getMediaInfo(ctx context.Context, mediaId int, media *anilist.CompleteAnime) (ret *anilist.CompleteAnime, animeMetadata *metadata.AnimeMetadata, err error) {
 	// Get the media
-	var found bool
-	media, found = r.completeAnimeCache.Get(mediaId)
-	if !found {
+	if media != nil {
+		ret = media
+	} else if cached, found := r.completeAnimeCache.Get(mediaId); found {
+		ret = cached
+	} else {
 		// Fetch the media
 		media, err = r.platformRef.Get().GetAnimeWithRelations(ctx, mediaId)
 		if err != nil {
@@ -613,6 +631,7 @@ func (r *Repository) GetMediaInfo(ctx context.Context, mediaId int) (media *anil
 			media = baseAnime.ToCompleteAnime()
 			err = nil
 		}
+		ret = media
 	}
 
 	// Get the media
@@ -625,11 +644,11 @@ func (r *Repository) GetMediaInfo(ctx context.Context, mediaId int) (media *anil
 			EpisodeCount: 0,
 			SpecialCount: 0,
 			Mappings: &metadata.AnimeMappings{
-				AnilistId: media.GetID(),
+				AnilistId: ret.GetID(),
 			},
 		}
-		animeMetadata.Titles["en"] = media.GetTitleSafe()
-		animeMetadata.Titles["x-jat"] = media.GetRomajiTitleSafe()
+		animeMetadata.Titles["en"] = ret.GetTitleSafe()
+		animeMetadata.Titles["x-jat"] = ret.GetRomajiTitleSafe()
 		err = nil
 	}
 
@@ -702,7 +721,7 @@ func (r *Repository) PreloadStream(ctx context.Context, opts *StartStreamOptions
 	}
 
 	// Get media info
-	media, _, err := r.GetMediaInfo(ctx, opts.MediaId)
+	media, _, err := r.GetMediaInfoFromOptions(ctx, opts)
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ package discordrpc_presence
 import (
 	"context"
 	"fmt"
+	"seanime/internal/api/anilist"
 	"seanime/internal/constants"
 	"seanime/internal/database/models"
 	discordrpc_client "seanime/internal/discordrpc/client"
@@ -278,6 +279,26 @@ type AnimeActivity struct {
 	TotalEpisodes       *int    `json:"totalEpisodes,omitempty"`
 	CurrentEpisodeCount *int    `json:"currentEpisodeCount,omitempty"`
 	EpisodeTitle        *string `json:"episodeTitle,omitempty"`
+}
+
+func NewAnimeActivity(media *anilist.BaseAnime, episodeNumber int, episodeTitle string, progress int, duration int) *AnimeActivity {
+	var title *string
+	if episodeTitle != "" {
+		title = &episodeTitle
+	}
+
+	return &AnimeActivity{
+		ID:                  media.GetID(),
+		Title:               media.GetPreferredTitle(),
+		Image:               media.GetCoverImageSafe(),
+		IsMovie:             media.IsMovie(),
+		EpisodeNumber:       episodeNumber,
+		Progress:            progress,
+		Duration:            duration,
+		TotalEpisodes:       media.Episodes,
+		CurrentEpisodeCount: media.GetCurrentEpisodeCountOrNil(),
+		EpisodeTitle:        title,
+	}
 }
 
 func animeActivityKey(a *AnimeActivity) string {

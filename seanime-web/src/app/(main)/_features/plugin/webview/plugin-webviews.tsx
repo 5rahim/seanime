@@ -164,6 +164,7 @@ export const processUserHtml = (userHtml: string, token: string, parentOrigin: s
 export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
     const pathname = usePathname()
     const searchParams = useSearchParams()
+    const screenExtensionId = slot === "screen" && pathname === "/webview" ? searchParams.get("id") : undefined
 
     const { sendWebviewMountedEvent } = usePluginSendWebviewMountedEvent()
     const { sendWebviewUnmountedEvent } = usePluginSendWebviewUnmountedEvent()
@@ -179,6 +180,7 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
     React.useEffect(() => { iframeWebviewsRef.current = iframeWebviews }, [iframeWebviews])
 
     const mountedRef = React.useRef(false)
+    const previousScreenExtensionId = React.useRef(screenExtensionId)
     useMount(() => {
         if (!isMainTabRef) return
         log.info("Mounting webview slot", slot)
@@ -201,6 +203,22 @@ export function PluginWebviewSlot({ slot }: PluginWebviewSlotProps) {
         }
         previousMainTab.current = isMainTab
     }, [isMainTab])
+
+    React.useEffect(() => {
+        if (slot !== "screen" || !mountedRef.current) {
+            previousScreenExtensionId.current = screenExtensionId
+            return
+        }
+
+        if (previousScreenExtensionId.current === screenExtensionId) return
+
+        previousScreenExtensionId.current = screenExtensionId
+        iframeWebviews.clear()
+
+        if (screenExtensionId) {
+            sendWebviewMountedEvent({ slot })
+        }
+    }, [iframeWebviews, screenExtensionId, sendWebviewMountedEvent, slot])
 
     function getWebviewIframeElement(webviewId: string): HTMLIFrameElement | undefined {
         return document.getElementById(`webview-${webviewId}`) as HTMLIFrameElement | undefined

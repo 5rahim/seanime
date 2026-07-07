@@ -303,16 +303,6 @@ export function ServerSettings(props: ServerSettingsProps) {
 
             <SettingsCard title="Updates">
 
-                {/*<Field.Switch*/}
-                {/*    side="right"*/}
-                {/*    name="disableAutoDownloaderNotifications"*/}
-                {/*    label="Disable Auto Downloader system notifications"*/}
-                {/*/>*/}
-                {/*<Field.Switch*/}
-                {/*    side="right"*/}
-                {/*    name="disableAutoScannerNotifications"*/}
-                {/*    label="Disable Auto Scanner system notifications"*/}
-                {/*/>*/}
                 <Field.Switch
                     side="right"
                     name="disableUpdateCheck"
@@ -352,13 +342,31 @@ export function ServerSettings(props: ServerSettingsProps) {
                     label="Open web UI on startup"
                     icon={<TbBrowserShare className="" />}
                 />
-                <Field.Switch
-                    side="right"
-                    name="disableNotifications"
-                    label="Disable system notifications"
-                    moreHelp="Notifications shown by the OS"
-                    icon={<TbAlertSquareRoundedOff className="" />}
-                />
+                <div className="space-y-3">
+                    <Field.Switch
+                        side="right"
+                        name="disableNotifications"
+                        label="Disable system notifications"
+                        moreHelp="Notifications shown by the OS"
+                        icon={<TbAlertSquareRoundedOff className="" />}
+                    />
+
+                    {!f.watch("disableNotifications") && (
+                        <div className="space-y-1 pl-4 border-l border-[--border] ml-2">
+                            <Field.Switch
+                                // side="right"
+                                size="sm"
+                                name="disableAutoDownloaderNotifications"
+                                label="Disable Auto Downloader notifications"
+                            />
+                            <Field.Switch
+                                // side="right"
+                                size="sm"
+                                name="disableAutoScannerNotifications"
+                                label="Disable Auto Scanner notifications"
+                            />
+                        </div>)}
+                </div>
             </SettingsCard>
 
             <SettingsCard title="Keyboard Shortcuts">

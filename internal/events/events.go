@@ -85,6 +85,7 @@ const (
 
 	ShowIndefiniteLoader = "show-indefinite-loader"
 	HideIndefiniteLoader = "hide-indefinite-loader"
+	AnilistRateLimit     = "anilist-rate-limit"
 	ClientIdentity       = "client-identity"
 
 	// Nakama events

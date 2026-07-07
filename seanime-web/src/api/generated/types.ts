@@ -4469,6 +4469,7 @@ export type Nakama_WatchPartySessionMediaInfo = {
      * Path to local file if StreamType is file
      */
     localFilePath: string
+    media?: AL_BaseAnime
     onlinestreamParams?: Player_OnlinestreamParams
     torrentStreamParams?: Torrentstream_StartStreamOptions
 }

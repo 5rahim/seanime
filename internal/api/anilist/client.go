@@ -543,6 +543,10 @@ func notifyAniListRateLimit(logger *zerolog.Logger, waitSeconds int) {
 		logger.Warn().Msgf("anilist: Rate limited, retrying in %d seconds", waitSeconds)
 	}
 
+	if events.GlobalWSEventManager != nil {
+		events.GlobalWSEventManager.SendEvent(events.AnilistRateLimit, waitSeconds)
+	}
+
 	if time.Since(sentRateLimitWarningTime) <= 10*time.Second {
 		return
 	}
