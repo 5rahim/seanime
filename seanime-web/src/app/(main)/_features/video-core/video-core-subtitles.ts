@@ -123,6 +123,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
     private _onSelectedTrackChanged?: (track: number | null) => void
     private _onTracksLoaded?: (tracks: NormalizedTrackInfo[]) => void
+    private initPromise: Promise<void> | null = null
 
     // Translation is active
     private translationTargetLang: string | null = null
@@ -214,68 +215,29 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         subtitleLog.info("File tracks", this.fileTracks)
     }
 
-    private async _init() {
-        if (!this.libassRenderer) {
-            try {
-                // (function () {
-                //     console.log("Worker test")
-                //     const w = new Worker(workerUrl)
-                //
-                //     w.onerror = (e) => {
-                //         console.error("worker crashed:", e.message, "at line", e.lineno)
-                //     }
-                //
-                //     w.onmessage = (e) => {
-                //         console.log("worker replied:", e.data)
-                //     }
-                // })()
-
-                subtitleLog.info("Initializing libass renderer")
-
-                const defaultFontUrl = "/fonts/Roboto-Medium.ttf"
-
-                this.libassRenderer = new JASSUB({
-                    video: this.videoElement,
-                    subContent: this.defaultSubtitleHeader,
-                    wasmUrl: wasmUrl,
-                    workerUrl: workerUrl,
-                    modernWasmUrl: modernWasmUrl,
-                    fonts: this.fonts,
-                    defaultFont: DEFAULT_FONT_NAME,
-                    availableFonts: {
-                        [DEFAULT_FONT_NAME]: defaultFontUrl,
-                    },
-                    debug: false,
-                })
-
-                subtitleLog.info("Waiting for libass renderer...")
-                await this.libassRenderer.ready
-                subtitleLog.info("Libass renderer ready")
-
-
-                this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")
-                    ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}${this.hmacToken}`) || []
-
-                if (!this.playbackInfo.libassFonts) {
-                    this.fonts = [...new Set([...this.fonts, defaultFontUrl])]
-                }
-
-                this.fonts = [defaultFontUrl, ...this.fonts]
-
-                await this.libassRenderer.renderer.addFonts(this.fonts)
-            }
-            catch (e) {
-                subtitleLog.error("Error initializing libass renderer", e)
-                toast.error("Error initializing libass renderer: " + e)
-            }
+    destroy() {
+        subtitleLog.info("Destroying subtitle manager")
+        this._disableNativeTextTracks()
+        this.libassRenderer?.destroy()
+        this.libassRenderer = null
+        this.pgsRenderer?.destroy()
+        this.pgsRenderer = null
+        this.eventTranslationQueue.clear()
+        this.translatedFileTracks.clear()
+        for (const trackNumber in this.eventTracks) {
+            this.eventTracks[trackNumber].events.clear()
         }
-
-        if (!this.pgsRenderer && this.playbackInfo.mkvMetadata?.tracks?.some(t => isPGS(t.codecID))) {
-            this.pgsRenderer = new VideoCorePgsRenderer({
-                videoElement: this.videoElement,
-                // debug: process.env.NODE_ENV === "development",
-            })
+        this.eventTracks = {}
+        for (const trackNumber in this.pgsEventTracks) {
+            this.pgsEventTracks[trackNumber].events.clear()
         }
+        this.pgsEventTracks = {}
+        this.fileTracks = {}
+        this.currentTrackNumber = NO_TRACK_NUMBER
+        this.initPromise = null
+
+        const event: SubtitleManagerDestroyedEvent = new CustomEvent("destroyed")
+        this.dispatchEvent(event)
     }
 
     addEventListener<K extends keyof VideoCoreSubtitleManagerEventMap>(
@@ -446,28 +408,80 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         this._onTracksLoaded = callback
     }
 
-    destroy() {
-        subtitleLog.info("Destroying subtitle manager")
-        this._disableNativeTextTracks()
-        this.libassRenderer?.destroy()
-        this.libassRenderer = null
-        this.pgsRenderer?.destroy()
-        this.pgsRenderer = null
-        this.eventTranslationQueue.clear()
-        this.translatedFileTracks.clear()
-        for (const trackNumber in this.eventTracks) {
-            this.eventTracks[trackNumber].events.clear()
+    private async _init() {
+        if (this.initPromise) {
+            return this.initPromise
         }
-        this.eventTracks = {}
-        for (const trackNumber in this.pgsEventTracks) {
-            this.pgsEventTracks[trackNumber].events.clear()
-        }
-        this.pgsEventTracks = {}
-        this.fileTracks = {}
-        this.currentTrackNumber = NO_TRACK_NUMBER
 
-        const event: SubtitleManagerDestroyedEvent = new CustomEvent("destroyed")
-        this.dispatchEvent(event)
+        this.initPromise = (async () => {
+            if (!this.libassRenderer) {
+                try {
+                    // (function () {
+                    //     console.log("Worker test")
+                    //     const w = new Worker(workerUrl)
+                    //
+                    //     w.onerror = (e) => {
+                    //         console.error("worker crashed:", e.message, "at line", e.lineno)
+                    //     }
+                    //
+                    //     w.onmessage = (e) => {
+                    //         console.log("worker replied:", e.data)
+                    //     }
+                    // })()
+
+                    subtitleLog.info("Initializing libass renderer")
+
+                    const defaultFontUrl = "/fonts/Roboto-Medium.ttf"
+
+                    const renderer = new JASSUB({
+                        video: this.videoElement,
+                        subContent: this.defaultSubtitleHeader,
+                        wasmUrl: wasmUrl,
+                        workerUrl: workerUrl,
+                        modernWasmUrl: modernWasmUrl,
+                        fonts: this.fonts,
+                        defaultFont: DEFAULT_FONT_NAME,
+                        availableFonts: {
+                            [DEFAULT_FONT_NAME]: defaultFontUrl,
+                        },
+                        debug: false,
+                    })
+
+                    subtitleLog.info("Waiting for libass renderer...")
+                    await renderer.ready
+                    subtitleLog.info("Libass renderer ready")
+
+
+                    this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")
+                        ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}${this.hmacToken}`) || []
+
+                    if (!this.playbackInfo.libassFonts) {
+                        this.fonts = [...new Set([...this.fonts, defaultFontUrl])]
+                    }
+
+                    this.fonts = [defaultFontUrl, ...this.fonts]
+
+                    await renderer.renderer.addFonts(this.fonts)
+
+                    this.libassRenderer = renderer
+                }
+                catch (e) {
+                    subtitleLog.error("Error initializing libass renderer", e)
+                    toast.error("Error initializing libass renderer: " + e)
+                    this.libassRenderer = null
+                    this.initPromise = null
+                }
+            }
+
+            if (!this.pgsRenderer && this.playbackInfo.mkvMetadata?.tracks?.some(t => isPGS(t.codecID))) {
+                this.pgsRenderer = new VideoCorePgsRenderer({
+                    videoElement: this.videoElement,
+                    // debug: process.env.NODE_ENV === "development",
+                })
+            }
+        })()
+
+        return this.initPromise
     }
 
     private _disableNativeTextTracks() {
