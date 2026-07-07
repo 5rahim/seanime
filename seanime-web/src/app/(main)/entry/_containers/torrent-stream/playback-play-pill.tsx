@@ -357,9 +357,29 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
         }
     }, [isAutoSelecting, isTorrentLoading, isDebridLoading])
 
-    if (!showFloatingPill) return null
+    const loadingStateStr = React.useMemo(() => {
+        if (!loadingState) return ""
+        switch (loadingState) {
+            case "LOADING":
+                return "Loading..."
+            case "SEARCHING_TORRENTS":
+                return "Selecting file..."
+            case "ADDING_TORRENT":
+                return torrentBeingLoaded ? `Adding torrent "${torrentBeingLoaded}"` : "Adding torrent..."
+            case "CHECKING_TORRENT":
+                return torrentBeingLoaded ? `Checking torrent "${torrentBeingLoaded}"` : "Checking torrent..."
+            case "SELECTING_FILE":
+                return "Selecting file..."
+            case "SENDING_STREAM_TO_MEDIA_PLAYER":
+                return "Sending stream to player..."
+            default:
+                return loadingState
+        }
+    }, [loadingState, torrentBeingLoaded])
 
-    const currentStepDetail = autoSelectState?.stepDetail || debridState?.message || loadingState || ""
+    const currentStepDetail = autoSelectState?.stepDetail || debridState?.message || loadingStateStr || ""
+
+    if (!showFloatingPill) return null
 
     return (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] w-auto pointer-events-auto" ref={pillRef}>
@@ -369,7 +389,7 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
                 className={cn(
                     "bg-gray-950/95 border border-[--border] text-[--foreground] shadow-2xl backdrop-blur-md select-none overflow-hidden",
                     minimized
-                        ? (isTorrentLoaded && status ? "rounded-full h-12 w-fit max-w-[400px]" : "rounded-full h-12 w-[320px]")
+                        ? (isTorrentLoaded && status ? "rounded-full h-12 w-fit max-w-[420px]" : "rounded-full h-12 w-[320px]")
                         : "rounded-[2rem] p-5 w-[95vw] md:w-[400px]",
                 )}
             >
@@ -401,7 +421,7 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
                             </div>}
 
                             {isTorrentLoaded && status && (
-                                <div className="flex items-center gap-2 text-[11px] font-medium text-[--muted] flex-shrink-0 mr-1 bg-gray-950/40 px-2.5 py-1 rounded-full">
+                                <div className="flex items-center gap-2 text-[12px] font-medium text-[--muted] flex-shrink-0 mr-1 bg-gray-950/40 px-2.5 py-1 rounded-full">
                                     <span className="font-bold text-[--foreground]">{status.progressPercentage.toFixed(1)}%</span>
                                     <span className="flex items-center gap-0.5">
                                         <BiGroup className="size-3" />
