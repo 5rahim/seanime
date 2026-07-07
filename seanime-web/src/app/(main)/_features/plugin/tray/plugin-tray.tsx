@@ -94,7 +94,7 @@ export function PluginTray(props: TrayPluginProps) {
     React.useEffect(() => {
         setBadgeNumber(props.trayIcon.badgeNumber)
         setBadgeIntent(props.trayIcon.badgeIntent)
-    }, [])
+    }, [props.trayIcon.badgeNumber, props.trayIcon.badgeIntent])
 
     const firstRender = React.useRef(true)
     React.useEffect(() => {

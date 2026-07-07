@@ -29,6 +29,7 @@ import { TbPinned, TbPinnedFilled } from "react-icons/tb"
 import {
     usePluginListenDebugClearEvent,
     usePluginListenDebugLogEvent,
+    usePluginListenTrayBadgeUpdatedEvent,
     usePluginListenTrayCloseEvent,
     usePluginListenTrayIconEvent,
     usePluginListenTrayOpenEvent,
@@ -346,6 +347,27 @@ export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
             return [...oldTrayIcons, {
                 ...data,
             }].sort((a, b) => a.extensionId.localeCompare(b.extensionId, undefined, { numeric: true }))
+        })
+    }, "")
+
+    usePluginListenTrayBadgeUpdatedEvent((data, extensionId) => {
+        if (!extensionId) return
+
+        setTrayIcons(prev => {
+            let changed = false
+            const next = prev.map(trayIcon => {
+                if (trayIcon.extensionId !== extensionId) return trayIcon
+                if (trayIcon.badgeNumber === data.badgeNumber && trayIcon.badgeIntent === data.badgeIntent) return trayIcon
+
+                changed = true
+                return {
+                    ...trayIcon,
+                    badgeNumber: data.badgeNumber,
+                    badgeIntent: data.badgeIntent,
+                }
+            })
+
+            return changed ? next : prev
         })
     }, "")
 
