@@ -9,9 +9,16 @@ import {
     DebridGetTorrentInfo_Variables,
     DebridStartStream_Variables,
     SaveDebridSettings_Variables,
+    SaveDummyDebridSettings_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Debrid_TorrentInfo, Debrid_TorrentItem, DebridClient_FilePreview, Models_DebridSettings } from "@/api/generated/types"
+import {
+    Debrid_TorrentInfo,
+    Debrid_TorrentItem,
+    DebridClient_FilePreview,
+    Models_DebridSettings,
+    Models_DummyDebridSettings,
+} from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -32,6 +39,28 @@ export function useSaveDebridSettings() {
         mutationKey: [API_ENDPOINTS.DEBRID.SaveDebridSettings.key],
         onSuccess: async () => {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.DEBRID.GetDebridSettings.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
+        },
+    })
+}
+
+export function useGetDummyDebridSettings(enabled: boolean) {
+    return useServerQuery<Models_DummyDebridSettings>({
+        endpoint: API_ENDPOINTS.DEBRID.GetDummyDebridSettings.endpoint,
+        method: API_ENDPOINTS.DEBRID.GetDummyDebridSettings.methods[0],
+        queryKey: [API_ENDPOINTS.DEBRID.GetDummyDebridSettings.key],
+        enabled: enabled,
+    })
+}
+
+export function useSaveDummyDebridSettings() {
+    const qc = useQueryClient()
+    return useServerMutation<Models_DummyDebridSettings, SaveDummyDebridSettings_Variables>({
+        endpoint: API_ENDPOINTS.DEBRID.SaveDummyDebridSettings.endpoint,
+        method: API_ENDPOINTS.DEBRID.SaveDummyDebridSettings.methods[0],
+        mutationKey: [API_ENDPOINTS.DEBRID.SaveDummyDebridSettings.key],
+        onSuccess: async () => {
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.DEBRID.GetDummyDebridSettings.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
         },
     })

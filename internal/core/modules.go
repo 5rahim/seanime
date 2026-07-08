@@ -299,6 +299,7 @@ func (a *App) initModulesOnce() {
 		PlaybackManager:     a.PlaybackManager,
 		TorrentRepository:   a.TorrentRepository,
 		DirectStreamManager: a.DirectStreamManager,
+		DummyDebridEnabled:  a.FeatureFlags.DummyDebrid,
 	})
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
@@ -821,6 +822,35 @@ func (a *App) InitOrRefreshDebridSettings() {
 		a.Logger.Error().Err(err).Msg("app: Failed to initialize debrid provider")
 		return
 	}
+}
+
+func (a *App) InitOrRefreshDummyDebridSettings() {
+	settings, found := a.Database.GetDummyDebridSettings()
+	if !found {
+		var err error
+		settings, err = a.Database.UpsertDummyDebridSettings(&models.DummyDebridSettings{
+			BaseModel: models.BaseModel{
+				ID: 1,
+			},
+			Enabled:                 false,
+			ProfileName:             "Dummy Profile",
+			FallbackFilePath:        "",
+			Files:                   models.DummyDebridFiles{},
+			Cached:                  true,
+			ReadyDelayMs:            1500,
+			ProgressIntervalMs:      250,
+			FirstByteDelayMs:        350,
+			BandwidthBytesPerSecond: 8 * 1024 * 1024,
+			ChunkSize:               64 * 1024,
+			JitterMs:                30,
+		})
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to initialize dummy debrid settings")
+			return
+		}
+	}
+
+	a.SecondarySettings.DummyDebrid = settings
 }
 
 // InitOrRefreshAnilistData will initialize the Anilist anime collection and the account.

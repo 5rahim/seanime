@@ -548,6 +548,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1.GET("/debrid/settings", h.HandleGetDebridSettings)
 	v1.PATCH("/debrid/settings", h.HandleSaveDebridSettings)
+	v1.GET("/debrid/dummy/settings", h.HandleGetDummyDebridSettings)
+	v1.PATCH("/debrid/dummy/settings", h.HandleSaveDummyDebridSettings)
 	v1.POST("/debrid/torrents", h.HandleDebridAddTorrents)
 	v1.POST("/debrid/torrents/download", h.HandleDebridDownloadTorrent)
 	v1.POST("/debrid/torrents/cancel", h.HandleDebridCancelDownload)

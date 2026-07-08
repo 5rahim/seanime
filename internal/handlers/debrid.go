@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"net/http"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -53,6 +54,62 @@ func (h *Handler) HandleSaveDebridSettings(c echo.Context) error {
 	}
 
 	h.App.InitOrRefreshDebridSettings()
+
+	return h.RespondWithData(c, settings)
+}
+
+// HandleGetDummyDebridSettings
+//
+//	@summary get dummy debrid settings.
+//	@desc This returns the dummy debrid settings.
+//	@returns models.DummyDebridSettings
+//	@route /api/v1/debrid/dummy/settings [GET]
+func (h *Handler) HandleGetDummyDebridSettings(c echo.Context) error {
+	if !h.App.FeatureFlags.DummyDebrid {
+		return h.RespondWithStatusError(c, http.StatusNotFound, errors.New("dummy debrid is disabled"))
+	}
+
+	settings, found := h.App.Database.GetDummyDebridSettings()
+	if !found {
+		h.App.InitOrRefreshDummyDebridSettings()
+		settings, found = h.App.Database.GetDummyDebridSettings()
+		if !found {
+			return h.RespondWithError(c, errors.New("dummy debrid settings not found"))
+		}
+	}
+
+	return h.RespondWithData(c, settings)
+}
+
+// HandleSaveDummyDebridSettings
+//
+//	@summary save dummy debrid settings.
+//	@desc This saves the dummy debrid settings.
+//	@returns models.DummyDebridSettings
+//	@route /api/v1/debrid/dummy/settings [PATCH]
+func (h *Handler) HandleSaveDummyDebridSettings(c echo.Context) error {
+	if !h.App.FeatureFlags.DummyDebrid {
+		return h.RespondWithStatusError(c, http.StatusNotFound, errors.New("dummy debrid is disabled"))
+	}
+
+	type body struct {
+		Settings models.DummyDebridSettings `json:"settings"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	settings, err := h.App.Database.UpsertDummyDebridSettings(&b.Settings)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	h.App.SecondarySettings.DummyDebrid = settings
+	if debridSettings, found := h.App.Database.GetDebridSettings(); found && debridSettings.Enabled && debridSettings.Provider == "dummy" {
+		h.App.InitOrRefreshDebridSettings()
+	}
 
 	return h.RespondWithData(c, settings)
 }

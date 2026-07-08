@@ -228,21 +228,21 @@ func (m *Manager) startSubtitleStreamForTime(stream Stream, playbackInfo *player
 		reader := s.newSubtitleReader()
 		s.StartSubtitleStream(s, m.playbackCtx, reader, offset)
 	case *UrlStream:
-		reader, err := s.getReader()
+		reader, err := s.newMetadataReader()
 		if err != nil {
 			m.Logger.Warn().Err(err).Int64("offset", offset).Msg("directstream: Failed to create subtitle reader after seek")
 			return
 		}
 		s.StartSubtitleStream(s, m.playbackCtx, reader, offset)
 	case *DebridStream:
-		reader, err := s.getReader()
+		reader, err := s.newMetadataReader()
 		if err != nil {
 			m.Logger.Warn().Err(err).Int64("offset", offset).Msg("directstream: Failed to create subtitle reader after seek")
 			return
 		}
 		s.StartSubtitleStream(s, m.playbackCtx, reader, offset)
 	case *Nakama:
-		reader, err := s.getReader()
+		reader, err := s.newMetadataReader()
 		if err != nil {
 			m.Logger.Warn().Err(err).Int64("offset", offset).Msg("directstream: Failed to create subtitle reader after seek")
 			return

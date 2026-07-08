@@ -231,19 +231,27 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
             ;
         (window as any).__debugDebridStream = (data: DebridClient_StreamState | null) => {
             if (data) {
-                if (data.status === "downloading" || data.status === "started") {
+                if (data.status === "downloading") {
                     setDebridState(data)
+                    setShowMediaPlayerLoading(false)
+                    return
+                }
+                if (data.status === "started") {
+                    setDebridState(null)
+                    setAutoSelectState(null)
                     setShowMediaPlayerLoading(false)
                     return
                 }
                 if (data.status === "failed") {
                     setDebridState(null)
+                    setAutoSelectState(null)
                     toast.error(data.message)
                     setShowMediaPlayerLoading(false)
                     return
                 }
                 if (data.status === "ready") {
                     setDebridState(null)
+                    setAutoSelectState(null)
                     toast.info("Sending stream to player...", { duration: 1 })
                     setShowMediaPlayerLoading(true)
                     return
@@ -263,19 +271,27 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
         type: WSEvents.DEBRID_STREAM_STATE,
         onMessage: data => {
             if (data) {
-                if (data.status === "downloading" || data.status === "started") {
+                if (data.status === "downloading") {
                     setDebridState(data)
+                    setShowMediaPlayerLoading(false)
+                    return
+                }
+                if (data.status === "started") {
+                    setDebridState(null)
+                    setAutoSelectState(null)
                     setShowMediaPlayerLoading(false)
                     return
                 }
                 if (data.status === "failed") {
                     setDebridState(null)
+                    setAutoSelectState(null)
                     toast.error(data.message)
                     setShowMediaPlayerLoading(false)
                     return
                 }
                 if (data.status === "ready") {
                     setDebridState(null)
+                    setAutoSelectState(null)
                     toast.info("Sending stream to player...", { duration: 1 })
                     setShowMediaPlayerLoading(true)
                     return

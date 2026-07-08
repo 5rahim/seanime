@@ -514,13 +514,29 @@ func (m *Manager) listenToPlayerEvents() {
 			case *player.LoadedMetadataEvent:
 				m.Logger.Debug().Msgf("directstream: Video loaded metadata")
 				if key.Target == player.TargetVideoCore {
-					if lfStream, ok := cs.(*LocalFileStream); ok {
-						reader, err := lfStream.newReader()
+					switch s := cs.(type) {
+					case *LocalFileStream:
+						reader, err := s.newReader()
 						if err == nil {
-							lfStream.StartSubtitleStream(lfStream, m.playbackCtx, reader, 0)
+							s.StartSubtitleStream(s, m.playbackCtx, reader, 0)
 						}
-					} else if torrentStream, ok := cs.(*TorrentStream); ok {
-						torrentStream.StartSubtitleStream(torrentStream, m.playbackCtx, torrentStream.newSubtitleReader(), 0)
+					case *TorrentStream:
+						s.StartSubtitleStream(s, m.playbackCtx, s.newSubtitleReader(), 0)
+					case *DebridStream:
+						reader, err := s.newMetadataReader()
+						if err == nil {
+							s.StartSubtitleStream(s, m.playbackCtx, reader, 0)
+						}
+					case *UrlStream:
+						reader, err := s.newMetadataReader()
+						if err == nil {
+							s.StartSubtitleStream(s, m.playbackCtx, reader, 0)
+						}
+					case *Nakama:
+						reader, err := s.newMetadataReader()
+						if err == nil {
+							s.StartSubtitleStream(s, m.playbackCtx, reader, 0)
+						}
 					}
 				}
 			case *player.SeekedEvent:

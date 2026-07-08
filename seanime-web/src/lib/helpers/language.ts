@@ -3,6 +3,10 @@ type LanguageSource = {
     language?: string;
 };
 
+type LanguageMatchSource = LanguageSource & {
+    title?: string;
+};
+
 const LANG_MAP: Record<string, string> = {
     en: "en", eng: "en", english: "en",
     ru: "ru", rus: "ru", russian: "ru",
@@ -91,4 +95,32 @@ export function detectTrackLanguage(source: LanguageSource): string | null {
     }
 
     return null
+}
+
+function tokenizeLanguageValue(value?: string | null): string[] {
+    return value?.toLowerCase().match(TOKENIZER) ?? []
+}
+
+export function isTrackLanguageMatch(source: LanguageMatchSource, preference: string): boolean {
+    const pref = preference.trim().toLowerCase()
+    if (!pref) return false
+
+    const normalizedPref = detectTrackLanguage({ language: pref }) || pref
+    const trackLang = detectTrackLanguage({
+        language: source.language,
+        label: source.label ?? source.title,
+    })
+    if (trackLang && trackLang === normalizedPref) return true
+
+    const lang = source.language?.trim().toLowerCase()
+    if (lang && (lang === pref || lang === normalizedPref)) return true
+    if (lang) {
+        const langTokens = tokenizeLanguageValue(lang)
+        if (langTokens.some(token => token === pref || detectTrackLanguage({ language: token }) === normalizedPref)) return true
+    }
+
+    return [
+        ...tokenizeLanguageValue(source.label),
+        ...tokenizeLanguageValue(source.title),
+    ].some(token => token === pref || detectTrackLanguage({ language: token }) === normalizedPref)
 }

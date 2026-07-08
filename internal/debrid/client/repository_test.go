@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	databasepkg "seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
@@ -75,6 +76,54 @@ func (f *fakeDebridProvider) GetTorrents() ([]*debrid.TorrentItem, error) {
 
 func (f *fakeDebridProvider) DeleteTorrent(id string) error {
 	return nil
+}
+
+func TestInitializeProviderRequiresDummyFeatureFlag(t *testing.T) {
+	databasepkg.CurrentDummyDebridSettings = nil
+	t.Cleanup(func() {
+		databasepkg.CurrentDummyDebridSettings = nil
+	})
+
+	logger := util.NewLogger()
+	env := testutil.NewTestEnv(t)
+	database := env.MustNewDatabase(logger)
+	fixture := env.MustWriteFixtureFile("fixture.mkv", []byte("fixture"))
+	_, err := database.UpsertDummyDebridSettings(models.NewDefaultDummyDebridSettings(fixture))
+	require.NoError(t, err)
+
+	disabledRepo := &Repository{
+		provider:           mo.None[debrid.Provider](),
+		logger:             logger,
+		db:                 database,
+		settings:           &models.DebridSettings{},
+		ctxMap:             result.NewMap[string, context.CancelFunc](),
+		dummyDebridEnabled: false,
+	}
+	err = disabledRepo.InitializeProvider(&models.DebridSettings{Enabled: true, Provider: "dummy"})
+	require.NoError(t, err)
+	require.False(t, disabledRepo.HasProvider())
+
+	enabledRepo := &Repository{
+		provider:           mo.None[debrid.Provider](),
+		logger:             logger,
+		db:                 database,
+		settings:           &models.DebridSettings{},
+		ctxMap:             result.NewMap[string, context.CancelFunc](),
+		dummyDebridEnabled: true,
+	}
+	t.Cleanup(func() {
+		if enabledRepo.downloadLoopCancelFunc != nil {
+			enabledRepo.downloadLoopCancelFunc()
+		}
+		enabledRepo.closeProvider()
+	})
+
+	err = enabledRepo.InitializeProvider(&models.DebridSettings{Enabled: true, Provider: "dummy"})
+	require.NoError(t, err)
+	require.True(t, enabledRepo.HasProvider())
+	provider, err := enabledRepo.GetProvider()
+	require.NoError(t, err)
+	require.Equal(t, "dummy", provider.GetSettings().ID)
 }
 
 func TestAddAndQueueTorrentUsesHookOverrideAndQueuesItem(t *testing.T) {

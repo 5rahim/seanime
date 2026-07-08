@@ -2305,6 +2305,76 @@
     }
   },
   {
+    "name": "HandleGetDummyDebridSettings",
+    "trimmedName": "GetDummyDebridSettings",
+    "comments": [
+      "HandleGetDummyDebridSettings",
+      "",
+      "\t@summary get dummy debrid settings.",
+      "\t@desc This returns the dummy debrid settings.",
+      "\t@returns models.DummyDebridSettings",
+      "\t@route /api/v1/debrid/dummy/settings [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "get dummy debrid settings.",
+      "descriptions": [
+        "This returns the dummy debrid settings."
+      ],
+      "endpoint": "/api/v1/debrid/dummy/settings",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "models.DummyDebridSettings",
+      "returnGoType": "models.DummyDebridSettings",
+      "returnTypescriptType": "Models_DummyDebridSettings"
+    }
+  },
+  {
+    "name": "HandleSaveDummyDebridSettings",
+    "trimmedName": "SaveDummyDebridSettings",
+    "comments": [
+      "HandleSaveDummyDebridSettings",
+      "",
+      "\t@summary save dummy debrid settings.",
+      "\t@desc This saves the dummy debrid settings.",
+      "\t@returns models.DummyDebridSettings",
+      "\t@route /api/v1/debrid/dummy/settings [PATCH]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "save dummy debrid settings.",
+      "descriptions": [
+        "This saves the dummy debrid settings."
+      ],
+      "endpoint": "/api/v1/debrid/dummy/settings",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Settings",
+          "jsonName": "settings",
+          "goType": "models.DummyDebridSettings",
+          "usedStructType": "models.DummyDebridSettings",
+          "typescriptType": "Models_DummyDebridSettings",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "models.DummyDebridSettings",
+      "returnGoType": "models.DummyDebridSettings",
+      "returnTypescriptType": "Models_DummyDebridSettings"
+    }
+  },
+  {
     "name": "HandleDebridAddTorrents",
     "trimmedName": "DebridAddTorrents",
     "comments": [

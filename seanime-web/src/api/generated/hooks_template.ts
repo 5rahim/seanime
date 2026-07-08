@@ -17,7 +17,7 @@
 //         method: API_ENDPOINTS.ANILIST.GetAnimeCollection.methods[1],
 //         mutationKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -37,7 +37,7 @@
 //         method: API_ENDPOINTS.ANILIST.GetRawAnimeCollection.methods[1],
 //         mutationKey: [API_ENDPOINTS.ANILIST.GetRawAnimeCollection.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -57,7 +57,7 @@
 //         method: API_ENDPOINTS.ANILIST.EditAnilistListEntry.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANILIST.EditAnilistListEntry.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -86,7 +86,7 @@
 //         method: API_ENDPOINTS.ANILIST.DeleteAnilistListEntry.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANILIST.DeleteAnilistListEntry.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -97,7 +97,7 @@
 //         method: API_ENDPOINTS.ANILIST.AnilistListAnime.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANILIST.AnilistListAnime.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -108,7 +108,7 @@
 //         method: API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -146,7 +146,7 @@
 //         method: API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -183,7 +183,7 @@
 //         method: API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.methods[1],
 //         mutationKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -203,7 +203,7 @@
 //         method: API_ENDPOINTS.ANIME_COLLECTION.AddUnknownMedia.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANIME_COLLECTION.AddUnknownMedia.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -227,7 +227,7 @@
 //         method: API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -238,7 +238,7 @@
 //         method: API_ENDPOINTS.ANIME_ENTRIES.OpenAnimeEntryInExplorer.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.OpenAnimeEntryInExplorer.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -249,7 +249,7 @@
 //         method: API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -260,7 +260,7 @@
 //         method: API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryManualMatch.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryManualMatch.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -298,7 +298,7 @@
 //         method: API_ENDPOINTS.ANIME_ENTRIES.ToggleAnimeEntrySilenceStatus.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.ToggleAnimeEntrySilenceStatus.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -309,7 +309,7 @@
 //         method: API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -320,7 +320,7 @@
 //         method: API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryRepeat.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryRepeat.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -335,7 +335,7 @@
 //         method: API_ENDPOINTS.AUTH.Login.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTH.Login.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -346,7 +346,7 @@
 //         method: API_ENDPOINTS.AUTH.Logout.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTH.Logout.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -361,7 +361,7 @@
 //         method: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloader.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloader.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -372,7 +372,7 @@
 //         method: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloaderSimulation.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -410,7 +410,7 @@
 //         method: API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderRule.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderRule.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -421,7 +421,7 @@
 //         method: API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderRule.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderRule.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -432,7 +432,7 @@
 //         method: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderRule.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderRule.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -461,7 +461,7 @@
 //         method: API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderProfile.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -472,7 +472,7 @@
 //         method: API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderProfile.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -483,7 +483,7 @@
 //         method: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderProfile.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -503,7 +503,7 @@
 //         method: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderItem.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderItem.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -518,7 +518,7 @@
 //         method: API_ENDPOINTS.CONTINUITY.UpdateContinuityWatchHistoryItem.methods[0],
 //         mutationKey: [API_ENDPOINTS.CONTINUITY.UpdateContinuityWatchHistoryItem.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -551,7 +551,7 @@
 //         method: API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListAnime.methods[0],
 //         mutationKey: [API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListAnime.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -562,7 +562,7 @@
 //         method: API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListManga.methods[0],
 //         mutationKey: [API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListManga.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -586,7 +586,27 @@
 //         method: API_ENDPOINTS.DEBRID.SaveDebridSettings.methods[0],
 //         mutationKey: [API_ENDPOINTS.DEBRID.SaveDebridSettings.key],
 //         onSuccess: async () => {
-// 
+//
+//         },
+//     })
+// }
+
+// export function useGetDummyDebridSettings() {
+//     return useServerQuery<Models_DummyDebridSettings>({
+//         endpoint: API_ENDPOINTS.DEBRID.GetDummyDebridSettings.endpoint,
+//         method: API_ENDPOINTS.DEBRID.GetDummyDebridSettings.methods[0],
+//         queryKey: [API_ENDPOINTS.DEBRID.GetDummyDebridSettings.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSaveDummyDebridSettings() {
+//     return useServerMutation<Models_DummyDebridSettings, SaveDummyDebridSettings_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.SaveDummyDebridSettings.endpoint,
+//         method: API_ENDPOINTS.DEBRID.SaveDummyDebridSettings.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.SaveDummyDebridSettings.key],
+//         onSuccess: async () => {
+//
 //         },
 //     })
 // }
@@ -597,7 +617,7 @@
 //         method: API_ENDPOINTS.DEBRID.DebridAddTorrents.methods[0],
 //         mutationKey: [API_ENDPOINTS.DEBRID.DebridAddTorrents.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -608,7 +628,7 @@
 //         method: API_ENDPOINTS.DEBRID.DebridDownloadTorrent.methods[0],
 //         mutationKey: [API_ENDPOINTS.DEBRID.DebridDownloadTorrent.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -619,7 +639,7 @@
 //         method: API_ENDPOINTS.DEBRID.DebridCancelDownload.methods[0],
 //         mutationKey: [API_ENDPOINTS.DEBRID.DebridCancelDownload.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -630,7 +650,7 @@
 //         method: API_ENDPOINTS.DEBRID.DebridDeleteTorrent.methods[0],
 //         mutationKey: [API_ENDPOINTS.DEBRID.DebridDeleteTorrent.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -650,7 +670,7 @@
 //         method: API_ENDPOINTS.DEBRID.DebridGetTorrentInfo.methods[0],
 //         mutationKey: [API_ENDPOINTS.DEBRID.DebridGetTorrentInfo.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -661,7 +681,7 @@
 //         method: API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.methods[0],
 //         mutationKey: [API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -672,7 +692,7 @@
 //         method: API_ENDPOINTS.DEBRID.DebridStartStream.methods[0],
 //         mutationKey: [API_ENDPOINTS.DEBRID.DebridStartStream.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -683,7 +703,7 @@
 //         method: API_ENDPOINTS.DEBRID.DebridCancelStream.methods[0],
 //         mutationKey: [API_ENDPOINTS.DEBRID.DebridCancelStream.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -698,7 +718,7 @@
 //         method: API_ENDPOINTS.DIRECTORY_SELECTOR.DirectorySelector.methods[0],
 //         mutationKey: [API_ENDPOINTS.DIRECTORY_SELECTOR.DirectorySelector.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -713,7 +733,7 @@
 //         method: API_ENDPOINTS.DIRECTSTREAM.DirectstreamPlayLocalFile.methods[0],
 //         mutationKey: [API_ENDPOINTS.DIRECTSTREAM.DirectstreamPlayLocalFile.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -724,7 +744,7 @@
 //         method: API_ENDPOINTS.DIRECTSTREAM.DirectstreamConvertSubs.methods[0],
 //         mutationKey: [API_ENDPOINTS.DIRECTSTREAM.DirectstreamConvertSubs.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -739,7 +759,7 @@
 //         method: API_ENDPOINTS.DISCORD.SetDiscordMangaActivity.methods[0],
 //         mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordMangaActivity.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -750,7 +770,7 @@
 //         method: API_ENDPOINTS.DISCORD.SetDiscordLegacyAnimeActivity.methods[0],
 //         mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordLegacyAnimeActivity.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -761,7 +781,7 @@
 //         method: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivityWithProgress.methods[0],
 //         mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordAnimeActivityWithProgress.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -772,7 +792,7 @@
 //         method: API_ENDPOINTS.DISCORD.UpdateDiscordAnimeActivityWithProgress.methods[0],
 //         mutationKey: [API_ENDPOINTS.DISCORD.UpdateDiscordAnimeActivityWithProgress.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -783,7 +803,7 @@
 //         method: API_ENDPOINTS.DISCORD.CancelDiscordActivity.methods[0],
 //         mutationKey: [API_ENDPOINTS.DISCORD.CancelDiscordActivity.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -811,7 +831,7 @@
 //         method: API_ENDPOINTS.DOWNLOAD.DownloadTorrentFile.methods[0],
 //         mutationKey: [API_ENDPOINTS.DOWNLOAD.DownloadTorrentFile.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -822,7 +842,7 @@
 //         method: API_ENDPOINTS.DOWNLOAD.DownloadRelease.methods[0],
 //         mutationKey: [API_ENDPOINTS.DOWNLOAD.DownloadRelease.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -833,7 +853,7 @@
 //         method: API_ENDPOINTS.DOWNLOAD.DownloadMacDenshiUpdate.methods[0],
 //         mutationKey: [API_ENDPOINTS.DOWNLOAD.DownloadMacDenshiUpdate.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -848,7 +868,7 @@
 //         method: API_ENDPOINTS.EXPLORER.OpenInExplorer.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXPLORER.OpenInExplorer.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -863,7 +883,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.FetchExternalExtensionData.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.FetchExternalExtensionData.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -874,7 +894,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -885,7 +905,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -896,7 +916,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.UninstallExternalExtension.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.UninstallExternalExtension.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -907,7 +927,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -918,7 +938,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtensions.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.ReloadExternalExtensions.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -929,7 +949,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -940,7 +960,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.SetExternalExtensionDisabled.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.SetExternalExtensionDisabled.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -978,7 +998,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1052,7 +1072,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1063,7 +1083,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1074,7 +1094,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.RunExtensionPlaygroundCode.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.RunExtensionPlaygroundCode.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1094,7 +1114,7 @@
 //         method: API_ENDPOINTS.EXTENSIONS.SaveExtensionUserConfig.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.SaveExtensionUserConfig.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1127,7 +1147,7 @@
 //         method: API_ENDPOINTS.FILECACHE.RemoveFileCacheBucket.methods[0],
 //         mutationKey: [API_ENDPOINTS.FILECACHE.RemoveFileCacheBucket.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1147,7 +1167,7 @@
 //         method: API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1171,7 +1191,7 @@
 //         method: API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.methods[0],
 //         mutationKey: [API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1182,7 +1202,7 @@
 //         method: API_ENDPOINTS.LIBRARY_EXPLORER.LoadLibraryExplorerDirectoryChildren.methods[0],
 //         mutationKey: [API_ENDPOINTS.LIBRARY_EXPLORER.LoadLibraryExplorerDirectoryChildren.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1197,7 +1217,7 @@
 //         method: API_ENDPOINTS.LOCAL.SetOfflineMode.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCAL.SetOfflineMode.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1217,7 +1237,7 @@
 //         method: API_ENDPOINTS.LOCAL.LocalAddTrackedMedia.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCAL.LocalAddTrackedMedia.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1228,7 +1248,7 @@
 //         method: API_ENDPOINTS.LOCAL.LocalRemoveTrackedMedia.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCAL.LocalRemoveTrackedMedia.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1248,7 +1268,7 @@
 //         method: API_ENDPOINTS.LOCAL.LocalSyncData.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCAL.LocalSyncData.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1268,7 +1288,7 @@
 //         method: API_ENDPOINTS.LOCAL.LocalSyncAnilistData.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCAL.LocalSyncAnilistData.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1279,7 +1299,7 @@
 //         method: API_ENDPOINTS.LOCAL.LocalSetHasLocalChanges.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCAL.LocalSetHasLocalChanges.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1308,7 +1328,7 @@
 //         method: API_ENDPOINTS.LOCAL.LocalSyncSimulatedDataToAnilist.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCAL.LocalSyncSimulatedDataToAnilist.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1332,7 +1352,7 @@
 //         method: API_ENDPOINTS.LOCALFILES.ImportLocalFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCALFILES.ImportLocalFiles.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1343,7 +1363,7 @@
 //         method: API_ENDPOINTS.LOCALFILES.LocalFileBulkAction.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCALFILES.LocalFileBulkAction.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1354,7 +1374,7 @@
 //         method: API_ENDPOINTS.LOCALFILES.UpdateLocalFileData.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCALFILES.UpdateLocalFileData.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1365,7 +1385,7 @@
 //         method: API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1376,7 +1396,7 @@
 //         method: API_ENDPOINTS.LOCALFILES.UpdateLocalFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCALFILES.UpdateLocalFiles.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1387,7 +1407,7 @@
 //         method: API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1398,7 +1418,7 @@
 //         method: API_ENDPOINTS.LOCALFILES.RemoveEmptyDirectories.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCALFILES.RemoveEmptyDirectories.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1413,7 +1433,7 @@
 //         method: API_ENDPOINTS.MAL.MALAuth.methods[0],
 //         mutationKey: [API_ENDPOINTS.MAL.MALAuth.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1424,7 +1444,7 @@
 //         method: API_ENDPOINTS.MAL.EditMALListEntryProgress.methods[0],
 //         mutationKey: [API_ENDPOINTS.MAL.EditMALListEntryProgress.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1435,7 +1455,7 @@
 //         method: API_ENDPOINTS.MAL.MALLogout.methods[0],
 //         mutationKey: [API_ENDPOINTS.MAL.MALLogout.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1468,7 +1488,7 @@
 //         method: API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.methods[1],
 //         mutationKey: [API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1524,7 +1544,7 @@
 //         method: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1535,7 +1555,7 @@
 //         method: API_ENDPOINTS.MANGA.EmptyMangaEntryCache.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.EmptyMangaEntryCache.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1546,7 +1566,7 @@
 //         method: API_ENDPOINTS.MANGA.GetMangaEntryChapters.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.GetMangaEntryChapters.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1557,7 +1577,7 @@
 //         method: API_ENDPOINTS.MANGA.GetMangaEntryPages.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.GetMangaEntryPages.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1577,7 +1597,7 @@
 //         method: API_ENDPOINTS.MANGA.AnilistListManga.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.AnilistListManga.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1588,7 +1608,7 @@
 //         method: API_ENDPOINTS.MANGA.UpdateMangaProgress.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.UpdateMangaProgress.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1599,7 +1619,7 @@
 //         method: API_ENDPOINTS.MANGA.MangaManualSearch.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.MangaManualSearch.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1610,7 +1630,7 @@
 //         method: API_ENDPOINTS.MANGA.MangaManualMapping.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.MangaManualMapping.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1621,7 +1641,7 @@
 //         method: API_ENDPOINTS.MANGA.GetMangaMapping.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.GetMangaMapping.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1632,7 +1652,7 @@
 //         method: API_ENDPOINTS.MANGA.RemoveMangaMapping.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.RemoveMangaMapping.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1656,7 +1676,7 @@
 //         method: API_ENDPOINTS.MANGA_DOWNLOAD.DownloadMangaChapters.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.DownloadMangaChapters.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1667,7 +1687,7 @@
 //         method: API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadData.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadData.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1687,7 +1707,7 @@
 //         method: API_ENDPOINTS.MANGA_DOWNLOAD.StartMangaDownloadQueue.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.StartMangaDownloadQueue.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1698,7 +1718,7 @@
 //         method: API_ENDPOINTS.MANGA_DOWNLOAD.StopMangaDownloadQueue.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.StopMangaDownloadQueue.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1709,7 +1729,7 @@
 //         method: API_ENDPOINTS.MANGA_DOWNLOAD.ClearAllChapterDownloadQueue.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.ClearAllChapterDownloadQueue.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1720,7 +1740,7 @@
 //         method: API_ENDPOINTS.MANGA_DOWNLOAD.ResetErroredChapterDownloadQueue.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.ResetErroredChapterDownloadQueue.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1731,7 +1751,7 @@
 //         method: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1755,7 +1775,7 @@
 //         method: API_ENDPOINTS.MANUAL_DUMP.TestDump.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANUAL_DUMP.TestDump.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1770,7 +1790,7 @@
 //         method: API_ENDPOINTS.MEDIAPLAYER.StartDefaultMediaPlayer.methods[0],
 //         mutationKey: [API_ENDPOINTS.MEDIAPLAYER.StartDefaultMediaPlayer.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1794,7 +1814,7 @@
 //         method: API_ENDPOINTS.MEDIASTREAM.SaveMediastreamSettings.methods[0],
 //         mutationKey: [API_ENDPOINTS.MEDIASTREAM.SaveMediastreamSettings.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1805,7 +1825,7 @@
 //         method: API_ENDPOINTS.MEDIASTREAM.RequestMediastreamMediaContainer.methods[0],
 //         mutationKey: [API_ENDPOINTS.MEDIASTREAM.RequestMediastreamMediaContainer.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1816,7 +1836,7 @@
 //         method: API_ENDPOINTS.MEDIASTREAM.PreloadMediastreamMediaContainer.methods[0],
 //         mutationKey: [API_ENDPOINTS.MEDIASTREAM.PreloadMediastreamMediaContainer.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1827,7 +1847,7 @@
 //         method: API_ENDPOINTS.MEDIASTREAM.MediastreamShutdownTranscodeStream.methods[0],
 //         mutationKey: [API_ENDPOINTS.MEDIASTREAM.MediastreamShutdownTranscodeStream.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1851,7 +1871,7 @@
 //         method: API_ENDPOINTS.METADATA.PopulateFillerData.methods[0],
 //         mutationKey: [API_ENDPOINTS.METADATA.PopulateFillerData.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1862,7 +1882,7 @@
 //         method: API_ENDPOINTS.METADATA.RemoveFillerData.methods[0],
 //         mutationKey: [API_ENDPOINTS.METADATA.RemoveFillerData.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1882,7 +1902,7 @@
 //         method: API_ENDPOINTS.METADATA.SaveMediaMetadataParent.methods[0],
 //         mutationKey: [API_ENDPOINTS.METADATA.SaveMediaMetadataParent.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1893,7 +1913,7 @@
 //         method: API_ENDPOINTS.METADATA.DeleteMediaMetadataParent.methods[0],
 //         mutationKey: [API_ENDPOINTS.METADATA.DeleteMediaMetadataParent.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1930,7 +1950,7 @@
 //         method: API_ENDPOINTS.NAKAMA.SendNakamaMessage.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.SendNakamaMessage.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1959,7 +1979,7 @@
 //         method: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryFiles.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1970,7 +1990,7 @@
 //         method: API_ENDPOINTS.NAKAMA.GetNakamaAnimeAllLibraryFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.GetNakamaAnimeAllLibraryFiles.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1981,7 +2001,7 @@
 //         method: API_ENDPOINTS.NAKAMA.NakamaPlayVideo.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaPlayVideo.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -1992,7 +2012,7 @@
 //         method: API_ENDPOINTS.NAKAMA.NakamaReconnectToHost.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaReconnectToHost.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2003,7 +2023,7 @@
 //         method: API_ENDPOINTS.NAKAMA.NakamaRemoveStaleConnections.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaRemoveStaleConnections.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2023,7 +2043,7 @@
 //         method: API_ENDPOINTS.NAKAMA.NakamaCreateAndJoinRoom.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaCreateAndJoinRoom.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2034,7 +2054,7 @@
 //         method: API_ENDPOINTS.NAKAMA.NakamaDisconnectFromRoom.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaDisconnectFromRoom.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2045,7 +2065,7 @@
 //         method: API_ENDPOINTS.NAKAMA.NakamaCreateWatchParty.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaCreateWatchParty.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2056,7 +2076,7 @@
 //         method: API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2067,7 +2087,7 @@
 //         method: API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2078,7 +2098,7 @@
 //         method: API_ENDPOINTS.NAKAMA.NakamaSendChatMessage.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaSendChatMessage.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2093,7 +2113,7 @@
 //         method: API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeList.methods[0],
 //         mutationKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeList.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2104,7 +2124,7 @@
 //         method: API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.methods[0],
 //         mutationKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2115,7 +2135,7 @@
 //         method: API_ENDPOINTS.ONLINESTREAM.OnlineStreamEmptyCache.methods[0],
 //         mutationKey: [API_ENDPOINTS.ONLINESTREAM.OnlineStreamEmptyCache.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2126,7 +2146,7 @@
 //         method: API_ENDPOINTS.ONLINESTREAM.OnlinestreamManualSearch.methods[0],
 //         mutationKey: [API_ENDPOINTS.ONLINESTREAM.OnlinestreamManualSearch.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2137,7 +2157,7 @@
 //         method: API_ENDPOINTS.ONLINESTREAM.OnlinestreamManualMapping.methods[0],
 //         mutationKey: [API_ENDPOINTS.ONLINESTREAM.OnlinestreamManualMapping.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2148,7 +2168,7 @@
 //         method: API_ENDPOINTS.ONLINESTREAM.GetOnlinestreamMapping.methods[0],
 //         mutationKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlinestreamMapping.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2159,7 +2179,7 @@
 //         method: API_ENDPOINTS.ONLINESTREAM.RemoveOnlinestreamMapping.methods[0],
 //         mutationKey: [API_ENDPOINTS.ONLINESTREAM.RemoveOnlinestreamMapping.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2174,7 +2194,7 @@
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayVideo.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayVideo.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2185,7 +2205,7 @@
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayRandomVideo.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayRandomVideo.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2196,7 +2216,7 @@
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackSyncCurrentProgress.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackSyncCurrentProgress.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2207,7 +2227,7 @@
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayNextEpisode.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayNextEpisode.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2227,7 +2247,7 @@
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackAutoPlayNextEpisode.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackAutoPlayNextEpisode.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2238,7 +2258,7 @@
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2249,7 +2269,7 @@
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelCurrentPlaylist.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelCurrentPlaylist.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2260,7 +2280,7 @@
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlaylistNext.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlaylistNext.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2271,7 +2291,7 @@
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartManualTracking.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartManualTracking.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2282,7 +2302,7 @@
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelManualTracking.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelManualTracking.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2297,7 +2317,7 @@
 //         method: API_ENDPOINTS.PLAYLIST.CreatePlaylist.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYLIST.CreatePlaylist.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2317,7 +2337,7 @@
 //         method: API_ENDPOINTS.PLAYLIST.UpdatePlaylist.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYLIST.UpdatePlaylist.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2328,7 +2348,7 @@
 //         method: API_ENDPOINTS.PLAYLIST.DeletePlaylist.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYLIST.DeletePlaylist.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2352,7 +2372,7 @@
 //         method: API_ENDPOINTS.RELEASES.InstallLatestUpdate.methods[0],
 //         mutationKey: [API_ENDPOINTS.RELEASES.InstallLatestUpdate.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2363,7 +2383,7 @@
 //         method: API_ENDPOINTS.RELEASES.CheckForUpdates.methods[0],
 //         mutationKey: [API_ENDPOINTS.RELEASES.CheckForUpdates.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2396,7 +2416,7 @@
 //         method: API_ENDPOINTS.REPORT.SaveIssueReport.methods[0],
 //         mutationKey: [API_ENDPOINTS.REPORT.SaveIssueReport.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2416,7 +2436,7 @@
 //         method: API_ENDPOINTS.REPORT.DecompressIssueReport.methods[0],
 //         mutationKey: [API_ENDPOINTS.REPORT.DecompressIssueReport.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2431,7 +2451,7 @@
 //         method: API_ENDPOINTS.SCAN.ScanLocalFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.SCAN.ScanLocalFiles.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2468,7 +2488,7 @@
 //         method: API_ENDPOINTS.SETTINGS.GettingStarted.methods[0],
 //         mutationKey: [API_ENDPOINTS.SETTINGS.GettingStarted.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2479,7 +2499,7 @@
 //         method: API_ENDPOINTS.SETTINGS.SaveSettings.methods[0],
 //         mutationKey: [API_ENDPOINTS.SETTINGS.SaveSettings.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2490,7 +2510,7 @@
 //         method: API_ENDPOINTS.SETTINGS.PatchSetting.methods[0],
 //         mutationKey: [API_ENDPOINTS.SETTINGS.PatchSetting.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2501,7 +2521,7 @@
 //         method: API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.methods[0],
 //         mutationKey: [API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2512,7 +2532,7 @@
 //         method: API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.methods[0],
 //         mutationKey: [API_ENDPOINTS.SETTINGS.SaveMediaPlayerSettings.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2545,7 +2565,7 @@
 //         method: API_ENDPOINTS.STATUS.DeleteLogs.methods[0],
 //         mutationKey: [API_ENDPOINTS.STATUS.DeleteLogs.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2565,7 +2585,7 @@
 //         method: API_ENDPOINTS.STATUS.GetAnnouncements.methods[0],
 //         mutationKey: [API_ENDPOINTS.STATUS.GetAnnouncements.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2612,7 +2632,7 @@
 //         method: API_ENDPOINTS.STATUS.ForceGC.methods[0],
 //         mutationKey: [API_ENDPOINTS.STATUS.ForceGC.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2632,7 +2652,7 @@
 //         method: API_ENDPOINTS.STATUS.UpdateHomeItems.methods[0],
 //         mutationKey: [API_ENDPOINTS.STATUS.UpdateHomeItems.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2656,7 +2676,7 @@
 //         method: API_ENDPOINTS.THEME.UpdateTheme.methods[0],
 //         mutationKey: [API_ENDPOINTS.THEME.UpdateTheme.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2680,7 +2700,7 @@
 //         method: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAction.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAction.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2700,7 +2720,7 @@
 //         method: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientGetFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENT_CLIENT.TorrentClientGetFiles.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2711,7 +2731,7 @@
 //         method: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientDownload.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENT_CLIENT.TorrentClientDownload.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2722,7 +2742,7 @@
 //         method: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAddMagnetFromRule.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAddMagnetFromRule.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2737,7 +2757,7 @@
 //         method: API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2757,7 +2777,7 @@
 //         method: API_ENDPOINTS.TORRENT_SEARCH.SaveAutoSelectProfile.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENT_SEARCH.SaveAutoSelectProfile.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2768,7 +2788,7 @@
 //         method: API_ENDPOINTS.TORRENT_SEARCH.DeleteAutoSelectProfile.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENT_SEARCH.DeleteAutoSelectProfile.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2792,7 +2812,7 @@
 //         method: API_ENDPOINTS.TORRENTSTREAM.SaveTorrentstreamSettings.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.SaveTorrentstreamSettings.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2803,7 +2823,7 @@
 //         method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamTorrentFilePreviews.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamTorrentFilePreviews.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2814,7 +2834,7 @@
 //         method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2825,7 +2845,7 @@
 //         method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStopStream.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStopStream.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2836,7 +2856,7 @@
 //         method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamDropTorrent.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamDropTorrent.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2847,7 +2867,7 @@
 //         method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamBatchHistory.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamBatchHistory.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2858,7 +2878,7 @@
 //         method: API_ENDPOINTS.TORRENTSTREAM.DeleteTorrentstreamBatchHistory.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.DeleteTorrentstreamBatchHistory.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }
@@ -2882,7 +2902,7 @@
 //         method: API_ENDPOINTS.VIDEOCORE.VideoCoreSaveScreenshot.methods[0],
 //         mutationKey: [API_ENDPOINTS.VIDEOCORE.VideoCoreSaveScreenshot.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }

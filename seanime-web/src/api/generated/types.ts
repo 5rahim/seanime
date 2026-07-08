@@ -2024,6 +2024,7 @@ export type Continuity_WatchHistoryItemResponse = {
  */
 export type INTERNAL_FeatureFlags = {
     builtinTorrentClient: boolean
+    dummyDebrid: boolean
 }
 
 /**
@@ -3840,6 +3841,49 @@ export type Models_DiscordSettings = {
     richPresenceShowAniListMediaButton: boolean
     richPresenceShowAniListProfileButton: boolean
     richPresenceUseMediaTitleStatus: boolean
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
+export type Models_DummyDebridFile = {
+    id: string
+    path: string
+    name: string
+    episodeNumber: number
+    localFilePath: string
+    size?: number
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
+export type Models_DummyDebridFiles = Array<Models_DummyDebridFile>
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
+export type Models_DummyDebridSettings = {
+    enabled: boolean
+    profileName: string
+    fallbackFilePath: string
+    files: Models_DummyDebridFiles
+    cached: boolean
+    readyDelayMs: number
+    progressIntervalMs: number
+    firstByteDelayMs: number
+    bandwidthBytesPerSecond: number
+    chunkSize: number
+    jitterMs: number
+    id: number
+    createdAt?: string
+    updatedAt?: string
 }
 
 /**

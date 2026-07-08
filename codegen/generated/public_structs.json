@@ -28926,9 +28926,9 @@
         "name": "SecondarySettings",
         "jsonName": "SecondarySettings",
         "goType": "INTERNAL_App_SecondarySettings",
-        "inlineStructType": "struct{\nMediastream models.MediastreamSettings\nTorrentstream models.TorrentstreamSettings\nDebrid models.DebridSettings}",
+        "inlineStructType": "struct{\nMediastream models.MediastreamSettings\nTorrentstream models.TorrentstreamSettings\nDebrid models.DebridSettings\nDummyDebrid models.DummyDebridSettings}",
         "typescriptType": "INTERNAL_App_SecondarySettings",
-        "usedTypescriptType": "{ Mediastream: MediastreamSettings; Torrentstream: TorrentstreamSettings; Debrid: DebridSettings; }",
+        "usedTypescriptType": "{ Mediastream: MediastreamSettings; Torrentstream: TorrentstreamSettings; Debrid: DebridSettings; DummyDebrid: DummyDebridSettings; }",
         "usedStructName": "core.App_SecondarySettings",
         "required": true,
         "public": true,
@@ -29217,6 +29217,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "DummyDebrid",
+        "jsonName": "DummyDebrid",
+        "goType": "models.DummyDebridSettings",
+        "typescriptType": "Models_DummyDebridSettings",
+        "usedTypescriptType": "Models_DummyDebridSettings",
+        "usedStructName": "models.DummyDebridSettings",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -29373,9 +29384,9 @@
         "name": "Experimental",
         "jsonName": "Experimental",
         "goType": "INTERNAL_Config_Experimental",
-        "inlineStructType": "struct{\nBuiltinTorrentClient bool}",
+        "inlineStructType": "struct{\nBuiltinTorrentClient bool\nDummyDebrid bool}",
         "typescriptType": "INTERNAL_Config_Experimental",
-        "usedTypescriptType": "{ BuiltinTorrentClient: boolean; }",
+        "usedTypescriptType": "{ BuiltinTorrentClient: boolean; DummyDebrid: boolean; }",
         "usedStructName": "core.Config_Experimental",
         "required": true,
         "public": true,
@@ -29755,6 +29766,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "DummyDebrid",
+        "jsonName": "DummyDebrid",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -29905,6 +29925,15 @@
       {
         "name": "BuiltinTorrentClient",
         "jsonName": "builtinTorrentClient",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DummyDebrid",
+        "jsonName": "dummyDebrid",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -33184,6 +33213,199 @@
   {
     "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
+    "name": "DummyDebridSettings",
+    "formattedName": "Models_DummyDebridSettings",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Enabled",
+        "jsonName": "enabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ProfileName",
+        "jsonName": "profileName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FallbackFilePath",
+        "jsonName": "fallbackFilePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "DummyDebridFiles",
+        "typescriptType": "Models_DummyDebridFiles",
+        "usedTypescriptType": "Models_DummyDebridFiles",
+        "usedStructName": "models.DummyDebridFiles",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Cached",
+        "jsonName": "cached",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReadyDelayMs",
+        "jsonName": "readyDelayMs",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ProgressIntervalMs",
+        "jsonName": "progressIntervalMs",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FirstByteDelayMs",
+        "jsonName": "firstByteDelayMs",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BandwidthBytesPerSecond",
+        "jsonName": "bandwidthBytesPerSecond",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChunkSize",
+        "jsonName": "chunkSize",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "JitterMs",
+        "jsonName": "jitterMs",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "DummyDebridFile",
+    "formattedName": "Models_DummyDebridFile",
+    "package": "models",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFilePath",
+        "jsonName": "localFilePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "DummyDebridFiles",
+    "formattedName": "Models_DummyDebridFiles",
+    "package": "models",
+    "fields": [],
+    "aliasOf": {
+      "goType": "[]DummyDebridFile",
+      "typescriptType": "Array\u003cModels_DummyDebridFile\u003e",
+      "declaredValues": null,
+      "usedStructName": "models.DummyDebridFile"
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
     "name": "DebridTorrentItem",
     "formattedName": "Models_DebridTorrentItem",
     "package": "models",
@@ -34537,6 +34759,15 @@
         "comments": []
       },
       {
+        "name": "dummyDebridEnabled",
+        "jsonName": "dummyDebridEnabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "playbackManager",
         "jsonName": "playbackManager",
         "goType": "playbackmanager.PlaybackManager",
@@ -34698,6 +34929,15 @@
         "goType": "",
         "typescriptType": "any",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DummyDebridEnabled",
+        "jsonName": "DummyDebridEnabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -35503,6 +35743,80 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/dummy/dummy.go",
+    "filename": "dummy.go",
+    "name": "Dummy",
+    "formattedName": "Dummy",
+    "package": "dummy",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settingsProvider",
+        "jsonName": "settingsProvider",
+        "goType": "SettingsProvider",
+        "typescriptType": "SettingsProvider",
+        "usedTypescriptType": "SettingsProvider",
+        "usedStructName": "dummy.SettingsProvider",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "server",
+        "jsonName": "server",
+        "goType": "http.Server",
+        "typescriptType": "Server",
+        "usedTypescriptType": "Server",
+        "usedStructName": "http.Server",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseURL",
+        "jsonName": "baseURL",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "items",
+        "jsonName": "items",
+        "goType": "map[string]debrid.TorrentItem",
+        "typescriptType": "Record\u003cstring, Debrid_TorrentItem\u003e",
+        "usedTypescriptType": "Debrid_TorrentItem",
+        "usedStructName": "debrid.TorrentItem",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],

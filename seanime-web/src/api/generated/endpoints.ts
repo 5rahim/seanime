@@ -543,6 +543,26 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route get dummy debrid settings.
+         *  This returns the dummy debrid settings.
+         */
+        GetDummyDebridSettings: {
+            key: "DEBRID-get-dummy-debrid-settings",
+            methods: ["GET"],
+            endpoint: "/api/v1/debrid/dummy/settings",
+        },
+        /**
+         *  @description
+         *  Route save dummy debrid settings.
+         *  This saves the dummy debrid settings.
+         */
+        SaveDummyDebridSettings: {
+            key: "DEBRID-save-dummy-debrid-settings",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/debrid/dummy/settings",
+        },
+        /**
+         *  @description
          *  Route add torrent to debrid.
          *  This adds a torrent to the debrid service.
          */

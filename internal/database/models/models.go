@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/goccy/go-json"
 )
 
 type BaseModel struct {
@@ -569,6 +571,67 @@ type DebridSettings struct {
 	IncludeDebridStreamInLibrary bool   `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
 	StreamAutoSelect             bool   `gorm:"column:stream_auto_select" json:"streamAutoSelect"`
 	StreamPreferredResolution    string `gorm:"column:stream_preferred_resolution" json:"streamPreferredResolution"`
+}
+
+type DummyDebridSettings struct {
+	BaseModel
+	Enabled                 bool             `gorm:"column:enabled" json:"enabled"`
+	ProfileName             string           `gorm:"column:profile_name" json:"profileName"`
+	FallbackFilePath        string           `gorm:"column:fallback_file_path" json:"fallbackFilePath"`
+	Files                   DummyDebridFiles `gorm:"column:files;type:text" json:"files"`
+	Cached                  bool             `gorm:"column:cached" json:"cached"`
+	ReadyDelayMs            int              `gorm:"column:ready_delay_ms" json:"readyDelayMs"`
+	ProgressIntervalMs      int              `gorm:"column:progress_interval_ms" json:"progressIntervalMs"`
+	FirstByteDelayMs        int              `gorm:"column:first_byte_delay_ms" json:"firstByteDelayMs"`
+	BandwidthBytesPerSecond int64            `gorm:"column:bandwidth_bytes_per_second" json:"bandwidthBytesPerSecond"`
+	ChunkSize               int              `gorm:"column:chunk_size" json:"chunkSize"`
+	JitterMs                int              `gorm:"column:jitter_ms" json:"jitterMs"`
+}
+
+type DummyDebridFile struct {
+	ID            string `json:"id"`
+	Path          string `json:"path"`
+	Name          string `json:"name"`
+	EpisodeNumber int    `json:"episodeNumber"`
+	LocalFilePath string `json:"localFilePath"`
+	Size          int64  `json:"size,omitempty"`
+}
+
+type DummyDebridFiles []DummyDebridFile
+
+func (o *DummyDebridFiles) Scan(src interface{}) error {
+	if src == nil {
+		*o = nil
+		return nil
+	}
+
+	var raw []byte
+	switch v := src.(type) {
+	case []byte:
+		raw = v
+	case string:
+		raw = []byte(v)
+	default:
+		return errors.New("src value cannot cast to JSON")
+	}
+
+	if len(raw) == 0 {
+		*o = nil
+		return nil
+	}
+
+	return json.Unmarshal(raw, o)
+}
+
+func (o DummyDebridFiles) Value() (driver.Value, error) {
+	if len(o) == 0 {
+		return "[]", nil
+	}
+	bytes, err := json.Marshal(o)
+	if err != nil {
+		return nil, err
+	}
+	return string(bytes), nil
 }
 
 type DebridTorrentItem struct {

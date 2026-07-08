@@ -10,6 +10,7 @@ import (
 	"seanime/internal/database/models"
 	"seanime/internal/debrid/alldebrid"
 	"seanime/internal/debrid/debrid"
+	"seanime/internal/debrid/dummy"
 	"seanime/internal/debrid/premiumize"
 	"seanime/internal/debrid/realdebrid"
 	"seanime/internal/debrid/torbox"
@@ -42,6 +43,7 @@ type (
 		downloadLoopCancelFunc context.CancelFunc
 		torrentRepository      *torrent.Repository
 		directStreamManager    *directstream.Manager
+		dummyDebridEnabled     bool
 
 		playbackManager     *playbackmanager.PlaybackManager
 		streamManager       *StreamManager
@@ -64,6 +66,7 @@ type (
 		DirectStreamManager *directstream.Manager
 		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 		PlatformRef         *util.Ref[platform.Platform]
+		DummyDebridEnabled  bool
 	}
 )
 
@@ -79,6 +82,7 @@ func NewRepository(opts *NewRepositoryOptions) (ret *Repository) {
 		torrentRepository:     opts.TorrentRepository,
 		platformRef:           opts.PlatformRef,
 		playbackManager:       opts.PlaybackManager,
+		dummyDebridEnabled:    opts.DummyDebridEnabled,
 		metadataProviderRef:   opts.MetadataProviderRef,
 		completeAnimeCache:    anilist.NewCompleteAnimeCache(),
 		ctxMap:                result.NewMap[string, context.CancelFunc](),
@@ -117,16 +121,32 @@ func (r *Repository) startOrStopDownloadLoop() {
 	}
 }
 
+func (r *Repository) closeProvider() {
+	provider, found := r.provider.Get()
+	if !found {
+		return
+	}
+
+	if closer, ok := provider.(interface{ Close() error }); ok {
+		if err := closer.Close(); err != nil {
+			r.logger.Warn().Err(err).Msg("debrid: Failed to close provider")
+		}
+	}
+}
+
 // InitializeProvider is called each time the settings change
 func (r *Repository) InitializeProvider(settings *models.DebridSettings) error {
 	r.settings = settings
 
 	if !settings.Enabled {
+		r.closeProvider()
 		r.provider = mo.None[debrid.Provider]()
 		// Stop the download loop if it's running
 		r.startOrStopDownloadLoop()
 		return nil
 	}
+
+	r.closeProvider()
 
 	switch settings.Provider {
 	case "torbox":
@@ -137,6 +157,13 @@ func (r *Repository) InitializeProvider(settings *models.DebridSettings) error {
 		r.provider = mo.Some(alldebrid.NewAllDebrid(r.logger))
 	case "premiumize":
 		r.provider = mo.Some(premiumize.NewPremiumize(r.logger, &premiumizeHashStore{db: r.db}))
+	case "dummy":
+		if r.dummyDebridEnabled {
+			r.provider = mo.Some(dummy.New(r.logger, r.db))
+		} else {
+			r.provider = mo.None[debrid.Provider]()
+			r.logger.Warn().Msg("debrid: Dummy provider is disabled")
+		}
 	default:
 		r.provider = mo.None[debrid.Provider]()
 	}
