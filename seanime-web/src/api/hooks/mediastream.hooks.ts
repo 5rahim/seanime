@@ -40,6 +40,11 @@ export function useRequestMediastreamMediaContainer(variables: Partial<RequestMe
         queryKey: [API_ENDPOINTS.MEDIASTREAM.RequestMediastreamMediaContainer.key, variables?.path, variables?.streamType],
         data: variables as RequestMediastreamMediaContainer_Variables,
         enabled: !!variables.path && !!variables.streamType && enabled,
+        // This request registers the file as the current media on the server (side effect),
+        // so it must never be served from cache: a cached response mounts the player before
+        // the server knows about the file, and the subtitle/attachment endpoints fail with
+        // "no file has been loaded".
+        gcTime: 0,
     })
 }
 
