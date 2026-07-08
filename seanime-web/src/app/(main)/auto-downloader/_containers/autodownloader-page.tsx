@@ -63,6 +63,8 @@ export function AutoDownloaderPage() {
     const userMedia = useAtomValue(__anilist_userAnimeMediaAtom)
     const { data: extensions, isLoading: isLoadingExtensions } = useAnimeListTorrentProviderExtensions()
 
+    const [tab, setTab] = React.useState("rules")
+
     const createRuleModal = useBoolean(false)
     const createBatchRuleModal = useBoolean(false)
 
@@ -114,8 +116,9 @@ export function AutoDownloaderPage() {
             <ConfirmationDialog {...confirmDeleteNoLongerAiring} />
 
             <Tabs
-                defaultValue="rules"
                 variant="pill"
+                value={tab}
+                onValueChange={setTab}
             >
                 <TabsList>
                     <TabsTrigger value="rules">Rules</TabsTrigger>
@@ -135,6 +138,17 @@ export function AutoDownloaderPage() {
                         {(isLoading && isLoadingExtensions) && <LoadingSpinner />}
                         {(!isLoading && !isLoadingExtensions) && (
                             <div className="space-y-4">
+
+                                {!serverStatus?.settings?.autoDownloader?.enabled && (
+                                    <Alert
+                                        intent="warning"
+                                        description={<p>
+                                            The auto downloader is currently disabled. <Button intent="white-link" onClick={() => setTab("settings")}>Enable
+                                                                                                                                                      it
+                                                                                                                                                      here.</Button>
+                                        </p>}
+                                    />
+                                )}
 
                                 <Card className="p-4 space-y-4">
                                     <ul className="text-base text-[--muted]">

@@ -325,7 +325,6 @@ func (r *fileStreamReader) Read(p []byte) (int, error) {
 
 		// Wait a bit before checking again
 		r.mu.Unlock()
-		r.fs.logger.Warn().Int64("offset", r.offset).Int64("readEnd", readEnd).Msg("SUBTITLE READER BLOCKING: waiting for bytes")
 		select {
 		case <-r.fs.ctx.Done():
 			r.mu.Lock()

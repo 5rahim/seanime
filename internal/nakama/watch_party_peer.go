@@ -530,8 +530,9 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 	// Session stopped
 	//
 
-	// If the host stopped the session, we need to cancel playback
-	if payload.Session.CurrentMediaInfo == nil && currentSession.CurrentMediaInfo != nil && !canceledPlayback {
+	// If the host stopped the session and this peer is a participant, cancel playback.
+	_, isParticipantS := currentSession.Participants[hostConn.PeerId]
+	if payload.Session.CurrentMediaInfo == nil && currentSession.CurrentMediaInfo != nil && !canceledPlayback && isParticipantS {
 		wpm.logger.Debug().Msg("nakama: Canceling playback due to host stopping session")
 		// Before stopping playback, unsubscribe from the playback listener
 		// This is to prevent the peer from auto-leaving the watch party when host stops playback

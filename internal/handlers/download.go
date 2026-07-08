@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
+	urlpkg "net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -146,10 +148,6 @@ func downloadTorrentFile(url string, dest string) (err error) {
 
 	defer util.HandlePanicInModuleWithError("handlers/download/downloadTorrentFile", &err)
 
-	// Get the file name from the URL
-	fileName := filepath.Base(url)
-	filePath := filepath.Join(dest, fileName)
-
 	// Get the data
 	resp, err := http.Get(url)
 	if err != nil {
@@ -161,6 +159,12 @@ func downloadTorrentFile(url string, dest string) (err error) {
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to download file, %s", resp.Status)
 	}
+
+	fileName := getTorrentFileName(resp, url)
+	if fileName == "" {
+		return fmt.Errorf("failed to determine file name")
+	}
+	filePath := filepath.Join(dest, fileName)
 
 	// Create the destination folder if it doesn't exist
 	err = os.MkdirAll(dest, 0755)
@@ -182,6 +186,45 @@ func downloadTorrentFile(url string, dest string) (err error) {
 	}
 
 	return nil
+}
+
+func getTorrentFileName(resp *http.Response, downloadURL string) string {
+	if resp != nil {
+		contentDisposition := resp.Header.Get("Content-Disposition")
+		if _, params, err := mime.ParseMediaType(contentDisposition); err == nil {
+			if fileName := cleanTorrentFileName(params["filename"]); fileName != "" {
+				return fileName
+			}
+		}
+	}
+
+	if parsedURL, err := urlpkg.Parse(downloadURL); err == nil {
+		fileName := path.Base(parsedURL.Path)
+		if unescaped, err := urlpkg.PathUnescape(fileName); err == nil {
+			fileName = unescaped
+		}
+		if fileName := cleanTorrentFileName(fileName); fileName != "" && resp != nil {
+			contentType := resp.Header.Get("Content-Type")
+			mediaType, _, err := mime.ParseMediaType(contentType)
+			isTorrentType := err == nil && mediaType == "application/x-bittorrent"
+			if filepath.Ext(fileName) == "" && isTorrentType {
+				return fileName + ".torrent"
+			}
+			return fileName
+		}
+	}
+
+	return cleanTorrentFileName(downloadURL)
+}
+
+func cleanTorrentFileName(f string) string {
+	f = strings.TrimSpace(f)
+	f = strings.ReplaceAll(f, "\\", "/")
+	f = path.Base(f)
+	if f == "." || f == ".." || f == "/" {
+		return ""
+	}
+	return f
 }
 
 type DownloadReleaseResponse struct {
