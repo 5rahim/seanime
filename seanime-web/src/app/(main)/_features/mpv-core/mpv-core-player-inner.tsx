@@ -27,7 +27,7 @@ import { startVideoCoreMiniPlayerTransition } from "@/app/(main)/_features/video
 import { useVideoCoreInSight, vc_inSight_open, VideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
 
 import { useVideoCorePlaylist, useVideoCorePlaylistSetup } from "@/app/(main)/_features/video-core/video-core-playlist"
-import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
+import { vc_formatTime, vc_getChapterType } from "@/app/(main)/_features/video-core/video-core.utils"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { PlaybackPlayPill } from "@/app/(main)/entry/_containers/torrent-stream/playback-play-pill"
@@ -235,6 +235,8 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
     const [buffering, setBuffering] = useAtom(mc_buffering)
     const [tracks, setTracks] = useAtom(mc_tracks)
     const [skipData, setSkipData] = useAtom(mc_skipData)
+    const [skipOpeningTime, setSkipOpeningTime] = React.useState(0)
+    const [skipEndingTime, setSkipEndingTime] = React.useState(0)
     const [overlayFeedback, setOverlayFeedback] = useAtom(mc_overlayFeedback)
     const [isFullscreen, setIsFullscreen] = useAtom(mc_isFullscreen)
     const [isPip, setIsPip] = useAtom(mc_isPip)
@@ -575,6 +577,43 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
         const mpvChapters = createMpvChapterCues(nativeChapters, duration)
         return mpvChapters.length ? mpvChapters : createSkipChapterCues(skipData, duration)
     }, [duration, nativeChapters, skipData])
+    const opEdChapters = React.useMemo(() => {
+        let opening: { startTime: number, endTime: number } | null = null
+        let ending: { startTime: number, endTime: number } | null = null
+
+        if (nativeChapters.length) {
+            const sorted = [...nativeChapters].sort((a, b) => (a.time ?? 0) - (b.time ?? 0))
+            for (let i = 0; i < sorted.length; i++) {
+                const chapter = sorted[i]
+                const type = vc_getChapterType(chapter.title)
+                const start = chapter.time ?? 0
+                const end = sorted[i + 1]?.time ?? duration
+
+                if (!opening && type === "Opening") {
+                    opening = { startTime: start, endTime: end }
+                }
+                if (!ending && type === "Ending") {
+                    ending = { startTime: start, endTime: end }
+                }
+                if (opening && ending) break
+            }
+        }
+
+        if (!opening && skipData?.op?.interval) {
+            opening = {
+                startTime: skipData.op.interval.startTime,
+                endTime: skipData.op.interval.endTime,
+            }
+        }
+        if (!ending && skipData?.ed?.interval) {
+            ending = {
+                startTime: skipData.ed.interval.startTime,
+                endTime: skipData.ed.interval.endTime,
+            }
+        }
+
+        return { opening, ending }
+    }, [nativeChapters, skipData, duration])
     const audioTracks = React.useMemo(() => tracks.filter(track => mc_trackKind(track) === "audio"), [tracks])
     const subtitleTracks = React.useMemo(() => tracks.filter(track => mc_trackKind(track) === "subtitle"), [tracks])
 
@@ -936,14 +975,37 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
     useMpvPrismEvent(player, "position", event => {
         const value = event.position ?? 0
         setCurrentTime(value)
-        if (autoSkip && skipData) {
-            for (const entry of [skipData.op, skipData.ed]) {
-                if (entry && value >= entry.interval.startTime && value < entry.interval.endTime) {
-                    player?.seek(entry.interval.endTime, "absolute+exact")
-                    break
-                }
+        if (autoSkip) {
+            let skipped = false
+            if (opEdChapters.opening && value >= opEdChapters.opening.startTime && value < opEdChapters.opening.endTime) {
+                player?.seek(opEdChapters.opening.endTime, "absolute+exact")
+                showMessage("Skipped OP")
+                skipped = true
+            } else if (opEdChapters.ending && value >= opEdChapters.ending.startTime && value < opEdChapters.ending.endTime) {
+                player?.seek(opEdChapters.ending.endTime, "absolute+exact")
+                showMessage("Skipped ED")
+                skipped = true
             }
+            if (skipped) return
         }
+
+        // Update on-screen skip buttons state
+        if (!autoSkip) {
+            if (opEdChapters.opening && value >= opEdChapters.opening.startTime && value < opEdChapters.opening.endTime) {
+                setSkipOpeningTime(opEdChapters.opening.endTime)
+            } else {
+                setSkipOpeningTime(0)
+            }
+            if (opEdChapters.ending && value >= opEdChapters.ending.startTime && value < opEdChapters.ending.endTime && value < durationRef.current) {
+                setSkipEndingTime(opEdChapters.ending.endTime)
+            } else {
+                setSkipEndingTime(0)
+            }
+        } else {
+            setSkipOpeningTime(0)
+            setSkipEndingTime(0)
+        }
+
         const total = durationRef.current
         if (!completedRef.current && total > 0 && value / total >= 0.8) {
             completedRef.current = true
@@ -1242,7 +1304,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
 
             if (event.code === keybindings.seekForward.key) {
                 event.preventDefault()
-                const interval = [skipData?.op?.interval, skipData?.ed?.interval]
+                const interval = [opEdChapters.opening, opEdChapters.ending]
                     .find(value => value && currentTimeRef.current >= value.startTime && currentTimeRef.current < value.endTime)
                 if (interval) {
                     await player.seek(interval.endTime, "absolute+exact")
@@ -1338,7 +1400,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
         volume,
         keybindings,
         chapterCues,
-        skipData,
+        opEdChapters,
         audioTracks,
         subtitleTracks,
         isFullscreen,
@@ -1669,6 +1731,50 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
                                     onClick={handlePlayerSurfaceClick}
                                     onContextMenu={event => event.preventDefault()}
                                 />
+
+                                {busy && (
+                                    <>
+                                        {!!skipOpeningTime && !state.miniPlayer && (
+                                            <div
+                                                data-vc-element="skip-oped-button-container"
+                                                data-vc-for="opening"
+                                                className="absolute left-5 bottom-28 z-[60] native-player-hide-on-fullscreen"
+                                            >
+                                                <Button
+                                                    size="sm"
+                                                    intent="gray-basic"
+                                                    onClick={e => {
+                                                        e.stopPropagation()
+                                                        player?.seek(skipOpeningTime, "absolute+exact")
+                                                    }}
+                                                    onPointerMove={e => e.stopPropagation()}
+                                                >
+                                                    Skip Opening
+                                                </Button>
+                                            </div>
+                                        )}
+
+                                        {!!skipEndingTime && !state.miniPlayer && (
+                                            <div
+                                                data-vc-element="skip-oped-button-container"
+                                                data-vc-for="ending"
+                                                className="absolute right-5 bottom-28 z-[60] native-player-hide-on-fullscreen"
+                                            >
+                                                <Button
+                                                    size="sm"
+                                                    intent="gray-basic"
+                                                    onClick={e => {
+                                                        e.stopPropagation()
+                                                        player?.seek(skipEndingTime, "absolute+exact")
+                                                    }}
+                                                    onPointerMove={e => e.stopPropagation()}
+                                                >
+                                                    Skip Ending
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
 
                                 {showStats && !state.miniPlayer && (
                                     <MpvCoreStats

@@ -2,6 +2,7 @@ import { getServerBaseUrl } from "@/api/client/server-url"
 import type { MpvCore_ServerEvent, Player_PlaybackInfo, Player_SkipData } from "@/api/generated/types"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { isTrackLanguageMatch } from "@/lib/helpers/language"
 import { WSEvents } from "@/lib/server/ws-events"
 import { __isElectronDesktop__ } from "@/types/constants"
 import type { MpvPrismTrack, MpvPrismTrackKind } from "@mpv-prism/core"
@@ -304,12 +305,24 @@ export function mc_selectPreferredTrack(
     const blacklist = blacklistValue.split(",").map(value => value.trim().toLowerCase()).filter(Boolean)
     const candidates = tracks.filter(track => mc_trackKind(track) === kind)
 
-    return candidates.find(track => {
-        const language = String(track.lang ?? "").toLowerCase()
-        const title = String(track.title ?? "").toLowerCase()
-        if (blacklist.some(value => title.includes(value))) return false
-        return preferred.some(value => language === value || language.includes(value) || title.includes(value))
-    })
+    for (const pref of preferred) {
+        if (pref === "none") {
+            return kind === "subtitle" ? ({ id: "no" } as any) : undefined
+        }
+
+        const match = candidates.find(track => {
+            const title = String(track.title ?? "").toLowerCase()
+            if (blacklist.some(value => title.includes(value))) return false
+
+            return isTrackLanguageMatch({
+                language: track.lang,
+                label: track.title,
+            }, pref)
+        })
+        if (match) return match
+    }
+
+    return undefined
 }
 
 export function mc_resolveAnime4KProfile(

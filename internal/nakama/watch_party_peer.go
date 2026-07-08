@@ -433,6 +433,8 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 			payload.Session.CurrentMediaInfo.TorrentStreamParams.ClientId = wpm.clientId
 			if wpm.manager.GetUseDenshiPlayer() {
 				payload.Session.CurrentMediaInfo.TorrentStreamParams.PlaybackType = torrentstream.PlaybackTypeNativePlayer
+			} else {
+				payload.Session.CurrentMediaInfo.TorrentStreamParams.PlaybackType = torrentstream.PlaybackTypeExternal
 			}
 			payload.Session.CurrentMediaInfo.TorrentStreamParams.SetMedia(media)
 

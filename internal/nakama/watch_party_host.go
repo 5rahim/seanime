@@ -323,6 +323,10 @@ func (wpm *WatchPartyManager) listenToPlaybackAsHost() {
 				wpm.logger.Debug().Msg("nakama: Stopping playback manager listener")
 				return
 			case event := <-playbackSubscriber.EventCh:
+				switch event.(type) {
+				case playbackmanager.PlaybackStatusChangedEvent, playbackmanager.VideoStartedEvent, playbackmanager.StreamStartedEvent:
+					wpm.manager.genericPlayer.SetType(WatchPartyPlaybackManager)
+				}
 				if !wpm.manager.genericPlayer.isPlaybackManager() {
 					continue
 				}
@@ -386,6 +390,14 @@ func (wpm *WatchPartyManager) listenToPlaybackAsHost() {
 				return
 			case e := <-mediacoreSubscriber.Events():
 				target := e.GetSessionKey().Target
+				switch e.(type) {
+				case *player.PlaybackLoadedEvent, *player.LoadedMetadataEvent, *player.StatusEvent:
+					if target == player.TargetVideoCore {
+						wpm.manager.genericPlayer.SetType(WatchPartyVideoCore)
+					} else if target == player.TargetMpvCore {
+						wpm.manager.genericPlayer.SetType(WatchPartyMpvCore)
+					}
+				}
 				if target == player.TargetVideoCore && !wpm.manager.genericPlayer.isVideoCore() {
 					continue
 				}
@@ -396,6 +408,39 @@ func (wpm *WatchPartyManager) listenToPlaybackAsHost() {
 				switch event := e.(type) {
 				case *player.TerminatedEvent:
 					wpm.hostPlaybackStopped()
+				case *player.LoadedMetadataEvent:
+					state, ok := wpm.manager.mediacoreCoordinator.GetActivePlaybackState()
+					if !ok || state.PlaybackInfo == nil || state.PlaybackInfo.Media == nil || state.PlaybackInfo.Episode == nil {
+						continue
+					}
+
+					streamType := WatchPartyStreamTypeFile
+					localFilePath := state.PlaybackInfo.StreamPath
+					switch state.PlaybackInfo.PlaybackType {
+					case player.PlaybackTypeLocalFile:
+						if state.PlaybackInfo.LocalFile != nil {
+							localFilePath = state.PlaybackInfo.LocalFile.Path
+						}
+					case player.PlaybackTypeTorrent:
+						streamType = WatchPartyStreamTypeTorrent
+					case player.PlaybackTypeDebrid:
+						streamType = WatchPartyStreamTypeDebrid
+					case player.PlaybackTypeOnlinestream:
+						streamType = WatchPartyStreamTypeOnlinestream
+					}
+
+					wpm.hostPlaybackHandleStatus(hostPlaybackHandleStatusOptions{
+						streamType:         streamType,
+						mediaId:            state.PlaybackInfo.Media.GetID(),
+						episodeNumber:      state.PlaybackInfo.Episode.EpisodeNumber,
+						aniDbEpisode:       state.PlaybackInfo.Episode.AniDBEpisode,
+						media:              state.PlaybackInfo.Media,
+						onlinestreamParams: state.PlaybackInfo.OnlinestreamParams,
+						localFilePath:      localFilePath,
+						paused:             event.Paused,
+						currentTime:        event.CurrentTime,
+						duration:           event.Duration,
+					})
 				case *player.StatusEvent:
 					state, ok := wpm.manager.mediacoreCoordinator.GetActivePlaybackState()
 					if !ok || state.PlaybackInfo == nil || state.PlaybackInfo.Media == nil || state.PlaybackInfo.Episode == nil {

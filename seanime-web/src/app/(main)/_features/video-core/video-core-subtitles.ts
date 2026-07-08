@@ -4,7 +4,7 @@ import { VideoCorePgsRenderer } from "@/app/(main)/_features/video-core/video-co
 import { vc_getSubtitleStyle } from "@/app/(main)/_features/video-core/video-core-settings-menu"
 import { VideoCore_VideoPlaybackInfo, VideoCore_VideoSubtitleTrack, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
-import { detectTrackLanguage } from "@/lib/helpers/language"
+import { detectTrackLanguage, isTrackLanguageMatch } from "@/lib/helpers/language"
 import { getAssetUrl } from "@/lib/server/assets"
 import JASSUB from "jassub"
 import type { ASSEvent } from "jassub/dist/worker/util"
@@ -1188,22 +1188,18 @@ export function getDefaultSubtitleTrackNumber(
 
     // Try each preferred language in order
     for (const preferredLang of preferredLanguages) {
-        let foundTracks = tracks?.filter?.(t => t.language?.toLowerCase() === preferredLang?.toLowerCase())
+        if (preferredLang.toLowerCase() === "none") {
+            return NO_TRACK_NUMBER
+        }
+
+        const foundTracks = tracks?.filter?.(t => {
+            return isTrackLanguageMatch(t, preferredLang)
+        })
+
         if (foundTracks?.length) {
             // Find default or forced track
             const defaultIndex = foundTracks.findIndex(t => t.forced)
             return foundTracks[defaultIndex >= 0 ? defaultIndex : 0].number
-        }
-        // if the preferred lang is more than 4 characters, compare it to label
-        // this will find a language with label 'English - 1080p' if the preferred lang is 'english'
-        if (preferredLang.length > 4) {
-            foundTracks = tracks?.filter?.(t => t.label?.toLowerCase().includes(preferredLang.toLowerCase()))
-            if (foundTracks?.length) {
-                return foundTracks[0].number
-            }
-        }
-        if (preferredLang === "none") {
-            return NO_TRACK_NUMBER
         }
     }
 

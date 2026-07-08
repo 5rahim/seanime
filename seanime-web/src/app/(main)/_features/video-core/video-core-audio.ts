@@ -1,6 +1,7 @@
 import { HlsAudioTrack } from "@/app/(main)/_features/video-core/video-core-hls"
 import { VideoCore_VideoPlaybackInfo, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
+import { isTrackLanguageMatch } from "@/lib/helpers/language"
 
 const audioLog = logger("AUDIO")
 
@@ -135,7 +136,12 @@ export class VideoCoreAudioManager extends EventTarget {
 
         // Try each preferred language in order
         for (const preferredLang of preferredLanguages) {
-            const foundTracks = this.playbackInfo.mkvMetadata?.audioTracks?.filter?.(t => (t.language || "eng") === preferredLang)
+            const foundTracks = this.playbackInfo.mkvMetadata?.audioTracks?.filter?.(t => (
+                isTrackLanguageMatch({
+                    language: t.language,
+                    label: t.name,
+                }, preferredLang)
+            ))
             if (foundTracks?.length) {
                 // Find default track
                 const defaultIndex = foundTracks.findIndex(t => t.default)
@@ -214,7 +220,12 @@ export class VideoCoreAudioManager extends EventTarget {
 
         // Try each preferred language in order
         for (const preferredLang of preferredLanguages) {
-            const foundTrack = this.hlsAudioTracks.find(t => (t.language || "eng") === preferredLang)
+            const foundTrack = this.hlsAudioTracks.find(t => (
+                isTrackLanguageMatch({
+                    language: t.language,
+                    label: t.name,
+                }, preferredLang)
+            ))
             if (foundTrack) {
                 audioLog.info("Selecting preferred HLS audio track", foundTrack)
                 this.hlsSetAudioTrack(foundTrack.id)
