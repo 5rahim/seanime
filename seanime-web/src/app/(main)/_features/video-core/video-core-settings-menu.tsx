@@ -542,7 +542,7 @@ export function VideoCoreSettingsMenu() {
                                 +
                             </Button>
                         </div>
-                        <div className="flex gap-1.5 items-center mt-3 mb-1">
+                        <div className="flex gap-1.5 items-center mt-3">
                             <Button 
                                 className="px-1 !text-xs flex-1" 
                                 intent="gray-subtle" 
