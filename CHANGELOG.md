@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.9.1
+
+- 🦺 VideoCore/MpvCore: Fixed preferred track selection
+- 🦺 VideoCore/MpvCore: Enforce absolute path for screenshot dir
+- 🦺 VideoCore: Fixed subtitles not appearing until after cycling
+- 🦺 Nakama: Fixed online streaming watch parties (regression)
+- 🦺 MpvCore: Fixed watch parties not working
+- 🦺 Library: Update library size stats after a scan
+- 🦺 Nakama: Send media to peers and host relay, fixes custom sources
+  - Progress tracking is still not supported
+- 🦺 Nakama: Fixed interference with connected peers not in watch party
+- 🦺 Plugins: Fixed missing fields in Discord RPC API event payload
+- 🦺 Plugins: Fixed tray icon badge state handling after remounts
+- 🦺 Torrent Download: Fixed filename detection when downloading file
+- 🦺 Manga: Workaround for AVIF file type when downloading
+- 🦺 MpvCore: Fixed logging on Windows
+- 🦺 MpvCore: Updated mpv-prism to 0.1.1
+  - Linux: Removed bundled graphics libraries
+  - Linux: Fixed EGL not working for certain configs
+  - Linux: Fixed flickering issues when using shaders
+  - Linux: Potential fix for GPU mismatches
+  - Windows: Fixed UNC path handling
+  - Windows: Potential fix for GPU mismatches
+- 🦺 UI: Fixed minor UI bugs
+
 ## v3.9.0
 
 - 🎉 Denshi: New libmpv-based Built-in Player (Experimental)
