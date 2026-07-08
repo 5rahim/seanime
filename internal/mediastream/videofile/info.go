@@ -141,7 +141,9 @@ func (e *MediaInfoExtractor) GetInfo(ffprobePath, path string) (mi *MediaInfo, e
 
 	e.logger.Debug().Str("path", path).Str("hash", hash).Msg("mediastream: Getting media information [MediaInfoExtractor]")
 
-	bucketName := fmt.Sprintf("mediastream_mediainfo_%s", hash)
+	// v2: invalidates entries cached before the RFC 6381 codec string fixes
+	// (hevc/av1 level formatting, opus/ac3/eac3 strings, vp8/vp9/mp3/vorbis mappings)
+	bucketName := fmt.Sprintf("mediastream_mediainfo_v2_%s", hash)
 	bucket := filecache.NewBucket(bucketName, 24*7*52*time.Hour)
 	e.logger.Trace().Str("bucketName", bucketName).Msg("mediastream: Using cache bucket [MediaInfoExtractor]")
 
@@ -320,6 +322,22 @@ func FfprobeGetInfo(ffprobePath, path, hash string) (*MediaInfo, error) {
 		codecs = append(codecs, *mi.Audios[0].MimeCodec)
 	}
 	container := mime.TypeByExtension(fmt.Sprintf(".%s", mi.Extension))
+	if container == "" {
+		// mime.TypeByExtension depends on the OS mime database (/etc/mime.types on Linux),
+		// which is missing from minimal docker images. Fall back to known video containers.
+		switch strings.ToLower(mi.Extension) {
+		case "mkv":
+			container = "video/x-matroska"
+		case "mp4", "m4v":
+			container = "video/mp4"
+		case "webm":
+			container = "video/webm"
+		case "mov":
+			container = "video/quicktime"
+		case "avi":
+			container = "video/x-msvideo"
+		}
+	}
 	if container != "" {
 		if len(codecs) > 0 {
 			codecsStr := strings.Join(codecs, ", ")
@@ -384,18 +402,25 @@ func streamToMimeCodec(stream *ffprobe.Stream) *string {
 		return &ret
 
 	case "h265", "hevc":
-		// The h265 syntax is a bit of a mystery at the time this comment was written.
-		// This is what I've found through various sources:
-		// FORMAT: [codecTag].[profile].[constraint?].L[level * 30].[UNKNOWN]
+		// FORMAT: [codecTag].[profile].[compatibility].L[level].[constraints]
+		// e.g. "hvc1.1.6.L120.B0" (Main, level 4.0), "hvc1.2.4.L153.B0" (Main 10, level 5.1)
+		// The level is the ffprobe-reported level in decimal (level * 30).
 		ret := "hvc1"
 
-		if stream.Profile == "main 10" {
+		if strings.Contains(strings.ToLower(stream.Profile), "10") {
+			// Main 10
 			ret += ".2.4"
 		} else {
-			ret += ".1.4"
+			// Main
+			ret += ".1.6"
 		}
 
-		ret += fmt.Sprintf(".L%02X.BO", stream.Level)
+		level := stream.Level
+		if level <= 0 {
+			level = 120 // assume level 4.0 when ffprobe doesn't report one
+		}
+
+		ret += fmt.Sprintf(".L%d.B0", level)
 		return &ret
 
 	case "av1":
@@ -420,9 +445,45 @@ func streamToMimeCodec(stream *ffprobe.Stream) *string {
 			bitdepth = 8
 		}
 
-		tierflag := 'M'
-		ret += fmt.Sprintf(".%02X%c.%02d", stream.Level, tierflag, bitdepth)
+		// The level is a decimal seq_level_idx (e.g. "08" for level 4.0), not hex
+		level := stream.Level
+		if level < 0 {
+			level = 8 // assume level 4.0 when ffprobe doesn't report one
+		}
 
+		tierflag := 'M'
+		ret += fmt.Sprintf(".%02d%c.%02d", level, tierflag, bitdepth)
+
+		return &ret
+
+	case "vp9":
+		// https://www.webmproject.org/vp9/mp4/
+		// FORMAT: vp09.[profile].[level].[bitDepth]
+		profile := "00"
+		switch strings.ToLower(stream.Profile) {
+		case "profile 1":
+			profile = "01"
+		case "profile 2":
+			profile = "02"
+		case "profile 3":
+			profile = "03"
+		}
+
+		level := stream.Level
+		if level <= 0 {
+			level = 10 // ffprobe often reports -99 for vp9, assume level 1.0
+		}
+
+		bitdepth, _ := strconv.ParseUint(stream.BitsPerRawSample, 10, 32)
+		if bitdepth != 10 && bitdepth != 12 {
+			bitdepth = 8
+		}
+
+		ret := fmt.Sprintf("vp09.%s.%02d.%02d", profile, level, bitdepth)
+		return &ret
+
+	case "vp8":
+		ret := "vp8"
 		return &ret
 
 	case "aac":
@@ -440,15 +501,26 @@ func streamToMimeCodec(stream *ffprobe.Stream) *string {
 		return &ret
 
 	case "opus":
-		ret := "Opus"
+		// Lowercase is required for the mp4 container ("audio/mp4; codecs=opus"),
+		// and browsers also accept it for webm/mkv.
+		ret := "opus"
+		return &ret
+
+	case "mp3":
+		ret := "mp4a.40.34"
+		return &ret
+
+	case "vorbis":
+		ret := "vorbis"
 		return &ret
 
 	case "ac3":
-		ret := "mp4a.a5"
+		// "ac-3" is the registered sample entry code (Safari/Edge); Chromium also accepts it
+		ret := "ac-3"
 		return &ret
 
 	case "eac3":
-		ret := "mp4a.a6"
+		ret := "ec-3"
 		return &ret
 
 	case "flac":
