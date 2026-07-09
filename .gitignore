@@ -1,11 +1,15 @@
-.idea
 logs/
 *.db
-.run/
 testdata/
 .DS_Store
-*/.DS_Store
-.todo/
+.git
+
+.*/
+!.github/
+.github/*
+!.github/ISSUE_TEMPLATE
+!.github/scripts
+!.github/pull_request_template.md
 
 Dockerfile
 Dockerfile.dev
@@ -16,8 +20,6 @@ go.work
 .gocache
 .gotmp
 tmp-*
-
-.github/*.md
 
 _docker-compose.yml
 
@@ -35,55 +37,46 @@ test/testdata/**/*.json
 test/sample
 test/providers.json
 test/db.json
-test/providers.json
 test/config.json
 test/config.toml
 whats-new.md
 
-*/mock_data.json
+mock_data.json
 
 TODO-priv.md
 
 ##
-## Parser
-##
-seanime-parser/.git
-
-##
 ## Web App
 ##
-seanime-web/node_modules
-seanime-web/dist
-seanime-web/out
-seanime-web/out-desktop
-seanime-web/out-denshi
-seanime-web/web
-seanime-web/.tanstack
-seanime-web/.next
-seanime-web/.idea
-seanime-web/.pnp
-seanime-web/.pnp.js
-seanime-web/.yarn/install-state.gz
-seanime-web/coverage
-seanime-web/build
-seanime-web/.DS_Store
-seanime-web/*.pem
-seanime-web/npm-debug.log*
-seanime-web/yarn-debug.log*
-seanime-web/yarn-error.log*
-seanime-web/.env*.local
-seanime-web/*.tsbuildinfo
-seanime-web/snapshot
-seanime-web/logs
-seanime-web/analyze
-seanime-web/TODO-priv.md
-seanime-web/CHANGELOG-priv.md
+node_modules
+dist
+out
+out-desktop
+out-denshi
+web
+.tanstack
+.next
+.idea
+.pnp
+.pnp.js
+.yarn/install-state.gz
+coverage
+build
+*.pem
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env*.local
+*.tsbuildinfo
+snapshot
+analyze
+CHANGELOG-priv.md
 
-seanime-webapp/public/test*
+public/test*
 
 codegen/generated/hooks.mdx
 
-seanime-denshi/native-builds
+native-builds
 
 internal/extension_repo/**/test*.*
 internal/extension_repo/goja_plugin_test
@@ -97,21 +90,3 @@ docs/support-skills
 local_testing
 dist-server
 scripts/build.go
-
-# editors, tools
-.junie
-.vscode
-.cursor
-.agents
-.claude
-.zed
-.fleet
-.windstuf
-.aider*
-.supermaven
-.skills
-skills*.json
-.github/agents/
-.github/prompts/
-.github/skills/
-*.agent.md
