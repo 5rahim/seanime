@@ -403,7 +403,10 @@ func (c *Cacher) RemoveAllBy(filter func(filename string) bool) error {
 				continue
 			}
 			if filter(e.Name()) {
-				_ = os.Remove(filepath.Join(c.dir, e.Name()))
+				if err := os.Remove(filepath.Join(c.dir, e.Name())); err != nil {
+					return err
+				}
+				delete(c.stores, strings.TrimSuffix(e.Name(), ".cache"))
 			}
 		}
 	}
