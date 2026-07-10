@@ -132,7 +132,9 @@ export function PlaybackSettings() {
             toast.success("MpvCore logs exported")
         }
         catch (error) {
-            toast.error(error instanceof Error ? error.message : "Failed to export MpvCore logs")
+            let msg = error instanceof Error ? error.message : "Failed to export MpvCore logs"
+            msg = msg.replace(/^Error:\s*/i, "").replace(/Error invoking remote method '.*?':\s*/i, "")
+            toast.error(msg)
         }
         finally {
             setIsExportingMpvLogs(false)

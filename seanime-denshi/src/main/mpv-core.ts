@@ -88,6 +88,19 @@ async function exportMpvCoreLogs(): Promise<string> {
         throw new Error("No MpvCore logs found. Enable logging and start playback first.")
     }
 
+    const hasContent = prismLogs.some(file => {
+        try {
+            return fs.statSync(file.path).size > 0
+        }
+        catch {
+            return false
+        }
+    })
+
+    if (!hasContent) {
+        throw new Error("The log files are empty. Please reproduce the issue before exporting them.")
+    }
+
     const files = [...prismLogs]
     const denshiLogPath = log.transports.file.getFile().path
     if (denshiLogPath && fs.existsSync(denshiLogPath)) {
