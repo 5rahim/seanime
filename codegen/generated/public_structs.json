@@ -37874,6 +37874,37 @@
         "comments": []
       },
       {
+        "name": "subtitleLastSentGen",
+        "jsonName": "subtitleLastSentGen",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "subtitleGeneration",
+        "jsonName": "subtitleGeneration",
+        "goType": "atomic.Int64",
+        "typescriptType": "Int64",
+        "usedTypescriptType": "Int64",
+        "usedStructName": "atomic.Int64",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "subtitleSeekTimeBits",
+        "jsonName": "subtitleSeekTimeBits",
+        "goType": "atomic.Uint64",
+        "typescriptType": "Uint64",
+        "usedTypescriptType": "Uint64",
+        "usedStructName": "atomic.Uint64",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "terminateOnce",
         "jsonName": "terminateOnce",
         "goType": "sync.Once",
@@ -39648,6 +39679,108 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/discordrpc/presence/presence.go",
+    "filename": "presence.go",
+    "name": "CustomActivity",
+    "formattedName": "DiscordRPC_CustomActivity",
+    "package": "discordrpc_presence",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Details",
+        "jsonName": "details",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "State",
+        "jsonName": "state",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LargeImageKey",
+        "jsonName": "largeImageKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LargeImageText",
+        "jsonName": "largeImageText",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SmallImageKey",
+        "jsonName": "smallImageKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SmallImageText",
+        "jsonName": "smallImageText",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Buttons",
+        "jsonName": "buttons",
+        "goType": "[]discordrpc_client.Button",
+        "typescriptType": "Array\u003cDiscordRPC_Button\u003e",
+        "usedTypescriptType": "DiscordRPC_Button",
+        "usedStructName": "discordrpc_client.Button",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartTimestamp",
+        "jsonName": "startTimestamp",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EndTimestamp",
+        "jsonName": "endTimestamp",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -69932,6 +70065,38 @@
   {
     "filepath": "../internal/mkvparser/metadata.go",
     "filename": "metadata.go",
+    "name": "CueInfo",
+    "formattedName": "MKVParser_CueInfo",
+    "package": "mkvparser",
+    "fields": [
+      {
+        "name": "Time",
+        "jsonName": "Time",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Time in nanoseconds"
+        ]
+      },
+      {
+        "name": "Position",
+        "jsonName": "Position",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Absolute byte position of the cluster"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mkvparser/metadata.go",
+    "filename": "metadata.go",
     "name": "Metadata",
     "formattedName": "MKVParser_Metadata",
     "package": "mkvparser",
@@ -70047,6 +70212,17 @@
         "typescriptType": "Array\u003cMKVParser_AttachmentInfo\u003e",
         "usedTypescriptType": "MKVParser_AttachmentInfo",
         "usedStructName": "mkvparser.AttachmentInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Cues",
+        "jsonName": "",
+        "goType": "[]CueInfo",
+        "typescriptType": "Array\u003cMKVParser_CueInfo\u003e",
+        "usedTypescriptType": "MKVParser_CueInfo",
+        "usedStructName": "mkvparser.CueInfo",
         "required": false,
         "public": true,
         "comments": []
@@ -75458,6 +75634,45 @@
         "\"error\""
       ]
     },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nativeplayer/events.go",
+    "filename": "events.go",
+    "name": "SubtitleEventsPayload",
+    "formattedName": "NativePlayer_SubtitleEventsPayload",
+    "package": "nativeplayer",
+    "fields": [
+      {
+        "name": "Events",
+        "jsonName": "events",
+        "goType": "[]mkvparser.SubtitleEvent",
+        "typescriptType": "Array\u003cMKVParser_SubtitleEvent\u003e",
+        "usedTypescriptType": "MKVParser_SubtitleEvent",
+        "usedStructName": "mkvparser.SubtitleEvent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "GenerationID",
+        "jsonName": "generationId",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SeekTime",
+        "jsonName": "seekTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {

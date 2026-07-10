@@ -3621,6 +3621,22 @@ export type MKVParser_ContentEncodings = {
  * - Filepath: internal/mkvparser/metadata.go
  * - Filename: metadata.go
  * - Package: mkvparser
+ */
+export type MKVParser_CueInfo = {
+    /**
+     * Time in nanoseconds
+     */
+    Time: number
+    /**
+     * Absolute byte position of the cluster
+     */
+    Position: number
+}
+
+/**
+ * - Filepath: internal/mkvparser/metadata.go
+ * - Filename: metadata.go
+ * - Package: mkvparser
  * @description
  *  Metadata holds all extracted metadata.
  */

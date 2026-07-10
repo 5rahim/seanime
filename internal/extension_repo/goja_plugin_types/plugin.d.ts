@@ -1936,6 +1936,12 @@ declare namespace $ui {
         setLegacyAnimeActivity(activity: $app.DiscordRPC_LegacyAnimeActivity): void
 
         /**
+         * Set a custom rich presence activity.
+         * @param activity - The custom activity to set
+         */
+        setCustomActivity(activity: $app.DiscordRPC_CustomActivity): void
+
+        /**
          * Cancels the current activity by closing the discord RPC client
          */
         cancelActivity(): void

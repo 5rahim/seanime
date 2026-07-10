@@ -1,10 +1,13 @@
 package discordrpc_presence
 
 import (
-	"testing"
-
 	"seanime/internal/api/anilist"
+	"seanime/internal/database/models"
+	discordrpc_client "seanime/internal/discordrpc/client"
+	"testing"
+	"time"
 
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/require"
 )
 
@@ -44,3 +47,61 @@ func TestNewAnimeActivityOmitsEmptyEpisodeTitle(t *testing.T) {
 
 	require.Nil(t, activity.EpisodeTitle)
 }
+
+func TestSetCustomActivity(t *testing.T) {
+	settings := &models.DiscordSettings{
+		EnableRichPresence: true,
+	}
+	p := &Presence{
+		settings:   settings,
+		logger:     new(zerolog.Nop()),
+		eventQueue: make(chan func(), 100),
+		hasSent:    true,
+		client:     &discordrpc_client.Client{},
+	}
+	p.animeActivity = &AnimeActivity{ID: 123}
+
+	customAct := &CustomActivity{
+		Type:           new(2),
+		Details:        "Testing Custom Activity",
+		State:          "Playing around",
+		LargeImageKey:  "large-img",
+		LargeImageText: "Large Image",
+		StartTimestamp: new(int64),
+	}
+	*customAct.StartTimestamp = 0
+
+	p.SetCustomActivity(customAct)
+
+	require.Nil(t, p.animeActivity)
+	require.Len(t, p.eventQueue, 1)
+
+	time.Sleep(5 * time.Second)
+}
+
+//func TestSetCustomActivityReal(t *testing.T) {
+//	settings := &models.DiscordSettings{
+//		EnableRichPresence: true,
+//	}
+//	p := New(settings, new(zerolog.New(zerolog.NewConsoleWriter())))
+//	if p.client == nil {
+//		t.Skip("Discord client not running or failed to connect")
+//	}
+//
+//	p.animeActivity = &AnimeActivity{ID: 123}
+//
+//	customType := 3 // Watching
+//	customAct := &CustomActivity{
+//		Type:           &customType,
+//		Details:        "Testing Custom Activity",
+//		State:          "Watching stuff",
+//		LargeImageKey:  "https://seanime.app/images/circular-logo.png",
+//		LargeImageText: "Seanime Logo",
+//	}
+//
+//	p.SetCustomActivity(customAct)
+//
+//	time.Sleep(15 * time.Second)
+//
+//	require.Nil(t, p.animeActivity)
+//}

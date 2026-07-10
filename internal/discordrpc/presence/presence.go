@@ -404,7 +404,7 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	}
 
 	// Update the activity
-	activity.Name = event.Name
+	//activity.Name = event.Name
 	activity.Details = event.Details
 	activity.DetailsURL = event.DetailsURL
 	activity.State = event.State
@@ -648,7 +648,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	}
 
 	// Update the activity
-	activity.Name = event.Name
+	//activity.Name = event.Name
 	activity.Details = event.Details
 	activity.DetailsURL = event.DetailsURL
 	activity.State = event.State
@@ -684,6 +684,113 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	}
 
 	p.logger.Debug().Msgf("discordrpc: Setting manga activity: %s", a.Title)
+
+	p.eventQueue <- func() {
+		_ = p.client.SetActivity(activity)
+	}
+}
+
+type CustomActivity struct {
+	Type           *int                        `json:"type,omitempty"`
+	Details        string                      `json:"details"`
+	State          string                      `json:"state,omitempty"`
+	LargeImageKey  string                      `json:"largeImageKey,omitempty"`
+	LargeImageText string                      `json:"largeImageText,omitempty"`
+	SmallImageKey  string                      `json:"smallImageKey,omitempty"`
+	SmallImageText string                      `json:"smallImageText,omitempty"`
+	Buttons        []*discordrpc_client.Button `json:"buttons,omitempty"`
+	StartTimestamp *int64                      `json:"startTimestamp,omitempty"`
+	EndTimestamp   *int64                      `json:"endTimestamp,omitempty"`
+}
+
+// SetCustomActivity sets a custom rich presence activity.
+func (p *Presence) SetCustomActivity(a *CustomActivity) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	defer util.HandlePanicInModuleThen("discordrpc/presence/SetCustomActivity", func() {})
+
+	if !p.check() {
+		return
+	}
+
+	// Disable any active anime tracking updates
+	p.animeActivity = nil
+
+	activity := defaultActivity
+	activity.Details = a.Details
+	activity.State = a.State
+
+	if a.Type != nil {
+		activity.Type = *a.Type
+	} else {
+		activity.Type = 3 // default to Watching
+	}
+
+	if activity.Assets == nil {
+		activity.Assets = &discordrpc_client.Assets{}
+	}
+	activity.Assets.LargeImage = a.LargeImageKey
+	activity.Assets.LargeText = a.LargeImageText
+	activity.Assets.SmallImage = a.SmallImageKey
+	activity.Assets.SmallText = a.SmallImageText
+
+	if len(a.Buttons) > 0 {
+		activity.Buttons = a.Buttons
+	} else {
+		activity.Buttons = make([]*discordrpc_client.Button, 0)
+		if p.settings.RichPresenceShowAniListProfileButton && p.username != "" {
+			activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+				Label: "View Profile",
+				Url:   fmt.Sprintf("https://anilist.co/user/%s", p.username),
+			})
+		}
+		if !(p.settings.RichPresenceHideSeanimeRepositoryButton || len(activity.Buttons) > 1) {
+			activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+				Label: "Seanime",
+				Url:   "https://seanime.app",
+			})
+		}
+	}
+
+	// Handle Timestamps
+	if a.StartTimestamp != nil {
+		if *a.StartTimestamp == 0 {
+			activity.Timestamps = nil
+		} else {
+			if activity.Timestamps == nil {
+				activity.Timestamps = &discordrpc_client.Timestamps{}
+			}
+			activity.Timestamps.Start = &discordrpc_client.Epoch{
+				Time: time.Unix(*a.StartTimestamp, 0),
+			}
+		}
+	} else {
+		// Default to time.Now()
+		if activity.Timestamps == nil {
+			activity.Timestamps = &discordrpc_client.Timestamps{}
+		}
+		activity.Timestamps.Start = &discordrpc_client.Epoch{
+			Time: time.Now(),
+		}
+	}
+
+	if a.EndTimestamp != nil {
+		if *a.EndTimestamp == 0 {
+			if activity.Timestamps != nil {
+				activity.Timestamps.End = nil
+			}
+		} else {
+			if activity.Timestamps == nil {
+				activity.Timestamps = &discordrpc_client.Timestamps{}
+			}
+			activity.Timestamps.End = &discordrpc_client.Epoch{
+				Time: time.Unix(*a.EndTimestamp, 0),
+			}
+		}
+	}
+
+	p.logger.Debug().Msgf("discordrpc: Setting custom activity: %s", a.Details)
 
 	p.eventQueue <- func() {
 		_ = p.client.SetActivity(activity)

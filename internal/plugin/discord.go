@@ -45,6 +45,14 @@ func (a *AppContextImpl) BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Obj
 		presence.LegacySetAnimeActivity(&opts)
 		return goja.Undefined()
 	})
+	_ = discordObj.Set("setCustomActivity", func(opts discordrpc_presence.CustomActivity) goja.Value {
+		presence, ok := a.discordPresence.Get()
+		if !ok {
+			goja_bindings.PanicThrowErrorString(vm, "discord rpc client not set")
+		}
+		presence.SetCustomActivity(&opts)
+		return goja.Undefined()
+	})
 	_ = discordObj.Set("cancelActivity", func() goja.Value {
 		presence, ok := a.discordPresence.Get()
 		if !ok {

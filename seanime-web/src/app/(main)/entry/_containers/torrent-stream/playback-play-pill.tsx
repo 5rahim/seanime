@@ -292,7 +292,9 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
                 if (data.status === "ready") {
                     setDebridState(null)
                     setAutoSelectState(null)
-                    toast.info("Sending stream to player...", { duration: 1 })
+                    if (data.message !== "") {
+                        toast.info("Sending stream to player...", { duration: 1 })
+                    }
                     setShowMediaPlayerLoading(true)
                     return
                 }
@@ -317,6 +319,12 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
             }
         },
     })
+
+    useEffect(() => {
+        if (mpvCoreState.active || nativePlayerState.active) {
+            setDebridState(null)
+        }
+    }, [mpvCoreState.active, nativePlayerState.active])
 
     // Inline native player control-bar formatting
     if (isNativePlayerComponent) {
