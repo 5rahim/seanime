@@ -164,6 +164,23 @@ func (hrs *HttpReadSeeker) Seek(offset int64, whence int) (int64, error) {
 		return hrs.offset, fmt.Errorf("httprs: negative position")
 	}
 
+	// If we're seeking forward and have an active response, see if we can read/discard
+	// to avoid closing the connection.
+	if hrs.resp != nil && newOffset >= hrs.offset {
+		diff := newOffset - hrs.offset
+		const maxSkipBytes = 1024 * 1024 // 1MB
+		if diff <= maxSkipBytes {
+			// Read and discard diff bytes
+			discarded, err := io.CopyN(io.Discard, hrs.resp.Body, diff)
+			if err == nil && discarded == diff {
+				hrs.offset = newOffset
+				hrs.readBuf = nil
+				hrs.readOffset = 0
+				return hrs.offset, nil
+			}
+		}
+	}
+
 	// If we're just moving the offset without reading, we can skip the request
 	// We'll make a new request when Read is called
 	if hrs.resp != nil {

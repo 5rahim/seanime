@@ -83,7 +83,7 @@ func TestMetadataParser_ExtractSubtitles(t *testing.T) {
 	defer newFile.Close()
 
 	// Extract subtitles from the beginning
-	subtitleCh, errCh, startedCh := parser.ExtractSubtitles(ctx, newFile, 123000000, 1024*1024)
+	subtitleCh, errCh, startedCh := parser.ExtractSubtitles(ctx, newFile, 123000000, 1024*1024, 0)
 
 	<-startedCh
 

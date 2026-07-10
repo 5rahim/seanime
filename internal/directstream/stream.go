@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -38,6 +39,8 @@ type Stream interface {
 	ListEntryData() *anime.EntryListData
 	// EpisodeCollection returns the episode collection for the media of the current stream.
 	EpisodeCollection() *anime.EpisodeCollection
+	// GetBaseStream returns the BaseStream instance.
+	GetBaseStream() *BaseStream
 	// LoadPlaybackInfo loads and returns the playback info.
 	LoadPlaybackInfo() (*player.PlaybackInfo, error)
 	// GetAttachmentByName returns the attachment by name for the stream.
@@ -604,6 +607,9 @@ type BaseStream struct {
 	subtitleEventCache     *result.Map[string, *mkvparser.SubtitleEvent]
 	subtitleSendMu         sync.Mutex
 	subtitleLastSent       time.Time
+	subtitleLastSentGen    int64
+	subtitleGeneration     atomic.Int64
+	subtitleSeekTimeBits   atomic.Uint64
 	terminateOnce          sync.Once
 	serveContentCancelFunc context.CancelFunc
 	filename               string // Name of the file being streamed, if applicable
@@ -700,6 +706,10 @@ func (s *BaseStream) StreamError(err error) {
 
 	s.manager.streamError(s.clientId, err, target)
 	s.manager.unloadStream(s)
+}
+
+func (s *BaseStream) GetBaseStream() *BaseStream {
+	return s
 }
 
 func (s *BaseStream) GetSubtitleEventCache() *result.Map[string, *mkvparser.SubtitleEvent] {

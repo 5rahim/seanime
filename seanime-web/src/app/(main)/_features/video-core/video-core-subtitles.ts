@@ -240,6 +240,11 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         this.dispatchEvent(event)
     }
 
+    clearSubtitles() {
+        subtitleLog.info("Clearing currently rendered subtitles")
+        this.pgsRenderer?.clear()
+    }
+
     addEventListener<K extends keyof VideoCoreSubtitleManagerEventMap>(
         type: K,
         listener: (this: VideoCoreSubtitleManager, ev: VideoCoreSubtitleManagerEventMap[K]) => any,

@@ -185,6 +185,7 @@ func (s *blockingStream) GetSubtitleEventCache() *result.Map[string, *mkvparser.
 	return result.NewMap[string, *mkvparser.SubtitleEvent]()
 }
 func (s *blockingStream) OnSubtitleFileUploaded(string, string) {}
+func (s *blockingStream) GetBaseStream() *BaseStream            { return nil }
 
 type prevTerminateStream struct {
 	manager       *Manager
@@ -220,6 +221,7 @@ func (s *prevTerminateStream) GetSubtitleEventCache() *result.Map[string, *mkvpa
 	return result.NewMap[string, *mkvparser.SubtitleEvent]()
 }
 func (s *prevTerminateStream) OnSubtitleFileUploaded(string, string) {}
+func (s *prevTerminateStream) GetBaseStream() *BaseStream            { return nil }
 
 type eventStream struct {
 	clientID      string
@@ -252,6 +254,7 @@ func (s *eventStream) GetSubtitleEventCache() *result.Map[string, *mkvparser.Sub
 	return result.NewMap[string, *mkvparser.SubtitleEvent]()
 }
 func (s *eventStream) OnSubtitleFileUploaded(string, string) {}
+func (s *eventStream) GetBaseStream() *BaseStream            { return nil }
 
 func newDirectstreamMpvTestManager(t *testing.T) (*Manager, *events.MockWSEventManager, *mediacore.Coordinator) {
 	t.Helper()

@@ -49,6 +49,7 @@ export function NativePlayer() {
     const subtitleIdleHandleRef = React.useRef<number | null>(null)
     const subtitleManagerRef = React.useRef(subtitleManager)
     subtitleManagerRef.current = subtitleManager
+    const lastSubtitleGenRef = React.useRef<number>(-1)
 
     const resetSubtitleBuffer = React.useCallback(() => {
         subtitleBufferRef.current = []
@@ -70,10 +71,17 @@ export function NativePlayer() {
 
         const events = subtitleBufferRef.current
         if (events.length === 0) return
+
+        const manager = subtitleManagerRef.current
+        if (!manager) {
+            // Keep events until VideoCore creates the subtitle manager.
+            return
+        }
+
         subtitleBufferRef.current = []
 
         // process outside the websocket message handler
-        subtitleManagerRef.current?.onSubtitleEvents(events)?.then()
+        manager.onSubtitleEvents(events).then()
     }, [])
 
     const scheduleSubtitleFlush = React.useCallback(() => {
@@ -95,6 +103,12 @@ export function NativePlayer() {
             flushSubtitleBuffer()
         }, SUBTITLE_FLUSH_INTERVAL_MS)
     }, [flushSubtitleBuffer])
+
+    React.useEffect(() => {
+        if (subtitleManager && subtitleBufferRef.current.length > 0) {
+            scheduleSubtitleFlush()
+        }
+    }, [subtitleManager, scheduleSubtitleFlush])
 
     // cleanup subtitle buffer timers on unmount
     React.useEffect(() => {
@@ -174,13 +188,40 @@ export function NativePlayer() {
                 // 3. Subtitle event (MKV)
                 // We receive the subtitle events after the server received the loaded-metadata event.
                 // Buffer the events and process them off the main thread
-                case "subtitle-event":
-                    if (Array.isArray(payload)) {
-                        subtitleBufferRef.current.push(...(payload as MKVParser_SubtitleEvent[]))
-                    } else {
-                        subtitleBufferRef.current.push(payload as MKVParser_SubtitleEvent)
+                case "subtitle-event": {
+                    let events: MKVParser_SubtitleEvent[] = []
+                    let generationId: number | undefined
+                    let seekTime: number | undefined
+
+                    if (payload && typeof payload === "object" && !Array.isArray(payload) && "events" in payload) {
+                        events = (payload as any).events as MKVParser_SubtitleEvent[]
+                        generationId = (payload as any).generationId as number
+                        seekTime = (payload as any).seekTime as number
+                    } else if (Array.isArray(payload)) {
+                        events = payload as MKVParser_SubtitleEvent[]
+                    } else if (payload) {
+                        events = [payload as MKVParser_SubtitleEvent]
                     }
-                    scheduleSubtitleFlush()
+
+                    if (generationId !== undefined && subtitleManagerRef.current) {
+                        if (lastSubtitleGenRef.current !== generationId) {
+                            lastSubtitleGenRef.current = generationId
+
+                            // clear old subtitle state and buffer
+                            subtitleManagerRef.current.clearSubtitles()
+                            resetSubtitleBuffer()
+
+                            // call onSubtitleEvents immediately for the first batch
+                            subtitleManagerRef.current.onSubtitleEvents(events).then(() => {})
+                            break
+                        }
+                    }
+
+                    if (events.length > 0) {
+                        subtitleBufferRef.current.push(...events)
+                        scheduleSubtitleFlush()
+                    }
+                }
                     break
                 case "error":
                     log.error("Error event received", payload)

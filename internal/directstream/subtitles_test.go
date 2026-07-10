@@ -2,12 +2,11 @@ package directstream
 
 import (
 	"context"
-	"testing"
-
 	"seanime/internal/mkvparser"
 	"seanime/internal/player"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"testing"
 
 	"github.com/samber/mo"
 	"github.com/stretchr/testify/require"
@@ -15,28 +14,28 @@ import (
 
 func TestSubtitleOffsetForTimeUsesPlaybackProgress(t *testing.T) {
 	// keeps seek-based subtitle refresh near the current playback position
-	playbackInfo := &player.PlaybackInfo{ContentLength: defaultSubtitleBackoffBytes * 4}
+	playbackInfo := &player.PlaybackInfo{ContentLength: subtitleBackoffBytes * 4}
 
-	require.Equal(t, defaultSubtitleBackoffBytes, subtitleOffsetForTime(playbackInfo, 25, 100))
+	require.Equal(t, subtitleBackoffBytes, subtitleOffsetForTime(playbackInfo, 25, 100))
 }
 
 func TestSubtitleOffsetForTimeFallsBackToMetadataDuration(t *testing.T) {
 	// falls back to mkv metadata when the player duration is not available yet
 	playbackInfo := &player.PlaybackInfo{
-		ContentLength: defaultSubtitleBackoffBytes * 4,
+		ContentLength: subtitleBackoffBytes * 4,
 		MkvMetadata: &mkvparser.Metadata{
 			Duration: 200,
 		},
 	}
 
-	require.Equal(t, defaultSubtitleBackoffBytes, subtitleOffsetForTime(playbackInfo, 50, 0))
+	require.Equal(t, subtitleBackoffBytes, subtitleOffsetForTime(playbackInfo, 50, 0))
 }
 
 func TestSubtitleOffsetForTimeClampsNearEnd(t *testing.T) {
 	// leaves enough room for the subtitle parser backoff near eof
-	playbackInfo := &player.PlaybackInfo{ContentLength: defaultSubtitleBackoffBytes * 2}
+	playbackInfo := &player.PlaybackInfo{ContentLength: subtitleBackoffBytes * 2}
 
-	require.Equal(t, defaultSubtitleBackoffBytes, subtitleOffsetForTime(playbackInfo, 199, 200))
+	require.Equal(t, subtitleBackoffBytes, subtitleOffsetForTime(playbackInfo, 199, 200))
 }
 
 func TestStartSubtitleStreamPSkipsNearbyActiveStream(t *testing.T) {
@@ -51,7 +50,7 @@ func TestStartSubtitleStreamPSkipsNearbyActiveStream(t *testing.T) {
 	}
 	stream.activeSubtitleStreams.Set("existing", &SubtitleStream{offset: 8 * 1024 * 1024})
 
-	stream.StartSubtitleStreamP(stream, context.Background(), reader, 8*1024*1024+256*1024, defaultSubtitleBackoffBytes)
+	stream.StartSubtitleStreamP(stream, context.Background(), reader, 8*1024*1024+256*1024, subtitleBackoffBytes)
 
 	require.True(t, reader.closed)
 

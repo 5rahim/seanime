@@ -515,7 +515,7 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
 
                             {currentStepDetail && !isTorrentLoaded && (
                                 <div className="flex items-center gap-2 bg-gray-950/40 border border-[--border] px-3 py-2.5 rounded-xl text-xs">
-                                    <Spinner className="size-3.5 text-[--purple] flex-shrink-0" />
+                                    <Spinner className="size-3.5 text-[--brand] flex-shrink-0" />
                                     <span className="text-[--foreground]/90 font-medium truncate flex-1">
                                         {currentStepDetail}
                                     </span>

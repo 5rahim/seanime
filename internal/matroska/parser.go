@@ -258,6 +258,20 @@ func NewMatroskaParser(r io.ReadSeeker, noSeeking bool, elementsToParse ...uint3
 	//	}
 	//}
 
+	if headerErr == nil && segmentErr == nil {
+		if parser.shouldParseElement(IDCues) && parser.cuesPos > 0 && len(parser.cues) == 0 {
+			currentPos := parser.reader.Position()
+			if _, err := parser.reader.Seek(int64(parser.segmentPos+parser.cuesPos), io.SeekStart); err == nil {
+				id, size, errHeader := parser.reader.ReadElementHeader()
+				if errHeader == nil && id == IDCues {
+					parser.cuesTopPos = uint64(parser.reader.Position()) + size
+					_ = parser.parseCues(size)
+				}
+			}
+			_, _ = parser.reader.Seek(currentPos, io.SeekStart)
+		}
+	}
+
 	return parser, nil
 }
 
@@ -383,6 +397,10 @@ func (mp *MatroskaParser) parseSegmentChildren() error {
 		currentPos := mp.reader.Position()
 
 		switch id {
+		case IDSeekHead:
+			if err = mp.parseSeekHead(size); err != nil {
+				return fmt.Errorf("failed to parse seek head: %w", err)
+			}
 		case IDSegmentInfo:
 			if mp.shouldParseElement(IDSegmentInfo) {
 				if err = mp.parseSegmentInfo(size); err != nil {
@@ -502,6 +520,57 @@ func (mp *MatroskaParser) parseSegmentChildren() error {
 //
 // Returns:
 //   - error: An error if the SegmentInfo element could not be read or parsed.
+func (mp *MatroskaParser) parseSeekHead(size uint64) error {
+	if size > 1024*1024 { // 1MB limit for safety
+		return fmt.Errorf("seek head size %d is too large", size)
+	}
+	data := make([]byte, size)
+	n, err := io.ReadFull(mp.reader.r, data)
+	if err != nil {
+		return err
+	}
+	mp.reader.pos += int64(n)
+
+	reader := bytes.NewReader(data)
+	childReader := &EBMLReader{r: &seekableReader{reader}, pos: 0}
+
+	for childReader.pos < int64(size) {
+		element, errReadElement := childReader.ReadElement()
+		if errReadElement != nil {
+			if errors.Is(errReadElement, io.EOF) {
+				break
+			}
+			return errReadElement
+		}
+
+		if element.ID == IDSeek { // 0x4DBB
+			seekReader := &EBMLReader{r: &seekableReader{bytes.NewReader(element.Data)}, pos: 0}
+			var seekID uint32
+			var seekPos uint64
+			for seekReader.pos < int64(len(element.Data)) {
+				subElement, errSub := seekReader.ReadElement()
+				if errSub != nil {
+					break
+				}
+				if subElement.ID == IDSeekID { // 0x53AB
+					var idVal uint32
+					for _, b := range subElement.Data {
+						idVal = (idVal << 8) | uint32(b)
+					}
+					seekID = idVal
+				} else if subElement.ID == IDSeekPos { // 0x53AC
+					seekPos = subElement.ReadUInt()
+				}
+			}
+
+			if seekID == IDCues {
+				mp.cuesPos = seekPos
+			}
+		}
+	}
+	return nil
+}
+
 func (mp *MatroskaParser) parseSegmentInfo(size uint64) error {
 	if size > 256*1024*1024 {
 		return fmt.Errorf("segment info size %d is too large", size)
