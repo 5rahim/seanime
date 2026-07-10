@@ -40,6 +40,8 @@ export function useRequestMediastreamMediaContainer(variables: Partial<RequestMe
         queryKey: [API_ENDPOINTS.MEDIASTREAM.RequestMediastreamMediaContainer.key, variables?.path, variables?.streamType],
         data: variables as RequestMediastreamMediaContainer_Variables,
         enabled: !!variables.path && !!variables.streamType && enabled,
+        // devnote: don't cache media containers
+        gcTime: 0,
     })
 }
 

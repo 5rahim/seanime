@@ -163,15 +163,20 @@ func (a *App) runMigrations() {
 
 		//-----------------------------------------------------------------------------------------
 
-		//c6, _ := semver.NewConstraint("< 3.4.0")
-		//if c5.Check(previousVersion) {
-		//	a.Logger.Debug().Msg("app: Executing version migration task (deleting custom source collections)")
-		//	err := a.Database.Gorm().Where("1 = 1").Delete(&models.CustomSourceCollection{}).Error
-		//	if err != nil {
-		//		a.Logger.Error().Err(err).Msg("app: MIGRATION FAILED")
-		//	}
-		//	done = true
-		//}
+		// 3.9.2 changes the cached RFC 6381 codec strings.
+		currVersion, err := semver.NewVersion(constants.Version)
+		var v3_9_2 = semver.MustParse("3.9.2-0")
+		if err == nil && hasUpdated && previousVersion.LessThan(v3_9_2) && !currVersion.LessThan(v3_9_2) {
+			a.Logger.Debug().Msg("app: Executing version migration task (clearing mediainfo cache)")
+			err := a.FileCacher.RemoveAllBy(func(filename string) bool {
+				return strings.HasPrefix(filename, "mediastream_mediainfo_")
+			})
+			if err != nil {
+				a.Logger.Error().Err(err).Msg("app: MIGRATION FAILED; READ THIS")
+				a.Logger.Error().Msg("app: Failed to remove transcoding cache files, please clear them manually by going to the settings. Ignore this message if you have no transcoding cache files.")
+			}
+			done = true
+		}
 	}
 	//}()
 
