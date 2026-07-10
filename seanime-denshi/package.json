@@ -2,18 +2,20 @@
   "name": "seanime-denshi",
   "version": "3.9.1",
   "description": "Electron-based Desktop client for Seanime",
-  "main": "src/main.js",
+  "main": "dist/main/index.js",
   "author": "5rahim <talkwithrahim@gmail.com>",
   "scripts": {
+    "build:main": "tsc -p tsconfig.main.json",
     "sync:mpv-prism": "node scripts/sync-mpv-prism.mjs",
-    "dev": "npm run sync:mpv-prism && NODE_ENV=development electron .",
-    "build": "npm run sync:mpv-prism && electron-builder build",
-    "build:mac": "npm run sync:mpv-prism -- darwin-arm64 && electron-builder build --mac --arm64",
-    "build:win": "npm run sync:mpv-prism -- win32-x64 && electron-builder build --win --x64",
-    "build:linux": "npm run sync:mpv-prism -- linux-x64 && electron-builder build --linux --x64"
+    "dev": "npm run build:main && npm run sync:mpv-prism && NODE_ENV=development electron .",
+    "build": "npm run build:main && npm run sync:mpv-prism && electron-builder build",
+    "build:mac": "npm run build:main && npm run sync:mpv-prism -- darwin-arm64 && electron-builder build --mac --arm64",
+    "build:win": "npm run build:main && npm run sync:mpv-prism -- win32-x64 && electron-builder build --win --x64",
+    "build:linux": "npm run build:main && npm run sync:mpv-prism -- linux-x64 && electron-builder build --linux --x64"
   },
   "dependencies": {
-    "@mpv-prism/electron": "https://seanime.app/assets/mpv-prism/0.1.1/packages/mpv-prism-electron-0.1.1.tgz",
+    "@mpv-prism/electron": "https://seanime.app/assets/mpv-prism/0.1.2/packages/mpv-prism-electron-0.1.2.tgz",
+    "archiver": "^5.3.2",
     "castv2": "^0.1.10",
     "electron-log": "^5.4.3",
     "electron-updater": "^6.7.3",
@@ -22,9 +24,12 @@
     "strip-ansi": "^7.1.0"
   },
   "devDependencies": {
+    "@types/archiver": "^8.0.0",
+    "@types/node": "^24.13.2",
     "cross-env": "^7.0.3",
     "electron": "42.4.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.9.3"
   },
   "build": {
     "electronDownload": {
@@ -95,6 +100,7 @@
       "category": "Entertainment",
       "artifactName": "seanime-denshi-${version}_Linux_${arch}.${ext}",
       "desktop": {
+        "PrefersNonDefaultGPU": true,
         "StartupWMClass": "seanime-denshi"
       }
     },
@@ -113,7 +119,9 @@
       "output": "dist"
     },
     "files": [
+      "dist/main/**/*",
       "src/**/*",
+      "!src/main/**/*.ts",
       "web-denshi/**/*",
       "assets/**/*",
       "package.json",
