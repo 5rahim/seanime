@@ -1,6 +1,10 @@
 import { app, dialog, ipcMain, shell } from "electron"
 import * as fs from "node:fs"
+import * as net from "node:net"
+import * as os from "node:os"
 import * as path from "node:path"
+import { Transform } from "node:stream"
+import { pipeline } from "node:stream/promises"
 import type { DenshiSettings } from "./denshi-settings"
 import { log } from "./logging"
 
@@ -78,8 +82,246 @@ function resetMpvCoreLogs(): void {
     }
 }
 
+type MpvCoreLogFile = {
+    path: string
+    name: string
+}
+
+type LiteralLogRedaction = {
+    value: string
+    replacement: string
+    caseInsensitive?: boolean
+    wholeToken?: boolean
+    pathPrefix?: boolean
+}
+
+function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+function getPathVariants(value: string): string[] {
+    const variants = new Set<string>()
+    const normalized = value.trim().replace(/[\\/]+$/, "")
+    if (!normalized) return []
+
+    variants.add(normalized)
+    variants.add(normalized.replace(/\\/g, "/"))
+    variants.add(normalized.replace(/\//g, "\\"))
+    variants.add(normalized.replace(/\\/g, "\\\\"))
+    return [...variants]
+}
+
+function getLiteralLogRedactions(): LiteralLogRedaction[] {
+    const rules: LiteralLogRedaction[] = []
+    const seen = new Set<string>()
+    const add = (
+        value: string | undefined,
+        replacement: string,
+        caseInsensitive = false,
+        wholeToken = false,
+        pathPrefix = false,
+    ): void => {
+        if (!value) return
+        const trimmed = value.trim()
+        if (!trimmed) return
+
+        const key = `${caseInsensitive ? "i" : "s"}:${wholeToken ? "t" : "l"}:${pathPrefix ? "p" : "v"}:${trimmed}`
+        if (seen.has(key)) return
+        seen.add(key)
+        rules.push({ value: trimmed, replacement, caseInsensitive, wholeToken, pathPrefix })
+    }
+
+    const homeDirectories = new Set<string>([
+        app.getPath("home"),
+        os.homedir(),
+        process.env.HOME,
+        process.env.USERPROFILE,
+    ].filter((value): value is string => Boolean(value)))
+
+    for (const homeDirectory of homeDirectories) {
+        for (const variant of getPathVariants(homeDirectory)) {
+            add(variant, "<HOME>", process.platform === "win32", false, true)
+        }
+    }
+
+    const usernames = new Set([
+        process.env.USER,
+        process.env.USERNAME,
+        process.env.LOGNAME,
+        (() => {
+            try {
+                return os.userInfo().username
+            }
+            catch {
+                return undefined
+            }
+        })(),
+    ].filter((value): value is string => Boolean(value)))
+
+    for (const username of usernames) {
+        if (username.length >= 3) add(username, "<USER>", process.platform === "win32", true)
+    }
+
+    const hostname = os.hostname()
+    if (hostname.length >= 3) add(hostname, "<HOST>", true, true)
+
+    return rules.sort((a, b) => b.value.length - a.value.length)
+}
+
+function replaceLiteralLogValue(text: string, rule: LiteralLogRedaction): string {
+    const flags = rule.caseInsensitive ? "gi" : "g"
+    const escapedValue = escapeRegExp(rule.value)
+    if (rule.pathPrefix) {
+        return text.replace(
+            new RegExp(`${escapedValue}(?=$|[^A-Za-z0-9._-])`, flags),
+            rule.replacement,
+        )
+    }
+    if (!rule.wholeToken) {
+        return text.replace(new RegExp(escapedValue, flags), rule.replacement)
+    }
+
+    return text.replace(
+        new RegExp(`(^|[^A-Za-z0-9._-])${escapedValue}(?=$|[^A-Za-z0-9._-])`, flags),
+        `$1${rule.replacement}`,
+    )
+}
+
+function _redactIpAddresses(text: string): string {
+    const _withIpv4Redacted = text.replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, candidate => {
+        if (net.isIP(candidate) !== 4) return candidate
+        if (candidate === "0.0.0.0" || candidate.startsWith("127.")) return candidate
+        return "<IPV4>"
+    })
+
+    return _withIpv4Redacted.replace(
+        /(^|[^0-9A-Fa-f:])((?:[0-9A-Fa-f]{0,4}:){2,7}[0-9A-Fa-f]{0,4})(?=$|[^0-9A-Fa-f:])/g,
+        (match, prefix: string, candidate: string) => {
+            if (net.isIP(candidate) !== 6 || candidate === "::" || candidate === "::1") return match
+            return `${prefix}<IPV6>`
+        },
+    )
+}
+
+function toAnonymizedText(text: string, literalRules: LiteralLogRedaction[]): string {
+    let redacted = text
+
+    redacted = redacted.replace(
+        /([a-z][a-z0-9+.-]*:\/\/)([^\s\/:@]+):([^\s\/@]+)@/gi,
+        "$1<USER>:<REDACTED>@",
+    )
+    redacted = redacted.replace(
+        /([?&](?:access_token|refresh_token|token|api_key|apikey|client_secret|password|passwd|session(?:id)?|auth)=)[^&#\s]+/gi,
+        "$1<REDACTED>",
+    )
+    redacted = redacted.replace(
+        /((?:["']?)(?:access[_-]?token|refresh[_-]?token|api[_-]?key|client[_-]?secret|password|passwd|cookie|session[_-]?id)(?:["']?)\s*[:=]\s*)(["']?)([^"'\s,;]+)\2/gi,
+        "$1$2<REDACTED>$2",
+    )
+    redacted = redacted.replace(
+        /((?:["']?)authorization(?:["']?)\s*[:=]\s*)(["']?)(?:bearer\s+)?([^"'\s,;]+)\2/gi,
+        "$1$2<REDACTED>$2",
+    )
+    redacted = redacted.replace(
+        /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{5,}\b/g,
+        "<JWT>",
+    )
+    redacted = redacted.replace(
+        /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
+        "<EMAIL>",
+    )
+
+    for (const rule of literalRules) {
+        redacted = replaceLiteralLogValue(redacted, rule)
+    }
+
+    redacted = redacted.replace(
+        /([A-Za-z]:[\\/]{1,2}(?:Users|Documents and Settings)[\\/]{1,2})([^\\/\s"'<>]+)/gi,
+        "$1<USER>",
+    )
+    redacted = redacted.replace(
+        /(\/(?:home|Users)\/)([^/\s"'<>]+)/g,
+        "$1<USER>",
+    )
+    redacted = redacted.replace(
+        /(\b(?:username|user|login|account)\b["']?\s*[:=]\s*["']?)([^"',;\s]+)/gi,
+        "$1<USER>",
+    )
+    redacted = redacted.replace(
+        /(\b(?:hostname|computer(?:name)?|machine(?:name)?|device(?:name)?)\b["']?\s*[:=]\s*["']?)([^"',;\s]+)/gi,
+        "$1<HOST>",
+    )
+    redacted = redacted.replace(
+        /\b(?:[0-9A-F]{2}[:-]){5}[0-9A-F]{2}\b/gi,
+        "<MAC>",
+    )
+
+    return _redactIpAddresses(redacted)
+}
+
+class MpvCoreLogAnonymizer extends Transform {
+    private static readonly MAX_CARRY_CHARACTERS = 64 * 1024
+    private carry = ""
+
+    constructor(private readonly literalRules: LiteralLogRedaction[]) {
+        super({ decodeStrings: false })
+    }
+
+    override _transform(chunk: Buffer | string, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+        try {
+            const text = this.carry + chunk.toString()
+            const lastLineFeed = text.lastIndexOf("\n")
+            if (lastLineFeed < 0) {
+                if (text.length > MpvCoreLogAnonymizer.MAX_CARRY_CHARACTERS) {
+                    const splitAt = text.length - MpvCoreLogAnonymizer.MAX_CARRY_CHARACTERS
+                    this.push(toAnonymizedText(text.slice(0, splitAt), this.literalRules))
+                    this.carry = text.slice(splitAt)
+                } else {
+                    this.carry = text
+                }
+                callback()
+                return
+            }
+
+            this.push(toAnonymizedText(text.slice(0, lastLineFeed + 1), this.literalRules))
+            this.carry = text.slice(lastLineFeed + 1)
+            callback()
+        }
+        catch (error) {
+            callback(error instanceof Error ? error : new Error(String(error)))
+        }
+    }
+
+    override _flush(callback: (error?: Error | null) => void): void {
+        try {
+            if (this.carry) this.push(toAnonymizedText(this.carry, this.literalRules))
+            callback()
+        }
+        catch (error) {
+            callback(error instanceof Error ? error : new Error(String(error)))
+        }
+    }
+}
+
+async function toAnonymizedLogs(files: MpvCoreLogFile[], directory: string): Promise<MpvCoreLogFile[]> {
+    const literalRules = getLiteralLogRedactions()
+    const anonymizedFiles: MpvCoreLogFile[] = []
+
+    for (const file of files) {
+        const outputPath = path.join(directory, path.basename(file.name))
+        await pipeline(
+            fs.createReadStream(file.path, { encoding: "utf8" }),
+            new MpvCoreLogAnonymizer(literalRules),
+            fs.createWriteStream(outputPath, { encoding: "utf8" }),
+        )
+        anonymizedFiles.push({ path: outputPath, name: file.name })
+    }
+
+    return anonymizedFiles
+}
+
 async function exportMpvCoreLogs(): Promise<string> {
-    const prismLogs = [
+    const prismLogs: MpvCoreLogFile[] = [
         { path: process.env.MPV_PRISM_MPV_LOG_FILE || getMpvCoreMpvLogPath(), name: "mpv-prism-libmpv.log" },
         { path: process.env.MPV_PRISM_NATIVE_LOG_FILE || getMpvCoreNativeLogPath(), name: "mpv-prism-native.log" },
     ].filter(file => fs.existsSync(file.path))
@@ -108,11 +350,14 @@ async function exportMpvCoreLogs(): Promise<string> {
     }
 
     const timestamp = new Date().toISOString().slice(0, 19).replace("T", "_").replaceAll(":", "-")
-    const outputDirectory = path.join(app.getPath("downloads"), "Seanime")
-    const outputPath = path.join(outputDirectory, `mpv-prism-logs_${timestamp}.zip`)
-    fs.mkdirSync(outputDirectory, { recursive: true })
+    const outputDir = path.join(app.getPath("downloads"), "Seanime")
+    const outputPath = path.join(outputDir, `mpv-prism-logs_${timestamp}.zip`)
+    const tempDir = fs.mkdtempSync(path.join(app.getPath("temp"), "seanime-mpvcore-logs-"))
+    fs.mkdirSync(outputDir, { recursive: true })
 
     try {
+        const anonymizedFiles = await toAnonymizedLogs(files, tempDir)
+
         await new Promise<void>((resolve, reject) => {
             const output = fs.createWriteStream(outputPath)
             const archive = archiver("zip", { zlib: { level: 9 } })
@@ -123,7 +368,7 @@ async function exportMpvCoreLogs(): Promise<string> {
             archive.on("error", reject)
             archive.pipe(output)
 
-            for (const file of files) {
+            for (const file of anonymizedFiles) {
                 archive.file(file.path, { name: file.name })
             }
 
@@ -133,6 +378,9 @@ async function exportMpvCoreLogs(): Promise<string> {
     catch (error) {
         fs.rmSync(outputPath, { force: true })
         throw error
+    }
+    finally {
+        fs.rmSync(tempDir, { recursive: true, force: true })
     }
 
     shell.showItemInFolder(outputPath)

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.9.2
+
+- ⚡️ VideoCore: Optimized subtitle streaming performance
+- ⚡️ Plugin: Discord Rich Presence setCustomActivity API
+- ⚡️ MpvCore: Ability to export logs from the UI
+- 🦺 Mediastream: Fixed codec strings and media container caching
+- 🦺 MpvCore: Fixed player black background color
+- 🦺 Core: Fixed filecache item deletion
+- 🦺 MpvCore: Updated mpv-prism to 0.1.2
+  - Read active GPUs from Electron
+  - Windows: Create D3D11 directly on matching adapter
+  - Linux: Select DRM node matching Electron’s active PCI vendor/device
+- ⬆️ Updated dependecies
+
 ## v3.9.1
 
 - 🦺 VideoCore/MpvCore: Fixed preferred track selection
