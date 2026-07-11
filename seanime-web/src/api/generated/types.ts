@@ -4661,6 +4661,18 @@ export type NativePlayer_ServerEvent = "open-and-await" |
 export type NativePlayer_StreamType = "torrent" | "localfile" | "debrid" | "url" | "nakama"
 
 /**
+ * - Filepath: internal/nativeplayer/events.go
+ * - Filename: events.go
+ * - Package: nativeplayer
+ */
+export type NativePlayer_SubtitleEventsPayload = {
+    events?: Array<MKVParser_SubtitleEvent>
+    playbackId: string
+    generationId: number
+    seekTime: number
+}
+
+/**
  * - Filepath: internal/nativeplayer/nativeplayer.go
  * - Filename: nativeplayer.go
  * - Package: nativeplayer

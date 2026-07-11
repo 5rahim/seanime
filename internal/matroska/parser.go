@@ -265,7 +265,9 @@ func NewMatroskaParser(r io.ReadSeeker, noSeeking bool, elementsToParse ...uint3
 				id, size, errHeader := parser.reader.ReadElementHeader()
 				if errHeader == nil && id == IDCues {
 					parser.cuesTopPos = uint64(parser.reader.Position()) + size
-					_ = parser.parseCues(size)
+					if cueErr := parser.parseCues(size); cueErr != nil || !parser.hasValidCues() {
+						parser.cues = nil
+					}
 				}
 			}
 			_, _ = parser.reader.Seek(currentPos, io.SeekStart)
@@ -398,8 +400,12 @@ func (mp *MatroskaParser) parseSegmentChildren() error {
 
 		switch id {
 		case IDSeekHead:
-			if err = mp.parseSeekHead(size); err != nil {
-				return fmt.Errorf("failed to parse seek head: %w", err)
+			if mp.shouldParseElement(IDCues) {
+				if err = mp.parseSeekHead(size); err != nil {
+					mp.cuesPos = 0
+				}
+			} else if err = mp.reader.SeekOrSkip(mp.noSeeking, int64(size)); err != nil {
+				return fmt.Errorf("failed to skip element: %w", err)
 			}
 		case IDSegmentInfo:
 			if mp.shouldParseElement(IDSegmentInfo) {
@@ -427,8 +433,8 @@ func (mp *MatroskaParser) parseSegmentChildren() error {
 			if mp.shouldParseElement(IDCues) {
 				mp.cuesPos = uint64(currentPos)
 				mp.cuesTopPos = uint64(currentPos) + size
-				if err = mp.parseCues(size); err != nil {
-					return fmt.Errorf("failed to parse cues: %w", err)
+				if err = mp.parseCues(size); err != nil || !mp.hasValidCues() {
+					mp.cues = nil
 				}
 			} else {
 				// Skip this element
@@ -522,7 +528,7 @@ func (mp *MatroskaParser) parseSegmentChildren() error {
 //   - error: An error if the SegmentInfo element could not be read or parsed.
 func (mp *MatroskaParser) parseSeekHead(size uint64) error {
 	if size > 1024*1024 { // 1MB limit for safety
-		return fmt.Errorf("seek head size %d is too large", size)
+		return mp.reader.SeekOrSkip(mp.noSeeking, int64(size))
 	}
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
@@ -1065,7 +1071,7 @@ func (mp *MatroskaParser) parseAudioTrack(data []byte, track *TrackInfo) error {
 //   - error: An error if the Cues element could not be parsed.
 func (mp *MatroskaParser) parseCues(size uint64) error {
 	if size > 256*1024*1024 {
-		return fmt.Errorf("cues size %d is too large", size)
+		return mp.reader.SeekOrSkip(mp.noSeeking, int64(size))
 	}
 	data := make([]byte, size)
 	n, err := io.ReadFull(mp.reader.r, data)
@@ -1101,6 +1107,23 @@ func (mp *MatroskaParser) parseCues(size uint64) error {
 	})
 
 	return nil
+}
+
+func (mp *MatroskaParser) hasValidCues() bool {
+	if len(mp.cues) == 0 || mp.segment == nil {
+		return false
+	}
+
+	for i, cue := range mp.cues {
+		if cue == nil || cue.Position >= mp.segment.Size {
+			return false
+		}
+		if i > 0 && cue.Time < mp.cues[i-1].Time {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (mp *MatroskaParser) parseCuePoint(data []byte) ([]*Cue, error) {

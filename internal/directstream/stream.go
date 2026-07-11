@@ -609,7 +609,7 @@ type BaseStream struct {
 	subtitleLastSent       time.Time
 	subtitleLastSentGen    int64
 	subtitleGeneration     atomic.Int64
-	subtitleSeekTimeBits   atomic.Uint64
+	subtitleSeekMu         sync.Mutex
 	terminateOnce          sync.Once
 	serveContentCancelFunc context.CancelFunc
 	filename               string // Name of the file being streamed, if applicable
@@ -685,7 +685,7 @@ func (s *BaseStream) Terminate() {
 
 		// Cancel all active subtitle streams
 		s.activeSubtitleStreams.Range(func(_ string, s *SubtitleStream) bool {
-			s.Stop(s.completed)
+			s.Stop(s.completed.Load())
 			return true
 		})
 		s.activeSubtitleStreams.Clear()

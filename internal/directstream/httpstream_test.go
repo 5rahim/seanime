@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"seanime/internal/mkvparser"
@@ -138,7 +139,9 @@ func TestNakamaGetStreamHandlerProxiesWithSharedRequestHeaders(t *testing.T) {
 func TestNakamaMetadataReaderCarriesHeadersAcrossRangeRequests(t *testing.T) {
 	const token = "nakama-secret"
 	payload := []byte("abcdef")
+	requestCount := atomic.Int64{}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount.Add(1)
 		require.Equal(t, token, r.Header.Get("X-Seanime-Nakama-Token"))
 
 		if r.Method == http.MethodHead {
@@ -172,6 +175,7 @@ func TestNakamaMetadataReaderCarriesHeadersAcrossRangeRequests(t *testing.T) {
 	reader, err := stream.newMetadataReader()
 	require.NoError(t, err)
 	defer reader.Close()
+	require.Zero(t, requestCount.Load())
 
 	first := make([]byte, 3)
 	_, err = io.ReadFull(reader, first)
@@ -185,4 +189,32 @@ func TestNakamaMetadataReaderCarriesHeadersAcrossRangeRequests(t *testing.T) {
 	_, err = io.ReadFull(reader, second)
 	require.NoError(t, err)
 	require.Equal(t, "cde", string(second))
+}
+
+func TestNakamaMetadataReaderStartsAtRequestedRange(t *testing.T) {
+	const token = "nakama-secret"
+	payload := []byte("abcdefgh")
+	ranges := make(chan string, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, token, r.Header.Get("X-Seanime-Nakama-Token"))
+		ranges <- r.Header.Get("Range")
+		w.Header().Set("Content-Range", "bytes 4-7/8")
+		w.WriteHeader(http.StatusPartialContent)
+		_, _ = w.Write(payload[4:])
+	}))
+	defer server.Close()
+
+	manager := newHTTPStreamTestManager()
+	stream := newTestNakamaStream(manager, server.URL+"/video.mkv", token)
+	reader, err := stream.newMetadataReader()
+	require.NoError(t, err)
+	defer reader.Close()
+
+	_, err = reader.Seek(4, io.SeekStart)
+	require.NoError(t, err)
+	buf := make([]byte, 4)
+	_, err = io.ReadFull(reader, buf)
+	require.NoError(t, err)
+	require.Equal(t, "efgh", string(buf))
+	require.Equal(t, "bytes=4-", <-ranges)
 }

@@ -102,6 +102,22 @@ func NewHttpReadSeekerFromURLWithHeaders(url string, headers http.Header) (*Http
 	return NewHttpReadSeeker(resp), nil
 }
 
+// NewLazyHttpReadSeekerFromURLWithHeaders creates an HTTP read seeker without opening the response.
+// The first read uses the current offset, so callers can seek before issuing a range request.
+func NewLazyHttpReadSeekerFromURLWithHeaders(url string, headers http.Header) (*HttpReadSeeker, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("httprs: failed to create request for URL %s: %w", url, err)
+	}
+
+	return &HttpReadSeeker{
+		url:     req.URL.String(),
+		client:  http.DefaultClient,
+		headers: headers.Clone(),
+		size:    -1,
+	}, nil
+}
+
 // Read implements io.Reader
 func (hrs *HttpReadSeeker) Read(p []byte) (n int, err error) {
 	hrs.mu.Lock()

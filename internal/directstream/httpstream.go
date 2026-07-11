@@ -64,7 +64,7 @@ func (s *httpBaseStream) applyHeadRespHeaders(dst http.Header) {
 }
 
 func (s *httpBaseStream) newMetadataReader() (io.ReadSeekCloser, error) {
-	return httputil.NewHttpReadSeekerFromURLWithHeaders(s.streamUrl, s.requestHeaders)
+	return httputil.NewLazyHttpReadSeekerFromURLWithHeaders(s.streamUrl, s.requestHeaders)
 }
 
 func (s *httpBaseStream) LoadContentType() string {

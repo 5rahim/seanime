@@ -37894,12 +37894,12 @@
         "comments": []
       },
       {
-        "name": "subtitleSeekTimeBits",
-        "jsonName": "subtitleSeekTimeBits",
-        "goType": "atomic.Uint64",
-        "typescriptType": "Uint64",
-        "usedTypescriptType": "Uint64",
-        "usedStructName": "atomic.Uint64",
+        "name": "subtitleSeekMu",
+        "jsonName": "subtitleSeekMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
         "comments": []
@@ -38103,11 +38103,24 @@
         "comments": []
       },
       {
+        "name": "request",
+        "jsonName": "request",
+        "goType": "subtitleRequest",
+        "typescriptType": "Directstream_subtitleRequest",
+        "usedTypescriptType": "Directstream_subtitleRequest",
+        "usedStructName": "directstream.subtitleRequest",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "completed",
         "jsonName": "completed",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
         "public": false,
         "comments": [
           " ran until the EOF"
@@ -75651,6 +75664,15 @@
         "usedTypescriptType": "MKVParser_SubtitleEvent",
         "usedStructName": "mkvparser.SubtitleEvent",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackID",
+        "jsonName": "playbackId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       },

@@ -5377,3 +5377,31 @@ func TestParseCuePoint_TimeAndTrackPositions(t *testing.T) {
 		t.Errorf("cue fields unexpected: %+v", cues[0])
 	}
 }
+
+func TestHasValidCuesRejectsInvalidPositions(t *testing.T) {
+	parser := &MatroskaParser{
+		segment: &SegmentElement{Size: 100},
+		cues: []*Cue{
+			{Time: 0, Position: 10},
+			{Time: 1, Position: 100},
+		},
+	}
+
+	if parser.hasValidCues() {
+		t.Fatal("expected cue at segment boundary to be rejected")
+	}
+}
+
+func TestHasValidCuesAcceptsSortedPositions(t *testing.T) {
+	parser := &MatroskaParser{
+		segment: &SegmentElement{Size: 100},
+		cues: []*Cue{
+			{Time: 0, Position: 10},
+			{Time: 1, Position: 20},
+		},
+	}
+
+	if !parser.hasValidCues() {
+		t.Fatal("expected sorted cues within the segment to be accepted")
+	}
+}

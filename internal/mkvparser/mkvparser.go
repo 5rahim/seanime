@@ -621,11 +621,8 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 				duration = float64(track.defaultDuration) / 1e6
 			}
 
-			if seekTargetTime > 0 && milliseconds+duration < seekTargetTime*1000 {
-				continue
-			}
-
-			subtitleEvent := mp.processSubtitleData(packet.Track, track, subtitleData, milliseconds, duration, packet.FilePos, sampler, lastSubtitleEvents, subtitleCh, extractCtx, pgsDecoders)
+			seekTargetTimeMs := seekTargetTime * 1000
+			subtitleEvent := mp.processSubtitleData(packet.Track, track, subtitleData, milliseconds, duration, packet.FilePos, sampler, lastSubtitleEvents, subtitleCh, extractCtx, pgsDecoders, seekTargetTimeMs)
 			if subtitleEvent != nil {
 				eventCopy := *subtitleEvent
 				lastSubtitleEvents[packet.Track] = &eventCopy
@@ -650,6 +647,7 @@ func (mp *MetadataParser) processSubtitleData(
 	subtitleCh chan<- *SubtitleEvent,
 	ctx context.Context,
 	pgsDecoders map[uint8]*pgs.PgsDecoder,
+	seekTargetTimeMs float64,
 ) *SubtitleEvent {
 	initialText := string(subtitleData)
 	subtitleEvent := &SubtitleEvent{
@@ -732,9 +730,7 @@ func (mp *MetadataParser) processSubtitleData(
 						Float64("clearDuration", calculatedDuration).
 						Msg("mkvparser: Updated PGS subtitle duration from clear command")
 
-					select {
-					case subtitleCh <- &updatedLastEvent:
-					case <-ctx.Done():
+					if !sendSubtitleEvent(ctx, subtitleCh, &updatedLastEvent, seekTargetTimeMs) {
 						return nil
 					}
 
@@ -766,9 +762,7 @@ func (mp *MetadataParser) processSubtitleData(
 						Float64("duration", calculatedDuration).
 						Msg("mkvparser: Sending previous PGS subtitle (replaced by new one)")
 
-					select {
-					case subtitleCh <- bufferedEvent:
-					case <-ctx.Done():
+					if !sendSubtitleEvent(ctx, subtitleCh, bufferedEvent, seekTargetTimeMs) {
 						return nil
 					}
 				}
@@ -836,9 +830,7 @@ func (mp *MetadataParser) processSubtitleData(
 						Float64("calculatedDuration", calculatedDuration).
 						Msg("mkvparser: Updated previous subtitle event duration")
 
-					select {
-					case subtitleCh <- &updatedLastEvent:
-					case <-ctx.Done():
+					if !sendSubtitleEvent(ctx, subtitleCh, &updatedLastEvent, seekTargetTimeMs) {
 						return nil
 					}
 				}
@@ -857,14 +849,25 @@ func (mp *MetadataParser) processSubtitleData(
 	// PGS subtitles are buffered and sent from within their handling code
 	// Other subtitles are sent if they have a duration
 	if track.CodecID != "S_HDMV/PGS" && duration > 0 {
-		select {
-		case subtitleCh <- subtitleEvent:
-		case <-ctx.Done():
+		if !sendSubtitleEvent(ctx, subtitleCh, subtitleEvent, seekTargetTimeMs) {
 			return nil
 		}
 	}
 
 	return subtitleEvent
+}
+
+func sendSubtitleEvent(ctx context.Context, subtitleCh chan<- *SubtitleEvent, event *SubtitleEvent, seekTargetTimeMs float64) bool {
+	if seekTargetTimeMs > 0 && event.StartTime+event.Duration < seekTargetTimeMs {
+		return true
+	}
+
+	select {
+	case subtitleCh <- event:
+		return true
+	case <-ctx.Done():
+		return false
+	}
 }
 
 func isClusterSearchEOF(err error) bool {

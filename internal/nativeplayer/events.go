@@ -39,6 +39,7 @@ func (p *NativePlayer) SubtitleEvent(clientId string, event *mkvparser.SubtitleE
 
 type SubtitleEventsPayload struct {
 	Events       []*mkvparser.SubtitleEvent `json:"events"`
+	PlaybackID   string                     `json:"playbackId"`
 	GenerationID int64                      `json:"generationId"`
 	SeekTime     float64                    `json:"seekTime"`
 }
@@ -52,12 +53,13 @@ func (p *NativePlayer) SubtitleEvents(clientId string, events []*mkvparser.Subti
 }
 
 // SubtitleEventsWithGen sends multiple subtitle events with seek generation context to the client.
-func (p *NativePlayer) SubtitleEventsWithGen(clientId string, events []*mkvparser.SubtitleEvent, gen int64, seekTime float64) {
+func (p *NativePlayer) SubtitleEventsWithGen(clientId string, events []*mkvparser.SubtitleEvent, playbackID string, gen int64, seekTime float64) {
 	for _, event := range events {
 		p.videoCore.RecordEvent(event)
 	}
 	p.sendPlayerEventTo(clientId, string(ServerEventSubtitleEvent), &SubtitleEventsPayload{
 		Events:       events,
+		PlaybackID:   playbackID,
 		GenerationID: gen,
 		SeekTime:     seekTime,
 	}, true)
