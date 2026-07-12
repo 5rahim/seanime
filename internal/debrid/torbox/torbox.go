@@ -384,7 +384,7 @@ func (t *TorBox) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (down
 		return "", fmt.Errorf("torbox: Failed to get download URL: %w", debrid.ErrNotAuthenticated)
 	}
 
-	url := t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&zip_link=true", apiKey, opts.ID)
+	url := t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&zip_link=true&append_name=true", apiKey, opts.ID)
 	if opts.FileId != "" {
 		// Get the actual file ID
 		torrent, err := t.getTorrent(opts.ID)
@@ -401,7 +401,7 @@ func (t *TorBox) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (down
 		if fId == "" {
 			return "", fmt.Errorf("torbox: Failed to get download URL, file not found")
 		}
-		url = t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&file_id=%s", apiKey, opts.ID, fId)
+		url = t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&file_id=%s&append_name=true", apiKey, opts.ID, fId)
 	}
 
 	resp, err := t.doQuery("GET", url, nil, "application/json")
