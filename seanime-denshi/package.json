@@ -1,11 +1,12 @@
 {
   "name": "seanime-denshi",
-  "version": "3.9.2-alpha.7",
+  "version": "3.9.2-alpha.8",
   "description": "Electron-based Desktop client for Seanime",
   "main": "dist/main/index.js",
   "author": "5rahim <talkwithrahim@gmail.com>",
   "scripts": {
     "build:main": "tsc -p tsconfig.main.json",
+    "test:main": "node --test tests/*.test.mjs",
     "sync:mpv-prism": "node scripts/sync-mpv-prism.mjs",
     "dev": "npm run build:main && npm run sync:mpv-prism && NODE_ENV=development electron .",
     "build": "npm run build:main && npm run sync:mpv-prism && electron-builder build",
@@ -14,7 +15,7 @@
     "build:linux": "npm run build:main && npm run sync:mpv-prism -- linux-x64 && electron-builder build --linux --x64"
   },
   "dependencies": {
-    "@mpv-prism/electron": "https://seanime.app/assets/mpv-prism/0.1.2/packages/mpv-prism-electron-0.1.2.tgz",
+    "@mpv-prism/electron": "https://seanime.app/assets/mpv-prism/0.1.2/packages/mpv-prism-electron-0.1.2.tgz?sha256=742c21756c4b9163c9925576f8a5b47bdb8ff5f6094b8d2c2a189733d134cbc2",
     "archiver": "^5.3.2",
     "castv2": "^0.1.10",
     "electron-log": "^5.4.3",
@@ -100,7 +101,6 @@
       "category": "Entertainment",
       "artifactName": "seanime-denshi-${version}_Linux_${arch}.${ext}",
       "desktop": {
-        "PrefersNonDefaultGPU": true,
         "StartupWMClass": "seanime-denshi"
       }
     },

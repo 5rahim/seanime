@@ -16,7 +16,7 @@
     "@mpv-prism/electron": {
       "file": "mpv-prism-electron-0.1.2.tgz",
       "url": "https://seanime.app/assets/mpv-prism/0.1.2/packages/mpv-prism-electron-0.1.2.tgz",
-      "sha256": "bf0d622244dad1eb805df5afdae17f47a284b92bb8c873ddb93f59248cee8067"
+      "sha256": "742c21756c4b9163c9925576f8a5b47bdb8ff5f6094b8d2c2a189733d134cbc2"
     }
   },
   "native": {
@@ -33,12 +33,12 @@
     "linux-x64": {
       "file": "linux-x64.tar.gz",
       "url": "https://seanime.app/assets/mpv-prism/0.1.2/native/linux-x64.tar.gz",
-      "sha256": "f2dda925b426d575c33042815166d9bc1b397d3dc5cd6c1e08f9d5712c524c48"
+      "sha256": "813d1759d892fb80cee710406f1c818a3ca407c180b30e42e134edde834cf9b0"
     },
     "linux-arm64": {
       "file": "linux-arm64.tar.gz",
       "url": "https://seanime.app/assets/mpv-prism/0.1.2/native/linux-arm64.tar.gz",
-      "sha256": "fc30ec0c00bab7db47d0527828920912296dfd3f72d500db0bd424bdf67929b8"
+      "sha256": "3903baeaf1b8e18335142a3d7ae99698b894abecf26f67eaa0b52abefbadcfb6"
     }
   }
 }

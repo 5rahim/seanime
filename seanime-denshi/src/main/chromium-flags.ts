@@ -1,17 +1,18 @@
 import { app } from "electron"
 import log from "electron-log/main"
+import { toElectronGpuPreference } from "./gpu-preference"
 
 export function setupChromiumFlags() {
     app.commandLine.appendSwitch("no-zygote")
 
     app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required")
 
-    const mpvPrismHighPerformanceGpu = process.env.MPV_PRISM_HIGH_PERFORMANCE_GPU ||= "1"
-    if (mpvPrismHighPerformanceGpu == "1" || mpvPrismHighPerformanceGpu == "true" || mpvPrismHighPerformanceGpu == "yes" || mpvPrismHighPerformanceGpu == "on") {
+    const gpuPreference = toElectronGpuPreference(process.env.MPV_PRISM_HIGH_PERFORMANCE_GPU)
+    if (gpuPreference === "high-performance") {
         app.commandLine.appendSwitch("force_high_performance_gpu")
     }
 
-    if (mpvPrismHighPerformanceGpu == "0" || mpvPrismHighPerformanceGpu == "false" || mpvPrismHighPerformanceGpu == "no" || mpvPrismHighPerformanceGpu == "off") {
+    if (gpuPreference === "low-power") {
         app.commandLine.appendSwitch("force_low_power_gpu")
     }
 
