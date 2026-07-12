@@ -897,6 +897,8 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 	wpm.mu.Lock()
 	defer wpm.mu.Unlock()
 
+	wpm.translateOriginStreamStartedPayload(payload)
+
 	wpm.logger.Debug().Str("filepath", payload.Filepath).Msg("nakama: Relay mode origin stream started")
 
 	session, ok := wpm.currentSession.Get()

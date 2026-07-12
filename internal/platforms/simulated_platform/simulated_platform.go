@@ -75,6 +75,10 @@ func (sp *SimulatedPlatform) ClearCache() {
 	sp.helper.ClearCache()
 }
 
+func (sp *SimulatedPlatform) GetCustomSourceManager() *customsource.Manager {
+	return sp.helper.GetCustomSourceManager()
+}
+
 // UpdateEntry updates the entry for the given media ID.
 // If the entry doesn't exist, it will be added automatically after determining the media type.
 func (sp *SimulatedPlatform) UpdateEntry(ctx context.Context, mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {

@@ -65,6 +65,10 @@ func (ap *AnilistPlatform) Close() {
 	ap.helper.Close()
 }
 
+func (ap *AnilistPlatform) GetCustomSourceManager() *customsource.Manager {
+	return ap.helper.GetCustomSourceManager()
+}
+
 func (ap *AnilistPlatform) SetUsername(username string) {
 	// Set the username for the AnilistPlatform
 	if username == "" {

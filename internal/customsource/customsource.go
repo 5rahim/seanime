@@ -113,6 +113,10 @@ func (m *Manager) GetProviderFromId(id int) (ext extension.CustomSourceExtension
 	return m.getProviderFromId(id)
 }
 
+func (m *Manager) GetProviderFromExtensionId(extId string) (extension.CustomSourceExtension, bool) {
+	return m.customSourcesById.Get(extId)
+}
+
 func (m *Manager) GetProviderFromBaseAnime(baseAnime *anilist.BaseAnime) (ext extension.CustomSourceExtension, localId int, isCustom bool, extensionExists bool) {
 	if baseAnime == nil {
 		return nil, 0, false, false
@@ -191,11 +195,13 @@ func GetCustomSourceExtensionIdFromSiteUrl(siteUrl *string) (string, bool) {
 	if siteUrl == nil {
 		return "", false
 	}
-	parts := strings.Split(*siteUrl, "|END|")
-	if len(parts) != 2 {
+	s := *siteUrl
+	if !strings.HasPrefix(s, "ext_custom_source_") {
 		return "", false
 	}
-	return strings.Replace(parts[0], "ext_custom_source_", "", 1), true
+	s = strings.Replace(s, "ext_custom_source_", "", 1)
+	parts := strings.Split(s, "|END|")
+	return parts[0], true
 }
 
 func NormalizeMedia(extensionIdentifier int, extId string, obj interface{}) {

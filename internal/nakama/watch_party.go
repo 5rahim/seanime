@@ -6,10 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
+	"seanime/internal/customsource"
 	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/events"
 	"seanime/internal/player"
 	"seanime/internal/torrentstream"
+	"strings"
 	"sync"
 	"time"
 
@@ -571,4 +573,113 @@ func (wpm *WatchPartyManager) SendChatMessage(message string) error {
 	}
 
 	return nil
+}
+
+func getExtensionIdFromSiteUrl(siteUrl *string) (string, bool) {
+	if siteUrl == nil {
+		return "", false
+	}
+	s := *siteUrl
+	if !strings.HasPrefix(s, "ext_custom_source_") {
+		return "", false
+	}
+	s = strings.Replace(s, "ext_custom_source_", "", 1)
+	parts := strings.Split(s, "|END|")
+	return parts[0], true
+}
+
+func (wpm *WatchPartyManager) getLocalMediaIdOfCustomSource(mediaId int, media *anilist.BaseAnime) int {
+	if media == nil || media.SiteURL == nil {
+		return mediaId
+	}
+	if !customsource.IsExtensionId(mediaId) {
+		return mediaId
+	}
+
+	var customSourceManager *customsource.Manager
+	if wpm.manager != nil && !wpm.manager.platformRef.IsAbsent() {
+		if p, ok := wpm.manager.platformRef.Get().(interface {
+			GetCustomSourceManager() *customsource.Manager
+		}); ok {
+			customSourceManager = p.GetCustomSourceManager()
+		}
+	}
+	if customSourceManager == nil {
+		return mediaId
+	}
+
+	_, localId := customsource.ExtractExtensionData(mediaId)
+
+	extId, ok := getExtensionIdFromSiteUrl(media.SiteURL)
+	if !ok {
+		return mediaId
+	}
+
+	provider, ok := customSourceManager.GetProviderFromExtensionId(extId)
+	if !ok {
+		return mediaId
+	}
+
+	return customsource.GenerateMediaId(provider.GetExtensionIdentifier(), localId)
+}
+
+func (wpm *WatchPartyManager) translateMediaInfo(info *WatchPartySessionMediaInfo) {
+	if info == nil || info.Media == nil {
+		return
+	}
+	if !customsource.IsExtensionId(info.MediaId) {
+		return
+	}
+
+	localMediaId := wpm.getLocalMediaIdOfCustomSource(info.MediaId, info.Media)
+	if localMediaId == info.MediaId {
+		return
+	}
+
+	wpm.logger.Debug().Int("oldMediaId", info.MediaId).Int("newMediaId", localMediaId).Msg("nakama: Translated custom source MediaId")
+
+	info.MediaId = localMediaId
+	info.Media.ID = localMediaId
+	if info.TorrentStreamParams != nil {
+		info.TorrentStreamParams.MediaId = localMediaId
+	}
+}
+
+func (wpm *WatchPartyManager) translateOriginStreamStartedPayload(payload *WatchPartyRelayModeOriginStreamStartedPayload) {
+	if payload == nil || payload.Media == nil {
+		return
+	}
+
+	mediaId := 0
+	if payload.State != nil {
+		mediaId = payload.State.MediaId
+	} else if payload.DebridStreamParams != nil {
+		mediaId = payload.DebridStreamParams.MediaId
+	} else if payload.TorrentStreamParams != nil {
+		mediaId = payload.TorrentStreamParams.MediaId
+	} else {
+		mediaId = payload.Media.ID
+	}
+
+	if !customsource.IsExtensionId(mediaId) {
+		return
+	}
+
+	localMediaId := wpm.getLocalMediaIdOfCustomSource(mediaId, payload.Media)
+	if localMediaId == mediaId {
+		return
+	}
+
+	wpm.logger.Debug().Int("oldMediaId", mediaId).Int("newMediaId", localMediaId).Msg("nakama: Translated origin stream payload custom source MediaId")
+
+	payload.Media.ID = localMediaId
+	if payload.State != nil {
+		payload.State.MediaId = localMediaId
+	}
+	if payload.DebridStreamParams != nil {
+		payload.DebridStreamParams.MediaId = localMediaId
+	}
+	if payload.TorrentStreamParams != nil {
+		payload.TorrentStreamParams.MediaId = localMediaId
+	}
 }

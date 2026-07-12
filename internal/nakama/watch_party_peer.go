@@ -324,6 +324,10 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 	wpm.mu.Lock()
 	defer wpm.mu.Unlock()
 
+	if payload.Session != nil && payload.Session.CurrentMediaInfo != nil {
+		wpm.translateMediaInfo(payload.Session.CurrentMediaInfo)
+	}
+
 	hostConn, ok := wpm.manager.GetHostConnection() // should always be ok
 	if !ok {
 		return
