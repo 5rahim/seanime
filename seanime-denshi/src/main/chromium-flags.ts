@@ -5,8 +5,15 @@ export function setupChromiumFlags() {
     app.commandLine.appendSwitch("no-zygote")
 
     app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required")
-    app.commandLine.appendSwitch("force_high_performance_gpu")
-    process.env.MPV_PRISM_HIGH_PERFORMANCE_GPU ||= "1"
+
+    const mpvPrismHighPerformanceGpu = process.env.MPV_PRISM_HIGH_PERFORMANCE_GPU ||= "1"
+    if (mpvPrismHighPerformanceGpu == "1" || mpvPrismHighPerformanceGpu == "true" || mpvPrismHighPerformanceGpu == "yes" || mpvPrismHighPerformanceGpu == "on") {
+        app.commandLine.appendSwitch("force_high_performance_gpu")
+    }
+
+    if (mpvPrismHighPerformanceGpu == "0" || mpvPrismHighPerformanceGpu == "false" || mpvPrismHighPerformanceGpu == "no" || mpvPrismHighPerformanceGpu == "off") {
+        app.commandLine.appendSwitch("force_low_power_gpu")
+    }
 
     app.commandLine.appendSwitch("disk-cache-size", (400 * 1000 * 1000).toString())
     app.commandLine.appendSwitch("force-effective-connection-type", "4g")
