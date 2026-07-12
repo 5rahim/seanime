@@ -52,8 +52,8 @@ Seanime is a **media server** with a **web interface** and **desktop app** for m
 - **AniList Integration**: Browse and manage your lists, discover anime and manga
 - **Custom Sources**: Support for adding non-AniList anime and manga series 
 - **Library Management**: Fast and smart scanning of local files without strict naming conventions or folder structures
-- **Torrent Integration**: Built-in torrent search engine via extensions and downloading support with qBittorrent, Transmission, Torbox, Real-Debrid and Premiumize
-- **Torrent Streaming**: Stream torrents directly to the media player without waiting for downloads (supports Bittorrent, Torbox, Real-Debrid and Premiumize)
+- **Torrent Integration**: Built-in torrent search engine via extensions and downloading support with qBittorrent, Transmission, Torbox, Real-Debrid, AllDebrid and Premiumize
+- **Torrent Streaming**: Stream torrents directly to the media player without waiting for downloads (supports Bittorrent, Torbox, Real-Debrid, AllDebrid and Premiumize)
 - **Online Streaming**: Watch anime from online sources directly within the app via extensions
 - **Auto Downloader**: Automatically track and download new episodes with customizable filters and advanced features (prioritization, scoring, delay, etc.)
 - **Extension Marketplace**: In-app repository to install and manage extensions for online streaming, manga sources, and torrent providers
