@@ -575,6 +575,7 @@ func (wpm *WatchPartyManager) SendChatMessage(message string) error {
 	return nil
 }
 
+// format: ext_custom_source_{extensionId}|END|{siteUrl}
 func getExtensionIdFromSiteUrl(siteUrl *string) (string, bool) {
 	if siteUrl == nil {
 		return "", false
