@@ -11,9 +11,9 @@ All notable changes to this project will be documented in this file.
 - 🦺 MpvCore: Fixed player black background color
 - 🦺 Core: Fixed filecache item deletion
 - 🦺 MpvCore: Updated mpv-prism to 0.1.2
-  - Read active GPUs from Electron
-  - Windows: Create D3D11 directly on matching adapter
-  - Linux: Select DRM node matching Electron’s active PCI vendor/device
+- 🦺 MPV/IINA: Delay actions until file is ready
+  - Fixed startup race causing hanging
+  - Potential fixes for dual-gpu setups
 - ⬆️ Updated dependecies
 
 ## v3.9.1
@@ -1867,4 +1867,3 @@ This release introduced a major bug, skip to v1.1.2+
 ## 0.1.0
 
 - 🎉 Alpha release
-

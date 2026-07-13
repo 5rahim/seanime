@@ -4,8 +4,28 @@ package mpvipc
 
 import (
 	"fmt"
+	"testing"
 	"time"
 )
+
+func TestNewEventListenerRegistersBeforeReturning(t *testing.T) {
+	conn := NewConnection("")
+	events, stop := conn.NewEventListener()
+	defer func() {
+		stop <- struct{}{}
+	}()
+
+	conn.checkEvent([]byte(`{"event":"file-loaded"}`))
+
+	select {
+	case event := <-events:
+		if event.Name != "file-loaded" {
+			t.Fatalf("expected file-loaded event, got %q", event.Name)
+		}
+	default:
+		t.Fatal("expected listener to be registered")
+	}
+}
 
 func ExampleConnection_Call() {
 	conn := NewConnection("/tmp/mpv_socket")

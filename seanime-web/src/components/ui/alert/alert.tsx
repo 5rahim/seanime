@@ -194,7 +194,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
             ref={ref}
         >
             <div className={cn(AlertAnatomy.detailsContainer(), detailsContainerClass)}>
-                {icon ? icon : <div className={cn(AlertAnatomy.icon({ intent: intent }), !title && "mt-2", iconClass)}>
+                {icon ? icon : <div className={cn(AlertAnatomy.icon({ intent: intent }), iconClass)}>
                     {Icon && Icon}
                 </div>}
                 <div className={cn(AlertAnatomy.textContainer(), textContainerClass)}>

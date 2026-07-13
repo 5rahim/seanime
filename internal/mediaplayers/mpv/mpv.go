@@ -365,17 +365,13 @@ func (m *Mpv) Resume() error {
 	return nil
 }
 
-// waitForFileLoad waits until the MPV track has sent the "file-loaded" event.
+// waitForFileLoad waits until the MPV track is ready to seek.
 func (m *Mpv) waitForFileLoad(timeoutDuration time.Duration) error {
 	timeout := time.Now().Add(timeoutDuration)
 	for {
 		if time.Now().After(timeout) {
 			return errors.New("timed out waiting for file to load")
 		}
-
-		m.playbackMu.RLock()
-		isLoaded := m.isFileLoaded
-		m.playbackMu.RUnlock()
 
 		m.mu.Lock()
 		connClosed := m.conn == nil || m.conn.IsClosed()
@@ -385,12 +381,18 @@ func (m *Mpv) waitForFileLoad(timeoutDuration time.Duration) error {
 			return errors.New("mpv is not running")
 		}
 
-		if isLoaded {
+		if m.isFileReady() {
 			return nil
 		}
 
 		time.Sleep(250 * time.Millisecond)
 	}
+}
+
+func (m *Mpv) isFileReady() bool {
+	m.playbackMu.RLock()
+	defer m.playbackMu.RUnlock()
+	return m.isFileLoaded || (m.freshDuration && m.Playback.Duration > 0)
 }
 
 // SeekToSlow seeks to the given position in the file by first pausing the player and unpausing it after seeking.

@@ -62,6 +62,20 @@ func TestGetPlaybackStatusFileSwitch(t *testing.T) {
 	}
 }
 
+func TestFileReadyUsesObservedDuration(t *testing.T) {
+	player := New(util.NewLogger(), "", "")
+	player.applyPlaybackEvent(&mpvipc.Event{ID: 44, Data: 1440.0})
+
+	if !player.isFileReady() {
+		t.Fatal("expected observed duration to mark the file ready")
+	}
+
+	player.applyPlaybackEvent(&mpvipc.Event{Name: "start-file"})
+	if player.isFileReady() {
+		t.Fatal("expected start-file to ignore the previous duration")
+	}
+}
+
 func TestExtractLaunchErrorMessage(t *testing.T) {
 	content := "[   0.036][e][ipc] Could not bind IPC socket\n[   0.040][e][file] Cannot open file '/tmp/missing.mkv': No such file or directory\n[   0.041][e][stream] Failed to open /tmp/missing.mkv.\n"
 

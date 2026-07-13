@@ -39,6 +39,7 @@ type (
 		prevSocketName string
 		exitedCh       chan struct{}
 		isFileLoaded   bool
+		freshDuration  bool
 	}
 
 	// Subscriber is a subscriber to the iina events.
@@ -175,6 +176,7 @@ func (i *Iina) OpenAndPlay(filePath string, args ...string) error {
 	i.playbackMu.Lock()
 	i.Playback = &Playback{}
 	i.isFileLoaded = false
+	i.freshDuration = false
 	i.playbackMu.Unlock()
 
 	// If the player is already running, just load the new file
@@ -262,17 +264,13 @@ func (i *Iina) Resume() error {
 	return nil
 }
 
-// waitForFileLoad waits until the iina track has sent the "file-loaded" event.
+// waitForFileLoad waits until the iina track is ready to seek.
 func (i *Iina) waitForFileLoad(timeoutDuration time.Duration) error {
 	timeout := time.Now().Add(timeoutDuration)
 	for {
 		if time.Now().After(timeout) {
 			return errors.New("timed out waiting for file to load")
 		}
-
-		i.playbackMu.RLock()
-		isLoaded := i.isFileLoaded
-		i.playbackMu.RUnlock()
 
 		i.mu.Lock()
 		connClosed := i.conn == nil || i.conn.IsClosed()
@@ -282,12 +280,18 @@ func (i *Iina) waitForFileLoad(timeoutDuration time.Duration) error {
 			return errors.New("iina is not running")
 		}
 
-		if isLoaded {
+		if i.isFileReady() {
 			return nil
 		}
 
 		time.Sleep(250 * time.Millisecond)
 	}
+}
+
+func (i *Iina) isFileReady() bool {
+	i.playbackMu.RLock()
+	defer i.playbackMu.RUnlock()
+	return i.isFileLoaded || (i.freshDuration && i.Playback.Duration > 0)
 }
 
 // SeekToSlow seeks to the given position in the file.
@@ -429,7 +433,9 @@ func (i *Iina) listenForEvents(ctx context.Context) {
 		// When the context is cancelled, close the connection
 		<-ctx.Done()
 		i.Logger.Debug().Msg("iina: Context cancelled")
+		i.playbackMu.Lock()
 		i.Playback.IsRunning = false
+		i.playbackMu.Unlock()
 		err := i.conn.Close()
 		if err != nil {
 			i.Logger.Error().Err(err).Msg("iina: Failed to close connection")
@@ -440,15 +446,13 @@ func (i *Iina) listenForEvents(ctx context.Context) {
 
 	// Listen for events
 	for event := range events {
+		i.playbackMu.Lock()
 		switch event.Name {
 		case "start-file":
-			i.playbackMu.Lock()
 			i.isFileLoaded = false
-			i.playbackMu.Unlock()
+			i.freshDuration = false
 		case "file-loaded":
-			i.playbackMu.Lock()
 			i.isFileLoaded = true
-			i.playbackMu.Unlock()
 		}
 		if event.Data != nil {
 			i.Playback.IsRunning = true
@@ -459,11 +463,15 @@ func (i *Iina) listenForEvents(ctx context.Context) {
 				i.Playback.Position = event.Data.(float64)
 			case 44:
 				i.Playback.Duration = event.Data.(float64)
+				i.freshDuration = true
 			case 45:
 				i.Playback.Filename = event.Data.(string)
 			case 46:
 				i.Playback.Filepath = event.Data.(string)
 			}
+		}
+		i.playbackMu.Unlock()
+		if event.Data != nil {
 			i.subscribers.Range(func(key string, sub *Subscriber) bool {
 				go func() {
 					sub.eventCh <- event
@@ -652,6 +660,7 @@ func (i *Iina) resetPlaybackStatus() {
 	i.playbackMu.Lock()
 	i.Logger.Trace().Msg("iina: Resetting playback status")
 	i.isFileLoaded = false
+	i.freshDuration = false
 	i.Playback.Filename = ""
 	i.Playback.Filepath = ""
 	i.Playback.Paused = false

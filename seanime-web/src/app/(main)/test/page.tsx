@@ -801,6 +801,14 @@ export default function TestPage() {
                                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Lorem Ipsum</p>
                                     <Alert
                                         intent="info"
+                                        title="Lorem ipsum dolor sit amet."
+                                    />
+                                    <Alert
+                                        intent="info"
+                                        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                                    />
+                                    <Alert
+                                        intent="info"
                                         title="Lorem Ipsum"
                                         description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                                     />
