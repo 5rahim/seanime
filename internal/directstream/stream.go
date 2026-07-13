@@ -464,17 +464,18 @@ func (m *Manager) listenToPlayerEvents() {
 
 			m.playbackMu.Lock()
 			_, isTerminated := event.(*player.TerminatedEvent)
+			if isTerminated && key.PlaybackID != "" && key.PlaybackID == m.replacedPlaybackId &&
+				(m.replacedPlaybackClient == "" || key.ClientID == "" || key.ClientID == m.replacedPlaybackClient) {
+				m.playbackMu.Unlock()
+				m.Logger.Debug().Str("playbackId", key.PlaybackID).Msg("directstream: Ignoring termination event of replaced playback session during preparation")
+				continue
+			}
 			cs, ok := m.currentStream.Get()
 			if !ok {
 				var cancelFunc func()
 				shouldCancel := false
 				if isTerminated {
-					isReplacedSession := key.PlaybackID != "" && m.replacedPlaybackId != "" && key.PlaybackID == m.replacedPlaybackId
-					if !isReplacedSession {
-						cancelFunc, shouldCancel = m.cancelPreparationLocked(key.ClientID, true)
-					} else {
-						m.Logger.Debug().Str("playbackId", key.PlaybackID).Msg("directstream: Ignoring termination event of replaced playback session during preparation")
-					}
+					cancelFunc, shouldCancel = m.cancelPreparationLocked(key.ClientID, true)
 				}
 				m.playbackMu.Unlock()
 				if shouldCancel && cancelFunc != nil {

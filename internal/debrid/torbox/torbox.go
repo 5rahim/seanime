@@ -9,6 +9,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"seanime/internal/constants"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/util"
@@ -384,7 +385,7 @@ func (t *TorBox) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (down
 		return "", fmt.Errorf("torbox: Failed to get download URL: %w", debrid.ErrNotAuthenticated)
 	}
 
-	url := t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&zip_link=true&append_name=true", apiKey, opts.ID)
+	requestUrl := t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&zip_link=true&append_name=true", apiKey, opts.ID)
 	if opts.FileId != "" {
 		// Get the actual file ID
 		torrent, err := t.getTorrent(opts.ID)
@@ -401,10 +402,10 @@ func (t *TorBox) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (down
 		if fId == "" {
 			return "", fmt.Errorf("torbox: Failed to get download URL, file not found")
 		}
-		url = t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&file_id=%s&append_name=true", apiKey, opts.ID, fId)
+		requestUrl = t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&file_id=%s&append_name=true", apiKey, opts.ID, fId)
 	}
 
-	resp, err := t.doQuery("GET", url, nil, "application/json")
+	resp, err := t.doQuery("GET", requestUrl, nil, "application/json")
 	if err != nil {
 		return "", fmt.Errorf("torbox: Failed to get download URL: %w", err)
 	}
@@ -416,10 +417,33 @@ func (t *TorBox) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (down
 	if err != nil {
 		return "", fmt.Errorf("torbox: Failed to get download URL: %w", err)
 	}
+	d, err = normalizeDownloadUrl(d)
+	if err != nil {
+		return "", fmt.Errorf("torbox: Failed to get download URL: %w", err)
+	}
 
 	t.logger.Debug().Str("downloadUrl", d).Msg("torbox: Download link retrieved")
 
 	return d, nil
+}
+
+func normalizeDownloadUrl(downloadUrl string) (string, error) {
+	parsedUrl, err := url.Parse(downloadUrl)
+	if err != nil {
+		return "", err
+	}
+
+	query := strings.Split(parsedUrl.RawQuery, "&")
+	for idx, part := range query {
+		key, value, ok := strings.Cut(part, "=")
+		if !ok || key != "filename" {
+			continue
+		}
+		query[idx] = key + "=" + strings.ReplaceAll(value, " ", "%20")
+	}
+	parsedUrl.RawQuery = strings.Join(query, "&")
+
+	return parsedUrl.String(), nil
 }
 
 func (t *TorBox) GetTorrent(id string) (ret *debrid.TorrentItem, err error) {

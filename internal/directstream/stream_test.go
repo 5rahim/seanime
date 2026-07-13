@@ -277,6 +277,7 @@ func newDirectstreamMpvTestManager(t *testing.T) (*Manager, *events.MockWSEventM
 		WSEventManager:       ws,
 		MediacoreCoordinator: coordinator,
 	})
+	manager.SetPlaybackTarget(PlaybackTargetMpvCore)
 	t.Cleanup(func() {
 		_ = coordinator.Close()
 		mpvCore.Shutdown()
@@ -467,22 +468,43 @@ func TestStream_beginOpenTerminatesPreviousStream(t *testing.T) {
 func TestStream_beginOpenIgnoresReplacedPlaybackTermination(t *testing.T) {
 	manager, ws, core := newDirectstreamMpvTestManager(t)
 
-	stream := &eventStream{
+	previousStream := &eventStream{
 		clientID:     "player-client",
 		playbackInfo: &player.PlaybackInfo{ID: "previous-playback-id", PlaybackType: player.PlaybackTypeTorrent},
 		terminatedCh: make(chan struct{}),
 	}
-	manager.currentStream = mo.Some[Stream](stream)
+	manager.currentStream = mo.Some[Stream](previousStream)
 	manager.currentPlaybackId = "previous-playback-id"
 	manager.currentPlaybackClient = "player-client"
 
 	activateMpvPlayback(t, ws, core, "player-client", "previous-playback-id")
 
 	require.True(t, manager.BeginOpen("player-client", "opening", nil))
+	nextStream := &blockingStream{
+		clientID:       "player-client",
+		loadPlaybackCh: make(chan struct{}),
+		loadStartedCh:  make(chan struct{}),
+		terminatedCh:   make(chan struct{}),
+	}
+	t.Cleanup(func() {
+		close(nextStream.loadPlaybackCh)
+	})
+
+	go manager.loadStream(nextStream)
+
+	select {
+	case <-nextStream.loadStartedCh:
+	case <-time.After(250 * time.Millisecond):
+		t.Fatal("expected new stream to start loading")
+	}
 
 	sendMpvTerminated(ws, "player-client", "previous-playback-id")
 
-	time.Sleep(100 * time.Millisecond)
+	select {
+	case <-nextStream.terminatedCh:
+		t.Fatal("expected replaced playback termination to leave the new stream active")
+	case <-time.After(250 * time.Millisecond):
+	}
 
 	require.True(t, manager.IsOpenActive("player-client"))
 

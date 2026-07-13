@@ -1,6 +1,6 @@
 {
   "name": "seanime-denshi",
-  "version": "3.9.2-alpha.12",
+  "version": "3.9.2-alpha.16",
   "description": "Electron-based Desktop client for Seanime",
   "main": "dist/main/index.js",
   "author": "5rahim <talkwithrahim@gmail.com>",
@@ -15,7 +15,7 @@
     "build:linux": "npm run build:main && npm run sync:mpv-prism -- linux-x64 && electron-builder build --linux --x64"
   },
   "dependencies": {
-    "@mpv-prism/electron": "https://seanime.app/assets/mpv-prism/0.1.4/packages/mpv-prism-electron-0.1.4.tgz?sha256=cf0eff6245d2a17a01eddf20918174866f07fcd9ee5655bdd77e2349f0d2f532",
+    "@mpv-prism/electron": "https://seanime.app/assets/mpv-prism/0.1.8/packages/mpv-prism-electron-0.1.8.tgz?sha256=91efadf4107f0240e9cc822c1f0dc5cec019cb2bc2031aac9390950d955bb37e",
     "archiver": "^5.3.2",
     "castv2": "^0.1.10",
     "electron-log": "^5.4.3",
