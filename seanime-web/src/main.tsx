@@ -10,6 +10,7 @@ import ReactDOM from "react-dom/client"
 import { ErrorBoundary, FallbackProps } from "react-error-boundary"
 import { LuffyError } from "./components/shared/luffy-error"
 import { Button } from "./components/ui/button"
+import { setupDenshiScrollRestoration } from "./lib/router/denshi-scroll-restoration"
 import { getDenshiViewTransition } from "./lib/router/view-transitions"
 import { routeTree } from "./routeTree.gen"
 import "@fontsource-variable/inter/index.css"
@@ -17,7 +18,8 @@ import "@fontsource-variable/inter/index.css"
 type RouterPreloadMode = false | "intent" | "viewport"
 
 function createAppRouter(defaultPreload: RouterPreloadMode, defaultPreloadDelay?: number) {
-    return createRouter({
+    const viewTransition = getDenshiViewTransition()
+    const router = createRouter({
         routeTree,
         defaultPreload,
         defaultPreloadDelay,
@@ -26,9 +28,15 @@ function createAppRouter(defaultPreload: RouterPreloadMode, defaultPreloadDelay?
             store,
         },
         scrollRestoration: false,
-        defaultViewTransition: getDenshiViewTransition(),
+        defaultViewTransition: viewTransition,
         defaultPreloadStaleTime: 30 * 1000,
     })
+
+    if (viewTransition) {
+        setupDenshiScrollRestoration(router)
+    }
+
+    return router
 }
 
 type AppRouter = ReturnType<typeof createAppRouter>

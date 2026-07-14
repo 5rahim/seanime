@@ -28,6 +28,7 @@ import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
+import { getProxyUrl } from "@/app/(main)/onlinestream/_lib/onlinestream-proxy"
 import {
     __onlinestream_audioTrackPreferenceByMediaAtom,
     __onlinestream_dubbedPreferenceByMediaAtom,
@@ -305,6 +306,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     // Stream URL
     const [url, setUrl] = React.useState<string | null>(null)
+    const [subtitleTracks, setSubtitleTracks] = React.useState<VideoCore_VideoPlaybackInfo["subtitleTracks"]>()
 
     React.useEffect(() => {
         return () => {
@@ -502,16 +504,22 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
             setPlaybackError(null)
             log.info("Changing stream URL using videoSource", { videoSource })
             setUrl(null)
+            setSubtitleTracks(undefined)
             log.info("Setting stream URL to undefined")
             if (videoSource?.url) {
                 setServer(videoSource.server)
-                let _url = videoSource.url
-                if (videoSource.headers && Object.keys(videoSource.headers).length > 0) {
-                    _url = `${getServerBaseUrl()}/api/v1/proxy?url=${encodeURIComponent(videoSource?.url)}&headers=${encodeURIComponent(JSON.stringify(
-                        videoSource?.headers))}` + (await getHMACTokenQueryParam("/api/v1/proxy", "&"))
-                } else {
-                    _url = videoSource.url
-                }
+                const headers = videoSource.headers
+                const shouldProxy = !!headers && Object.keys(headers).length > 0
+                const tokenQuery = shouldProxy ? await getHMACTokenQueryParam("/api/v1/proxy", "&") : ""
+                const getUrl = (url: string) => shouldProxy ? getProxyUrl(getServerBaseUrl(), url, headers, tokenQuery) : url
+                const _url = getUrl(videoSource.url)
+                const _subtitleTracks = videoSource.subtitles?.map((sub, index) => ({
+                    index: index,
+                    label: sub.language,
+                    src: getUrl(sub.url),
+                    language: sub.language,
+                    default: index === 0,
+                }))
                 React.startTransition(() => {
                     (async () => {
                         // If the video source is unknown or we can't determine if it's a native video from the url,
@@ -528,6 +536,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                         }
                         React.startTransition(() => {
                             log.info("Setting stream URL", { url: _url, quality, server, dubbed, provider })
+                            setSubtitleTracks(_subtitleTracks)
                             setUrl(_url)
                         })
                     })()
@@ -827,12 +836,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                             streamType: overrideStreamType
                                                 ? overrideStreamType
                                                 : ((url && isHLSSrc(url)) || videoSource?.type === "m3u8") ? "hls" : "native",
-                                            subtitleTracks: videoSource?.subtitles?.map((sub, index) => ({
-                                                index: index,
-                                                label: sub.language,
-                                                src: sub.url,
-                                                language: sub.language,
-                                                default: index === 0,
+                                            subtitleTracks: subtitleTracks?.map(track => ({
+                                                ...track,
                                                 useLibassRenderer: useLibassRenderer,
                                             })),
                                             videoSources: hasMultipleVideoSources ? videoSources?.map((source, index) => ({

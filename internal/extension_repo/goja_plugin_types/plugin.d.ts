@@ -2821,6 +2821,11 @@ declare namespace $database {
          * Get the Anilist username
          */
         function getUsername(): string
+
+        /**
+         * Get the Anilist avatar URL
+         */
+        function getAvatarUrl(): string
     }
 
     namespace autoDownloaderRules {

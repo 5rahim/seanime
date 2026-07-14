@@ -8,6 +8,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/library/anime"
+	"seanime/internal/user"
 	"seanime/internal/util"
 	"time"
 
@@ -45,6 +46,7 @@ func (a *AppContextImpl) BindDatabase(vm *goja.Runtime, logger *zerolog.Logger, 
 	anilistObj := vm.NewObject()
 	_ = anilistObj.Set("getToken", db.getAnilistToken)
 	_ = anilistObj.Set("getUsername", db.getAnilistUsername)
+	_ = anilistObj.Set("getAvatarUrl", db.getAnilistAvatarURL)
 	_ = dbObj.Set("anilist", anilistObj)
 
 	// Auto downloader rules
@@ -209,6 +211,28 @@ func (d *Database) getAnilistUsername() (string, error) {
 	}
 
 	return acc.Username, nil
+}
+
+func (d *Database) getAnilistAvatarURL() (string, error) {
+	db, ok := d.ctx.database.Get()
+	if !ok {
+		return "", errors.New("database not initialized")
+	}
+
+	acc, err := db.GetAccount()
+	if err != nil {
+		return "", nil
+	}
+
+	currentUser, err := user.NewUser(acc)
+	if err != nil {
+		return "", err
+	}
+	if currentUser.Viewer.Avatar == nil || currentUser.Viewer.Avatar.Large == nil {
+		return "", nil
+	}
+
+	return *currentUser.Viewer.Avatar.Large, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
