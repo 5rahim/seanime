@@ -418,6 +418,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Manga.POST("/download-queue/reset-errored", h.HandleResetErroredChapterDownloadQueue)
 
 	v1Manga.POST("/search", h.HandleMangaManualSearch)
+	v1Manga.POST("/manual-mapping/preview", h.HandlePreviewMangaMapping)
 	v1Manga.POST("/manual-mapping", h.HandleMangaManualMapping)
 	v1Manga.POST("/get-mapping", h.HandleGetMangaMapping)
 	v1Manga.POST("/remove-mapping", h.HandleRemoveMangaMapping)

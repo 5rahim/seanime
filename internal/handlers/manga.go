@@ -82,7 +82,8 @@ func (h *Handler) HandlePatchMangaPreference(c echo.Context) error {
 //	@returns manga.MangaSourceRefreshJob
 func (h *Handler) HandleStartMangaSourceRefresh(c echo.Context) error {
 	type body struct {
-		Mode manga.MangaSourceRefreshMode `json:"mode"`
+		Mode     manga.MangaSourceRefreshMode `json:"mode"`
+		MediaIds []int                        `json:"mediaIds,omitempty"`
 	}
 
 	var b body
@@ -91,6 +92,11 @@ func (h *Handler) HandleStartMangaSourceRefresh(c echo.Context) error {
 	}
 	if !manga.IsMangaSourceRefreshModeValid(b.Mode) {
 		return h.RespondWithStatusError(c, http.StatusBadRequest, errors.New("invalid manga source refresh mode"))
+	}
+	for _, mediaId := range b.MediaIds {
+		if mediaId <= 0 {
+			return h.RespondWithStatusError(c, http.StatusBadRequest, errors.New("invalid media id"))
+		}
 	}
 	clientId := getContextClientId(c)
 	job, err := h.App.MangaRepository.GetActiveMangaSourceRefresh(clientId)
@@ -104,7 +110,7 @@ func (h *Handler) HandleStartMangaSourceRefresh(c echo.Context) error {
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
-	job, err = h.App.MangaRepository.StartMangaSourceRefresh(clientId, b.Mode, collection)
+	job, err = h.App.MangaRepository.StartMangaSourceRefresh(clientId, b.Mode, collection, b.MediaIds...)
 	if err != nil {
 		if errors.Is(err, manga.ErrMangaSourceRefreshConflict) {
 			return h.RespondWithStatusError(c, http.StatusConflict, err)
@@ -636,6 +642,32 @@ func (h *Handler) HandleMangaManualSearch(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, ret)
+}
+
+// HandlePreviewMangaMapping
+//
+//	@summary returns a chapter summary for a manual manga mapping.
+//	@route /api/v1/manga/manual-mapping/preview [POST]
+//	@returns manga.MappingPreview
+func (h *Handler) HandlePreviewMangaMapping(c echo.Context) error {
+	type body struct {
+		Provider string `json:"provider"`
+		MangaId  string `json:"mangaId"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithStatusError(c, http.StatusBadRequest, err)
+	}
+	if b.Provider == "" || b.MangaId == "" {
+		return h.RespondWithStatusError(c, http.StatusBadRequest, errors.New("provider and manga id are required"))
+	}
+
+	preview, err := h.App.MangaRepository.PreviewMapping(b.Provider, b.MangaId)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	return h.RespondWithData(c, preview)
 }
 
 // HandleMangaManualMapping

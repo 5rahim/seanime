@@ -1,13 +1,6 @@
 import { useSeaQuery } from "@/api/client/requests"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import {
-    ExtensionRepo_MangaProviderExtensionItem,
-    Manga_MangaEntryPreference,
-    Manga_MangaLatestChapterNumberItem,
-    Manga_MangaPreferences,
-    Nullish,
-    Status,
-} from "@/api/generated/types"
+import { ExtensionRepo_MangaProviderExtensionItem, Manga_MangaEntryPreference, Manga_MangaPreferences, Nullish, Status } from "@/api/generated/types"
 import { useListMangaProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useQueryClient } from "@tanstack/react-query"
@@ -15,7 +8,6 @@ import { atom } from "jotai"
 import { withImmer } from "jotai-immer"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
-import sortBy from "lodash/sortBy"
 import React from "react"
 import { toast } from "sonner"
 import { getActiveMangaFilters, MangaEntryFilters } from "./manga-preferences"
@@ -322,70 +314,4 @@ export function useStoredMangaFilters(_extensions: ExtensionRepo_MangaProviderEx
     return {
         storedFilters,
     }
-}
-
-export function getMangaEntryLatestChapterNumber(
-    mangaId: string | number,
-    latestChapterNumbers: Record<number, Manga_MangaLatestChapterNumberItem[]>,
-    storedProviders: Record<string, string>,
-    storedFilters: Record<string, MangaEntryFilters>,
-) {
-    const provider = storedProviders[String(mangaId)]
-    const filters = storedFilters?.[String(mangaId)]
-
-    if (!provider) return null
-
-    const mangaLatestChapterNumbers = latestChapterNumbers[Number(mangaId)]?.filter?.(item => {
-        return item.provider === provider
-    })
-
-    let found: Manga_MangaLatestChapterNumberItem | null | undefined = null
-
-    // If filters are set for this manga
-    if (!!filters) {
-        // Find entry with matching scanlator & language
-        found = mangaLatestChapterNumbers?.find(item => {
-            return !!filters.scanlators[0] && !!filters.language &&
-                filters.scanlators[0] === item.scanlator && filters.language === item.language
-        })
-
-        // If no entry with matching scanlator & language is found, find entry with matching language
-        if (!found) {
-            // Get all entries with matching language
-            const entries = mangaLatestChapterNumbers?.filter(item => {
-                return !!filters.language && filters.language === item.language
-            }) ?? []
-
-            // Get the highest chapter number from all entries with matching language
-            found = sortBy(entries, "number").reverse()[0]
-        }
-
-        // If no entry with matching language is found, find entry with matching scanlator
-        if (!found) {
-            // Get all entries with matching scanlator
-            const entries = mangaLatestChapterNumbers?.filter(item => {
-                return !!filters.scanlators[0] && filters.scanlators[0] === item.scanlator
-            }) ?? []
-
-            // Get the highest chapter number from all entries with matching scanlator
-            found = sortBy(entries, "number").reverse()[0]
-        }
-    }
-
-    // If no filters are set or no entry is found for the filters, get the highest chapter number
-    if (!found) {
-        // Get the highest chapter number from any
-        const highestChapterNumber = mangaLatestChapterNumbers?.reduce((max, item) => {
-            return Math.max(max, item.number)
-        }, 0)
-        found = {
-            provider: provider,
-            language: "",
-            scanlator: "",
-            number: highestChapterNumber,
-        }
-    }
-
-    return found?.number
-
 }

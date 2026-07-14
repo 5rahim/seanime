@@ -1309,6 +1309,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/manga/search",
         },
+        PreviewMangaMapping: {
+            key: "MANGA-preview-manga-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/manual-mapping/preview",
+        },
         /**
          *  @description
          *  Route manually maps a manga entry to a manga ID from the provider.

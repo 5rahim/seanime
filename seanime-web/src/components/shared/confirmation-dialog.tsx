@@ -5,7 +5,7 @@ import React from "react"
 
 type ConfirmationDialogHookProps = {
     title: string,
-    description?: string,
+    description?: React.ReactNode,
     actionText?: string,
     cancelText?: string,
     actionIntent?: ButtonProps["intent"]
@@ -44,7 +44,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogHookProps & UseDiscl
                 onOpenChange={close}
             >
                 <div className="space-y-4">
-                    <p className="text-center">{description}</p>
+                    <div className="text-center">{description}</div>
                     <div className="flex gap-2 justify-center items-center">
                         <Button
                             intent={actionIntent}

@@ -6094,6 +6094,15 @@
           "typescriptType": "Manga_MangaSourceRefreshMode",
           "required": true,
           "descriptions": []
+        },
+        {
+          "name": "MediaIds",
+          "jsonName": "mediaIds",
+          "goType": "[]int",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cnumber\u003e",
+          "required": false,
+          "descriptions": []
         }
       ],
       "returns": "manga.MangaSourceRefreshJob",
@@ -6888,6 +6897,52 @@
       "returns": "[]hibikemanga.SearchResult",
       "returnGoType": "hibikemanga.SearchResult",
       "returnTypescriptType": "Array\u003cHibikeManga_SearchResult\u003e"
+    }
+  },
+  {
+    "name": "HandlePreviewMangaMapping",
+    "trimmedName": "PreviewMangaMapping",
+    "comments": [
+      "HandlePreviewMangaMapping",
+      "",
+      "\t@summary returns a chapter summary for a manual manga mapping.",
+      "\t@route /api/v1/manga/manual-mapping/preview [POST]",
+      "\t@returns manga.MappingPreview",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns a chapter summary for a manual manga mapping.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/manual-mapping/preview",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MangaId",
+          "jsonName": "mangaId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "manga.MappingPreview",
+      "returnGoType": "manga.MappingPreview",
+      "returnTypescriptType": "Manga_MappingPreview"
     }
   },
   {

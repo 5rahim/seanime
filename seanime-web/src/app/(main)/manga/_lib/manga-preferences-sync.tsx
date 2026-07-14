@@ -1,6 +1,6 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Manga_MangaPreferences } from "@/api/generated/types"
-import { useGetMangaPreferences, useImportMangaPreferences } from "@/api/hooks/manga.hooks"
+import { Manga_MangaPreferences, Manga_MangaSourceRefreshJob } from "@/api/generated/types"
+import { useGetMangaPreferences, useGetMangaSourceRefresh, useImportMangaPreferences } from "@/api/hooks/manga.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
@@ -57,6 +57,37 @@ export function MangaPreferencesSync() {
         type: WSEvents.MANGA_PREFERENCES_UPDATED,
         onMessage: handlePreferencesUpdated,
     })
+
+    return null
+}
+
+export function MangaSourceRefreshSync() {
+    const queryClient = useQueryClient()
+    const { data: job } = useGetMangaSourceRefresh()
+    const handledJob = React.useRef<string | null>(null)
+
+    const handleJobUpdated = React.useCallback((updatedJob: Manga_MangaSourceRefreshJob) => {
+        queryClient.setQueryData([API_ENDPOINTS.MANGA.GetMangaSourceRefresh.key], updatedJob)
+    }, [queryClient])
+
+    useWebsocketMessageListener({
+        type: WSEvents.MANGA_SOURCE_REFRESH_UPDATED,
+        onMessage: handleJobUpdated,
+    })
+
+    const terminal = job?.status === "completed" || job?.status === "cancelled" || job?.status === "failed"
+    React.useEffect(() => {
+        if (!job || !terminal || handledJob.current === job.id) return
+        handledJob.current = job.id
+        void (async () => {
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaPreferences.key] })
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.key] }),
+                queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryChapters.key] }),
+                queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryPages.key] }),
+            ])
+        })()
+    }, [job, queryClient, terminal])
 
     return null
 }

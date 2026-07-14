@@ -30,7 +30,7 @@ import { useSyncListener } from "@/app/(main)/_listeners/sync.listeners"
 import { useTorrentStreamListener } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { PlaybackPlayPill } from "@/app/(main)/entry/_containers/torrent-stream/playback-play-pill"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
-import { MangaPreferencesSync } from "@/app/(main)/manga/_lib/manga-preferences-sync"
+import { MangaPreferencesSync, MangaSourceRefreshSync } from "@/app/(main)/manga/_lib/manga-preferences-sync"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import { usePathname, useRouter } from "@/lib/navigation"
@@ -54,6 +54,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
         <>
             <Loader />
             <MangaPreferencesSync />
+            <MangaSourceRefreshSync />
             <ScanProgressBar />
             <LibraryWatcher />
             <ScannerModal />

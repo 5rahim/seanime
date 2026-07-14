@@ -356,6 +356,8 @@ function StatusField({ media, type }: {
     const { setValue } = useFormContext<z.infer<typeof mediaListDataSchema>>()
 
     const handleChange = (status: AL_MediaListStatus) => {
+        setValue("status", status, { shouldDirty: true })
+
         const episodes = (media as AL_BaseAnime)?.episodes
         if (type === "anime" && status === "COMPLETED" && episodes) {
             setValue("progress", episodes, { shouldDirty: true })

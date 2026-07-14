@@ -114,13 +114,7 @@ export function useHandleMangaCollection() {
             if (!obj) return obj
 
             const newParams = { ...params, sorting: mangaLibraryCollectionDefaultSorting as any }
-            let arr = filterMangaCollectionEntries(obj.entries, newParams, true, storedProviders, storedFilters, latestChapterNumbers)
-
-            // Reset `unreadOnly` if it's about to make the list disappear
-            if (arr.length === 0 && newParams.unreadOnly) {
-                const newParams = { ...params, unreadOnly: false, sorting: mangaLibraryCollectionDefaultSorting as any }
-                arr = filterMangaCollectionEntries(obj.entries, newParams, true, storedProviders, storedFilters, latestChapterNumbers)
-            }
+            const arr = filterMangaCollectionEntries(obj.entries, newParams, true, storedProviders, storedFilters, latestChapterNumbers)
 
             return {
                 type: obj.type,

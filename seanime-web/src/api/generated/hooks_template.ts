@@ -1686,6 +1686,17 @@
 //     })
 // }
 
+// export function usePreviewMangaMapping() {
+//     return useServerMutation<Manga_MappingPreview, PreviewMangaMapping_Variables>({
+//         endpoint: API_ENDPOINTS.MANGA.PreviewMangaMapping.endpoint,
+//         method: API_ENDPOINTS.MANGA.PreviewMangaMapping.methods[0],
+//         mutationKey: [API_ENDPOINTS.MANGA.PreviewMangaMapping.key],
+//         onSuccess: async () => {
+//
+//         },
+//     })
+// }
+
 // export function useMangaManualMapping() {
 //     return useServerMutation<boolean, MangaManualMapping_Variables>({
 //         endpoint: API_ENDPOINTS.MANGA.MangaManualMapping.endpoint,

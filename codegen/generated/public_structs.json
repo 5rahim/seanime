@@ -59550,6 +59550,52 @@
   {
     "filepath": "../internal/manga/chapter_container_mapping.go",
     "filename": "chapter_container_mapping.go",
+    "name": "MappingPreview",
+    "formattedName": "Manga_MappingPreview",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "ChapterCount",
+        "jsonName": "chapterCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Latest",
+        "jsonName": "latest",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Languages",
+        "jsonName": "languages",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Scanlators",
+        "jsonName": "scanlators",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/chapter_container_mapping.go",
+    "filename": "chapter_container_mapping.go",
     "name": "MappingResponse",
     "formattedName": "Manga_MappingResponse",
     "package": "manga",

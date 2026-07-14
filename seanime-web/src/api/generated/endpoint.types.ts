@@ -1152,6 +1152,7 @@ export type EditMALListEntryProgress_Variables = {
  */
 export type StartMangaSourceRefresh_Variables = {
     mode: Manga_MangaSourceRefreshMode
+    mediaIds?: Array<number>
 }
 
 /**
@@ -1301,6 +1302,18 @@ export type UpdateMangaProgress_Variables = {
 export type MangaManualSearch_Variables = {
     provider: string
     query: string
+}
+
+/**
+ * - Filepath: internal/handlers/manga.go
+ * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/manual-mapping/preview
+ * @description
+ * Route returns a chapter summary for a manual manga mapping.
+ */
+export type PreviewMangaMapping_Variables = {
+    provider: string
+    mangaId: string
 }
 
 /**

@@ -3465,6 +3465,18 @@ export type Manga_MangaSourceRefreshStatus = "running" | "stopping" | "completed
  * - Filename: chapter_container_mapping.go
  * - Package: manga
  */
+export type Manga_MappingPreview = {
+    chapterCount: number
+    latest: string
+    languages?: Array<string>
+    scanlators?: Array<string>
+}
+
+/**
+ * - Filepath: internal/manga/chapter_container_mapping.go
+ * - Filename: chapter_container_mapping.go
+ * - Package: manga
+ */
 export type Manga_MappingResponse = {
     mangaId?: string
 }

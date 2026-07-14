@@ -8,6 +8,7 @@ import {
     GetMangaMapping_Variables,
     MangaManualMapping_Variables,
     MangaManualSearch_Variables,
+    PreviewMangaMapping_Variables,
     RefetchMangaChapterContainers_Variables,
     RemoveMangaMapping_Variables,
     StartMangaSourceRefresh_Variables,
@@ -26,6 +27,7 @@ import {
     Manga_MangaLatestChapterNumberItem,
     Manga_MangaPreferences,
     Manga_MangaSourceRefreshJob,
+    Manga_MappingPreview,
     Manga_MappingResponse,
     Manga_PageContainer,
     Nullish,
@@ -227,6 +229,14 @@ export function useMangaManualSearch(mediaId: Nullish<number>, provider: Nullish
         method: API_ENDPOINTS.MANGA.MangaManualSearch.methods[0],
         mutationKey: [API_ENDPOINTS.MANGA.MangaManualSearch.key, String(mediaId), provider],
         gcTime: 0,
+    })
+}
+
+export function usePreviewMangaMapping() {
+    return useServerMutation<Manga_MappingPreview, PreviewMangaMapping_Variables>({
+        endpoint: API_ENDPOINTS.MANGA.PreviewMangaMapping.endpoint,
+        method: API_ENDPOINTS.MANGA.PreviewMangaMapping.methods[0],
+        mutationKey: [API_ENDPOINTS.MANGA.PreviewMangaMapping.key],
     })
 }
 

@@ -11,7 +11,8 @@ import {
     Continuity_WatchHistory,
     Manga_MangaLatestChapterNumberItem,
 } from "@/api/generated/types"
-import { getMangaEntryLatestChapterNumber, MangaEntryFilters } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
+import { MangaEntryFilters } from "@/app/(main)/manga/_lib/manga-preferences"
+import { getMangaEntryUnreadState } from "@/app/(main)/manga/_lib/manga-unread"
 import sortBy from "lodash/sortBy"
 import { anilist_getUnwatchedCount } from "./media"
 
@@ -459,33 +460,31 @@ export function filterMangaCollectionEntries<T extends Anime_LibraryCollectionEn
     storedProviderFilters: Record<number, MangaEntryFilters> | null | undefined,
     latestChapterNumbers: Record<number, Manga_MangaLatestChapterNumberItem[]> | null | undefined,
 ) {
-    if (!latestChapterNumbers || !storedProviders || !storedProviderFilters) return []
     let arr = filterCollectionEntries("manga", entries, params, showAdultContent)
+    if (!latestChapterNumbers || !storedProviders || !storedProviderFilters) return params.unreadOnly ? [] : arr
 
 
     if (params.unreadOnly) {
         arr = arr.filter(n => {
-            const latestChapterNumber = getMangaEntryLatestChapterNumber(n.media?.id!, latestChapterNumbers, storedProviders, storedProviderFilters)
-            const mangaChapterCount = latestChapterNumber || 999999
-            return mangaChapterCount - (n.listData?.progress || 0) > 0
+            const state = getMangaEntryUnreadState(n.media?.id!, n.listData?.progress || 0,
+                latestChapterNumbers, storedProviders, storedProviderFilters)
+            return state.known && state.unread > 0
         })
     }
 
     // Sort by unwatched chapters
     if (getParamValue(params.sorting) === "UNREAD_CHAPTERS") {
         arr = sortBy(arr, n => {
-            const latestChapterNumber = getMangaEntryLatestChapterNumber(n.media?.id!, latestChapterNumbers, storedProviders, storedProviderFilters)
-            // console.log(n.media?.id, latestChapterNumber)
-            const mangaChapterCount = latestChapterNumber || 999999
-            return mangaChapterCount - (n.listData?.progress || 0)
+            const state = getMangaEntryUnreadState(n.media?.id!, n.listData?.progress || 0,
+                latestChapterNumbers, storedProviders, storedProviderFilters)
+            return state.known ? state.unread : Number.POSITIVE_INFINITY
         })
     }
     if (getParamValue(params.sorting) === "UNREAD_CHAPTERS_DESC") {
         arr = sortBy(arr, n => {
-            const latestChapterNumber = getMangaEntryLatestChapterNumber(n.media?.id!, latestChapterNumbers, storedProviders, storedProviderFilters)
-            // console.log(n.media?.id, latestChapterNumber)
-            const mangaChapterCount = latestChapterNumber || 0
-            return mangaChapterCount - (n.listData?.progress || 0)
+            const state = getMangaEntryUnreadState(n.media?.id!, n.listData?.progress || 0,
+                latestChapterNumbers, storedProviders, storedProviderFilters)
+            return state.known ? state.unread : -1
         }).reverse()
     }
 

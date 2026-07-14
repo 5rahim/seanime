@@ -203,6 +203,7 @@ const (
 	PlaybackSyncCurrentProgressEndpoint                = "PLAYBACK-MANAGER-playback-sync-current-progress"
 	PopulateFillerDataEndpoint                         = "METADATA-populate-filler-data"
 	PreloadMediastreamMediaContainerEndpoint           = "MEDIASTREAM-preload-mediastream-media-container"
+	PreviewMangaMappingEndpoint                        = "MANGA-preview-manga-mapping"
 	RefetchMangaChapterContainersEndpoint              = "MANGA-refetch-manga-chapter-containers"
 	RefreshLibraryExplorerFileTreeEndpoint             = "LIBRARY-EXPLORER-refresh-library-explorer-file-tree"
 	ReloadExternalExtensionEndpoint                    = "EXTENSIONS-reload-external-extension"

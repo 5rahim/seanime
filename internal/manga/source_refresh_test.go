@@ -73,6 +73,10 @@ func TestBuildMangaSourceRefreshPhases(t *testing.T) {
 
 	all := buildMangaSourceRefreshPhases(collection, preferences, providers, MangaSourceRefreshAll)
 	require.Len(t, all[0].plans, 2)
+
+	targeted := buildMangaSourceRefreshPhases(collection, preferences, providers, MangaSourceRefreshAll, 2, 3)
+	require.Len(t, targeted[0].plans, 1)
+	require.Equal(t, 2, targeted[0].plans[0].mediaId)
 }
 
 func TestMangaSourceRefreshFindsAndPersistsProvider(t *testing.T) {

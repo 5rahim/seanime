@@ -1,8 +1,6 @@
-import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Manga_MangaSourceRefreshJob, Manga_MangaSourceRefreshMode } from "@/api/generated/types"
 import { useListMangaProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useStartMangaSourceRefresh, useStopMangaSourceRefresh } from "@/api/hooks/manga.hooks"
-import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { __manga_preferencesHydratedAtom } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Alert } from "@/components/ui/alert"
@@ -11,8 +9,6 @@ import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from
 import { Modal } from "@/components/ui/modal"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { RadioGroup } from "@/components/ui/radio-group"
-import { WSEvents } from "@/lib/server/ws-events"
-import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import React from "react"
 import { LuChevronDown, LuRefreshCcw } from "react-icons/lu"
@@ -27,39 +23,15 @@ type MangaSourceRefreshModalProps = {
 const discoveryModes: Manga_MangaSourceRefreshMode[] = ["find_missing", "refresh_and_find", "reevaluate_all"]
 
 export function MangaSourceRefreshModal({ open, onOpenChange, job, returnFocusRef }: MangaSourceRefreshModalProps) {
-    const queryClient = useQueryClient()
     const hydrated = useAtomValue(__manga_preferencesHydratedAtom)
     const { data: providers } = useListMangaProviderExtensions()
     const { mutate: startRefresh, isPending: isStarting } = useStartMangaSourceRefresh()
     const { mutate: stopRefresh, isPending: isStopping } = useStopMangaSourceRefresh()
     const [mode, setMode] = React.useState<Manga_MangaSourceRefreshMode>("refresh_selected")
-    const handledJob = React.useRef<string | null>(null)
     const statusHeadingRef = React.useRef<HTMLParagraphElement>(null)
-
-    const handleJobUpdated = React.useCallback((updatedJob: Manga_MangaSourceRefreshJob) => {
-        queryClient.setQueryData([API_ENDPOINTS.MANGA.GetMangaSourceRefresh.key], updatedJob)
-    }, [queryClient])
-
-    useWebsocketMessageListener({
-        type: WSEvents.MANGA_SOURCE_REFRESH_UPDATED,
-        onMessage: handleJobUpdated,
-    })
 
     const terminal = job?.status === "completed" || job?.status === "cancelled" || job?.status === "failed"
     const running = job?.status === "running" || job?.status === "stopping"
-
-    React.useEffect(() => {
-        if (!job || !terminal || handledJob.current === job.id) return
-        handledJob.current = job.id
-        void (async () => {
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaPreferences.key] })
-            await Promise.all([
-                queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.key] }),
-                queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryChapters.key] }),
-                queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryPages.key] }),
-            ])
-        })()
-    }, [job, queryClient, terminal])
 
     React.useEffect(() => {
         if (open && job) {
@@ -71,6 +43,9 @@ export function MangaSourceRefreshModal({ open, onOpenChange, job, returnFocusRe
     const discoveryDisabled = providerCount === 0
     const startDisabled = !hydrated || isStarting || discoveryDisabled && discoveryModes.includes(mode)
     const progress = job?.total ? Math.min(100, Math.round(job.current / job.total * 100)) : 0
+    const failedMediaIds = [...new Set(job?.result.issues
+        ?.filter(issue => issue.kind === "provider_error")
+        .map(issue => issue.mediaId) ?? [])]
 
     const dismissJob = React.useCallback((runAgain: boolean) => {
         stopRefresh(undefined, {
@@ -83,6 +58,13 @@ export function MangaSourceRefreshModal({ open, onOpenChange, job, returnFocusRe
             },
         })
     }, [job?.mode, onOpenChange, stopRefresh])
+
+    const retryFailed = React.useCallback(() => {
+        if (!job || !failedMediaIds.length) return
+        stopRefresh(undefined, {
+            onSuccess: () => startRefresh({ mode: job.mode, mediaIds: failedMediaIds }),
+        })
+    }, [failedMediaIds, job, startRefresh, stopRefresh])
 
     return (
         <Modal
@@ -108,6 +90,11 @@ export function MangaSourceRefreshModal({ open, onOpenChange, job, returnFocusRe
                 </>
             ) : terminal ? (
                 <>
+                    {!!failedMediaIds.length && (
+                        <Button intent="gray-outline" loading={isStarting || isStopping} onClick={retryFailed}>
+                            Retry failed
+                        </Button>
+                    )}
                     <Button intent="gray-outline" loading={isStopping} onClick={() => dismissJob(true)}>Run again</Button>
                     <Button intent="primary" loading={isStopping} onClick={() => dismissJob(false)}>Done</Button>
                 </>

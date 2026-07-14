@@ -1,5 +1,6 @@
 import { AL_MediaListStatus, Manga_Collection, Manga_CollectionList } from "@/api/generated/types"
 import { useGetMangaSourceRefresh } from "@/api/hooks/manga.hooks"
+import { useUpdateTheme } from "@/api/hooks/theme.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
@@ -27,7 +28,7 @@ import { useAtom, useAtomValue } from "jotai/react"
 import { AnimatePresence } from "motion/react"
 import React, { memo } from "react"
 import { BiDotsVertical } from "react-icons/bi"
-import { LuBookOpenCheck, LuRefreshCcw } from "react-icons/lu"
+import { LuBookOpenCheck, LuEye, LuEyeOff, LuRefreshCcw } from "react-icons/lu"
 import { CommandItemMedia } from "../../_features/sea-command/_components/command-utils"
 
 type MangaLibraryViewProps = {
@@ -252,6 +253,7 @@ const CollectionListItem = memo(({ list, storedProviders, showStatuses, type, wi
     const router = useRouter()
 
     const { data: sourceRefreshJob } = useGetMangaSourceRefresh(list.type === "CURRENT")
+    const { mutate: updateTheme, isPending: isUpdatingTheme } = useUpdateTheme()
     const [sourceRefreshModalOpen, setSourceRefreshModalOpen] = React.useState(false)
     const sourceRefreshTriggerRef = React.useRef<HTMLButtonElement>(null)
     const sourceRefreshRunning = sourceRefreshJob?.status === "running" || sourceRefreshJob?.status === "stopping"
@@ -347,6 +349,19 @@ const CollectionListItem = memo(({ list, storedProviders, showStatuses, type, wi
                     >
                         <LuBookOpenCheck /> {params.unreadOnly ? "Show all" : "Unread chapters only"}
                     </DropdownMenuItem>
+                    <DropdownMenuItem
+                        disabled={isUpdatingTheme}
+                        onClick={() => updateTheme({
+                            theme: {
+                                id: 0,
+                                ...ts,
+                                showMangaUnreadCount: !ts.showMangaUnreadCount,
+                            },
+                        })}
+                    >
+                        {ts.showMangaUnreadCount ? <LuEyeOff /> : <LuEye />}
+                        {ts.showMangaUnreadCount ? "Hide unread counts" : "Show unread counts"}
+                    </DropdownMenuItem>
                     <PluginMangaLibraryDropdownItems />
                 </DropdownMenu>}
 
@@ -368,6 +383,24 @@ const CollectionListItem = memo(({ list, storedProviders, showStatuses, type, wi
                     className="w-full text-xl lg:text-5xl lg:max-w-[50%] h-[3.2rem] !mt-1 line-clamp-1 truncate text-ellipsis hidden lg:block pb-1"
                 />
             }
+
+            {list.type === "CURRENT" && params.unreadOnly && !list.entries?.length && (
+                <div className="rounded-[--radius-md] border border-dashed px-4 py-10 text-center">
+                    <p className="font-medium">No unread chapters found</p>
+                    <p className="mt-1 text-sm text-[--muted]">Entries without source data are not counted as unread.</p>
+                    <Button
+                        intent="white-link"
+                        size="sm"
+                        className="mt-3"
+                        onClick={() => setParams(draft => {
+                            draft.unreadOnly = false
+                            return
+                        })}
+                    >
+                        Show all manga
+                    </Button>
+                </div>
+            )}
 
             {type === "grid" && <MediaCardLazyGrid itemCount={list.entries?.length ?? 0}>
                 {list.entries?.map(entry => {

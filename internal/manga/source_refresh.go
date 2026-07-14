@@ -128,6 +128,7 @@ func (r *Repository) StartMangaSourceRefresh(
 	clientId string,
 	mode MangaSourceRefreshMode,
 	collection *anilist.MangaCollection,
+	mediaIds ...int,
 ) (*MangaSourceRefreshJob, error) {
 	if !IsMangaSourceRefreshModeValid(mode) {
 		return nil, errors.New("invalid manga source refresh mode")
@@ -147,7 +148,7 @@ func (r *Repository) StartMangaSourceRefresh(
 	if len(providerIds) == 0 && mode != MangaSourceRefreshSelected {
 		return nil, ErrNoMangaProviders
 	}
-	phases := buildMangaSourceRefreshPhases(collection, preferences, providerIds, mode)
+	phases := buildMangaSourceRefreshPhases(collection, preferences, providerIds, mode, mediaIds...)
 	total := 0
 	for _, phase := range phases {
 		total += len(phase.plans)
@@ -262,8 +263,9 @@ func buildMangaSourceRefreshPhases(
 	preferences *MangaPreferences,
 	providerIds []string,
 	mode MangaSourceRefreshMode,
+	mediaIds ...int,
 ) []mangaSourceRefreshPhase {
-	entries := getRefreshableMangaEntries(collection)
+	entries := getRefreshableMangaEntries(collection, mediaIds...)
 	selected := make([]*mangaSourceRefreshPlan, 0)
 	missing := make([]*mangaSourceRefreshPlan, 0)
 	all := make([]*mangaSourceRefreshPlan, 0)
@@ -309,9 +311,13 @@ func buildMangaSourceRefreshPhases(
 	}
 }
 
-func getRefreshableMangaEntries(collection *anilist.MangaCollection) []*anilist.MangaListEntry {
+func getRefreshableMangaEntries(collection *anilist.MangaCollection, mediaIds ...int) []*anilist.MangaListEntry {
 	if collection == nil || collection.MediaListCollection == nil {
 		return nil
+	}
+	targets := make(map[int]struct{}, len(mediaIds))
+	for _, mediaId := range mediaIds {
+		targets[mediaId] = struct{}{}
 	}
 	entries := make(map[int]*anilist.MangaListEntry)
 	for _, list := range collection.MediaListCollection.Lists {
@@ -323,16 +329,21 @@ func getRefreshableMangaEntries(collection *anilist.MangaCollection) []*anilist.
 			if status != anilist.MediaListStatusCurrent && status != anilist.MediaListStatusRepeating {
 				continue
 			}
+			if len(targets) > 0 {
+				if _, ok := targets[entry.GetMedia().ID]; !ok {
+					continue
+				}
+			}
 			entries[entry.GetMedia().ID] = entry
 		}
 	}
-	mediaIds := make([]int, 0, len(entries))
+	sortedMediaIds := make([]int, 0, len(entries))
 	for mediaId := range entries {
-		mediaIds = append(mediaIds, mediaId)
+		sortedMediaIds = append(sortedMediaIds, mediaId)
 	}
-	sort.Ints(mediaIds)
-	ret := make([]*anilist.MangaListEntry, 0, len(mediaIds))
-	for _, mediaId := range mediaIds {
+	sort.Ints(sortedMediaIds)
+	ret := make([]*anilist.MangaListEntry, 0, len(sortedMediaIds))
+	for _, mediaId := range sortedMediaIds {
 		ret = append(ret, entries[mediaId])
 	}
 	return ret
