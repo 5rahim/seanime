@@ -28,4 +28,4 @@ export const __onlinestream_selectedEpisodeNumberAtom = atom<number | null>(null
 
 export const __onlinestream_selectedServerAtom = atomWithStorage<string | undefined>("sea-onlinestream-server", undefined)
 
-export const __onlinestream_qualityAtom = atomWithStorage<string | undefined>("sea-onlinestream-quality", undefined)
+export const __onlinestream_qualityAtom = atomWithStorage<string | undefined>("sea-onlinestream-quality", undefined, undefined, { getOnInit: true })
