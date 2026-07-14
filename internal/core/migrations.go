@@ -177,6 +177,20 @@ func (a *App) runMigrations() {
 			}
 			done = true
 		}
+
+		// 3.10.0 separates episode lists from short-lived stream sources.
+		var v3_10_0 = semver.MustParse("3.10.0-0")
+		if err == nil && hasUpdated && previousVersion.LessThan(v3_10_0) && !currVersion.LessThan(v3_10_0) {
+			a.Logger.Debug().Msg("app: Executing version migration task (clearing online streaming cache)")
+			err := a.FileCacher.RemoveAllBy(func(filename string) bool {
+				return strings.HasPrefix(filename, "onlinestream_")
+			})
+			if err != nil {
+				a.Logger.Error().Err(err).Msg("app: MIGRATION FAILED; READ THIS")
+				a.Logger.Error().Msg("app: Failed to remove online streaming cache files, please clear them manually in the settings.")
+			}
+			done = true
+		}
 	}
 	//}()
 

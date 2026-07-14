@@ -20,7 +20,15 @@ import React from "react"
 import { AiFillInfoCircle } from "react-icons/ai"
 import { LuCaptions, LuPaintbrush } from "react-icons/lu"
 
-export function VideoCoreSubtitleMenu({ inline }: { inline?: boolean }) {
+export type VideoCoreSubtitleSelection = {
+    language?: string
+    label?: string
+} | null
+
+export function VideoCoreSubtitleMenu({ inline, onPreferenceChange }: {
+    inline?: boolean
+    onPreferenceChange?: (selection: VideoCoreSubtitleSelection) => void
+}) {
     const action = useSetAtom(vc_dispatchAction)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const state = useAtomValue(nativePlayer_stateAtom)
@@ -156,6 +164,7 @@ export function VideoCoreSubtitleMenu({ inline }: { inline?: boolean }) {
                         if (value === -1) {
                             activeManager?.setNoTrack()
                             setSelectedTrack(null)
+                            onPreferenceChange?.(null)
                             return
                         }
                         if (subtitleManager) {
@@ -163,6 +172,13 @@ export function VideoCoreSubtitleMenu({ inline }: { inline?: boolean }) {
                         } else if (mediaCaptionsManager) {
                             mediaCaptionsManager.selectTrack(value)
                             setSelectedTrack(value)
+                        }
+                        const track = activeTracks.find(track => track.number === value)
+                        if (track) {
+                            onPreferenceChange?.({
+                                language: track.language,
+                                label: track.label,
+                            })
                         }
                     }}
                     value={selectedTrack ?? -1}

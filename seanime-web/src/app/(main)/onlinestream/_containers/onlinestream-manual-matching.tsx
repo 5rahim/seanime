@@ -5,7 +5,6 @@ import {
     useOnlinestreamManualSearch,
     useRemoveOnlinestreamMapping,
 } from "@/api/hooks/onlinestream.hooks"
-import { __onlinestream_selectedProviderAtom } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -16,13 +15,13 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip } from "@/components/ui/tooltip"
-import { useAtomValue } from "jotai/react"
 import React from "react"
 import { BiLinkExternal } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
 
 type OnlinestreamManualMappingModalProps = {
     entry: Anime_Entry
+    provider: string
     children: React.ReactElement
 }
 
@@ -31,6 +30,7 @@ export function OnlinestreamManualMappingModal(props: OnlinestreamManualMappingM
     const {
         children,
         entry,
+        provider,
         ...rest
     } = props
 
@@ -42,7 +42,7 @@ export function OnlinestreamManualMappingModal(props: OnlinestreamManualMappingM
                 trigger={children}
                 contentClass="max-w-4xl"
             >
-                <Content entry={entry} />
+                <Content entry={entry} provider={provider} />
             </Modal>
         </>
     )
@@ -53,8 +53,8 @@ const searchSchema = defineSchema(({ z }) => z.object({
     dubbed: z.boolean().default(false),
 }))
 
-function Content({ entry }: { entry: Anime_Entry }) {
-    const selectedProvider = useAtomValue(__onlinestream_selectedProviderAtom)
+function Content({ entry, provider }: { entry: Anime_Entry, provider: string }) {
+    const selectedProvider = provider
 
     // Get current mapping
     const { data: existingMapping, isLoading: mappingLoading } = useGetOnlinestreamMapping({

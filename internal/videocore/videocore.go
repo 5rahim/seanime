@@ -876,9 +876,20 @@ func (vc *VideoCore) listenToClientEvents() {
 				}
 
 				// Validate that the event is from the current client
+				takeover := false
 				currentState, hasState := vc.GetPlaybackState()
 				if hasState && eventClientID != "" && eventClientID != currentState.ClientId {
-					continue
+					ownerConnected := false
+					for _, clientID := range vc.wsEventManager.GetClientIds() {
+						if clientID == currentState.ClientId {
+							ownerConnected = true
+							break
+						}
+					}
+					if ownerConnected || playerEvent.Type != PlayerEventVideoLoaded {
+						continue
+					}
+					takeover = true
 				}
 
 				// Handle events
@@ -886,6 +897,9 @@ func (vc *VideoCore) listenToClientEvents() {
 				case PlayerEventVideoLoaded:
 					payload := &clientVideoLoadedPayload{}
 					if err := playerEvent.UnmarshalAs(&payload); err == nil {
+						if takeover {
+							vc.clearPlayback()
+						}
 						vc.setPlaybackState(&payload.State)
 						vc.PushEvent(&VideoLoadedEvent{
 							State: payload.State,

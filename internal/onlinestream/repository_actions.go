@@ -43,7 +43,7 @@ type (
 //   - This function can be used to only get the episode details by setting 'from' and 'to' to 0.
 //
 // Since the episode details are cached, we can request episode servers multiple times without fetching the episode details again.
-func (r *Repository) getEpisodeContainer(provider string, media *anilist.BaseAnime, from int, to int, dubbed bool, year int) (*episodeContainer, error) {
+func (r *Repository) getEpisodeContainer(provider string, media *anilist.BaseAnime, from int, to int, dubbed bool, year int, refresh bool) (*episodeContainer, error) {
 
 	r.logger.Debug().
 		Str("provider", provider).
@@ -51,6 +51,7 @@ func (r *Repository) getEpisodeContainer(provider string, media *anilist.BaseAni
 		Int("from", from).
 		Int("to", to).
 		Bool("dubbed", dubbed).
+		Bool("refresh", refresh).
 		Msg("onlinestream: Getting episode container")
 
 	// Key identifying the provider episode list in the file cache.
@@ -107,7 +108,7 @@ func (r *Repository) getEpisodeContainer(provider string, media *anilist.BaseAni
 
 			// Check episode cache
 			var cached *episodeData
-			if found, _ := r.fileCacher.Get(fcEpisodeDataBucket, key, &cached); found {
+			if found, _ := r.fileCacher.Get(fcEpisodeDataBucket, key, &cached); found && !refresh {
 				ec.Episodes = append(ec.Episodes, cached)
 
 				r.logger.Debug().

@@ -90,7 +90,7 @@ import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video
 import { VideoCoreResolutionMenu } from "@/app/(main)/_features/video-core/video-core-resolution-menu"
 import { VideoCoreSettingsMenu } from "@/app/(main)/_features/video-core/video-core-settings-menu"
 import { VideoCoreStatsForNerds } from "@/app/(main)/_features/video-core/video-core-stats"
-import { VideoCoreSubtitleMenu } from "@/app/(main)/_features/video-core/video-core-subtitle-menu"
+import { VideoCoreSubtitleMenu, type VideoCoreSubtitleSelection } from "@/app/(main)/_features/video-core/video-core-subtitle-menu"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { vc_timeRangeElement, VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { VideoCoreTopPlaybackInfo, VideoCoreTopSection } from "@/app/(main)/_features/video-core/video-core-top-section"
@@ -310,6 +310,7 @@ interface PlayerContentProps {
     onTerminateStream: () => void
     onVideoSourceChange: ((source: VideoCore_VideoSource) => void) | undefined
     onHlsQualityChange: ((quality: string) => void) | undefined
+    onSubtitlePreferenceChange: ((selection: VideoCoreSubtitleSelection) => void) | undefined
 }
 
 const PlayerContent = React.memo<PlayerContentProps>(({
@@ -341,6 +342,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
     onTerminateStream,
     onVideoSourceChange,
     onHlsQualityChange,
+    onSubtitlePreferenceChange,
 }) => {
     const isMobile = useAtomValue(vc_isMobile)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
@@ -563,7 +565,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                                 onVideoSourceChange={onVideoSourceChange}
                                 onHlsQualityChange={onHlsQualityChange}
                             />
-                            <VideoCoreSubtitleMenu inline={inline} />
+                            <VideoCoreSubtitleMenu inline={inline} onPreferenceChange={onSubtitlePreferenceChange} />
                             <VideoCoreAudioMenu />
                             <VideoCoreCastButton />
                             <VideoCorePipButton />
@@ -580,7 +582,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                                     onVideoSourceChange={onVideoSourceChange}
                                     onHlsQualityChange={onHlsQualityChange}
                                 />
-                                <VideoCoreSubtitleMenu inline={inline} />
+                                <VideoCoreSubtitleMenu inline={inline} onPreferenceChange={onSubtitlePreferenceChange} />
                                 <VideoCoreAudioMenu />
                                 <VideoCoreCastButton />
                                 <VideoCorePipButton />
@@ -639,6 +641,7 @@ export interface VideoCoreProps {
     inlineClassName?: string
     onHlsMediaDetached?: () => void
     onHlsFatalError?: (error: ErrorData) => void
+    onSubtitlePreferenceChange?: (selection: VideoCoreSubtitleSelection) => void
     onChangePlaybackType?: (type: VideoCore_VideoPlaybackInfo["streamType"]) => void
     inline?: boolean
     mRef?: React.MutableRefObject<HTMLVideoElement | null>
@@ -671,6 +674,7 @@ export function VideoCore(props: VideoCoreProps) {
         onHlsQualityChange,
         onHlsMediaDetached,
         onHlsFatalError,
+        onSubtitlePreferenceChange,
         onPlayEpisode,
         onChangePlaybackType,
         mRef,
@@ -1740,6 +1744,7 @@ export function VideoCore(props: VideoCoreProps) {
                         onTerminateStream={onTerminateStream}
                         onVideoSourceChange={onVideoSourceChange}
                         onHlsQualityChange={onHlsQualityChange}
+                        onSubtitlePreferenceChange={onSubtitlePreferenceChange}
                     />
                 </div>
             </ScopeProvider>
@@ -1835,6 +1840,7 @@ export function VideoCore(props: VideoCoreProps) {
                         onTerminateStream={onTerminateStream}
                         onVideoSourceChange={onVideoSourceChange}
                         onHlsQualityChange={onHlsQualityChange}
+                        onSubtitlePreferenceChange={onSubtitlePreferenceChange}
                     />
                 </VideoCoreDrawer>
 

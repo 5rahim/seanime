@@ -37,6 +37,11 @@ var (
 	ErrNoVideoSourceFound = errors.New("no video source found")
 )
 
+const (
+	episodeSourceCacheTTL = 15 * time.Minute
+	episodeListCacheTTL   = 24 * time.Hour
+)
+
 type (
 	Episode struct {
 		Number      int            `json:"number"`
@@ -68,8 +73,9 @@ type (
 	}
 
 	Subtitle struct {
-		URL      string `json:"url"`
-		Language string `json:"language"`
+		URL       string `json:"url"`
+		Language  string `json:"language"`
+		IsDefault bool   `json:"isDefault"`
 	}
 )
 
@@ -103,7 +109,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 //
 //	e.g., onlinestream_zoro_episode-data_123
 func (r *Repository) getFcEpisodeDataBucket(provider string, mediaId int) filecache.Bucket {
-	return filecache.NewBucket("onlinestream_"+provider+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*2)
+	return filecache.NewBucket("onlinestream_"+provider+"_episode-data_"+strconv.Itoa(mediaId), episodeSourceCacheTTL)
 }
 
 // getFcEpisodeListBucket returns a episode data bucket for the provider and mediaId.
@@ -111,7 +117,7 @@ func (r *Repository) getFcEpisodeDataBucket(provider string, mediaId int) fileca
 //
 //	e.g., onlinestream_zoro_episode-list_123
 func (r *Repository) getFcEpisodeListBucket(provider string, mediaId int) filecache.Bucket {
-	return filecache.NewBucket("onlinestream_"+provider+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*1)
+	return filecache.NewBucket("onlinestream_"+provider+"_episode-list_"+strconv.Itoa(mediaId), episodeListCacheTTL)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -172,7 +178,7 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 
 	// Fetch the episode list from the provider
 	// "from" and "to" are set to 0 in order not to fetch episode servers
-	ec, err := r.getEpisodeContainer(provider, media, 0, 0, dubbed, media.GetStartYearSafe())
+	ec, err := r.getEpisodeContainer(provider, media, 0, 0, dubbed, media.GetStartYearSafe(), false)
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +235,7 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	return episodes, nil
 }
 
-func (r *Repository) GetEpisodeSources(ctx context.Context, provider string, mId int, number int, dubbed bool, year int) (*EpisodeSource, error) {
+func (r *Repository) GetEpisodeSources(ctx context.Context, provider string, mId int, number int, dubbed bool, year int, refresh bool) (*EpisodeSource, error) {
 
 	// +---------------------+
 	// |        Media        |
@@ -244,7 +250,7 @@ func (r *Repository) GetEpisodeSources(ctx context.Context, provider string, mId
 	// |   Episode servers   |
 	// +---------------------+
 
-	ec, err := r.getEpisodeContainer(provider, media, number, number, dubbed, year)
+	ec, err := r.getEpisodeContainer(provider, media, number, number, dubbed, year, refresh)
 	if err != nil {
 		return nil, err
 	}
@@ -267,10 +273,7 @@ func (r *Repository) GetEpisodeSources(ctx context.Context, provider string, mId
 						Quality: vs.Quality,
 						Type:    vs.Type,
 						Subtitles: lo.Map(vs.Subtitles, func(sub *hibikeonlinestream.VideoSubtitle, _ int) *Subtitle {
-							return &Subtitle{
-								URL:      sub.URL,
-								Language: sub.Language,
-							}
+							return subtitleFromProvider(sub)
 						}),
 					})
 				}
@@ -285,4 +288,12 @@ func (r *Repository) GetEpisodeSources(ctx context.Context, provider string, mId
 	}
 
 	return sources, nil
+}
+
+func subtitleFromProvider(sub *hibikeonlinestream.VideoSubtitle) *Subtitle {
+	return &Subtitle{
+		URL:       sub.URL,
+		Language:  sub.Language,
+		IsDefault: sub.IsDefault,
+	}
 }

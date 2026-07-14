@@ -1,6 +1,6 @@
 {
   "name": "seanime-denshi",
-  "version": "3.9.2-alpha.16",
+  "version": "3.10.0-alpha.1",
   "description": "Electron-based Desktop client for Seanime",
   "main": "dist/main/index.js",
   "author": "5rahim <talkwithrahim@gmail.com>",

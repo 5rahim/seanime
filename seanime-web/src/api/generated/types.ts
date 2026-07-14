@@ -4864,6 +4864,7 @@ export type Onlinestream_MappingResponse = {
 export type Onlinestream_Subtitle = {
     url: string
     language: string
+    isDefault: boolean
 }
 
 /**

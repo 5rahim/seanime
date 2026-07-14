@@ -77156,6 +77156,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IsDefault",
+        "jsonName": "isDefault",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []

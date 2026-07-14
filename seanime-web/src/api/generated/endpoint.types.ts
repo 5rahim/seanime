@@ -1634,6 +1634,7 @@ export type GetOnlineStreamEpisodeSource_Variables = {
     mediaId: number
     provider: string
     dubbed: boolean
+    refresh?: boolean
 }
 
 /**
