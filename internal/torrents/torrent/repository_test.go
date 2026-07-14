@@ -73,6 +73,17 @@ func TestRepositoryProviderSelectionWithoutProviders(t *testing.T) {
 	require.Nil(t, ext)
 }
 
+func TestSelectedProviderDoesNotFallback(t *testing.T) {
+	repo := newTorrentRepositoryForTests(map[string]*stubAnimeProvider{
+		"main": newStubAnimeProvider(hibiketorrent.AnimeProviderSettings{Type: hibiketorrent.AnimeProviderTypeMain}),
+	}, testmocks.NewFakeMetadataProviderBuilder().Build())
+	repo.SetSettings(&RepositorySettings{DefaultAnimeProvider: ProviderNone})
+
+	ext, ok := repo.GetSelectedAnimeProviderExtension()
+	require.False(t, ok)
+	require.Nil(t, ext)
+}
+
 func TestSearchAnimeSimpleFallbackDedupAndSorting(t *testing.T) {
 	metadataCache.Clear()
 	provider := newStubAnimeProvider(hibiketorrent.AnimeProviderSettings{Type: hibiketorrent.AnimeProviderTypeMain})

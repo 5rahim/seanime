@@ -105,6 +105,7 @@ type LibrarySettings struct {
 	// v3.7.0+
 	EnableExtensionSecureMode bool   `gorm:"column:enable_extension_secure_mode" json:"enableExtensionSecureMode"`
 	DefaultPlaybackSource     string `gorm:"column:default_playback_source" json:"defaultPlaybackSource"` // "", "library", "torrentstream", "debridstream", "onlinestream", "ext:[extensionId]"
+	ShowTorrentAvailability   bool   `gorm:"column:show_torrent_availability" json:"showTorrentAvailability"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {

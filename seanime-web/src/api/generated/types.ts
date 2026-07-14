@@ -1592,6 +1592,8 @@ export type Anime_Episode = {
      */
     metadataIssue?: string
     baseAnime?: AL_BaseAnime
+    torrentAvailability?: Anime_EpisodeTorrentAvailability
+    isMissingGroup?: boolean
     _isNakamaEpisode: boolean
 }
 
@@ -1625,6 +1627,13 @@ export type Anime_EpisodeMetadata = {
     hasImage?: boolean
     title?: string
 }
+
+/**
+ * - Filepath: internal/library/anime/episode.go
+ * - Filename: episode.go
+ * - Package: anime
+ */
+export type Anime_EpisodeTorrentAvailability = "available" | "checking" | "waiting" | "unknown"
 
 /**
  * - Filepath: internal/library/anime/collection.go
@@ -4092,6 +4101,7 @@ export type Models_LibrarySettings = {
      * "", "library", "torrentstream", "debridstream", "onlinestream", "ext:[extensionId]"
      */
     defaultPlaybackSource: string
+    showTorrentAvailability: boolean
 }
 
 /**

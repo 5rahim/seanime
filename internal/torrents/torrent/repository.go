@@ -131,6 +131,16 @@ func (r *Repository) GetDefaultAnimeProviderExtension() (extension.AnimeTorrentP
 	return r.GetAnimeProviderExtensionOrFirst(id)
 }
 
+func (r *Repository) GetSelectedAnimeProviderExtension() (extension.AnimeTorrentProviderExtension, bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if r.settings.DefaultAnimeProvider == "" {
+		return nil, false
+	}
+	return r.GetAnimeProviderExtension(r.settings.DefaultAnimeProvider)
+}
+
 // DEPRECATED: Use GetDefaultAnimeProviderExtension instead
 func (r *Repository) GetAutoSelectProviderExtension() (extension.AnimeTorrentProviderExtension, bool) {
 	r.mu.Lock()

@@ -2,6 +2,7 @@ package autoselect
 
 import (
 	"context"
+	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/extension"
@@ -33,7 +34,6 @@ func (f *TestSearchProvider) Search(opts hibiketorrent.AnimeSearchOptions) ([]*h
 	f.LastSearchQuery = opts.Query
 	f.LastResolution = ""
 	f.LastBatchSetting = false
-
 	// Return default torrents for simple search
 	if torrents, ok := f.SearchResults[""]; ok {
 		return torrents, nil
@@ -45,7 +45,6 @@ func (f *TestSearchProvider) SmartSearch(opts hibiketorrent.AnimeSmartSearchOpti
 	f.SearchCallCount++
 	f.LastResolution = opts.Resolution
 	f.LastBatchSetting = opts.Batch
-
 	// Return torrents matching the resolution
 	if torrents, ok := f.SearchResults[opts.Resolution]; ok {
 		return torrents, nil
@@ -76,8 +75,21 @@ func (f *TestSearchProvider) GetSettings() hibiketorrent.AnimeProviderSettings {
 
 var _ hibiketorrent.AnimeProvider = (*TestSearchProvider)(nil)
 
+type errorSearchProvider struct {
+	*TestSearchProvider
+	err error
+}
+
+func (p *errorSearchProvider) Search(_ hibiketorrent.AnimeSearchOptions) ([]*hibiketorrent.AnimeTorrent, error) {
+	return nil, p.err
+}
+
+func (p *errorSearchProvider) SmartSearch(_ hibiketorrent.AnimeSmartSearchOptions) ([]*hibiketorrent.AnimeTorrent, error) {
+	return nil, p.err
+}
+
 // setupTestAutoSelect creates an AutoSelect instance with a test provider.
-func setupTestAutoSelect(t *testing.T, provider *TestSearchProvider) *AutoSelect {
+func setupTestAutoSelect(t *testing.T, provider hibiketorrent.AnimeProvider) *AutoSelect {
 	logger := util.NewLogger()
 
 	tempDir := t.TempDir()
@@ -107,6 +119,7 @@ func setupTestAutoSelect(t *testing.T, provider *TestSearchProvider) *AutoSelect
 		MetadataProviderRef: util.NewRef(metadataProvider),
 		ExtensionBankRef:    extensionBankRef,
 	})
+	torrentRepository.SetSettings(&itorrent.RepositorySettings{DefaultAnimeProvider: "fake-provider"})
 
 	return New(&NewAutoSelectOptions{
 		Logger:            logger,
@@ -132,6 +145,35 @@ func createTestMedia(t *testing.T) *anilist.CompleteAnime {
 		},
 		IsAdult: new(false),
 	}
+}
+
+func TestSearchFreshBypassesSearchCache(t *testing.T) {
+	provider := &TestSearchProvider{
+		SearchResults: map[string][]*hibiketorrent.AnimeTorrent{
+			"": {{Name: "[Provider] One Piece - 1000.mkv", InfoHash: "episode-1000"}},
+		},
+	}
+	autoSelect := setupTestAutoSelect(t, provider)
+	media := createTestMedia(t).ToBaseAnime()
+
+	_, err := autoSelect.Search(context.Background(), media, 1000, nil)
+	require.NoError(t, err)
+	provider.SearchResults[""] = nil
+
+	_, err = autoSelect.SearchFresh(context.Background(), media, 1000, &anime.AutoSelectProfile{Providers: []string{"fake-provider"}})
+	require.ErrorIs(t, err, ErrNoTorrentsFound)
+	require.Equal(t, 2, provider.SearchCallCount)
+}
+
+func TestSearchFreshReturnsProviderErrors(t *testing.T) {
+	provider := &errorSearchProvider{
+		TestSearchProvider: new(TestSearchProvider),
+		err:                errors.New("provider unavailable"),
+	}
+	autoSelect := setupTestAutoSelect(t, provider)
+
+	_, err := autoSelect.SearchFresh(context.Background(), createTestMedia(t).ToBaseAnime(), 1000, &anime.AutoSelectProfile{Providers: []string{"fake-provider"}})
+	require.ErrorContains(t, err, "provider unavailable")
 }
 
 func TestSearchFromProvider_SingleResolution(t *testing.T) {

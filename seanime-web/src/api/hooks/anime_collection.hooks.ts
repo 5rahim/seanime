@@ -12,6 +12,9 @@ export function useGetLibraryCollection({ enabled }: { enabled?: boolean } = { e
         method: API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.methods[0],
         queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key],
         enabled: enabled,
+        refetchInterval: query => query.state.data?.stream?.continueWatchingList?.some(episode => episode.torrentAvailability === "checking")
+            ? 1_000
+            : false,
     })
 }
 

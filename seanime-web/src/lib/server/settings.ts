@@ -133,6 +133,7 @@ export const settingsSchema = z.object({
     updateChannel: z.string().optional().default("github"),
     enableExtensionSecureMode: z.boolean().optional().default(false),
     defaultPlaybackSource: z.string().optional().default(""),
+    showTorrentAvailability: z.boolean().optional().default(false),
     hideAnimeSpoilers: z.boolean().optional().default(false),
     hideAnimeSpoilerThumbnails: z.boolean().optional().default(true),
     hideAnimeSpoilerTitles: z.boolean().optional().default(true),
@@ -172,6 +173,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         updateChannel: "github",
         enableExtensionSecureMode: false,
         defaultPlaybackSource: "",
+        showTorrentAvailability: false,
     },
     nakama: {
         enabled: false,

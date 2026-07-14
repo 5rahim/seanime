@@ -8,6 +8,7 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -180,14 +181,24 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 	}
 
 	if !fromNakama {
-		if (h.App.SecondarySettings.Torrentstream != nil && h.App.SecondarySettings.Torrentstream.Enabled && h.App.SecondarySettings.Torrentstream.IncludeInLibrary) ||
+		includeTorrentstream := h.App.SecondarySettings.Torrentstream != nil && h.App.SecondarySettings.Torrentstream.Enabled && h.App.SecondarySettings.Torrentstream.IncludeInLibrary
+		includeDebridstream := h.App.SecondarySettings.Debrid != nil && h.App.SecondarySettings.Debrid.Enabled && h.App.SecondarySettings.Debrid.IncludeDebridStreamInLibrary
+		if includeTorrentstream ||
 			(h.App.Settings.GetLibrary() != nil && h.App.Settings.GetLibrary().EnableOnlinestream && h.App.Settings.GetLibrary().IncludeOnlineStreamingInLibrary) ||
-			(h.App.SecondarySettings.Debrid != nil && h.App.SecondarySettings.Debrid.Enabled && h.App.SecondarySettings.Debrid.IncludeDebridStreamInLibrary) {
+			includeDebridstream {
 			h.App.TorrentstreamRepository.HydrateStreamCollection(&torrentstream.HydrateStreamCollectionOptions{
 				AnimeCollection:     animeCollection,
 				LibraryCollection:   libraryCollection,
 				MetadataProviderRef: h.App.MetadataProviderRef,
 			})
+
+			defaultSource := h.App.Settings.GetLibrary().DefaultPlaybackSource
+			usesOnlineSource := defaultSource == "onlinestream" || strings.HasPrefix(defaultSource, "ext:")
+			if h.App.Settings.GetLibrary().ShowTorrentAvailability && !usesOnlineSource && (includeTorrentstream || includeDebridstream) && libraryCollection.Stream != nil {
+				libraryCollection.Stream.ContinueWatchingList = h.App.WithEpisodeAvailability(
+					libraryCollection.Stream.ContinueWatchingList,
+				)
+			}
 		}
 	}
 

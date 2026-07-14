@@ -19,6 +19,7 @@ import (
 	"seanime/internal/extension_playground"
 	"seanime/internal/extension_repo"
 	"seanime/internal/hook"
+	"seanime/internal/library/anime"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
 	"seanime/internal/library/fillermanager"
@@ -61,6 +62,10 @@ import (
 )
 
 type (
+	episodeAvailability interface {
+		WithEpisodes([]*anime.Episode) []*anime.Episode
+	}
+
 	App struct {
 		// Core
 		Config   *Config
@@ -82,10 +87,11 @@ type (
 		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 
 		// Library
-		FillerManager   *fillermanager.FillerManager
-		AutoDownloader  *autodownloader.AutoDownloader
-		AutoScanner     *autoscanner.AutoScanner
-		PlaybackManager *playbackmanager.PlaybackManager
+		FillerManager       *fillermanager.FillerManager
+		AutoDownloader      *autodownloader.AutoDownloader
+		AutoScanner         *autoscanner.AutoScanner
+		PlaybackManager     *playbackmanager.PlaybackManager
+		episodeAvailability episodeAvailability
 
 		// Real-time communication
 		WSEventManager *events.WSEventManager
@@ -180,6 +186,10 @@ type (
 		ShowTour string
 	}
 )
+
+func (a *App) WithEpisodeAvailability(episodes []*anime.Episode) []*anime.Episode {
+	return a.episodeAvailability.WithEpisodes(episodes)
+}
 
 // NewApp creates a new server instance
 func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
@@ -420,6 +430,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		FillerManager:                 nil, // Initialized in App.initModulesOnce
 		MangaDownloader:               nil, // Initialized in App.initModulesOnce
 		PlaybackManager:               nil, // Initialized in App.initModulesOnce
+		episodeAvailability:           nil, // Initialized in App.initModulesOnce
 		AutoDownloader:                nil, // Initialized in App.initModulesOnce
 		AutoScanner:                   nil, // Initialized in App.initModulesOnce
 		MediastreamRepository:         nil, // Initialized in App.initModulesOnce

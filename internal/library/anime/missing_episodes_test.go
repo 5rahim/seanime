@@ -78,9 +78,11 @@ func TestNewMissingEpisodes(t *testing.T) {
 	require.Equal(t, 154587, missing.Episodes[0].BaseAnime.ID)
 	require.Equal(t, 6, missing.Episodes[0].EpisodeNumber)
 	require.Equal(t, "Episode 6 & 4 more", missing.Episodes[0].DisplayTitle)
+	require.True(t, missing.Episodes[0].IsMissingGroup)
 
 	require.Len(t, missing.SilencedEpisodes, 1)
 	require.Equal(t, 146065, missing.SilencedEpisodes[0].BaseAnime.ID)
 	require.Equal(t, 3, missing.SilencedEpisodes[0].EpisodeNumber)
 	require.Equal(t, "Episode 3 & 2 more", missing.SilencedEpisodes[0].DisplayTitle)
+	require.True(t, missing.SilencedEpisodes[0].IsMissingGroup)
 }

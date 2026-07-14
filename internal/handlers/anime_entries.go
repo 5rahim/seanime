@@ -470,7 +470,7 @@ func (h *Handler) HandleGetMissingEpisodes(c echo.Context) error {
 	})
 
 	if missingEpisodesCache, ok := anime.GetMissingEpisodesCache(); ok {
-		return h.RespondWithData(c, missingEpisodesCache)
+		return h.RespondWithData(c, h.withMissingEpisodeAvailability(missingEpisodesCache))
 	}
 
 	// Get the user's anilist collection
@@ -502,10 +502,20 @@ func (h *Handler) HandleGetMissingEpisodes(c echo.Context) error {
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
-
 	anime.SetMissingEpisodesCache(event.MissingEpisodes)
 
-	return h.RespondWithData(c, event.MissingEpisodes)
+	return h.RespondWithData(c, h.withMissingEpisodeAvailability(event.MissingEpisodes))
+}
+
+func (h *Handler) withMissingEpisodeAvailability(missing *anime.MissingEpisodes) *anime.MissingEpisodes {
+	if missing == nil || !h.App.Settings.GetLibrary().ShowTorrentAvailability {
+		return missing
+	}
+
+	ret := *missing
+	ret.Episodes = h.App.WithEpisodeAvailability(missing.Episodes)
+	ret.SilencedEpisodes = h.App.WithEpisodeAvailability(missing.SilencedEpisodes)
+	return &ret
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -3352,6 +3352,8 @@ declare namespace $app {
          */
         metadataIssue?: string;
         baseAnime?: AL_BaseAnime;
+        torrentAvailability?: Anime_EpisodeTorrentAvailability;
+        isMissingGroup?: boolean;
         _isNakamaEpisode: boolean;
     }
 
@@ -3381,6 +3383,11 @@ declare namespace $app {
         hasImage?: boolean;
         title?: string;
     }
+
+    /**
+     * - Filepath: internal/library/anime/episode.go
+     */
+    export type Anime_EpisodeTorrentAvailability = "available" | "checking" | "waiting" | "unknown";
 
     /**
      * - Filepath: internal/library/anime/collection.go

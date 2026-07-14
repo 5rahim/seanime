@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
@@ -36,6 +38,8 @@ import (
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrent_clients/transmission"
+	"seanime/internal/torrents/autoselect"
+	torrent_availability "seanime/internal/torrents/availability"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
 	"seanime/internal/user"
@@ -137,6 +141,39 @@ func (a *App) initModulesOnce() {
 			a.TorrentClientRepository.Shutdown()
 		}
 	})
+
+	availabilitySearch := autoselect.New(&autoselect.NewAutoSelectOptions{
+		Logger:            a.Logger,
+		TorrentRepository: a.TorrentRepository,
+		MetadataProvider:  a.MetadataProviderRef,
+		Platform:          a.AnilistPlatformRef,
+	})
+	episodeAvailability := torrent_availability.NewMonitor(
+		func(ctx context.Context, providerID string, media *anilist.BaseAnime, episodeNumber int) (bool, error) {
+			torrents, err := availabilitySearch.SearchFresh(ctx, media, episodeNumber, &anime.AutoSelectProfile{
+				Providers: []string{providerID},
+			})
+			if errors.Is(err, autoselect.ErrNoTorrentsFound) {
+				return false, nil
+			}
+			return len(torrents) > 0, err
+		},
+		func() (string, bool) {
+			provider, found := a.TorrentRepository.GetSelectedAnimeProviderExtension()
+			if !found {
+				return "", false
+			}
+			return provider.GetID(), true
+		},
+		func() {
+			a.WSEventManager.SendEvent(events.InvalidateQueries, []string{
+				events.GetLibraryCollectionEndpoint,
+				events.GetMissingEpisodesEndpoint,
+			})
+		},
+	)
+	a.episodeAvailability = episodeAvailability
+	a.AddCleanupFunction(episodeAvailability.Stop)
 
 	// +---------------------+
 	// |  Manga Downloader   |

@@ -28611,6 +28611,17 @@
         "comments": []
       },
       {
+        "name": "episodeAvailability",
+        "jsonName": "episodeAvailability",
+        "goType": "episodeAvailability",
+        "typescriptType": "INTERNAL_episodeAvailability",
+        "usedTypescriptType": "INTERNAL_episodeAvailability",
+        "usedStructName": "core.episodeAvailability",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
         "goType": "events.WSEventManager",
@@ -30889,6 +30900,15 @@
         "comments": [
           " \"\", \"library\", \"torrentstream\", \"debridstream\", \"onlinestream\", \"ext:[extensionId]\""
         ]
+      },
+      {
+        "name": "ShowTorrentAvailability",
+        "jsonName": "showTorrentAvailability",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -49610,6 +49630,25 @@
   {
     "filepath": "../internal/library/anime/episode.go",
     "filename": "episode.go",
+    "name": "EpisodeTorrentAvailability",
+    "formattedName": "Anime_EpisodeTorrentAvailability",
+    "package": "anime",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"available\"",
+        "\"checking\"",
+        "\"waiting\"",
+        "\"unknown\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/episode.go",
+    "filename": "episode.go",
     "name": "Episode",
     "formattedName": "Anime_Episode",
     "package": "anime",
@@ -49764,6 +49803,26 @@
         "typescriptType": "AL_BaseAnime",
         "usedTypescriptType": "AL_BaseAnime",
         "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentAvailability",
+        "jsonName": "torrentAvailability",
+        "goType": "EpisodeTorrentAvailability",
+        "typescriptType": "Anime_EpisodeTorrentAvailability",
+        "usedTypescriptType": "Anime_EpisodeTorrentAvailability",
+        "usedStructName": "anime.EpisodeTorrentAvailability",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMissingGroup",
+        "jsonName": "isMissingGroup",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": false,
         "public": true,
         "comments": []
