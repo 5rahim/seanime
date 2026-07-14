@@ -46,6 +46,10 @@ export function MangaSourceRefreshModal({ open, onOpenChange, job, returnFocusRe
     const failedMediaIds = [...new Set(job?.result.issues
         ?.filter(issue => issue.kind === "provider_error")
         .map(issue => issue.mediaId) ?? [])]
+    const affectedMediaIds = [...new Set(job?.result.issues?.map(issue => issue.mediaId) ?? [])]
+    const canFindAlternatives = providerCount > 0 &&
+        (job?.mode === "refresh_selected" || job?.mode === "refresh_and_find") &&
+        affectedMediaIds.length > 0
 
     const dismissJob = React.useCallback((runAgain: boolean) => {
         stopRefresh(undefined, {
@@ -65,6 +69,13 @@ export function MangaSourceRefreshModal({ open, onOpenChange, job, returnFocusRe
             onSuccess: () => startRefresh({ mode: job.mode, mediaIds: failedMediaIds }),
         })
     }, [failedMediaIds, job, startRefresh, stopRefresh])
+
+    const findAlternatives = React.useCallback(() => {
+        if (!affectedMediaIds.length) return
+        stopRefresh(undefined, {
+            onSuccess: () => startRefresh({ mode: "reevaluate_all", mediaIds: affectedMediaIds }),
+        })
+    }, [affectedMediaIds, startRefresh, stopRefresh])
 
     return (
         <Modal
@@ -90,6 +101,11 @@ export function MangaSourceRefreshModal({ open, onOpenChange, job, returnFocusRe
                 </>
             ) : terminal ? (
                 <>
+                    {canFindAlternatives && (
+                        <Button intent="gray-outline" loading={isStarting || isStopping} onClick={findAlternatives}>
+                            Find alternatives
+                        </Button>
+                    )}
                     {!!failedMediaIds.length && (
                         <Button intent="gray-outline" loading={isStarting || isStopping} onClick={retryFailed}>
                             Retry failed
@@ -159,7 +175,11 @@ export function MangaSourceRefreshModal({ open, onOpenChange, job, returnFocusRe
                                                     {issue.title}
                                                 </SeaLink>
                                                 <p className="text-[--muted] break-words">
-                                                    {issue.kind === "not_found" ? "No matching source was found." : "One or more providers failed."}
+                                                    {issue.kind === "not_found"
+                                                        ? job.mode === "refresh_selected"
+                                                            ? "The saved source returned no chapters."
+                                                            : "No matching source was found."
+                                                        : "One or more providers failed."}
                                                     {!!issue.providers?.length && ` ${issue.providers.join(", ")}`}
                                                 </p>
                                             </div>
