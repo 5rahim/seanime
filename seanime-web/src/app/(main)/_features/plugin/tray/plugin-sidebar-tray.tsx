@@ -13,6 +13,7 @@ import { PluginTray, TrayIcon } from "@/app/(main)/_features/plugin/tray/plugin-
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerDisabledFeatures } from "@/app/(main)/_hooks/use-server-status"
 import { SeaImage } from "@/components/shared/sea-image"
+import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Popover } from "@/components/ui/popover"
@@ -79,6 +80,7 @@ const ExtensionList = ({
     const [trayIconListOpen, setTrayIconListOpen] = React.useState(false)
 
     const pinnedTrayIcons = trayIcons.filter(trayIcon => isPinned(trayIcon.extensionId) || trayIcon.extensionId === unpinnedTrayIconClicked?.extensionId)
+    const unpinnedBadgeCount = trayIcons.filter(trayIcon => !isPinned(trayIcon.extensionId) && !!trayIcon.badgeNumber).length
 
     usePluginListenTrayOpenEvent((data) => {
         if (!data.extensionId) return
@@ -116,7 +118,7 @@ const ExtensionList = ({
                     open={trayIconListOpen}
                     onOpenChange={setTrayIconListOpen}
                     side={place === "top" ? "bottom" : "right"}
-                    trigger={<div>
+                    trigger={<div className="relative">
                         <Tooltip
                             side="right"
                             trigger={<IconButton
@@ -125,7 +127,15 @@ const ExtensionList = ({
                                 icon={<LuComponent className="size-5 text-[--muted]" />}
                                 className="rounded-full hover:rotate-360 transition-all duration-300"
                             />}
-                        >Tray Plugins</Tooltip>
+                        >{unpinnedBadgeCount ? `Tray Plugins (${unpinnedBadgeCount} with active badges)` : "Tray Plugins"}</Tooltip>
+                        {!!unpinnedBadgeCount && <Badge
+                            intent="alert-solid"
+                            size="sm"
+                            className="absolute -top-2 -right-2 z-10 select-none pointer-events-none"
+                            data-plugin-tray-launcher-badge
+                        >
+                            {unpinnedBadgeCount > 9 ? "9+" : unpinnedBadgeCount}
+                        </Badge>}
                     </div>}
                     className="p-2 w-[300px]"
                     data-plugin-sidebar-debug-popover
@@ -143,7 +153,7 @@ const ExtensionList = ({
                                 className="flex items-center gap-2 justify-between bg-gray-900 hover:bg-[--subtle] transition-colors rounded-md px-2 py-1 max-w-full"
                             >
                                 <div
-                                    className="flex items-center gap-2 cursor-pointer max-w-full"
+                                    className="flex items-center gap-2 cursor-pointer min-w-0"
                                     onClick={() => {
                                         setUnpinnedTrayIconClicked(trayIcon)
                                         setTrayIconListOpen(false)
@@ -164,7 +174,15 @@ const ExtensionList = ({
                                             <LuCircleDashed className="text-2xl" />
                                         </div>}
                                     </div>
-                                    <p className="text-sm font-medium line-clamp-1 tracking-wide">{trayIcon.extensionName}</p>
+                                    <p className="text-sm font-medium line-clamp-1 tracking-wide min-w-0">{trayIcon.extensionName}</p>
+                                    {!!trayIcon.badgeNumber && <Badge
+                                        intent={`${trayIcon.badgeIntent}-solid` as any}
+                                        size="sm"
+                                        className="select-none pointer-events-none"
+                                        data-plugin-tray-list-badge
+                                    >
+                                        {trayIcon.badgeNumber}
+                                    </Badge>}
                                 </div>
                                 <div className="flex items-center gap-1">
                                     {/* <IconButton

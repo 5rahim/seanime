@@ -515,7 +515,7 @@ declare namespace $ui {
         close(): void
 
         /** Updates the badge number of the tray icon. 0 = no badge. Default intent is "info". */
-        updateBadge(options: { number: number, intent?: "success" | "error" | "warning" | "info" }): void
+        updateBadge(options: { number: number, intent?: "success" | "error" | "warning" | "info" | "alert" }): void
     }
 
     interface WebviewOptions {
