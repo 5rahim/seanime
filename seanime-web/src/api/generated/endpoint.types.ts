@@ -21,6 +21,7 @@ import type {
     HibikeTorrent_AnimeTorrent,
     HibikeTorrent_BatchEpisodeFiles,
     LibraryExplorer_SuperUpdateFileOptions,
+    Manga_MangaSourceRefreshMode,
     Mediastream_StreamType,
     Models_AnilistSettings,
     Models_DebridSettings,
@@ -1141,6 +1142,17 @@ export type EditMALListEntryProgress_Variables = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // manga
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/manga.go
+ * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/source-refresh
+ * @description
+ * Route starts a background manga source refresh.
+ */
+export type StartMangaSourceRefresh_Variables = {
+    mode: Manga_MangaSourceRefreshMode
+}
 
 /**
  * - Filepath: internal/handlers/manga.go

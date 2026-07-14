@@ -1,5 +1,5 @@
 import { AL_MediaListStatus, Manga_Collection, Manga_CollectionList } from "@/api/generated/types"
-import { useRefetchMangaChapterContainers } from "@/api/hooks/manga.hooks"
+import { useGetMangaSourceRefresh } from "@/api/hooks/manga.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
@@ -8,6 +8,7 @@ import { PluginWebviewSlot } from "@/app/(main)/_features/plugin/webview/plugin-
 import { SeaCommandInjectableItem, useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { seaCommand_compareMediaTitles } from "@/app/(main)/_features/sea-command/utils"
 import { __mangaLibraryHeaderImageAtom, __mangaLibraryHeaderMangaAtom } from "@/app/(main)/manga/_components/library-header"
+import { MangaSourceRefreshModal } from "@/app/(main)/manga/_components/manga-source-refresh-modal"
 import { __mangaLibrary_paramsAtom, __mangaLibrary_paramsInputAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -27,7 +28,6 @@ import { AnimatePresence } from "motion/react"
 import React, { memo } from "react"
 import { BiDotsVertical } from "react-icons/bi"
 import { LuBookOpenCheck, LuRefreshCcw } from "react-icons/lu"
-import { toast } from "sonner"
 import { CommandItemMedia } from "../../_features/sea-command/_components/command-utils"
 
 type MangaLibraryViewProps = {
@@ -251,7 +251,10 @@ const CollectionListItem = memo(({ list, storedProviders, showStatuses, type, wi
     const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
     const router = useRouter()
 
-    const { mutate: refetchMangaChapterContainers, isPending: isRefetchingMangaChapterContainers } = useRefetchMangaChapterContainers()
+    const { data: sourceRefreshJob } = useGetMangaSourceRefresh(list.type === "CURRENT")
+    const [sourceRefreshModalOpen, setSourceRefreshModalOpen] = React.useState(false)
+    const sourceRefreshTriggerRef = React.useRef<HTMLButtonElement>(null)
+    const sourceRefreshRunning = sourceRefreshJob?.status === "running" || sourceRefreshJob?.status === "stopping"
 
     const { inject, remove } = useSeaCommandInject()
 
@@ -318,28 +321,21 @@ const CollectionListItem = memo(({ list, storedProviders, showStatuses, type, wi
                 {list.type === "CURRENT" && <DropdownMenu
                     trigger={<div className="relative">
                         <IconButton
+                            ref={sourceRefreshTriggerRef}
                             intent="white-basic"
                             size="xs"
                             className="mt-1"
                             icon={<BiDotsVertical />}
-                            // loading={isRefetchingMangaChapterContainers}
+                            aria-label="Manga list actions"
                         />
-                        {/*{params.unreadOnly && <div className="absolute -top-1 -right-1 bg-[--blue] size-2 rounded-full"></div>}*/}
-                        {isRefetchingMangaChapterContainers &&
-                            <div className="absolute -top-1 -right-1 bg-[--orange] size-3 rounded-full animate-ping"></div>}
+                        {sourceRefreshRunning &&
+                            <div className="absolute -top-1 -right-1 bg-[--orange] size-2.5 rounded-full" aria-label="Source refresh running"></div>}
                     </div>}
                 >
                     <DropdownMenuItem
-                        onClick={() => {
-                            if (isRefetchingMangaChapterContainers) return
-
-                            toast.info("Refetching from sources...")
-                            refetchMangaChapterContainers({
-                                selectedProviderMap: storedProviders,
-                            })
-                        }}
+                        onClick={() => setSourceRefreshModalOpen(true)}
                     >
-                        <LuRefreshCcw /> {isRefetchingMangaChapterContainers ? "Refetching..." : "Refresh sources"}
+                        <LuRefreshCcw /> {sourceRefreshRunning ? "View source refresh" : "Refresh sources"}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => {
@@ -353,6 +349,15 @@ const CollectionListItem = memo(({ list, storedProviders, showStatuses, type, wi
                     </DropdownMenuItem>
                     <PluginMangaLibraryDropdownItems />
                 </DropdownMenu>}
+
+                {list.type === "CURRENT" && (
+                    <MangaSourceRefreshModal
+                        open={sourceRefreshModalOpen}
+                        onOpenChange={setSourceRefreshModalOpen}
+                        job={sourceRefreshJob}
+                        returnFocusRef={sourceRefreshTriggerRef}
+                    />
+                )}
 
             </div>
 

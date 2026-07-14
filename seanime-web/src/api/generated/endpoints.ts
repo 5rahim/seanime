@@ -1153,6 +1153,36 @@ export const API_ENDPOINTS = {
         },
     },
     MANGA: {
+        GetMangaPreferences: {
+            key: "MANGA-get-manga-preferences",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/preferences",
+        },
+        ImportMangaPreferences: {
+            key: "MANGA-import-manga-preferences",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/preferences/import",
+        },
+        PatchMangaPreference: {
+            key: "MANGA-patch-manga-preference",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/manga/preferences/{mediaId}",
+        },
+        StartMangaSourceRefresh: {
+            key: "MANGA-start-manga-source-refresh",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/source-refresh",
+        },
+        GetMangaSourceRefresh: {
+            key: "MANGA-get-manga-source-refresh",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/source-refresh",
+        },
+        StopMangaSourceRefresh: {
+            key: "MANGA-stop-manga-source-refresh",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/manga/source-refresh",
+        },
         GetAnilistMangaCollection: {
             key: "MANGA-get-anilist-manga-collection",
             methods: ["GET"],

@@ -3343,6 +3343,16 @@ export type Manga_EntryListData = {
 }
 
 /**
+ * - Filepath: internal/manga/preferences.go
+ * - Filename: preferences.go
+ * - Package: manga
+ */
+export type Manga_MangaEntryPreference = {
+    provider: string
+    filters?: Record<string, Manga_MangaProviderFilter>
+}
+
+/**
  * - Filepath: internal/manga/chapter_container.go
  * - Filename: chapter_container.go
  * - Package: manga
@@ -3353,6 +3363,102 @@ export type Manga_MangaLatestChapterNumberItem = {
     language: string
     number: number
 }
+
+/**
+ * - Filepath: internal/manga/preferences.go
+ * - Filename: preferences.go
+ * - Package: manga
+ */
+export type Manga_MangaPreferences = {
+    entries?: Record<number, Manga_MangaEntryPreference>
+}
+
+/**
+ * - Filepath: internal/manga/preferences.go
+ * - Filename: preferences.go
+ * - Package: manga
+ */
+export type Manga_MangaProviderFilter = {
+    scanlators?: Array<string>
+    language: string
+}
+
+/**
+ * - Filepath: internal/manga/source_refresh.go
+ * - Filename: source_refresh.go
+ * - Package: manga
+ */
+export type Manga_MangaSourceRefreshChange = {
+    mediaId: number
+    title: string
+    fromProvider: string
+    toProvider: string
+    kind: string
+}
+
+/**
+ * - Filepath: internal/manga/source_refresh.go
+ * - Filename: source_refresh.go
+ * - Package: manga
+ */
+export type Manga_MangaSourceRefreshIssue = {
+    mediaId: number
+    title: string
+    kind: string
+    providers?: Array<string>
+}
+
+/**
+ * - Filepath: internal/manga/source_refresh.go
+ * - Filename: source_refresh.go
+ * - Package: manga
+ */
+export type Manga_MangaSourceRefreshJob = {
+    id: string
+    mode: Manga_MangaSourceRefreshMode
+    status: Manga_MangaSourceRefreshStatus
+    stage: Manga_MangaSourceRefreshStage
+    current: number
+    total: number
+    result: Manga_MangaSourceRefreshResult
+    error?: string
+}
+
+/**
+ * - Filepath: internal/manga/source_refresh.go
+ * - Filename: source_refresh.go
+ * - Package: manga
+ */
+export type Manga_MangaSourceRefreshMode = "refresh_selected" | "find_missing" | "refresh_and_find" | "reevaluate_all"
+
+/**
+ * - Filepath: internal/manga/source_refresh.go
+ * - Filename: source_refresh.go
+ * - Package: manga
+ */
+export type Manga_MangaSourceRefreshResult = {
+    refreshed: number
+    found: number
+    replaced: number
+    notFound: number
+    failed: number
+    changes?: Array<Manga_MangaSourceRefreshChange>
+    issues?: Array<Manga_MangaSourceRefreshIssue>
+}
+
+/**
+ * - Filepath: internal/manga/source_refresh.go
+ * - Filename: source_refresh.go
+ * - Package: manga
+ */
+export type Manga_MangaSourceRefreshStage = "refreshing" | "discovering" | "done"
+
+/**
+ * - Filepath: internal/manga/source_refresh.go
+ * - Filename: source_refresh.go
+ * - Package: manga
+ */
+export type Manga_MangaSourceRefreshStatus = "running" | "stopping" | "completed" | "cancelled" | "failed"
 
 /**
  * - Filepath: internal/manga/chapter_container_mapping.go

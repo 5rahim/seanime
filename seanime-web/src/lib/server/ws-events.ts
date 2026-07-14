@@ -28,6 +28,8 @@ export const enum WSEvents {
     REFRESHED_MANGA_DOWNLOAD_DATA = "refreshed-manga-download-data",
     CHAPTER_DOWNLOAD_QUEUE_UPDATED = "chapter-download-queue-updated",
     OFFLINE_SNAPSHOT_CREATED = "offline-snapshot-created",
+    MANGA_PREFERENCES_UPDATED = "manga-preferences-updated",
+    MANGA_SOURCE_REFRESH_UPDATED = "manga-source-refresh-job-updated",
     MEDIASTREAM_SHUTDOWN_STREAM = "mediastream-shutdown-stream",
     EXTENSIONS_RELOADED = "extensions-reloaded",
     EXTENSION_UPDATES_FOUND = "extension-updates-found",

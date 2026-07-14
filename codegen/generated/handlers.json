@@ -5984,6 +5984,178 @@
     }
   },
   {
+    "name": "HandleGetMangaPreferences",
+    "trimmedName": "GetMangaPreferences",
+    "comments": [
+      "HandleGetMangaPreferences",
+      "",
+      "\t@summary returns server-backed manga source preferences.",
+      "\t@route /api/v1/manga/preferences [GET]",
+      "\t@returns manga.MangaPreferences",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns server-backed manga source preferences.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/preferences",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.MangaPreferences",
+      "returnGoType": "manga.MangaPreferences",
+      "returnTypescriptType": "Manga_MangaPreferences"
+    }
+  },
+  {
+    "name": "HandleImportMangaPreferences",
+    "trimmedName": "ImportMangaPreferences",
+    "comments": [
+      "HandleImportMangaPreferences",
+      "",
+      "\t@summary imports client manga preferences missing from the server.",
+      "\t@route /api/v1/manga/preferences/import [POST]",
+      "\t@returns manga.MangaPreferences",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "imports client manga preferences missing from the server.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/preferences/import",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.MangaPreferences",
+      "returnGoType": "manga.MangaPreferences",
+      "returnTypescriptType": "Manga_MangaPreferences"
+    }
+  },
+  {
+    "name": "HandlePatchMangaPreference",
+    "trimmedName": "PatchMangaPreference",
+    "comments": [
+      "HandlePatchMangaPreference",
+      "",
+      "\t@summary updates a manga source preference.",
+      "\t@route /api/v1/manga/preferences/{mediaId} [PATCH]",
+      "\t@returns manga.MangaEntryPreference",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "updates a manga source preference.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/preferences/{mediaId}",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.MangaEntryPreference",
+      "returnGoType": "manga.MangaEntryPreference",
+      "returnTypescriptType": "Manga_MangaEntryPreference"
+    }
+  },
+  {
+    "name": "HandleStartMangaSourceRefresh",
+    "trimmedName": "StartMangaSourceRefresh",
+    "comments": [
+      "HandleStartMangaSourceRefresh",
+      "",
+      "\t@summary starts a background manga source refresh.",
+      "\t@route /api/v1/manga/source-refresh [POST]",
+      "\t@returns manga.MangaSourceRefreshJob",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "starts a background manga source refresh.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/source-refresh",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Mode",
+          "jsonName": "mode",
+          "goType": "manga.MangaSourceRefreshMode",
+          "usedStructType": "manga.MangaSourceRefreshMode",
+          "typescriptType": "Manga_MangaSourceRefreshMode",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "manga.MangaSourceRefreshJob",
+      "returnGoType": "manga.MangaSourceRefreshJob",
+      "returnTypescriptType": "Manga_MangaSourceRefreshJob"
+    }
+  },
+  {
+    "name": "HandleGetMangaSourceRefresh",
+    "trimmedName": "GetMangaSourceRefresh",
+    "comments": [
+      "HandleGetMangaSourceRefresh",
+      "",
+      "\t@summary returns the client's active or latest manga source refresh.",
+      "\t@route /api/v1/manga/source-refresh [GET]",
+      "\t@returns manga.MangaSourceRefreshJob",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns the client's active or latest manga source refresh.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/source-refresh",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.MangaSourceRefreshJob",
+      "returnGoType": "manga.MangaSourceRefreshJob",
+      "returnTypescriptType": "Manga_MangaSourceRefreshJob"
+    }
+  },
+  {
+    "name": "HandleStopMangaSourceRefresh",
+    "trimmedName": "StopMangaSourceRefresh",
+    "comments": [
+      "HandleStopMangaSourceRefresh",
+      "",
+      "\t@summary stops or dismisses the client's manga source refresh.",
+      "\t@route /api/v1/manga/source-refresh [DELETE]",
+      "\t@returns manga.MangaSourceRefreshJob",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "stops or dismisses the client's manga source refresh.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/source-refresh",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.MangaSourceRefreshJob",
+      "returnGoType": "manga.MangaSourceRefreshJob",
+      "returnTypescriptType": "Manga_MangaSourceRefreshJob"
+    }
+  },
+  {
     "name": "HandleGetAnilistMangaCollection",
     "trimmedName": "GetAnilistMangaCollection",
     "comments": [

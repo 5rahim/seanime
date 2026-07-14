@@ -10,6 +10,7 @@ import {
     MangaManualSearch_Variables,
     RefetchMangaChapterContainers_Variables,
     RemoveMangaMapping_Variables,
+    StartMangaSourceRefresh_Variables,
     UpdateMangaProgress_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
@@ -21,7 +22,10 @@ import {
     Manga_ChapterContainer,
     Manga_Collection,
     Manga_Entry,
+    Manga_MangaEntryPreference,
     Manga_MangaLatestChapterNumberItem,
+    Manga_MangaPreferences,
+    Manga_MangaSourceRefreshJob,
     Manga_MappingResponse,
     Manga_PageContainer,
     Nullish,
@@ -64,6 +68,74 @@ export function useGetMangaCollection() {
         method: API_ENDPOINTS.MANGA.GetMangaCollection.methods[0],
         queryKey: [API_ENDPOINTS.MANGA.GetMangaCollection.key],
         enabled: true,
+    })
+}
+
+export type PatchMangaPreference_Variables = {
+    provider?: string
+    filter?: {
+        provider: string
+        scanlators: string[]
+        language: string
+    }
+}
+
+export function useGetMangaPreferences() {
+    return useServerQuery<Manga_MangaPreferences>({
+        endpoint: API_ENDPOINTS.MANGA.GetMangaPreferences.endpoint,
+        method: API_ENDPOINTS.MANGA.GetMangaPreferences.methods[0],
+        queryKey: [API_ENDPOINTS.MANGA.GetMangaPreferences.key],
+        enabled: true,
+    })
+}
+
+export function useImportMangaPreferences() {
+    return useServerMutation<Manga_MangaPreferences, Manga_MangaPreferences>({
+        endpoint: API_ENDPOINTS.MANGA.ImportMangaPreferences.endpoint,
+        method: API_ENDPOINTS.MANGA.ImportMangaPreferences.methods[0],
+        mutationKey: [API_ENDPOINTS.MANGA.ImportMangaPreferences.key],
+    })
+}
+
+export function usePatchMangaPreference(mediaId: Nullish<string | number>) {
+    return useServerMutation<Manga_MangaEntryPreference, PatchMangaPreference_Variables>({
+        endpoint: API_ENDPOINTS.MANGA.PatchMangaPreference.endpoint.replace("{mediaId}", String(mediaId)),
+        method: API_ENDPOINTS.MANGA.PatchMangaPreference.methods[0],
+        mutationKey: [API_ENDPOINTS.MANGA.PatchMangaPreference.key, String(mediaId)],
+    })
+}
+
+export function useGetMangaSourceRefresh(enabled = true) {
+    return useServerQuery<Manga_MangaSourceRefreshJob | null>({
+        endpoint: API_ENDPOINTS.MANGA.GetMangaSourceRefresh.endpoint,
+        method: API_ENDPOINTS.MANGA.GetMangaSourceRefresh.methods[0],
+        queryKey: [API_ENDPOINTS.MANGA.GetMangaSourceRefresh.key],
+        enabled,
+        retry: false,
+    })
+}
+
+export function useStartMangaSourceRefresh() {
+    const queryClient = useQueryClient()
+    return useServerMutation<Manga_MangaSourceRefreshJob, StartMangaSourceRefresh_Variables>({
+        endpoint: API_ENDPOINTS.MANGA.StartMangaSourceRefresh.endpoint,
+        method: API_ENDPOINTS.MANGA.StartMangaSourceRefresh.methods[0],
+        mutationKey: [API_ENDPOINTS.MANGA.StartMangaSourceRefresh.key],
+        onSuccess: job => {
+            queryClient.setQueryData([API_ENDPOINTS.MANGA.GetMangaSourceRefresh.key], job)
+        },
+    })
+}
+
+export function useStopMangaSourceRefresh() {
+    const queryClient = useQueryClient()
+    return useServerMutation<Manga_MangaSourceRefreshJob | null>({
+        endpoint: API_ENDPOINTS.MANGA.StopMangaSourceRefresh.endpoint,
+        method: API_ENDPOINTS.MANGA.StopMangaSourceRefresh.methods[0],
+        mutationKey: [API_ENDPOINTS.MANGA.StopMangaSourceRefresh.key],
+        onSuccess: job => {
+            queryClient.setQueryData([API_ENDPOINTS.MANGA.GetMangaSourceRefresh.key], job)
+        },
     })
 }
 

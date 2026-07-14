@@ -23,6 +23,125 @@ var (
 	mangaDetailsCache = result.NewCache[int, *anilist.MangaDetailsById_Media]()
 )
 
+// HandleGetMangaPreferences
+//
+//	@summary returns server-backed manga source preferences.
+//	@route /api/v1/manga/preferences [GET]
+//	@returns manga.MangaPreferences
+func (h *Handler) HandleGetMangaPreferences(c echo.Context) error {
+	preferences, err := h.App.MangaRepository.GetMangaPreferences()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	return h.RespondWithData(c, preferences)
+}
+
+// HandleImportMangaPreferences
+//
+//	@summary imports client manga preferences missing from the server.
+//	@route /api/v1/manga/preferences/import [POST]
+//	@returns manga.MangaPreferences
+func (h *Handler) HandleImportMangaPreferences(c echo.Context) error {
+	var body manga.MangaPreferences
+	if err := c.Bind(&body); err != nil {
+		return h.RespondWithStatusError(c, http.StatusBadRequest, err)
+	}
+	preferences, err := h.App.MangaRepository.ImportPreferences(&body)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	return h.RespondWithData(c, preferences)
+}
+
+// HandlePatchMangaPreference
+//
+//	@summary updates a manga source preference.
+//	@route /api/v1/manga/preferences/{mediaId} [PATCH]
+//	@returns manga.MangaEntryPreference
+func (h *Handler) HandlePatchMangaPreference(c echo.Context) error {
+	mediaId, err := strconv.Atoi(c.Param("mediaId"))
+	if err != nil || mediaId <= 0 {
+		return h.RespondWithStatusError(c, http.StatusBadRequest, errors.New("invalid media id"))
+	}
+
+	var body manga.MangaPreferencePatch
+	if err := c.Bind(&body); err != nil {
+		return h.RespondWithStatusError(c, http.StatusBadRequest, err)
+	}
+	preference, err := h.App.MangaRepository.PatchPreference(mediaId, &body, true)
+	if err != nil {
+		return h.RespondWithStatusError(c, http.StatusBadRequest, err)
+	}
+	return h.RespondWithData(c, preference)
+}
+
+// HandleStartMangaSourceRefresh
+//
+//	@summary starts a background manga source refresh.
+//	@route /api/v1/manga/source-refresh [POST]
+//	@returns manga.MangaSourceRefreshJob
+func (h *Handler) HandleStartMangaSourceRefresh(c echo.Context) error {
+	type body struct {
+		Mode manga.MangaSourceRefreshMode `json:"mode"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithStatusError(c, http.StatusBadRequest, err)
+	}
+	if !manga.IsMangaSourceRefreshModeValid(b.Mode) {
+		return h.RespondWithStatusError(c, http.StatusBadRequest, errors.New("invalid manga source refresh mode"))
+	}
+	clientId := getContextClientId(c)
+	job, err := h.App.MangaRepository.GetActiveMangaSourceRefresh(clientId)
+	if err != nil {
+		return h.RespondWithStatusError(c, http.StatusConflict, err)
+	}
+	if job != nil {
+		return h.RespondWithData(c, job)
+	}
+	collection, err := h.App.GetMangaCollection(false)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	job, err = h.App.MangaRepository.StartMangaSourceRefresh(clientId, b.Mode, collection)
+	if err != nil {
+		if errors.Is(err, manga.ErrMangaSourceRefreshConflict) {
+			return h.RespondWithStatusError(c, http.StatusConflict, err)
+		}
+		if errors.Is(err, manga.ErrNoMangaProviders) {
+			return h.RespondWithStatusError(c, http.StatusBadRequest, err)
+		}
+		return h.RespondWithError(c, err)
+	}
+	return h.RespondWithData(c, job)
+}
+
+// HandleGetMangaSourceRefresh
+//
+//	@summary returns the client's active or latest manga source refresh.
+//	@route /api/v1/manga/source-refresh [GET]
+//	@returns manga.MangaSourceRefreshJob
+func (h *Handler) HandleGetMangaSourceRefresh(c echo.Context) error {
+	return h.RespondWithData(c, h.App.MangaRepository.GetMangaSourceRefresh(getContextClientId(c)))
+}
+
+// HandleStopMangaSourceRefresh
+//
+//	@summary stops or dismisses the client's manga source refresh.
+//	@route /api/v1/manga/source-refresh [DELETE]
+//	@returns manga.MangaSourceRefreshJob
+func (h *Handler) HandleStopMangaSourceRefresh(c echo.Context) error {
+	job, err := h.App.MangaRepository.StopMangaSourceRefresh(getContextClientId(c))
+	if err != nil {
+		if errors.Is(err, manga.ErrMangaSourceRefreshConflict) {
+			return h.RespondWithStatusError(c, http.StatusConflict, err)
+		}
+		return h.RespondWithError(c, err)
+	}
+	return h.RespondWithData(c, job)
+}
+
 // HandleGetAnilistMangaCollection
 //
 //	@summary returns the user's AniList manga collection.

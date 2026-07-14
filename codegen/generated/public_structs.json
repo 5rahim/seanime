@@ -59479,6 +59479,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "skipCache",
+        "jsonName": "skipCache",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "beforeProviderCall",
+        "jsonName": "beforeProviderCall",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -61194,6 +61212,172 @@
     "comments": []
   },
   {
+    "filepath": "../internal/manga/preferences.go",
+    "filename": "preferences.go",
+    "name": "MangaProviderFilter",
+    "formattedName": "Manga_MangaProviderFilter",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Scanlators",
+        "jsonName": "scanlators",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/preferences.go",
+    "filename": "preferences.go",
+    "name": "MangaEntryPreference",
+    "formattedName": "Manga_MangaEntryPreference",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filters",
+        "jsonName": "filters",
+        "goType": "map[string]MangaProviderFilter",
+        "typescriptType": "Record\u003cstring, Manga_MangaProviderFilter\u003e",
+        "usedTypescriptType": "Manga_MangaProviderFilter",
+        "usedStructName": "manga.MangaProviderFilter",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/preferences.go",
+    "filename": "preferences.go",
+    "name": "MangaPreferences",
+    "formattedName": "Manga_MangaPreferences",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Entries",
+        "jsonName": "entries",
+        "goType": "map[int]MangaEntryPreference",
+        "typescriptType": "Record\u003cnumber, Manga_MangaEntryPreference\u003e",
+        "usedTypescriptType": "Manga_MangaEntryPreference",
+        "usedStructName": "manga.MangaEntryPreference",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/preferences.go",
+    "filename": "preferences.go",
+    "name": "MangaProviderFilterPatch",
+    "formattedName": "Manga_MangaProviderFilterPatch",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Scanlators",
+        "jsonName": "scanlators",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "usedStructName": "manga.[]string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/preferences.go",
+    "filename": "preferences.go",
+    "name": "MangaPreferencePatch",
+    "formattedName": "Manga_MangaPreferencePatch",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filter",
+        "jsonName": "filter",
+        "goType": "MangaProviderFilterPatch",
+        "typescriptType": "Manga_MangaProviderFilterPatch",
+        "usedTypescriptType": "Manga_MangaProviderFilterPatch",
+        "usedStructName": "manga.MangaProviderFilterPatch",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/preferences.go",
+    "filename": "preferences.go",
+    "name": "MangaPreferencesUpdatedPayload",
+    "formattedName": "Manga_MangaPreferencesUpdatedPayload",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MediaIds",
+        "jsonName": "mediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/manga/providers/_template.go",
     "filename": "_template.go",
     "name": "Template",
@@ -61651,6 +61835,50 @@
         "comments": []
       },
       {
+        "name": "preferencesMu",
+        "jsonName": "preferencesMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "sourceRefreshMu",
+        "jsonName": "sourceRefreshMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "sourceRefresh",
+        "jsonName": "sourceRefresh",
+        "goType": "mangaSourceRefreshState",
+        "typescriptType": "Manga_mangaSourceRefreshState",
+        "usedTypescriptType": "Manga_mangaSourceRefreshState",
+        "usedStructName": "manga.mangaSourceRefreshState",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "sourceRefreshLog",
+        "jsonName": "sourceRefreshLog",
+        "goType": "map[string]mangaSourceRefreshCompleted",
+        "typescriptType": "Record\u003cstring, Manga_mangaSourceRefreshCompleted\u003e",
+        "usedTypescriptType": "Manga_mangaSourceRefreshCompleted",
+        "usedStructName": "manga.mangaSourceRefreshCompleted",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "downloadDir",
         "jsonName": "downloadDir",
         "goType": "string",
@@ -61767,6 +61995,331 @@
         "jsonName": "ExtensionBankRef",
         "goType": "",
         "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/source_refresh.go",
+    "filename": "source_refresh.go",
+    "name": "MangaSourceRefreshMode",
+    "formattedName": "Manga_MangaSourceRefreshMode",
+    "package": "manga",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"refresh_selected\"",
+        "\"find_missing\"",
+        "\"refresh_and_find\"",
+        "\"reevaluate_all\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/source_refresh.go",
+    "filename": "source_refresh.go",
+    "name": "MangaSourceRefreshStatus",
+    "formattedName": "Manga_MangaSourceRefreshStatus",
+    "package": "manga",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"running\"",
+        "\"stopping\"",
+        "\"completed\"",
+        "\"cancelled\"",
+        "\"failed\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/source_refresh.go",
+    "filename": "source_refresh.go",
+    "name": "MangaSourceRefreshStage",
+    "formattedName": "Manga_MangaSourceRefreshStage",
+    "package": "manga",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"refreshing\"",
+        "\"discovering\"",
+        "\"done\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/source_refresh.go",
+    "filename": "source_refresh.go",
+    "name": "MangaSourceRefreshIssue",
+    "formattedName": "Manga_MangaSourceRefreshIssue",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Kind",
+        "jsonName": "kind",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Providers",
+        "jsonName": "providers",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/source_refresh.go",
+    "filename": "source_refresh.go",
+    "name": "MangaSourceRefreshChange",
+    "formattedName": "Manga_MangaSourceRefreshChange",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FromProvider",
+        "jsonName": "fromProvider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ToProvider",
+        "jsonName": "toProvider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Kind",
+        "jsonName": "kind",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/source_refresh.go",
+    "filename": "source_refresh.go",
+    "name": "MangaSourceRefreshResult",
+    "formattedName": "Manga_MangaSourceRefreshResult",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Refreshed",
+        "jsonName": "refreshed",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Found",
+        "jsonName": "found",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Replaced",
+        "jsonName": "replaced",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NotFound",
+        "jsonName": "notFound",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Failed",
+        "jsonName": "failed",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Changes",
+        "jsonName": "changes",
+        "goType": "[]MangaSourceRefreshChange",
+        "typescriptType": "Array\u003cManga_MangaSourceRefreshChange\u003e",
+        "usedTypescriptType": "Manga_MangaSourceRefreshChange",
+        "usedStructName": "manga.MangaSourceRefreshChange",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Issues",
+        "jsonName": "issues",
+        "goType": "[]MangaSourceRefreshIssue",
+        "typescriptType": "Array\u003cManga_MangaSourceRefreshIssue\u003e",
+        "usedTypescriptType": "Manga_MangaSourceRefreshIssue",
+        "usedStructName": "manga.MangaSourceRefreshIssue",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/source_refresh.go",
+    "filename": "source_refresh.go",
+    "name": "MangaSourceRefreshJob",
+    "formattedName": "Manga_MangaSourceRefreshJob",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Id",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Mode",
+        "jsonName": "mode",
+        "goType": "MangaSourceRefreshMode",
+        "typescriptType": "Manga_MangaSourceRefreshMode",
+        "usedTypescriptType": "Manga_MangaSourceRefreshMode",
+        "usedStructName": "manga.MangaSourceRefreshMode",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MangaSourceRefreshStatus",
+        "typescriptType": "Manga_MangaSourceRefreshStatus",
+        "usedTypescriptType": "Manga_MangaSourceRefreshStatus",
+        "usedStructName": "manga.MangaSourceRefreshStatus",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Stage",
+        "jsonName": "stage",
+        "goType": "MangaSourceRefreshStage",
+        "typescriptType": "Manga_MangaSourceRefreshStage",
+        "usedTypescriptType": "Manga_MangaSourceRefreshStage",
+        "usedStructName": "manga.MangaSourceRefreshStage",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Current",
+        "jsonName": "current",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Total",
+        "jsonName": "total",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Result",
+        "jsonName": "result",
+        "goType": "MangaSourceRefreshResult",
+        "typescriptType": "Manga_MangaSourceRefreshResult",
+        "usedTypescriptType": "Manga_MangaSourceRefreshResult",
+        "usedStructName": "manga.MangaSourceRefreshResult",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
@@ -64291,6 +64844,24 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "isFileLoaded",
+        "jsonName": "isFileLoaded",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "freshDuration",
+        "jsonName": "freshDuration",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -65426,6 +65997,15 @@
       {
         "name": "playbackSwitch",
         "jsonName": "playbackSwitch",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "isFileLoaded",
+        "jsonName": "isFileLoaded",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -88638,6 +89218,121 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/testmocks/fake_manga_provider.go",
+    "filename": "fake_manga_provider.go",
+    "name": "FakeMangaProvider",
+    "formattedName": "FakeMangaProvider",
+    "package": "testmocks",
+    "fields": [
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "searchResults",
+        "jsonName": "searchResults",
+        "goType": "[]hibikemanga.SearchResult",
+        "typescriptType": "Array\u003cHibikeManga_SearchResult\u003e",
+        "usedTypescriptType": "HibikeManga_SearchResult",
+        "usedStructName": "hibikemanga.SearchResult",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "chapters",
+        "jsonName": "chapters",
+        "goType": "map[string][]hibikemanga.ChapterDetails",
+        "typescriptType": "Record\u003cstring, Array\u003cHibikeManga_ChapterDetails\u003e\u003e",
+        "usedTypescriptType": "HibikeManga_ChapterDetails",
+        "usedStructName": "hibikemanga.ChapterDetails",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "searchErr",
+        "jsonName": "searchErr",
+        "goType": "error",
+        "typescriptType": "error",
+        "usedTypescriptType": "error",
+        "usedStructName": "testmocks.error",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "chaptersErr",
+        "jsonName": "chaptersErr",
+        "goType": "error",
+        "typescriptType": "error",
+        "usedTypescriptType": "error",
+        "usedStructName": "testmocks.error",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "searchCalls",
+        "jsonName": "searchCalls",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "chapterCalls",
+        "jsonName": "chapterCalls",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "hibikemanga.Settings",
+        "typescriptType": "HibikeManga_Settings",
+        "usedTypescriptType": "HibikeManga_Settings",
+        "usedStructName": "hibikemanga.Settings",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/testmocks/fake_manga_provider.go",
+    "filename": "fake_manga_provider.go",
+    "name": "FakeMangaProviderBuilder",
+    "formattedName": "FakeMangaProviderBuilder",
+    "package": "testmocks",
+    "fields": [
+      {
+        "name": "provider",
+        "jsonName": "provider",
+        "goType": "FakeMangaProvider",
+        "typescriptType": "FakeMangaProvider",
+        "usedTypescriptType": "FakeMangaProvider",
+        "usedStructName": "testmocks.FakeMangaProvider",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],

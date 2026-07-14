@@ -127,7 +127,7 @@ const ExtensionList = ({
                                 icon={<LuComponent className="size-5 text-[--muted]" />}
                                 className="rounded-full hover:rotate-360 transition-all duration-300"
                             />}
-                        >{unpinnedBadgeCount ? `Tray Plugins (${unpinnedBadgeCount} with active badges)` : "Tray Plugins"}</Tooltip>
+                        >{unpinnedBadgeCount ? `Tray Plugins (${unpinnedBadgeCount})` : "Tray Plugins"}</Tooltip>
                         {!!unpinnedBadgeCount && <Badge
                             intent="alert-solid"
                             size="sm"
