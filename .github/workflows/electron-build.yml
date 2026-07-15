@@ -146,6 +146,7 @@ jobs:
         run: |
           cd seanime-denshi
           npm ci
+          npm run build:main
           npm run sync:mpv-prism -- ${{ matrix.mpv_prism_target }}
           npx electron-builder build ${{ matrix.electron_args }}
         shell: bash
