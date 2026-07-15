@@ -40,8 +40,7 @@ import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-at
 import { vc_containerElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_previousPausedState } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_lastKnownProgress } from "@/app/(main)/_features/video-core/video-core-atoms"
-import { vc_skipOpeningTime } from "@/app/(main)/_features/video-core/video-core-atoms"
-import { vc_skipEndingTime } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_skipChapter } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { VideoCoreAudioManager } from "@/app/(main)/_features/video-core/video-core-audio"
 import { VideoCoreAudioMenu } from "@/app/(main)/_features/video-core/video-core-audio-menu"
 import { CastPlaybackControls, useCastSubtitleRelay, vc_isCasting, VideoCoreCastButton } from "@/app/(main)/_features/video-core/video-core-cast"
@@ -248,8 +247,7 @@ export function VideoCoreProvider(props: { id: string, children: React.ReactNode
                 vc_pipElement,
                 vc_previousPausedState,
                 vc_lastKnownProgress,
-                vc_skipOpeningTime,
-                vc_skipEndingTime,
+                vc_skipChapter,
                 vc_dispatchAction,
                 vc_hoveringControlBar,
                 vc_menuOpen,
@@ -353,8 +351,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
     const beautifyImage = useAtomValue(vc_beautifyImageAtom)
     const isPip = useAtomValue(vc_pip)
     const fullscreen = useAtomValue(vc_isFullscreen)
-    const skipOpeningTime = useAtomValue(vc_skipOpeningTime)
-    const skipEndingTime = useAtomValue(vc_skipEndingTime)
+    const skipChapter = useAtomValue(vc_skipChapter)
     const pipManager = useAtomValue(vc_pipManager)
     const action = useSetAtom(vc_dispatchAction)
     const [autoPlay] = useAtom(vc_autoPlayVideoAtom)
@@ -407,42 +404,25 @@ const PlayerContent = React.memo<PlayerContentProps>(({
 
                         {busy && (
                             <>
-                                {!!skipOpeningTime && !isMiniPlayer && (
+                                {!!skipChapter && !isMiniPlayer && (
                                     <div
                                         data-vc-element="skip-oped-button-container"
-                                        data-vc-for="opening"
-                                        className="absolute left-5 bottom-28 z-[60] native-player-hide-on-fullscreen"
+                                        data-vc-for="chapter"
+                                        className={cn(
+                                            "absolute bottom-28 z-[60] native-player-hide-on-fullscreen",
+                                            skipChapter.side === "left" ? "left-5" : "right-5",
+                                        )}
                                     >
                                         <Button
                                             size="sm"
                                             intent="gray-basic"
                                             onClick={e => {
                                                 e.stopPropagation()
-                                                action({ type: "seekTo", payload: { time: skipOpeningTime || 0 } })
+                                                action({ type: "seekTo", payload: { time: skipChapter.end } })
                                             }}
                                             onPointerMove={e => e.stopPropagation()}
                                         >
-                                            Skip Opening
-                                        </Button>
-                                    </div>
-                                )}
-
-                                {!!skipEndingTime && !isMiniPlayer && (
-                                    <div
-                                        data-vc-element="skip-oped-button-container"
-                                        data-vc-for="ending"
-                                        className="absolute right-5 bottom-28 z-[60] native-player-hide-on-fullscreen"
-                                    >
-                                        <Button
-                                            size="sm"
-                                            intent="gray-basic"
-                                            onClick={e => {
-                                                e.stopPropagation()
-                                                action({ type: "seekTo", payload: { time: skipEndingTime || 0 } })
-                                            }}
-                                            onPointerMove={e => e.stopPropagation()}
-                                        >
-                                            Skip Ending
+                                            Skip {skipChapter.label}
                                         </Button>
                                     </div>
                                 )}
@@ -759,8 +739,7 @@ export function VideoCore(props: VideoCoreProps) {
     const showOverlayFeedback = useSetAtom(vc_showOverlayFeedback)
     const cursorBusy = useAtomValue(vc_cursorBusy)
 
-    const [skipOpeningTime, setSkipOpeningTime] = useAtom(vc_skipOpeningTime)
-    const [skipEndingTime, setSkipEndingTime] = useAtom(vc_skipEndingTime)
+    const setSkipChapter = useSetAtom(vc_skipChapter)
 
     const [autoNext] = useAtom(vc_autoNextAtom)
     const [autoPlay] = useAtom(vc_autoPlayVideoAtom)
@@ -1091,8 +1070,7 @@ export function VideoCore(props: VideoCoreProps) {
         log.info("Audio tracks", v.audioTracks)
         log.info("Text tracks", v.textTracks)
 
-        setSkipOpeningTime(null)
-        setSkipEndingTime(null)
+        setSkipChapter(null)
 
         // onCaptionsChange() not needed?
         onAudioChange()

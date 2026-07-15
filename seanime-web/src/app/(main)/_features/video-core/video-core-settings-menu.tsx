@@ -592,7 +592,7 @@ export function VideoCoreSettingsMenu() {
                             onValueChange={setShowChapterMarkers}
                         />
                         <Switch
-                            label="Highlight OP/ED Chapters"
+                            label="Highlight Skipped Chapters"
                             side="right"
                             fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
                             size="sm"

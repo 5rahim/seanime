@@ -1,4 +1,6 @@
 import { useSaveMediaPlayerSettings } from "@/api/hooks/settings.hooks"
+import { getSkipPatternError } from "@/app/(main)/_features/media-core/media-core-chapters"
+import { mediaCoreDefaultPreferences, mediaCorePreferencesAtom } from "@/app/(main)/_features/media-core/media-core-preferences"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -129,6 +131,9 @@ export function MpvCorePreferencesModal(props: {
     const { mutate: saveMediaPlayerSettings } = useSaveMediaPlayerSettings()
     const mediaPlayerSettings = serverStatus?.settings?.mediaPlayer
     const [editedScreenshotDir, setEditedScreenshotDir] = React.useState(mediaPlayerSettings?.screenshotDir ?? "")
+    const [preferences, setPreferences] = useAtom(mediaCorePreferencesAtom)
+    const [editedSkipPatterns, setEditedSkipPatterns] = React.useState(preferences.skipPatterns)
+    const skipPatternError = React.useMemo(() => getSkipPatternError(editedSkipPatterns), [editedSkipPatterns])
 
     const isAbsolute = React.useMemo(() => {
         if (!editedScreenshotDir) return true
@@ -143,7 +148,8 @@ export function MpvCorePreferencesModal(props: {
         setEditedSubsBlacklist(settings.preferredSubtitleBlacklist)
         setEditedSubtitleDelay(settings.subtitleDelay)
         setEditedScreenshotDir(mediaPlayerSettings?.screenshotDir ?? "")
-    }, [open, keybindings, settings, mediaPlayerSettings])
+        setEditedSkipPatterns(preferences.skipPatterns)
+    }, [open, keybindings, settings, mediaPlayerSettings, preferences.skipPatterns])
 
     const handleKeyRecord = (actionKey: keyof MpvCoreKeybindings) => {
         setRecordingKey(actionKey)
@@ -162,6 +168,7 @@ export function MpvCorePreferencesModal(props: {
     }
 
     const saveSettings = () => {
+        if (skipPatternError) return
         setKeybindings(editedKeybindings)
         setSettings({
             ...settings,
@@ -170,6 +177,7 @@ export function MpvCorePreferencesModal(props: {
             preferredSubtitleBlacklist: editedSubsBlacklist,
             subtitleDelay: editedSubtitleDelay,
         })
+        setPreferences(current => ({ ...current, skipPatterns: editedSkipPatterns.trim() }))
 
         const currentMediaPlayer = serverStatus?.settings?.mediaPlayer
         if (currentMediaPlayer) {
@@ -194,6 +202,7 @@ export function MpvCorePreferencesModal(props: {
         setEditedSubsBlacklist(mc_initialSettings.preferredSubtitleBlacklist)
         setEditedSubtitleDelay(mc_initialSettings.subtitleDelay)
         setEditedScreenshotDir(mediaPlayerSettings?.screenshotDir ?? "")
+        setEditedSkipPatterns(mediaCoreDefaultPreferences.skipPatterns)
     }
 
     const formatKeyDisplay = (keyCode: string) => {
@@ -244,6 +253,16 @@ export function MpvCorePreferencesModal(props: {
 
                     <TabsContent value="general" className={tabContentClass}>
                         <div className="space-y-4">
+                            <TextInput
+                                label="Extra Chapters to Skip"
+                                value={editedSkipPatterns}
+                                onValueChange={setEditedSkipPatterns}
+                                placeholder="^Intro$,^Outro$,^Preview$"
+                                help="Comma-separated regular expressions matched case-insensitively. Existing opening and ending rules remain active."
+                                error={skipPatternError}
+                                onKeyDown={event => event.stopPropagation()}
+                                onInput={event => event.stopPropagation()}
+                            />
                             <DirectorySelector
                                 value={editedScreenshotDir}
                                 onSelect={setEditedScreenshotDir}
@@ -269,7 +288,7 @@ export function MpvCorePreferencesModal(props: {
                                     <Button
                                         intent="primary"
                                         onClick={handleSave}
-                                        disabled={!isAbsolute}
+                                        disabled={!isAbsolute || !!skipPatternError}
                                     >
                                         Save
                                     </Button>
@@ -318,7 +337,7 @@ export function MpvCorePreferencesModal(props: {
                                 <Button intent="gray-outline" onClick={handleReset}>Reset all</Button>
                                 <div className="flex gap-2">
                                     <Button intent="gray-outline" onClick={() => setOpen(false)}>Cancel</Button>
-                                    <Button intent="primary" onClick={handleSave}>Save</Button>
+                                    <Button intent="primary" onClick={handleSave} disabled={!!skipPatternError}>Save</Button>
                                 </div>
                             </div>
                         </div>
@@ -375,7 +394,7 @@ export function MpvCorePreferencesModal(props: {
                             <Button intent="gray-outline" onClick={handleReset}>Reset all</Button>
                             <div className="flex gap-2">
                                 <Button intent="gray-outline" onClick={() => setOpen(false)}>Cancel</Button>
-                                <Button intent="primary" onClick={handleSave}>Save</Button>
+                                <Button intent="primary" onClick={handleSave} disabled={!!skipPatternError}>Save</Button>
                             </div>
                         </div>
                     </TabsContent> </Tabs>

@@ -766,6 +766,7 @@ export default function Page() {
                                                 ]}
                                             />
                                             <Field.Switch
+                                                data-settings-show-torrent-availability
                                                 side="right"
                                                 name="showTorrentAvailability"
                                                 label="Show torrent availability on recent episodes"

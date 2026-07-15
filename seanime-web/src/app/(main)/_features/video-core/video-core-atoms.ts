@@ -54,8 +54,10 @@ export const vc_videoElement = atom<HTMLVideoElement | null>(null)
 export const vc_containerElement = atom<HTMLDivElement | null>(null)
 export const vc_previousPausedState = atom(false)
 export const vc_lastKnownProgress = atom<{ mediaId: number, progressNumber: number, time: number } | null>(null)
-export const vc_skipOpeningTime = atom<number | null>(null)
-export const vc_skipEndingTime = atom<number | null>(null)
+export const vc_skipChapter = atom<{
+    end: number
+    label: string
+    side: "left" | "right"
+} | null>(null)
 
 export const vc_globalMiniPlayerAtom = atom(false)
-

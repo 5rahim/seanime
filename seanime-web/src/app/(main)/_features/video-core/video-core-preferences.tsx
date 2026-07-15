@@ -1,4 +1,6 @@
 import { useSaveMediaPlayerSettings } from "@/api/hooks/settings.hooks"
+import { getSkipPatternError } from "@/app/(main)/_features/media-core/media-core-chapters"
+import { mediaCoreDefaultPreferences, mediaCorePreferencesAtom } from "@/app/(main)/_features/media-core/media-core-preferences"
 import { vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
 import { vc_mediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core"
 import { vc_audioManager } from "@/app/(main)/_features/video-core/video-core"
@@ -186,6 +188,9 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
     const [editedSubsBlacklist, setEditedSubsBlacklist] = useState(settings.preferredSubtitleBlacklist)
     const [editedSubtitleDelay, setEditedSubtitleDelay] = useState(settings.subtitleDelay ?? 0)
     const [editedScreenshotDir, setEditedScreenshotDir] = useState(mediaPlayerSettings?.screenshotDir ?? "")
+    const [preferences, setPreferences] = useAtom(mediaCorePreferencesAtom)
+    const [editedSkipPatterns, setEditedSkipPatterns] = useState(preferences.skipPatterns)
+    const skipPatternError = React.useMemo(() => getSkipPatternError(editedSkipPatterns), [editedSkipPatterns])
 
     const isAbsolute = React.useMemo(() => {
         if (!editedScreenshotDir) return true
@@ -207,9 +212,10 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
             setEditedSubtitleDelay(settings.subtitleDelay ?? 0)
             setEditedUseLibassRenderer(useLibassRenderer)
             setEditedScreenshotDir(mediaPlayerSettings?.screenshotDir ?? "")
+            setEditedSkipPatterns(preferences.skipPatterns)
             // setEditedSubCustomization(settings.subtitleCustomization || vc_initialSettings.subtitleCustomization)
         }
-    }, [open, keybindings, settings, useLibassRenderer, mediaPlayerSettings])
+    }, [open, keybindings, settings, useLibassRenderer, mediaPlayerSettings, preferences.skipPatterns])
 
     const handleKeyRecord = (actionKey: keyof VideoCoreKeybindings) => {
         setRecordingKey(actionKey)
@@ -235,6 +241,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
     }
 
     const handleSave = () => {
+        if (skipPatternError) return
         setKeybindings(editedKeybindings)
         const newSettings = {
             ...settings,
@@ -245,6 +252,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
             // subtitleCustomization: editedSubCustomization,
         }
         setSettings(newSettings)
+        setPreferences(current => ({ ...current, skipPatterns: editedSkipPatterns.trim() }))
         setUseLibassRenderer(editedUseLibassRenderer)
 
         const currentMediaPlayer = serverStatus?.settings?.mediaPlayer
@@ -271,6 +279,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
         setEditedSubtitleDelay(vc_initialSettings.subtitleDelay)
         setEditedUseLibassRenderer(true)
         setEditedScreenshotDir(mediaPlayerSettings?.screenshotDir ?? "")
+        setEditedSkipPatterns(mediaCoreDefaultPreferences.skipPatterns)
         // setEditedSubCustomization(vc_initialSettings.subtitleCustomization)
     }
 
@@ -342,6 +351,16 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
 
                 <TabsContent value="general" className={tabContentClass}>
                     <div className="space-y-4">
+                        <TextInput
+                            label="Extra Chapters to Skip"
+                            value={editedSkipPatterns}
+                            onValueChange={setEditedSkipPatterns}
+                            placeholder="^Intro$,^Outro$,^Preview$"
+                            help="Comma-separated regular expressions matched case-insensitively. Existing opening and ending rules remain active."
+                            error={skipPatternError}
+                            onKeyDown={event => event.stopPropagation()}
+                            onInput={event => event.stopPropagation()}
+                        />
                         <DirectorySelector
                             value={editedScreenshotDir}
                             onSelect={setEditedScreenshotDir}
@@ -367,7 +386,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                 <Button
                                     intent="primary"
                                     onClick={handleSave}
-                                    disabled={!isAbsolute}
+                                    disabled={!isAbsolute || !!skipPatternError}
                                 >
                                     Save
                                 </Button>
@@ -631,6 +650,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                                 <Button
                                     intent="primary"
                                     onClick={handleSave}
+                                    disabled={!!skipPatternError}
                                 >
                                     Save
                                 </Button>
@@ -712,6 +732,7 @@ export function VideoCorePreferencesModal({ isWebPlayer }: { isWebPlayer: boolea
                             <Button
                                 intent="primary"
                                 onClick={handleSave}
+                                disabled={!!skipPatternError}
                             >
                                 Save
                             </Button>

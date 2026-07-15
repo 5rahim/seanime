@@ -1,3 +1,6 @@
+import { getSkipChapters, getSkipLabel } from "@/app/(main)/_features/media-core/media-core-chapters"
+import { MediaCoreTimeRangeView } from "@/app/(main)/_features/media-core/media-core-control-bar"
+import { mediaCorePreferencesAtom } from "@/app/(main)/_features/media-core/media-core-preferences"
 import { useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { vc_previewManager } from "@/app/(main)/_features/video-core/video-core"
 import { VideoCoreChapterCue } from "@/app/(main)/_features/video-core/video-core"
@@ -13,14 +16,11 @@ import { vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atom
 import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_previousPausedState } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_lastKnownProgress } from "@/app/(main)/_features/video-core/video-core-atoms"
-import { vc_skipOpeningTime } from "@/app/(main)/_features/video-core/video-core-atoms"
-import { vc_skipEndingTime } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_skipChapter } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_showOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS, VIDEOCORE_PREVIEW_THUMBNAIL_SIZE } from "@/app/(main)/_features/video-core/video-core-preview"
 import { vc_autoSkipOPEDAtom, vc_highlightOPEDChaptersAtom, vc_showChapterMarkersAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
-import { vc_getOPEDChapters } from "@/app/(main)/_features/video-core/video-core.utils"
-import { MediaCoreTimeRangeView } from "@/app/(main)/_features/media-core/media-core-control-bar"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
@@ -66,10 +66,10 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     const highlightOPEDChapters = useAtomValue(vc_highlightOPEDChaptersAtom)
     const autoSkipIntroOutro = useAtomValue(vc_autoSkipOPEDAtom)
     const showOverlayFeedback = useSetAtom(vc_showOverlayFeedback)
-    const [skipOpeningTime, setSkipOpeningTime] = useAtom(vc_skipOpeningTime)
-    const [skipEndingTime, setSkipEndingTime] = useAtom(vc_skipEndingTime)
+    const setSkipChapter = useSetAtom(vc_skipChapter)
     const [restoreProgressTo, setRestoreProgressTo] = useAtom(vc_lastKnownProgress)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
+    const skipPatterns = useAtomValue(mediaCorePreferencesAtom).skipPatterns
 
     const [timeRangeElement, setTimeRangeElement] = useAtom(vc_timeRangeElement)
 
@@ -124,52 +124,45 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
         setProgressPercentage(duration > 0 ? (timeToUse / duration) * 100 : 0)
     }, [currentTime, duration, isSwiping, swipeSeekTime])
 
-    const opEdChapters = React.useMemo(() => vc_getOPEDChapters(chapters), [chapters])
+    const skipChapters = React.useMemo(() => getSkipChapters(chapters, skipPatterns), [chapters, skipPatterns])
 
     // handle auto skip
     React.useEffect(() => {
-        if (!opEdChapters.opening?.end && !opEdChapters.ending?.end) return
-        if (isNaN(duration) || duration <= 1) return
+        if (isNaN(duration) || duration <= 1) {
+            setSkipChapter(null)
+            return
+        }
         if (isWatchPartyPeer) {
-            setSkipOpeningTime(0)
-            setSkipEndingTime(0)
+            setSkipChapter(null)
             return
         }
 
-        if (
-            opEdChapters.opening &&
-            opEdChapters.opening.end &&
-            currentTime >= opEdChapters.opening.start &&
-            currentTime < opEdChapters.opening.end
-        ) {
-            if (autoSkipIntroOutro && !restoreProgressTo) {
-                action({ type: "seekTo", payload: { time: opEdChapters.opening.end } })
-                showOverlayFeedback({ message: "Skipped OP", duration: 1000 })
-            } else {
-                setSkipOpeningTime(opEdChapters.opening.end)
-            }
-        } else {
-            setSkipOpeningTime(0)
+        const chapter = skipChapters.find(chapter => (
+            chapter.end && currentTime >= chapter.start && currentTime < chapter.end
+        ))
+        if (!chapter) {
+            setSkipChapter(null)
+            return
         }
 
-        if (
-            opEdChapters.ending &&
-            opEdChapters.ending.end &&
-            currentTime >= opEdChapters.ending.start &&
-            currentTime < opEdChapters.ending.end &&
-            currentTime < duration
-        ) {
-            if (autoSkipIntroOutro && !restoreProgressTo) {
-                action({ type: "seekTo", payload: { time: opEdChapters.ending.end } })
-                showOverlayFeedback({ message: "Skipped ED", duration: 1000 })
-            } else {
-                setSkipEndingTime(opEdChapters.ending.end)
-            }
-        } else {
-            setSkipEndingTime(0)
+        const label = getSkipLabel(chapter.label)
+        if (autoSkipIntroOutro && !restoreProgressTo) {
+            setSkipChapter(null)
+            action({ type: "seekTo", payload: { time: chapter.end } })
+            showOverlayFeedback({ message: `Skipped ${label}`, duration: 1000 })
+            return
         }
 
-    }, [currentTime, autoSkipIntroOutro, opEdChapters, duration, restoreProgressTo, isWatchPartyPeer])
+        setSkipChapter(current => (
+            current?.end === chapter.end && current.label === label
+                ? current
+                : {
+                    end: chapter.end,
+                    label,
+                    side: chapter.start < duration / 2 ? "left" : "right",
+                }
+        ))
+    }, [currentTime, autoSkipIntroOutro, skipChapters, duration, restoreProgressTo, isWatchPartyPeer])
 
     // start seeking
     function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
@@ -498,7 +491,8 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
             seekingTargetProgress={seekingTargetProgress}
             chapters={chapters}
             showChapterMarkers={showChapterMarkers}
-            highlightOPEDChapters={highlightOPEDChapters}
+            highlightChapters={highlightOPEDChapters}
+            skipChapters={skipChapters}
             showPreview={showPreview}
             showThumbnail={showThumbnail}
             previewWidth={previewWidth}

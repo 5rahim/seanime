@@ -57,14 +57,11 @@ contextBridge.exposeInMainWorld(
                 "cast:error",
             ]
             if (validChannels.includes(channel)) {
-                // Remove the event listener to avoid memory leaks
-                ipcRenderer.removeAllListeners(channel)
-                // Add the event listener
-                ipcRenderer.on(channel, (_, ...args) => callback(...args))
+                const listener = (_, ...args) => callback(...args)
+                ipcRenderer.on(channel, listener)
 
-                // Return a function to remove the listener
                 return () => {
-                    ipcRenderer.removeAllListeners(channel)
+                    ipcRenderer.removeListener(channel, listener)
                 }
             }
         },

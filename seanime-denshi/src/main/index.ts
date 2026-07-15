@@ -904,6 +904,42 @@ function createMainWindow() {
     const win = new BrowserWindow(windowOptions)
     mainWindow = win
 
+    win.on("minimize", () => {
+        if (!win.isDestroyed()) {
+            win.webContents.send("window:minimized")
+        }
+    })
+
+    win.on("hide", () => {
+        if (!win.isDestroyed()) {
+            win.webContents.send("window:hidden")
+        }
+    })
+
+    win.on("maximize", () => {
+        if (!win.isDestroyed()) {
+            win.webContents.send("window:maximized")
+        }
+    })
+
+    win.on("unmaximize", () => {
+        if (!win.isDestroyed()) {
+            win.webContents.send("window:unmaximized")
+        }
+    })
+
+    win.on("enter-full-screen", () => {
+        if (!win.isDestroyed()) {
+            win.webContents.send("window:fullscreen", true)
+        }
+    })
+
+    win.on("leave-full-screen", () => {
+        if (!win.isDestroyed()) {
+            win.webContents.send("window:fullscreen", false)
+        }
+    })
+
     win.webContents.on("context-menu", (event: Electron.Event, params: Electron.ContextMenuParams) => {
         if (!params.isEditable) return
 
@@ -1413,45 +1449,6 @@ app.whenReady().then(async () => {
                 serverProcess.kill()
             }
         })
-
-        // Watch for window events to notify renderer
-        if (mainWindow) {
-            mainWindow.on("minimize", () => {
-                if (mainWindow && !mainWindow.isDestroyed()) {
-                    mainWindow.webContents.send("window:minimized")
-                }
-            })
-
-            mainWindow.on("hide", () => {
-                if (mainWindow && !mainWindow.isDestroyed()) {
-                    mainWindow.webContents.send("window:hidden")
-                }
-            })
-
-            mainWindow.on("maximize", () => {
-                if (mainWindow && !mainWindow.isDestroyed()) {
-                    mainWindow.webContents.send("window:maximized")
-                }
-            })
-
-            mainWindow.on("unmaximize", () => {
-                if (mainWindow && !mainWindow.isDestroyed()) {
-                    mainWindow.webContents.send("window:unmaximized")
-                }
-            })
-
-            mainWindow.on("enter-full-screen", () => {
-                if (mainWindow && !mainWindow.isDestroyed()) {
-                    mainWindow.webContents.send("window:fullscreen", true)
-                }
-            })
-
-            mainWindow.on("leave-full-screen", () => {
-                if (mainWindow && !mainWindow.isDestroyed()) {
-                    mainWindow.webContents.send("window:fullscreen", false)
-                }
-            })
-        }
 
         // macOS specific events
         ipcMain.on("macos-activation-policy-accessory", () => {
