@@ -2,19 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
-## v3.9.2
+## v3.10.0
 
-- ⚡️ VideoCore: Optimized subtitle streaming performance
-- ⚡️ Plugin: Discord Rich Presence setCustomActivity API
-- ⚡️ MpvCore: Ability to export logs from the UI
-- 🦺 Mediastream: Fixed codec strings and media container caching
-- 🦺 MpvCore: Fixed player black background color
-- 🦺 Core: Fixed filecache item deletion
-- 🦺 MpvCore: Updated mpv-prism to 0.1.2
-- 🦺 MPV/IINA: Delay actions until file is ready
-  - Fixed startup race causing hanging
-  - Potential fixes for dual-gpu setups
-- ⬆️ Updated dependecies
+- ⚡️ Manga: Improved source refresh
+  - Refresh saved sources, find missing sources, or compare all installed providers
+  - Retry failed entries or find alternatives when a source stops working
+- ⚡️ Built-in Players: Configure extra chapters to skip
+  - Custom patterns for auto-skip, skip buttons, and timeline highlighting
+- ⚡️ VideoCore: Faster and more reliable subtitles
+- ⚡️ Torrent: Optional availability badges for recently released episodes
+- ⚡️ Online Streaming: Improvement to reliability
+  - Refresh stale source urls before switching providers
+  - Keep provider, server, quality, audio, and subtitle choices during recovery
+  - Remember HLS quality between episodes
+  - Respect provider defaults and per-anime subtitle choices
+  - Support subtitles that require provider headers
+- ⚡️ Denshi: Restore scroll position on Search and Lists
+- ⚡️ Denshi: Export MpvCore logs from Video Playback settings
+- ⚡️ Plugins: Show badge counts for unpinned tray plugins
+- ⚡️ Plugins: Added APIs for custom Discord Rich Presence activities and AniList avatar URLs
+- 🦺 Transcoding / Direct Play: Fixed codec and container detection and stopped reusing stale media containers
+- 🦺 MpvCore: Fixed the player background color
+- 🦺 Nakama: Fixed watch parties using custom-source media
+- 🦺 VideoCore: Fixed stale playback sessions blocking a new client
+- 🦺 MPV/IINA: Restoring watch progress now waits until media is ready
+- 🦺 Cache: Fixed deleted file cache entries remaining active in memory
+- 🦺 UI: Fixed some visual bugs
+- ⬆️ MpvCore: Updated mpv-prism to 0.1.8
+  - Better support for dual-gpu setups
+  - Fixed startup race causing infinite loading
+  - Fixed logging on Windows
+- ⬆️ Updated dependencies
 
 ## v3.9.1
 
