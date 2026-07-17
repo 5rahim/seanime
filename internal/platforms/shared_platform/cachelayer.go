@@ -341,9 +341,8 @@ func (c *CacheLayer) checkAndUpdateWorkingState(err error) {
 			return
 		}
 
-		errStr := strings.ToLower(err.Error())
 		// handle invalid token
-		if strings.Contains(errStr, "user not found") {
+		if isAnilistAuthError(err) {
 			events.GlobalWSEventManager.SendEvent(events.ServerLoggedOutAnilist, "Your AniList session has expired. Please log in again.")
 			if c.logoutFunc != nil {
 				go c.logoutFunc()
@@ -384,6 +383,15 @@ func (c *CacheLayer) checkAndUpdateWorkingState(err error) {
 		}
 		clearFailureTracking()
 	}
+}
+
+func isAnilistAuthError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errStr := strings.ToLower(err.Error())
+	return strings.Contains(errStr, "invalid token") || strings.Contains(errStr, "user not found")
 }
 
 // generateCacheKey generates a cache key from the given parameters

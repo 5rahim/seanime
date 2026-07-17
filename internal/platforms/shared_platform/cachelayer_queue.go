@@ -57,7 +57,7 @@ func shouldQueueMediaListUpdate(err error) bool {
 	}
 
 	errStr := strings.ToLower(err.Error())
-	if strings.Contains(errStr, "user not found") || strings.Contains(errStr, "not authenticated") || strings.Contains(errStr, "invalid token") {
+	if isAnilistAuthError(err) || strings.Contains(errStr, "not authenticated") {
 		return false
 	}
 	if strings.Contains(errStr, "401") || strings.Contains(errStr, "403") || strings.Contains(errStr, "404") {

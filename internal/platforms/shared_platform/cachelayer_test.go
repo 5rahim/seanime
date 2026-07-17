@@ -2,10 +2,13 @@ package shared_platform
 
 import (
 	"context"
+	"errors"
 	"seanime/internal/api/anilist"
+	"seanime/internal/events"
 	"seanime/internal/util"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/gqlgo/gqlgenc/clientv2"
 	"github.com/stretchr/testify/require"
@@ -78,6 +81,31 @@ func (c *cacheLayerTestClient) UpdateMediaListEntryProgress(_ context.Context, m
 		Status:   newCloned(status),
 	})
 	return &anilist.UpdateMediaListEntryProgress{SaveMediaListEntry: &anilist.UpdateMediaListEntryProgress_SaveMediaListEntry{ID: 999}}, nil
+}
+
+func TestCacheLayerLogsOutOnInvalidToken(t *testing.T) {
+	previousEventManager := events.GlobalWSEventManager
+	events.GlobalWSEventManager = &events.GlobalWSEventManagerWrapper{}
+	t.Cleanup(func() {
+		events.GlobalWSEventManager = previousEventManager
+		clearFailureTracking()
+	})
+
+	logoutCalled := make(chan struct{}, 1)
+	cacheLayer := &CacheLayer{
+		logoutFunc: func() {
+			logoutCalled <- struct{}{}
+		},
+	}
+
+	cacheLayer.checkAndUpdateWorkingState(errors.New("graphql: Invalid token"))
+
+	select {
+	case <-logoutCalled:
+	case <-time.After(time.Second):
+		t.Fatal("expected invalid token error to trigger logout")
+	}
+	require.Zero(t, getRecentFailureCount())
 }
 
 func TestCacheLayerQueuesProgressUpdateAndPatchesAnimeCache(t *testing.T) {

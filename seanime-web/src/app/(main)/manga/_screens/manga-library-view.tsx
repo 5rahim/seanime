@@ -384,24 +384,6 @@ const CollectionListItem = memo(({ list, storedProviders, showStatuses, type, wi
                 />
             }
 
-            {list.type === "CURRENT" && params.unreadOnly && !list.entries?.length && (
-                <div className="rounded-[--radius-md] border border-dashed px-4 py-10 text-center">
-                    <p className="font-medium">No unread chapters found</p>
-                    <p className="mt-1 text-sm text-[--muted]">Entries without source data are not counted as unread.</p>
-                    <Button
-                        intent="white-link"
-                        size="sm"
-                        className="mt-3"
-                        onClick={() => setParams(draft => {
-                            draft.unreadOnly = false
-                            return
-                        })}
-                    >
-                        Show all manga
-                    </Button>
-                </div>
-            )}
-
             {type === "grid" && <MediaCardLazyGrid itemCount={list.entries?.length ?? 0}>
                 {list.entries?.map(entry => {
                     return <div
