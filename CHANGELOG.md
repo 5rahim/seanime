@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.10.1
+
+- ⚡️ Manga: Made the refresh button more prominent
+- 🦺 Cache layer: Fixed logging out on invalid token
+- 🦺 UI: Fixed manga list disappearing due to unread only option (regression)
+- 🦺 Plugins: Fixed DOM observe method incorrectly firing twice
+
 ## v3.10.0
 
 - ⚡️ Manga: Improved source refresh

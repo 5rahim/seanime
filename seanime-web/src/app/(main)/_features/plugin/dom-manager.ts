@@ -29,6 +29,21 @@ type ElementToDOMElementOptions = {
     identifyChildren?: boolean
 }
 
+const generatedIds = new WeakMap<Element, string>()
+
+export function isGeneratedIdMutation(element: Element, attributeName: string | null) {
+    if (attributeName !== "id") return false
+
+    const id = generatedIds.get(element)
+    if (!id) return false
+
+    if (element.id === id) return true
+
+    generatedIds.delete(element)
+    return false
+}
+
+
 /**
  * DOM Manager for plugins
  * Handles DOM manipulation requests from plugins
@@ -72,6 +87,7 @@ export function useDOMManager(extensionId: string) {
 
         // Generate and assign a new ID
         const newId = generateElementId(extensionId)
+        generatedIds.set(element, newId)
         element.id = newId
         elementIdsMapRef.current.set(element, newId)
         return newId
@@ -208,6 +224,8 @@ export function useDOMManager(extensionId: string) {
                     const target = mutation.target instanceof Element ?
                         mutation.target :
                         mutation.target.parentElement
+
+                    if (target && isGeneratedIdMutation(target, mutation.attributeName)) return
 
                     if (target) processedElements.add(target)
                 }
