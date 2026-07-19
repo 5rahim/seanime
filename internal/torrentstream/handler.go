@@ -71,7 +71,9 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if !useCompletedFile {
 		h.repository.logger.Trace().Str("file", file.DisplayPath()).Msg("torrentstream: New reader")
-		tr = torrentutil.NewReadSeeker(torrent, file, h.repository.logger)
+		reader := torrentutil.NewReadSeeker(torrent, file, h.repository.logger)
+		reader.SetContext(r.Context())
+		tr = reader
 
 		// If this is a range request for a later part of the file, prioritize those pieces initially
 		rangeHeader := r.Header.Get("Range")

@@ -81,6 +81,8 @@ func TestServeContentRange(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("expected range serve to return")
 	}
+
+	require.True(t, rec.Flushed)
 }
 
 func TestDirectStreamPlaybackTargetsRemainIndependent(t *testing.T) {

@@ -74,12 +74,14 @@ func (s *TorrentStream) hasCompletedFile() bool {
 	return ok
 }
 
-func (s *TorrentStream) newReader() io.ReadSeekCloser {
+func (s *TorrentStream) newReader(ctx context.Context) io.ReadSeekCloser {
 	if reader, ok := s.openCompletedFile(); ok {
 		return reader
 	}
 
-	return torrentutil.NewReadSeeker(s.torrent, s.file, s.logger)
+	reader := torrentutil.NewReadSeeker(s.torrent, s.file, s.logger)
+	reader.SetContext(ctx)
+	return reader
 }
 
 func (s *TorrentStream) newMetadataReader() io.ReadSeekCloser {
@@ -90,6 +92,9 @@ func (s *TorrentStream) newMetadataReader() io.ReadSeekCloser {
 	reader := s.file.NewReader()
 	reader.SetResponsive()
 	reader.SetReadahead(0)
+	if s.manager != nil && s.manager.playbackCtx != nil {
+		reader.SetContext(s.manager.playbackCtx)
+	}
 	return reader
 }
 
@@ -213,24 +218,6 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 			return
 		}
 
-		if isThumbnailRequest(r) {
-			reader := s.newReader()
-			defer reader.Close()
-			ra, ok := handleRange(w, r, reader, name, size)
-			if !ok {
-				return
-			}
-			serveContentRange(w, r, r.Context(), reader, name, size, contentType, ra)
-			return
-		}
-
-		s.logger.Trace().Str("file", name).Msg("directstream(torrent): New reader")
-		tr := s.newReader()
-		defer func() {
-			s.logger.Trace().Msg("directstream(torrent): Closing reader")
-			_ = tr.Close()
-		}()
-
 		playbackCtx := s.manager.playbackCtx
 		if playbackCtx == nil {
 			playbackCtx = r.Context()
@@ -240,6 +227,24 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 		defer func() {
 			stopRequestCancel()
 			cancelServe()
+		}()
+
+		if isThumbnailRequest(r) {
+			reader := s.newReader(serveCtx)
+			defer reader.Close()
+			ra, ok := handleRange(w, r, reader, name, size)
+			if !ok {
+				return
+			}
+			serveContentRange(w, r, serveCtx, reader, name, size, contentType, ra)
+			return
+		}
+
+		s.logger.Trace().Str("file", name).Msg("directstream(torrent): New reader")
+		tr := s.newReader(serveCtx)
+		defer func() {
+			s.logger.Trace().Msg("directstream(torrent): Closing reader")
+			_ = tr.Close()
 		}()
 
 		ra, ok := handleRange(w, r, tr, name, size)
