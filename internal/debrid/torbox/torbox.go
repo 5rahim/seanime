@@ -428,22 +428,60 @@ func (t *TorBox) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (down
 }
 
 func normalizeDownloadUrl(downloadUrl string) (string, error) {
+	downloadUrl = encodeFilename(downloadUrl)
+
 	parsedUrl, err := url.Parse(downloadUrl)
 	if err != nil {
 		return "", err
 	}
 
-	query := strings.Split(parsedUrl.RawQuery, "&")
-	for idx, part := range query {
-		key, value, ok := strings.Cut(part, "=")
-		if !ok || key != "filename" {
+	return parsedUrl.String(), nil
+}
+
+func encodeFilename(downloadUrl string) string {
+	key := "&filename="
+	idx := strings.LastIndex(downloadUrl, key)
+	if idx == -1 {
+		key = "?filename="
+		idx = strings.LastIndex(downloadUrl, key)
+	}
+	if idx == -1 {
+		return downloadUrl
+	}
+
+	start := idx + len(key)
+	filename := downloadUrl[start:]
+
+	const hex = "0123456789ABCDEF"
+	var b strings.Builder
+	b.Grow(len(filename))
+
+	for i := 0; i < len(filename); i++ {
+		c := filename[i]
+		if c == '%' && i+2 < len(filename) && isHex(filename[i+1]) && isHex(filename[i+2]) {
+			b.WriteString(filename[i : i+3])
+			i += 2
 			continue
 		}
-		query[idx] = key + "=" + strings.ReplaceAll(value, " ", "%20")
+		if c >= 'a' && c <= 'z' ||
+			c >= 'A' && c <= 'Z' ||
+			c >= '0' && c <= '9' ||
+			c == '-' || c == '.' || c == '_' || c == '~' {
+			b.WriteByte(c)
+			continue
+		}
+		b.WriteByte('%')
+		b.WriteByte(hex[c>>4])
+		b.WriteByte(hex[c&15])
 	}
-	parsedUrl.RawQuery = strings.Join(query, "&")
 
-	return parsedUrl.String(), nil
+	return downloadUrl[:start] + b.String()
+}
+
+func isHex(c byte) bool {
+	return c >= '0' && c <= '9' ||
+		c >= 'a' && c <= 'f' ||
+		c >= 'A' && c <= 'F'
 }
 
 func (t *TorBox) GetTorrent(id string) (ret *debrid.TorrentItem, err error) {

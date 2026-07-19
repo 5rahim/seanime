@@ -19,6 +19,16 @@ func TestNormalizeDownloadURL(t *testing.T) {
 			expected: "https://example.com/dld/file?token=abc+123&filename=The%20Ramparts%20of%20Ice.mkv",
 		},
 		{
+			name:     "filename with comma",
+			input:    "https://example.com/dld/file?token=abc%2F123%3D&filename=Title, Subtitle S01E03 [1080p].zip",
+			expected: "https://example.com/dld/file?token=abc%2F123%3D&filename=Title%2C%20Subtitle%20S01E03%20%5B1080p%5D.zip",
+		},
+		{
+			name:     "filename with reserved and unicode characters",
+			input:    "https://example.com/dld/file?token=abc%2F123%3D&filename=100% [Group] A&B #1 + 日本?.zip",
+			expected: "https://example.com/dld/file?token=abc%2F123%3D&filename=100%25%20%5BGroup%5D%20A%26B%20%231%20%2B%20%E6%97%A5%E6%9C%AC%3F.zip",
+		},
+		{
 			name:     "raw path",
 			input:    "https://example.com/dld/The Ramparts of Ice.mkv?token=abc%2F123%3D",
 			expected: "https://example.com/dld/The%20Ramparts%20of%20Ice.mkv?token=abc%2F123%3D",
