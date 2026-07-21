@@ -88,7 +88,10 @@ func TestInitializeProviderRequiresDummyFeatureFlag(t *testing.T) {
 	env := testutil.NewTestEnv(t)
 	database := env.MustNewDatabase(logger)
 	fixture := env.MustWriteFixtureFile("fixture.mkv", []byte("fixture"))
-	_, err := database.UpsertDummyDebridSettings(models.NewDefaultDummyDebridSettings(fixture))
+	_, err := database.UpsertDummyDebridSettings(&models.DummyDebridSettings{
+		Enabled:          true,
+		FallbackFilePath: fixture,
+	})
 	require.NoError(t, err)
 
 	disabledRepo := &Repository{

@@ -226,7 +226,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
 
     // Setup playlist hooks
     useVideoCorePlaylistSetup(state as any)
-    const { playEpisode, hasNextEpisode, hasPreviousEpisode } = useVideoCorePlaylist()
+    const { playEpisode, hasNextEpisode, hasPreviousEpisode, isGlobalPlaylistActive } = useVideoCorePlaylist()
     const clientId = useAtomValue(clientIdAtom) ?? ""
     const { sendMessage } = useWebsocketSender()
     const [paused, setPaused] = useAtom(mc_paused)
@@ -276,6 +276,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
     const sessionTokenRef = React.useRef(0)
     const suppressEndRef = React.useRef(false)
     const completedRef = React.useRef(false)
+    const endedRef = React.useRef(false)
     const metadataReadyRef = React.useRef(false)
     const canPlayRef = React.useRef(false)
     const currentTimeRef = React.useRef(0)
@@ -723,6 +724,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
         const info = infoRef.current
         sessionTokenRef.current += 1
         suppressEndRef.current = true
+        endedRef.current = true
         setTerminateConfirmOpen(false)
         setBuffering(false)
         closePipWindow()
@@ -891,6 +893,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
         if (!player || !info || !state.active) return
         const token = ++sessionTokenRef.current
         completedRef.current = false
+        endedRef.current = true
         if (startupRetryPlaybackIdRef.current !== info.id) {
             startupRetryPlaybackIdRef.current = info.id
             startupRetryCountRef.current = 0
@@ -917,6 +920,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
                 await player.stop().catch(() => undefined)
                 if (token !== sessionTokenRef.current) return
                 suppressEndRef.current = false
+                endedRef.current = false
                 await player.load(mc_resolveSource(info.playbackUri))
                 if (token !== sessionTokenRef.current) return
                 log.info("Video file loaded. Initializing player properties...")
@@ -957,6 +961,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
                 })
                 sendEvent("player-error", { error: message })
                 suppressEndRef.current = true
+                endedRef.current = true
                 await player.stop().catch(() => undefined)
             }
         })()
@@ -1037,7 +1042,20 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
     useMpvPrismEvent(player, "frameDrops", event => {
         setFrameDrops(current => ({ ...current, [event.name]: event.value ?? 0 }))
     })
+    const finishPlayback = (source: string) => {
+        if (endedRef.current || suppressEndRef.current) return
+        endedRef.current = true
+        log.info("Playback reached EOF. Source =", source, "autoNext =", autoNext)
+        sendEvent("ended", { autoNext })
+        if (autoNext && !isGlobalPlaylistActive && !infoRef.current?.isNakamaWatchParty) {
+            playEpisode("next")
+        }
+    }
     useMpvPrismEvent(player, "property", event => {
+        if (event.name === "eof-reached" && event.value) {
+            finishPlayback("property")
+            return
+        }
         if (event.name === "chapter-list") {
             setNativeChapters(normalizeMpvChapterList(event.value))
             return
@@ -1134,8 +1152,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
             return
         }
         if ((event.reason ?? "").toLowerCase() !== "eof") return
-        log.info("Playback reached EOF. autoNext =", autoNext)
-        sendEvent("ended", { autoNext })
+        finishPlayback("end-file")
     })
     useMpvPrismEvent(player, "error", event => {
         log.error("Player error event received:", event.message)
@@ -1966,9 +1983,19 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
                                                             onValueChange={value => {
                                                                 const source = state.playbackInfo?.videoSources?.find(item => item.index === Number(
                                                                     value))
-                                                                if (source?.url) {
+                                                                if (source?.url && player) {
                                                                     suppressEndRef.current = true
-                                                                    player?.load(mc_resolveSource(source.url))
+                                                                    endedRef.current = true
+                                                                    const token = sessionTokenRef.current
+                                                                    const resetEnd = () => {
+                                                                        if (token !== sessionTokenRef.current || terminatingRef.current) return
+                                                                        suppressEndRef.current = false
+                                                                        endedRef.current = false
+                                                                    }
+                                                                    player.load(mc_resolveSource(source.url)).then(resetEnd, error => {
+                                                                        resetEnd()
+                                                                        log.error("Failed to switch video source:", error)
+                                                                    })
                                                                 }
                                                             }}
                                                             isFullscreen={isFullscreen}

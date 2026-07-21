@@ -403,7 +403,7 @@ func parseResponseDate(headers http.Header) (time.Time, bool) {
 	return parsed, true
 }
 
-func parseAniListRateLimitResetTime(headers http.Header, now time.Time) (time.Time, bool) {
+func parseRateLimitResetTime(headers http.Header, now time.Time) (time.Time, bool) {
 	if resetAt, ok := parseRetryAfterTime(headers, now); ok {
 		return resetAt, true
 	}
@@ -443,6 +443,20 @@ func parseRetryAfterTime(headers http.Header, now time.Time) (time.Time, bool) {
 	return parsed, true
 }
 
+func getRetryWindow(resp *http.Response, remaining string) (time.Time, time.Time, bool) {
+	if resp.StatusCode != http.StatusTooManyRequests && remaining != "0" {
+		return time.Time{}, time.Time{}, false
+	}
+
+	responseTime := time.Now()
+	if parsed, ok := parseResponseDate(resp.Header); ok {
+		responseTime = parsed
+	}
+
+	resetAt, ok := parseRateLimitResetTime(resp.Header, responseTime)
+	return responseTime, resetAt, ok
+}
+
 var (
 	sentRateLimitWarningTime                    = time.Now().Add(-10 * time.Second)
 	sharedAniListRateBlocker requestRateBlocker = newAniListRateBlocker()
@@ -462,9 +476,9 @@ func doAniListRequestWithRetries(
 		sleep = sleepWithContext
 	}
 
-	const retryCount = 2
+	const maxRetries = 3
 
-	for i := 0; i < retryCount; i++ {
+	for attempt := 0; attempt <= maxRetries; attempt++ {
 		if err := req.Context().Err(); err != nil {
 			return nil, rlRemainingStr, err
 		}
@@ -475,7 +489,7 @@ func doAniListRequestWithRetries(
 			}
 		}
 
-		if i > 0 && req.Body != nil {
+		if attempt > 0 && req.Body != nil {
 			if req.GetBody == nil {
 				return nil, rlRemainingStr, errors.New("failed to retry request: request body is not replayable")
 			}
@@ -493,25 +507,21 @@ func doAniListRequestWithRetries(
 		}
 
 		rlRemainingStr = resp.Header.Get("X-Ratelimit-Remaining")
-		responseTime := time.Now()
-		if responseDate, ok := parseResponseDate(resp.Header); ok {
-			responseTime = responseDate
-		}
-		if resetAt, ok := parseAniListRateLimitResetTime(resp.Header, responseTime); ok {
-			if rateBlocker == nil || rateBlocker.BlockUntil(resetAt) {
-				if onRateLimited != nil {
-					waitSeconds := int(resetAt.Sub(responseTime).Round(time.Second) / time.Second)
-					if waitSeconds < 1 {
-						waitSeconds = 1
-					}
-					onRateLimited(waitSeconds)
-				}
-			}
-			closeAniListResponseBody(resp)
-			continue
+		responseTime, resetAt, shouldRetry := getRetryWindow(resp, rlRemainingStr)
+		if !shouldRetry {
+			return resp, rlRemainingStr, nil
 		}
 
-		return resp, rlRemainingStr, nil
+		if rateBlocker == nil || rateBlocker.BlockUntil(resetAt) {
+			if onRateLimited != nil {
+				waitSeconds := int(resetAt.Sub(responseTime).Round(time.Second) / time.Second)
+				if waitSeconds < 1 {
+					waitSeconds = 1
+				}
+				onRateLimited(waitSeconds)
+			}
+		}
+		closeAniListResponseBody(resp)
 	}
 
 	return nil, rlRemainingStr, errors.New("anilist: rate limit exceeded, retries exhausted")

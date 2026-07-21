@@ -268,6 +268,10 @@ func (m *Manager) startSubtitleStreamForTime(stream Stream, playbackInfo *player
 	if _, ok := playbackInfo.MkvMetadataParser.Get(); !ok {
 		return
 	}
+	playbackCtx := m.playbackCtx
+	if playbackCtx == nil {
+		return
+	}
 
 	offset := subtitleOffsetForTime(playbackInfo, currentTime, duration)
 
@@ -281,31 +285,31 @@ func (m *Manager) startSubtitleStreamForTime(stream Stream, playbackInfo *player
 			m.Logger.Warn().Err(err).Int64("offset", offset).Msg("directstream: Failed to create subtitle reader after seek")
 			return
 		}
-		s.startSubtitleStream(s, m.playbackCtx, reader, offset, request)
+		s.startSubtitleStream(s, playbackCtx, reader, offset, request)
 	case *TorrentStream:
 		reader := s.newSubtitleReader()
-		s.startSubtitleStream(s, m.playbackCtx, reader, offset, request)
+		s.startSubtitleStream(s, playbackCtx, reader, offset, request)
 	case *UrlStream:
 		reader, err := s.newMetadataReader()
 		if err != nil {
 			m.Logger.Warn().Err(err).Int64("offset", offset).Msg("directstream: Failed to create subtitle reader after seek")
 			return
 		}
-		s.startSubtitleStream(s, m.playbackCtx, reader, offset, request)
+		s.startSubtitleStream(s, playbackCtx, reader, offset, request)
 	case *DebridStream:
 		reader, err := s.newMetadataReader()
 		if err != nil {
 			m.Logger.Warn().Err(err).Int64("offset", offset).Msg("directstream: Failed to create subtitle reader after seek")
 			return
 		}
-		s.startSubtitleStream(s, m.playbackCtx, reader, offset, request)
+		s.startSubtitleStream(s, playbackCtx, reader, offset, request)
 	case *Nakama:
 		reader, err := s.newMetadataReader()
 		if err != nil {
 			m.Logger.Warn().Err(err).Int64("offset", offset).Msg("directstream: Failed to create subtitle reader after seek")
 			return
 		}
-		s.startSubtitleStream(s, m.playbackCtx, reader, offset, request)
+		s.startSubtitleStream(s, playbackCtx, reader, offset, request)
 	}
 }
 
@@ -352,6 +356,10 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 }
 
 func (s *BaseStream) startSubtitleStreamP(stream Stream, playbackCtx context.Context, newReader io.ReadSeekCloser, offset int64, backoffBytes int64, request subtitleRequest) {
+	if playbackCtx == nil {
+		_ = newReader.Close()
+		return
+	}
 	if request.generation != s.subtitleGeneration.Load() {
 		_ = newReader.Close()
 		return
