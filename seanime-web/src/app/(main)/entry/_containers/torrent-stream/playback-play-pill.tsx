@@ -186,6 +186,7 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
             switch (state) {
                 case TorrentStreamEvents.TorrentLoading:
                     if (!data) {
+                        setAutoSelectState(null)
                         t.current = setTimeout(() => {
                             setLoadingState("SEARCHING_TORRENTS")
                             setStatus(null)
