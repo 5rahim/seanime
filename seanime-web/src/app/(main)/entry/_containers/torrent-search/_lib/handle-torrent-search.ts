@@ -31,6 +31,8 @@ export const __torrentSearch_extraProviderIdsAtom = atomWithStorage<string[]>("s
     undefined,
     { getOnInit: true })
 
+const retryDelays = [60_000, 120_000, 300_000]
+
 export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
 
     const {
@@ -154,24 +156,74 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     /**
      * Fetch torrent search data
      */
-    const { data: _data, isLoading: _isLoading, isFetching: _isFetching, isError: _isError, refetch } = useSearchTorrent({
+    const searchVariables = {
         query: debouncedGlobalFilter.trim().toLowerCase(),
         episodeNumber: debouncedSmartSearchEpisode,
-            batch: smartSearchBatch,
-            media: entry?.media,
-            absoluteOffset: downloadInfo?.absoluteOffset || 0,
-            resolution: smartSearchResolution,
-            type: searchType,
+        batch: smartSearchBatch,
+        media: entry?.media,
+        absoluteOffset: downloadInfo?.absoluteOffset || 0,
+        resolution: smartSearchResolution,
+        type: searchType,
         provider: searchProvider,
-            bestRelease: searchType === Torrent_SearchType.SMART && smartSearchBest,
-        },
-        !(searchType === Torrent_SearchType.SIMPLE && debouncedGlobalFilter.length === 0) // If simple search, user input must not be empty
+        bestRelease: searchType === Torrent_SearchType.SMART && smartSearchBest,
+    }
+    const searchEnabled = !(searchType === Torrent_SearchType.SIMPLE && debouncedGlobalFilter.length === 0) // If simple search, user input must not be empty
         && !warnings.noProvider
         && !warnings.extensionDoesNotSupportAdult
         && !warnings.extensionDoesNotSupportSmartSearch
         && !warnings.extensionDoesNotSupportBestRelease
-        && !!providerExtensions, // Provider extensions must be loaded
+        && !!providerExtensions // Provider extensions must be loaded
+    const { data: _data, isLoading: _isLoading, isFetching: _isFetching, isError: _isError, refetch } = useSearchTorrent(
+        searchVariables,
+        searchEnabled,
     )
+
+    const hasResults = searchType === Torrent_SearchType.SMART
+        ? !!_data?.previews?.length
+        : !!_data?.torrents?.length
+    const canAutoRetry = searchEnabled
+        && entry?.media?.status === "RELEASING"
+        && !!_data
+        && !hasResults
+        && !_isError
+    const searchKey = JSON.stringify(searchVariables)
+    const [retryAttempt, setRetryAttempt] = React.useState(0)
+    const [nextRetryAt, setNextRetryAt] = React.useState<number>()
+    const [autoRetrySeconds, setAutoRetrySeconds] = React.useState<number>()
+
+    React.useEffect(() => {
+        setRetryAttempt(0)
+        setNextRetryAt(undefined)
+    }, [searchKey])
+
+    React.useEffect(() => {
+        if (!canAutoRetry || _isFetching) {
+            setNextRetryAt(undefined)
+            return
+        }
+
+        const delay = retryDelays[Math.min(retryAttempt, retryDelays.length - 1)]
+        setNextRetryAt(Date.now() + delay)
+        const timer = window.setTimeout(() => {
+            setNextRetryAt(undefined)
+            setRetryAttempt(current => Math.min(current + 1, retryDelays.length - 1))
+            refetch()
+        }, delay)
+
+        return () => window.clearTimeout(timer)
+    }, [canAutoRetry, _isFetching, refetch, retryAttempt, searchKey])
+
+    React.useEffect(() => {
+        if (!nextRetryAt) {
+            setAutoRetrySeconds(undefined)
+            return
+        }
+
+        const update = () => setAutoRetrySeconds(Math.max(0, Math.ceil((nextRetryAt - Date.now()) / 1000)))
+        update()
+        const timer = window.setInterval(update, 1000)
+        return () => window.clearInterval(timer)
+    }, [nextRetryAt])
 
     React.useLayoutEffect(() => {
         if (soughtEpisode !== undefined) {
@@ -241,6 +293,8 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
         isLoading: _isLoading,
         isFetching: _isFetching,
         isError: _isError,
+        isAutoRetrying: canAutoRetry && _isFetching && !_isLoading,
+        autoRetrySeconds,
         refetch,
     }
 

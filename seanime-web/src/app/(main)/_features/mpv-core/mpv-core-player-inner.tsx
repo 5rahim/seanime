@@ -933,10 +933,9 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
                     applyShaderSettingsRef.current(player).catch(() => undefined),
                 ])
                 log.info("Player properties initialized.")
-                if (!autoPlay || info.initialState?.paused) {
-                    log.info("Pausing player on startup")
-                    await player.pause()
-                }
+                const startPaused = !autoPlay || info.initialState?.paused === true
+                log.info("Setting initial pause state:", startPaused)
+                await player.setPaused(startPaused)
             }
             catch (error) {
                 if (token !== sessionTokenRef.current) return

@@ -163,6 +163,10 @@ func TestSearchFreshBypassesSearchCache(t *testing.T) {
 	_, err = autoSelect.SearchFresh(context.Background(), media, 1000, &anime.AutoSelectProfile{Providers: []string{"fake-provider"}})
 	require.ErrorIs(t, err, ErrNoTorrentsFound)
 	require.Equal(t, 2, provider.SearchCallCount)
+
+	_, err = autoSelect.Search(context.Background(), media, 1000, nil)
+	require.ErrorIs(t, err, ErrNoTorrentsFound)
+	require.Equal(t, 2, provider.SearchCallCount)
 }
 
 func TestSearchFreshReturnsProviderErrors(t *testing.T) {

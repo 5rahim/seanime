@@ -268,12 +268,12 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     >
                         <LuEye /> Preview
                     </ContextMenuItem>}
-                    {(libraryData || nakamaLibraryData || (listData && hasStreamingEnabled)) && <ContextMenuItem
+                    {((libraryData || nakamaLibraryData || (listData && hasStreamingEnabled)) && type === "anime") && <ContextMenuItem
                         onClick={handleAddToPlaylistClick}
                     >
                         <BiAddToQueue /> Add to Playlist
                     </ContextMenuItem>}
-                    {(!!libraryData) && <ContextMenuItem
+                    {(!!libraryData && type === "anime") && <ContextMenuItem
                         onClick={handleOpenInExplorerClick}
                     >
                         <LuFolderTree /> Open in Library Explorer

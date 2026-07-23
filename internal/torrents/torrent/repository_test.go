@@ -2,6 +2,7 @@ package torrent
 
 import (
 	"context"
+	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/extension"
@@ -12,6 +13,7 @@ import (
 	"seanime/internal/util"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/require"
@@ -215,6 +217,53 @@ func TestSearchAnimeAppliesSearchHookBeforeCaching(t *testing.T) {
 	require.Equal(t, "hook-added", cached.Torrents[0].InfoHash)
 	require.Equal(t, 1, provider.searchCallsCount())
 	require.Equal(t, 1, hookCalls)
+}
+
+func TestSearchAnimeFreshUpdatesCache(t *testing.T) {
+	metadataCache.Clear()
+	provider := newStubAnimeProvider(hibiketorrent.AnimeProviderSettings{Type: hibiketorrent.AnimeProviderTypeMain})
+	provider.searchResults = []*hibiketorrent.AnimeTorrent{{
+		Name:     "[Provider] Example Show - 01.mkv",
+		InfoHash: "old-hash",
+	}}
+	repo := newTorrentRepositoryForTests(map[string]*stubAnimeProvider{"main": provider}, testmocks.NewFakeMetadataProviderBuilder().Build())
+	repo.SetSettings(&RepositorySettings{DefaultAnimeProvider: "main"})
+
+	media := testmocks.NewBaseAnime(103, "Example Show")
+	opts := AnimeSearchOptions{
+		Provider: "main",
+		Type:     AnimeSearchTypeSimple,
+		Media:    media,
+		Query:    "Example Show",
+	}
+
+	_, err := repo.SearchAnime(context.Background(), opts)
+	require.NoError(t, err)
+
+	provider.searchResults = []*hibiketorrent.AnimeTorrent{{
+		Name:     "[Provider] Example Show - 02.mkv",
+		InfoHash: "new-hash",
+	}}
+	fresh, err := repo.SearchAnimeFresh(context.Background(), opts)
+	require.NoError(t, err)
+	require.Equal(t, "new-hash", fresh.Torrents[0].InfoHash)
+
+	provider.searchResults = nil
+	cached, err := repo.SearchAnime(context.Background(), opts)
+	require.NoError(t, err)
+	require.Equal(t, "new-hash", cached.Torrents[0].InfoHash)
+	require.Equal(t, 2, provider.searchCallsCount())
+}
+
+func TestSearchCacheTTL(t *testing.T) {
+	finished := testmocks.NewBaseAnime(104, "Finished Show")
+	releasing := testmocks.NewBaseAnimeBuilder(105, "Releasing Show").WithStatus(anilist.MediaStatusReleasing).Build()
+	result := &SearchData{Torrents: []*hibiketorrent.AnimeTorrent{{InfoHash: "hash"}}}
+
+	require.Equal(t, searchMissTTL, searchCacheTTL(&SearchData{}, AnimeSearchOptions{Media: finished, Type: AnimeSearchTypeSimple}))
+	require.Equal(t, searchMissTTL, searchCacheTTL(result, AnimeSearchOptions{Media: releasing, Type: AnimeSearchTypeSmart}))
+	require.Equal(t, releasingSearchTTL, searchCacheTTL(result, AnimeSearchOptions{Media: releasing, Type: AnimeSearchTypeSmart, SkipPreviews: true}))
+	require.Equal(t, 30*time.Minute, searchCacheTTL(result, AnimeSearchOptions{Media: finished, Type: AnimeSearchTypeSimple}))
 }
 
 func TestSearchAnimeSmartSearchesRequestedProviders(t *testing.T) {
