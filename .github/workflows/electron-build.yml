@@ -16,16 +16,22 @@ jobs:
       fail-fast: false
       matrix:
         # IDs:
-        # - seanime-denshi-darwin-arm
-        # - seanime-denshi-darwin-intel
-        # - seanime-denshi-linux
-        # - seanime-denshi-windows
+        # - seanime-denshi-darwin-arm64
+        # - seanime-denshi-darwin-x64
+        # - seanime-denshi-linux-x64
+        # - seanime-denshi-windows-x64
         include:
-          # For Mac
+          # For Mac (ARM64)
           - os: 'macos-latest'
             id: 'seanime-denshi-darwin-arm64'
             go_binary_id: 'seanime-server-darwin' # Artifact: go-seanime-server-darwin (contains both arm64 and x86_64)
             electron_args: '--mac --arm64'
+            mpv_prism_target: 'darwin-arm64'
+          # For Mac (Intel / x64)
+          - os: 'macos-latest'
+            id: 'seanime-denshi-darwin-x64'
+            go_binary_id: 'seanime-server-darwin' # Artifact: go-seanime-server-darwin (contains both arm64 and x86_64)
+            electron_args: '--mac --x64'
             mpv_prism_target: 'darwin-arm64'
           # For Linux
           - os: 'ubuntu-latest'
@@ -101,14 +107,15 @@ jobs:
           path: ./seanime-denshi/binaries
 
       # Extract server binaries
-      #      - name: Extract server binaries (macOS x64) 📂
-      #        if: matrix.os == 'macos-latest' && matrix.id == 'seanime-denshi-darwin-x64'
-      #        # Extracts seanime-server-darwin-arm64 and seanime-server-darwin-amd64
-      #        # Only keep seanime-server-darwin-amd64
-      #        run: |
-      #          tar -xf ./seanime-denshi/binaries/binaries-${{ matrix.go_binary_id }}.tar -C ./seanime-denshi/binaries
-      #          # Remove the other binary
-      #          rm -rf ./seanime-denshi/binaries/seanime-server-darwin-arm64
+      - name: Extract server binaries (macOS x64) 📂
+        if: matrix.os == 'macos-latest' && matrix.id == 'seanime-denshi-darwin-x64'
+        # Extracts seanime-server-darwin-arm64 and seanime-server-darwin-amd64
+        # Only keep seanime-server-darwin-amd64
+        run: |
+          tar -xf ./seanime-denshi/binaries/binaries-${{ matrix.go_binary_id }}.tar -C ./seanime-denshi/binaries
+          # Remove the other binary
+          rm -rf ./seanime-denshi/binaries/seanime-server-darwin-arm64
+          rm -rf ./seanime-denshi/binaries/binaries-${{ matrix.go_binary_id }}.tar
 
       - name: Extract server binaries (macOS arm64) 📂
         if: matrix.os == 'macos-latest' && matrix.id == 'seanime-denshi-darwin-arm64'

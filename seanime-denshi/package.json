@@ -11,6 +11,7 @@
     "dev": "npm run build:main && npm run sync:mpv-prism && NODE_ENV=development electron .",
     "build": "npm run build:main && npm run sync:mpv-prism && electron-builder build",
     "build:mac": "npm run build:main && npm run sync:mpv-prism -- darwin-arm64 && electron-builder build --mac --arm64",
+    "build:mac:x64": "npm run build:main && npm run sync:mpv-prism -- darwin-arm64 && electron-builder build --mac --x64",
     "build:win": "npm run build:main && npm run sync:mpv-prism -- win32-x64 && electron-builder build --win --x64",
     "build:linux": "npm run build:main && npm run sync:mpv-prism -- linux-x64 && electron-builder build --linux --x64"
   },

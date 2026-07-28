@@ -407,6 +407,10 @@ jobs:
             seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip.blockmap
             seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg
             seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg.blockmap
+            seanime-denshi-${{ env.VERSION }}_MacOS_x64.zip
+            seanime-denshi-${{ env.VERSION }}_MacOS_x64.zip.blockmap
+            seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg
+            seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg.blockmap
             seanime-denshi-${{ env.VERSION }}_Linux_x86_64.AppImage
             seanime-denshi-${{ env.VERSION }}_Windows_x64.exe
             seanime-denshi-${{ env.VERSION }}_Windows_x64.exe.blockmap
