@@ -33,6 +33,7 @@ jobs:
             go_binary_id: 'seanime-server-darwin' # Artifact: go-seanime-server-darwin (contains both arm64 and x86_64)
             electron_args: '--mac --x64'
             mpv_prism_target: 'darwin-arm64'
+            electron_mirror: 'https://github.com/electron/electron/releases/download/'
           # For Linux
           - os: 'ubuntu-latest'
             id: 'seanime-denshi-linux-x64'
@@ -159,6 +160,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ELECTRON_MIRROR: ${{ matrix.electron_mirror }}
 
       # Upload the artifacts
       - name: Upload Electron artifacts 📤
