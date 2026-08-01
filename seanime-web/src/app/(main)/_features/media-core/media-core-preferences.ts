@@ -1,4 +1,3 @@
-import { atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
 export interface MediaCorePreferences {
@@ -9,19 +8,21 @@ export interface MediaCorePreferences {
     muted: boolean
     playbackRate: number
     autoSkip: boolean
+    skipPatterns: string
     showStats: boolean
     chapterMarkers: boolean
     timestampMode: "elapsed" | "remaining"
 }
 
 export const mediaCoreDefaultPreferences: MediaCorePreferences = {
-    version: 1,
+    version: 2,
     autoPlay: true,
     autoNext: true,
     volume: 1.0,
     muted: false,
     playbackRate: 1.0,
     autoSkip: false,
+    skipPatterns: "",
     showStats: false,
     chapterMarkers: true,
     timestampMode: "elapsed",
@@ -29,14 +30,31 @@ export const mediaCoreDefaultPreferences: MediaCorePreferences = {
 
 const PREFERENCES_KEY = "sea-media-core-preferences"
 
+function parsePreferences(value: unknown): MediaCorePreferences | null {
+    if (!value || typeof value !== "object") return null
+    const parsed = value as Partial<MediaCorePreferences>
+    if (parsed.version !== 1 && parsed.version !== 2) return null
+
+    return {
+        ...mediaCoreDefaultPreferences,
+        ...parsed,
+        version: 2,
+        skipPatterns: typeof parsed.skipPatterns === "string" ? parsed.skipPatterns : "",
+    }
+}
+
 const customStorage = {
     getItem(key: string, initialValue: MediaCorePreferences): MediaCorePreferences {
         try {
             const raw = localStorage.getItem(key)
             if (raw) {
                 const parsed = JSON.parse(raw) as any
-                if (parsed && typeof parsed === "object" && parsed.version === 1) {
-                    return parsed as MediaCorePreferences
+                const preferences = parsePreferences(parsed)
+                if (preferences) {
+                    if (parsed.version !== 2 || typeof parsed.skipPatterns !== "string") {
+                        localStorage.setItem(key, JSON.stringify(preferences))
+                    }
+                    return preferences
                 }
             }
         } catch (e) {
@@ -57,13 +75,14 @@ const customStorage = {
         }
 
         const migrated: MediaCorePreferences = {
-            version: 1,
+            version: 2,
             autoPlay: getLegacyValue("sea-video-core-auto-play", "sea-mpv-core-auto-play", mediaCoreDefaultPreferences.autoPlay),
             autoNext: getLegacyValue("sea-video-core-auto-next", "sea-mpv-core-auto-next", mediaCoreDefaultPreferences.autoNext),
             volume: getLegacyValue("sea-video-core-volume", "sea-mpv-core-volume", mediaCoreDefaultPreferences.volume),
             muted: getLegacyValue("sea-video-core-muted", "sea-mpv-core-muted", mediaCoreDefaultPreferences.muted),
             playbackRate: getLegacyValue("sea-video-core-playback-rate", "sea-mpv-core-playback-rate", mediaCoreDefaultPreferences.playbackRate),
             autoSkip: getLegacyValue("sea-video-core-auto-skip-op-ed", "sea-mpv-core-auto-skip", mediaCoreDefaultPreferences.autoSkip),
+            skipPatterns: mediaCoreDefaultPreferences.skipPatterns,
             showStats: getLegacyValue("sea-video-core-show-stats-for-nerds", "sea-mpv-core-show-stats", mediaCoreDefaultPreferences.showStats),
             chapterMarkers: getLegacyValue("sea-video-core-chapter-markers", "sea-mpv-core-chapter-markers", mediaCoreDefaultPreferences.chapterMarkers),
             timestampMode: getLegacyValue<"elapsed" | "remaining">("sea-video-core-timestamp-type", "dummy-nonexistent-key", mediaCoreDefaultPreferences.timestampMode),
@@ -90,7 +109,7 @@ const customStorage = {
                     callback(initialValue)
                 } else {
                     try {
-                        callback(JSON.parse(e.newValue) as MediaCorePreferences)
+                        callback(parsePreferences(JSON.parse(e.newValue)) ?? initialValue)
                     } catch {
                         callback(initialValue)
                     }

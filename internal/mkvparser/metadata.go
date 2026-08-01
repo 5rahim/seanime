@@ -67,6 +67,11 @@ type AttachmentInfo struct {
 	IsCompressed bool           `json:"-"` // Whether the data is compressed
 }
 
+type CueInfo struct {
+	Time     uint64 // Time in nanoseconds
+	Position uint64 // Absolute byte position of the cluster
+}
+
 // Metadata holds all extracted metadata.
 type Metadata struct {
 	Title          string            `json:"title,omitempty"`
@@ -80,6 +85,7 @@ type Metadata struct {
 	SubtitleTracks []*TrackInfo      `json:"subtitleTracks"`
 	Chapters       []*ChapterInfo    `json:"chapters"`
 	Attachments    []*AttachmentInfo `json:"attachments"`
+	Cues           []*CueInfo        `json:"-"`
 	MimeCodec      string            `json:"mimeCodec,omitempty"` // RFC 6381 codec string
 	Error          error             `json:"-"`
 }

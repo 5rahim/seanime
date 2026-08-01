@@ -116,7 +116,7 @@ export function useHandleMangaCollection() {
             const newParams = { ...params, sorting: mangaLibraryCollectionDefaultSorting as any }
             let arr = filterMangaCollectionEntries(obj.entries, newParams, true, storedProviders, storedFilters, latestChapterNumbers)
 
-            // Reset `unreadOnly` if it's about to make the list disappear
+            // fall back to all manga when the unread filter empties the list
             if (arr.length === 0 && newParams.unreadOnly) {
                 const newParams = { ...params, unreadOnly: false, sorting: mangaLibraryCollectionDefaultSorting as any }
                 arr = filterMangaCollectionEntries(obj.entries, newParams, true, storedProviders, storedFilters, latestChapterNumbers)

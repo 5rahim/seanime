@@ -1,4 +1,5 @@
 import { MKVParser_ChapterInfo } from "@/api/generated/types"
+import { getChapterType, getDefaultSkipChapters, introIsOpening } from "@/app/(main)/_features/media-core/media-core-chapters"
 import { normalizeAniSkipData } from "@/app/(main)/_features/video-core/_lib/aniskip.utils"
 import { VideoCoreChapterCue } from "@/app/(main)/_features/video-core/video-core"
 import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
@@ -243,43 +244,18 @@ export const vc_createChapterVTT = (chapters: Array<MKVParser_ChapterInfo> | und
 }
 
 export function vc_getChapterType(name: string | null | undefined) {
-    if (!name) return false
-    if (/opening$|^opening\s|^op$/mi.test(name)) return "Opening"
-    if (/ending$|^ending\s|^ed$|^credits/mi.test(name)) return "Ending"
-    if (/^intro$|recap/mi.test(name)) return "Intro"
-    if (/^outro$/mi.test(name)) return "Outro"
-    return false
+    return getChapterType(name)
 }
 
 export function vc_introIsOpening(chapters: VideoCoreTimeRangeChapter[]) {
-    const types = chapters.map(c => vc_getChapterType(c.label)).filter(Boolean)
-    return types.includes("Intro") && !types.includes("Opening")
+    return introIsOpening(chapters)
 }
 
 export function vc_getOPEDChapters(chapters: VideoCoreTimeRangeChapter[]): {
     opening: VideoCoreTimeRangeChapter | null;
     ending: VideoCoreTimeRangeChapter | null
 } {
-    let opening: VideoCoreTimeRangeChapter | null = null
-    let ending: VideoCoreTimeRangeChapter | null = null
-    const introIsOpening = vc_introIsOpening(chapters)
-    for (const chapter of chapters) {
-        const type = vc_getChapterType(chapter.label)
-        if (!opening && !introIsOpening && type === "Opening") {
-            opening = chapter
-        }
-        // if (!opening && introIsOpening && type === "Intro") {
-        //     opening = chapter
-        // }
-        if (!ending && !introIsOpening && type === "Ending") {
-            ending = chapter
-        }
-        // if (!ending && introIsOpening && type === "Outro") {
-        //     ending = chapter
-        // }
-        if (opening && ending) break
-    }
-    return { opening, ending }
+    return getDefaultSkipChapters(chapters)
 }
 
 export function isSubtitleFile(filename: string) {

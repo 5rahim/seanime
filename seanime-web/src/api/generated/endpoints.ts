@@ -543,6 +543,26 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route get dummy debrid settings.
+         *  This returns the dummy debrid settings.
+         */
+        GetDummyDebridSettings: {
+            key: "DEBRID-get-dummy-debrid-settings",
+            methods: ["GET"],
+            endpoint: "/api/v1/debrid/dummy/settings",
+        },
+        /**
+         *  @description
+         *  Route save dummy debrid settings.
+         *  This saves the dummy debrid settings.
+         */
+        SaveDummyDebridSettings: {
+            key: "DEBRID-save-dummy-debrid-settings",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/debrid/dummy/settings",
+        },
+        /**
+         *  @description
          *  Route add torrent to debrid.
          *  This adds a torrent to the debrid service.
          */
@@ -1133,6 +1153,36 @@ export const API_ENDPOINTS = {
         },
     },
     MANGA: {
+        GetMangaPreferences: {
+            key: "MANGA-get-manga-preferences",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/preferences",
+        },
+        ImportMangaPreferences: {
+            key: "MANGA-import-manga-preferences",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/preferences/import",
+        },
+        PatchMangaPreference: {
+            key: "MANGA-patch-manga-preference",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/manga/preferences/{mediaId}",
+        },
+        StartMangaSourceRefresh: {
+            key: "MANGA-start-manga-source-refresh",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/source-refresh",
+        },
+        GetMangaSourceRefresh: {
+            key: "MANGA-get-manga-source-refresh",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/source-refresh",
+        },
+        StopMangaSourceRefresh: {
+            key: "MANGA-stop-manga-source-refresh",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/manga/source-refresh",
+        },
         GetAnilistMangaCollection: {
             key: "MANGA-get-anilist-manga-collection",
             methods: ["GET"],
@@ -1258,6 +1308,11 @@ export const API_ENDPOINTS = {
             key: "MANGA-manga-manual-search",
             methods: ["POST"],
             endpoint: "/api/v1/manga/search",
+        },
+        PreviewMangaMapping: {
+            key: "MANGA-preview-manga-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/manual-mapping/preview",
         },
         /**
          *  @description

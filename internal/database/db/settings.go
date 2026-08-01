@@ -224,6 +224,40 @@ func (db *Database) GetDebridSettings() (*models.DebridSettings, bool) {
 	return &settings, true
 }
 
+var CurrentDummyDebridSettings *models.DummyDebridSettings
+
+func (db *Database) UpsertDummyDebridSettings(settings *models.DummyDebridSettings) (*models.DummyDebridSettings, error) {
+	settings.ID = 1
+	err := db.gormdb.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		UpdateAll: true,
+	}).Create(settings).Error
+
+	if err != nil {
+		db.Logger.Error().Err(err).Msg("db: Failed to save dummy debrid settings in the database")
+		return nil, err
+	}
+
+	CurrentDummyDebridSettings = settings
+
+	db.Logger.Debug().Msg("db: Dummy debrid settings saved")
+	return settings, nil
+}
+
+func (db *Database) GetDummyDebridSettings() (*models.DummyDebridSettings, bool) {
+	if CurrentDummyDebridSettings != nil {
+		return CurrentDummyDebridSettings, true
+	}
+
+	var settings models.DummyDebridSettings
+	err := db.gormdb.Where("id = ?", 1).First(&settings).Error
+	if err != nil {
+		return nil, false
+	}
+	CurrentDummyDebridSettings = &settings
+	return &settings, true
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func ResolveSettingsPathsPhysical(settings *models.Settings) {

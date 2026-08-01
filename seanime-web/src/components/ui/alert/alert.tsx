@@ -38,11 +38,11 @@ export const AlertAnatomy = defineStyleAnatomy({
     ]),
     title: cva([
         "UI-Alert__title",
-        "font-semibold text-gray-900 dark:text-[--foreground]",
+        "font-semibold text-gray-900 dark:text-[--foreground] mb-0.5",
     ]),
     description: cva([
         "UI-Alert__description",
-        "text-xs md:text-sm text-[--muted] dark:text-gray-200 mt-0.5",
+        "text-xs md:text-sm text-[--muted] dark:text-gray-200",
     ]),
     icon: cva([
         "UI-Alert__icon",

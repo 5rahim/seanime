@@ -18,7 +18,7 @@ body:
             I have checked open and closed [issues](https://github.com/5rahim/seanime/issues)
           required: true
         - label: >-
-            I have checked the [docs](https://seanime.rahim.app/docs/faq) for a fix
+            I have checked the [docs](https://seanime.app/docs) for a fix
           required: true
   - type: dropdown
     id: '2'

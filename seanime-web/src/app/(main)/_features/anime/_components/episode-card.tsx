@@ -263,6 +263,10 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         {/*[CUSTOM UI] BOTTOM GRADIENT*/}
                         <EpisodeItemBottomGradient isSingleContainer={isSingleContainer} className="rounded-b-xl" />
 
+                        {!!badge && <div className="absolute left-2 top-2 z-[3]">
+                            {badge}
+                        </div>}
+
                         {isSingleContainer && (
                             <div className="absolute bottom-0 left-0 w-full h-fit z-[3] p-3">
                                 <Meta />

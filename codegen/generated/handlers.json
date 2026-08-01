@@ -2305,6 +2305,76 @@
     }
   },
   {
+    "name": "HandleGetDummyDebridSettings",
+    "trimmedName": "GetDummyDebridSettings",
+    "comments": [
+      "HandleGetDummyDebridSettings",
+      "",
+      "\t@summary get dummy debrid settings.",
+      "\t@desc This returns the dummy debrid settings.",
+      "\t@returns models.DummyDebridSettings",
+      "\t@route /api/v1/debrid/dummy/settings [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "get dummy debrid settings.",
+      "descriptions": [
+        "This returns the dummy debrid settings."
+      ],
+      "endpoint": "/api/v1/debrid/dummy/settings",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "models.DummyDebridSettings",
+      "returnGoType": "models.DummyDebridSettings",
+      "returnTypescriptType": "Models_DummyDebridSettings"
+    }
+  },
+  {
+    "name": "HandleSaveDummyDebridSettings",
+    "trimmedName": "SaveDummyDebridSettings",
+    "comments": [
+      "HandleSaveDummyDebridSettings",
+      "",
+      "\t@summary save dummy debrid settings.",
+      "\t@desc This saves the dummy debrid settings.",
+      "\t@returns models.DummyDebridSettings",
+      "\t@route /api/v1/debrid/dummy/settings [PATCH]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "save dummy debrid settings.",
+      "descriptions": [
+        "This saves the dummy debrid settings."
+      ],
+      "endpoint": "/api/v1/debrid/dummy/settings",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Settings",
+          "jsonName": "settings",
+          "goType": "models.DummyDebridSettings",
+          "usedStructType": "models.DummyDebridSettings",
+          "typescriptType": "Models_DummyDebridSettings",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "models.DummyDebridSettings",
+      "returnGoType": "models.DummyDebridSettings",
+      "returnTypescriptType": "Models_DummyDebridSettings"
+    }
+  },
+  {
     "name": "HandleDebridAddTorrents",
     "trimmedName": "DebridAddTorrents",
     "comments": [
@@ -5914,6 +5984,187 @@
     }
   },
   {
+    "name": "HandleGetMangaPreferences",
+    "trimmedName": "GetMangaPreferences",
+    "comments": [
+      "HandleGetMangaPreferences",
+      "",
+      "\t@summary returns server-backed manga source preferences.",
+      "\t@route /api/v1/manga/preferences [GET]",
+      "\t@returns manga.MangaPreferences",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns server-backed manga source preferences.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/preferences",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.MangaPreferences",
+      "returnGoType": "manga.MangaPreferences",
+      "returnTypescriptType": "Manga_MangaPreferences"
+    }
+  },
+  {
+    "name": "HandleImportMangaPreferences",
+    "trimmedName": "ImportMangaPreferences",
+    "comments": [
+      "HandleImportMangaPreferences",
+      "",
+      "\t@summary imports client manga preferences missing from the server.",
+      "\t@route /api/v1/manga/preferences/import [POST]",
+      "\t@returns manga.MangaPreferences",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "imports client manga preferences missing from the server.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/preferences/import",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.MangaPreferences",
+      "returnGoType": "manga.MangaPreferences",
+      "returnTypescriptType": "Manga_MangaPreferences"
+    }
+  },
+  {
+    "name": "HandlePatchMangaPreference",
+    "trimmedName": "PatchMangaPreference",
+    "comments": [
+      "HandlePatchMangaPreference",
+      "",
+      "\t@summary updates a manga source preference.",
+      "\t@route /api/v1/manga/preferences/{mediaId} [PATCH]",
+      "\t@returns manga.MangaEntryPreference",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "updates a manga source preference.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/preferences/{mediaId}",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.MangaEntryPreference",
+      "returnGoType": "manga.MangaEntryPreference",
+      "returnTypescriptType": "Manga_MangaEntryPreference"
+    }
+  },
+  {
+    "name": "HandleStartMangaSourceRefresh",
+    "trimmedName": "StartMangaSourceRefresh",
+    "comments": [
+      "HandleStartMangaSourceRefresh",
+      "",
+      "\t@summary starts a background manga source refresh.",
+      "\t@route /api/v1/manga/source-refresh [POST]",
+      "\t@returns manga.MangaSourceRefreshJob",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "starts a background manga source refresh.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/source-refresh",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Mode",
+          "jsonName": "mode",
+          "goType": "manga.MangaSourceRefreshMode",
+          "usedStructType": "manga.MangaSourceRefreshMode",
+          "typescriptType": "Manga_MangaSourceRefreshMode",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaIds",
+          "jsonName": "mediaIds",
+          "goType": "[]int",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cnumber\u003e",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "manga.MangaSourceRefreshJob",
+      "returnGoType": "manga.MangaSourceRefreshJob",
+      "returnTypescriptType": "Manga_MangaSourceRefreshJob"
+    }
+  },
+  {
+    "name": "HandleGetMangaSourceRefresh",
+    "trimmedName": "GetMangaSourceRefresh",
+    "comments": [
+      "HandleGetMangaSourceRefresh",
+      "",
+      "\t@summary returns the client's active or latest manga source refresh.",
+      "\t@route /api/v1/manga/source-refresh [GET]",
+      "\t@returns manga.MangaSourceRefreshJob",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns the client's active or latest manga source refresh.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/source-refresh",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.MangaSourceRefreshJob",
+      "returnGoType": "manga.MangaSourceRefreshJob",
+      "returnTypescriptType": "Manga_MangaSourceRefreshJob"
+    }
+  },
+  {
+    "name": "HandleStopMangaSourceRefresh",
+    "trimmedName": "StopMangaSourceRefresh",
+    "comments": [
+      "HandleStopMangaSourceRefresh",
+      "",
+      "\t@summary stops or dismisses the client's manga source refresh.",
+      "\t@route /api/v1/manga/source-refresh [DELETE]",
+      "\t@returns manga.MangaSourceRefreshJob",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "stops or dismisses the client's manga source refresh.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/source-refresh",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.MangaSourceRefreshJob",
+      "returnGoType": "manga.MangaSourceRefreshJob",
+      "returnTypescriptType": "Manga_MangaSourceRefreshJob"
+    }
+  },
+  {
     "name": "HandleGetAnilistMangaCollection",
     "trimmedName": "GetAnilistMangaCollection",
     "comments": [
@@ -6646,6 +6897,52 @@
       "returns": "[]hibikemanga.SearchResult",
       "returnGoType": "hibikemanga.SearchResult",
       "returnTypescriptType": "Array\u003cHibikeManga_SearchResult\u003e"
+    }
+  },
+  {
+    "name": "HandlePreviewMangaMapping",
+    "trimmedName": "PreviewMangaMapping",
+    "comments": [
+      "HandlePreviewMangaMapping",
+      "",
+      "\t@summary returns a chapter summary for a manual manga mapping.",
+      "\t@route /api/v1/manga/manual-mapping/preview [POST]",
+      "\t@returns manga.MappingPreview",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns a chapter summary for a manual manga mapping.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/manual-mapping/preview",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MangaId",
+          "jsonName": "mangaId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "manga.MappingPreview",
+      "returnGoType": "manga.MappingPreview",
+      "returnTypescriptType": "Manga_MappingPreview"
     }
   },
   {
@@ -8627,6 +8924,15 @@
           "usedStructType": "",
           "typescriptType": "boolean",
           "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Refresh",
+          "jsonName": "refresh",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": false,
           "descriptions": []
         }
       ],

@@ -26,7 +26,8 @@ const (
 )
 
 var (
-	ErrNoFileFound = fmt.Errorf("no file found")
+	ErrNoFileFound     = fmt.Errorf("no file found")
+	ErrNoTorrentsFound = fmt.Errorf("no torrents found")
 )
 
 type (
@@ -102,6 +103,8 @@ type DebridClient interface {
 type contextKey string
 
 const statusKey contextKey = "autoselect-status"
+
+const freshSearchKey contextKey = "autoselect-fresh-search"
 
 func (s *AutoSelect) updateStatus(status StreamAutoSelectStatusPayload) {
 	if s.onStatus != nil {

@@ -1,23 +1,63 @@
-import { ExtensionRepo_MangaProviderExtensionItem, Manga_MangaLatestChapterNumberItem, Nullish, Status } from "@/api/generated/types"
+import { useSeaQuery } from "@/api/client/requests"
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { ExtensionRepo_MangaProviderExtensionItem, Manga_MangaEntryPreference, Manga_MangaPreferences, Nullish, Status } from "@/api/generated/types"
 import { useListMangaProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useQueryClient } from "@tanstack/react-query"
+import { atom } from "jotai"
 import { withImmer } from "jotai-immer"
-import { useAtom } from "jotai/react"
+import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
-import sortBy from "lodash/sortBy"
 import React from "react"
+import { toast } from "sonner"
+import { getActiveMangaFilters, MangaEntryFilters } from "./manga-preferences"
+
+export type { MangaEntryFilters } from "./manga-preferences"
 
 /**
  * Stores the selected provider for each manga entry
  */
 export const __manga_entryProviderAtom = atomWithStorage<Record<string, string>>("sea-manga-entry-provider", {}, undefined, { getOnInit: true })
+export const __manga_preferencesHydratedAtom = atom(false)
+
+type MangaPreferencePatch = {
+    provider?: string
+    filter?: {
+        provider: string
+        scanlators: string[]
+        language: string
+    }
+}
+
+function useSaveMangaPreference() {
+    const { seaFetch } = useSeaQuery()
+    const queryClient = useQueryClient()
+
+    return React.useCallback(async (mediaId: string | number, patch: MangaPreferencePatch) => {
+        try {
+            const preference = await seaFetch<Manga_MangaEntryPreference>(
+                API_ENDPOINTS.MANGA.PatchMangaPreference.endpoint.replace("{mediaId}", String(mediaId)),
+                API_ENDPOINTS.MANGA.PatchMangaPreference.methods[0],
+                patch,
+            )
+            if (preference) {
+                queryClient.setQueryData<Manga_MangaPreferences>([API_ENDPOINTS.MANGA.GetMangaPreferences.key], current => ({
+                    entries: {
+                        ...(current?.entries ?? {}),
+                        [Number(mediaId)]: preference,
+                    },
+                }))
+            }
+        }
+        catch {
+            toast.error("Could not save manga preference")
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaPreferences.key] })
+        }
+    }, [queryClient, seaFetch])
+}
 
 // Key: "{mediaId}${providerId}"
 // Value: { [filter]: string }
-export type MangaEntryFilters = {
-    scanlators: string[]
-    language: string
-}
 export const __manga_entryFiltersAtom = atomWithStorage<Record<string, MangaEntryFilters>>("sea-manga-entry-filters",
     {},
     undefined,
@@ -42,6 +82,8 @@ const getDefaultMangaProvider = (
  */
 export function useStoredMangaProviders(_extensions: ExtensionRepo_MangaProviderExtensionItem[] | undefined) {
     const serverStatus = useServerStatus()
+    const hydrated = useAtomValue(__manga_preferencesHydratedAtom)
+    const savePreference = useSaveMangaPreference()
 
     const extensions = React.useMemo(() => {
         return _extensions?.toSorted((a, b) => a.name.localeCompare(b.name))
@@ -50,12 +92,11 @@ export function useStoredMangaProviders(_extensions: ExtensionRepo_MangaProvider
     const [storedProvider, setStoredProvider] = useAtom(__manga_entryProviderAtom)
 
     React.useLayoutEffect(() => {
-        if (!extensions || !serverStatus) return
+        if (!extensions || !serverStatus || !hydrated) return
         const defaultProvider = getDefaultMangaProvider(serverStatus, extensions)
 
-        // Remove invalid providers if there are no providers available
+        // Keep preferences when no provider is currently available
         if (!defaultProvider || extensions.length === 0) {
-            setStoredProvider({})
             return
         }
 
@@ -73,8 +114,12 @@ export function useStoredMangaProviders(_extensions: ExtensionRepo_MangaProvider
 
         if (hasChanges) {
             setStoredProvider(validatedProviders)
+            for (const [mediaId, providerId] of Object.entries(validatedProviders)) {
+                if (storedProvider[mediaId] === providerId) continue
+                savePreference(mediaId, { provider: providerId })
+            }
         }
-    }, [storedProvider, extensions, serverStatus])
+    }, [storedProvider, extensions, serverStatus, hydrated, savePreference, setStoredProvider])
 
     return {
         storedProviders: storedProvider,
@@ -84,22 +129,28 @@ export function useStoredMangaProviders(_extensions: ExtensionRepo_MangaProvider
                 ...prev,
                 [String(mediaId)]: providerId,
             }))
+            savePreference(mediaId, { provider: providerId })
         },
         overwriteStoredProvidersWith: (providerId: string) => {
-            // check provider exists
             const ext = extensions?.find(p => p.id === providerId)
             if (!ext) return
-            for (const [mediaId, currProvider] of Object.entries(storedProvider)) {
-                if (currProvider !== providerId) {
-                    setStoredProvider(prev => ({
-                        ...prev,
-                        [mediaId]: providerId,
-                    }))
-                }
+            const next = { ...storedProvider }
+            const changedMediaIds: string[] = []
+            for (const [mediaId, currentProvider] of Object.entries(next)) {
+                if (currentProvider === providerId) continue
+                next[mediaId] = providerId
+                changedMediaIds.push(mediaId)
+            }
+            setStoredProvider(next)
+            for (const mediaId of changedMediaIds) {
+                void savePreference(mediaId, { provider: providerId })
             }
         },
         overwriteStoredProviders: (rec: Record<string, string>) => {
             setStoredProvider(rec)
+            for (const [mediaId, providerId] of Object.entries(rec)) {
+                void savePreference(mediaId, { provider: providerId })
+            }
         },
     }
 }
@@ -111,6 +162,8 @@ export function useStoredMangaProviders(_extensions: ExtensionRepo_MangaProvider
 export function useSelectedMangaProvider(mId: Nullish<string | number>) {
     const serverStatus = useServerStatus()
     const { data: _extensions } = useListMangaProviderExtensions()
+    const hydrated = useAtomValue(__manga_preferencesHydratedAtom)
+    const savePreference = useSaveMangaPreference()
 
     const extensions = React.useMemo(() => {
         return _extensions?.toSorted((a, b) => a.name.localeCompare(b.name))
@@ -119,15 +172,11 @@ export function useSelectedMangaProvider(mId: Nullish<string | number>) {
     const [storedProvider, setStoredProvider] = useAtom(__manga_entryProviderAtom)
 
     React.useLayoutEffect(() => {
-        if (!extensions || !serverStatus) return
+        if (!extensions || !serverStatus || !hydrated) return
         const defaultProvider = getDefaultMangaProvider(serverStatus, extensions)
 
-        // Remove the stored provider if there are no providers available
+        // Keep preferences when no provider is currently available
         if (!defaultProvider || extensions.length === 0) {
-            setStoredProvider(prev => {
-                delete prev[String(mId)]
-                return prev
-            })
             return
         }
 
@@ -140,6 +189,9 @@ export function useSelectedMangaProvider(mId: Nullish<string | number>) {
                     [String(mId)]: defaultProvider,
                 }
             })
+            if (mId) {
+                void savePreference(mId, { provider: defaultProvider })
+            }
         } else {
             // (Case 2) There is a selected provider for this manga, but it's not available anymore in the extensions
             const isProviderAvailable = extensions.some(provider => provider.id === storedProvider?.[String(mId)])
@@ -151,10 +203,13 @@ export function useSelectedMangaProvider(mId: Nullish<string | number>) {
                         [String(mId)]: defaultProvider,
                     }
                 })
+                if (mId) {
+                    void savePreference(mId, { provider: defaultProvider })
+                }
             }
         }
 
-    }, [mId, storedProvider, extensions, serverStatus])
+    }, [mId, storedProvider, extensions, serverStatus, hydrated, savePreference, setStoredProvider])
 
     return {
         selectedExtension: extensions?.find(provider => provider.id === storedProvider?.[String(mId)]),
@@ -167,6 +222,7 @@ export function useSelectedMangaProvider(mId: Nullish<string | number>) {
                     [String(mId)]: provider,
                 }
             })
+            void savePreference(mId, { provider })
         },
     }
 }
@@ -184,11 +240,13 @@ export function useSelectedMangaFilters(
 ) {
 
     const [storedFilters, setStoredFilters] = useAtom(withImmer(__manga_entryFiltersAtom))
+    const hydrated = useAtomValue(__manga_preferencesHydratedAtom)
+    const savePreference = useSaveMangaPreference()
 
     const key = `${String(mId)}$${selectedProvider}`
 
     React.useLayoutEffect(() => {
-        if (!isLoaded) return
+        if (!isLoaded || !hydrated) return
 
         const defaultFilters: MangaEntryFilters = {
             scanlators: [],
@@ -212,23 +270,33 @@ export function useSelectedMangaFilters(
             })
         }
 
-    }, [isLoaded, selectedExtension])
+    }, [isLoaded, selectedExtension, selectedProvider, hydrated, key, setStoredFilters, storedFilters])
 
 
     return {
         selectedFilters: storedFilters[key] || { scanlators: [], language: "" },
         setSelectedScanlator: ({ mId, scanlators }: { mId: Nullish<string | number>, scanlators: string[] }) => {
-            if (!mId) return
+            if (!mId || !selectedProvider) return
+            const language = storedFilters[key]?.language ?? ""
             setStoredFilters(draft => {
+                draft[key] ??= { scanlators: [], language: "" }
                 draft[key]["scanlators"] = scanlators
                 return
             })
+            savePreference(mId, {
+                filter: { provider: selectedProvider, scanlators, language },
+            })
         },
         setSelectedLanguage: ({ mId, language }: { mId: Nullish<string | number>, language: string }) => {
-            if (!mId) return
+            if (!mId || !selectedProvider) return
+            const scanlators = storedFilters[key]?.scanlators ?? []
             setStoredFilters(draft => {
+                draft[key] ??= { scanlators: [], language: "" }
                 draft[key]["language"] = language
                 return
+            })
+            savePreference(mId, {
+                filter: { provider: selectedProvider, scanlators, language },
             })
         },
     }
@@ -240,89 +308,10 @@ export function useStoredMangaFilters(_extensions: ExtensionRepo_MangaProviderEx
     const [_storedFilters] = useAtom(withImmer(__manga_entryFiltersAtom))
 
     const storedFilters = React.useMemo(() => {
-        let filters: Record<string, MangaEntryFilters> = {}
-        Object.entries(_storedFilters).map(([key, value]) => {
-            const [mangaId, providerId] = key.split("$")
-            const mangaProvider = selectedProviders[mangaId]
-            const extension = _extensions?.find(extension => extension.id === mangaProvider)
-
-            if (extension?.settings?.supportsMultiScanlator || extension?.settings?.supportsMultiLanguage) {
-                filters[mangaId] = {
-                    scanlators: value.scanlators ?? [],
-                    language: value.language ?? "",
-                }
-            }
-        })
-        return filters
+        return getActiveMangaFilters(_storedFilters, selectedProviders, _extensions)
     }, [_storedFilters, _extensions, selectedProviders])
 
     return {
         storedFilters,
     }
-}
-
-export function getMangaEntryLatestChapterNumber(
-    mangaId: string | number,
-    latestChapterNumbers: Record<number, Manga_MangaLatestChapterNumberItem[]>,
-    storedProviders: Record<string, string>,
-    storedFilters: Record<string, MangaEntryFilters>,
-) {
-    const provider = storedProviders[String(mangaId)]
-    const filters = storedFilters?.[String(mangaId)]
-
-    if (!provider) return null
-
-    const mangaLatestChapterNumbers = latestChapterNumbers[Number(mangaId)]?.filter?.(item => {
-        return item.provider === provider
-    })
-
-    let found: Manga_MangaLatestChapterNumberItem | null | undefined = null
-
-    // If filters are set for this manga
-    if (!!filters) {
-        // Find entry with matching scanlator & language
-        found = mangaLatestChapterNumbers?.find(item => {
-            return !!filters.scanlators[0] && !!filters.language &&
-                filters.scanlators[0] === item.scanlator && filters.language === item.language
-        })
-
-        // If no entry with matching scanlator & language is found, find entry with matching language
-        if (!found) {
-            // Get all entries with matching language
-            const entries = mangaLatestChapterNumbers?.filter(item => {
-                return !!filters.language && filters.language === item.language
-            }) ?? []
-
-            // Get the highest chapter number from all entries with matching language
-            found = sortBy(entries, "number").reverse()[0]
-        }
-
-        // If no entry with matching language is found, find entry with matching scanlator
-        if (!found) {
-            // Get all entries with matching scanlator
-            const entries = mangaLatestChapterNumbers?.filter(item => {
-                return !!filters.scanlators[0] && filters.scanlators[0] === item.scanlator
-            }) ?? []
-
-            // Get the highest chapter number from all entries with matching scanlator
-            found = sortBy(entries, "number").reverse()[0]
-        }
-    }
-
-    // If no filters are set or no entry is found for the filters, get the highest chapter number
-    if (!found) {
-        // Get the highest chapter number from any
-        const highestChapterNumber = mangaLatestChapterNumbers?.reduce((max, item) => {
-            return Math.max(max, item.number)
-        }, 0)
-        found = {
-            provider: provider,
-            language: "",
-            scanlator: "",
-            number: highestChapterNumber,
-        }
-    }
-
-    return found?.number
-
 }

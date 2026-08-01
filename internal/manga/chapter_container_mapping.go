@@ -4,12 +4,22 @@ import (
 	"errors"
 	"seanime/internal/extension"
 	hibikemanga "seanime/internal/extension/hibike/manga"
+	manga_providers "seanime/internal/manga/providers"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"sort"
+	"strconv"
 	"strings"
 )
 
 var searchResultCache = result.NewCache[string, []*hibikemanga.SearchResult]()
+
+type MappingPreview struct {
+	ChapterCount int      `json:"chapterCount"`
+	Latest       string   `json:"latest"`
+	Languages    []string `json:"languages"`
+	Scanlators   []string `json:"scanlators"`
+}
 
 func (r *Repository) ManualSearch(provider string, query string) (ret []*hibikemanga.SearchResult, err error) {
 	defer util.HandlePanicInModuleWithError("manga/ManualSearch", &err)
@@ -48,6 +58,62 @@ func (r *Repository) ManualSearch(provider string, query string) (ret []*hibikem
 	searchResultCache.Set(provider+normalizedQuery, searchRes)
 
 	return searchRes, nil
+}
+
+func (r *Repository) PreviewMapping(provider string, mangaId string) (ret *MappingPreview, err error) {
+	defer util.HandlePanicInModuleWithError("manga/PreviewMapping", &err)
+
+	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.extensionBankRef.Get(), provider)
+	if !ok {
+		return nil, errors.New("manga: Provider not found")
+	}
+
+	chapters, err := providerExtension.GetProvider().FindChapters(mangaId)
+	if err != nil {
+		return nil, err
+	}
+
+	numbers := make(map[string]struct{})
+	languages := make(map[string]struct{})
+	scanlators := make(map[string]struct{})
+	latest := ""
+	latestNumber := -1.0
+	for _, chapter := range chapters {
+		if chapter == nil {
+			continue
+		}
+		number := manga_providers.GetNormalizedChapter(chapter.Chapter)
+		if number != "" {
+			numbers[number] = struct{}{}
+			if parsed, parseErr := strconv.ParseFloat(number, 64); parseErr == nil && parsed > latestNumber {
+				latest = number
+				latestNumber = parsed
+			}
+		}
+		if chapter.Language != "" {
+			languages[chapter.Language] = struct{}{}
+		}
+		if chapter.Scanlator != "" {
+			scanlators[chapter.Scanlator] = struct{}{}
+		}
+	}
+
+	ret = &MappingPreview{
+		ChapterCount: len(numbers),
+		Latest:       latest,
+		Languages:    mapKeys(languages),
+		Scanlators:   mapKeys(scanlators),
+	}
+	return ret, nil
+}
+
+func mapKeys(values map[string]struct{}) []string {
+	ret := make([]string, 0, len(values))
+	for value := range values {
+		ret = append(ret, value)
+	}
+	sort.Strings(ret)
+	return ret
 }
 
 // ManualMapping is used to manually map a manga to a provider.

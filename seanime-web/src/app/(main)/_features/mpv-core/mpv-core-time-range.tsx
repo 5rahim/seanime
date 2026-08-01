@@ -1,8 +1,11 @@
-import React from "react"
-import { useMpvPrismPlayer } from "@mpv-prism/react"
 import { MediaCoreTimeRangeView } from "@/app/(main)/_features/media-core/media-core-control-bar"
-import { mc_resolveSource, type MpvCoreChapterCue } from "./mpv-core"
+import { useMpvPrismPlayer } from "@mpv-prism/react"
+import { useAtomValue } from "jotai"
+import React from "react"
+import { getSkipChapters, type MediaCoreChapter } from "../media-core/media-core-chapters"
+import { mediaCorePreferencesAtom } from "../media-core/media-core-preferences"
 import { VideoCorePreviewManager } from "../video-core/video-core-preview"
+import { mc_resolveSource, type MpvCoreChapterCue } from "./mpv-core"
 
 export interface MpvCoreTimeRangeProps {
     player: ReturnType<typeof useMpvPrismPlayer>
@@ -41,6 +44,7 @@ export function MpvCoreTimeRange({
     const [seeking, setSeeking] = React.useState(false)
     const [seekingTargetProgress, setSeekingTargetProgress] = React.useState(0)
     const dragWasPausedRef = React.useRef(paused)
+    const skipPatterns = useAtomValue(mediaCorePreferencesAtom).skipPatterns
 
     const rangeRectRef = React.useRef<DOMRect | null>(null)
     const seekingTargetProgressRef = React.useRef(seekingTargetProgress)
@@ -89,7 +93,7 @@ export function MpvCoreTimeRange({
         return duration > 0 ? (buffered / duration) * 100 : 0
     }, [buffered, duration])
 
-    const chapters = React.useMemo(() => {
+    const chapters = React.useMemo<Array<MediaCoreChapter & { width: number, percentageOffset: number }>>(() => {
         if (!chapterCues.length) return [{
             width: 100,
             percentageOffset: 0,
@@ -118,6 +122,7 @@ export function MpvCoreTimeRange({
                 }
             })
     }, [chapterCues, duration])
+    const skipChapters = React.useMemo(() => getSkipChapters(chapters, skipPatterns, { guardIntro: false }), [chapters, skipPatterns])
 
     const [progressPercentage, setProgressPercentage] = React.useState(duration > 0 ? (currentTime / duration) * 100 : 0)
 
@@ -413,7 +418,8 @@ export function MpvCoreTimeRange({
             seekingTargetProgress={seekingTargetProgress}
             chapters={chapters}
             showChapterMarkers={showChapterMarkers}
-            highlightOPEDChapters={highlightOPEDChapters}
+            highlightChapters={highlightOPEDChapters}
+            skipChapters={skipChapters}
             showPreview={showPreview}
             showThumbnail={showThumbnail}
             previewWidth={previewWidth}

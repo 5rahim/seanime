@@ -1221,3 +1221,11 @@ media-preview-chapter-display {
     border-bottom-color: black !important;
     background: #3a3a3a !important;
 }
+
+[data-mpv-prism-video-host] {
+    background: #000000 !important;
+}
+
+[data-mpv-prism-video-canvas] {
+    background: #000000 !important;
+}

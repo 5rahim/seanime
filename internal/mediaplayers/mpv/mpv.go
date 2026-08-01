@@ -46,6 +46,7 @@ type (
 		prevSocketName string
 		exitedCh       chan struct{}
 		playbackSwitch bool
+		isFileLoaded   bool
 		freshPosition  bool
 		freshDuration  bool
 		autoSocket     bool
@@ -265,6 +266,7 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	m.playbackMu.Lock()
 	m.Playback = &Playback{}
 	m.playbackSwitch = false
+	m.isFileLoaded = false
 	m.freshPosition = false
 	m.freshDuration = false
 	m.playbackMu.Unlock()
@@ -363,8 +365,44 @@ func (m *Mpv) Resume() error {
 	return nil
 }
 
+// waitForFileLoad waits until the MPV track is ready to seek.
+func (m *Mpv) waitForFileLoad(timeoutDuration time.Duration) error {
+	timeout := time.Now().Add(timeoutDuration)
+	for {
+		if time.Now().After(timeout) {
+			return errors.New("timed out waiting for file to load")
+		}
+
+		m.mu.Lock()
+		connClosed := m.conn == nil || m.conn.IsClosed()
+		m.mu.Unlock()
+
+		if connClosed {
+			return errors.New("mpv is not running")
+		}
+
+		if m.isFileReady() {
+			return nil
+		}
+
+		time.Sleep(250 * time.Millisecond)
+	}
+}
+
+func (m *Mpv) isFileReady() bool {
+	m.playbackMu.RLock()
+	defer m.playbackMu.RUnlock()
+	return m.isFileLoaded || (m.freshDuration && m.Playback.Duration > 0)
+}
+
 // SeekToSlow seeks to the given position in the file by first pausing the player and unpausing it after seeking.
 func (m *Mpv) SeekToSlow(position float64) error {
+	// Wait for file to load before seeking
+	err := m.waitForFileLoad(30 * time.Second)
+	if err != nil {
+		m.Logger.Warn().Err(err).Msg("file didn't load in time, attempting seek anyway")
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -373,10 +411,15 @@ func (m *Mpv) SeekToSlow(position float64) error {
 	}
 
 	// pause the player
-	_, err := m.conn.Call("set_property", "pause", true)
+	_, err = m.conn.Call("set_property", "pause", true)
 	if err != nil {
 		return err
 	}
+
+	// unpause the player
+	defer func() {
+		_, _ = m.conn.Call("set_property", "pause", false)
+	}()
 
 	time.Sleep(100 * time.Millisecond)
 
@@ -387,17 +430,17 @@ func (m *Mpv) SeekToSlow(position float64) error {
 
 	time.Sleep(100 * time.Millisecond)
 
-	// unpause the player
-	_, err = m.conn.Call("set_property", "pause", false)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
 // SeekTo seeks to the given position in the file.
 func (m *Mpv) SeekTo(position float64) error {
+	// Wait for file to load before seeking
+	err := m.waitForFileLoad(30 * time.Second)
+	if err != nil {
+		m.Logger.Warn().Err(err).Msg("file didn't load in time, attempting seek anyway")
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -405,7 +448,7 @@ func (m *Mpv) SeekTo(position float64) error {
 		return errors.New("mpv is not running")
 	}
 
-	_, err := m.conn.Call("set_property", "time-pos", position)
+	_, err = m.conn.Call("set_property", "time-pos", position)
 	if err != nil {
 		return err
 	}
@@ -848,7 +891,11 @@ func (m *Mpv) applyPlaybackEvent(event *mpvipc.Event) {
 	}
 
 	switch event.Name {
-	case "start-file", "file-loaded":
+	case "start-file":
+		m.isFileLoaded = false
+		m.startPlaybackSwitchLocked()
+	case "file-loaded":
+		m.isFileLoaded = true
 		m.startPlaybackSwitchLocked()
 	}
 
@@ -899,6 +946,7 @@ func (m *Mpv) resetPlaybackStatus() {
 	m.playbackMu.Lock()
 	m.Logger.Trace().Msg("mpv: Resetting playback status")
 	m.playbackSwitch = false
+	m.isFileLoaded = false
 	m.freshPosition = false
 	m.freshDuration = false
 	m.Playback.Filename = ""

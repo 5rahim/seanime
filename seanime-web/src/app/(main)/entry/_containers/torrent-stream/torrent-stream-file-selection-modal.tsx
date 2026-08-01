@@ -39,12 +39,12 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
 
     const { setAutoPlayTorrent } = useAutoPlaySelectedTorrent()
 
-    function onStream() {
-        if (selectedFileIdx == -1 || !selectedTorrent || !torrentSearchStreamEpisode || !torrentSearchStreamEpisode.aniDBEpisode) return
+    function onStream(fileIndex: number) {
+        if (fileIndex == -1 || !selectedTorrent || !torrentSearchStreamEpisode || !torrentSearchStreamEpisode.aniDBEpisode) return
 
         // save to autoplay
         const batchFiles: HibikeTorrent_BatchEpisodeFiles = {
-            current: selectedFileIdx,
+            current: fileIndex,
             files: filePreviews?.map(n => ({
                 index: n.index,
                 name: n.displayPath,
@@ -63,7 +63,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
             mediaId: entry.mediaId,
             aniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
             episodeNumber: torrentSearchStreamEpisode.episodeNumber,
-            chosenFileIndex: selectedFileIdx,
+            chosenFileIndex: fileIndex,
             batchEpisodeFiles: batchFiles,
         })
 
@@ -74,10 +74,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
 
     React.useEffect(() => {
         if (filePreviews && filePreviews.length === 1) {
-            setSelectedFileIdx(filePreviews[0].index)
-            setTimeout(() => {
-                onStream()
-            }, 300)
+            onStream(filePreviews[0].index)
         }
     }, [filePreviews])
 
@@ -133,7 +130,9 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
         >
             <VaulContent className="max-w-5xl mx-auto">
                 <AppLayoutStack className="mt-4 p-3 lg:p-6">
-                    {isLoading ? <LoadingSpinner /> : (
+                    {(isLoading || filePreviews?.length === 1) ? <LoadingSpinner
+                        title={filePreviews?.length === 1 ? "Launching stream..." : "Fetching torrent info..."}
+                    /> : (
                         <AppLayoutStack className="pb-0">
 
                             <ScrollArea
@@ -156,7 +155,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
                                 className="w-full"
                                 rightIcon={<IoPlayCircle className="text-xl" />}
                                 disabled={selectedFileIdx === -1 || isLoading}
-                                onClick={onStream}
+                                onClick={() => onStream(selectedFileIdx)}
                             >
                                 Stream
                             </Button>

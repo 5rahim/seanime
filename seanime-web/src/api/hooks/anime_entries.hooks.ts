@@ -84,6 +84,12 @@ export function useGetMissingEpisodes(enabled?: boolean) {
         method: API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.methods[0],
         queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.key],
         enabled: enabled ?? true, // Default to true if not provided
+        refetchInterval: query => [
+            ...(query.state.data?.episodes ?? []),
+            ...(query.state.data?.silencedEpisodes ?? []),
+        ].some(episode => episode.torrentAvailability === "checking")
+            ? 1_000
+            : false,
     })
 }
 

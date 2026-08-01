@@ -57,14 +57,11 @@ contextBridge.exposeInMainWorld(
                 "cast:error",
             ]
             if (validChannels.includes(channel)) {
-                // Remove the event listener to avoid memory leaks
-                ipcRenderer.removeAllListeners(channel)
-                // Add the event listener
-                ipcRenderer.on(channel, (_, ...args) => callback(...args))
+                const listener = (_, ...args) => callback(...args)
+                ipcRenderer.on(channel, listener)
 
-                // Return a function to remove the listener
                 return () => {
-                    ipcRenderer.removeAllListeners(channel)
+                    ipcRenderer.removeListener(channel, listener)
                 }
             }
         },
@@ -120,9 +117,15 @@ contextBridge.exposeInMainWorld(
             createScreenshotPath: () => ipcRenderer.invoke("mpvcore:create-screenshot-path"),
             saveScreenshot: (filePath, base64Data) => ipcRenderer.invoke("mpvcore:save-screenshot", filePath, base64Data),
             setLoggingEnabled: (enabled) => ipcRenderer.invoke("mpvcore:setLoggingEnabled", enabled),
+            exportLogs: () => ipcRenderer.invoke("mpvcore:export-logs"),
             getAnime4KDirectory: () => ipcRenderer.invoke("mpvcore:get-anime4k-directory"),
             scanAnime4KDirectory: (directory) => ipcRenderer.invoke("mpvcore:scan-anime4k-directory", directory),
             openAnime4KDirectory: (directory) => ipcRenderer.invoke("mpvcore:open-anime4k-directory", directory),
+        },
+
+        powerSaveBlocker: {
+            start: () => ipcRenderer.invoke("power-save-blocker:start"),
+            stop: (id) => ipcRenderer.invoke("power-save-blocker:stop", id),
         },
 
         // Chromecast

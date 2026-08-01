@@ -222,7 +222,6 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
         const container = localRef.current
         if (!container || !api) return
 
-        let lastDeltas: number[] = [0, 0, 0]
         let cooldown = false
         let cooldownTimeout: any = null
         let lastDirection = 0
@@ -245,10 +244,9 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
             // Prevent default behavior to prevent page scroll/navigation
             e.preventDefault()
 
-            // Reset history and cooldown if direction changed
+            // Reset cooldown if direction changed
             const direction = Math.sign(delta)
             if (direction !== lastDirection) {
-                lastDeltas = [0, 0, 0]
                 lastDirection = direction
                 cooldown = false
                 if (cooldownTimeout) {
@@ -257,32 +255,23 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
                 }
             }
 
-            // Add the new delta to our list of recent deltas
-            const absDelta = Math.abs(delta)
-            lastDeltas.push(absDelta)
-            lastDeltas.shift()
-
             if (cooldown) return
 
-            // Detect if the user is scrolling/accelerating or if it's decaying momentum.
-            const isAccelerating = lastDeltas[2] > lastDeltas[1] && lastDeltas[1] >= lastDeltas[0]
+            const absDelta = Math.abs(delta)
             const isSignificant = absDelta > 2
 
-            if (isSignificant && isAccelerating) {
+            if (isSignificant) {
                 if (delta > 0) {
                     api.scrollNext()
                 } else {
                     api.scrollPrev()
                 }
 
-                // Trigger cooldown to prevent triggering again in the next few milliseconds of the same acceleration peak
                 cooldown = true
-                lastDeltas = [0, 0, 0]
-
                 if (cooldownTimeout) clearTimeout(cooldownTimeout)
                 cooldownTimeout = setTimeout(() => {
                     cooldown = false
-                }, 120)
+                }, 80)
             }
         }
 

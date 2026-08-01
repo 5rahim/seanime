@@ -20,6 +20,7 @@ type recordedWSEvent struct {
 type recordingWSEventManager struct {
 	videoCoreSubscriber *events.ClientEventSubscriber
 	sent                []recordedWSEvent
+	clientIds           []string
 }
 
 func newRecordingWSEventManager() *recordingWSEventManager {
@@ -34,7 +35,7 @@ func (m *recordingWSEventManager) SendEventTo(clientId string, eventType string,
 	m.sent = append(m.sent, recordedWSEvent{clientId: clientId, eventType: eventType, payload: payload})
 }
 
-func (m *recordingWSEventManager) GetClientIds() []string { return nil }
+func (m *recordingWSEventManager) GetClientIds() []string { return m.clientIds }
 
 func (m *recordingWSEventManager) GetClientPlatform(string) string { return "" }
 
@@ -450,4 +451,100 @@ func TestVideoStatusRecoversAfterZeroDurationLoadedMetadata(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("expected recovered video status event")
 	}
+}
+
+func TestConnectedPlaybackOwnerBlocksAnotherClient(t *testing.T) {
+	logger := util.NewLogger()
+	ws := newRecordingWSEventManager()
+	ws.clientIds = []string{"owner-client", "new-client"}
+	vc := New(NewVideoCoreOptions{WsEventManager: ws, Logger: logger})
+	t.Cleanup(vc.Shutdown)
+
+	ownerState := newPlaybackState("owner-playback")
+	ownerState.ClientId = "owner-client"
+	vc.setPlaybackState(ownerState)
+
+	newState := newPlaybackState("new-playback")
+	newState.ClientId = "new-client"
+	ws.MockSendVideoCoreEvent(ClientEvent{
+		ClientId: "new-client",
+		Type:     PlayerEventVideoLoaded,
+		Payload:  mustMarshalRaw(t, clientVideoLoadedPayload{State: *newState}),
+	})
+
+	require.Never(t, func() bool {
+		state, ok := vc.GetPlaybackState()
+		return ok && state.ClientId == "new-client"
+	}, 100*time.Millisecond, 10*time.Millisecond)
+}
+
+func TestVideoLoadedTakesOverFromDisconnectedOwner(t *testing.T) {
+	logger := util.NewLogger()
+	ws := newRecordingWSEventManager()
+	ws.clientIds = []string{"new-client"}
+	vc := New(NewVideoCoreOptions{WsEventManager: ws, Logger: logger})
+	t.Cleanup(vc.Shutdown)
+
+	ownerState := newPlaybackState("owner-playback")
+	ownerState.ClientId = "owner-client"
+	vc.setPlaybackState(ownerState)
+	vc.setPlaybackStatus(&PlaybackStatus{
+		Id:          "owner-playback",
+		ClientId:    "owner-client",
+		CurrentTime: 20,
+		Duration:    100,
+	})
+
+	newState := newPlaybackState("new-playback")
+	newState.ClientId = "new-client"
+	ws.MockSendVideoCoreEvent(ClientEvent{
+		ClientId: "new-client",
+		Type:     PlayerEventVideoLoaded,
+		Payload:  mustMarshalRaw(t, clientVideoLoadedPayload{State: *newState}),
+	})
+
+	require.Eventually(t, func() bool {
+		state, ok := vc.GetPlaybackState()
+		return ok && state.ClientId == "new-client" && state.PlaybackInfo.Id == "new-playback"
+	}, time.Second, 10*time.Millisecond)
+
+	vc.playbackStatusMu.RLock()
+	defer vc.playbackStatusMu.RUnlock()
+	require.Nil(t, vc.playbackStatus)
+}
+
+func TestNonLoadEventCannotClaimDisconnectedPlayback(t *testing.T) {
+	logger := util.NewLogger()
+	ws := newRecordingWSEventManager()
+	ws.clientIds = []string{"new-client"}
+	vc := New(NewVideoCoreOptions{WsEventManager: ws, Logger: logger})
+	t.Cleanup(vc.Shutdown)
+
+	ownerState := newPlaybackState("owner-playback")
+	ownerState.ClientId = "owner-client"
+	vc.setPlaybackState(ownerState)
+	vc.setPlaybackStatus(&PlaybackStatus{
+		Id:          "owner-playback",
+		ClientId:    "owner-client",
+		CurrentTime: 20,
+		Duration:    100,
+	})
+
+	ws.MockSendVideoCoreEvent(ClientEvent{
+		ClientId: "new-client",
+		Type:     PlayerEventVideoStatus,
+		Payload: mustMarshalRaw(t, clientVideoStatusPayload{
+			CurrentTime: 80,
+			Duration:    100,
+		}),
+	})
+
+	require.Never(t, func() bool {
+		status, ok := vc.GetPlaybackStatus()
+		return ok && status.CurrentTime == 80
+	}, 100*time.Millisecond, 10*time.Millisecond)
+
+	state, ok := vc.GetPlaybackState()
+	require.True(t, ok)
+	require.Equal(t, "owner-client", state.ClientId)
 }

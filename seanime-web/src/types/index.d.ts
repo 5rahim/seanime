@@ -81,9 +81,14 @@ declare global {
                 createScreenshotPath: () => Promise<string>;
                 saveScreenshot: (filePath: string, base64Data: string) => Promise<boolean>;
                 setLoggingEnabled: (enabled: boolean) => Promise<boolean>;
+                exportLogs: () => Promise<string>;
                 getAnime4KDirectory: () => Promise<MpvCoreAnime4KDirectory>;
                 scanAnime4KDirectory: (directory: string) => Promise<MpvCoreAnime4KDirectory>;
                 openAnime4KDirectory: (directory?: string) => Promise<boolean>;
+            };
+            powerSaveBlocker?: {
+                start: () => Promise<number>;
+                stop: (id: number) => Promise<void>;
             };
             cast?: {
                 discover: () => Promise<void>;

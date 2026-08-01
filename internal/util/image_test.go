@@ -94,3 +94,31 @@ func TestDetectImageFormatAndDimensions_FallbackURLGuessing(t *testing.T) {
 		t.Errorf("Expected webp, got '%s'", format)
 	}
 }
+
+func TestDetectImageFormatAndDimensions_AVIF(t *testing.T) {
+	// ftyp box with major brand avif
+	data := []byte{
+		0x00, 0x00, 0x00, 0x1c, // size 28
+		'f', 't', 'y', 'p', // ftyp
+		'a', 'v', 'i', 'f', // major brand
+		0x00, 0x00, 0x00, 0x00, // minor version
+		'a', 'v', 'i', 'f', // compatible brand
+		// custom ispe box
+		0x00, 0x00, 0x00, 0x14, // box size 20
+		'i', 's', 'p', 'e', // ispe
+		0x00, 0x00, 0x00, 0x00, // version & flags
+		0x00, 0x00, 0x04, 0x00, // width 1024
+		0x00, 0x00, 0x03, 0x00, // height 768
+	}
+
+	w, h, format, err := DetectImageFormatAndDimensions(data, "http://example.com/test.avif")
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	if format != "avif" {
+		t.Errorf("expected avif, got '%s'", format)
+	}
+	if w != 1024 || h != 768 {
+		t.Errorf("expected 1024x768, got %dx%d", w, h)
+	}
+}

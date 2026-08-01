@@ -38,6 +38,10 @@ type FileStreamReader interface {
 
 // NewFileStream creates a new FileStream instance with a temporary file
 func NewFileStream(ctx context.Context, logger *zerolog.Logger, contentLength int64) (*FileStream, error) {
+	if ctx == nil {
+		return nil, errors.New("context is required")
+	}
+
 	file, err := os.CreateTemp("", "filestream_*.tmp")
 	if err != nil {
 		return nil, err

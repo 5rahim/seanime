@@ -124,6 +124,8 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 
 	go h.App.RefreshAnimeCollection()
 
+	go h.App.UpdateLibrarySize(true)
+
 	return h.RespondWithData(c, lfs)
 
 }

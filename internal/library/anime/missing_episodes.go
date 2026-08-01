@@ -141,6 +141,7 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 			if len(episodes) > 1 {
 				episodes = episodes[:1] // keep the first episode
 				if episodes[0].Episode != nil {
+					episodes[0].Episode.IsMissingGroup = true
 					episodes[0].Episode.DisplayTitle = episodes[0].Episode.DisplayTitle + fmt.Sprintf(" & %d more", len(downloadInfo.EpisodesToDownload)-1)
 				}
 			}

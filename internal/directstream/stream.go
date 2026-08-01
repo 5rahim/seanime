@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -38,6 +39,8 @@ type Stream interface {
 	ListEntryData() *anime.EntryListData
 	// EpisodeCollection returns the episode collection for the media of the current stream.
 	EpisodeCollection() *anime.EpisodeCollection
+	// GetBaseStream returns the BaseStream instance.
+	GetBaseStream() *BaseStream
 	// LoadPlaybackInfo loads and returns the playback info.
 	LoadPlaybackInfo() (*player.PlaybackInfo, error)
 	// GetAttachmentByName returns the attachment by name for the stream.
@@ -461,17 +464,18 @@ func (m *Manager) listenToPlayerEvents() {
 
 			m.playbackMu.Lock()
 			_, isTerminated := event.(*player.TerminatedEvent)
+			if isTerminated && key.PlaybackID != "" && key.PlaybackID == m.replacedPlaybackId &&
+				(m.replacedPlaybackClient == "" || key.ClientID == "" || key.ClientID == m.replacedPlaybackClient) {
+				m.playbackMu.Unlock()
+				m.Logger.Debug().Str("playbackId", key.PlaybackID).Msg("directstream: Ignoring termination event of replaced playback session during preparation")
+				continue
+			}
 			cs, ok := m.currentStream.Get()
 			if !ok {
 				var cancelFunc func()
 				shouldCancel := false
 				if isTerminated {
-					isReplacedSession := key.PlaybackID != "" && m.replacedPlaybackId != "" && key.PlaybackID == m.replacedPlaybackId
-					if !isReplacedSession {
-						cancelFunc, shouldCancel = m.cancelPreparationLocked(key.ClientID, true)
-					} else {
-						m.Logger.Debug().Str("playbackId", key.PlaybackID).Msg("directstream: Ignoring termination event of replaced playback session during preparation")
-					}
+					cancelFunc, shouldCancel = m.cancelPreparationLocked(key.ClientID, true)
 				}
 				m.playbackMu.Unlock()
 				if shouldCancel && cancelFunc != nil {
@@ -514,13 +518,33 @@ func (m *Manager) listenToPlayerEvents() {
 			case *player.LoadedMetadataEvent:
 				m.Logger.Debug().Msgf("directstream: Video loaded metadata")
 				if key.Target == player.TargetVideoCore {
-					if lfStream, ok := cs.(*LocalFileStream); ok {
-						reader, err := lfStream.newReader()
+					playbackCtx := m.playbackCtx
+					if playbackCtx == nil {
+						continue
+					}
+					switch s := cs.(type) {
+					case *LocalFileStream:
+						reader, err := s.newReader()
 						if err == nil {
-							lfStream.StartSubtitleStream(lfStream, m.playbackCtx, reader, 0)
+							s.StartSubtitleStream(s, playbackCtx, reader, 0)
 						}
-					} else if torrentStream, ok := cs.(*TorrentStream); ok {
-						torrentStream.StartSubtitleStream(torrentStream, m.playbackCtx, torrentStream.newSubtitleReader(), 0)
+					case *TorrentStream:
+						s.StartSubtitleStream(s, playbackCtx, s.newSubtitleReader(), 0)
+					case *DebridStream:
+						reader, err := s.newMetadataReader()
+						if err == nil {
+							s.StartSubtitleStream(s, playbackCtx, reader, 0)
+						}
+					case *UrlStream:
+						reader, err := s.newMetadataReader()
+						if err == nil {
+							s.StartSubtitleStream(s, playbackCtx, reader, 0)
+						}
+					case *Nakama:
+						reader, err := s.newMetadataReader()
+						if err == nil {
+							s.StartSubtitleStream(s, playbackCtx, reader, 0)
+						}
 					}
 				}
 			case *player.SeekedEvent:
@@ -588,6 +612,9 @@ type BaseStream struct {
 	subtitleEventCache     *result.Map[string, *mkvparser.SubtitleEvent]
 	subtitleSendMu         sync.Mutex
 	subtitleLastSent       time.Time
+	subtitleLastSentGen    int64
+	subtitleGeneration     atomic.Int64
+	subtitleSeekMu         sync.Mutex
 	terminateOnce          sync.Once
 	serveContentCancelFunc context.CancelFunc
 	filename               string // Name of the file being streamed, if applicable
@@ -663,7 +690,7 @@ func (s *BaseStream) Terminate() {
 
 		// Cancel all active subtitle streams
 		s.activeSubtitleStreams.Range(func(_ string, s *SubtitleStream) bool {
-			s.Stop(s.completed)
+			s.Stop(s.completed.Load())
 			return true
 		})
 		s.activeSubtitleStreams.Clear()
@@ -684,6 +711,10 @@ func (s *BaseStream) StreamError(err error) {
 
 	s.manager.streamError(s.clientId, err, target)
 	s.manager.unloadStream(s)
+}
+
+func (s *BaseStream) GetBaseStream() *BaseStream {
+	return s
 }
 
 func (s *BaseStream) GetSubtitleEventCache() *result.Map[string, *mkvparser.SubtitleEvent] {

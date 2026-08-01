@@ -70,6 +70,7 @@ type Config struct {
 	}
 	Experimental struct {
 		BuiltinTorrentClient bool
+		DummyDebrid          bool
 	}
 }
 

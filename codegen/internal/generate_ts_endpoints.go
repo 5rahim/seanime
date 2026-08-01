@@ -283,7 +283,7 @@ func generateHooksFile(f *os.File, groupedHandlers map[string][]*RouteHandler, f
 //         method: API_ENDPOINTS.{groupName}.{handlerName}.methods[%d],
 //         mutationKey: [API_ENDPOINTS.{groupName}.{handlerName}.key],
 //         onSuccess: async () => {
-// 
+//
 //         },
 //     })
 // }

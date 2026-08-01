@@ -1,12 +1,12 @@
-import { cn } from "@/components/ui/core/styling"
 import { SeaImage as Image } from "@/components/shared/sea-image"
+import { cn } from "@/components/ui/core/styling"
 import { AnimatePresence, motion } from "motion/react"
 import React from "react"
+import { FaDiamond } from "react-icons/fa6"
 import { LuChevronLeft, LuChevronRight, LuVolume, LuVolume1, LuVolume2, LuVolumeOff } from "react-icons/lu"
 import { RiPauseLargeLine, RiPlayLargeLine } from "react-icons/ri"
 import { RxEnterFullScreen, RxExitFullScreen } from "react-icons/rx"
 import { TbPictureInPicture, TbPictureInPictureOff } from "react-icons/tb"
-import { FaDiamond } from "react-icons/fa6"
 
 export function formatTime(seconds: number) {
     const sign = seconds < 0 ? "-" : ""
@@ -19,15 +19,6 @@ export function formatTime(seconds: number) {
         return `${sign}${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
     }
     return `${sign}${minutes}:${secs.toString().padStart(2, "0")}`
-}
-
-function getChapterType(name: string | null | undefined) {
-    if (!name) return false
-    if (/opening$|^opening\s|^op$/mi.test(name)) return "Opening"
-    if (/ending$|^ending\s|^ed$|^credits/mi.test(name)) return "Ending"
-    if (/^intro$|recap/mi.test(name)) return "Intro"
-    if (/^outro$/mi.test(name)) return "Outro"
-    return false
 }
 
 const CONTROL_BAR_MAIN_HEIGHT = 48
@@ -638,20 +629,23 @@ export function MediaCoreFullscreenButton(props: {
  * TimeRange / Timeline View
  * -----------------------------------------------------------------------------------------------*/
 
+type MediaCoreTimeRangeChapter = {
+    width: number
+    percentageOffset: number
+    label: string | null
+    start: number
+    end: number
+}
+
 export interface MediaCoreTimeRangeViewProps {
     seeking: boolean
     progressPercentage: number
     bufferedPercentage: number
     seekingTargetProgress: number
-    chapters: Array<{
-        width: number
-        percentageOffset: number
-        label: string | null
-        start: number
-        end: number
-    }>
+    chapters: MediaCoreTimeRangeChapter[]
     showChapterMarkers: boolean
-    highlightOPEDChapters?: boolean
+    highlightChapters?: boolean
+    skipChapters?: MediaCoreTimeRangeChapter[]
     showPreview: boolean
     showThumbnail: boolean
     previewWidth: number
@@ -680,7 +674,8 @@ export function MediaCoreTimeRangeView(props: MediaCoreTimeRangeViewProps) {
         seekingTargetProgress,
         chapters,
         showChapterMarkers,
-        highlightOPEDChapters = true,
+        highlightChapters = true,
+        skipChapters = [],
         showPreview,
         showThumbnail,
         previewWidth,
@@ -770,7 +765,7 @@ export function MediaCoreTimeRangeView(props: MediaCoreTimeRangeViewProps) {
                     showMarker={i < chapters.length - 1 && showChapterMarkers && !isMobile}
                     duration={duration}
                     seekingTargetProgress={seekingTargetProgress}
-                    highlightOPEDChapters={highlightOPEDChapters}
+                    highlighted={highlightChapters && skipChapters.includes(chapter)}
                     onMarkerClick={onMarkerClick}
                 />
             ))}
@@ -792,10 +787,10 @@ function MediaCoreTimeRangeSegment(props: {
     showMarker: boolean
     duration: number
     seekingTargetProgress: number
-    highlightOPEDChapters: boolean
+    highlighted: boolean
     onMarkerClick?: (time: number) => void
 }) {
-    const { idx, chapter, progressPercentage, bufferedPercentage, showMarker, duration, seekingTargetProgress, highlightOPEDChapters, onMarkerClick } = props
+    const { idx, chapter, progressPercentage, bufferedPercentage, showMarker, duration, seekingTargetProgress, highlighted, onMarkerClick } = props
     const focused = !!seekingTargetProgress && chapter.percentageOffset <= seekingTargetProgress && chapter.percentageOffset + chapter.width >= seekingTargetProgress
 
     function getChapterBarPosition(chapter: any, percentage: number) {
@@ -852,10 +847,10 @@ function MediaCoreTimeRangeSegment(props: {
                 <div
                     data-vc-element="time-range-chapter-bar"
                     data-vc-for="main"
-                    data-vc-highlighted-state={!!getChapterType(chapter.label) && highlightOPEDChapters}
+                    data-vc-highlighted-state={highlighted}
                     className={cn(
                         "bg-white/20 absolute left-0 w-full h-full z-[1]",
-                        (!!getChapterType(chapter.label) && highlightOPEDChapters) && "bg-blue-300/50",
+                        highlighted && "bg-blue-300/50",
                     )}
                 />
             </div>

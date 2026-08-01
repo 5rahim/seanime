@@ -1,6 +1,11 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { Anime_Entry } from "@/api/generated/types"
-import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource, useOnlineStreamEmptyCache } from "@/api/hooks/onlinestream.hooks"
+import {
+    useGetOnlineStreamEpisodeList,
+    useGetOnlineStreamEpisodeSource,
+    useOnlineStreamEmptyCache,
+    useRefreshOnlineStreamEpisodeSource,
+} from "@/api/hooks/onlinestream.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
@@ -8,7 +13,7 @@ import { useNakamaStatus, useNakamaWatchParty } from "@/app/(main)/_features/nak
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { EpisodePillsGrid } from "@/app/(main)/_features/video-core/_components/episode-pills-grid"
 import { useSkipData } from "@/app/(main)/_features/video-core/_lib/aniskip"
-import { VideoCore, VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
+import { vc_mediaCaptionsManager, vc_subtitleManager, VideoCore, VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
 import {
     HlsAudioTrack,
     isHLSSrc,
@@ -28,6 +33,8 @@ import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
+import { getProxyUrl } from "@/app/(main)/onlinestream/_lib/onlinestream-proxy"
+import { findPreferredSubtitleTrack, isDefaultSubtitleTrack } from "@/app/(main)/onlinestream/_lib/onlinestream-subtitle-preference"
 import {
     __onlinestream_audioTrackPreferenceByMediaAtom,
     __onlinestream_dubbedPreferenceByMediaAtom,
@@ -35,6 +42,7 @@ import {
     __onlinestream_selectedEpisodeNumberAtom,
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
+    __onlinestream_subtitlePreferenceByMediaAtom,
     OnlinestreamAudioTrackPreference,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { useOnlinestreamAutoProviderCycler } from "@/app/(main)/onlinestream/_lib/use-onlinestream-auto-provider-cycler"
@@ -249,6 +257,60 @@ function OnlinestreamAudioTrackPreferenceSync(props: { mediaId?: number, playbac
     return null
 }
 
+function OnlinestreamSubtitlePreferenceSync(props: { mediaId?: number, playbackId?: string | null }) {
+    const { mediaId, playbackId } = props
+    const subtitleManager = useAtomValue(vc_subtitleManager)
+    const mediaCaptionsManager = useAtomValue(vc_mediaCaptionsManager)
+    const preferenceByMedia = useAtomValue(__onlinestream_subtitlePreferenceByMediaAtom)
+    const preference = mediaId ? preferenceByMedia[String(mediaId)] : undefined
+    const appliedRef = React.useRef(false)
+
+    React.useEffect(() => {
+        appliedRef.current = false
+    }, [mediaId, playbackId])
+
+    React.useEffect(() => {
+        const manager = subtitleManager ?? mediaCaptionsManager
+        if (!manager || !preference || appliedRef.current) return
+
+        const applyPreference = () => {
+            if (appliedRef.current) return
+            if (preference.off) {
+                appliedRef.current = true
+                manager.setNoTrack()
+                return
+            }
+
+            const tracks = manager.getTracks().map(track => ({
+                number: track.number,
+                language: track.language,
+                label: track.label,
+            }))
+            if (!tracks.length) return
+
+            appliedRef.current = true
+            const preferredTrack = findPreferredSubtitleTrack(tracks, preference)
+            if (!preferredTrack) return
+
+            if (subtitleManager) {
+                void subtitleManager.selectTrack(preferredTrack.number)
+            } else {
+                void mediaCaptionsManager?.selectTrack(preferredTrack.number)
+            }
+        }
+
+        manager.addEventListener("tracksloaded", applyPreference)
+        const timeout = window.setTimeout(applyPreference, 0)
+
+        return () => {
+            window.clearTimeout(timeout)
+            manager.removeEventListener("tracksloaded", applyPreference)
+        }
+    }, [subtitleManager, mediaCaptionsManager, preference, playbackId])
+
+    return null
+}
+
 export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton }: OnlinestreamPageProps) {
     const serverStatus = useAtomValue(serverStatusAtom)
     const router = useRouter()
@@ -265,10 +327,14 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const playerRef = React.useRef<HTMLVideoElement | null>(null)
 
     const [currentEpisodeNumber, setSelectedEpisodeNumber] = useAtom(__onlinestream_selectedEpisodeNumberAtom)
-    const [server, setServer] = useAtom(__onlinestream_selectedServerAtom)
+    const [preferredServer, setPreferredServer] = useAtom(__onlinestream_selectedServerAtom)
+    const [server, setServer] = React.useState(preferredServer)
     const [quality, setQuality] = useAtom(__onlinestream_qualityAtom)
     const [dubbedPreferenceByMedia, setDubbedPreferenceByMedia] = useAtom(__onlinestream_dubbedPreferenceByMediaAtom)
-    const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
+    const [preferredProvider, setPreferredProvider] = useAtom(__onlinestream_selectedProviderAtom)
+    const [provider, setProvider] = React.useState(preferredProvider)
+    const [, setSubtitlePreferenceByMedia] = useAtom(__onlinestream_subtitlePreferenceByMediaAtom)
+    const isLoadingFromWatchPartyRef = React.useRef(false)
     const dubbedPreferenceKey = mediaId ? String(mediaId) : null
     const dubbed = dubbedPreferenceKey ? dubbedPreferenceByMedia[dubbedPreferenceKey] ?? false : false
     const setDubbed = React.useCallback((update: boolean | ((prev: boolean) => boolean)) => {
@@ -286,6 +352,30 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         })
     }, [dubbedPreferenceKey, setDubbedPreferenceByMedia])
 
+    const previousPreferredProviderRef = React.useRef(preferredProvider)
+    const previousPreferredServerRef = React.useRef(preferredServer)
+    const previousMediaIdRef = React.useRef(mediaId)
+
+    React.useEffect(() => {
+        if (previousPreferredProviderRef.current === preferredProvider) return
+        previousPreferredProviderRef.current = preferredProvider
+        setProvider(preferredProvider)
+    }, [preferredProvider])
+
+    React.useEffect(() => {
+        if (previousPreferredServerRef.current === preferredServer) return
+        previousPreferredServerRef.current = preferredServer
+        setServer(preferredServer)
+    }, [preferredServer])
+
+    React.useEffect(() => {
+        if (previousMediaIdRef.current === mediaId) return
+        previousMediaIdRef.current = mediaId
+        if (isLoadingFromWatchPartyRef.current) return
+        setProvider(preferredProvider)
+        setServer(preferredServer)
+    }, [mediaId, preferredProvider, preferredServer])
+
     const [overrideStreamType, setOverrideStreamType] = React.useState<VideoCore_VideoPlaybackInfo["streamType"] | null>(null)
 
     const [playbackError, setPlaybackError] = React.useState<string | null>(null)
@@ -295,16 +385,17 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     // get extensions
     const { providerExtensions, providerExtensionOptions } = useHandleOnlinestreamProviderExtensions()
     const extension = React.useMemo(() => providerExtensions.find(p => p.id === provider), [providerExtensions, provider])
+    const sourceDubbed = !!extension?.supportsDub && dubbed
 
     // Nakama Watch Party
     const nakamaStatus = useNakamaStatus()
     const { isPeer: isWatchPartyPeer } = useNakamaWatchParty()
     const { streamToLoad, onLoadedStream, removeParamsFromUrl, redirectToStream } = useNakamaOnlineStreamWatchParty()
-    const isLoadingFromWatchPartyRef = React.useRef(false)
 
 
     // Stream URL
     const [url, setUrl] = React.useState<string | null>(null)
+    const [subtitleTracks, setSubtitleTracks] = React.useState<VideoCore_VideoPlaybackInfo["subtitleTracks"]>()
 
     React.useEffect(() => {
         return () => {
@@ -375,9 +466,10 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         mediaId,
         provider,
         currentEpisodeNumber,
-        (!!extension?.supportsDub) && dubbed,
+        sourceDubbed,
         !!mediaId && currentEpisodeNumber !== null && isEpisodeListFetched,
     )
+    const { mutateAsync: refreshEpisodeSource } = useRefreshOnlineStreamEpisodeSource()
 
     const episodeListLoading = isFetchingEpisodeList || isLoadingEpisodeList
     const episodeLoading = isLoadingEpisodeSource || isFetchingEpisodeSource
@@ -389,6 +481,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         url,
         providerExtensions,
         dubbed,
+        sourceDubbed,
         currentEpisodeNumber,
         episodeListResponse,
         episodeListLoading,
@@ -400,15 +493,15 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         playbackError,
         setProvider,
         setServer,
-        setQuality,
         setSelectedEpisodeNumber,
         setUrl,
         setPlaybackError,
+        refreshEpisodeSource,
     })
 
     // de-duplicate video sources
     const videoSources = React.useMemo(() => uniqBy(episodeSource?.videoSources?.filter(n => n.server === server),
-        n => `${n.url}|${n.quality}|${n.server}`), [episodeSource?.number, server])
+        n => `${n.url}|${n.quality}|${n.server}`), [episodeSource?.videoSources, server])
     const hasMultipleVideoSources = React.useMemo(() => !!videoSources?.length && videoSources?.length > 1, [videoSources])
 
     // list of servers
@@ -502,16 +595,22 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
             setPlaybackError(null)
             log.info("Changing stream URL using videoSource", { videoSource })
             setUrl(null)
+            setSubtitleTracks(undefined)
             log.info("Setting stream URL to undefined")
             if (videoSource?.url) {
                 setServer(videoSource.server)
-                let _url = videoSource.url
-                if (videoSource.headers && Object.keys(videoSource.headers).length > 0) {
-                    _url = `${getServerBaseUrl()}/api/v1/proxy?url=${encodeURIComponent(videoSource?.url)}&headers=${encodeURIComponent(JSON.stringify(
-                        videoSource?.headers))}` + (await getHMACTokenQueryParam("/api/v1/proxy", "&"))
-                } else {
-                    _url = videoSource.url
-                }
+                const headers = videoSource.headers
+                const shouldProxy = !!headers && Object.keys(headers).length > 0
+                const tokenQuery = shouldProxy ? await getHMACTokenQueryParam("/api/v1/proxy", "&") : ""
+                const getUrl = (url: string) => shouldProxy ? getProxyUrl(getServerBaseUrl(), url, headers, tokenQuery) : url
+                const _url = getUrl(videoSource.url)
+                const _subtitleTracks = videoSource.subtitles?.map((sub, index) => ({
+                    index: index,
+                    label: sub.language,
+                    src: getUrl(sub.url),
+                    language: sub.language,
+                    default: isDefaultSubtitleTrack(videoSource.subtitles ?? [], index),
+                }))
                 React.startTransition(() => {
                     (async () => {
                         // If the video source is unknown or we can't determine if it's a native video from the url,
@@ -528,13 +627,14 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                         }
                         React.startTransition(() => {
                             log.info("Setting stream URL", { url: _url, quality, server, dubbed, provider })
+                            setSubtitleTracks(_subtitleTracks)
                             setUrl(_url)
                         })
                     })()
                 })
             }
         })()
-    }, [videoSource, server, quality, dubbed, provider])
+    }, [videoSource, server, dubbed, provider])
 
     const { currentPlaylist, playEpisode: playPlaylistEpisode, nextPlaylistEpisode, prevPlaylistEpisode } = usePlaylistManager()
 
@@ -557,16 +657,18 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     // Provider
     const changeProvider = React.useCallback((provider: string) => {
         savePreviousStateThen(() => {
+            setPreferredProvider(provider)
             setProvider(provider)
         })
-    }, [videoSource])
+    }, [videoSource, setPreferredProvider])
 
     // Server
     const changeServer = React.useCallback((server: string) => {
         savePreviousStateThen(() => {
+            setPreferredServer(server)
             setServer(server)
         })
-    }, [videoSource])
+    }, [videoSource, setPreferredServer])
 
     // Dubbed
     const toggleDubbed = React.useCallback(() => {
@@ -648,6 +750,20 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     })
 
     const useLibassRenderer = useAtomValue(vc_useLibassRendererAtom)
+
+    const handleSubtitlePreferenceChange = React.useCallback((selection: { language?: string, label?: string } | null) => {
+        if (!mediaId) return
+
+        setSubtitlePreferenceByMedia(prev => ({
+            ...prev,
+            [String(mediaId)]: selection ? {
+                language: selection.language,
+                label: selection.label,
+            } : {
+                off: true,
+            },
+        }))
+    }, [mediaId, setSubtitlePreferenceByMedia])
 
     /*
      * Handle fatal errors
@@ -768,7 +884,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 leftHeaderActions={<>
                     {parameters}
                     {tryAllProvidersButton}
-                    {(animeEntry && !!provider) && <OnlinestreamManualMappingModal entry={animeEntry}>
+                    {(animeEntry && !!provider) && <OnlinestreamManualMappingModal entry={animeEntry} provider={provider}>
                         <Button
                             size="sm"
                             intent="gray-basic"
@@ -812,6 +928,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                         <VideoCoreProvider id="onlinestream">
                             <div data-onlinestream-video-container className="w-full aspect-video mx-auto border rounded-lg overflow-hidden">
                                 <OnlinestreamAudioTrackPreferenceSync mediaId={mediaId} playbackId={url} />
+                                <OnlinestreamSubtitlePreferenceSync mediaId={mediaId} playbackId={url} />
                                 <VideoCore
                                     id="onlinestream"
                                     mRef={playerRef}
@@ -827,12 +944,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                             streamType: overrideStreamType
                                                 ? overrideStreamType
                                                 : ((url && isHLSSrc(url)) || videoSource?.type === "m3u8") ? "hls" : "native",
-                                            subtitleTracks: videoSource?.subtitles?.map((sub, index) => ({
-                                                index: index,
-                                                label: sub.language,
-                                                src: sub.url,
-                                                language: sub.language,
-                                                default: index === 0,
+                                            subtitleTracks: subtitleTracks?.map(track => ({
+                                                ...track,
                                                 useLibassRenderer: useLibassRenderer,
                                             })),
                                             videoSources: hasMultipleVideoSources ? videoSources?.map((source, index) => ({
@@ -866,6 +979,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     onStalled={v => autoProviderCycler.onPlaybackStalled(v)}
                                     onPlayEpisode={handlePlayEpisode}
                                     onVideoSourceChange={changeQuality}
+                                    hlsPreferredQuality={quality}
+                                    onHlsQualityChange={setQuality}
+                                    onSubtitlePreferenceChange={handleSubtitlePreferenceChange}
                                     onHlsFatalError={(err) => onFatalError(`HLS error: ${err.error.message}`)}
                                     onTerminateStream={() => {
                                         setUrl(null)

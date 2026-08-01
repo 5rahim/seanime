@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/constants"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/extension"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
@@ -18,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/5rahim/habari"
 	"github.com/samber/lo"
@@ -27,6 +29,8 @@ import (
 const (
 	AnimeSearchTypeSmart  AnimeSearchType = "smart"
 	AnimeSearchTypeSimple AnimeSearchType = "simple"
+	searchMissTTL                         = time.Minute
+	releasingSearchTTL                    = 5 * time.Minute
 )
 
 var (
@@ -75,6 +79,14 @@ type (
 )
 
 func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (ret *SearchData, retErr error) {
+	return r.searchAnime(ctx, opts, false)
+}
+
+func (r *Repository) SearchAnimeFresh(ctx context.Context, opts AnimeSearchOptions) (ret *SearchData, retErr error) {
+	return r.searchAnime(ctx, opts, true)
+}
+
+func (r *Repository) searchAnime(ctx context.Context, opts AnimeSearchOptions, fresh bool) (ret *SearchData, retErr error) {
 	defer util.HandlePanicInModuleWithError("torrents/torrent/SearchAnime", &retErr)
 
 	requestedEvent := &TorrentSearchRequestedEvent{Options: opts}
@@ -148,7 +160,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 	}
 
 	var cacheHit bool
-	if searchCacheKey != "" {
+	if searchCacheKey != "" && !fresh {
 		cache := getAnimeSearchCache(r.animeProviderSearchCaches, providerCacheKey)
 		ret, cacheHit = cache.Get(searchCacheKey)
 	}
@@ -166,7 +178,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 			ret.Previews = previews
 			if searchCacheKey != "" {
 				cache := getAnimeSearchCache(r.animeProviderSearchCaches, providerCacheKey)
-				cache.Set(searchCacheKey, ret)
+				setSearchCache(cache, searchCacheKey, ret, opts)
 			}
 		}
 
@@ -375,7 +387,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 
 	if searchCacheKey != "" {
 		cache := getAnimeSearchCache(r.animeProviderSearchCaches, providerCacheKey)
-		cache.Set(searchCacheKey, ret)
+		setSearchCache(cache, searchCacheKey, ret, opts)
 	}
 
 	if ret != nil {
@@ -491,6 +503,20 @@ func parseProviderIDs(provider string) []string {
 func getAnimeSearchCache(caches *result.Map[string, *result.Cache[string, *SearchData]], key string) *result.Cache[string, *SearchData] {
 	cache, _ := caches.LoadOrStore(key, result.NewCache[string, *SearchData]())
 	return cache
+}
+
+func setSearchCache(cache *result.Cache[string, *SearchData], key string, data *SearchData, opts AnimeSearchOptions) {
+	cache.SetT(key, data, searchCacheTTL(data, opts))
+}
+
+func searchCacheTTL(data *SearchData, opts AnimeSearchOptions) time.Duration {
+	if data == nil || len(data.Torrents) == 0 || (opts.Type == AnimeSearchTypeSmart && !opts.SkipPreviews && len(data.Previews) == 0) {
+		return searchMissTTL
+	}
+	if opts.Media != nil && opts.Media.GetStatus() != nil && *opts.Media.GetStatus() == anilist.MediaStatusReleasing {
+		return releasingSearchTTL
+	}
+	return constants.GcTime
 }
 
 func sortSearchData(data *SearchData) {

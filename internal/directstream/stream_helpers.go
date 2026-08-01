@@ -54,16 +54,17 @@ func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Conte
 		return
 	}
 
+	if _, err := reader.Seek(ra.Start, io.SeekStart); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	// Set response headers for partial content
 	w.Header().Set("Content-Range", ra.ContentRange(size))
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", ra.Length))
 	w.WriteHeader(http.StatusPartialContent)
-
-	// SeekToSlow to the requested position
-	_, err := reader.Seek(ra.Start, io.SeekStart)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if flusher, ok := w.(http.Flusher); ok {
+		flusher.Flush()
 	}
 
 	_, _ = copyWithContext(ctx, w, reader, ra.Length)
@@ -87,16 +88,17 @@ func serveTorrent(w http.ResponseWriter, r *http.Request, ctx context.Context, r
 		return
 	}
 
+	if _, err := reader.Seek(ra.Start, io.SeekStart); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	// Set response headers for partial content
 	w.Header().Set("Content-Range", ra.ContentRange(size))
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", ra.Length))
 	w.WriteHeader(http.StatusPartialContent)
-
-	// SeekToSlow to the requested position
-	_, err := reader.Seek(ra.Start, io.SeekStart)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if flusher, ok := w.(http.Flusher); ok {
+		flusher.Flush()
 	}
 
 	_, _ = copyWithContext(ctx, w, reader, ra.Length)

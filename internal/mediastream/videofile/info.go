@@ -312,22 +312,7 @@ func FfprobeGetInfo(ffprobePath, path, hash string) (*MediaInfo, error) {
 		return filename
 	})
 
-	var codecs []string
-	if len(mi.Videos) > 0 && mi.Videos[0].MimeCodec != nil {
-		codecs = append(codecs, *mi.Videos[0].MimeCodec)
-	}
-	if len(mi.Audios) > 0 && mi.Audios[0].MimeCodec != nil {
-		codecs = append(codecs, *mi.Audios[0].MimeCodec)
-	}
-	container := mime.TypeByExtension(fmt.Sprintf(".%s", mi.Extension))
-	if container != "" {
-		if len(codecs) > 0 {
-			codecsStr := strings.Join(codecs, ", ")
-			mi.MimeCodec = new(fmt.Sprintf("%s; codecs=\"%s\"", container, codecsStr))
-		} else {
-			mi.MimeCodec = &container
-		}
-	}
+	mi.MimeCodec = mediaMimeCodec(mi.Extension, mi.Videos, mi.Audios)
 
 	if len(mi.Videos) > 0 {
 		mi.Video = &mi.Videos[0]
@@ -364,102 +349,225 @@ func streamToMap[T any](streams []*ffprobe.Stream, kind ffprobe.StreamType, mapp
 }
 
 func streamToMimeCodec(stream *ffprobe.Stream) *string {
-	switch stream.CodecName {
+	switch strings.ToLower(stream.CodecName) {
 	case "h264":
-		ret := "avc1"
-
+		var profile string
 		switch strings.ToLower(stream.Profile) {
 		case "high":
-			ret += ".6400"
+			profile = "6400"
 		case "main":
-			ret += ".4D40"
+			profile = "4D40"
 		case "baseline":
-			ret += ".42E0"
+			profile = "4200"
+		case "constrained baseline":
+			profile = "42E0"
 		default:
-			// Default to constrained baseline if profile is invalid
-			ret += ".4240"
+			return nil
 		}
 
-		ret += fmt.Sprintf("%02x", stream.Level)
-		return &ret
+		if stream.Level <= 0 || stream.Level > 255 {
+			return nil
+		}
+
+		return new(fmt.Sprintf("avc1.%s%02X", profile, stream.Level))
 
 	case "h265", "hevc":
-		// The h265 syntax is a bit of a mystery at the time this comment was written.
-		// This is what I've found through various sources:
-		// FORMAT: [codecTag].[profile].[constraint?].L[level * 30].[UNKNOWN]
-		ret := "hvc1"
-
-		if stream.Profile == "main 10" {
-			ret += ".2.4"
-		} else {
-			ret += ".1.4"
-		}
-
-		ret += fmt.Sprintf(".L%02X.BO", stream.Level)
-		return &ret
-
-	case "av1":
-		// https://aomedia.org/av1/specification/annex-a/
-		// FORMAT: [codecTag].[profile].[level][tier].[bitDepth]
-		ret := "av01"
-
+		var profile string
 		switch strings.ToLower(stream.Profile) {
 		case "main":
-			ret += ".0"
-		case "high":
-			ret += ".1"
-		case "professional":
-			ret += ".2"
+			profile = "1.6"
+		case "main 10":
+			profile = "2.4"
 		default:
+			return nil
 		}
 
-		// not sure about this field, we want pixel bit depth
-		bitdepth, _ := strconv.ParseUint(stream.BitsPerRawSample, 10, 32)
-		if bitdepth != 8 && bitdepth != 10 && bitdepth != 12 {
-			// Default to 8 bits
-			bitdepth = 8
+		if stream.Level <= 0 || stream.Level > 255 {
+			return nil
 		}
 
-		tierflag := 'M'
-		ret += fmt.Sprintf(".%02X%c.%02d", stream.Level, tierflag, bitdepth)
+		return new(fmt.Sprintf("hvc1.%s.L%d.B0", profile, stream.Level))
 
-		return &ret
+	case "av1":
+		var profile string
+		switch strings.ToLower(stream.Profile) {
+		case "main":
+			profile = "0"
+		case "high":
+			profile = "1"
+		case "professional":
+			profile = "2"
+		default:
+			return nil
+		}
+
+		if stream.Level < 0 || stream.Level > 23 {
+			return nil
+		}
+
+		bitDepth, ok := videoBitDepth(stream)
+		if !ok {
+			return nil
+		}
+
+		return new(fmt.Sprintf("av01.%s.%02dM.%02d", profile, stream.Level, bitDepth))
+
+	case "vp9":
+		var profile string
+		var bitDepth uint64
+		switch strings.ToLower(stream.Profile) {
+		case "profile 0":
+			profile = "00"
+			bitDepth = 8
+		case "profile 1":
+			profile = "01"
+			bitDepth = 8
+		case "profile 2":
+			profile = "02"
+		case "profile 3":
+			profile = "03"
+		default:
+			return nil
+		}
+
+		if !isVP9Level(stream.Level) {
+			return nil
+		}
+
+		if profile == "02" || profile == "03" {
+			var ok bool
+			bitDepth, ok = videoBitDepth(stream)
+			if !ok || (bitDepth != 10 && bitDepth != 12) {
+				return nil
+			}
+		}
+
+		return new(fmt.Sprintf("vp09.%s.%02d.%02d", profile, stream.Level, bitDepth))
+
+	case "vp8":
+		return new("vp8")
 
 	case "aac":
-		ret := "mp4a"
-
 		switch strings.ToLower(stream.Profile) {
-		case "he":
-			ret += ".40.5"
 		case "lc":
-			ret += ".40.2"
+			return new("mp4a.40.2")
+		case "he", "he-aac":
+			return new("mp4a.40.5")
+		case "he-aacv2", "he-aac v2", "he v2":
+			return new("mp4a.40.29")
 		default:
-			ret += ".40.2"
+			return nil
 		}
 
-		return &ret
-
 	case "opus":
-		ret := "Opus"
-		return &ret
+		return new("opus")
+
+	case "mp3":
+		return new("mp3")
+
+	case "vorbis":
+		return new("vorbis")
 
 	case "ac3":
-		ret := "mp4a.a5"
-		return &ret
+		return new("ac-3")
 
 	case "eac3":
-		ret := "mp4a.a6"
-		return &ret
+		return new("ec-3")
 
 	case "flac":
-		ret := "fLaC"
-		return &ret
+		return new("fLaC")
 
 	case "alac":
-		ret := "alac"
-		return &ret
+		return new("alac")
 	default:
 		return nil
+	}
+}
+
+func mediaMimeCodec(extension string, videos []Video, audios []Audio) *string {
+	container := containerMimeType(extension)
+	if container == "" {
+		return nil
+	}
+
+	codecs := make([]string, 0, 2)
+	if len(videos) > 0 {
+		if videos[0].MimeCodec == nil || *videos[0].MimeCodec == "" {
+			return nil
+		}
+		codecs = append(codecs, *videos[0].MimeCodec)
+	}
+
+	if len(audios) > 0 {
+		audio := &audios[0]
+		for i := range audios {
+			if audios[i].IsDefault {
+				audio = &audios[i]
+				break
+			}
+		}
+		if audio.MimeCodec == nil || *audio.MimeCodec == "" {
+			return nil
+		}
+		codecs = append(codecs, *audio.MimeCodec)
+	}
+
+	if len(codecs) == 0 {
+		return nil
+	}
+
+	return new(fmt.Sprintf("%s; codecs=\"%s\"", container, strings.Join(codecs, ", ")))
+}
+
+func containerMimeType(extension string) string {
+	extension = strings.ToLower(strings.TrimPrefix(extension, "."))
+	switch extension {
+	case "mkv":
+		return "video/matroska"
+	case "mka":
+		return "audio/matroska"
+	case "mk3d":
+		return "video/matroska-3d"
+	case "mp4", "m4v":
+		return "video/mp4"
+	case "webm":
+		return "video/webm"
+	case "mov":
+		return "video/quicktime"
+	case "avi":
+		return "video/x-msvideo"
+	case "":
+		return ""
+	default:
+		return mime.TypeByExtension("." + extension)
+	}
+}
+
+func videoBitDepth(stream *ffprobe.Stream) (uint64, bool) {
+	bitDepth, err := strconv.ParseUint(stream.BitsPerRawSample, 10, 32)
+	if err == nil && (bitDepth == 8 || bitDepth == 10 || bitDepth == 12) {
+		return bitDepth, true
+	}
+
+	pixFmt := strings.ToLower(stream.PixFmt)
+	switch {
+	case strings.Contains(pixFmt, "12"):
+		return 12, true
+	case strings.Contains(pixFmt, "10"):
+		return 10, true
+	case pixFmt != "" && !strings.Contains(pixFmt, "16"):
+		return 8, true
+	default:
+		return 0, false
+	}
+}
+
+func isVP9Level(level int) bool {
+	switch level {
+	case 10, 11, 20, 21, 30, 31, 40, 41, 50, 51, 52, 60, 61, 62:
+		return true
+	default:
+		return false
 	}
 }
 

@@ -1,74 +1,154 @@
-# Contribution Guide
+# Contributing to Seanime
 
-All contributions are welcome _if_ they are in the scope of the project. If you're not sure about something, feel free to ask.
+Contributions are welcome when they are focused, maintainable, and aligned with the project.
 
-## Guidelines
+Before opening a pull request, take the time to understand the relevant part of the codebase, follow the existing conventions, and verify your changes locally.
 
-- Make sure you are familiar with Go and React.
-- Your contributions must be small and focused. If you want to add a new feature that requires substantial changes or additions to the codebase, please contact the dev first.
-- Make sure your changes are in line with the project's goals (Create a feature request if you're unsure).
-- Make sure your changes are well tested and do not introduce any new issues or regressions.
-- You should try and make your changes against the **most active branch**, which is usually the `main` branch but
-  may be different when a new version is being developed.
+Pull requests that are too large, poorly scoped, generated without understanding, or inconsistent with the project structure may be closed without review.
 
-## How to contribute
+## Get approval
 
-1. Create an issue before starting work on a feature or a bug fix.
-2. Fork the repository, clone it, and create a new branch.
+Open an issue (bug report/feature request) first and **get approval**. This is to avoid wasting your time on something that may not be accepted.
+Implementation details MUST be discussed beforehand in the issue.
 
-	```shell
-	# Clone your fork of the repo
-	git clone https://github.com/<your-username>/seanime.git
-	# Navigate to the directory
-	cd seanime
-	# Assign to a remote called "upstream"
-	git remote add upstream https://github.com/5rahim/seanime.git
-	```
+Before planning your contribution:
 
-3. Get the latest changes from the original repository.
+- Set up Seanime locally and make sure it runs.
+- Read the surrounding code before changing it.
+- Keep the change small and focused.
+- Follow the existing structure and coding style.
+- Test your changes locally.
+- Be prepared to explain and maintain the code you submit.
 
-	```shell
-	git fetch --all
-	git rebase upstream/main
-	```
+**Do not submit large or speculative PRs without prior discussion.**
 
-4. Create a new branch for your feature or bug fix off of the `main` branch.
+First-time contributors should start with small bug fixes, tests, or minor scoped changes.
 
-	```shell
-	git checkout -b <feature-branch> main
-	```
+## AI-Assisted Contributions
 
-5. Make your changes, test and commit them.
+AI tools may be used, but you are responsible for everything you submit.
 
-6. Locally rebase your changes on top of the latest changes from the original repository.
+> [!IMPORTANT]
+> If you can't understand or debug it, don't submit it. Do not expect maintainers to rewrite, restructure, or debug AI-generated changes for you.
 
-	```shell
-	git pull --rebase upstream main
-	```
 
-7. Push your changes to your fork.
+If you used AI tools for research, code generation, refactoring, tests, debugging, or documentation, include an `AI Disclosure` section in your PR:
 
-	```shell
-	git push -u origin <feature-branch>
-	```
+```markdown
+## AI Disclosure
 
-8. Create a pull request to the `main` branch of the original repository.
+- Tool(s) used:
+- What AI was used for:
+- Relevant prompts or instructions:
+- What you manually reviewed or changed:
+- How you verified the change fits Seanime's architecture:
+```
 
-9. Wait for the maintainers to review your pull request.
+These AI guidelines are not meant to discourage AI use but to help ensure that contributors put more effort into their contributions.
 
-10. Make changes if requested.
+## Pull Request Descriptions
 
-11. Once your pull request is approved, it will be merged.
+Write the PR description **in your own words**.
 
-12. Keep your fork in sync with the original repository.
+Do not submit an AI-generated summary of the diff. Explain the reasoning in your own words:
 
-	```shell
-	git fetch --all
-	git checkout main
-	git rebase upstream/main
-	git push -u origin main
-	```
+* What problem does this solve?
+* What changed?
+* Why was this approach chosen?
+* How was it tested?
+* Are there risks, tradeoffs, or limitations?
+* Was AI used?
 
-## Areas
+## Coding Style
 
-[Issues](https://github.com/5rahim/seanime/issues?q=is%3Aissue+is%3Aopen+label%3A%22open+to+contribution%22)
+Seanime favors simple, pragmatic code.
+
+* Match the style of the surrounding code.
+* Prefer direct code over clever abstractions.
+* Avoid unnecessary wrappers, interfaces, or indirection.
+* Avoid unrelated formatting changes.
+* Avoid broad file moves or reorganizations.
+* Keep comments concise and useful. (AI-generated comments will not be accepted.)
+
+## Generated Files
+
+Do not manually edit generated files, including:
+
+* `codegen/generated/`
+* `seanime-web/src/api/generated/`
+* `seanime-web/src/routeTree.gen.ts`
+
+If handler signatures, routes, or returned structs change, update the routes in:
+
+```text
+internal/handlers/routes.go
+```
+
+Then run:
+
+```bash
+go generate ./codegen/main.go
+```
+
+## Development Workflow
+
+See [DEVELOPMENT_AND_BUILD.md](DEVELOPMENT_AND_BUILD.md) for setup, backend, frontend, and build instructions.
+
+> [!IMPORTANT]
+> To avoid merge conflicts, always make changes against the most active branch! It's not always `main`.
+
+Recommended workflow:
+
+```bash
+git remote add upstream https://github.com/5rahim/seanime.git
+git checkout main
+git pull upstream main
+git checkout -b <feature-or-fix-name>
+```
+
+Before opening a PR:
+
+```bash
+git pull --rebase upstream main
+```
+
+Then push your branch and open a PR against `main`.
+
+## Testing
+
+All changes must be verified locally.
+
+For Go changes, add relevant tests when appropriate. Use `{file}_test.go`; do not use names like `{file}_regression_test.go`.
+
+Use shared test helpers instead of local stubs or ad hoc fakes:
+
+* `internal/testmocks/NewFakePlatformBuilder()`
+* `internal/testmocks/NewFakeMetadataProviderBuilder()`
+* `internal/testmocks/NewBaseAnimeBuilder()`
+* `internal/testmocks/NewBaseMangaBuilder()`
+
+For tests involving library entries, use the helpers in:
+
+```text
+internal/library/anime/test_wrapper_test.go
+```
+
+Run the relevant tests before submitting:
+
+```bash
+go test ./path/to/package/...
+```
+
+## PR Checklist
+
+Before opening a PR, confirm that:
+
+* [ ] I set up Seanime locally.
+* [ ] I understand the code I changed.
+* [ ] My PR is small and focused.
+* [ ] I followed the existing coding style.
+* [ ] I avoided unrelated changes.
+* [ ] I tested the change locally.
+* [ ] I wrote the PR description myself.
+* [ ] I disclosed any AI assistance.
+* [ ] I can explain and maintain this change.

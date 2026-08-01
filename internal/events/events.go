@@ -55,6 +55,8 @@ const (
 	RefreshedMangaDownloadData  = "refreshed-manga-download-data"
 	ChapterDownloadQueueUpdated = "chapter-download-queue-updated"
 	OfflineSnapshotCreated      = "offline-snapshot-created"
+	MangaPreferencesUpdated     = "manga-preferences-updated"
+	MangaSourceRefreshUpdated   = "manga-source-refresh-job-updated"
 
 	MediastreamShutdownStream = "mediastream-shutdown-stream"
 
@@ -85,6 +87,7 @@ const (
 
 	ShowIndefiniteLoader = "show-indefinite-loader"
 	HideIndefiniteLoader = "hide-indefinite-loader"
+	AnilistRateLimit     = "anilist-rate-limit"
 	ClientIdentity       = "client-identity"
 
 	// Nakama events

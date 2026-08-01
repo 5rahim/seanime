@@ -40,6 +40,10 @@ type (
 		serverUri        string
 		wsEventManager   events.WSEventManagerInterface
 		mu               sync.Mutex
+		preferencesMu    sync.Mutex
+		sourceRefreshMu  sync.Mutex
+		sourceRefresh    *mangaSourceRefreshState
+		sourceRefreshLog map[string]mangaSourceRefreshCompleted
 		downloadDir      string
 		db               *db.Database
 
@@ -68,6 +72,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		downloadDir:      opts.DownloadDir,
 		extensionBankRef: opts.ExtensionBankRef,
 		db:               opts.Database,
+		sourceRefreshLog: make(map[string]mangaSourceRefreshCompleted),
 	}
 	return r
 }

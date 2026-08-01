@@ -74,6 +74,7 @@ func (h *Handler) HandleGetOnlineStreamEpisodeSource(c echo.Context) error {
 		MediaId       int    `json:"mediaId"`
 		Provider      string `json:"provider"`
 		Dubbed        bool   `json:"dubbed"`
+		Refresh       bool   `json:"refresh,omitempty"`
 	}
 
 	var b body
@@ -88,7 +89,7 @@ func (h *Handler) HandleGetOnlineStreamEpisodeSource(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	sources, err := h.App.OnlinestreamRepository.GetEpisodeSources(c.Request().Context(), b.Provider, b.MediaId, b.EpisodeNumber, b.Dubbed, media.GetStartYearSafe())
+	sources, err := h.App.OnlinestreamRepository.GetEpisodeSources(c.Request().Context(), b.Provider, b.MediaId, b.EpisodeNumber, b.Dubbed, media.GetStartYearSafe(), b.Refresh)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

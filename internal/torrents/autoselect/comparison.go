@@ -271,22 +271,16 @@ func (s *AutoSelect) filterCandidates(candidates []*candidate, profile *anime.Au
 		// Language requirement
 		if profile.RequireLanguage && len(preferredLanguages) > 0 {
 			foundLang := false
-			// Check parsed language
-			if len(parsed.Language) > 0 {
-				for _, lang := range preferredLanguages {
-					if slices.ContainsFunc(parsed.Language, func(pl string) bool {
-						return strings.EqualFold(pl, lang)
-					}) {
-						foundLang = true
-						break
-					}
+			for _, lang := range preferredLanguages {
+				if slices.ContainsFunc(parsed.Language, func(pl string) bool {
+					return strings.EqualFold(pl, lang)
+				}) {
+					foundLang = true
+					break
 				}
-			} else { // Fallback to string matching
-				for _, lang := range preferredLanguages {
-					if len(lang) > 3 && containsBoundedTerm(c.lowerName, lang) {
-						foundLang = true
-						break
-					}
+				if len(lang) > 3 && containsBoundedTerm(c.lowerName, lang) {
+					foundLang = true
+					break
 				}
 			}
 			if !foundLang {

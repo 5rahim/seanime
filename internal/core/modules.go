@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
@@ -36,6 +38,8 @@ import (
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrent_clients/transmission"
+	"seanime/internal/torrents/autoselect"
+	torrent_availability "seanime/internal/torrents/availability"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
 	"seanime/internal/user"
@@ -137,6 +141,39 @@ func (a *App) initModulesOnce() {
 			a.TorrentClientRepository.Shutdown()
 		}
 	})
+
+	availabilitySearch := autoselect.New(&autoselect.NewAutoSelectOptions{
+		Logger:            a.Logger,
+		TorrentRepository: a.TorrentRepository,
+		MetadataProvider:  a.MetadataProviderRef,
+		Platform:          a.AnilistPlatformRef,
+	})
+	episodeAvailability := torrent_availability.NewMonitor(
+		func(ctx context.Context, providerID string, media *anilist.BaseAnime, episodeNumber int) (bool, error) {
+			torrents, err := availabilitySearch.SearchFresh(ctx, media, episodeNumber, &anime.AutoSelectProfile{
+				Providers: []string{providerID},
+			})
+			if errors.Is(err, autoselect.ErrNoTorrentsFound) {
+				return false, nil
+			}
+			return len(torrents) > 0, err
+		},
+		func() (string, bool) {
+			provider, found := a.TorrentRepository.GetSelectedAnimeProviderExtension()
+			if !found {
+				return "", false
+			}
+			return provider.GetID(), true
+		},
+		func() {
+			a.WSEventManager.SendEvent(events.InvalidateQueries, []string{
+				events.GetLibraryCollectionEndpoint,
+				events.GetMissingEpisodesEndpoint,
+			})
+		},
+	)
+	a.episodeAvailability = episodeAvailability
+	a.AddCleanupFunction(episodeAvailability.Stop)
 
 	// +---------------------+
 	// |  Manga Downloader   |
@@ -299,6 +336,7 @@ func (a *App) initModulesOnce() {
 		PlaybackManager:     a.PlaybackManager,
 		TorrentRepository:   a.TorrentRepository,
 		DirectStreamManager: a.DirectStreamManager,
+		DummyDebridEnabled:  a.FeatureFlags.DummyDebrid,
 	})
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
@@ -821,6 +859,35 @@ func (a *App) InitOrRefreshDebridSettings() {
 		a.Logger.Error().Err(err).Msg("app: Failed to initialize debrid provider")
 		return
 	}
+}
+
+func (a *App) InitOrRefreshDummyDebridSettings() {
+	settings, found := a.Database.GetDummyDebridSettings()
+	if !found {
+		var err error
+		settings, err = a.Database.UpsertDummyDebridSettings(&models.DummyDebridSettings{
+			BaseModel: models.BaseModel{
+				ID: 1,
+			},
+			Enabled:                 false,
+			ProfileName:             "Dummy Profile",
+			FallbackFilePath:        "",
+			Files:                   models.DummyDebridFiles{},
+			Cached:                  true,
+			ReadyDelayMs:            1500,
+			ProgressIntervalMs:      250,
+			FirstByteDelayMs:        350,
+			BandwidthBytesPerSecond: 8 * 1024 * 1024,
+			ChunkSize:               64 * 1024,
+			JitterMs:                30,
+		})
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to initialize dummy debrid settings")
+			return
+		}
+	}
+
+	a.SecondarySettings.DummyDebrid = settings
 }
 
 // InitOrRefreshAnilistData will initialize the Anilist anime collection and the account.

@@ -28,6 +28,7 @@ var additionalStructNames = []string{
 	"nativeplayer.PlaybackInfo",
 	"nativeplayer.ServerEvent",
 	"nativeplayer.ClientEvent",
+	"nativeplayer.SubtitleEventsPayload",
 	"mkvparser.SubtitleEvent",
 	"nakama.NakamaStatus",
 	"core.FeatureKey",

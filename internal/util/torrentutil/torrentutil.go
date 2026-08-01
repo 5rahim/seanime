@@ -1,6 +1,7 @@
 package torrentutil
 
 import (
+	"context"
 	"fmt"
 	"io"
 	httputil "seanime/internal/util/http"
@@ -39,6 +40,7 @@ type priorityManager struct {
 	file      *torrent.File
 	logger    *zerolog.Logger
 	createdAt time.Time
+	set       map[int64]torrent.PiecePriority
 }
 
 // global map to track priority managers per torrent+file combination
@@ -46,6 +48,7 @@ var (
 	priorityManagers    = make(map[string]*priorityManager)
 	priorityManagersMu  sync.RWMutex
 	priorityCleanupOnce sync.Once
+	nextReaderId        atomic.Uint64
 )
 
 // getPriorityManager gets or creates a priority manager for a torrent+file combination
@@ -55,7 +58,7 @@ func getPriorityManager(t *torrent.Torrent, file *torrent.File, logger *zerolog.
 	priorityManagersMu.Lock()
 	defer priorityManagersMu.Unlock()
 
-	if pm, exists := priorityManagers[key]; exists {
+	if pm, exists := priorityManagers[key]; exists && pm.torrent == t {
 		return pm
 	}
 
@@ -65,6 +68,7 @@ func getPriorityManager(t *torrent.Torrent, file *torrent.File, logger *zerolog.
 		file:      file,
 		logger:    new(logger.Sample(&zerolog.BasicSampler{N: 20})),
 		createdAt: time.Now(),
+		set:       make(map[int64]torrent.PiecePriority),
 	}
 	priorityManagers[key] = pm
 
@@ -251,35 +255,34 @@ func (pm *priorityManager) updatePriorities() {
 		}
 	}
 
-	// Reset pieces that are no longer needed by any reader
+	// Reset only pieces changed by this manager. Scanning the full file here can delay HTTP range responses on large torrents.
 	isStartup := time.Since(pm.createdAt) < 60*time.Second
 	headEndPieceIdx := fileFirstPieceIdx + (8 * 1024 * 1024 / pieceLength)
 	tailStartPieceIdx := fileLastPieceIdx - (4 * 1024 * 1024 / pieceLength)
 
-	for idx := fileFirstPieceIdx; idx <= fileLastPieceIdx; idx++ {
-		if idx < 0 || idx >= numTorrentPieces {
+	next := make(map[int64]torrent.PiecePriority, len(neededPieces)+len(pm.set))
+	for idx, priority := range pm.set {
+		if _, needed := neededPieces[idx]; needed {
 			continue
 		}
 
-		piece := t.Piece(int(idx))
-		currentPriority := piece.State().Priority
+		if isStartup && (idx <= headEndPieceIdx || idx >= tailStartPieceIdx) {
+			next[idx] = priority
+			continue
+		}
 
-		if neededPriority, needed := neededPieces[idx]; needed {
-			// Set to the highest priority needed by any reader
-			if currentPriority != neededPriority {
-				piece.SetPriority(neededPriority)
-			}
-		} else {
-			// Don't downgrade head and tail pieces during startup if they are already higher than Normal
-			if isStartup && (idx <= headEndPieceIdx || idx >= tailStartPieceIdx) {
-				continue
-			}
-			// Only reset to normal if not completely unwanted and not already at highest priority
-			if currentPriority != torrent.PiecePriorityNone && currentPriority != torrent.PiecePriorityNow {
-				piece.SetPriority(torrent.PiecePriorityNormal)
-			}
+		if idx >= fileFirstPieceIdx && idx <= fileLastPieceIdx && idx >= 0 && idx < numTorrentPieces {
+			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNormal)
 		}
 	}
+
+	for idx, priority := range neededPieces {
+		if current, ok := pm.set[idx]; !ok || current != priority {
+			t.Piece(int(idx)).SetPriority(priority)
+		}
+		next[idx] = priority
+	}
+	pm.set = next
 
 	if pm.logger != nil {
 		pm.logger.Debug().Msgf("torrentutil: Updated priorities for %d readers, %d pieces prioritized", len(pm.readers), len(neededPieces))
@@ -288,30 +291,17 @@ func (pm *priorityManager) updatePriorities() {
 
 // resetAllPriorities resets all file pieces to normal priority
 func (pm *priorityManager) resetAllPriorities() {
-	if pm.torrent == nil || pm.file == nil || pm.torrent.Info() == nil {
+	if pm.torrent == nil {
 		return
 	}
 
-	t := pm.torrent
-	file := pm.file
-	pieceLen := t.Info().PieceLength
-
-	if pieceLen == 0 {
-		return
-	}
-
-	numTorrentPieces := int64(t.NumPieces())
-	fileFirstPieceIdx := file.Offset() / pieceLen
-	fileLastPieceIdx := (file.Offset() + file.Length() - 1) / pieceLen
-
-	for idx := fileFirstPieceIdx; idx <= fileLastPieceIdx; idx++ {
-		if idx >= 0 && idx < numTorrentPieces {
-			piece := t.Piece(int(idx))
-			if piece.State().Priority != torrent.PiecePriorityNone {
-				piece.SetPriority(torrent.PiecePriorityNormal)
-			}
+	numPieces := int64(pm.torrent.NumPieces())
+	for idx := range pm.set {
+		if idx >= 0 && idx < numPieces {
+			pm.torrent.Piece(int(idx)).SetPriority(torrent.PiecePriorityNormal)
 		}
 	}
+	clear(pm.set)
 }
 
 // cleanupStaleReaders removes readers that haven't been accessed recently.
@@ -331,6 +321,7 @@ func (pm *priorityManager) cleanupStaleReaders(now time.Time) bool {
 	}
 
 	if len(pm.readers) == 0 {
+		pm.resetAllPriorities()
 		return true
 	}
 
@@ -357,11 +348,14 @@ type ReadSeeker struct {
 	position        atomic.Int64
 	lastPriorityPos atomic.Int64
 	updateStride    int64
+	mu              sync.Mutex
+	closeOnce       sync.Once
+	closeErr        error
 }
 
 var _ io.ReadSeekCloser = &ReadSeeker{}
 
-func NewReadSeeker(t *torrent.Torrent, file *torrent.File, logger ...*zerolog.Logger) io.ReadSeekCloser {
+func NewReadSeeker(t *torrent.Torrent, file *torrent.File, logger ...*zerolog.Logger) *ReadSeeker {
 	tr := file.NewReader()
 	tr.SetResponsive()
 	// Read ahead 5MB for better streaming performance
@@ -380,7 +374,7 @@ func NewReadSeeker(t *torrent.Torrent, file *torrent.File, logger ...*zerolog.Lo
 	pm := getPriorityManager(t, file, loggerPtr)
 
 	rs := &ReadSeeker{
-		id:              fmt.Sprintf("reader_%d_%d", time.Now().UnixNano(), len(pm.readers)),
+		id:              fmt.Sprintf("reader_%d", nextReaderId.Add(1)),
 		torrent:         t,
 		file:            file,
 		reader:          tr,
@@ -395,8 +389,14 @@ func NewReadSeeker(t *torrent.Torrent, file *torrent.File, logger ...*zerolog.Lo
 	return rs
 }
 
+func (rs *ReadSeeker) SetContext(ctx context.Context) {
+	rs.reader.SetContext(ctx)
+}
+
 func (rs *ReadSeeker) Read(p []byte) (n int, err error) {
+	rs.mu.Lock()
 	n, err = rs.reader.Read(p)
+	rs.mu.Unlock()
 	if n > 0 {
 		newOffset := rs.position.Add(int64(n))
 		if rs.shouldRefreshPriority(newOffset) {
@@ -410,7 +410,9 @@ func (rs *ReadSeeker) Read(p []byte) (n int, err error) {
 }
 
 func (rs *ReadSeeker) Seek(offset int64, whence int) (int64, error) {
+	rs.mu.Lock()
 	newOffset, err := rs.reader.Seek(offset, whence)
+	rs.mu.Unlock()
 	if err != nil {
 		if rs.logger != nil {
 			rs.logger.Error().Err(err).Int64("offset", offset).Int("whence", whence).Msg("torrentutil: ReadSeeker seek error")
@@ -450,13 +452,15 @@ func getPriorityUpdateStride(t *torrent.Torrent) int64 {
 // Close closes the underlying torrent file reader and unregisters from priority manager.
 // This makes ReadSeeker implement io.ReadSeekCloser.
 func (rs *ReadSeeker) Close() error {
-	// Unregister from priority manager
-	rs.priorityManager.unregisterReader(rs.id)
-
-	if rs.reader != nil {
-		return rs.reader.Close()
-	}
-	return nil
+	rs.closeOnce.Do(func() {
+		if rs.reader != nil {
+			rs.mu.Lock()
+			rs.closeErr = rs.reader.Close()
+			rs.mu.Unlock()
+		}
+		rs.priorityManager.unregisterReader(rs.id)
+	})
+	return rs.closeErr
 }
 
 // PrioritizeDownloadPieces sets piece priorities for the initial download windows.

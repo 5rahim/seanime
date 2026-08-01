@@ -374,6 +374,8 @@ func (h *Handler) HandleDeleteLocalFiles(c echo.Context) error {
 
 	anime.ClearMissingEpisodesCache()
 
+	go h.App.UpdateLibrarySize(true)
+
 	return h.RespondWithData(c, true)
 }
 

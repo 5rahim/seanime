@@ -298,6 +298,10 @@ func (m *WatchPartyGenericPlayer) Subscribe(id string) *WatchPartyPlaybackSubscr
 	go func() {
 		defer util.HandlePanicInModuleThen("nakama/Subscribe", func() {})
 		for e := range playbackManagerSubscriber.EventCh {
+			switch e.(type) {
+			case playbackmanager.StreamStartedEvent, playbackmanager.VideoStartedEvent:
+				m.SetType(WatchPartyPlaybackManager)
+			}
 			if !m.isPlaybackManager() {
 				continue
 			}
@@ -333,10 +337,18 @@ func (m *WatchPartyGenericPlayer) Subscribe(id string) *WatchPartyPlaybackSubscr
 	go func() {
 		defer util.HandlePanicInModuleThen("nakama/Subscribe", func() {})
 		for e := range mediacoreSubscriber.Events() {
+			target := e.GetSessionKey().Target
+			switch e.(type) {
+			case *player.PlaybackLoadedEvent, *player.LoadedMetadataEvent, *player.StatusEvent:
+				if target == player.TargetVideoCore {
+					m.SetType(WatchPartyVideoCore)
+				} else if target == player.TargetMpvCore {
+					m.SetType(WatchPartyMpvCore)
+				}
+			}
 			if m.isPlaybackManager() {
 				continue
 			}
-			target := e.GetSessionKey().Target
 			if target == player.TargetVideoCore && !m.isVideoCore() {
 				continue
 			}

@@ -41,10 +41,11 @@ export function useGetOnlineStreamEpisodeSource(id: Nullish<string | number>,
     dubbed: boolean,
     enabled: boolean,
 ) {
+    const queryKey = __getOnlineStreamEpisodeSourceQueryKey(id, provider, episodeNumber, dubbed)
     return useServerQuery<Onlinestream_EpisodeSource, GetOnlineStreamEpisodeSource_Variables>({
         endpoint: API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.endpoint,
         method: API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.methods[0],
-        queryKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.key, String(id), provider, episodeNumber, dubbed],
+        queryKey,
         data: {
             mediaId: Number(id),
             episodeNumber: episodeNumber!,
@@ -54,6 +55,32 @@ export function useGetOnlineStreamEpisodeSource(id: Nullish<string | number>,
         enabled: enabled && !!provider,
         muteError: true,
         gcTime: 0,
+    })
+}
+
+export function __getOnlineStreamEpisodeSourceQueryKey(id: Nullish<string | number>,
+    provider: Nullish<string>,
+    episodeNumber: Nullish<number>,
+    dubbed: boolean,
+) {
+    return [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.key, String(id), provider, episodeNumber, dubbed] as const
+}
+
+export function useRefreshOnlineStreamEpisodeSource() {
+    const qc = useQueryClient()
+
+    return useServerMutation<Onlinestream_EpisodeSource, GetOnlineStreamEpisodeSource_Variables>({
+        endpoint: API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.endpoint,
+        method: API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.methods[0],
+        mutationKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.key, "refresh"],
+        onError: () => {},
+        onSuccess: (data, variables) => {
+            if (!data) return
+            qc.setQueryData(
+                __getOnlineStreamEpisodeSourceQueryKey(variables.mediaId, variables.provider, variables.episodeNumber, variables.dubbed),
+                data,
+            )
+        },
     })
 }
 

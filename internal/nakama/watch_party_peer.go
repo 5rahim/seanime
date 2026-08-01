@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"seanime/internal/customsource"
 	"seanime/internal/directstream"
 	"seanime/internal/events"
 	"seanime/internal/player"
@@ -323,6 +324,10 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 	wpm.mu.Lock()
 	defer wpm.mu.Unlock()
 
+	if payload.Session != nil && payload.Session.CurrentMediaInfo != nil {
+		wpm.translateMediaInfo(payload.Session.CurrentMediaInfo)
+	}
+
 	hostConn, ok := wpm.manager.GetHostConnection() // should always be ok
 	if !ok {
 		return
@@ -390,11 +395,14 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		// Reset the player params
 		wpm.manager.genericPlayer.Reset()
 
-		// Fetch the media info
-		media, err := wpm.manager.platformRef.Get().GetAnime(context.Background(), payload.Session.CurrentMediaInfo.MediaId)
+		media, err := wpm.getSessionMedia(context.Background(), payload.Session.CurrentMediaInfo)
 		if err != nil {
 			wpm.logger.Error().Err(err).Msg("nakama: Failed to fetch media info for watch party")
 			return
+		}
+
+		if customsource.IsExtensionId(media.ID) {
+			wpm.manager.wsEventManager.SendEvent(events.WarningToast, "Progress tracking will not be available for custom sources.")
 		}
 
 		// Start the media on the peer
@@ -429,7 +437,10 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 			payload.Session.CurrentMediaInfo.TorrentStreamParams.ClientId = wpm.clientId
 			if wpm.manager.GetUseDenshiPlayer() {
 				payload.Session.CurrentMediaInfo.TorrentStreamParams.PlaybackType = torrentstream.PlaybackTypeNativePlayer
+			} else {
+				payload.Session.CurrentMediaInfo.TorrentStreamParams.PlaybackType = torrentstream.PlaybackTypeExternal
 			}
+			payload.Session.CurrentMediaInfo.TorrentStreamParams.SetMedia(media)
 
 			wpm.logger.Debug().Interface("params", payload.Session.CurrentMediaInfo.TorrentStreamParams).Msg("nakama: Starting torrent stream")
 
@@ -523,8 +534,9 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 	// Session stopped
 	//
 
-	// If the host stopped the session, we need to cancel playback
-	if payload.Session.CurrentMediaInfo == nil && currentSession.CurrentMediaInfo != nil && !canceledPlayback {
+	// If the host stopped the session and this peer is a participant, cancel playback.
+	_, isParticipantS := currentSession.Participants[hostConn.PeerId]
+	if payload.Session.CurrentMediaInfo == nil && currentSession.CurrentMediaInfo != nil && !canceledPlayback && isParticipantS {
 		wpm.logger.Debug().Msg("nakama: Canceling playback due to host stopping session")
 		// Before stopping playback, unsubscribe from the playback listener
 		// This is to prevent the peer from auto-leaving the watch party when host stops playback
@@ -708,11 +720,13 @@ func (wpm *WatchPartyManager) relayModeListenToPlayerAsOrigin() {
 						newStream = false
 
 						// relay origin started a new stream, send the payload to the relay host
+						media, _ := wpm.manager.currentPlaybackMedia()
 						_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyRelayModeOriginStreamStarted, &WatchPartyRelayModeOriginStreamStartedPayload{
 							Filename:            event.Filename,
 							Filepath:            event.Filepath,
 							StreamType:          event.State.StreamType,
 							LocalFilePath:       streamStartedPayload.LocalFilePath,
+							Media:               media,
 							TorrentStreamParams: streamStartedPayload.TorrentStreamParams,
 							DebridStreamParams:  streamStartedPayload.DebridStreamParams,
 							OnlinestreamParams:  streamStartedPayload.OnlinestreamParams,

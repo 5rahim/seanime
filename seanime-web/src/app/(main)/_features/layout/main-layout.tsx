@@ -30,6 +30,7 @@ import { useSyncListener } from "@/app/(main)/_listeners/sync.listeners"
 import { useTorrentStreamListener } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { PlaybackPlayPill } from "@/app/(main)/entry/_containers/torrent-stream/playback-play-pill"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
+import { MangaPreferencesSync, MangaSourceRefreshSync } from "@/app/(main)/manga/_lib/manga-preferences-sync"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import { usePathname, useRouter } from "@/lib/navigation"
@@ -40,6 +41,7 @@ import { useInvalidateQueriesListener } from "../../_listeners/invalidate-querie
 import { Announcements } from "../announcements"
 import { NakamaManager } from "../nakama/nakama-manager"
 import { NakamaWatchPartyChat, NakamaWatchPartyChatProvider } from "../nakama/nakama-watch-party-chat"
+import { RateLimitLoader } from "../rate-limit-loader"
 import { TopIndefiniteLoader } from "../top-indefinite-loader"
 
 const MpvCoreLazyWrapper = React.lazy(() => import("@/app/(main)/_features/mpv-core/mpv-core-lazy-wrapper"))
@@ -51,6 +53,8 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
     return (
         <>
             <Loader />
+            <MangaPreferencesSync />
+            <MangaSourceRefreshSync />
             <ScanProgressBar />
             <LibraryWatcher />
             <ScannerModal />
@@ -79,6 +83,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <NakamaWatchPartyChatProvider />
             <NakamaWatchPartyChat />
             <TopIndefiniteLoader />
+            <RateLimitLoader />
             <Announcements />
             <LibraryExplorerDrawer />
             <PluginWebviewSlot slot="fixed" />

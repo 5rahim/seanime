@@ -186,6 +186,7 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
             switch (state) {
                 case TorrentStreamEvents.TorrentLoading:
                     if (!data) {
+                        setAutoSelectState(null)
                         t.current = setTimeout(() => {
                             setLoadingState("SEARCHING_TORRENTS")
                             setStatus(null)
@@ -231,19 +232,27 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
             ;
         (window as any).__debugDebridStream = (data: DebridClient_StreamState | null) => {
             if (data) {
-                if (data.status === "downloading" || data.status === "started") {
+                if (data.status === "downloading") {
                     setDebridState(data)
+                    setShowMediaPlayerLoading(false)
+                    return
+                }
+                if (data.status === "started") {
+                    setDebridState(null)
+                    setAutoSelectState(null)
                     setShowMediaPlayerLoading(false)
                     return
                 }
                 if (data.status === "failed") {
                     setDebridState(null)
+                    setAutoSelectState(null)
                     toast.error(data.message)
                     setShowMediaPlayerLoading(false)
                     return
                 }
                 if (data.status === "ready") {
                     setDebridState(null)
+                    setAutoSelectState(null)
                     toast.info("Sending stream to player...", { duration: 1 })
                     setShowMediaPlayerLoading(true)
                     return
@@ -263,20 +272,30 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
         type: WSEvents.DEBRID_STREAM_STATE,
         onMessage: data => {
             if (data) {
-                if (data.status === "downloading" || data.status === "started") {
+                if (data.status === "downloading") {
                     setDebridState(data)
+                    setShowMediaPlayerLoading(false)
+                    return
+                }
+                if (data.status === "started") {
+                    setDebridState(null)
+                    setAutoSelectState(null)
                     setShowMediaPlayerLoading(false)
                     return
                 }
                 if (data.status === "failed") {
                     setDebridState(null)
+                    setAutoSelectState(null)
                     toast.error(data.message)
                     setShowMediaPlayerLoading(false)
                     return
                 }
                 if (data.status === "ready") {
                     setDebridState(null)
-                    toast.info("Sending stream to player...", { duration: 1 })
+                    setAutoSelectState(null)
+                    if (data.message !== "") {
+                        toast.info("Sending stream to player...", { duration: 1 })
+                    }
                     setShowMediaPlayerLoading(true)
                     return
                 }
@@ -301,6 +320,12 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
             }
         },
     })
+
+    useEffect(() => {
+        if (mpvCoreState.active || nativePlayerState.active) {
+            setDebridState(null)
+        }
+    }, [mpvCoreState.active, nativePlayerState.active])
 
     // Inline native player control-bar formatting
     if (isNativePlayerComponent) {
@@ -357,9 +382,29 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
         }
     }, [isAutoSelecting, isTorrentLoading, isDebridLoading])
 
-    if (!showFloatingPill) return null
+    const loadingStateStr = React.useMemo(() => {
+        if (!loadingState) return ""
+        switch (loadingState) {
+            case "LOADING":
+                return "Loading..."
+            case "SEARCHING_TORRENTS":
+                return "Selecting file..."
+            case "ADDING_TORRENT":
+                return torrentBeingLoaded ? `Adding torrent "${torrentBeingLoaded}"` : "Adding torrent..."
+            case "CHECKING_TORRENT":
+                return torrentBeingLoaded ? `Checking torrent "${torrentBeingLoaded}"` : "Checking torrent..."
+            case "SELECTING_FILE":
+                return "Selecting file..."
+            case "SENDING_STREAM_TO_MEDIA_PLAYER":
+                return "Sending stream to player..."
+            default:
+                return loadingState
+        }
+    }, [loadingState, torrentBeingLoaded])
 
-    const currentStepDetail = autoSelectState?.stepDetail || debridState?.message || loadingState || ""
+    const currentStepDetail = autoSelectState?.stepDetail || debridState?.message || loadingStateStr || ""
+
+    if (!showFloatingPill) return null
 
     return (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] w-auto pointer-events-auto" ref={pillRef}>
@@ -369,7 +414,7 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
                 className={cn(
                     "bg-gray-950/95 border border-[--border] text-[--foreground] shadow-2xl backdrop-blur-md select-none overflow-hidden",
                     minimized
-                        ? (isTorrentLoaded && status ? "rounded-full h-12 w-fit max-w-[400px]" : "rounded-full h-12 w-[320px]")
+                        ? (isTorrentLoaded && status ? "rounded-full h-12 w-fit max-w-[420px]" : "rounded-full h-12 w-[320px]")
                         : "rounded-[2rem] p-5 w-[95vw] md:w-[400px]",
                 )}
             >
@@ -401,7 +446,7 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
                             </div>}
 
                             {isTorrentLoaded && status && (
-                                <div className="flex items-center gap-2 text-[11px] font-medium text-[--muted] flex-shrink-0 mr-1 bg-gray-950/40 px-2.5 py-1 rounded-full">
+                                <div className="flex items-center gap-2 text-[12px] font-medium text-[--muted] flex-shrink-0 mr-1 bg-gray-950/40 px-2.5 py-1 rounded-full">
                                     <span className="font-bold text-[--foreground]">{status.progressPercentage.toFixed(1)}%</span>
                                     <span className="flex items-center gap-0.5">
                                         <BiGroup className="size-3" />
@@ -479,7 +524,7 @@ export function PlaybackPlayPill({ isNativePlayerComponent, show }: {
 
                             {currentStepDetail && !isTorrentLoaded && (
                                 <div className="flex items-center gap-2 bg-gray-950/40 border border-[--border] px-3 py-2.5 rounded-xl text-xs">
-                                    <Spinner className="size-3.5 text-[--purple] flex-shrink-0" />
+                                    <Spinner className="size-3.5 text-[--brand] flex-shrink-0" />
                                     <span className="text-[--foreground]/90 font-medium truncate flex-1">
                                         {currentStepDetail}
                                     </span>

@@ -466,15 +466,17 @@ func (c *Coordinator) SetupSharedEffects() {
 					}
 					if c.discordPresence != nil && !c.isOfflineRef.Get() {
 						c.logger.Debug().Msgf("mediacore: Setting Discord presence for %s", state.PlaybackInfo.Media.GetPreferredTitle())
-						go c.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
-							ID:            state.PlaybackInfo.Media.GetID(),
-							Title:         state.PlaybackInfo.Media.GetPreferredTitle(),
-							Image:         state.PlaybackInfo.Media.GetCoverImageSafe(),
-							IsMovie:       state.PlaybackInfo.Media.IsMovie(),
-							EpisodeNumber: state.PlaybackInfo.Episode.EpisodeNumber,
-							Progress:      int(value.CurrentTime),
-							Duration:      int(value.Duration),
-						})
+						episodeNumber := state.PlaybackInfo.Episode.GetProgressNumber()
+						if episodeNumber <= 0 {
+							episodeNumber = state.PlaybackInfo.Episode.GetEpisodeNumber()
+						}
+						go c.discordPresence.SetAnimeActivity(discordrpc_presence.NewAnimeActivity(
+							state.PlaybackInfo.Media,
+							episodeNumber,
+							state.PlaybackInfo.Episode.EpisodeTitle,
+							int(value.CurrentTime),
+							int(value.Duration),
+						))
 					}
 				case *player.StatusEvent:
 					state, ok := c.GetActivePlaybackState()

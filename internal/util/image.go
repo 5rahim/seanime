@@ -25,6 +25,17 @@ func DetectImageFormatAndDimensions(buf []byte, url string) (width, height int, 
 		return config.Width, config.Height, format, nil
 	}
 
+	// 1.5. Try AVIF
+	if isAvif(buf) {
+		format = "avif"
+		width, height, err = parseAvifDimensions(buf)
+		if err == nil {
+			return width, height, format, nil
+		}
+		// Fallback if dimensions parsing failed, but format is detected
+		return 0, 0, format, nil
+	}
+
 	// 2. Fallback for JPEG
 	if isJpeg(buf) {
 		format = "jpeg"
@@ -56,6 +67,9 @@ func guessImageFormat(buf []byte) string {
 	if len(buf) < 4 {
 		return ""
 	}
+	if isAvif(buf) {
+		return "avif"
+	}
 	// PNG: \x89PNG
 	if buf[0] == 0x89 && buf[1] == 0x50 && buf[2] == 0x4E && buf[3] == 0x47 {
 		return "png"
@@ -82,6 +96,9 @@ func guessImageFormat(buf []byte) string {
 
 func guessFormatFromURL(url string) string {
 	url = strings.ToLower(url)
+	if strings.Contains(url, ".avif") {
+		return "avif"
+	}
 	if strings.Contains(url, ".png") {
 		return "png"
 	}
@@ -158,4 +175,33 @@ func parseJpegDimensions(data []byte) (width, height int, err error) {
 		i += length
 	}
 	return 0, 0, fmt.Errorf("SOF marker not found")
+}
+
+func isAvif(buf []byte) bool {
+	if len(buf) < 12 {
+		return false
+	}
+	// Box type 'ftyp' at offset 4
+	if buf[4] != 'f' || buf[5] != 't' || buf[6] != 'y' || buf[7] != 'p' {
+		return false
+	}
+	// Major brand 'avif' or 'avis' at offset 8
+	brand := string(buf[8:12])
+	return brand == "avif" || brand == "avis"
+}
+
+func parseAvifDimensions(buf []byte) (width, height int, err error) {
+	idx := bytes.Index(buf, []byte("ispe"))
+	if idx == -1 {
+		return 0, 0, fmt.Errorf("ispe box not found")
+	}
+	// 'ispe' (4 bytes) + version/flags (4 bytes) + width (4 bytes) + height (4 bytes) = 16 bytes
+	if idx+16 > len(buf) {
+		return 0, 0, fmt.Errorf("truncated ispe box")
+	}
+
+	width = int(buf[idx+8])<<24 | int(buf[idx+9])<<16 | int(buf[idx+10])<<8 | int(buf[idx+11])
+	height = int(buf[idx+12])<<24 | int(buf[idx+13])<<16 | int(buf[idx+14])<<8 | int(buf[idx+15])
+
+	return width, height, nil
 }

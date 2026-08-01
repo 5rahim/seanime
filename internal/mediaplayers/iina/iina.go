@@ -38,6 +38,8 @@ type (
 		cmd            *exec.Cmd
 		prevSocketName string
 		exitedCh       chan struct{}
+		isFileLoaded   bool
+		freshDuration  bool
 	}
 
 	// Subscriber is a subscriber to the iina events.
@@ -171,7 +173,11 @@ func (i *Iina) OpenAndPlay(filePath string, args ...string) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
+	i.playbackMu.Lock()
 	i.Playback = &Playback{}
+	i.isFileLoaded = false
+	i.freshDuration = false
+	i.playbackMu.Unlock()
 
 	// If the player is already running, just load the new file
 	var err error
@@ -258,8 +264,44 @@ func (i *Iina) Resume() error {
 	return nil
 }
 
+// waitForFileLoad waits until the iina track is ready to seek.
+func (i *Iina) waitForFileLoad(timeoutDuration time.Duration) error {
+	timeout := time.Now().Add(timeoutDuration)
+	for {
+		if time.Now().After(timeout) {
+			return errors.New("timed out waiting for file to load")
+		}
+
+		i.mu.Lock()
+		connClosed := i.conn == nil || i.conn.IsClosed()
+		i.mu.Unlock()
+
+		if connClosed {
+			return errors.New("iina is not running")
+		}
+
+		if i.isFileReady() {
+			return nil
+		}
+
+		time.Sleep(250 * time.Millisecond)
+	}
+}
+
+func (i *Iina) isFileReady() bool {
+	i.playbackMu.RLock()
+	defer i.playbackMu.RUnlock()
+	return i.isFileLoaded || (i.freshDuration && i.Playback.Duration > 0)
+}
+
 // SeekToSlow seeks to the given position in the file.
 func (i *Iina) SeekToSlow(position float64) error {
+	// Wait for file to load before seeking
+	err := i.waitForFileLoad(30 * time.Second)
+	if err != nil {
+		i.Logger.Warn().Err(err).Msg("file didn't load in time, attempting seek anyway")
+	}
+
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
@@ -267,16 +309,37 @@ func (i *Iina) SeekToSlow(position float64) error {
 		return errors.New("iina is not running")
 	}
 
-	_, err := i.conn.Call("set_property", "time-pos", position)
+	// pause the player
+	_, err = i.conn.Call("set_property", "pause", true)
 	if err != nil {
 		return err
 	}
+
+	// unpause the player
+	defer func() {
+		_, _ = i.conn.Call("set_property", "pause", false)
+	}()
+
+	time.Sleep(100 * time.Millisecond)
+
+	_, err = i.conn.Call("set_property", "time-pos", position)
+	if err != nil {
+		return err
+	}
+
+	time.Sleep(100 * time.Millisecond)
 
 	return nil
 }
 
 // SeekTo seeks to the given position in the file.
 func (i *Iina) SeekTo(position float64) error {
+	// Wait for file to load before seeking
+	err := i.waitForFileLoad(30 * time.Second)
+	if err != nil {
+		i.Logger.Warn().Err(err).Msg("file didn't load in time, attempting seek anyway")
+	}
+
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
@@ -284,7 +347,7 @@ func (i *Iina) SeekTo(position float64) error {
 		return errors.New("iina is not running")
 	}
 
-	_, err := i.conn.Call("set_property", "time-pos", position)
+	_, err = i.conn.Call("set_property", "time-pos", position)
 	if err != nil {
 		return err
 	}
@@ -370,7 +433,9 @@ func (i *Iina) listenForEvents(ctx context.Context) {
 		// When the context is cancelled, close the connection
 		<-ctx.Done()
 		i.Logger.Debug().Msg("iina: Context cancelled")
+		i.playbackMu.Lock()
 		i.Playback.IsRunning = false
+		i.playbackMu.Unlock()
 		err := i.conn.Close()
 		if err != nil {
 			i.Logger.Error().Err(err).Msg("iina: Failed to close connection")
@@ -381,6 +446,14 @@ func (i *Iina) listenForEvents(ctx context.Context) {
 
 	// Listen for events
 	for event := range events {
+		i.playbackMu.Lock()
+		switch event.Name {
+		case "start-file":
+			i.isFileLoaded = false
+			i.freshDuration = false
+		case "file-loaded":
+			i.isFileLoaded = true
+		}
 		if event.Data != nil {
 			i.Playback.IsRunning = true
 			switch event.ID {
@@ -390,11 +463,15 @@ func (i *Iina) listenForEvents(ctx context.Context) {
 				i.Playback.Position = event.Data.(float64)
 			case 44:
 				i.Playback.Duration = event.Data.(float64)
+				i.freshDuration = true
 			case 45:
 				i.Playback.Filename = event.Data.(string)
 			case 46:
 				i.Playback.Filepath = event.Data.(string)
 			}
+		}
+		i.playbackMu.Unlock()
+		if event.Data != nil {
 			i.subscribers.Range(func(key string, sub *Subscriber) bool {
 				go func() {
 					sub.eventCh <- event
@@ -582,6 +659,8 @@ func (i *Iina) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 func (i *Iina) resetPlaybackStatus() {
 	i.playbackMu.Lock()
 	i.Logger.Trace().Msg("iina: Resetting playback status")
+	i.isFileLoaded = false
+	i.freshDuration = false
 	i.Playback.Filename = ""
 	i.Playback.Filepath = ""
 	i.Playback.Paused = false

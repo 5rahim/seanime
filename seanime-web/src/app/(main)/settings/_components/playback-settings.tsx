@@ -68,6 +68,7 @@ export function PlaybackSettings() {
     const { mutate: patchSetting, isPending: isPatching } = usePatchSetting()
 
     const [mpvSettings, setMpvSettings] = useAtom(mc_settings)
+    const [isExportingMpvLogs, setIsExportingMpvLogs] = React.useState(false)
 
     const usingNativePlayer = __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer
     const usingMpvPlayer = usingNativePlayer && serverStatus?.settings?.mediaPlayer?.mpvPrismEnabled
@@ -121,6 +122,23 @@ export function PlaybackSettings() {
     function handleTorrentMethodChange(value: string) {
         setTorrentStreamingPlayback(value)
         notifyUpdated()
+    }
+
+    async function handleExportMpvLogs() {
+        try {
+            setIsExportingMpvLogs(true)
+            if (!window.electron?.mpvCore) throw new Error("MpvCore is not available")
+            await window.electron.mpvCore.exportLogs()
+            toast.success("MpvCore logs exported")
+        }
+        catch (error) {
+            let msg = error instanceof Error ? error.message : "Failed to export MpvCore logs"
+            msg = msg.replace(/^Error:\s*/i, "").replace(/Error invoking remote method '.*?':\s*/i, "")
+            toast.error(msg)
+        }
+        finally {
+            setIsExportingMpvLogs(false)
+        }
     }
 
     return (
@@ -217,8 +235,8 @@ export function PlaybackSettings() {
 
                                 {usingMpvPlayer && (
                                     <div className="space-y-1 pl-4 border-l border-[--border] ml-2">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex-1">
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <div className="min-w-0 flex-1">
                                                 <Switch
                                                     label="Enable logging"
                                                     side="right"
@@ -234,6 +252,16 @@ export function PlaybackSettings() {
                                                 />
                                             </div>
                                         </div>
+                                        {serverStatus?.settings?.mediaPlayer?.mpvPrismLogging && <div className="py-2">
+                                            <Button
+                                                intent="white"
+                                                size="sm"
+                                                loading={isExportingMpvLogs}
+                                                onClick={handleExportMpvLogs}
+                                            >
+                                                Export logs
+                                            </Button>
+                                        </div>}
                                         <div className="space-y-2 pt-4 border-t border-[--border] mt-4">
                                             <div className="flex justify-between items-center">
                                                 <label className="text-sm font-semibold">Custom MPV Options</label>

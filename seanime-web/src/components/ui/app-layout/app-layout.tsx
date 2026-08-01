@@ -1,5 +1,5 @@
 import { ElectronSidebarPaddingMacOS } from "@/app/(main)/_electron/electron-padding"
-import { vc_isFullscreen, vc_miniPlayer } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_globalMiniPlayerAtom, vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { __isDesktop__, __isElectronDesktop__ } from "@/types/constants"
 import { cva, VariantProps } from "class-variance-authority"
 import { useAtomValue } from "jotai/react"
@@ -232,7 +232,7 @@ export const AppLayoutSidebar = React.forwardRef<HTMLElement, AppLayoutSidebarPr
     } = props
 
     const vcIsFullscreen = useAtomValue(vc_isFullscreen)
-    const vcIsMiniplayer = useAtomValue(vc_miniPlayer)
+    const vcIsMiniplayer = useAtomValue(vc_globalMiniPlayerAtom)
 
     return (
         <aside

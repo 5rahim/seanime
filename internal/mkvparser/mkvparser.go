@@ -136,6 +136,7 @@ func (mp *MetadataParser) parseMetadataOnce(ctx context.Context) {
 			matroska.IDTracks,
 			matroska.IDChapters,
 			matroska.IDAttachments,
+			matroska.IDCues,
 		)
 		if err != nil {
 			mp.logger.Error().Err(err).Msg("mkvparser: Failed to create demuxer")
@@ -319,10 +320,24 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 			result.Attachments = append(result.Attachments, attachmentInfo)
 		}
 
+		// Get cues for accurate seeking
+		cues := mp.demuxer.GetCues()
+		segmentPos := mp.demuxer.GetSegment()
+		if len(cues) > 0 {
+			result.Cues = make([]*CueInfo, len(cues))
+			for i, cue := range cues {
+				result.Cues[i] = &CueInfo{
+					Time:     cue.Time,
+					Position: segmentPos + cue.Position,
+				}
+			}
+		}
+
 		mp.logger.Debug().
 			Int("tracks", len(result.Tracks)).
 			Int("chapters", len(result.Chapters)).
 			Int("attachments", len(result.Attachments)).
+			Int("cues", len(result.Cues)).
 			Msg("mkvparser: Metadata parsing complete")
 
 		// Generate MimeCodec string
@@ -437,7 +452,7 @@ func (mp *MetadataParser) generateMimeCodec(metadata *Metadata) string {
 }
 
 // ExtractSubtitles extracts subtitles from a streaming source by reading it as a continuous flow.
-func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeekCloser, offset int64, backoffBytes int64) (<-chan *SubtitleEvent, <-chan error, <-chan struct{}) {
+func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeekCloser, offset int64, backoffBytes int64, seekTargetTime float64) (<-chan *SubtitleEvent, <-chan error, <-chan struct{}) {
 	subtitleCh := make(chan *SubtitleEvent)
 	errCh := make(chan error, 1)
 	startedCh := make(chan struct{})
@@ -459,7 +474,8 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 	if offset > 0 {
 		mp.logger.Debug().Int64("offset", offset).Msg("mkvparser: Attempting to find cluster near offset")
 
-		clusterSeekOffset, err := findNextClusterOffset(newReader, offset, backoffBytes)
+		clusterSeekOffset, _, err := findNextClusterOffset(newReader, offset, backoffBytes)
+
 		if err != nil {
 			if isClusterSearchEOF(err) {
 				mp.logger.Debug().Err(err).Msg("mkvparser: No subtitle cluster found before EOF")
@@ -473,7 +489,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 
 		close(startedCh)
 
-		mp.logger.Debug().Int64("clusterSeekOffset", clusterSeekOffset).Msg("mkvparser: Found cluster near offset")
+		// Cluster search completed
 
 		_, err = newReader.Seek(clusterSeekOffset, io.SeekStart)
 		if err != nil {
@@ -577,6 +593,13 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 				continue
 			}
 
+			// First subtitle packet found
+
+			// Skip unknown subtitle types
+			if getSubtitleTrackType(track.CodecID) == "unknown" {
+				continue
+			}
+
 			// Process subtitle packet
 			subtitleData := packet.Data
 
@@ -598,7 +621,8 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 				duration = float64(track.defaultDuration) / 1e6
 			}
 
-			subtitleEvent := mp.processSubtitleData(packet.Track, track, subtitleData, milliseconds, duration, packet.FilePos, sampler, lastSubtitleEvents, subtitleCh, extractCtx, pgsDecoders)
+			seekTargetTimeMs := seekTargetTime * 1000
+			subtitleEvent := mp.processSubtitleData(packet.Track, track, subtitleData, milliseconds, duration, packet.FilePos, sampler, lastSubtitleEvents, subtitleCh, extractCtx, pgsDecoders, seekTargetTimeMs)
 			if subtitleEvent != nil {
 				eventCopy := *subtitleEvent
 				lastSubtitleEvents[packet.Track] = &eventCopy
@@ -623,6 +647,7 @@ func (mp *MetadataParser) processSubtitleData(
 	subtitleCh chan<- *SubtitleEvent,
 	ctx context.Context,
 	pgsDecoders map[uint8]*pgs.PgsDecoder,
+	seekTargetTimeMs float64,
 ) *SubtitleEvent {
 	initialText := string(subtitleData)
 	subtitleEvent := &SubtitleEvent{
@@ -705,9 +730,7 @@ func (mp *MetadataParser) processSubtitleData(
 						Float64("clearDuration", calculatedDuration).
 						Msg("mkvparser: Updated PGS subtitle duration from clear command")
 
-					select {
-					case subtitleCh <- &updatedLastEvent:
-					case <-ctx.Done():
+					if !sendSubtitleEvent(ctx, subtitleCh, &updatedLastEvent, seekTargetTimeMs) {
 						return nil
 					}
 
@@ -739,9 +762,7 @@ func (mp *MetadataParser) processSubtitleData(
 						Float64("duration", calculatedDuration).
 						Msg("mkvparser: Sending previous PGS subtitle (replaced by new one)")
 
-					select {
-					case subtitleCh <- bufferedEvent:
-					case <-ctx.Done():
+					if !sendSubtitleEvent(ctx, subtitleCh, bufferedEvent, seekTargetTimeMs) {
 						return nil
 					}
 				}
@@ -809,9 +830,7 @@ func (mp *MetadataParser) processSubtitleData(
 						Float64("calculatedDuration", calculatedDuration).
 						Msg("mkvparser: Updated previous subtitle event duration")
 
-					select {
-					case subtitleCh <- &updatedLastEvent:
-					case <-ctx.Done():
+					if !sendSubtitleEvent(ctx, subtitleCh, &updatedLastEvent, seekTargetTimeMs) {
 						return nil
 					}
 				}
@@ -830,9 +849,7 @@ func (mp *MetadataParser) processSubtitleData(
 	// PGS subtitles are buffered and sent from within their handling code
 	// Other subtitles are sent if they have a duration
 	if track.CodecID != "S_HDMV/PGS" && duration > 0 {
-		select {
-		case subtitleCh <- subtitleEvent:
-		case <-ctx.Done():
+		if !sendSubtitleEvent(ctx, subtitleCh, subtitleEvent, seekTargetTimeMs) {
 			return nil
 		}
 	}
@@ -840,12 +857,25 @@ func (mp *MetadataParser) processSubtitleData(
 	return subtitleEvent
 }
 
+func sendSubtitleEvent(ctx context.Context, subtitleCh chan<- *SubtitleEvent, event *SubtitleEvent, seekTargetTimeMs float64) bool {
+	if seekTargetTimeMs > 0 && event.StartTime+event.Duration < seekTargetTimeMs {
+		return true
+	}
+
+	select {
+	case subtitleCh <- event:
+		return true
+	case <-ctx.Done():
+		return false
+	}
+}
+
 func isClusterSearchEOF(err error) bool {
 	return errors.Is(err, io.EOF) || strings.Contains(err.Error(), "EOF reached before reading new data")
 }
 
 // findNextClusterOffset searches for the Matroska Cluster ID in the ReadSeeker
-func findNextClusterOffset(rs io.ReadSeeker, seekOffset, backoffBytes int64) (int64, error) {
+func findNextClusterOffset(rs io.ReadSeeker, seekOffset, backoffBytes int64) (int64, int64, error) {
 	if seekOffset > backoffBytes {
 		seekOffset -= backoffBytes
 	} else {
@@ -854,22 +884,24 @@ func findNextClusterOffset(rs io.ReadSeeker, seekOffset, backoffBytes int64) (in
 
 	absPosOfNextRead, err := rs.Seek(seekOffset, io.SeekStart)
 	if err != nil {
-		return -1, fmt.Errorf("initial seek to %d failed: %w", seekOffset, err)
+		return -1, 0, fmt.Errorf("initial seek to %d failed: %w", seekOffset, err)
 	}
 
 	mainBuf := make([]byte, clusterSearchChunkSize)
 	searchBuf := make([]byte, (len(matroskaClusterID)-1)+clusterSearchChunkSize)
 
 	lenOverlapCarried := 0
+	totalBytesRead := int64(0)
 
 	for {
 		n, readErr := rs.Read(mainBuf)
+		totalBytesRead += int64(n)
 
 		if n == 0 && readErr == io.EOF {
-			return -1, fmt.Errorf("cluster ID not found, EOF reached before reading new data")
+			return -1, totalBytesRead, fmt.Errorf("cluster ID not found, EOF reached before reading new data")
 		}
 		if readErr != nil && readErr != io.EOF {
-			return -1, fmt.Errorf("error reading file: %w", readErr)
+			return -1, totalBytesRead, fmt.Errorf("error reading file: %w", readErr)
 		}
 
 		copy(searchBuf[lenOverlapCarried:], mainBuf[:n])
@@ -881,13 +913,13 @@ func findNextClusterOffset(rs io.ReadSeeker, seekOffset, backoffBytes int64) (in
 
 			_, seekErr := rs.Seek(foundAtAbsoluteOffset, io.SeekStart)
 			if seekErr != nil {
-				return -1, fmt.Errorf("failed to seek to found cluster position %d: %w", foundAtAbsoluteOffset, seekErr)
+				return -1, totalBytesRead, fmt.Errorf("failed to seek to found cluster position %d: %w", foundAtAbsoluteOffset, seekErr)
 			}
-			return foundAtAbsoluteOffset, nil
+			return foundAtAbsoluteOffset, totalBytesRead, nil
 		}
 
 		if readErr == io.EOF {
-			return -1, io.EOF
+			return -1, totalBytesRead, io.EOF
 		}
 
 		if len(currentSearchWindow) >= len(matroskaClusterID)-1 {

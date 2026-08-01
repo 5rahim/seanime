@@ -98,11 +98,18 @@ func (c *Connection) Open() error {
 //
 // The events channel is closed automatically just before this method returns.
 func (c *Connection) ListenForEvents(events chan<- *Event, stop <-chan struct{}) {
+	c.listenForEvents(events, stop, nil)
+}
+
+func (c *Connection) listenForEvents(events chan<- *Event, stop <-chan struct{}, ready chan<- struct{}) {
 	c.lock.Lock()
 	c.lastListener++
 	id := c.lastListener
 	c.eventListeners[id] = events
 	c.lock.Unlock()
+	if ready != nil {
+		close(ready)
+	}
 
 	<-stop
 
@@ -119,7 +126,9 @@ func (c *Connection) ListenForEvents(events chan<- *Event, stop <-chan struct{})
 func (c *Connection) NewEventListener() (chan *Event, chan struct{}) {
 	events := make(chan *Event, 16)
 	stop := make(chan struct{})
-	go c.ListenForEvents(events, stop)
+	ready := make(chan struct{})
+	go c.listenForEvents(events, stop, ready)
+	<-ready
 	return events, stop
 }
 

@@ -526,6 +526,12 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 				Message:     "External player link sent",
 			})
 		case PlaybackTypeNativePlayer:
+			s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+				Status:      StreamStatusReady,
+				TorrentName: selectedTorrent.Name,
+				Message:     "",
+			})
+
 			if !s.repository.directStreamManager.IsOpenActive(opts.ClientId) {
 				return
 			}

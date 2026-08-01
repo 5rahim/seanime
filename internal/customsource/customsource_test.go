@@ -41,6 +41,10 @@ func TestSiteURLHelpers(t *testing.T) {
 		require.NotNil(t, formattedNil)
 		require.Equal(t, "ext_custom_source_demo", *formattedNil)
 
+		extIDNil, okNil := GetCustomSourceExtensionIdFromSiteUrl(formattedNil)
+		require.True(t, okNil)
+		require.Equal(t, "demo", extIDNil)
+
 		customURL := "https://example.com/item"
 		formattedCustom := formatSiteUrl("demo", &customURL)
 		require.NotNil(t, formattedCustom)

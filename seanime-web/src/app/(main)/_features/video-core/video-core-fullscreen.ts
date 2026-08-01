@@ -239,7 +239,7 @@ export class VideoCoreFullscreenManager extends EventTarget {
 
         try {
             await (window as any).electron.window.setFullscreen(true)
-            this.isElectronNativeFullscreen = true
+            this.setElectronFullscreen(true)
             log.info("Entered Electron native fullscreen")
         }
         catch (error) {
@@ -255,7 +255,7 @@ export class VideoCoreFullscreenManager extends EventTarget {
 
         try {
             await window.electron?.window?.setFullscreen(false)
-            this.isElectronNativeFullscreen = false
+            this.setElectronFullscreen(false)
             log.info("Exited Electron native fullscreen")
         }
         catch (error) {
@@ -267,13 +267,8 @@ export class VideoCoreFullscreenManager extends EventTarget {
         if (!this._isElectron()) return
 
         const removeFullscreenListener = window.electron?.on?.("window:fullscreen", (isFullscreen: boolean) => {
-            this.isElectronNativeFullscreen = isFullscreen
             log.info("Electron fullscreen state changed:", isFullscreen)
-
-            const event: FullscreenManagerChangedEvent = new CustomEvent("fullscreenchanged", { detail: { isFullscreen } })
-            this.dispatchEvent(event)
-
-            this.onFullscreenChange(isFullscreen)
+            this.setElectronFullscreen(isFullscreen)
         })
 
         if (removeFullscreenListener) {
@@ -283,6 +278,17 @@ export class VideoCoreFullscreenManager extends EventTarget {
                 originalAbort()
             }
         }
+    }
+
+    private setElectronFullscreen(isFullscreen: boolean) {
+        if (this.isElectronNativeFullscreen === isFullscreen) return
+
+        this.isElectronNativeFullscreen = isFullscreen
+
+        const event: FullscreenManagerChangedEvent = new CustomEvent("fullscreenchanged", { detail: { isFullscreen } })
+        this.dispatchEvent(event)
+
+        this.onFullscreenChange(isFullscreen)
     }
 
     private attachDocumentListeners() {

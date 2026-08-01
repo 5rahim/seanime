@@ -1,5 +1,6 @@
 import { Anime_MissingEpisodes } from "@/api/generated/types"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
+import { EpisodeTorrentAvailabilityBadge } from "@/app/(main)/_features/anime/_components/episode-torrent-availability-badge"
 import { useHasTorrentProvider } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleMissingEpisodes } from "@/app/(main)/schedule/_lib/handle-missing-episodes"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -63,6 +64,9 @@ export function MissingEpisodes({ isLoading, data }: {
                                             isInvalid={episode.isInvalid}
                                             progressNumber={episode.progressNumber}
                                             episodeNumber={episode.episodeNumber}
+                                            badge={!episode.isMissingGroup
+                                                ? <EpisodeTorrentAvailabilityBadge status={episode.torrentAvailability} />
+                                                : undefined}
                                             onClick={() => {
                                                 if (hasTorrentProvider) {
                                                     router.push(`/entry?id=${episode.baseAnime?.id}&download=${episode.episodeNumber}`)
@@ -126,6 +130,9 @@ export function MissingEpisodes({ isLoading, data }: {
                                                             type="carousel"
                                                             progressNumber={episode.progressNumber}
                                                             episodeNumber={episode.episodeNumber}
+                                                            badge={!episode.isMissingGroup
+                                                                ? <EpisodeTorrentAvailabilityBadge status={episode.torrentAvailability} />
+                                                                : undefined}
                                                             onClick={() => {
                                                                 if (hasTorrentProvider) {
                                                                     router.push(`/entry?id=${episode.baseAnime?.id}&download=${episode.episodeNumber}`)

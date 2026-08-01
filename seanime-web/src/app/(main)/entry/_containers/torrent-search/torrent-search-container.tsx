@@ -37,7 +37,7 @@ import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
 import React, { startTransition } from "react"
 import { FiSearch } from "react-icons/fi"
-import { LuCornerLeftDown, LuFileSearch, LuPlus, LuSave } from "react-icons/lu"
+import { LuClock3, LuCornerLeftDown, LuFileSearch, LuLoaderCircle, LuPlus, LuSave } from "react-icons/lu"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorrent[]>([])
 
@@ -102,6 +102,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
         isFetching,
         soughtEpisode,
         isError,
+        isAutoRetrying,
+        autoRetrySeconds,
         refetch,
     } = useHandleTorrentSearch({
         isAdult: false,
@@ -541,6 +543,18 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     </div>
                                 </LuffyError>
                             )}
+                            {!isError && !hasOneWarning && (isAutoRetrying || autoRetrySeconds !== undefined) && (
+                                <Alert
+                                    data-torrent-search-auto-retry
+                                    intent="info-basic"
+                                    icon={isAutoRetrying
+                                        ? <LuLoaderCircle className="text-xl text-blue-500 dark:text-blue-400 animate-spin" />
+                                        : <LuClock3 className="text-xl text-blue-500 dark:text-blue-400" />}
+                                    description={isAutoRetrying
+                                        ? "Checking the provider again..."
+                                        : `No matching torrent found. Checking again in ${formatRetryTime(autoRetrySeconds)}.`}
+                                />
+                            )}
                             {(searchType === Torrent_SearchType.SMART) && !hasOneWarning && !isError && (
                                 <>
                                     <TorrentPreviewList
@@ -616,6 +630,14 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
         </>
     )
 
+}
+
+function formatRetryTime(seconds: number | undefined) {
+    if (seconds === undefined) return "a moment"
+    const minutes = Math.floor(seconds / 60)
+    const remaining = seconds % 60
+    if (minutes === 0) return `${remaining}s`
+    return `${minutes}m ${remaining}s`
 }
 
 function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvailability, isSpoiler }: {

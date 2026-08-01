@@ -11,9 +11,10 @@ import { LuFilm } from "react-icons/lu"
 
 export const vc_videoSources = atom<VideoCore_VideoSource[]>([])
 
-export function VideoCoreResolutionMenu({ state, onVideoSourceChange }: {
+export function VideoCoreResolutionMenu({ state, onVideoSourceChange, onHlsQualityChange }: {
     state: VideoCoreLifecycleState,
     onVideoSourceChange: ((source: VideoCore_VideoSource) => void) | undefined
+    onHlsQualityChange: ((quality: string) => void) | undefined
 }) {
     const isFullscreen = useAtomValue(vc_isFullscreen)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
@@ -75,6 +76,12 @@ export function VideoCoreResolutionMenu({ state, onVideoSourceChange }: {
                     onValueChange={(value: number) => {
                         if (isHls) {
                             hlsSetQuality?.(value)
+                            if (value === -1) {
+                                onHlsQualityChange?.("auto")
+                            } else {
+                                const level = levels.find(level => level.index === value)
+                                if (level) onHlsQualityChange?.(level.resolution)
+                            }
                         } else {
                             onVideoSourceChange?.(videoSources.find(source => source.index === value)!)
                         }

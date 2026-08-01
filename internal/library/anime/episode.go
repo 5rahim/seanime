@@ -9,22 +9,26 @@ import (
 )
 
 type (
+	EpisodeTorrentAvailability string
+
 	// Episode represents a single episode of a media entry.
 	Episode struct {
-		Type                  LocalFileType      `json:"type"`
-		DisplayTitle          string             `json:"displayTitle"` // e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
-		EpisodeTitle          string             `json:"episodeTitle"` // e.g, "Shibuya Incident - Gate, Open"
-		EpisodeNumber         int                `json:"episodeNumber"`
-		AniDBEpisode          string             `json:"aniDBEpisode,omitempty"` // AniDB episode number
-		AbsoluteEpisodeNumber int                `json:"absoluteEpisodeNumber"`
-		ProgressNumber        int                `json:"progressNumber"` // Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
-		LocalFile             *LocalFile         `json:"localFile"`
-		IsDownloaded          bool               `json:"isDownloaded"`            // Is in the local files
-		EpisodeMetadata       *EpisodeMetadata   `json:"episodeMetadata"`         // (image, airDate, length, summary, overview)
-		FileMetadata          *LocalFileMetadata `json:"fileMetadata"`            // (episode, aniDBEpisode, type...)
-		IsInvalid             bool               `json:"isInvalid"`               // No AniDB data
-		MetadataIssue         string             `json:"metadataIssue,omitempty"` // Alerts the user that there is a discrepancy between AniList and AniDB
-		BaseAnime             *anilist.BaseAnime `json:"baseAnime,omitempty"`
+		Type                  LocalFileType              `json:"type"`
+		DisplayTitle          string                     `json:"displayTitle"` // e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
+		EpisodeTitle          string                     `json:"episodeTitle"` // e.g, "Shibuya Incident - Gate, Open"
+		EpisodeNumber         int                        `json:"episodeNumber"`
+		AniDBEpisode          string                     `json:"aniDBEpisode,omitempty"` // AniDB episode number
+		AbsoluteEpisodeNumber int                        `json:"absoluteEpisodeNumber"`
+		ProgressNumber        int                        `json:"progressNumber"` // Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
+		LocalFile             *LocalFile                 `json:"localFile"`
+		IsDownloaded          bool                       `json:"isDownloaded"`            // Is in the local files
+		EpisodeMetadata       *EpisodeMetadata           `json:"episodeMetadata"`         // (image, airDate, length, summary, overview)
+		FileMetadata          *LocalFileMetadata         `json:"fileMetadata"`            // (episode, aniDBEpisode, type...)
+		IsInvalid             bool                       `json:"isInvalid"`               // No AniDB data
+		MetadataIssue         string                     `json:"metadataIssue,omitempty"` // Alerts the user that there is a discrepancy between AniList and AniDB
+		BaseAnime             *anilist.BaseAnime         `json:"baseAnime,omitempty"`
+		TorrentAvailability   EpisodeTorrentAvailability `json:"torrentAvailability,omitempty"`
+		IsMissingGroup        bool                       `json:"isMissingGroup,omitempty"`
 		// IsNakamaEpisode indicates that this episode is from the Nakama host's anime library.
 		IsNakamaEpisode bool `json:"_isNakamaEpisode"`
 	}
@@ -42,6 +46,13 @@ type (
 		HasImage bool   `json:"hasImage,omitempty"` // Indicates if the episode has a real image
 		Title    string `json:"title,omitempty"`
 	}
+)
+
+const (
+	EpisodeTorrentAvailabilityAvailable EpisodeTorrentAvailability = "available"
+	EpisodeTorrentAvailabilityChecking  EpisodeTorrentAvailability = "checking"
+	EpisodeTorrentAvailabilityWaiting   EpisodeTorrentAvailability = "waiting"
+	EpisodeTorrentAvailabilityUnknown   EpisodeTorrentAvailability = "unknown"
 )
 
 type (

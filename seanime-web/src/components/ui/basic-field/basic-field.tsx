@@ -178,7 +178,7 @@ export const BasicField = React.memo(React.forwardRef<HTMLDivElement, BasicField
                         <div
                             className={cn(BasicFieldAnatomy.fieldHelpText(),
                                 fieldHelpTextClass,
-                                (typeof help === "string" && help.length > 40 && !help.includes(" ")) && "break-all")}
+                                (typeof help === "string" && (help.split(/\s+/).some(word => word.length > 25) || (help.length > 30 && !help.includes(" ")))) && "break-all")}
                         >{help}</div>}
                     {!!error &&
                         <div className={cn(BasicFieldAnatomy.fieldErrorText(), fieldErrorTextClass)}>{error}</div>}

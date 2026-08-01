@@ -1,6 +1,7 @@
 package torrentstream
 
 import (
+	"context"
 	"encoding/json"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
@@ -19,6 +20,20 @@ import (
 	"github.com/samber/mo"
 	"github.com/stretchr/testify/require"
 )
+
+func TestGetMediaInfoFromOptionsUsesProvidedMedia(t *testing.T) {
+	repo, _, _ := newTorrentstreamTestRepository(t)
+	media := testmocks.NewBaseAnime(990748023463256, "Custom Source Anime")
+
+	opts := &StartStreamOptions{MediaId: media.ID}
+	opts.SetMedia(media)
+
+	got, _, err := repo.GetMediaInfoFromOptions(context.Background(), opts)
+
+	require.NoError(t, err)
+	require.Equal(t, media.ID, got.GetID())
+	require.Equal(t, media.GetPreferredTitle(), got.GetPreferredTitle())
+}
 
 type recordedWSEvent struct {
 	clientID string

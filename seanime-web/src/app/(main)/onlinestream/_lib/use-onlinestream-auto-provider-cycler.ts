@@ -2,11 +2,20 @@ import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeLi
 import { logger, useLatestFunction } from "@/lib/helpers/debug"
 import React from "react"
 import { toast } from "sonner"
+import { getRefreshKey, markSourceRefreshed, orderProviders, shouldRecoverStartup } from "./onlinestream-provider-trial"
 
 type TrialState = {
     providers: string[]
     providerIndex: number
     serverIndex: number
+}
+
+type RefreshEpisodeSourceVariables = {
+    mediaId: number
+    provider: string
+    episodeNumber: number
+    dubbed: boolean
+    refresh?: boolean
 }
 
 type UseOnlinestreamAutoProviderCyclerProps = {
@@ -16,6 +25,7 @@ type UseOnlinestreamAutoProviderCyclerProps = {
     url: string | null
     providerExtensions: ExtensionRepo_OnlinestreamProviderExtensionItem[]
     dubbed: boolean
+    sourceDubbed: boolean
     currentEpisodeNumber: number | null
     episodeListResponse?: Onlinestream_EpisodeListResponse
     episodeListLoading: boolean
@@ -27,10 +37,10 @@ type UseOnlinestreamAutoProviderCyclerProps = {
     playbackError: string | null
     setProvider: (provider: string | null) => void
     setServer: (server: string | undefined) => void
-    setQuality: (quality: string | undefined) => void
     setSelectedEpisodeNumber: (episodeNumber: number) => void
     setUrl: (url: string | null) => void
     setPlaybackError: (error: string | null) => void
+    refreshEpisodeSource: (variables: RefreshEpisodeSourceVariables) => Promise<Onlinestream_EpisodeSource | undefined>
 }
 
 const log = logger("ONLINESTREAM")
@@ -45,12 +55,6 @@ function getServers(episodeSource: Onlinestream_EpisodeSource | undefined) {
     ))
 }
 
-function orderProviders(providers: ExtensionRepo_OnlinestreamProviderExtensionItem[], currentProvider: string | null) {
-    const ids = providers.map(provider => provider.id)
-    if (!currentProvider || !ids.includes(currentProvider)) return ids
-    return [currentProvider, ...ids.filter(id => id !== currentProvider)]
-}
-
 export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProviderCyclerProps) {
     const {
         mediaId,
@@ -59,6 +63,7 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         url,
         providerExtensions,
         dubbed,
+        sourceDubbed,
         currentEpisodeNumber,
         episodeListResponse,
         episodeListLoading,
@@ -70,16 +75,21 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         playbackError,
         setProvider,
         setServer,
-        setQuality,
         setSelectedEpisodeNumber,
         setUrl,
         setPlaybackError,
+        refreshEpisodeSource,
     } = props
 
     const [trial, setTrial] = React.useState<TrialState | null>(null)
     const [detectedFailure, setDetectedFailure] = React.useState<string | null>(null)
+    const [refreshing, setRefreshing] = React.useState(false)
     const trialRef = React.useRef<TrialState | null>(null)
-    const playbackProgressRef = React.useRef(0)
+    const playbackTimeRef = React.useRef(0)
+    const refreshingRef = React.useRef(false)
+    const refreshedSourcesRef = React.useRef(new Set<string>())
+    const activeCandidateRef = React.useRef("")
+    activeCandidateRef.current = getRefreshKey(provider, server, currentEpisodeNumber)
 
     const availableProviders = React.useMemo(() => {
         return providerExtensions
@@ -100,7 +110,7 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         toast.error("No working providers found")
     })
 
-    const advanceProvider = useLatestFunction((reason: string) => {
+    const goToNextProvider = useLatestFunction((reason: string) => {
         const currentTrial = trialRef.current
         if (!currentTrial) return
 
@@ -111,11 +121,34 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         }
 
         log.warning("Trying next provider", reason)
+        setUrl(null)
+        setPlaybackError(null)
         setTrialState({
             ...currentTrial,
             providerIndex: nextProviderIndex,
             serverIndex: 0,
         })
+    })
+
+    const goToNextCandidate = useLatestFunction((reason: string) => {
+        const currentTrial = trialRef.current
+        if (!currentTrial) {
+            setDetectedFailure(reason)
+            setPlaybackError(reason)
+            return
+        }
+
+        const servers = getServers(episodeSource)
+        const nextServerIndex = currentTrial.serverIndex + 1
+        if (nextServerIndex < servers.length) {
+            log.warning("Trying next server", { reason, server: servers[nextServerIndex] })
+            setUrl(null)
+            setPlaybackError(null)
+            setTrialState({ ...currentTrial, serverIndex: nextServerIndex })
+            return
+        }
+
+        goToNextProvider(reason)
     })
 
     const tryAllProviders = useLatestFunction(() => {
@@ -126,57 +159,77 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         }
 
         const providers = orderProviders(availableProviders, provider)
+        const currentServerIndex = getServers(episodeSource).findIndex(candidate => candidate === server)
         let providerIndex = 0
-        let serverIndex = 0
-
+        let serverIndex = currentServerIndex >= 0 ? currentServerIndex : 0
         if (detectedFailure && provider && providers[0] === provider) {
             const servers = getServers(episodeSource)
-            const currentServerIndex = servers.findIndex(s => s === server)
-            if (detectedFailure.includes("playback") && currentServerIndex >= 0 && currentServerIndex + 1 < servers.length) {
+            if (currentServerIndex >= 0 && currentServerIndex + 1 < servers.length) {
                 serverIndex = currentServerIndex + 1
             } else if (providers.length > 1) {
                 providerIndex = 1
+                serverIndex = 0
             }
         }
+        const nextTrial = {
+            providers,
+            providerIndex,
+            serverIndex,
+        }
 
-        const nextTrial = { providers, providerIndex, serverIndex }
         log.info("Trying providers", { providers, dubbed })
+        playbackTimeRef.current = 0
         setDetectedFailure(null)
         setTrialState(nextTrial)
         setUrl(null)
         setPlaybackError(null)
-        setServer(undefined)
-        setQuality(undefined)
         setProvider(providers[providerIndex])
     })
 
     const onPlaybackError = useLatestFunction((reason: string) => {
-        const currentTrial = trialRef.current
-        if (!currentTrial) {
-            setDetectedFailure("playback error")
-            setPlaybackError(reason)
+        if (!shouldRecoverStartup(playbackTimeRef.current) || refreshingRef.current) return
+        if (!provider || currentEpisodeNumber === null) {
+            goToNextCandidate(reason)
             return
         }
 
+        const refreshKey = getRefreshKey(provider, server, currentEpisodeNumber)
+        if (!markSourceRefreshed(refreshedSourcesRef.current, refreshKey)) {
+            goToNextCandidate(reason)
+            return
+        }
+
+        log.warning("Refreshing episode source", { reason, provider, server })
+        refreshingRef.current = true
+        setRefreshing(true)
         setUrl(null)
         setPlaybackError(null)
 
-        const servers = getServers(episodeSource)
-        const nextServerIndex = currentTrial.serverIndex + 1
-        if (nextServerIndex < servers.length) {
-            log.warning("Trying next server", { reason, server: servers[nextServerIndex] })
-            setTrialState({ ...currentTrial, serverIndex: nextServerIndex })
-            return
-        }
-
-        advanceProvider(reason)
+        refreshEpisodeSource({
+            mediaId,
+            provider,
+            episodeNumber: currentEpisodeNumber,
+            dubbed: sourceDubbed,
+            refresh: true,
+        }).then(source => {
+            if (activeCandidateRef.current !== refreshKey) return
+            if (!source?.videoSources?.length) {
+                goToNextCandidate(reason)
+                return
+            }
+            setUrl(null)
+            setPlaybackError(null)
+        }).catch(() => {
+            if (activeCandidateRef.current === refreshKey) {
+                goToNextCandidate(reason)
+            }
+        }).finally(() => {
+            refreshingRef.current = false
+            setRefreshing(false)
+        })
     })
 
     const onPlaybackStalled = useLatestFunction((reason: string) => {
-        if (!trialRef.current) {
-            setDetectedFailure(reason)
-            return
-        }
         onPlaybackError(reason)
     })
 
@@ -185,13 +238,14 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
     })
 
     const onTimeUpdate = useLatestFunction((e: React.SyntheticEvent<HTMLVideoElement>) => {
-        playbackProgressRef.current = Date.now()
+        playbackTimeRef.current = Math.max(playbackTimeRef.current, e.currentTarget.currentTime)
+        if (shouldRecoverStartup(playbackTimeRef.current)) return
+
         if (detectedFailure) {
             setDetectedFailure(null)
         }
 
         if (!trialRef.current) return
-        if (e.currentTarget.currentTime < 1) return
 
         log.success("Found working provider", { provider, server })
         setTrialState(null)
@@ -206,9 +260,13 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
     })
 
     React.useEffect(() => {
-        playbackProgressRef.current = 0
+        playbackTimeRef.current = 0
         setDetectedFailure(null)
-    }, [provider, server, currentEpisodeNumber, url])
+    }, [provider, server, currentEpisodeNumber])
+
+    React.useEffect(() => {
+        refreshedSourcesRef.current.clear()
+    }, [mediaId, dubbed])
 
     React.useEffect(() => {
         if (!trial) return
@@ -220,10 +278,9 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
             setUrl(null)
             setPlaybackError(null)
             setServer(undefined)
-            setQuality(undefined)
             setProvider(targetProvider)
         }
-    }, [trial, provider, setProvider, setQuality, setServer, setUrl, setPlaybackError])
+    }, [trial, provider, setProvider, setServer, setUrl, setPlaybackError])
 
     React.useEffect(() => {
         if (!trial) return
@@ -231,13 +288,13 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         if (episodeListLoading) return
 
         if (isEpisodeListError) {
-            advanceProvider("episode list error")
+            goToNextProvider("episode list error")
             return
         }
 
         const episodes = episodeListResponse?.episodes ?? []
         if (isEpisodeListFetched && !episodes.length) {
-            advanceProvider("no episodes")
+            goToNextProvider("no episodes")
             return
         }
 
@@ -247,7 +304,7 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         }
 
         if (isEpisodeListFetched && currentEpisodeNumber !== null && !episodes.some(episode => episode.number === currentEpisodeNumber)) {
-            advanceProvider("episode not found")
+            goToNextProvider("episode not found")
         }
     }, [
         trial,
@@ -258,7 +315,7 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         isEpisodeListError,
         currentEpisodeNumber,
         setSelectedEpisodeNumber,
-        advanceProvider,
+        goToNextProvider,
     ])
 
     React.useEffect(() => {
@@ -277,20 +334,20 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         if (!episodeListLoading) return
 
         const timeout = window.setTimeout(() => {
-            advanceProvider("episode list timeout")
+            goToNextProvider("episode list timeout")
         }, PROVIDER_TIMEOUT_MS)
 
         return () => window.clearTimeout(timeout)
-    }, [trial, provider, episodeListLoading, advanceProvider])
+    }, [trial, provider, episodeListLoading, goToNextProvider])
 
     React.useEffect(() => {
-        if (!trial) return
+        if (!trial || refreshing) return
         if (provider !== trial.providers[trial.providerIndex]) return
         if (!isEpisodeListFetched || episodeListLoading || currentEpisodeNumber === null) return
         if (episodeSourceLoading) return
 
         if (isEpisodeSourceError) {
-            advanceProvider("episode source error")
+            onPlaybackError("episode source error")
             return
         }
 
@@ -298,21 +355,22 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
 
         const servers = getServers(episodeSource)
         if (!servers.length) {
-            advanceProvider("no video sources")
+            onPlaybackError("no video sources")
             return
         }
 
-        const server = servers[trial.serverIndex]
-        if (!server) {
-            advanceProvider("servers exhausted")
+        const targetServer = servers[trial.serverIndex]
+        if (!targetServer) {
+            goToNextProvider("servers exhausted")
             return
         }
 
         setUrl(null)
         setPlaybackError(null)
-        setServer(server)
+        setServer(targetServer)
     }, [
         trial,
+        refreshing,
         provider,
         episodeSource,
         episodeSourceLoading,
@@ -323,52 +381,59 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         setServer,
         setUrl,
         setPlaybackError,
-        advanceProvider,
+        onPlaybackError,
+        goToNextProvider,
     ])
 
     React.useEffect(() => {
-        if (trial || detectedFailure) return
+        if (trial || detectedFailure || refreshing) return
+        if (!isEpisodeListFetched || episodeListLoading || currentEpisodeNumber === null) return
+        if (episodeSourceLoading) return
+
+        if (isEpisodeSourceError) {
+            onPlaybackError("episode source error")
+            return
+        }
+
+        if (episodeSource && !(episodeSource.videoSources ?? []).length) {
+            onPlaybackError("no video sources")
+        }
+    }, [
+        trial,
+        detectedFailure,
+        refreshing,
+        isEpisodeListFetched,
+        episodeListLoading,
+        currentEpisodeNumber,
+        episodeSource,
+        episodeSourceLoading,
+        isEpisodeSourceError,
+        onPlaybackError,
+    ])
+
+    React.useEffect(() => {
+        if (refreshing || detectedFailure) return
         if (!isEpisodeListFetched || episodeListLoading || currentEpisodeNumber === null) return
         if (!episodeSourceLoading) return
 
         const timeout = window.setTimeout(() => {
-            setDetectedFailure("episode source timeout")
+            onPlaybackError("episode source timeout")
         }, PROVIDER_TIMEOUT_MS)
 
         return () => window.clearTimeout(timeout)
     }, [
-        trial,
+        refreshing,
         detectedFailure,
         provider,
         isEpisodeListFetched,
         episodeListLoading,
         currentEpisodeNumber,
         episodeSourceLoading,
+        onPlaybackError,
     ])
 
     React.useEffect(() => {
-        if (!trial) return
-        if (provider !== trial.providers[trial.providerIndex]) return
-        if (!isEpisodeListFetched || episodeListLoading || currentEpisodeNumber === null) return
-        if (!episodeSourceLoading) return
-
-        const timeout = window.setTimeout(() => {
-            advanceProvider("episode source timeout")
-        }, PROVIDER_TIMEOUT_MS)
-
-        return () => window.clearTimeout(timeout)
-    }, [
-        trial,
-        provider,
-        isEpisodeListFetched,
-        episodeListLoading,
-        currentEpisodeNumber,
-        episodeSourceLoading,
-        advanceProvider,
-    ])
-
-    React.useEffect(() => {
-        if (!trial) return
+        if (!trial || refreshing) return
         if (provider !== trial.providers[trial.providerIndex]) return
         if (!episodeSource || episodeSourceLoading || isEpisodeSourceError) return
 
@@ -382,6 +447,7 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
         return () => window.clearTimeout(timeout)
     }, [
         trial,
+        refreshing,
         provider,
         server,
         episodeSource,
@@ -391,18 +457,18 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
     ])
 
     React.useEffect(() => {
-        if (trial || detectedFailure || !url) return
+        if (trial || detectedFailure || refreshing || !url) return
         if (episodeSourceLoading || isEpisodeSourceError) return
 
-        const startedAt = Date.now()
+        const startedAt = playbackTimeRef.current
         const timeout = window.setTimeout(() => {
-            if (playbackProgressRef.current < startedAt) {
-                setDetectedFailure("playback timeout")
+            if (playbackTimeRef.current <= startedAt) {
+                onPlaybackError("playback timeout")
             }
         }, PLAYBACK_TIMEOUT_MS)
 
         return () => window.clearTimeout(timeout)
-    }, [trial, detectedFailure, url, episodeSourceLoading, isEpisodeSourceError])
+    }, [trial, detectedFailure, refreshing, url, episodeSourceLoading, isEpisodeSourceError, onPlaybackError])
 
     const hasEpisodeListFailure = isEpisodeListError || (isEpisodeListFetched && !episodeListLoading && !(episodeListResponse?.episodes ?? []).length)
     const hasEpisodeSourceFailure = isEpisodeSourceError || (!!episodeSource && !episodeSourceLoading && !(episodeSource.videoSources ?? []).length)
@@ -411,7 +477,7 @@ export function useOnlinestreamAutoProviderCycler(props: UseOnlinestreamAutoProv
 
     return {
         isTrying: !!trial,
-        showButton: canTry && (!!trial || hasFailure),
+        showButton: canTry && (!!trial || (!refreshing && hasFailure)),
         tryAllProviders,
         cancel,
         onPlaybackError,
