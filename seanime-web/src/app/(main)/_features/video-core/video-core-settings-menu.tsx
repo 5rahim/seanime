@@ -5,6 +5,7 @@ import { anime4kOptions, getAnime4KOptionByValue, vc_anime4kOption } from "@/app
 import { Anime4KOption } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_menuSectionOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_analyserNode } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_menuSubSectionOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_isMobile } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_playbackRate } from "@/app/(main)/_features/video-core/video-core-atoms"
@@ -47,11 +48,12 @@ import React, { useState } from "react"
 import { HiFastForward } from "react-icons/hi"
 import { ImFileText } from "react-icons/im"
 import { IoCaretForwardCircleOutline } from "react-icons/io5"
-import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings, LuSettings2, LuSparkles, LuTvMinimalPlay } from "react-icons/lu"
+import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings, LuSettings2, LuSparkles, LuTvMinimalPlay, LuSlidersVertical } from "react-icons/lu"
 import { MdOutlineAccessTime, MdOutlineSubtitles, MdSpeed } from "react-icons/md"
 import { RiShadowLine } from "react-icons/ri"
 import { TbArrowForwardUp } from "react-icons/tb"
 import { VscTextSize } from "react-icons/vsc"
+import { audioEffectsModalAtom } from "./video-core-audio-effects"
 
 const SUBTITLE_STYLES_FONT_SIZE_OPTIONS = [
     { label: "Small", value: 54 },
@@ -206,11 +208,13 @@ export function VideoCoreSettingsMenu() {
     const containerElement = useAtomValue(vc_containerElement)
     const subtitleManager = useAtomValue(vc_subtitleManager)
     const mediaCaptionsManager = useAtomValue(vc_mediaCaptionsManager)
+    const analyserNode = useAtomValue(vc_analyserNode)
 
     const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
     const currentAnime4kOption = getAnime4KOptionByValue(anime4kOption)
 
     const [, setKeybindingsModelOpen] = useAtom(videoCorePreferencesModalAtom)
+    const [, setAudioEffectsModelOpen] = useAtom(audioEffectsModalAtom)
 
     const [showChapterMarkers, setShowChapterMarkers] = useAtom(vc_showChapterMarkersAtom)
     const [highlightOPEDChapters, setHighlightOPEDChapters] = useAtom(vc_highlightOPEDChaptersAtom)
@@ -362,6 +366,8 @@ export function VideoCoreSettingsMenu() {
                     />}
                     <VideoCoreMenuOption title="Player Appearance" icon={LuTvMinimalPlay} />
                     <VideoCoreMenuOption title="Preferences" icon={LuSettings2} onClick={() => setKeybindingsModelOpen(true)} />
+                    <VideoCoreMenuOption title="Audio Effects" icon={LuSlidersVertical} onClick={() => setAudioEffectsModelOpen(true)}/>
+
                 </VideoCoreMenuSectionBody>
                 <VideoCoreMenuSubmenuBody>
                     <VideoCoreMenuOption title="Subtitle Styles" icon={MdOutlineSubtitles}>

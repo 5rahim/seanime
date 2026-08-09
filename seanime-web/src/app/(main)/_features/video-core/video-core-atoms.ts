@@ -2,6 +2,11 @@
 import { atom } from "jotai"
 import { derive } from "jotai-derive"
 
+import { atomWithStorage } from "jotai/utils"
+import { newBand, EQ_BANDS } from "./_lib/audio-effects"
+
+export const vc_analyserNode = atom<AnalyserNode | null>(null)
+
 export const vc_menuOpen = atom<string | null>(null)
 export const vc_menuSectionOpen = atom<string | null>(null)
 export const vc_menuSubSectionOpen = atom<string | null>(null)
@@ -61,3 +66,7 @@ export const vc_skipChapter = atom<{
 } | null>(null)
 
 export const vc_globalMiniPlayerAtom = atom(false)
+export const vc_selectedAudioEffect = atomWithStorage<string>("seanime-audio-effect", "none")
+
+const noneGains = newBand(EQ_BANDS.length)
+export const vc_eqGains = atomWithStorage<number[]>("vc_eq_gains", noneGains)

@@ -10,6 +10,7 @@ import { type NormalizedSkipData } from "@/app/(main)/_features/video-core/_lib/
 import { vc_anime4kOption, VideoCoreAnime4K } from "@/app/(main)/_features/video-core/video-core-anime-4k"
 import { Anime4KOption, VideoCoreAnime4KManager } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_eqGains } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_menuSectionOpen } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_hoveringControlBar } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_activePlayerId } from "@/app/(main)/_features/video-core/video-core-atoms"
@@ -142,6 +143,11 @@ import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { useUnmount, useUpdateEffect, useWindowSize } from "react-use"
 import { VideoCoreScreenshotDirPrompt } from "./video-core-screenshot-prompt"
 
+import { vc_selectedAudioEffect } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { vc_analyserNode } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { VideoCoreAudioEffectsModal } from "@/app/(main)/_features/video-core/video-core-audio-effects"
+import { EQ_BANDS } from "./_lib/audio-effects"
+
 const log = logger("VIDEO CORE")
 
 export const VIDEOCORE_DEBUG_ELEMENTS = false
@@ -266,6 +272,7 @@ export function VideoCoreProvider(props: { id: string, children: React.ReactNode
                 vc_isSwiping,
                 vc_isMobile,
                 vc_swipeSeekTime,
+                vc_selectedAudioEffect,
             ]}
         >
             {children}
@@ -720,6 +727,111 @@ export function VideoCore(props: VideoCoreProps) {
     const action = useSetAtom(vc_dispatchAction)
     const setInSightOpen = useSetAtom(vc_inSight_open)
     const setInSightData = useSetAtom(vc_inSight_data)
+
+    // Get the Jotai setter for analyserNode parameters
+    const setAnalyserNode = useSetAtom(vc_analyserNode)
+    const audioCtxRef = useRef<AudioContext | null>(null)
+    const eqGains = useAtomValue(vc_eqGains)
+    const eqFiltersRef = useRef<BiquadFilterNode[]>([])
+
+    // Initialize Audio Analyzer
+    React.useEffect(() => {
+        const v = videoRef.current
+        if (!v || !state.active) return
+
+        const handleAudioInit = () => {
+            try {
+                // Prevent double creation of AudioContext
+                if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+                    const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext
+                    const audioCtx = new AudioCtxClass()
+                    audioCtxRef.current = audioCtx
+
+                    // Connection Web Audio API
+                    const source = audioCtx.createMediaElementSource(v)
+                    const analyser = audioCtx.createAnalyser()
+                    analyser.fftSize = 64 // 32 frequency bands for the spectrum
+
+                    // 5-BAND Equalizer
+                    const freqs = EQ_BANDS.map((components) => {return components.freq_hz})
+                    const types: BiquadFilterType[] = []
+                    freqs.forEach((freq_hz) => {
+                        if (freq_hz <= 900) {
+                            types.push("lowshelf")
+                        } else if (freq_hz >= 1500) {
+                            types.push("highshelf")
+                        } else {
+                            types.push("peaking")
+                        }
+                    })
+
+                    const filters = freqs.map((freq, i) => {
+                        const filter = audioCtx.createBiquadFilter()
+                        filter.type = types[i]
+                        filter.frequency.value = freq
+                        filter.gain.value = eqGains[i] || 0
+                        return filter
+                    })
+
+                    eqFiltersRef.current = filters
+
+                    // Connections Source -> Filter 1 -> ... -> Filter 5 -> Analyser -> Output
+                    let currentNode: AudioNode = source
+                    filters.forEach((filter) => {
+                        currentNode.connect(filter)
+                        currentNode = filter
+                    })
+
+                    currentNode.connect(analyser)
+                    analyser.connect(audioCtx.destination)
+
+                    // Publish analyser in Jotai atom
+                    setAnalyserNode(analyser)
+                }
+                    
+                // Handle the change of episodes
+                if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+                    audioCtxRef.current.resume()
+                }
+
+            } catch (err) {
+                log.error("Failed to initialize Web Audio AnalyserNode", err)
+            }
+        }
+
+        // Listens to the future clicks on Play
+        v.addEventListener("play", handleAudioInit)
+        v.addEventListener("loadedmetadata", handleAudioInit)
+        v.addEventListener("loadstart", handleAudioInit)
+
+        // Correction AUTOPLAY
+        if (!v.paused) {
+            handleAudioInit()
+        }
+
+        return () => {
+            v.removeEventListener("play", handleAudioInit)
+            v.removeEventListener("loadedmetadata", handleAudioInit)
+            v.removeEventListener("loadstart", handleAudioInit)
+
+            if (audioCtxRef.current) {
+                audioCtxRef.current.close().catch((err) => { console.log(err) })
+                audioCtxRef.current = null
+            }
+            setAnalyserNode(null)
+        }
+    }, [videoRef.current, state.active, videoRef.current?.src])
+
+    // Real-time configuration of the equalizer
+    React.useEffect(() => {
+        if (eqFiltersRef.current.length === EQ_BANDS.length) {
+            eqGains.forEach((gain, index) => {
+                if (eqFiltersRef.current[index]) {
+                    eqFiltersRef.current[index].gain.value = gain
+                }
+            })
+        }
+    }, [eqGains])
 
     // States
     const qc = useQueryClient()
@@ -1683,6 +1795,7 @@ export function VideoCore(props: VideoCoreProps) {
             <ScopeProvider atoms={[__torrentSearch_selectionAtom, __torrentSearch_selectionEpisodeAtom, __torrentSearch_selectedTorrentsAtom]}>
                 <VideoCoreAnime4K />
                 <VideoCorePreferencesModal isWebPlayer={props.id !== "native-player"} />
+                <VideoCoreAudioEffectsModal isWebPlayer={props.id !== "natuve-player"} />
                 <VideoCoreScreenshotDirPrompt />
                 {fullscreen && <RemoveScrollBar />}
                 <div

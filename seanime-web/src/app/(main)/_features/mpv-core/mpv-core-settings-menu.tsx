@@ -18,7 +18,7 @@ import React from "react"
 import { HiFastForward } from "react-icons/hi"
 import { ImFileText } from "react-icons/im"
 import { IoCaretForwardCircleOutline } from "react-icons/io5"
-import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings2, LuSparkles, LuTvMinimalPlay } from "react-icons/lu"
+import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings2, LuSparkles, LuTvMinimalPlay, LuSlidersVertical } from "react-icons/lu"
 import { MdOutlineAccessTime, MdOutlineSubtitles, MdSpeed } from "react-icons/md"
 import { RiShadowLine } from "react-icons/ri"
 import { TbArrowForwardUp } from "react-icons/tb"
@@ -99,6 +99,7 @@ export interface MpvCoreSettingsMenuProps {
     anime4kError: string | null
     onRefreshAnime4K: () => void
     onOpenPreferences: () => void
+    onOpenAudioEffects: () => void
 }
 
 export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
@@ -135,6 +136,7 @@ export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
         anime4kError,
         onRefreshAnime4K,
         onOpenPreferences,
+        onOpenAudioEffects,
     } = props
     const serverStatus = useServerStatus()
     const { mutate: patchSetting } = usePatchSetting()
@@ -256,6 +258,13 @@ export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
                     openSection={openSection}
                     onOpenSectionChange={setOpenSection}
                     onClick={onOpenPreferences}
+                />
+                <MediaCoreMenuOption
+                    title="Audio Effects"
+                    icon={LuSlidersVertical}
+                    openSection={openSection}
+                    onOpenSectionChange={setOpenSection}
+                    onClick={onOpenAudioEffects}
                 />
             </MediaCoreMenuSectionBody>
 
