@@ -44,8 +44,8 @@ export const __anime_entryPageViewAtom = atom<string>("library")
 function getAutomaticAnimeEntryView(entry: Anime_Entry | undefined, serverStatus: ReturnType<typeof useServerStatus>) {
     if (entry?.libraryData) return "library"
     if (serverStatus?.debridSettings?.enabled) return "debridstream"
-    if (serverStatus?.torrentstreamSettings?.enabled) return "torrentstream"
     if (serverStatus?.settings?.library?.enableOnlinestream) return "onlinestream"
+    if (serverStatus?.torrentstreamSettings?.enabled) return "torrentstream"
     return "library"
 }
 
