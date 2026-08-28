@@ -148,9 +148,10 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 		if len(entryEp.DisplayTitle) == 0 {
 			switch opts.LocalFile.Metadata.Type {
 			case LocalFileTypeMain:
+				mediaFormat := opts.Media.GetFormat()
 				if foundAnimapEpisode {
 					entryEp.AniDBEpisode = aniDBEp
-					if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
+					if mediaFormat != nil && *mediaFormat == anilist.MediaFormatMovie {
 						entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
 						entryEp.EpisodeTitle = "Complete Movie"
 					} else {
@@ -158,7 +159,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 						entryEp.EpisodeTitle = episodeMetadata.GetTitle()
 					}
 				} else {
-					if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
+					if mediaFormat != nil && *mediaFormat == anilist.MediaFormatMovie {
 						entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
 						entryEp.EpisodeTitle = "Complete Movie"
 					} else {
@@ -225,7 +226,8 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 				entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.AnimeMetadata.GetOffset()
 				switch entryEp.Type {
 				case LocalFileTypeMain:
-					if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
+					mediaFormat := opts.Media.GetFormat()
+					if mediaFormat != nil && *mediaFormat == anilist.MediaFormatMovie {
 						entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
 						entryEp.EpisodeTitle = "Complete Movie"
 					} else {
@@ -335,7 +337,8 @@ func NewSimpleEpisode(opts *NewSimpleEpisodeOptions) *Episode {
 		if len(entryEp.DisplayTitle) == 0 {
 			switch opts.LocalFile.Metadata.Type {
 			case LocalFileTypeMain:
-				if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
+				mediaFormat := opts.Media.GetFormat()
+				if mediaFormat != nil && *mediaFormat == anilist.MediaFormatMovie {
 					entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
 					entryEp.EpisodeTitle = "Complete Movie"
 				} else {
