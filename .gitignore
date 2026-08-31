@@ -90,3 +90,6 @@ docs/support-skills
 local_testing
 dist-server
 scripts/build.go
+
+# nix
+result
