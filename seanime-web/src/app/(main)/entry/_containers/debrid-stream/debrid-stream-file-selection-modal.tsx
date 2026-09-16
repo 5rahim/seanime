@@ -40,11 +40,15 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
 
     const { selectedDebridService } = useSelectedDebridService()
 
-    const { data: previews, isLoading } = useDebridGetTorrentFilePreviews({
+    const { data: previews, isLoading, isError, error } = useDebridGetTorrentFilePreviews({
         torrent: selectedTorrent!,
         media: entry.media,
         episodeNumber: torrentSearchStreamEpisode?.episodeNumber,
     }, !!selectedTorrent)
+
+    const previewError = typeof error?.response?.data?.error === "string"
+        ? error.response.data.error
+        : "Unable to load the files for this torrent. Please try again or choose another torrent."
 
     const { setAutoPlayTorrent } = useAutoPlaySelectedTorrent()
 
@@ -83,13 +87,13 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
     }
 
     React.useEffect(() => {
-        if (previews && previews.length === 1) {
+        if (!isError && previews && previews.length === 1) {
             setSelectedFileIdx(String(previews[0].fileId))
             React.startTransition(() => {
                 onStream(String(previews[0].fileId))
             })
         }
-    }, [previews])
+    }, [previews, isError])
 
     const hasLikelyMatch = previews?.some(f => f.isLikely)
     const hasOneLikelyMatch = hasLikelyMatch && previews?.filter(f => f.isLikely).length === 1
@@ -140,9 +144,27 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
         >
             <VaulContent className="max-w-5xl mx-auto">
                 <AppLayoutStack className="mt-4 p-3 lg:p-6">
-                    {(isLoading || previews?.length === 1) ? <LoadingSpinner
+                    {(!isError && (isLoading || previews?.length === 1)) ? <LoadingSpinner
                         title={previews?.length === 1 ? "Launching stream..." : "Fetching torrent info..."}
-                    /> : (
+                    /> : isError || !previews?.length ? (
+                        <AppLayoutStack className="mt-4">
+                            <div role={isError ? "alert" : "status"} className="rounded-[--radius-md] border p-6 space-y-3">
+                                <p className="font-semibold">{isError ? "Unable to load files" : "No playable files"}</p>
+                                <p className="text-[--muted]">
+                                    {isError ? previewError : "This torrent has no playable video files available. Choose another torrent."}
+                                </p>
+                            </div>
+                            <Button
+                                intent="primary"
+                                onClick={() => {
+                                    setSelectedTorrent(undefined)
+                                    setSelectedFileIdx("")
+                                }}
+                            >
+                                Choose another torrent
+                            </Button>
+                        </AppLayoutStack>
+                    ) : (
                         <AppLayoutStack className="mt-4">
 
                             <ScrollArea viewportRef={scrollRef} className="h-[75dvh] overflow-y-auto p-4 border rounded-[--radius-md]">

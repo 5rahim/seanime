@@ -277,8 +277,10 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 		})
 
 		itemCh := make(chan debrid.TorrentItem, 1)
+		progressDone := make(chan struct{})
 
 		go func() {
+			defer close(progressDone)
 			for item := range itemCh {
 				if opts.PlaybackType == PlaybackTypeNativePlayer {
 					if !s.repository.directStreamManager.UpdateOpenStep(opts.ClientId, fmt.Sprintf("Awaiting stream: %d%%", item.CompletionPercentage)) {
@@ -301,9 +303,8 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 			FileId: fileId,
 		}, itemCh)
 
-		go func() {
-			close(itemCh)
-		}()
+		close(itemCh)
+		<-progressDone
 
 		if ctx.Err() != nil {
 			s.repository.logger.Debug().Msg("debridstream: Context cancelled, stopping stream")
@@ -318,6 +319,9 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 		if err != nil {
 			s.repository.logger.Err(err).Msg("debridstream: Failed to get stream URL")
 			if !errors.Is(err, context.Canceled) {
+				if opts.PlaybackType == PlaybackTypeNativePlayer {
+					s.repository.directStreamManager.AbortOpen(opts.ClientId, err)
+				}
 				s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
 					Status:      StreamStatusFailed,
 					TorrentName: selectedTorrent.Name,
