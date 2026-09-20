@@ -46,6 +46,7 @@
     "@radix-ui/react-select": "^2.3.3",
     "@radix-ui/react-separator": "^1.1.11",
     "@radix-ui/react-switch": "^1.3.3",
+    "@radix-ui/react-slider": "^1.4.3",
     "@radix-ui/react-tabs": "^1.1.17",
     "@radix-ui/react-tooltip": "^1.2.12",
     "@replit/codemirror-vscode-keymap": "^6.0.2",
