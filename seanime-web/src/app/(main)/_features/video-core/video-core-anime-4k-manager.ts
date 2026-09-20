@@ -46,6 +46,32 @@ fn frag_main(input: VertexOutput) -> @location(0) vec4<f32> {
 }
 `
 
+// Presents the last pipeline's output onto the canvas, sampled the same way anime4k-webgpu's own renderer does
+const anime4kBlitShader = /* wgsl */`
+struct VertexOutput {
+    @builtin(position) Position: vec4<f32>,
+    @location(0) fragUV: vec2<f32>,
+}
+
+@vertex
+fn vert_main(@builtin(vertex_index) VertexIndex: u32) -> VertexOutput {
+    const pos = array(vec2(-1.0, -1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));
+
+    var output: VertexOutput;
+    output.Position = vec4(pos[VertexIndex], 0.0, 1.0);
+    output.fragUV = vec2(pos[VertexIndex].x * 0.5 + 0.5, 0.5 - pos[VertexIndex].y * 0.5);
+    return output;
+}
+
+@group(0) @binding(1) var mySampler: sampler;
+@group(0) @binding(2) var myTexture: texture_2d<f32>;
+
+@fragment
+fn main(@location(0) fragUV: vec2f) -> @location(0) vec4f {
+    return textureSampleBaseClampToEdge(myTexture, mySampler, fragUV);
+}
+`
+
 export type Anime4KManagerCanvasCreatedEvent = CustomEvent<{ canvas: HTMLCanvasElement }>
 export type Anime4KManagerOptionChangedEvent = CustomEvent<{ newOption: Anime4KOption }>
 export type Anime4KManagerErrorEvent = CustomEvent<{ message: string }>
@@ -98,6 +124,8 @@ interface Anime4KWebGPUResources {
     device?: GPUDevice
     pipelines?: Anime4KPipeline[]
     outputTexture?: GPUTexture
+    context?: GPUCanvasContext
+    inputTexture?: GPUTexture
 }
 
 export class VideoCoreAnime4KManager extends EventTarget {
@@ -129,6 +157,12 @@ export class VideoCoreAnime4KManager extends EventTarget {
     private _boxSize: { width: number; height: number } = { width: 0, height: 0 }
     private _initializationTimeout: NodeJS.Timeout | null = null
     private _initialized = false
+    // Incremented by _stopRendering() to invalidate the running render session.
+    private _renderSessionId = 0
+    private _frameCallbackId: number | null = null
+    private _framesInFlight = 0
+    // Frames allowed on the GPU queue at once, beyond which frames are skipped instead of queued.
+    private _maxFramesInFlight = 2
     private _onCanvasCreatedCallbacks: Set<(canvas: HTMLCanvasElement) => void> = new Set()
     private _onCanvasCreatedCallbacksOnce: Set<(canvas: HTMLCanvasElement) => void> = new Set()
 
@@ -474,10 +508,7 @@ export class VideoCoreAnime4KManager extends EventTarget {
             this._renderStats.renderCallbackId = null
         }
 
-        if (this._webgpuResources?.device) {
-            this._webgpuResources.device.destroy()
-            this._webgpuResources = null
-        }
+        this._stopRendering()
 
         if (this._abortController) {
             this._abortController.abort()
@@ -491,6 +522,24 @@ export class VideoCoreAnime4KManager extends EventTarget {
         this.dispatchEvent(event)
     }
 
+    // Stop the render loop and release the GPU device it owns.
+    // Safe to call at any point, including while initialization is in progress.
+    private _stopRendering() {
+        this._renderSessionId++
+        this._framesInFlight = 0
+
+        if (this._frameCallbackId !== null) {
+            this.videoElement.cancelVideoFrameCallback(this._frameCallbackId)
+            this._frameCallbackId = null
+        }
+
+        this._webgpuResources?.inputTexture?.destroy()
+        this._webgpuResources?.context?.unconfigure()
+        // Destroying the device also frees the pipeline textures, which expose no disposal of their own
+        this._webgpuResources?.device?.destroy()
+        this._webgpuResources = null
+    }
+
     // throws if initialization fails
     private async _initialize() {
         if (this._initialized || this._currentOption === "off") {
@@ -502,7 +551,8 @@ export class VideoCoreAnime4KManager extends EventTarget {
         const event: Anime4KManagerOptionChangedEvent = new CustomEvent("optionchanged", { detail: { newOption: this._currentOption } })
         this.dispatchEvent(event)
 
-        this._abortController = new AbortController()
+        const abortController = new AbortController()
+        this._abortController = abortController
         this._frameDropState = {
             ...this._frameDropState,
             frameDropCount: 0,
@@ -525,23 +575,29 @@ export class VideoCoreAnime4KManager extends EventTarget {
                 throw new Error("WebGPU not supported")
             }
 
-            if (this._abortController.signal.aborted) return
+            if (this._isStale(abortController)) return
 
             this._createCanvas()
 
-            if (this._abortController.signal.aborted) return
+            if (this._isStale(abortController)) return
 
-            await this._startRendering()
+            await this._startRendering(abortController)
 
             this._initialized = true
             log.info("Anime4K initialized")
         }
         catch (error) {
-            if (!this._abortController?.signal.aborted) {
+            if (!abortController.signal.aborted) {
                 log.error("Initialization failed", error)
                 throw error
             }
         }
+    }
+
+    // destroy() nulls the controller and the next _initialize() installs a fresh one, so reading
+    // this._abortController directly would let an already aborted run carry on allocating
+    private _isStale(abortController: AbortController): boolean {
+        return abortController.signal.aborted || this._abortController !== abortController
     }
 
     private getRenderedVideoContentSize(video: HTMLVideoElement, containerWidth: number, containerHeight: number) {
@@ -577,6 +633,9 @@ export class VideoCoreAnime4KManager extends EventTarget {
             this._boxSize = { width: videoContentSize.displayedWidth, height: videoContentSize.displayedHeight }
         }
 
+        // Drop any previous canvas, otherwise it stays in the DOM holding its own GPU context
+        this.canvas?.remove()
+
         this.canvas = document.createElement("canvas")
 
         this.canvas.width = this._boxSize.width
@@ -599,7 +658,7 @@ export class VideoCoreAnime4KManager extends EventTarget {
     }
 
     // WebGPU rendering
-    private async _startRendering() {
+    private async _startRendering(abortController: AbortController) {
         if (!this.canvas || !this.videoElement || this._currentOption === "off") {
             console.warn("stopped started")
             return
@@ -619,31 +678,122 @@ export class VideoCoreAnime4KManager extends EventTarget {
 
         log.info("Rendering started")
 
-        await anime4k.render({
-            video: this.videoElement,
-            canvas: this.canvas,
-            pipelineBuilder: (device, inputTexture) => {
-                const commonProps = {
-                    device,
-                    inputTexture,
-                    nativeDimensions,
-                    targetDimensions,
-                }
+        // Below is anime4k.render() inlined, because that helper leaks by construction:
+        //  - its frame callback reschedules itself unconditionally and it returns no handle, so the
+        //    loop runs for the lifetime of the page and keeps the video element, canvas, pipelines
+        //    and device reachable even after this manager is destroyed
+        //  - it requests its own adapter and device, so overlapping calls leave earlier devices
+        //    unreachable and therefore never destroyed
+        //  - it submits once per presented frame with no regard for whether the GPU kept up
+        // Owning the loop here is what lets _stopRendering() actually stop it.
+        const adapter = await navigator.gpu.requestAdapter()
+        if (!adapter) throw new Error("WebGPU not supported")
 
-                const pipelines = this.createPipeline(commonProps, anime4k)
-                this._webgpuResources = {
-                    device,
-                    pipelines,
-                    outputTexture: pipelines.at(-1)?.getOutputTexture(),
-                }
+        const device = await adapter.requestDevice()
 
-                return pipelines
-            },
+        if (this._isStale(abortController) || !this.canvas) {
+            device.destroy()
+            return
+        }
+
+        const context = this.canvas.getContext("webgpu")!
+        const presentationFormat = navigator.gpu.getPreferredCanvasFormat()
+        context.configure({ device, format: presentationFormat, alphaMode: "premultiplied" })
+
+        const inputTexture = device.createTexture({
+            size: [nativeDimensions.width, nativeDimensions.height, 1],
+            format: "rgba16float",
+            usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
         })
 
+        const pipelines = this.createPipeline({ device, inputTexture, nativeDimensions, targetDimensions }, anime4k)
+
+        const bindGroupLayout = device.createBindGroupLayout({
+            label: "Render Bind Group Layout",
+            entries: [
+                { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {} },
+                { binding: 2, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+            ],
+        })
+
+        const renderPipeline = device.createRenderPipeline({
+            layout: device.createPipelineLayout({ bindGroupLayouts: [bindGroupLayout] }),
+            vertex: { module: device.createShaderModule({ code: anime4kBlitShader }), entryPoint: "vert_main" },
+            fragment: {
+                module: device.createShaderModule({ code: anime4kBlitShader }),
+                entryPoint: "main",
+                targets: [{ format: presentationFormat }],
+            },
+            primitive: { topology: "triangle-list" },
+        })
+
+        const bindGroup = device.createBindGroup({
+            layout: bindGroupLayout,
+            entries: [
+                { binding: 1, resource: device.createSampler({ magFilter: "linear", minFilter: "linear" }) },
+                { binding: 2, resource: pipelines.at(-1)!.getOutputTexture().createView() },
+            ],
+        })
+
+        this._webgpuResources = {
+            device,
+            pipelines,
+            outputTexture: pipelines.at(-1)?.getOutputTexture(),
+            context,
+            inputTexture,
+        }
+
+        // Claim the session only once every resource above exists, so nothing can be half-published
+        const sessionId = ++this._renderSessionId
+
+        const renderFrame = () => {
+            this._frameCallbackId = null
+            if (sessionId !== this._renderSessionId) return
+
+            // Drop the frame rather than queue it when the GPU is behind, see _maxFramesInFlight
+            if (this._framesInFlight < this._maxFramesInFlight) {
+                this._framesInFlight++
+
+                if (!this.videoElement.paused) {
+                    device.queue.copyExternalImageToTexture({ source: this.videoElement }, { texture: inputTexture },
+                        [nativeDimensions.width, nativeDimensions.height])
+                }
+
+                const encoder = device.createCommandEncoder()
+                pipelines.forEach(pipeline => pipeline.pass(encoder))
+
+                const pass = encoder.beginRenderPass({
+                    colorAttachments: [{
+                        view: context.getCurrentTexture().createView(),
+                        clearValue: { r: 0, g: 0, b: 0, a: 1 },
+                        loadOp: "clear",
+                        storeOp: "store",
+                    }],
+                })
+                pass.setPipeline(renderPipeline)
+                pass.setBindGroup(0, bindGroup)
+                pass.draw(3)
+                pass.end()
+                device.queue.submit([encoder.finish()])
+
+                // Rejects if the device goes away before the work completes, so release on both paths.
+                // _stopRendering() resets the counter, hence the session check.
+                const released = () => {
+                    if (sessionId === this._renderSessionId) this._framesInFlight--
+                }
+                device.queue.onSubmittedWorkDone().then(released, released)
+            }
+
+            this._frameCallbackId = this.videoElement.requestVideoFrameCallback(renderFrame)
+        }
+
+        this._frameCallbackId = this.videoElement.requestVideoFrameCallback(renderFrame)
+
+        // Deferred, so the session check matters: a teardown inside this window would otherwise
+        // resurrect the fps tracker below on a session that no longer exists
         setTimeout(() => {
             requestAnimationFrame(() => {
-                if (this.canvas) {
+                if (this.canvas && sessionId === this._renderSessionId) {
                     const rect = this.videoElement.getBoundingClientRect()
                     const videoContentSize = this.getRenderedVideoContentSize(this.videoElement, rect.width, rect.height)
                     if (videoContentSize && (videoContentSize.displayedWidth !== this._boxSize.width || videoContentSize.displayedHeight !== this._boxSize.height)) {
@@ -666,14 +816,14 @@ export class VideoCoreAnime4KManager extends EventTarget {
                     const event: Anime4KManagerCanvasCreatedEvent = new CustomEvent("canvascreated", { detail: { canvas: this.canvas } })
                     this.dispatchEvent(event)
 
-                    this._startRenderFpsTracking()
+                    this._startRenderFpsTracking(sessionId)
                 }
             })
         }, 100)
 
         setTimeout(() => {
             requestAnimationFrame(() => {
-                if (this.canvas && !this._abortController?.signal.aborted) {
+                if (this.canvas && sessionId === this._renderSessionId && !this._abortController?.signal.aborted) {
                     const rect = this.videoElement.getBoundingClientRect()
                     const videoContentSize = this.getRenderedVideoContentSize(this.videoElement, rect.width, rect.height)
                     if (videoContentSize && (videoContentSize.displayedWidth !== this._boxSize.width || videoContentSize.displayedHeight !== this._boxSize.height)) {
@@ -793,6 +943,8 @@ export class VideoCoreAnime4KManager extends EventTarget {
     }
 
     // Get GPU information
+    // Adapter only: requesting a device here would leak one on every initialization, since this is
+    // a support probe and the caller never gets to release it
     private async getGPUInfo() {
         if (!navigator.gpu) return null
 
@@ -800,15 +952,11 @@ export class VideoCoreAnime4KManager extends EventTarget {
             const adapter = await navigator.gpu.requestAdapter()
             if (!adapter) return null
 
-            const device = await adapter.requestDevice()
-            if (!device) return null
-
             const info = (adapter as any).info || {}
 
             return {
                 gpu: info.vendor || info.architecture || "Unknown GPU",
                 vendor: info.vendor || "Unknown",
-                device,
             }
         }
         catch {
@@ -838,7 +986,7 @@ export class VideoCoreAnime4KManager extends EventTarget {
         return this.canvas ? this.canvas.style.display === "none" : false
     }
 
-    private _startRenderFpsTracking() {
+    private _startRenderFpsTracking(sessionId: number) {
         if (!this.videoElement.requestVideoFrameCallback) return
 
         const trackFrame = (now: number, metadata: VideoFrameCallbackMetadata) => {
@@ -856,7 +1004,9 @@ export class VideoCoreAnime4KManager extends EventTarget {
 
             this._renderStats.lastRenderTime = now
 
-            if (this._isOptionSelected(this._currentOption)) {
+            // destroy() leaves _currentOption untouched, so without the session check this keeps
+            // rescheduling forever and holds on to the manager and its video element
+            if (sessionId === this._renderSessionId && this._isOptionSelected(this._currentOption)) {
                 this._renderStats.renderCallbackId = this.videoElement.requestVideoFrameCallback(trackFrame)
             }
         }
