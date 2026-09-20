@@ -31,6 +31,7 @@ type (
 )
 
 func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOptions) {
+	defer util.HandlePanicInModuleThen("torrenstream/HydrateStreamCollection", func() {})
 
 	reqEvent := new(anime.AnimeLibraryStreamCollectionRequestedEvent)
 	reqEvent.AnimeCollection = opts.AnimeCollection
@@ -116,6 +117,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 	for _, entry := range currentlyWatching.Entries {
 		go func(entry *anilist.AnimeListEntry) {
 			defer wg.Done()
+			defer util.HandlePanicInModuleThen("torrenstream/HydrateStreamCollection", func() {})
 
 			if entry == nil || entry.GetMedia() == nil {
 				return

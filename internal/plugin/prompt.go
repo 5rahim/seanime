@@ -25,6 +25,11 @@ func promptKey(parts ...string) string {
 	return strings.Join(ret, ":")
 }
 
+// Ask prompts the user for permission before an action is performed.
+func (a *AppContextImpl) Ask(ext *extension.Extension, opts prompt.Options) error {
+	return a.ask(ext, opts)
+}
+
 func (a *AppContextImpl) ask(ext *extension.Extension, opts prompt.Options) error {
 	manager, ok := a.promptManager.Get()
 	if !ok || manager == nil {

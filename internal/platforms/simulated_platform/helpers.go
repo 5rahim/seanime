@@ -122,6 +122,8 @@ func (cw *CollectionWrapper) addAnimeEntry(mediaId int, status anilist.MediaList
 	// Create new entry
 	newEntry := &anilist.AnimeCollection_MediaListCollection_Lists_Entries{
 		ID:          int(time.Now().UnixNano()), // Generate unique ID
+		CreatedAt:   new(int(time.Now().Unix())),
+		UpdatedAt:   new(int(time.Now().Unix())),
 		Status:      &status,
 		Progress:    new(0),
 		Media:       mediaResp.GetMedia(),
@@ -168,6 +170,8 @@ func (cw *CollectionWrapper) updateAnimeEntry(mediaId int, status *anilist.Media
 	if foundEntry == nil || sourceList == nil {
 		return ErrMediaNotFound
 	}
+
+	foundEntry.UpdatedAt = new(int(time.Now().Unix()))
 
 	// Update entry fields
 	if progress != nil {
@@ -340,6 +344,8 @@ func (cw *CollectionWrapper) addMangaEntry(mediaId int, status anilist.MediaList
 	// Create new entry
 	newEntry := &anilist.MangaCollection_MediaListCollection_Lists_Entries{
 		ID:          int(time.Now().UnixNano()),
+		CreatedAt:   new(int(time.Now().Unix())),
+		UpdatedAt:   new(int(time.Now().Unix())),
 		Status:      &status,
 		Progress:    new(0),
 		Media:       mediaResp.GetMedia(),
@@ -386,6 +392,8 @@ func (cw *CollectionWrapper) updateMangaEntry(mediaId int, status *anilist.Media
 	if foundEntry == nil || sourceList == nil {
 		return ErrMediaNotFound
 	}
+
+	foundEntry.UpdatedAt = new(int(time.Now().Unix()))
 
 	// Update entry fields
 	if progress != nil {

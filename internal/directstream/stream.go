@@ -559,22 +559,12 @@ func (m *Manager) listenToPlayerEvents() {
 				m.Logger.Debug().Msgf("directstream: Subtitle file uploaded, Filename: %s", ev.Filename)
 				cs.OnSubtitleFileUploaded(ev.Filename, ev.Content)
 			case *player.CompletedEvent:
+				// devnote: the progress update is handled by the mediacore coordinator,
+				// which respects the AutoUpdateProgress setting and the current list entry progress
 				m.Logger.Debug().Msgf("directstream: Video completed")
-				m.updateCompletedProgress(cs)
 			}
 		}
 	}()
-}
-
-func (m *Manager) updateCompletedProgress(stream Stream) {
-	if baseStream, ok := stream.(*BaseStream); ok {
-		baseStream.updateProgress.Do(func() {
-			mediaID := baseStream.media.GetID()
-			episodeNumber := baseStream.episode.GetProgressNumber()
-			totalEpisodes := baseStream.media.GetTotalEpisodeCount()
-			_ = baseStream.manager.platformRef.Get().UpdateEntryProgress(context.Background(), mediaID, episodeNumber, &totalEpisodes)
-		})
-	}
 }
 
 func (m *Manager) unloadStream(targets ...Stream) {
@@ -622,8 +612,7 @@ type BaseStream struct {
 	// Subtitle stream management
 	activeSubtitleStreams *result.Map[string, *SubtitleStream]
 
-	manager        *Manager
-	updateProgress sync.Once
+	manager *Manager
 }
 
 var _ Stream = (*BaseStream)(nil)

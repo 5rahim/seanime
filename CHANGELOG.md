@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.10.3
+
+- ⚡️ AniList: Last added, last updated filtering options
+- ⚡️ Plugin APIs: Ability to change marketplace URL
+- 🦺 Continuity: History no longer deleted on episode completion
+- 🦺 VideoCore: Potential fix for disappearing subtitles
+- 🦺 Torrentstream: Fixed wrong torrent from being selected for autoplay #948
+- 🦺 Torrentstream: Fixed VLC mobile compatibility #928
+- 🦺 Plugins: Fixed newEpisodeGridItemMenuItem in torrent streaming
+- 🦺 Mediastream: Direct play and progress fixes #926
+- 🦺 MpvCore: Fixed audio issues on macOS 27
+- ⬆️ Updated dependencies
+
 ## v3.10.2
 
 - ⚡️ Perf (Directstream): Improved torrent streaming handling

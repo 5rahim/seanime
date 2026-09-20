@@ -88,6 +88,7 @@ type Context struct {
 	commandPaletteManager *CommandPaletteManager // Register and manage command palette
 	domManager            *DOMManager            // DOM manipulation manager
 	notificationManager   *NotificationManager   // Register and manage notifications
+	marketplaceManager    *MarketplaceManager    // Manage extension marketplace
 
 	atomicCleanupCounter atomic.Int64
 	onCleanupFns         *result.Map[int64, func()]
@@ -159,6 +160,7 @@ func NewContext(ui *UI) *Context {
 	ret.commandPaletteManager = NewCommandPaletteManager(ret)
 	ret.domManager = NewDOMManager(ret)
 	ret.notificationManager = NewNotificationManager(ret)
+	ret.marketplaceManager = NewMarketplaceManager(ret)
 
 	// Initialize the event batch timer
 	ret.eventBatchTimer = time.AfterFunc(eventBatchFlushInterval*time.Millisecond, func() {
@@ -278,6 +280,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 			case extension.PluginPermissionExtensions:
 				if !security.IsStrict() {
 					plugin.GlobalAppContext.BindExtensionsToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+					c.marketplaceManager.bindExtensions(obj.Get("extensions").ToObject(vm))
 				}
 			}
 		}

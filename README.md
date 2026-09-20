@@ -97,7 +97,7 @@ Consider sponsoring or sharing the project if you want to see more features impl
 The maintenance of this project is made possible by the sponsors.
 
 <p align="center">
-<!-- real-sponsors --><a href="https://github.com/TorBox-App"><img src="https:&#x2F;&#x2F;github.com&#x2F;TorBox-App.png" width="60px" alt="User avatar: TorBox-App" /></a><!-- real-sponsors -->
+<!-- real-sponsors --><a href="https://github.com/aquaryuo"><img src="https:&#x2F;&#x2F;github.com&#x2F;aquaryuo.png" width="60px" alt="User avatar: aquaryuo" /></a><!-- real-sponsors -->
 <!-- real-sponsors --><a href="https://github.com/osayed0001"><img src="https:&#x2F;&#x2F;github.com&#x2F;osayed0001.png" width="60px" alt="User avatar: osayed0001" /></a><!-- real-sponsors -->
 </p>
 

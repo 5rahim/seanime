@@ -42,6 +42,8 @@ type (
 		Repeat      int                      `json:"repeat,omitempty"`
 		StartedAt   string                   `json:"startedAt,omitempty"`
 		CompletedAt string                   `json:"completedAt,omitempty"`
+		CreatedAt   *int                     `json:"createdAt,omitempty"`
+		UpdatedAt   *int                     `json:"updatedAt,omitempty"`
 	}
 )
 
@@ -333,6 +335,8 @@ func NewEntryListData(anilistEntry *anilist.AnimeListEntry) *EntryListData {
 		Repeat:      anilistEntry.GetRepeatSafe(),
 		StartedAt:   anilist.FuzzyDateToString(anilistEntry.StartedAt),
 		CompletedAt: anilist.FuzzyDateToString(anilistEntry.CompletedAt),
+		CreatedAt:   anilistEntry.CreatedAt,
+		UpdatedAt:   anilistEntry.UpdatedAt,
 	}
 }
 

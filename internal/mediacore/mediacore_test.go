@@ -3,9 +3,13 @@ package mediacore
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
+	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/player"
+	"seanime/internal/testmocks"
 	"seanime/internal/testutil"
+	"seanime/internal/util"
 	"testing"
 	"time"
 
@@ -307,4 +311,155 @@ func TestCoordinatorPersistsContinuityOnPause(t *testing.T) {
 		history := continuityManager.GetWatchHistoryItem(84)
 		return history != nil && history.Found && history.Item != nil && history.Item.CurrentTime == 61
 	}, time.Second, 10*time.Millisecond)
+}
+
+func newProgressTestCoordinator(t *testing.T) (*Coordinator, *mockBackend, *testmocks.FakePlatform) {
+	t.Helper()
+
+	backend := newMockBackend(player.TargetVideoCore)
+
+	fakePlatform := testmocks.NewFakePlatformBuilder().
+		WithAnimeCollection(&anilist.AnimeCollection{
+			MediaListCollection: &anilist.AnimeCollection_MediaListCollection{
+				Lists: []*anilist.AnimeCollection_MediaListCollection_Lists{},
+			},
+		}).
+		Build()
+
+	var platformImpl platform.Platform = fakePlatform
+
+	coordinator := NewCoordinator(NewCoordinatorOptions{
+		Logger:       testutil.NewTestEnv(t).Logger(),
+		PlatformRef:  util.NewRef(platformImpl),
+		IsOfflineRef: util.NewRef(false),
+		Backends: map[player.Target]Backend{
+			player.TargetVideoCore: backend,
+		},
+	})
+	t.Cleanup(func() { _ = coordinator.Close() })
+
+	coordinator.SetSettings(&models.Settings{
+		Library: &models.LibrarySettings{AutoUpdateProgress: true},
+	})
+	coordinator.SetupSharedEffects()
+
+	return coordinator, backend, fakePlatform
+}
+
+func webPlayerSession(playbackID string) player.SessionKey {
+	return player.SessionKey{
+		Target:     player.TargetVideoCore,
+		ClientID:   "client-1",
+		PlaybackID: playbackID,
+	}
+}
+
+func webPlayerLoadedEvent(playbackID string, episodeNumber int) *player.PlaybackLoadedEvent {
+	return &player.PlaybackLoadedEvent{
+		BaseEvent: player.BaseEvent{Session: webPlayerSession(playbackID)},
+		State: player.PlaybackState{
+			ClientID: "client-1",
+			PlaybackInfo: &player.PlaybackInfo{
+				ID:           playbackID,
+				Target:       player.TargetVideoCore,
+				Renderer:     player.RendererWeb,
+				PlaybackType: player.PlaybackTypeLocalFile,
+				Media:        testmocks.NewBaseAnimeBuilder(1234, "Sample Anime").Build(),
+				Episode: &anime.Episode{
+					EpisodeNumber:  episodeNumber,
+					ProgressNumber: episodeNumber,
+				},
+			},
+		},
+	}
+}
+
+func webPlayerCompletedEvent(playbackID string) *player.CompletedEvent {
+	return &player.CompletedEvent{
+		BaseEvent:   player.BaseEvent{Session: webPlayerSession(playbackID)},
+		CurrentTime: 1400,
+		Duration:    1440,
+	}
+}
+
+func requireProgressCalls(t *testing.T, fakePlatform *testmocks.FakePlatform, expected ...int) {
+	t.Helper()
+
+	require.Eventually(t, func() bool {
+		return len(fakePlatform.UpdateEntryProgressCalls()) == len(expected)
+	}, time.Second, 10*time.Millisecond, "expected %d progress update(s), got %+v", len(expected), fakePlatform.UpdateEntryProgressCalls())
+
+	calls := fakePlatform.UpdateEntryProgressCalls()
+	for i, progress := range expected {
+		require.Equal(t, 1234, calls[i].MediaID)
+		require.Equal(t, progress, calls[i].Progress)
+	}
+}
+
+func TestCoordinatorUpdatesProgressOnCompletion(t *testing.T) {
+	_, backend, fakePlatform := newProgressTestCoordinator(t)
+
+	backend.eventsCh <- webPlayerLoadedEvent("/library/episode-13.mkv", 13)
+	backend.eventsCh <- webPlayerCompletedEvent("/library/episode-13.mkv")
+
+	requireProgressCalls(t, fakePlatform, 13)
+}
+
+// Starting the next episode without terminating the previous playback must not have the new session
+// rejected as stale.
+func TestCoordinatorUpdatesProgressForNextEpisodeWithoutTerminate(t *testing.T) {
+	_, backend, fakePlatform := newProgressTestCoordinator(t)
+
+	backend.eventsCh <- webPlayerLoadedEvent("/library/episode-13.mkv", 13)
+	backend.eventsCh <- webPlayerCompletedEvent("/library/episode-13.mkv")
+	requireProgressCalls(t, fakePlatform, 13)
+
+	backend.eventsCh <- webPlayerLoadedEvent("/library/episode-14.mkv", 14)
+	backend.eventsCh <- webPlayerCompletedEvent("/library/episode-14.mkv")
+
+	requireProgressCalls(t, fakePlatform, 13, 14)
+}
+
+func TestCoordinatorUpdatesProgressForNextEpisodeAfterTerminate(t *testing.T) {
+	_, backend, fakePlatform := newProgressTestCoordinator(t)
+
+	backend.eventsCh <- webPlayerLoadedEvent("/library/episode-13.mkv", 13)
+	backend.eventsCh <- webPlayerCompletedEvent("/library/episode-13.mkv")
+	requireProgressCalls(t, fakePlatform, 13)
+
+	backend.eventsCh <- &player.TerminatedEvent{
+		BaseEvent: player.BaseEvent{Session: webPlayerSession("/library/episode-13.mkv")},
+	}
+	backend.eventsCh <- webPlayerLoadedEvent("/library/episode-14.mkv", 14)
+	backend.eventsCh <- webPlayerCompletedEvent("/library/episode-14.mkv")
+
+	requireProgressCalls(t, fakePlatform, 13, 14)
+}
+
+// The session can be torn down right after the video completes (auto next episode).
+func TestCoordinatorUpdatesProgressWhenTerminatedRightAfterCompletion(t *testing.T) {
+	_, backend, fakePlatform := newProgressTestCoordinator(t)
+
+	backend.eventsCh <- webPlayerLoadedEvent("/library/episode-13.mkv", 13)
+	backend.eventsCh <- webPlayerCompletedEvent("/library/episode-13.mkv")
+	backend.eventsCh <- &player.TerminatedEvent{
+		BaseEvent: player.BaseEvent{Session: webPlayerSession("/library/episode-13.mkv")},
+	}
+
+	requireProgressCalls(t, fakePlatform, 13)
+}
+
+func TestCoordinatorDoesNotUpdateProgressWhenDisabled(t *testing.T) {
+	coordinator, backend, fakePlatform := newProgressTestCoordinator(t)
+
+	coordinator.SetSettings(&models.Settings{
+		Library: &models.LibrarySettings{AutoUpdateProgress: false},
+	})
+
+	backend.eventsCh <- webPlayerLoadedEvent("/library/episode-13.mkv", 13)
+	backend.eventsCh <- webPlayerCompletedEvent("/library/episode-13.mkv")
+
+	require.Never(t, func() bool {
+		return len(fakePlatform.UpdateEntryProgressCalls()) > 0
+	}, 300*time.Millisecond, 10*time.Millisecond)
 }

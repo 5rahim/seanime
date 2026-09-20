@@ -149,7 +149,7 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 	switch streamType {
 	case StreamTypeDirect:
 		// Directly serve the file.
-		streamUrl = "/api/v1/mediastream/direct"
+		streamUrl = DirectPlayStreamUrl(hash)
 	case StreamTypeTranscode:
 		// Live transcode the file.
 		streamUrl = "/api/v1/mediastream/transcode/master.m3u8"

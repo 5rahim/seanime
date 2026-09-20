@@ -368,10 +368,11 @@ func (c *Coordinator) listenToBackendEvents(target player.Target, b Backend) {
 		key := ev.GetSessionKey()
 		var finalState *player.PlaybackState
 		var finalStatus *player.PlaybackStatus
+		var completedState *player.PlaybackState
 
 		c.mu.Lock()
+		_, isLoaded := ev.(*player.PlaybackLoadedEvent)
 		if c.session.Target != key.Target || c.session.ClientID != key.ClientID {
-			_, isLoaded := ev.(*player.PlaybackLoadedEvent)
 			if c.session.Target == "" && isLoaded {
 				c.activeTarget = key.Target
 				c.session = player.SessionKey{
@@ -383,6 +384,15 @@ func (c *Coordinator) listenToBackendEvents(target player.Target, b Backend) {
 				c.mu.Unlock()
 				continue
 			}
+		}
+
+		// A PlaybackLoadedEvent starts a new session, it takes over instead of being rejected as stale.
+		// Otherwise a client that plays the next episode without terminating the previous one is ignored.
+		if isLoaded && key.PlaybackID != "" && c.session.PlaybackID != key.PlaybackID {
+			c.session.PlaybackID = key.PlaybackID
+			c.activePlaybackState = nil
+			c.activePlaybackStatus = nil
+			c.activePlaybackInfo = nil
 		}
 
 		if c.session.PlaybackID != "" && key.PlaybackID != "" && c.session.PlaybackID != key.PlaybackID {
@@ -418,6 +428,10 @@ func (c *Coordinator) listenToBackendEvents(target player.Target, b Backend) {
 				paused = c.activePlaybackStatus.Paused
 			}
 			c.activePlaybackStatus = playbackStatusFromEvent(event.BaseEvent, event.CurrentTime, event.Duration, paused)
+			// devnote: snapshot the state, a TerminatedEvent can clear it before the update below runs
+			if c.activePlaybackState != nil {
+				completedState = new(*c.activePlaybackState)
+			}
 		case *player.TerminatedEvent:
 			if c.activePlaybackState != nil {
 				finalState = new(*c.activePlaybackState)
@@ -434,6 +448,10 @@ func (c *Coordinator) listenToBackendEvents(target player.Target, b Backend) {
 
 		if finalState != nil && finalStatus != nil {
 			c.updateContinuityState(*finalState, finalStatus.CurrentTime, finalStatus.Duration)
+		}
+
+		if completedState != nil {
+			go c.updateProgressOnCompletion(*completedState)
 		}
 
 		select {
@@ -489,37 +507,6 @@ func (c *Coordinator) SetupSharedEffects() {
 					}
 				case *player.SeekedEvent:
 					c.updateContinuity(value.CurrentTime, value.Duration)
-				case *player.CompletedEvent:
-					state, ok := c.GetActivePlaybackState()
-					if !ok || state.PlaybackInfo.Media == nil || state.PlaybackInfo.Episode == nil || c.platformRef == nil {
-						continue
-					}
-					c.settingsMu.RLock()
-					shouldUpdate := c.settings != nil && c.settings.GetLibrary().AutoUpdateProgress
-					c.settingsMu.RUnlock()
-					if !shouldUpdate {
-						continue
-					}
-
-					mediaID := state.PlaybackInfo.Media.GetID()
-					progress := state.PlaybackInfo.Episode.GetProgressNumber()
-					total := state.PlaybackInfo.Media.Episodes
-
-					collection, err := c.platformRef.Get().GetAnimeCollection(context.Background(), false)
-					if err == nil {
-						if listEntry, hasEntry := collection.GetListEntryFromAnimeId(mediaID); hasEntry {
-							if listEntry.Progress != nil && progress <= *listEntry.Progress {
-								continue
-							}
-						}
-					}
-
-					err = c.platformRef.Get().UpdateEntryProgress(context.Background(), mediaID, progress, total)
-					if err == nil && c.refreshAnimeCollectionFunc != nil {
-						c.refreshAnimeCollectionFunc()
-					} else if err != nil {
-						c.logger.Error().Err(err).Msgf("mediacore: Failed to update progress for media %d", mediaID)
-					}
 				case *player.EndedEvent, *player.ErrorEvent, *player.TerminatedEvent:
 					if c.discordPresence != nil && !c.isOfflineRef.Get() {
 						go c.discordPresence.Close()
@@ -528,6 +515,43 @@ func (c *Coordinator) SetupSharedEffects() {
 			}
 		}()
 	})
+}
+
+// updateProgressOnCompletion updates the entry progress once the episode has been watched.
+// It takes the state the CompletedEvent belonged to, the session may already be gone.
+func (c *Coordinator) updateProgressOnCompletion(state player.PlaybackState) {
+	if state.PlaybackInfo == nil || state.PlaybackInfo.Media == nil || state.PlaybackInfo.Episode == nil || c.platformRef == nil {
+		return
+	}
+
+	c.settingsMu.RLock()
+	shouldUpdate := c.settings != nil && c.settings.GetLibrary().AutoUpdateProgress
+	c.settingsMu.RUnlock()
+	if !shouldUpdate {
+		return
+	}
+
+	mediaID := state.PlaybackInfo.Media.GetID()
+	progress := state.PlaybackInfo.Episode.GetProgressNumber()
+	total := state.PlaybackInfo.Media.Episodes
+
+	collection, err := c.platformRef.Get().GetAnimeCollection(context.Background(), false)
+	if err == nil {
+		if listEntry, hasEntry := collection.GetListEntryFromAnimeId(mediaID); hasEntry {
+			if listEntry.Progress != nil && progress <= *listEntry.Progress {
+				return
+			}
+		}
+	}
+
+	c.logger.Debug().Int("mediaId", mediaID).Int("progress", progress).Msg("mediacore: Updating entry progress")
+
+	err = c.platformRef.Get().UpdateEntryProgress(context.Background(), mediaID, progress, total)
+	if err == nil && c.refreshAnimeCollectionFunc != nil {
+		c.refreshAnimeCollectionFunc()
+	} else if err != nil {
+		c.logger.Error().Err(err).Msgf("mediacore: Failed to update progress for media %d", mediaID)
+	}
 }
 
 func playbackStatusFromEvent(base player.BaseEvent, currentTime, duration float64, paused bool) *player.PlaybackStatus {

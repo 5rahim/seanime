@@ -329,6 +329,19 @@ declare namespace $ui {
         disable(id: string): Promise<boolean>
 
         setDisabled(id: string, disabled: boolean): Promise<boolean>
+
+        /**
+         * Returns the current marketplace URL. An empty string means the default marketplace.
+         * Requires the extensions permission and user approval.
+         */
+        getMarketplaceUrl(): Promise<string>
+
+        /**
+         * Changes the marketplace URL used by the extensions marketplace.
+         * An empty string resets it to the default marketplace.
+         * Requires the extensions permission and user approval.
+         */
+        setMarketplaceUrl(url: string): Promise<boolean>
     }
 
     interface PollOptions {

@@ -90,7 +90,7 @@ func TestGetWatchHistoryItemAppliesCompletionThresholds(t *testing.T) {
 		require.NotNil(t, response.Item)
 	})
 
-	t.Run("hides nearly finished item and deletes it", func(t *testing.T) {
+	t.Run("hides nearly finished item without deleting it", func(t *testing.T) {
 		manager, cacher := newHistoryTestManager(t)
 		seedWatchHistoryItem(t, cacher, manager, &WatchHistoryItem{
 			MediaId:       11,
@@ -102,12 +102,7 @@ func TestGetWatchHistoryItemAppliesCompletionThresholds(t *testing.T) {
 		response := manager.GetWatchHistoryItem(11)
 		require.False(t, response.Found)
 		require.Nil(t, response.Item)
-
-		require.Eventually(t, func() bool {
-			items := getAllHistoryItems(t, cacher, manager)
-			_, found := items["11"]
-			return !found
-		}, time.Second, 10*time.Millisecond)
+		require.Contains(t, manager.GetWatchHistory(), 11)
 	})
 
 	t.Run("hides barely started item without deleting it", func(t *testing.T) {

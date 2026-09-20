@@ -7797,6 +7797,28 @@
     }
   },
   {
+    "name": "TestHandleMediastreamDirectPlayIsNeverCached",
+    "trimmedName": "TestHandleMediastreamDirectPlayIsNeverCached",
+    "comments": [
+      "The direct play endpoint serves whichever file is currently loaded, so a cached response can",
+      "outlive the file it was served for and end up playing the wrong episode.",
+      ""
+    ],
+    "filepath": "internal/handlers/mediastream_test.go",
+    "filename": "mediastream_test.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandlePopulateFillerData",
     "trimmedName": "PopulateFillerData",
     "comments": [

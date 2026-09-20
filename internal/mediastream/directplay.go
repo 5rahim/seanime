@@ -17,6 +17,13 @@ import (
 // Direct
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// DirectPlayStreamUrl returns the endpoint used to directly stream the file with the given hash.
+// The endpoint serves whichever file is currently loaded, the hash makes the URL unique per file so
+// that the browser does not reuse the cached response of the previously played one.
+func DirectPlayStreamUrl(hash string) string {
+	return "/api/v1/mediastream/direct?hash=" + hash
+}
+
 func (r *Repository) ServeEchoFile(c echo.Context, rawFilePath string, clientId string, libraryPaths []string) error {
 	// Unescape the file path, ignore errors
 	filePath, _ := url.PathUnescape(rawFilePath)
@@ -66,6 +73,16 @@ func (r *Repository) ServeEchoDirectPlay(c echo.Context, clientId string) error 
 	if !found {
 		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "no file has been loaded")
 		return errors.New("no file has been loaded")
+	}
+
+	// Make sure the client is asking for the file that is loaded, instead of serving another episode.
+	// The hash is optional so that clients holding an older stream URL keep working.
+	if requestedHash := c.QueryParam("hash"); requestedHash != "" && requestedHash != mediaContainer.Hash {
+		r.logger.Warn().
+			Str("requestedHash", requestedHash).
+			Str("currentHash", mediaContainer.Hash).
+			Msg("mediastream: Direct play requested for a file that is not loaded")
+		return c.NoContent(http.StatusNotFound)
 	}
 
 	if c.Request().Method == http.MethodHead {

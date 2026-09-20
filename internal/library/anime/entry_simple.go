@@ -103,6 +103,8 @@ func NewSimpleEntry(ctx context.Context, opts *NewSimpleAnimeEntryOptions) (*Sim
 			Repeat:      anilistEntry.GetRepeatSafe(),
 			StartedAt:   anilist.ToEntryStartDate(anilistEntry.StartedAt),
 			CompletedAt: anilist.ToEntryCompletionDate(anilistEntry.CompletedAt),
+			CreatedAt:   anilistEntry.CreatedAt,
+			UpdatedAt:   anilistEntry.UpdatedAt,
 		}
 	}
 

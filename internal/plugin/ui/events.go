@@ -63,6 +63,8 @@ const (
 	ClientDOMReadyEvent          ClientEventType = "dom:ready"            // When a DOM element is ready
 	ClientDOMMainTabReadyEvent   ClientEventType = "dom:main-tab-ready"   // When the main tab has changed
 	ClientDOMViewportSizeEvent   ClientEventType = "dom:viewport-size"
+
+	ClientMarketplaceGetURLResultEvent ClientEventType = "marketplace:get-url-result" // Client replies with the current marketplace URL
 )
 
 type ClientRenderTrayEventPayload struct{}
@@ -202,6 +204,11 @@ type ClientDOMViewportSizeEventPayload struct {
 	Height int `json:"height"`
 }
 
+type ClientMarketplaceGetURLResultEventPayload struct {
+	RequestID string `json:"requestId"`
+	URL       string `json:"url"`
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Server to client
 /////////////////////////////////////////////////////////////////////////////////////
@@ -265,6 +272,9 @@ const (
 	ServerDOMClipboardWriteEvent ServerEventType = "dom:clipboard:write"
 	ServerDebugLogEvent          ServerEventType = "debug:log"
 	ServerDebugClearEvent        ServerEventType = "debug:clear"
+
+	ServerMarketplaceGetURLEvent ServerEventType = "marketplace:get-url" // Ask the client for the current marketplace URL
+	ServerMarketplaceSetURLEvent ServerEventType = "marketplace:set-url" // Change the marketplace URL
 )
 
 type ServerTrayUpdatedEventPayload struct {
@@ -527,4 +537,12 @@ type ServerDOMObserveInViewEventPayload struct {
 }
 
 type ServerDOMGetViewportSizePayload struct {
+}
+
+type ServerMarketplaceGetURLEventPayload struct {
+	RequestID string `json:"requestId"`
+}
+
+type ServerMarketplaceSetURLEventPayload struct {
+	URL string `json:"url"`
 }

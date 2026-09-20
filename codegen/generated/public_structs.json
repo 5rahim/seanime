@@ -2882,6 +2882,15 @@
         "comments": []
       },
       {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ID",
         "jsonName": "id",
         "goType": "int",
@@ -2964,6 +2973,15 @@
         "typescriptType": "AL_MediaListStatus",
         "usedTypescriptType": "AL_MediaListStatus",
         "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updatedAt",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -8815,6 +8833,15 @@
         "comments": []
       },
       {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ID",
         "jsonName": "id",
         "goType": "int",
@@ -8897,6 +8924,15 @@
         "typescriptType": "AL_MediaListStatus",
         "usedTypescriptType": "AL_MediaListStatus",
         "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updatedAt",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -37976,17 +38012,6 @@
         "required": false,
         "public": false,
         "comments": []
-      },
-      {
-        "name": "updateProgress",
-        "jsonName": "updateProgress",
-        "goType": "sync.Once",
-        "typescriptType": "Once",
-        "usedTypescriptType": "Once",
-        "usedStructName": "sync.Once",
-        "required": false,
-        "public": false,
-        "comments": []
       }
     ],
     "comments": []
@@ -38014,49 +38039,6 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/directstream/stream_helpers.go",
-    "filename": "stream_helpers.go",
-    "name": "StreamCacheReadSeekCloser",
-    "formattedName": "Directstream_StreamCacheReadSeekCloser",
-    "package": "directstream",
-    "fields": [
-      {
-        "name": "stream",
-        "jsonName": "stream",
-        "goType": "streamcache.Stream",
-        "typescriptType": "Stream",
-        "usedTypescriptType": "Stream",
-        "usedStructName": "streamcache.Stream",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "streamReader",
-        "jsonName": "streamReader",
-        "goType": "streamcache.Reader",
-        "typescriptType": "Reader",
-        "usedTypescriptType": "Reader",
-        "usedStructName": "streamcache.Reader",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "originalReader",
-        "jsonName": "originalReader",
-        "goType": "io.ReadSeekCloser",
-        "typescriptType": "ReadSeekCloser",
-        "usedTypescriptType": "ReadSeekCloser",
-        "usedStructName": "io.ReadSeekCloser",
-        "required": false,
-        "public": false,
         "comments": []
       }
     ],
@@ -49032,6 +49014,24 @@
         "jsonName": "completedAt",
         "goType": "string",
         "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updatedAt",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -61248,6 +61248,24 @@
         "jsonName": "completedAt",
         "goType": "string",
         "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updatedAt",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -76801,6 +76819,187 @@
     "comments": []
   },
   {
+    "filepath": "../internal/notification/hub.go",
+    "filename": "hub.go",
+    "name": "Hub",
+    "formattedName": "Hub",
+    "package": "notification",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/notification/hub.go",
+    "filename": "hub.go",
+    "name": "Severity",
+    "formattedName": "Severity",
+    "package": "notification",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"normal\"",
+        "\"info\"",
+        "\"success\"",
+        "\"warning\"",
+        "\"error\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/notification/hub.go",
+    "filename": "hub.go",
+    "name": "Urgency",
+    "formattedName": "Urgency",
+    "package": "notification",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"silent\"",
+        "\"normal\"",
+        "\"urgent\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/notification/hub.go",
+    "filename": "hub.go",
+    "name": "Progress",
+    "formattedName": "Progress",
+    "package": "notification",
+    "fields": [
+      {
+        "name": "Current",
+        "jsonName": "Current",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Total",
+        "jsonName": "Total",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Intermediate",
+        "jsonName": "Intermediate",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/notification/hub.go",
+    "filename": "hub.go",
+    "name": "Notification",
+    "formattedName": "Notification",
+    "package": "notification",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EmitterId",
+        "jsonName": "emitterId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Body",
+        "jsonName": "body",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Severity",
+        "jsonName": "severity",
+        "goType": "Severity",
+        "typescriptType": "Severity",
+        "usedTypescriptType": "Severity",
+        "usedStructName": "notification.Severity",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Urgency",
+        "jsonName": "urgency",
+        "goType": "Urgency",
+        "typescriptType": "Urgency",
+        "usedTypescriptType": "Urgency",
+        "usedStructName": "notification.Urgency",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShouldNotifySystem",
+        "jsonName": "shouldNotifySystem",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HasNotifiedSystem",
+        "jsonName": "hasNotifiedSystem",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "Progress",
+        "typescriptType": "Progress",
+        "usedTypescriptType": "Progress",
+        "usedStructName": "notification.Progress",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/notifier/notifier.go",
     "filename": "notifier.go",
     "name": "Notifier",
@@ -84213,6 +84412,19 @@
         ]
       },
       {
+        "name": "marketplaceManager",
+        "jsonName": "marketplaceManager",
+        "goType": "MarketplaceManager",
+        "typescriptType": "PluginUI_MarketplaceManager",
+        "usedTypescriptType": "PluginUI_MarketplaceManager",
+        "usedStructName": "plugin_ui.MarketplaceManager",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Manage extension marketplace"
+        ]
+      },
+      {
         "name": "atomicCleanupCounter",
         "jsonName": "atomicCleanupCounter",
         "goType": "atomic.Int64",
@@ -84789,7 +85001,8 @@
         "\"dom:event-triggered\"",
         "\"dom:ready\"",
         "\"dom:main-tab-ready\"",
-        "\"dom:viewport-size\""
+        "\"dom:viewport-size\"",
+        "\"marketplace:get-url-result\""
       ]
     },
     "comments": []
@@ -85644,6 +85857,34 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
+    "name": "ClientMarketplaceGetURLResultEventPayload",
+    "formattedName": "PluginUI_ClientMarketplaceGetURLResultEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "RequestID",
+        "jsonName": "requestId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "URL",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
     "name": "ServerEventType",
     "formattedName": "PluginUI_ServerEventType",
     "package": "plugin_ui",
@@ -85696,7 +85937,9 @@
         "\"dom:get-viewport-size\"",
         "\"dom:clipboard:write\"",
         "\"debug:log\"",
-        "\"debug:clear\""
+        "\"debug:clear\"",
+        "\"marketplace:get-url\"",
+        "\"marketplace:set-url\""
       ]
     },
     "comments": []
@@ -86976,6 +87219,44 @@
     "comments": []
   },
   {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerMarketplaceGetURLEventPayload",
+    "formattedName": "PluginUI_ServerMarketplaceGetURLEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "RequestID",
+        "jsonName": "requestId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerMarketplaceSetURLEventPayload",
+    "formattedName": "PluginUI_ServerMarketplaceSetURLEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "URL",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/plugin/ui/form.go",
     "filename": "form.go",
     "name": "FormManager",
@@ -87192,6 +87473,36 @@
         "usedStructName": "plugin_ui.FormField",
         "required": false,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/marketplace.go",
+    "filename": "marketplace.go",
+    "name": "MarketplaceManager",
+    "formattedName": "PluginUI_MarketplaceManager",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cache",
+        "jsonName": "cache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -100674,6 +100985,39 @@
         "jsonName": "updateStride",
         "goType": "int64",
         "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeOnce",
+        "jsonName": "closeOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeErr",
+        "jsonName": "closeErr",
+        "goType": "error",
+        "typescriptType": "error",
+        "usedTypescriptType": "error",
+        "usedStructName": "torrentutil.error",
         "required": true,
         "public": false,
         "comments": []

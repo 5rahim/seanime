@@ -27,6 +27,8 @@ type (
 		Repeat      int                      `json:"repeat,omitempty"`
 		StartedAt   string                   `json:"startedAt,omitempty"`
 		CompletedAt string                   `json:"completedAt,omitempty"`
+		CreatedAt   *int                     `json:"createdAt,omitempty"`
+		UpdatedAt   *int                     `json:"updatedAt,omitempty"`
 	}
 )
 
@@ -100,6 +102,8 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (entry *Entry, err err
 			Repeat:      anilistEntry.GetRepeatSafe(),
 			StartedAt:   anilist.FuzzyDateToString(anilistEntry.StartedAt),
 			CompletedAt: anilist.FuzzyDateToString(anilistEntry.CompletedAt),
+			CreatedAt:   anilistEntry.CreatedAt,
+			UpdatedAt:   anilistEntry.UpdatedAt,
 		}
 	}
 

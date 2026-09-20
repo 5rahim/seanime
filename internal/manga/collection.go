@@ -87,6 +87,8 @@ func NewCollection(opts *NewCollectionOptions) (collection *Collection, err erro
 							Repeat:      entry.GetRepeatSafe(),
 							StartedAt:   anilist.FuzzyDateToString(entry.StartedAt),
 							CompletedAt: anilist.FuzzyDateToString(entry.CompletedAt),
+							CreatedAt:   entry.CreatedAt,
+							UpdatedAt:   entry.UpdatedAt,
 						},
 					}
 				})
