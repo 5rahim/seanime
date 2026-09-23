@@ -1,20 +1,20 @@
 package qbittorrent_model
 
 type TorrentContent struct {
-	// File name (including relative path)
-	Name string `json:"	name"`
+    // File name (including relative path)
+    Name         string         `json:"name"`
 	// File size (bytes)
-	Size int `json:"	size"`
+    Size         int            `json:"size"`
 	// File progress (percentage/100)
-	Progress float64 `json:"	progress"`
+    Progress     float64        `json:"progress"`
 	// File priority. See possible values here below
-	Priority TorrentPriority `json:"	priority"`
+    Priority     TorrentPriority `json:"priority"`
 	// True if file is seeding/complete
-	IsSeed bool `json:"	is_seed"`
+    IsSeed       bool           `json:"is_seed"`
 	// The first number is the starting piece index and the second number is the ending piece index (inclusive)
-	PieceRange []int `json:"	piece_range"`
+    PieceRange   []int          `json:"piece_range"`
 	// Percentage of file pieces currently available
-	Availability float64 `json:"	availability"`
+    Availability float64        `json:"availability"`
 }
 
 type TorrentPriority int
