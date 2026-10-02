@@ -25,6 +25,7 @@ import {
     vc_showStatsForNerdsAtom,
     vc_storedMutedAtom,
     vc_storedVolumeAtom,
+    vc_storedVolumeBoostAtom,
     vc_useLibassRendererAtom,
     VideoCoreKeybindings,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
@@ -48,6 +49,7 @@ import { toast } from "sonner"
 import { z } from "zod"
 import { useServerStatus } from "../../_hooks/use-server-status"
 import { useVideoCoreScreenshot } from "./video-core-screenshot"
+import { clampVolumeBoost, formatVolumeBoost, VOLUME_BOOST_STEP } from "./video-core-volume-boost"
 
 export const videoCorePreferencesModalAtom = atom(false)
 
@@ -945,6 +947,7 @@ export function VideoCoreKeybindingController(props: {
     const volume = useAtomValue(vc_volume)
     const setMiniPlayer = useSetAtom(vc_miniPlayer)
     const setVolume = useSetAtom(vc_storedVolumeAtom)
+    const [volumeBoost, setVolumeBoost] = useAtom(vc_storedVolumeBoostAtom)
     const muted = useAtomValue(vc_isMuted)
     const setMuted = useSetAtom(vc_storedMutedAtom)
     const videoElement = useAtomValue(vc_videoElement)
@@ -1003,6 +1006,17 @@ export function VideoCoreKeybindingController(props: {
                 isEditableKeyboardTarget(e.target) ||
                 isEditableKeyboardTarget(document.activeElement)
             ) {
+                return
+            }
+
+            // Shift + volume keys, adjust volume boost
+            if (e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey && videoElement && active
+                && (e.code === keybindings.volumeUp.key || e.code === keybindings.volumeDown.key)) {
+                e.preventDefault()
+                const direction = e.code === keybindings.volumeUp.key ? 1 : -1
+                const next = clampVolumeBoost(volumeBoost + direction * VOLUME_BOOST_STEP)
+                setVolumeBoost(next)
+                showOverlayFeedback({ message: `Volume Boost: ${formatVolumeBoost(next)}` })
                 return
             }
 
@@ -1191,7 +1205,7 @@ export function VideoCoreKeybindingController(props: {
                 showOverlayFeedback({ message: `Speed: ${newRate.toFixed(2)}x` })
             }
         },
-        [keybindings, volume, muted, seek, active, fullscreen, pip, showOverlayFeedback, introEndTime, introStartTime, isKeybindingsModalOpen,
+        [keybindings, volume, volumeBoost, muted, seek, active, fullscreen, pip, showOverlayFeedback, introEndTime, introStartTime, isKeybindingsModalOpen,
             toggleInSight, videoElement, isMiniPlayer, setMiniPlayer])
 
     // Keyboard shortcut handlers

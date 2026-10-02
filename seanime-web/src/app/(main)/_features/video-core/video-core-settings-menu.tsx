@@ -34,8 +34,10 @@ import {
     vc_settings,
     vc_showChapterMarkersAtom,
     vc_storedPlaybackRateAtom,
+    vc_storedVolumeBoostAtom,
     VideoCoreSettings,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { formatVolumeBoost, VOLUME_BOOST_OPTIONS } from "@/app/(main)/_features/video-core/video-core-volume-boost"
 import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
@@ -47,7 +49,7 @@ import React, { useState } from "react"
 import { HiFastForward } from "react-icons/hi"
 import { ImFileText } from "react-icons/im"
 import { IoCaretForwardCircleOutline } from "react-icons/io5"
-import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings, LuSettings2, LuSparkles, LuTvMinimalPlay } from "react-icons/lu"
+import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings, LuSettings2, LuSparkles, LuTvMinimalPlay, LuVolume2 } from "react-icons/lu"
 import { MdOutlineAccessTime, MdOutlineSubtitles, MdSpeed } from "react-icons/md"
 import { RiShadowLine } from "react-icons/ri"
 import { TbArrowForwardUp } from "react-icons/tb"
@@ -202,6 +204,7 @@ export function VideoCoreSettingsMenu() {
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const playbackRate = useAtomValue(vc_playbackRate)
     const setPlaybackRate = useSetAtom(vc_storedPlaybackRateAtom)
+    const [volumeBoost, setVolumeBoost] = useAtom(vc_storedVolumeBoostAtom)
     const isFullscreen = useAtomValue(vc_isFullscreen)
     const containerElement = useAtomValue(vc_containerElement)
     const subtitleManager = useAtomValue(vc_subtitleManager)
@@ -342,6 +345,7 @@ export function VideoCoreSettingsMenu() {
                 <VideoCoreMenuSectionBody>
                     <VideoCoreMenuTitle>Settings</VideoCoreMenuTitle>
                     <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed} value={`${(playbackRate).toFixed(2)}x`} />
+                    <VideoCoreMenuOption title="Volume Boost" icon={LuVolume2} value={formatVolumeBoost(volumeBoost)} />
                     <VideoCoreMenuOption title="Auto Play" icon={IoCaretForwardCircleOutline} value={autoPlay ? "On" : "Off"} />
                     <VideoCoreMenuOption title="Auto Next" icon={HiFastForward} value={autoNext ? "On" : "Off"} />
                     <VideoCoreMenuOption title="Skip OP/ED" icon={TbArrowForwardUp} value={autoSkipOPED ? "On" : "Off"} />
@@ -526,6 +530,16 @@ export function VideoCoreSettingsMenu() {
                             }}
                             value={playbackRate}
                         />
+                    </VideoCoreMenuOption>
+                    <VideoCoreMenuOption title="Volume Boost" icon={LuVolume2}>
+                        <VideoCoreSettingSelect
+                            options={VOLUME_BOOST_OPTIONS}
+                            onValueChange={(v: number) => {
+                                setVolumeBoost(v)
+                            }}
+                            value={VOLUME_BOOST_OPTIONS.some(o => o.value === volumeBoost) ? volumeBoost : null}
+                        />
+                        <p className="text-[--muted] text-sm px-2 pt-2">Shift + Up/Down to adjust</p>
                     </VideoCoreMenuOption>
                     <VideoCoreMenuOption title="Auto Play" icon={IoCaretForwardCircleOutline}>
                         <VideoCoreSettingSelect
