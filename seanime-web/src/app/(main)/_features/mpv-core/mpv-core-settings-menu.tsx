@@ -11,6 +11,7 @@ import {
     MediaCoreSettingSelect,
     MediaCoreSettingTextInput,
 } from "@/app/(main)/_features/media-core/media-core-menu"
+import { formatVolumeBoost, VOLUME_BOOST_OPTIONS } from "@/app/(main)/_features/media-core/media-core-volume-boost"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -18,7 +19,7 @@ import React from "react"
 import { HiFastForward } from "react-icons/hi"
 import { ImFileText } from "react-icons/im"
 import { IoCaretForwardCircleOutline } from "react-icons/io5"
-import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings2, LuSparkles, LuTvMinimalPlay } from "react-icons/lu"
+import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings2, LuSparkles, LuTvMinimalPlay, LuVolume2 } from "react-icons/lu"
 import { MdOutlineAccessTime, MdOutlineSubtitles, MdSpeed } from "react-icons/md"
 import { RiShadowLine } from "react-icons/ri"
 import { TbArrowForwardUp } from "react-icons/tb"
@@ -73,6 +74,8 @@ export interface MpvCoreSettingsMenuProps {
     containerElement: HTMLElement | null
     speed: number
     changeSpeed: (value: number) => Promise<void>
+    volumeBoost: number
+    setVolumeBoost: (value: number) => void
     autoPlay: boolean
     setAutoPlay: (value: boolean) => void
     autoNext: boolean
@@ -113,6 +116,8 @@ export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
         containerElement,
         speed,
         changeSpeed,
+        volumeBoost,
+        setVolumeBoost,
         autoPlay,
         setAutoPlay,
         autoNext,
@@ -192,6 +197,13 @@ export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
                     title="Playback Speed"
                     icon={MdSpeed}
                     value={`${speed.toFixed(2)}x`}
+                    openSection={openSection}
+                    onOpenSectionChange={setOpenSection}
+                />
+                <MediaCoreMenuOption
+                    title="Volume Boost"
+                    icon={LuVolume2}
+                    value={formatVolumeBoost(volumeBoost)}
                     openSection={openSection}
                     onOpenSectionChange={setOpenSection}
                 />
@@ -344,6 +356,21 @@ export function MpvCoreSettingsMenu(props: MpvCoreSettingsMenuProps) {
                         isFullscreen={isFullscreen}
                         containerElement={containerElement}
                     />
+                </MediaCoreMenuOption>
+                <MediaCoreMenuOption
+                    title="Volume Boost"
+                    icon={LuVolume2}
+                    openSection={openSection}
+                    onOpenSectionChange={setOpenSection}
+                >
+                    <MediaCoreSettingSelect
+                        options={VOLUME_BOOST_OPTIONS}
+                        value={VOLUME_BOOST_OPTIONS.some(o => o.value === volumeBoost) ? volumeBoost : null}
+                        onValueChange={value => setVolumeBoost(Number(value))}
+                        isFullscreen={isFullscreen}
+                        containerElement={containerElement}
+                    />
+                    <p className="text-[--muted] text-sm px-2 pt-2">Shift + Up/Down to adjust</p>
                 </MediaCoreMenuOption>
                 <MediaCoreMenuOption
                     title="Auto Play"

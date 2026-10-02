@@ -5,6 +5,8 @@ export interface MediaCorePreferences {
     autoPlay: boolean
     autoNext: boolean
     volume: number
+    // Extra gain applied on top of the element volume (1 = off, 3 = +300%)
+    volumeBoost: number
     muted: boolean
     playbackRate: number
     autoSkip: boolean
@@ -19,6 +21,7 @@ export const mediaCoreDefaultPreferences: MediaCorePreferences = {
     autoPlay: true,
     autoNext: true,
     volume: 1.0,
+    volumeBoost: 1.0,
     muted: false,
     playbackRate: 1.0,
     autoSkip: false,
@@ -40,6 +43,7 @@ function parsePreferences(value: unknown): MediaCorePreferences | null {
         ...parsed,
         version: 2,
         skipPatterns: typeof parsed.skipPatterns === "string" ? parsed.skipPatterns : "",
+        volumeBoost: typeof parsed.volumeBoost === "number" ? parsed.volumeBoost : mediaCoreDefaultPreferences.volumeBoost,
     }
 }
 
@@ -79,6 +83,7 @@ const customStorage = {
             autoPlay: getLegacyValue("sea-video-core-auto-play", "sea-mpv-core-auto-play", mediaCoreDefaultPreferences.autoPlay),
             autoNext: getLegacyValue("sea-video-core-auto-next", "sea-mpv-core-auto-next", mediaCoreDefaultPreferences.autoNext),
             volume: getLegacyValue("sea-video-core-volume", "sea-mpv-core-volume", mediaCoreDefaultPreferences.volume),
+            volumeBoost: mediaCoreDefaultPreferences.volumeBoost,
             muted: getLegacyValue("sea-video-core-muted", "sea-mpv-core-muted", mediaCoreDefaultPreferences.muted),
             playbackRate: getLegacyValue("sea-video-core-playback-rate", "sea-mpv-core-playback-rate", mediaCoreDefaultPreferences.playbackRate),
             autoSkip: getLegacyValue("sea-video-core-auto-skip-op-ed", "sea-mpv-core-auto-skip", mediaCoreDefaultPreferences.autoSkip),
