@@ -190,6 +190,14 @@ export const mc_storedMuted = atom(
         set(mediaCorePreferencesAtom, { ...current, muted: next })
     }
 )
+export const mc_storedVolumeBoost = atom(
+    (get) => get(mediaCorePreferencesAtom).volumeBoost,
+    (get, set, newValue: number | ((prev: number) => number)) => {
+        const current = get(mediaCorePreferencesAtom)
+        const next = typeof newValue === "function" ? newValue(current.volumeBoost) : newValue
+        set(mediaCorePreferencesAtom, { ...current, volumeBoost: next })
+    }
+)
 export const mc_storedSpeed = atom(
     (get) => get(mediaCorePreferencesAtom).playbackRate,
     (get, set, newValue: number | ((prev: number) => number)) => {

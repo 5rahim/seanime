@@ -37,7 +37,7 @@ import {
     vc_storedVolumeBoostAtom,
     VideoCoreSettings,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
-import { formatVolumeBoost, VOLUME_BOOST_OPTIONS } from "@/app/(main)/_features/video-core/video-core-volume-boost"
+import { formatVolumeBoost, VOLUME_BOOST_OPTIONS } from "@/app/(main)/_features/media-core/media-core-volume-boost"
 import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"

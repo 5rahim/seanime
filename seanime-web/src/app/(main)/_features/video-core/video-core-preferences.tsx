@@ -49,7 +49,7 @@ import { toast } from "sonner"
 import { z } from "zod"
 import { useServerStatus } from "../../_hooks/use-server-status"
 import { useVideoCoreScreenshot } from "./video-core-screenshot"
-import { clampVolumeBoost, formatVolumeBoost, VOLUME_BOOST_STEP } from "./video-core-volume-boost"
+import { clampVolumeBoost, formatVolumeBoost, VOLUME_BOOST_STEP } from "@/app/(main)/_features/media-core/media-core-volume-boost"
 
 export const videoCorePreferencesModalAtom = atom(false)
 

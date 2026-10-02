@@ -24,6 +24,7 @@ import {
 } from "@/app/(main)/_features/media-core/media-core-overlays"
 import { MediaCoreTopSectionView } from "@/app/(main)/_features/media-core/media-core-playback-info"
 import { mediaCorePreferencesAtom } from "@/app/(main)/_features/media-core/media-core-preferences"
+import { clampVolumeBoost, formatVolumeBoost, VOLUME_BOOST_MIN, VOLUME_BOOST_STEP } from "@/app/(main)/_features/media-core/media-core-volume-boost"
 import { startVideoCoreMiniPlayerTransition } from "@/app/(main)/_features/video-core/video-core"
 import { useVideoCoreInSight, vc_inSight_open, VideoCoreInSight } from "@/app/(main)/_features/video-core/video-core-in-sight"
 
@@ -105,6 +106,7 @@ import {
     mc_storedMuted,
     mc_storedSpeed,
     mc_storedVolume,
+    mc_storedVolumeBoost,
     mc_tracks,
     mpvCore_stateAtom,
 } from "./mpv-core.atoms"
@@ -246,6 +248,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
     const [isPip, setIsPip] = useAtom(mc_isPip)
     const [volume, setVolume] = useAtom(mc_storedVolume)
     const [muted, setMuted] = useAtom(mc_storedMuted)
+    const [volumeBoost, setVolumeBoost] = useAtom(mc_storedVolumeBoost)
     const [speed, setSpeed] = useAtom(mc_storedSpeed)
     const [autoPlay, setAutoPlay] = useAtom(mc_autoPlay)
     const [autoNext, setAutoNext] = useAtom(mc_autoNext)
@@ -1015,6 +1018,26 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
         if (!metadataReadyRef.current) return
         if (event.volume != null) setVolume(Math.max(0, Math.min(1, event.volume / 100)))
     })
+    // Amplify past 100% with mpv's volume-gain (dB), plus a limiter so boosted peaks don't clip
+    const boostLimiterPlayerRef = React.useRef<typeof player>(null)
+    React.useEffect(() => {
+        if (!player) return
+        const boost = clampVolumeBoost(volumeBoost)
+        player.setProperty("volume-gain", 20 * Math.log10(boost)).catch(() => undefined)
+
+        const wantsLimiter = boost > VOLUME_BOOST_MIN
+        const hasLimiter = boostLimiterPlayerRef.current === player
+        if (wantsLimiter && !hasLimiter) {
+            boostLimiterPlayerRef.current = player
+            player.command(["af", "add", "@volume-boost:lavfi=[alimiter=limit=0.95:level=disabled]"]).catch(() => {
+                boostLimiterPlayerRef.current = null
+            })
+        } else if (!wantsLimiter && hasLimiter) {
+            boostLimiterPlayerRef.current = null
+            player.command(["af", "remove", "@volume-boost"]).catch(() => undefined)
+        }
+    }, [player, volumeBoost])
+
     useMpvPrismEvent(player, "mute", event => {
         if (!metadataReadyRef.current) return
         setMuted(event.muted)
@@ -1230,11 +1253,21 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
                 isEditableKeyboardTarget(event.target) ||
                 isEditableKeyboardTarget(document.activeElement) ||
                 event.ctrlKey ||
-                event.shiftKey ||
                 event.altKey ||
                 event.metaKey
             ) return
             if (!player) return
+
+            // Shift + volume keys, adjust volume boost
+            if (event.shiftKey) {
+                if (state.miniPlayer || (event.code !== keybindings.volumeUp.key && event.code !== keybindings.volumeDown.key)) return
+                event.preventDefault()
+                const direction = event.code === keybindings.volumeUp.key ? 1 : -1
+                const next = clampVolumeBoost(volumeBoost + direction * VOLUME_BOOST_STEP)
+                setVolumeBoost(next)
+                showMessage(`Volume Boost: ${formatVolumeBoost(next)}`)
+                return
+            }
 
             if (event.code === "Escape" && isFullscreen) {
                 event.preventDefault()
@@ -1399,6 +1432,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
         muted,
         speed,
         volume,
+        volumeBoost,
         keybindings,
         chapterCues,
         skipChapters,
@@ -1413,6 +1447,7 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
         setShowStats,
         setState,
         setVolume,
+        setVolumeBoost,
         showMessage,
         toggleInSight,
     ])
@@ -1923,6 +1958,8 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
                                                 containerElement={containerElement}
                                                 speed={speed}
                                                 changeSpeed={changeSpeed}
+                                                volumeBoost={volumeBoost}
+                                                setVolumeBoost={setVolumeBoost}
                                                 autoPlay={autoPlay}
                                                 setAutoPlay={setAutoPlay}
                                                 autoNext={autoNext}
