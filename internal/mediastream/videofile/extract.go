@@ -21,8 +21,8 @@ func GetFileAttCacheDir(outDir string, hash string) string {
 }
 
 // ExtractAttachment extracts subtitles and font attachments from a media file
-// using ffmpeg. It skips extraction if the output directory already contains
-// the expected number of subtitle files.
+// using ffmpeg. It skips extraction when all expected subtitles and attachments
+// are already cached.
 //
 // Improvements over the previous version:
 //   - 120-second timeout prevents hangs on corrupt/huge files.
@@ -36,10 +36,32 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 	_ = os.MkdirAll(attachmentPath, 0755)
 	_ = os.MkdirAll(subsPath, 0755)
 
-	// Check if subtitles are already extracted.
-	subsDir, err := os.ReadDir(subsPath)
-	if err == nil && len(subsDir) >= len(mediaInfo.Subtitles) {
-		logger.Debug().Str("hash", hash).Msgf("videofile: Attachments already extracted")
+	// Check for every expected subtitle and font attachment in the cache.
+	cached := true
+	for _, sub := range mediaInfo.Subtitles {
+		if sub.Extension == nil || *sub.Extension == "" {
+			continue
+		}
+		filename := filepath.Join(subsPath, fmt.Sprintf("%d.%s", sub.Index, *sub.Extension))
+		if info, statErr := os.Stat(filename); statErr != nil || !info.Mode().IsRegular() {
+			cached = false
+			break
+		}
+	}
+	if cached {
+		for _, font := range mediaInfo.Fonts {
+			if font == "" {
+				continue
+			}
+			filename := filepath.Join(attachmentPath, filepath.Base(font))
+			if info, statErr := os.Stat(filename); statErr != nil || !info.Mode().IsRegular() {
+				cached = false
+				break
+			}
+		}
+	}
+	if cached {
+		logger.Debug().Str("hash", hash).Msg("videofile: Attachments already extracted")
 		return nil
 	}
 
@@ -89,8 +111,8 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 	}
 
 	if extractedCount == 0 {
-		logger.Debug().Str("hash", hash).Msg("videofile: No extractable subtitles found")
-		return nil
+		// FFmpeg needs an output even when only dumping attachments.
+		args = append(args, "-t", "0", "-f", "null", "-")
 	}
 
 	cmd := util.NewCmdCtx(ctx, ffmpegPath, args...)
