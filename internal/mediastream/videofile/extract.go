@@ -62,11 +62,18 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 	crashLogger.LogInfof("Extracting attachments from %s", path)
 
 	// Build ffmpeg command: dump font attachments and extract subtitles.
-	args := []string{
-		"-dump_attachment:t", "",
-		"-y",
-		"-i", path,
+	args := []string{"-y"}
+	for i, font := range mediaInfo.Fonts {
+		if font == "" {
+			continue
+		}
+		font = filepath.Base(font)
+		args = append(args,
+			fmt.Sprintf("-dump_attachment:t:%d", i),
+			filepath.Join(attachmentPath, font),
+		)
 	}
+	args = append(args, "-i", path)
 
 	extractedCount := 0
 	for _, sub := range mediaInfo.Subtitles {
