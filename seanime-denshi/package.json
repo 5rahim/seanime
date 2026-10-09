@@ -100,6 +100,7 @@
       ],
       "category": "Entertainment",
       "artifactName": "seanime-denshi-${version}_Linux_${arch}.${ext}",
+      "icon": "assets/512x512.png",
       "desktop": {
         "StartupWMClass": "seanime-denshi"
       }
