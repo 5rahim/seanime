@@ -44,6 +44,7 @@ export const Slider = React.forwardRef<HTMLDivElement, SliderProps>((props, ref)
     const {
         className,
         orientation = "horizontal",
+        "aria-label": label,
         ...rest
     } = props
 
@@ -60,7 +61,7 @@ export const Slider = React.forwardRef<HTMLDivElement, SliderProps>((props, ref)
             <SliderPrimitive.Track className={SliderAnatomy.track()}>
 			    <SliderPrimitive.Range className={SliderAnatomy.range()} />
             </SliderPrimitive.Track>
-            <SliderPrimitive.Thumb className={SliderAnatomy.thumb()} />
+            <SliderPrimitive.Thumb aria-label={label} className={SliderAnatomy.thumb()} />
         </SliderPrimitive.Root>
     )
 })
