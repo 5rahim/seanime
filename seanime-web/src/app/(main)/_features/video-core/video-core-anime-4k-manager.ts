@@ -463,7 +463,9 @@ export class VideoCoreAnime4KManager extends EventTarget {
                 log.error("Failed to initialize Anime4K", error)
                 this._handleError(error instanceof Error ? error.message : "Unknown error")
             }
-            this._onOptionChanged?.(option)
+            if (this._initialized && this._currentOption === option) {
+                this._onOptionChanged?.(option)
+            }
         }
 
     }
@@ -583,11 +585,14 @@ export class VideoCoreAnime4KManager extends EventTarget {
 
             await this._startRendering(abortController)
 
+            if (this._isStale(abortController)) return
+
             this._initialized = true
             log.info("Anime4K initialized")
         }
         catch (error) {
-            if (!abortController.signal.aborted) {
+            if (!this._isStale(abortController)) {
+                this._stopRendering()
                 log.error("Initialization failed", error)
                 throw error
             }
@@ -666,6 +671,21 @@ export class VideoCoreAnime4KManager extends EventTarget {
 
         const anime4k = await import("anime4k-webgpu")
 
+        if (this._isStale(abortController)) return
+
+        if (this.videoElement.readyState < this.videoElement.HAVE_CURRENT_DATA) {
+            await new Promise<void>(resolve => {
+                const done = () => {
+                    this.videoElement.removeEventListener("loadeddata", done)
+                    abortController.signal.removeEventListener("abort", done)
+                    resolve()
+                }
+                this.videoElement.addEventListener("loadeddata", done, { once: true })
+                abortController.signal.addEventListener("abort", done, { once: true })
+            })
+            if (this._isStale(abortController)) return
+        }
+
         const nativeDimensions = {
             width: this.videoElement.videoWidth,
             height: this.videoElement.videoHeight,
@@ -696,7 +716,9 @@ export class VideoCoreAnime4KManager extends EventTarget {
             return
         }
 
+        this._webgpuResources = { device }
         const context = this.canvas.getContext("webgpu")!
+        this._webgpuResources.context = context
         const presentationFormat = navigator.gpu.getPreferredCanvasFormat()
         context.configure({ device, format: presentationFormat, alphaMode: "premultiplied" })
 
@@ -705,6 +727,7 @@ export class VideoCoreAnime4KManager extends EventTarget {
             format: "rgba16float",
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
         })
+        this._webgpuResources.inputTexture = inputTexture
 
         const pipelines = this.createPipeline({ device, inputTexture, nativeDimensions, targetDimensions }, anime4k)
 
