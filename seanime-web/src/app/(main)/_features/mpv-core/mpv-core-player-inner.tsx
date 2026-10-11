@@ -1018,18 +1018,17 @@ function MpvCorePlayerContent(props: MpvCorePlayerContentProps) {
         if (!metadataReadyRef.current) return
         if (event.volume != null) setVolume(Math.max(0, Math.min(1, event.volume / 100)))
     })
-    // Amplify past 100% with mpv's volume-gain (dB), plus a limiter so boosted peaks don't clip
+    // Apply the boost before the limiter.
     const boostLimiterPlayerRef = React.useRef<typeof player>(null)
     React.useEffect(() => {
         if (!player) return
         const boost = clampVolumeBoost(volumeBoost)
-        player.setProperty("volume-gain", 20 * Math.log10(boost)).catch(() => undefined)
 
         const wantsLimiter = boost > VOLUME_BOOST_MIN
         const hasLimiter = boostLimiterPlayerRef.current === player
-        if (wantsLimiter && !hasLimiter) {
+        if (wantsLimiter) {
             boostLimiterPlayerRef.current = player
-            player.command(["af", "add", "@volume-boost:lavfi=[alimiter=limit=0.95:level=disabled]"]).catch(() => {
+            player.command(["af", "add", `@volume-boost:lavfi=[volume=${boost},alimiter=limit=0.95:level=disabled]`]).catch(() => {
                 boostLimiterPlayerRef.current = null
             })
         } else if (!wantsLimiter && hasLimiter) {

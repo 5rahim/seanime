@@ -5,7 +5,7 @@ export interface MediaCorePreferences {
     autoPlay: boolean
     autoNext: boolean
     volume: number
-    // Extra gain applied on top of the element volume (1 = off, 3 = +300%)
+    // Extra gain applied on top of the element volume (1 = off, 3 = 300%)
     volumeBoost: number
     muted: boolean
     playbackRate: number

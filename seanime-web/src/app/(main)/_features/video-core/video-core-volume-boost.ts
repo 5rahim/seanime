@@ -5,7 +5,9 @@ import React from "react"
 const log = logger("VIDEO CORE VOLUME BOOST")
 
 type BoostGraph = {
+    source: MediaElementAudioSourceNode
     gain: GainNode
+    limiter: DynamicsCompressorNode
 }
 
 // A media element can only be connected to a single MediaElementAudioSourceNode for its whole lifetime,
@@ -40,11 +42,7 @@ function getOrCreateGraph(element: HTMLMediaElement): BoostGraph | null {
         limiter.attack.value = 0.003
         limiter.release.value = 0.25
 
-        source.connect(gain)
-        gain.connect(limiter)
-        limiter.connect(ctx.destination)
-
-        const graph = { gain }
+        const graph = { source, gain, limiter }
         graphs.set(element, graph)
         log.info("Audio graph created")
         return graph
@@ -74,8 +72,20 @@ export function useVideoCoreVolumeBoost(element: HTMLVideoElement | null, boost:
         const graph = value > VOLUME_BOOST_MIN ? getOrCreateGraph(element) : graphs.get(element)
         if (!graph) return
 
+        graph.source.connect(graph.gain)
+        if (value > VOLUME_BOOST_MIN) {
+            graph.gain.connect(graph.limiter)
+            graph.limiter.connect(graph.gain.context.destination)
+        } else {
+            graph.gain.connect(graph.gain.context.destination)
+        }
         graph.gain.gain.setTargetAtTime(value, graph.gain.context.currentTime, 0.02)
         resumeContext()
+        return () => {
+            graph.source.disconnect()
+            graph.gain.disconnect()
+            graph.limiter.disconnect()
+        }
     }, [element, value])
 
     // Browsers start an AudioContext suspended until there's a user gesture, which would silence the routed audio
