@@ -1,6 +1,7 @@
 import { useWebsocketMessageListener, useWebsocketPluginMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useIsMainTabRef } from "@/app/websocket-provider"
 import { WSEvents } from "@/lib/server/ws-events"
+import { PluginActionModal } from "./actions/plugin-action-modal"
 import { useDOMManager } from "./dom-manager"
 import {
     Plugin_Server_DOMCreateEventPayload,
@@ -103,5 +104,5 @@ export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string
         },
     })
 
-    return null
+    return <PluginActionModal extensionId={extensionId} />
 }

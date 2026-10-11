@@ -228,6 +228,7 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 			str.Episode.AniDBEpisode = ep.aniDBEpisode
 			// Reset the local file to nil, since it's a placeholder
 			str.Episode.LocalFile = nil
+			str.Episode.IsDownloaded = false
 			return str
 		})
 	}

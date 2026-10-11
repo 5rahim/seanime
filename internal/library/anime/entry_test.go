@@ -1,6 +1,7 @@
 package anime_test
 
 import (
+	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
@@ -11,7 +12,77 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestEntryWithoutMetadata(t *testing.T) {
+	tests := []struct {
+		name     string
+		count    *int
+		progress int
+		local    []anime.TestLocalFileEpisode
+		airing   int
+		want     []int
+	}{
+		{name: "known count", count: new(4), want: []int{1, 2, 3, 4}},
+		{
+			name:     "watched and downloaded episodes",
+			count:    new(4),
+			progress: 1,
+			local:    []anime.TestLocalFileEpisode{{Episode: 3, AniDBEpisode: "3", Type: anime.LocalFileTypeMain}},
+			want:     []int{2, 4},
+		},
+		{name: "unknown count"},
+		{name: "airing episodes", count: new(12), airing: 4, want: []int{1, 2, 3}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := newAnimeTestWrapper(t)
+			const mediaID = 154587
+			listEntry := patchAnimeCollectionEntry(t, h.animeCollection, mediaID, anilist.AnimeCollectionEntryPatch{
+				Progress: new(tt.progress),
+				Status:   new(anilist.MediaListStatusCurrent),
+			})
+			listEntry.Media.Episodes = tt.count
+			listEntry.Media.NextAiringEpisode = nil
+			listEntry.Media.Status = new(anilist.MediaStatusFinished)
+			if tt.airing > 0 {
+				listEntry.Media.Status = new(anilist.MediaStatusReleasing)
+				listEntry.Media.NextAiringEpisode = &anilist.BaseAnime_NextAiringEpisode{Episode: tt.airing}
+			}
+			h.metadataProvider.errors[mediaID] = errors.New("metadata not found")
+			localFiles := anime.NewTestLocalFiles(anime.TestLocalFileGroup{
+				LibraryPath:      "/anime",
+				FilePathTemplate: "/anime/Frieren/episode-%ep.mkv",
+				MediaID:          mediaID,
+				Episodes:         tt.local,
+			})
+
+			entry, err := anime.NewEntry(t.Context(), &anime.NewEntryOptions{
+				MediaId:             mediaID,
+				LocalFiles:          localFiles,
+				AnimeCollection:     h.animeCollection,
+				PlatformRef:         h.platformRef,
+				MetadataProviderRef: h.metadataProviderRef,
+			})
+			require.NoError(t, err)
+			require.Len(t, entry.Episodes, len(tt.local))
+			if tt.want == nil {
+				require.Nil(t, entry.EntryDownloadInfo)
+				return
+			}
+			require.NotNil(t, entry.EntryDownloadInfo)
+			var got []int
+			for _, ep := range entry.EntryDownloadInfo.EpisodesToDownload {
+				got = append(got, ep.EpisodeNumber)
+				require.Equal(t, ep.EpisodeNumber, ep.Episode.ProgressNumber)
+				require.False(t, ep.Episode.IsDownloaded)
+				require.Nil(t, ep.Episode.LocalFile)
+			}
+			require.ElementsMatch(t, tt.want, got)
+		})
+	}
+}
 
 // TestNewAnimeEntry tests /library/entry endpoint.
 // /!\ MAKE SURE TO HAVE THE MEDIA ADDED TO YOUR LIST TEST ACCOUNT LISTS

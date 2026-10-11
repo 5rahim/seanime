@@ -101,10 +101,12 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
         mousetrap.bind(kbsPageLeft, () => onPaginate("left"))
         mousetrap.bind(kbsPageRight, () => onPaginate("right"))
         mousetrap.bind("up", () => {
-            containerRef.current?.scrollBy(0, -100)
+            containerRef.current?.scrollBy({ top: -100, behavior: "smooth" })
+            return false
         })
         mousetrap.bind("down", () => {
-            containerRef.current?.scrollBy(0, 100)
+            containerRef.current?.scrollBy({ top: 100, behavior: "smooth" })
+            return false
         })
 
         return () => {
