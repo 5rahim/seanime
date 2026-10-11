@@ -114,8 +114,8 @@ export function ExtensionPrompt() {
                 "sm:rounded-[2rem]",
             )}
         >
-            <div ref={frameRef} className="grid gap-0">
-                <div className="px-8 pb-6 pt-8">
+            <div ref={frameRef} className="grid gap-0 min-w-0">
+                <div className="px-8 pb-6 pt-8 min-w-0">
                     <div className="mb-6 flex items-center gap-3 relative w-fit">
                         <div className="grid size-16 place-items-center rounded-xl border bg-gradient-to-br text-white shadow-md">
                             <Icon className="size-8" />
@@ -161,7 +161,7 @@ export function ExtensionPrompt() {
                     )}
                 </div>
 
-                <div className="grid gap-3 px-6 pb-6">
+                <div className="grid gap-3 px-6 pb-6 min-w-0">
                     <Button
                         intent="gray-subtle"
                         size="lg"

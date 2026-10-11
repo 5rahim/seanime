@@ -55,7 +55,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
 
         // save to autoplay
         // autoplay will increment selectedFileIdx by 1 to play the next file
-        // Devnote: Torbox isn't supported because we can't use indexes to identify files
+        // Devnote: TorBox file IDs cannot be used as indexes, so only other providers save a file mapping.
         let batchFiles: HibikeTorrent_BatchEpisodeFiles | undefined = undefined
         if (selectedDebridService !== DEBRID_SERVICE.TORBOX) {
             batchFiles = {
@@ -64,9 +64,11 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
                 currentEpisodeNumber: torrentSearchStreamEpisode.episodeNumber,
                 currentAniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
             }
-            log.info("Saving torrent for auto play", { batchFiles })
-            setAutoPlayTorrent(selectedTorrent, entry, batchFiles)
         }
+
+        // Always replace the previous torrent, including when TorBox has no file mapping.
+        log.info("Saving torrent for auto play", { batchFiles })
+        setAutoPlayTorrent(selectedTorrent, entry, batchFiles)
 
         handleStreamSelection({
             torrent: selectedTorrent,

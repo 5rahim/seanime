@@ -227,6 +227,8 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 								Repeat:      entry.GetRepeatSafe(),
 								StartedAt:   anilist.ToEntryStartDate(entry.StartedAt),
 								CompletedAt: anilist.ToEntryCompletionDate(entry.CompletedAt),
+								CreatedAt:   entry.CreatedAt,
+								UpdatedAt:   entry.UpdatedAt,
 							},
 						}
 					} else {

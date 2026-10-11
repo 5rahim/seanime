@@ -1,4 +1,7 @@
 import { useListExtensionData } from "@/api/hooks/extensions.hooks"
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { queryClient, store } from "@/app/client-providers"
+import { marketplaceUrlAtom } from "@/app/(main)/extensions/_lib/marketplace.atoms"
 import { useIsMainTabRef } from "@/app/websocket-provider"
 import { useDebounce } from "@/hooks/use-debounce"
 import { copyToClipboard } from "@/lib/helpers/browser.ts"
@@ -11,10 +14,13 @@ import { PluginCommandPalettes } from "./command/plugin-command-palettes"
 import { usePluginListenDOMClipboardWriteEvent } from "./generated/plugin-events"
 import {
     usePluginListenDOMGetViewportSizeEvent,
+    usePluginListenMarketplaceGetURLEvent,
+    usePluginListenMarketplaceSetURLEvent,
     usePluginListenScreenGetCurrentEvent,
     usePluginListenScreenNavigateToEvent,
     usePluginListenScreenReloadEvent,
     usePluginSendDOMViewportSizeEvent,
+    usePluginSendMarketplaceGetURLResultEvent,
     usePluginSendScreenChangedEvent,
 } from "./generated/plugin-events"
 import { PluginHandler } from "./plugin-handler"
@@ -24,6 +30,7 @@ export function PluginManager() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const { sendScreenChangedEvent } = usePluginSendScreenChangedEvent()
+    const { sendMarketplaceGetURLResultEvent } = usePluginSendMarketplaceGetURLResultEvent()
     const isMainTabRef = useIsMainTabRef()
 
     const { data: extensions } = useListExtensionData()
@@ -76,6 +83,17 @@ export function PluginManager() {
     usePluginListenDOMClipboardWriteEvent((event) => {
         if (!isMainTabRef.current) return
         copyToClipboard(event.text)
+    }, "") // Listen to all plugins
+
+    usePluginListenMarketplaceGetURLEvent((event, extensionId) => {
+        if (!isMainTabRef.current) return
+        sendMarketplaceGetURLResultEvent({ requestId: event.requestId, url: store.get(marketplaceUrlAtom) }, extensionId)
+    }, "") // Listen to all plugins
+
+    usePluginListenMarketplaceSetURLEvent((event) => {
+        if (!isMainTabRef.current) return
+        store.set(marketplaceUrlAtom, event.url)
+        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.key] })
     }, "") // Listen to all plugins
 
     return <>

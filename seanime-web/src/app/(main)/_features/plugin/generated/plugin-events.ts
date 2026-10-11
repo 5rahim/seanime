@@ -3,6 +3,7 @@
 	import { useCallback } from "react"
 
 export enum PluginClientEvents {
+    ModalClosed = "modal:closed",
     RenderTray = "tray:render",
     ListTrayIcons = "tray:list-icons",
     TrayOpened = "tray:opened",
@@ -47,6 +48,7 @@ export enum PluginClientEvents {
     DOMReady = "dom:ready",
     DOMMainTabReady = "dom:main-tab-ready",
     DOMViewportSize = "dom:viewport-size",
+    MarketplaceGetURLResult = "marketplace:get-url-result",
 }
 
 export enum PluginServerEvents {
@@ -55,6 +57,7 @@ export enum PluginServerEvents {
     TrayBadgeUpdated = "tray:badge-updated",
     TrayOpen = "tray:open",
     TrayClose = "tray:close",
+    ModalUpdated = "modal:updated",
     WebviewUpdated = "webview:updated",
     WebviewIframe = "webview:iframe",
     WebviewSidebar = "webview:sidebar",
@@ -95,11 +98,28 @@ export enum PluginServerEvents {
     DOMClipboardWrite = "dom:clipboard:write",
     DebugLog = "debug:log",
     DebugClear = "debug:clear",
+    MarketplaceGetURL = "marketplace:get-url",
+    MarketplaceSetURL = "marketplace:set-url",
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Client to server
 /////////////////////////////////////////////////////////////////////////////////////
+
+export type Plugin_Client_ModalClosedEventPayload = {
+}
+
+export function usePluginSendModalClosedEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendModalClosedEvent = useCallback((payload: Plugin_Client_ModalClosedEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.ModalClosed, payload, extensionID)
+    }, [])
+
+    return {
+        sendModalClosedEvent,
+    }
+}
 
 export type Plugin_Client_RenderTrayEventPayload = {
 }
@@ -804,6 +824,23 @@ export function usePluginSendDOMViewportSizeEvent() {
     }
 }
 
+export type Plugin_Client_MarketplaceGetURLResultEventPayload = {
+    requestId: string
+    url: string
+}
+
+export function usePluginSendMarketplaceGetURLResultEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendMarketplaceGetURLResultEvent = useCallback((payload: Plugin_Client_MarketplaceGetURLResultEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.MarketplaceGetURLResult, payload, extensionID)
+    }, [])
+
+    return {
+        sendMarketplaceGetURLResultEvent,
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Server to client
 /////////////////////////////////////////////////////////////////////////////////////
@@ -874,6 +911,22 @@ export function usePluginListenTrayCloseEvent(cb: (payload: Plugin_Server_TrayCl
     return useWebsocketPluginMessageListener<Plugin_Server_TrayCloseEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.TrayClose,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_ModalUpdatedEventPayload = {
+    action: string
+    title: string
+    description: string
+    className: string
+    components: any
+}
+
+export function usePluginListenModalUpdatedEvent(cb: (payload: Plugin_Server_ModalUpdatedEventPayload, extensionId: string) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_ModalUpdatedEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.ModalUpdated,
         onMessage: cb,
     })
 }
@@ -1383,6 +1436,30 @@ export function usePluginListenDebugClearEvent(cb: (payload: Plugin_Server_Debug
     return useWebsocketPluginMessageListener<Plugin_Server_DebugClearEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.DebugClear,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_MarketplaceGetURLEventPayload = {
+    requestId: string
+}
+
+export function usePluginListenMarketplaceGetURLEvent(cb: (payload: Plugin_Server_MarketplaceGetURLEventPayload, extensionId: string) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_MarketplaceGetURLEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.MarketplaceGetURL,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_MarketplaceSetURLEventPayload = {
+    url: string
+}
+
+export function usePluginListenMarketplaceSetURLEvent(cb: (payload: Plugin_Server_MarketplaceSetURLEventPayload, extensionId: string) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_MarketplaceSetURLEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.MarketplaceSetURL,
         onMessage: cb,
     })
 }

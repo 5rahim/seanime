@@ -373,11 +373,7 @@ func (m *Manager) getWatchHistory(mediaId int) (ret *WatchHistoryItem, exists bo
 		// If the item completion ratio is equal or above IgnoreRatioThreshold, don't return anything
 		ratio := ret.CurrentTime / ret.Duration
 		if ratio >= IgnoreRatioThreshold {
-			// Delete the item
-			go func() {
-				defer util.HandlePanicInModuleThen("continuity/getWatchHistory", func() {})
-				_ = m.fileCacher.Delete(*m.watchHistoryFileCacheBucket, strconv.Itoa(mediaId))
-			}()
+			// keep the timestamp for last-watched sorting
 			return nil, false
 		}
 		if ratio < 0.05 {

@@ -140,6 +140,9 @@ type AppContext interface {
 	// BindAppSettingsToContextObj binds 'appSettings' to the UI context object
 	BindAppSettingsToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
+	// Ask prompts the user for permission before an action is performed
+	Ask(ext *extension.Extension, opts prompt.Options) error
+
 	// BindExtensionsToContextObj binds 'extensions' to the UI context object
 	BindExtensionsToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 

@@ -492,6 +492,7 @@ func applyQueuedUpdateToMangaCollection(collection *anilist.MangaCollection, upd
 }
 
 func applyUpdateToAnimeEntry(entry *anilist.AnimeCollection_MediaListCollection_Lists_Entries, update queuedMediaListUpdate) {
+	entry.UpdatedAt = new(int(update.UpdatedAt.Unix()))
 	if update.Status != nil {
 		entry.Status = newCloned(update.Status)
 	}
@@ -518,6 +519,7 @@ func applyUpdateToAnimeEntry(entry *anilist.AnimeCollection_MediaListCollection_
 }
 
 func applyUpdateToMangaEntry(entry *anilist.MangaCollection_MediaListCollection_Lists_Entries, update queuedMediaListUpdate) {
+	entry.UpdatedAt = new(int(update.UpdatedAt.Unix()))
 	if update.Status != nil {
 		entry.Status = newCloned(update.Status)
 	}

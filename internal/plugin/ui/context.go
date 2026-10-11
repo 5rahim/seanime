@@ -78,8 +78,9 @@ type Context struct {
 	lastUIUpdateAt time.Time
 	uiUpdateMu     sync.Mutex
 
-	screenManager         *ScreenManager         // Listen for screen events, send screen actions
-	trayManager           *TrayManager           // Register and manage tray
+	screenManager         *ScreenManager // Listen for screen events, send screen actions
+	trayManager           *TrayManager   // Register and manage tray
+	modalManager          *ModalManager
 	webviewManager        *WebviewManager        // Register and manage webviews
 	actionManager         *ActionManager         // Register and manage actions
 	episodeTabManager     *EpisodeTabManager     // Register and manage anime entry episode tabs
@@ -88,6 +89,7 @@ type Context struct {
 	commandPaletteManager *CommandPaletteManager // Register and manage command palette
 	domManager            *DOMManager            // DOM manipulation manager
 	notificationManager   *NotificationManager   // Register and manage notifications
+	marketplaceManager    *MarketplaceManager    // Manage extension marketplace
 
 	atomicCleanupCounter atomic.Int64
 	onCleanupFns         *result.Map[int64, func()]
@@ -149,6 +151,7 @@ func NewContext(ui *UI) *Context {
 	ret.updateBatchTimer.Stop() // Start in stopped state
 
 	ret.trayManager = NewTrayManager(ret)
+	ret.modalManager = NewModalManager(ret)
 	ret.webviewManager = NewWebviewManager(ret)
 	ret.actionManager = NewActionManager(ret)
 	ret.episodeTabManager = NewEpisodeTabManager(ret)
@@ -159,6 +162,7 @@ func NewContext(ui *UI) *Context {
 	ret.commandPaletteManager = NewCommandPaletteManager(ret)
 	ret.domManager = NewDOMManager(ret)
 	ret.notificationManager = NewNotificationManager(ret)
+	ret.marketplaceManager = NewMarketplaceManager(ret)
 
 	// Initialize the event batch timer
 	ret.eventBatchTimer = time.AfterFunc(eventBatchFlushInterval*time.Millisecond, func() {
@@ -173,6 +177,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	obj := vm.NewObject()
 
 	_ = obj.Set("newTray", c.trayManager.jsNewTray)
+	_ = obj.Set("newModal", c.modalManager.jsNewModal)
 	_ = obj.Set("newWebview", c.webviewManager.jsNewWebview)
 	_ = obj.Set("newForm", c.formManager.jsNewForm)
 
@@ -278,6 +283,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 			case extension.PluginPermissionExtensions:
 				if !security.IsStrict() {
 					plugin.GlobalAppContext.BindExtensionsToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+					c.marketplaceManager.bindExtensions(obj.Get("extensions").ToObject(vm))
 				}
 			}
 		}
@@ -1285,6 +1291,9 @@ func (c *Context) triggerUIUpdate() {
 	// Trigger tray update if available
 	if c.trayManager != nil {
 		c.trayManager.renderTrayScheduled()
+	}
+	if c.modalManager != nil {
+		c.modalManager.renderScheduled()
 	}
 	// Trigger tray update if available
 	//if c.webviewManager != nil {

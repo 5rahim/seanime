@@ -18,6 +18,7 @@ type ClientPluginEvent struct {
 }
 
 const (
+	ClientModalClosedEvent                             ClientEventType = "modal:closed"
 	ClientRenderTrayEvent                              ClientEventType = "tray:render"     // Client wants to render the tray
 	ClientListTrayIconsEvent                           ClientEventType = "tray:list-icons" // Client wants to list all icons from all plugins
 	ClientTrayOpenedEvent                              ClientEventType = "tray:opened"     // When the tray is opened
@@ -63,9 +64,13 @@ const (
 	ClientDOMReadyEvent          ClientEventType = "dom:ready"            // When a DOM element is ready
 	ClientDOMMainTabReadyEvent   ClientEventType = "dom:main-tab-ready"   // When the main tab has changed
 	ClientDOMViewportSizeEvent   ClientEventType = "dom:viewport-size"
+
+	ClientMarketplaceGetURLResultEvent ClientEventType = "marketplace:get-url-result" // Client replies with the current marketplace URL
 )
 
 type ClientRenderTrayEventPayload struct{}
+
+type ClientModalClosedEventPayload struct{}
 type ClientListTrayIconsEventPayload struct{}
 type ClientTrayOpenedEventPayload struct{}
 type ClientTrayClosedEventPayload struct{}
@@ -202,6 +207,11 @@ type ClientDOMViewportSizeEventPayload struct {
 	Height int `json:"height"`
 }
 
+type ClientMarketplaceGetURLResultEventPayload struct {
+	RequestID string `json:"requestId"`
+	URL       string `json:"url"`
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Server to client
 /////////////////////////////////////////////////////////////////////////////////////
@@ -221,6 +231,7 @@ const (
 	ServerTrayBadgeUpdatedEvent ServerEventType = "tray:badge-updated" // When the tray badge is updated
 	ServerTrayOpenEvent         ServerEventType = "tray:open"          // When the tray is opened
 	ServerTrayCloseEvent        ServerEventType = "tray:close"         // When the tray is closed
+	ServerModalUpdatedEvent     ServerEventType = "modal:updated"
 
 	ServerWebviewUpdatedEvent   ServerEventType = "webview:updated"    // When the webviews are updated
 	ServerWebviewIframeEvent    ServerEventType = "webview:iframe"     // When the webviews are updated
@@ -265,10 +276,21 @@ const (
 	ServerDOMClipboardWriteEvent ServerEventType = "dom:clipboard:write"
 	ServerDebugLogEvent          ServerEventType = "debug:log"
 	ServerDebugClearEvent        ServerEventType = "debug:clear"
+
+	ServerMarketplaceGetURLEvent ServerEventType = "marketplace:get-url" // Ask the client for the current marketplace URL
+	ServerMarketplaceSetURLEvent ServerEventType = "marketplace:set-url" // Change the marketplace URL
 )
 
 type ServerTrayUpdatedEventPayload struct {
 	Components interface{} `json:"components"`
+}
+
+type ServerModalUpdatedEventPayload struct {
+	Action      string      `json:"action"`
+	Title       string      `json:"title"`
+	Description string      `json:"description,omitempty"`
+	ClassName   string      `json:"className,omitempty"`
+	Components  interface{} `json:"components"`
 }
 
 type ServerCommandPaletteUpdatedEventPayload struct {
@@ -527,4 +549,12 @@ type ServerDOMObserveInViewEventPayload struct {
 }
 
 type ServerDOMGetViewportSizePayload struct {
+}
+
+type ServerMarketplaceGetURLEventPayload struct {
+	RequestID string `json:"requestId"`
+}
+
+type ServerMarketplaceSetURLEventPayload struct {
+	URL string `json:"url"`
 }

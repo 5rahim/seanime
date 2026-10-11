@@ -3,15 +3,14 @@ package plugin
 import (
 	"errors"
 	"reflect"
-	"sort"
-	"strings"
-	"time"
-
 	"seanime/internal/database/models"
 	"seanime/internal/extension"
 	"seanime/internal/extension_repo/prompt"
 	"seanime/internal/goja/goja_bindings"
 	gojautil "seanime/internal/util/goja"
+	"sort"
+	"strings"
+	"time"
 
 	"github.com/dop251/goja"
 	"github.com/goccy/go-json"
@@ -134,16 +133,18 @@ func (a *AppContextImpl) bindSettingsObj(vm *goja.Runtime, ext *extension.Extens
 				return rejectNow(vm, errors.New("settings path is empty"))
 			}
 
+			details := []string{settingDetail(path, value)}
+
 			return a.settingsAction(vm, scheduler, ext, prompt.Options{
 				Kind:       "settings",
 				Action:     "edit \"" + path + "\"",
 				Resource:   "Setting: \"" + path + "\"",
 				Message:    "Allow \"" + ext.Name + "\" to edit \"" + path + "\"?",
-				Details:    []string{path},
+				Details:    details,
 				AllowLabel: "Allow",
 				DenyLabel:  "Don't Allow",
 				Cache:      cache,
-				CacheKey:   settingsCacheKey("edit", path),
+				CacheKey:   settingsCacheKey("edit", details...),
 			}, func() (interface{}, error) {
 				bundle, base, err := a.getSettingsBundleAndMap()
 				if err != nil {
@@ -181,8 +182,7 @@ func (a *AppContextImpl) bindSettingsObj(vm *goja.Runtime, ext *extension.Extens
 			return rejectNow(vm, err)
 		}
 
-		details := []string{"all settings"}
-		details = diffAppSettingsPaths(currentMap, nextMap)
+		details := settingDetails(diffAppSettingsPaths(currentMap, nextMap), nextMap)
 		if len(details) == 0 {
 			details = []string{"no setting changes"}
 		}
@@ -201,7 +201,7 @@ func (a *AppContextImpl) bindSettingsObj(vm *goja.Runtime, ext *extension.Extens
 	})
 
 	_ = settingsObj.Set("patch", func(patch map[string]interface{}) goja.Value {
-		details := settingPaths(patch)
+		details := settingDetails(settingPaths(patch), patch)
 		if len(details) == 0 {
 			details = []string{"app settings"}
 		}
@@ -231,6 +231,52 @@ func (a *AppContextImpl) bindSettingsObj(vm *goja.Runtime, ext *extension.Extens
 	})
 
 	return settingsObj
+}
+
+const maxSettingValueLen = 120
+
+func settingDetail(path string, value interface{}) string {
+	return strings.TrimSpace(path) + " = " + settingValueStr(value)
+}
+
+func settingDetails(paths []string, source map[string]interface{}) []string {
+	ret := make([]string, 0, len(paths))
+	for _, path := range paths {
+		value, found := getPath(source, path)
+		if !found {
+			ret = append(ret, strings.TrimSpace(path)+" = (removed)")
+			continue
+		}
+		ret = append(ret, settingDetail(path, value))
+	}
+	return ret
+}
+
+func settingValueStr(value interface{}) string {
+	if value == nil {
+		return "null"
+	}
+
+	var rendered string
+	switch typed := value.(type) {
+	case string:
+		rendered = typed
+		if strings.TrimSpace(rendered) == "" {
+			return "(empty)"
+		}
+	default:
+		bytes, err := json.Marshal(value)
+		if err != nil {
+			return "(unreadable value)"
+		}
+		rendered = string(bytes)
+	}
+
+	rendered = strings.Join(strings.Fields(rendered), " ")
+	if len(rendered) > maxSettingValueLen {
+		rendered = rendered[:maxSettingValueLen] + "…"
+	}
+	return rendered
 }
 
 func settingsCacheKey(action string, parts ...string) string {

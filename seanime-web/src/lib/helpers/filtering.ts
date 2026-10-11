@@ -31,6 +31,8 @@ type BaseCollectionSorting =
     | "PROGRESS_DESC"
     | "TITLE"
     | "TITLE_DESC"
+    | "CREATED_AT_DESC"
+    | "UPDATED_AT_DESC"
 
 
 type CollectionSorting<T extends CollectionType> = BaseCollectionSorting | (T extends "anime" ?
@@ -57,6 +59,8 @@ type ContinueWatchingSorting =
     | "START_DATE_DESC"
     | "LAST_WATCHED"
     | "LAST_WATCHED_DESC"
+    | "CREATED_AT_DESC"
+    | "UPDATED_AT_DESC"
 
 export const CONTINUE_WATCHING_SORTING_OPTIONS = [
     { label: "Aired recently", value: "AIRDATE_DESC" },
@@ -71,6 +75,8 @@ export const CONTINUE_WATCHING_SORTING_OPTIONS = [
     { label: "Oldest start date", value: "START_DATE" },
     { label: "Most recent watch", value: "LAST_WATCHED_DESC" },
     { label: "Least recent watch", value: "LAST_WATCHED" },
+    { label: "Date added (newest first)", value: "CREATED_AT_DESC" },
+    { label: "Last updated", value: "UPDATED_AT_DESC" },
 ]
 
 
@@ -89,6 +95,8 @@ export const COLLECTION_SORTING_OPTIONS = [
     { label: "Oldest completion date", value: "END_DATE" },
     { label: "Released recently", value: "RELEASE_DATE_DESC" },
     { label: "Oldest release", value: "RELEASE_DATE" },
+    { label: "Date added (newest first)", value: "CREATED_AT_DESC" },
+    { label: "Last updated", value: "UPDATED_AT_DESC" },
 ]
 
 export const ANIME_COLLECTION_SORTING_OPTIONS = [
@@ -253,6 +261,12 @@ export function filterListEntries<T extends AL_MangaCollection_MediaListCollecti
     if (getParamValue(params.sorting) === "RELEASE_DATE_DESC")
         arr = sortBy(arr, n => new Date(n?.media?.startDate?.year!, n?.media?.startDate?.month! - 1)).reverse()
 
+    // Sort by list dates
+    if (getParamValue(params.sorting) === "CREATED_AT_DESC")
+        arr = sortBy(arr, n => n.createdAt ?? 0).reverse()
+    if (getParamValue(params.sorting) === "UPDATED_AT_DESC")
+        arr = sortBy(arr, n => n.updatedAt ?? 0).reverse()
+
     // Sort by score
     if (getParamValue(params.sorting) === "SCORE")
         arr = sortBy(arr, n => n?.score || 999999)
@@ -354,6 +368,12 @@ export function filterCollectionEntries<T extends Anime_LibraryCollectionEntry[]
         arr = sortBy(arr, n => new Date(n?.media?.startDate?.year!, n?.media?.startDate?.month! - 1))
     if (getParamValue(params.sorting) === "RELEASE_DATE_DESC")
         arr = sortBy(arr, n => new Date(n?.media?.startDate?.year!, n?.media?.startDate?.month! - 1)).reverse()
+
+    // Sort by list dates
+    if (getParamValue(params.sorting) === "CREATED_AT_DESC")
+        arr = sortBy(arr, n => n.listData?.createdAt ?? 0).reverse()
+    if (getParamValue(params.sorting) === "UPDATED_AT_DESC")
+        arr = sortBy(arr, n => n.listData?.updatedAt ?? 0).reverse()
 
     // Sort by score
     if (getParamValue(params.sorting) === "SCORE")
@@ -502,6 +522,12 @@ export function sortContinueWatchingEntries(
 
     // Initial sort by name
     arr = sortBy(arr, n => n?.displayTitle)
+
+    // Sort by list dates
+    if (sorting === "CREATED_AT_DESC")
+        arr = sortBy(arr, n => libraryEntries?.find(e => e.media?.id === n.baseAnime?.id)?.listData?.createdAt ?? 0).reverse()
+    if (sorting === "UPDATED_AT_DESC")
+        arr = sortBy(arr, n => libraryEntries?.find(e => e.media?.id === n.baseAnime?.id)?.listData?.updatedAt ?? 0).reverse()
 
     // Sort by episode number
     if (sorting === "EPISODE_NUMBER")

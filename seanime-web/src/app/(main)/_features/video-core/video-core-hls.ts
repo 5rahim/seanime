@@ -1,4 +1,5 @@
 import { vc_audioManager } from "@/app/(main)/_features/video-core/video-core"
+import { hasStartupGap } from "@/app/(main)/_features/video-core/_lib/hls-buffer"
 import { getPreferredHlsQualityLevel } from "@/app/(main)/_features/video-core/_lib/hls-quality"
 import { vc_autoPlayVideoAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
@@ -278,7 +279,7 @@ export function useVideoCoreHls({
 
             hls.on(Events.ERROR, (event, data: ErrorData) => {
                 hlsLog.error("HLS error", data)
-                if (data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR && !data.fatal) {
+                if (data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR && !data.fatal && !hasStartupGap(videoElement)) {
                     onStalled?.(data)
                 }
 

@@ -43,9 +43,9 @@ export function getEpisodePercentageComplete(history: Nullish<Continuity_WatchHi
     const item = history[mediaId]
     if (!item || !item.currentTime || !item.duration) return 0
     if (item.episodeNumber !== progressNumber) return 0
-    const percent = Math.round((item.currentTime / item.duration) * 100)
-    if (percent > 90 || percent < 5) return 0
-    return percent
+    const ratio = item.currentTime / item.duration
+    if (ratio >= 0.9 || ratio < 0.05) return 0
+    return Math.round(ratio * 100)
 }
 
 export function getEpisodeMinutesRemaining(history: Nullish<Continuity_WatchHistory>, mediaId: number, progressNumber: number) {
@@ -53,6 +53,8 @@ export function getEpisodeMinutesRemaining(history: Nullish<Continuity_WatchHist
     const item = history[mediaId]
     if (!item || !item.currentTime || !item.duration) return 0
     if (item.episodeNumber !== progressNumber) return 0
+    const ratio = item.currentTime / item.duration
+    if (ratio >= 0.9 || ratio < 0.05) return 0
     return Math.round((item.duration - item.currentTime) / 60)
 }
 

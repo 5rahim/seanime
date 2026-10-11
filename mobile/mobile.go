@@ -22,9 +22,7 @@ func StartServer(dataDir string, cacheDir string, port int) {
 
 		flags := core.SeanimeFlags{
 			DataDir:          dataDir,
-			Host:             "127.0.0.1",
 			Port:             port,
-			DisablePassword:  true,
 			IsDesktopSidecar: false,
 		}
 

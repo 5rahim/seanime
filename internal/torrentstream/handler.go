@@ -94,7 +94,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w,
 		r,
 		file.DisplayPath(),
-		time.Now(),
+		time.Time{},
 		tr,
 	)
 	h.repository.logger.Trace().Msg("torrentstream: File content served")

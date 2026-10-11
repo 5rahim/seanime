@@ -144,7 +144,7 @@ export function useDebridstreamAutoplay() {
         if (!info) return
         const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
 
-        if (autoPlayTorrent?.torrent?.isBatch) {
+        if (autoPlayTorrent?.torrent?.isBatch && autoPlayTorrent.entry?.mediaId === entry.mediaId) {
 
             let fileIndex: number | undefined = undefined
             if (autoPlayTorrent?.batchFiles) {

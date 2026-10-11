@@ -102,6 +102,7 @@ function MediastreamPage() {
     // stream state
     const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("transcode")
     const [url, setUrl] = React.useState<string | null>(null)
+    const [urlFilePath, setUrlFilePath] = React.useState<string | undefined>(undefined)
     const [playbackError, setPlaybackError] = React.useState<string | null>(null)
 
     // HMAC tokens for browser-fetched media URLs
@@ -113,7 +114,8 @@ function MediastreamPage() {
         (async () => {
             setSubsToken(await getHMACTokenQueryParam("/api/v1/mediastream/subs", "?"))
             setAttToken(await getHMACTokenQueryParam("/api/v1/mediastream/att", "?"))
-            setDirectToken(await getHMACTokenQueryParam("/api/v1/mediastream/direct", "?"))
+            // the direct stream url already carries the file hash as a query param
+            setDirectToken(await getHMACTokenQueryParam("/api/v1/mediastream/direct", "&"))
             setTranscodeToken(await getHMACTokenQueryParam("/api/v1/mediastream/transcode", "?"))
         })()
     }, [getHMACTokenQueryParam])
@@ -140,15 +142,21 @@ function MediastreamPage() {
     const { mutate: shutdownTranscode } = useMediastreamShutdownTranscodeStream()
 
     // handle stream url change
-    const changeUrl = React.useCallback((newUrl: string | null) => {
+    const changeUrl = React.useCallback((newUrl: string | null, forFilePath?: string) => {
         if (prevUrlRef.current !== newUrl) {
             setPlaybackError(null)
         }
         setUrl(newUrl)
+        setUrlFilePath(newUrl ? forFilePath : undefined)
         if (newUrl) {
             prevUrlRef.current = newUrl
         }
     }, [])
+
+    // The stream url belongs to the file it was requested for.
+    // Selecting an episode changes the file path before the new container is requested, ignore the url
+    // until then so the player does not load the previous episode.
+    const activeUrl = (!!url && urlFilePath === filePath) ? url : null
 
     // process media container
     React.useEffect(() => {
@@ -197,7 +205,7 @@ function MediastreamPage() {
                 _newUrl += transcodeToken
             }
             log.info("Setting stream URL", _newUrl)
-            changeUrl(_newUrl)
+            changeUrl(_newUrl, filePath)
         } else {
             changeUrl(null)
         }
@@ -266,10 +274,10 @@ function MediastreamPage() {
     const state = React.useMemo(() => {
         return {
             active: true,
-            playbackInfo: (url && filePath) ? {
+            playbackInfo: (activeUrl && filePath) ? {
                 id: filePath,
                 playbackType: "localfile",
-                streamUrl: url,
+                streamUrl: activeUrl,
                 media: media!,
                 episode: currentEpisode,
                 localFile: currentEpisode?.localFile,
@@ -280,10 +288,10 @@ function MediastreamPage() {
                 libassFonts: mediaContainer?.mediaInfo?.fonts?.map(name => ({ src: `${getServerBaseUrl()}/api/v1/mediastream/att/${name}${attToken}` })) || [],
                 initialState: undefined,
             } : null,
-            loadingState: !url ? "Loading stream..." : null,
+            loadingState: !activeUrl ? "Loading stream..." : null,
             playbackError: playbackError,
         } satisfies VideoCoreLifecycleState
-    }, [url, filePath, media, currentEpisode, mediaContainer, playbackError, subtitleTracks, attToken])
+    }, [activeUrl, filePath, media, currentEpisode, mediaContainer, playbackError, subtitleTracks, attToken])
 
     if (animeEntryLoading || !animeEntry?.media) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
@@ -304,7 +312,7 @@ function MediastreamPage() {
                 currentEpisodeNumber={episodeNumber}
                 currentProgress={progress}
                 media={media!}
-                url={url}
+                url={activeUrl}
             />
 
             <VideoCoreInlineLayout

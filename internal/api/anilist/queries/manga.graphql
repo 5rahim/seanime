@@ -6,6 +6,8 @@ query MangaCollection ($userName: String) {
       isCustomList
       entries {
         id
+        createdAt
+        updatedAt
         score(format: POINT_100)
         progress
         status

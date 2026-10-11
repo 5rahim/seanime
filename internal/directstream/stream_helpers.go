@@ -8,8 +8,6 @@ import (
 	"net/http"
 	httputil "seanime/internal/util/http"
 	"time"
-
-	"github.com/neilotoole/streamcache"
 )
 
 func handleRange(w http.ResponseWriter, r *http.Request, reader io.ReadSeekCloser, name string, size int64) (httputil.Range, bool) {
@@ -211,35 +209,4 @@ func copyWithFlush(ctx context.Context, w http.ResponseWriter, rdr io.Reader, to
 			return
 		}
 	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-type StreamCacheReadSeekCloser struct {
-	stream         *streamcache.Stream
-	streamReader   *streamcache.Reader
-	originalReader io.ReadSeekCloser
-}
-
-var _ io.ReadSeekCloser = (*StreamCacheReadSeekCloser)(nil)
-
-func NewStreamCacheReadSeekCloser(ctx context.Context, reader io.ReadSeekCloser) StreamCacheReadSeekCloser {
-	stream := streamcache.New(reader)
-	return StreamCacheReadSeekCloser{
-		stream:         stream,
-		streamReader:   stream.NewReader(ctx),
-		originalReader: reader,
-	}
-}
-
-func (s StreamCacheReadSeekCloser) Read(p []byte) (n int, err error) {
-	return s.streamReader.Read(p)
-}
-
-func (s StreamCacheReadSeekCloser) Seek(offset int64, whence int) (int64, error) {
-	return s.originalReader.Seek(offset, whence)
-}
-
-func (s StreamCacheReadSeekCloser) Close() error {
-	return s.originalReader.Close()
 }

@@ -190,6 +190,10 @@ func (h *Handler) HandleMediastreamGetAttachments(c echo.Context) error {
 //
 
 func (h *Handler) HandleMediastreamDirectPlay(c echo.Context) error {
+	// tell the client not to cache the response, it is tied to the file currently loaded
+	c.Response().Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response().Header().Set("Pragma", "no-cache")
+	c.Response().Header().Set("Expires", "0")
 	client := "1"
 	return h.App.MediastreamRepository.ServeEchoDirectPlay(c, client)
 }

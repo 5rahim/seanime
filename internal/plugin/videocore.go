@@ -761,6 +761,12 @@ func (p *VideoCore) addSubtitleTrack(track mkvparser.TrackInfo) error {
 }
 
 func (p *VideoCore) addExternalSubtitleTrack(track player.SubtitleTrack) error {
+	if track.URI == nil {
+		track.URI = track.Src
+	}
+	if track.Format == nil {
+		track.Format = track.Type
+	}
 	coordinator, ok := p.ctx.MediacoreCoordinator().Get()
 	if !ok {
 		return nil

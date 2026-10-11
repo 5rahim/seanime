@@ -59,6 +59,7 @@ export type AL_AnimeCollection_MediaListCollection_Lists = {
  */
 export type AL_AnimeCollection_MediaListCollection_Lists_Entries = {
     completedAt?: AL_AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt
+    createdAt?: number
     id: number
     media?: AL_BaseAnime
     notes?: string
@@ -68,6 +69,7 @@ export type AL_AnimeCollection_MediaListCollection_Lists_Entries = {
     score?: number
     startedAt?: AL_AnimeCollection_MediaListCollection_Lists_Entries_StartedAt
     status?: AL_MediaListStatus
+    updatedAt?: number
 }
 
 /**
@@ -808,6 +810,7 @@ export type AL_MangaCollection_MediaListCollection_Lists = {
  */
 export type AL_MangaCollection_MediaListCollection_Lists_Entries = {
     completedAt?: AL_MangaCollection_MediaListCollection_Lists_Entries_CompletedAt
+    createdAt?: number
     id: number
     media?: AL_BaseManga
     notes?: string
@@ -817,6 +820,7 @@ export type AL_MangaCollection_MediaListCollection_Lists_Entries = {
     score?: number
     startedAt?: AL_MangaCollection_MediaListCollection_Lists_Entries_StartedAt
     status?: AL_MediaListStatus
+    updatedAt?: number
 }
 
 /**
@@ -1543,6 +1547,8 @@ export type Anime_EntryListData = {
     repeat?: number
     startedAt?: string
     completedAt?: string
+    createdAt?: number
+    updatedAt?: number
 }
 
 /**
@@ -3349,6 +3355,8 @@ export type Manga_EntryListData = {
     repeat?: number
     startedAt?: string
     completedAt?: string
+    createdAt?: number
+    updatedAt?: number
 }
 
 /**

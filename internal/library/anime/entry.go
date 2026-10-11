@@ -42,6 +42,8 @@ type (
 		Repeat      int                      `json:"repeat,omitempty"`
 		StartedAt   string                   `json:"startedAt,omitempty"`
 		CompletedAt string                   `json:"completedAt,omitempty"`
+		CreatedAt   *int                     `json:"createdAt,omitempty"`
+		UpdatedAt   *int                     `json:"updatedAt,omitempty"`
 	}
 )
 
@@ -192,13 +194,29 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 			return nil, err
 		}
 
+		var downloadInfo *EntryDownloadInfo
+		if simpleAnimeEntry.CurrentEpisodeCount > 0 {
+			episodes := make([]int, simpleAnimeEntry.CurrentEpisodeCount)
+			for i := range episodes {
+				episodes[i] = i + 1
+			}
+			downloadInfo, _ = NewEntryDownloadInfo(&NewEntryDownloadInfoOptions{
+				LocalFiles:          simpleAnimeEntry.LocalFiles,
+				AnimeMetadata:       NewAnimeMetadataFromEpisodeCount(simpleAnimeEntry.Media, episodes),
+				Media:               simpleAnimeEntry.Media,
+				Progress:            anilistEntry.Progress,
+				Status:              anilistEntry.Status,
+				MetadataProviderRef: opts.MetadataProviderRef,
+			})
+		}
+
 		event := &AnimeEntryEvent{
 			Entry: &Entry{
 				MediaId:             simpleAnimeEntry.MediaId,
 				Media:               simpleAnimeEntry.Media,
 				EntryListData:       simpleAnimeEntry.EntryListData,
 				EntryLibraryData:    simpleAnimeEntry.EntryLibraryData,
-				EntryDownloadInfo:   nil,
+				EntryDownloadInfo:   downloadInfo,
 				Episodes:            simpleAnimeEntry.Episodes,
 				NextEpisode:         simpleAnimeEntry.NextEpisode,
 				LocalFiles:          simpleAnimeEntry.LocalFiles,
@@ -333,6 +351,8 @@ func NewEntryListData(anilistEntry *anilist.AnimeListEntry) *EntryListData {
 		Repeat:      anilistEntry.GetRepeatSafe(),
 		StartedAt:   anilist.FuzzyDateToString(anilistEntry.StartedAt),
 		CompletedAt: anilist.FuzzyDateToString(anilistEntry.CompletedAt),
+		CreatedAt:   anilistEntry.CreatedAt,
+		UpdatedAt:   anilistEntry.UpdatedAt,
 	}
 }
 

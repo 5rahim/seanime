@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/customsource"
 	"seanime/internal/database/db_bridge"
@@ -381,19 +382,27 @@ func (h *Handler) HandleNakamaHostGetDebridstreamURL(c echo.Context) error {
 
 // route /api/v1/nakama/host/anime/library/stream?path={base64_encoded_path}
 func (h *Handler) HandleNakamaHostAnimeLibraryServeStream(c echo.Context) error {
-	filepath := c.QueryParam("path")
-	decodedPath, err := base64.StdEncoding.DecodeString(filepath)
+	decodedPath, err := base64.StdEncoding.DecodeString(c.QueryParam("path"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid path")
 	}
 
 	h.App.Logger.Info().Msgf("nakama: Serving anime library file: %s", string(decodedPath))
 
+	filePath, err := filepath.EvalSymlinks(string(decodedPath))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "file not found")
+	}
+
 	// Make sure file is in library
 	isInLibrary := false
 	libraryPaths := h.App.Settings.GetLibrary().GetLibraryPaths()
 	for _, libraryPath := range libraryPaths {
-		if util.IsFileUnderDir(string(decodedPath), libraryPath) {
+		libraryPath, err := filepath.EvalSymlinks(libraryPath)
+		if err != nil {
+			continue
+		}
+		if util.IsFileUnderDir(filePath, libraryPath) {
 			isInLibrary = true
 			break
 		}
@@ -403,7 +412,7 @@ func (h *Handler) HandleNakamaHostAnimeLibraryServeStream(c echo.Context) error 
 		return echo.NewHTTPError(http.StatusNotFound, "file not in library")
 	}
 
-	return c.File(string(decodedPath))
+	return c.File(filePath)
 }
 
 // route /api/v1/nakama/stream

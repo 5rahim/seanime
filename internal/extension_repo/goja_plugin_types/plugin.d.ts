@@ -222,6 +222,9 @@ declare namespace $ui {
          */
         newTray(options: TrayOptions): Tray
 
+        /** Creates the plugin's native modal, which can be opened from an action. */
+        newModal(options: ModalOptions): Modal
+
         /**
          * Creates a new webview.
          * @param options - The options for the webview.
@@ -329,6 +332,19 @@ declare namespace $ui {
         disable(id: string): Promise<boolean>
 
         setDisabled(id: string, disabled: boolean): Promise<boolean>
+
+        /**
+         * Returns the current marketplace URL. An empty string means the default marketplace.
+         * Requires the extensions permission and user approval.
+         */
+        getMarketplaceUrl(): Promise<string>
+
+        /**
+         * Changes the marketplace URL used by the extensions marketplace.
+         * An empty string resets it to the default marketplace.
+         * Requires the extensions permission and user approval.
+         */
+        setMarketplaceUrl(url: string): Promise<boolean>
     }
 
     interface PollOptions {
@@ -517,6 +533,14 @@ declare namespace $ui {
         /** Updates the badge number of the tray icon. 0 = no badge. Default intent is "info". */
         updateBadge(options: { number: number, intent?: "success" | "error" | "warning" | "info" | "alert" }): void
     }
+
+    interface ModalOptions {
+        title: string
+        description?: string
+        className?: string
+    }
+
+    type Modal = Omit<Tray, "htm" | "onClick" | "onOpen" | "onClose" | "updateBadge">
 
     interface WebviewOptions {
         slot: "screen" |

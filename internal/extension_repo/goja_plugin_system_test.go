@@ -1989,6 +1989,104 @@ function init() {
 	manager.PrintPluginPoolMetrics(opts.ID)
 }
 
+// TestGojaPluginSystemMarketplace tests the ctx.extensions marketplace URL helpers
+func TestGojaPluginSystemMarketplace(t *testing.T) {
+	t.Run("without extensions permission", func(t *testing.T) {
+		payload := `
+function init() {
+	$ui.register(async (ctx) => {
+		try {
+			await ctx.extensions.setMarketplaceUrl("https://example.com/marketplace.json");
+			$store.set("noPermissionAccess", true);
+		} catch (e) {
+			console.log("No permission error:", e.message);
+			$store.set("noPermissionAccess", false);
+			$store.set("noPermissionError", e.message);
+		}
+	});
+}
+	`
+
+		opts := DefaultTestPluginOptions()
+		opts.Payload = payload
+		// deliberately NOT including the extensions permission
+		opts.Permissions = extension.PluginPermissions{
+			Scopes: []extension.PluginPermissionScope{},
+		}
+
+		plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
+		require.NoError(t, err)
+
+		time.Sleep(1 * time.Second)
+
+		noPermissionAccess, ok := plugin.store.GetOk("noPermissionAccess")
+		require.True(t, ok, "noPermissionAccess should be set in store")
+		assert.False(t, noPermissionAccess.(bool))
+
+		noPermissionError, ok := plugin.store.GetOk("noPermissionError")
+		require.True(t, ok, "noPermissionError should be set in store")
+		assert.Contains(t, noPermissionError.(string), "of undefined or null")
+
+		manager.PrintPluginPoolMetrics(opts.ID)
+	})
+
+	t.Run("requires user approval", func(t *testing.T) {
+		payload := `
+function init() {
+	$ui.register(async (ctx) => {
+		// prompt manager is not set in tests, so the call should be rejected
+		try {
+			const url = await ctx.extensions.getMarketplaceUrl();
+			$store.set("getUrlApproved", true);
+		} catch (e) {
+			console.log("Get url error:", e.message);
+			$store.set("getUrlApproved", false);
+			$store.set("getUrlError", e.message);
+		}
+
+		try {
+			await ctx.extensions.setMarketplaceUrl("https://example.com/marketplace.json");
+			$store.set("setUrlApproved", true);
+		} catch (e) {
+			console.log("Set url error:", e.message);
+			$store.set("setUrlApproved", false);
+			$store.set("setUrlError", e.message);
+		}
+	});
+}
+	`
+
+		opts := DefaultTestPluginOptions()
+		opts.Payload = payload
+		opts.Permissions = extension.PluginPermissions{
+			Scopes: []extension.PluginPermissionScope{extension.PluginPermissionExtensions},
+		}
+
+		plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
+		require.NoError(t, err)
+
+		time.Sleep(1 * time.Second)
+
+		getUrlApproved, ok := plugin.store.GetOk("getUrlApproved")
+		require.True(t, ok, "getUrlApproved should be set in store")
+		assert.False(t, getUrlApproved.(bool))
+
+		getUrlError, ok := plugin.store.GetOk("getUrlError")
+		require.True(t, ok, "getUrlError should be set in store")
+		assert.Contains(t, getUrlError.(string), "prompt unavailable")
+
+		setUrlApproved, ok := plugin.store.GetOk("setUrlApproved")
+		require.True(t, ok, "setUrlApproved should be set in store")
+		assert.False(t, setUrlApproved.(bool))
+
+		setUrlError, ok := plugin.store.GetOk("setUrlError")
+		require.True(t, ok, "setUrlError should be set in store")
+		assert.Contains(t, setUrlError.(string), "prompt unavailable")
+
+		manager.PrintPluginPoolMetrics(opts.ID)
+	})
+}
+
 // Helper function to create a test zip file
 func createTestZipFile(zipPath string) error {
 	// Create a buffer to write our zip to
