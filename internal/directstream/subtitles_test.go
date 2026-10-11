@@ -10,6 +10,7 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"testing"
+	"time"
 
 	"github.com/samber/mo"
 	"github.com/stretchr/testify/require"
@@ -83,30 +84,6 @@ func TestSubtitleFlushConfigForTorrentThrottlesBatches(t *testing.T) {
 	require.NotZero(t, torrentConfig.minSendInterval)
 	require.Less(t, torrentSeekConfig.flushInterval, torrentConfig.flushInterval)
 	require.Less(t, torrentSeekConfig.minSendInterval, torrentConfig.minSendInterval)
-}
-
-func TestShouldSendSubtitleEventSkipsCachedEvents(t *testing.T) {
-	// seeks can rediscover old subtitles, but the browser only needs each event once
-	stream := &BaseStream{subtitleEventCache: result.NewMap[string, *mkvparser.SubtitleEvent]()}
-	event := &mkvparser.SubtitleEvent{
-		TrackNumber: 1,
-		Text:        "hello",
-		StartTime:   10,
-		Duration:    2,
-		CodecID:     "S_TEXT/ASS",
-		ExtraData:   map[string]string{"style": "Default"},
-	}
-
-	require.True(t, stream.shouldSendSubtitleEvent(event))
-	require.False(t, stream.shouldSendSubtitleEvent(event))
-	require.True(t, stream.shouldSendSubtitleEvent(&mkvparser.SubtitleEvent{
-		TrackNumber: 1,
-		Text:        "hello",
-		StartTime:   12,
-		Duration:    2,
-		CodecID:     "S_TEXT/ASS",
-		ExtraData:   map[string]string{"style": "Default"},
-	}))
 }
 
 func TestBeginSubtitleSeekCancelsPreviousGeneration(t *testing.T) {
@@ -197,4 +174,67 @@ func TestSendSubtitleEventsIncludesPlaybackGeneration(t *testing.T) {
 	require.Equal(t, int64(3), message.Payload.GenerationID)
 	require.Equal(t, 125.5, message.Payload.SeekTime)
 	require.Equal(t, "current", message.Payload.Events[0].Text)
+}
+
+func newSubtitleTestStream() (*LocalFileStream, *events.MockWSEventManager) {
+	logger := util.NewLogger()
+	ws := events.NewMockWSEventManager(logger)
+	np := nativeplayer.New(nativeplayer.NewNativePlayerOptions{
+		WsEventManager: ws,
+		Logger:         logger,
+		VideoCore:      subtitleTestVideoCore{},
+	})
+	stream := &LocalFileStream{BaseStream: BaseStream{
+		manager:            &Manager{nativePlayer: np, currentPlaybackTarget: PlaybackTargetVideoCore},
+		clientId:           "client",
+		subtitleEventCache: result.NewMap[string, *mkvparser.SubtitleEvent](),
+	}}
+	return stream, ws
+}
+
+func TestSendSubtitleEventsDeduplicatesWithinGeneration(t *testing.T) {
+	stream, ws := newSubtitleTestStream()
+	event := &mkvparser.SubtitleEvent{Text: "dialogue", StartTime: 10, Duration: 2}
+	require.True(t, stream.sendSubtitleEvents(t.Context(), stream, []*mkvparser.SubtitleEvent{event, nil, event}, subtitleFlushConfig{}, subtitleRequest{}))
+	require.True(t, stream.sendSubtitleEvents(t.Context(), stream, []*mkvparser.SubtitleEvent{event}, subtitleFlushConfig{}, subtitleRequest{}))
+	require.Len(t, ws.Events(), 1)
+	var message struct {
+		Payload nativeplayer.SubtitleEventsPayload `json:"payload"`
+	}
+	payload, err := json.Marshal(ws.Events()[0].Payload)
+	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal(payload, &message))
+	require.Len(t, message.Payload.Events, 1)
+}
+
+func TestSendSubtitleEventsReplaysAfterSeek(t *testing.T) {
+	stream, ws := newSubtitleTestStream()
+	event := &mkvparser.SubtitleEvent{Text: "opening", StartTime: 7.53, Duration: 4.96}
+	require.True(t, stream.sendSubtitleEvents(t.Context(), stream, []*mkvparser.SubtitleEvent{event}, subtitleFlushConfig{}, subtitleRequest{}))
+	stream.subtitleGeneration.Store(1)
+	require.True(t, stream.sendSubtitleEvents(t.Context(), stream, []*mkvparser.SubtitleEvent{event}, subtitleFlushConfig{}, subtitleRequest{generation: 1}))
+	require.Len(t, ws.Events(), 2)
+}
+
+func TestSendSubtitleEventsRetriesCancelledBatch(t *testing.T) {
+	stream, ws := newSubtitleTestStream()
+	first := &mkvparser.SubtitleEvent{Text: "first", StartTime: 5.48, Duration: 1.09}
+	pending := &mkvparser.SubtitleEvent{Text: "pending", StartTime: 7.53, Duration: 4.96}
+	require.True(t, stream.sendSubtitleEvents(t.Context(), stream, []*mkvparser.SubtitleEvent{first}, subtitleFlushConfig{}, subtitleRequest{}))
+	ctx, cancel := context.WithTimeout(t.Context(), 20*time.Millisecond)
+	defer cancel()
+	require.False(t, stream.sendSubtitleEvents(ctx, stream, []*mkvparser.SubtitleEvent{pending}, subtitleFlushConfig{minSendInterval: time.Hour}, subtitleRequest{}))
+	require.Len(t, ws.Events(), 1)
+	require.True(t, stream.sendSubtitleEvents(t.Context(), stream, []*mkvparser.SubtitleEvent{pending}, subtitleFlushConfig{}, subtitleRequest{}))
+	require.Len(t, ws.Events(), 2)
+}
+
+func TestSendSubtitleEventsRetriesStaleBatch(t *testing.T) {
+	stream, ws := newSubtitleTestStream()
+	event := &mkvparser.SubtitleEvent{Text: "opening", StartTime: 7.53, Duration: 4.96}
+	stream.subtitleGeneration.Store(1)
+	require.False(t, stream.sendSubtitleEvents(t.Context(), stream, []*mkvparser.SubtitleEvent{event}, subtitleFlushConfig{}, subtitleRequest{}))
+	require.Empty(t, ws.Events())
+	require.True(t, stream.sendSubtitleEvents(t.Context(), stream, []*mkvparser.SubtitleEvent{event}, subtitleFlushConfig{}, subtitleRequest{generation: 1}))
+	require.Len(t, ws.Events(), 1)
 }

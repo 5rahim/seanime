@@ -127,10 +127,12 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
     // Page navigation
     React.useEffect(() => {
         mousetrap.bind("up", () => {
-            containerRef.current?.scrollBy(0, -100)
+            containerRef.current?.scrollBy({ top: -100, behavior: "smooth" })
+            return false
         })
         mousetrap.bind("down", () => {
-            containerRef.current?.scrollBy(0, 100)
+            containerRef.current?.scrollBy({ top: 100, behavior: "smooth" })
+            return false
         })
 
 
@@ -147,15 +149,16 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
         mousetrap.bind(kbsPageLeft, () => {
             if (currentPageIndex > 0) {
                 const pageDiv = containerRef.current?.querySelector(`#page-${currentPageIndex - 1}`)
-                pageDiv?.scrollIntoView()
+                pageDiv?.scrollIntoView({ behavior: "smooth" })
             }
-
+            return false
         })
         mousetrap.bind(kbsPageRight, () => {
             if (pageContainer?.pages?.length && currentPageIndex < pageContainer?.pages?.length - 1) {
                 const pageDiv = containerRef.current?.querySelector(`#page-${currentPageIndex + 1}`)
-                pageDiv?.scrollIntoView()
+                pageDiv?.scrollIntoView({ behavior: "smooth" })
             }
+            return false
         })
 
         return () => {

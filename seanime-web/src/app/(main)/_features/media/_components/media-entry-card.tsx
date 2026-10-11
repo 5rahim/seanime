@@ -301,6 +301,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                                 mediaId={media.id}
                                 progress={listData?.progress}
                                 progressTotal={progressTotal}
+                                forceShowProgress={type === "anime" && !!progressTotal}
                                 showTrailer={showTrailer}
                                 disableAnimeCardTrailers={serverStatus?.settings?.library?.disableAnimeCardTrailers}
                                 bannerImage={media.bannerImage || media.coverImage?.extraLarge}

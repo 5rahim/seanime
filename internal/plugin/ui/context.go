@@ -78,8 +78,9 @@ type Context struct {
 	lastUIUpdateAt time.Time
 	uiUpdateMu     sync.Mutex
 
-	screenManager         *ScreenManager         // Listen for screen events, send screen actions
-	trayManager           *TrayManager           // Register and manage tray
+	screenManager         *ScreenManager // Listen for screen events, send screen actions
+	trayManager           *TrayManager   // Register and manage tray
+	modalManager          *ModalManager
 	webviewManager        *WebviewManager        // Register and manage webviews
 	actionManager         *ActionManager         // Register and manage actions
 	episodeTabManager     *EpisodeTabManager     // Register and manage anime entry episode tabs
@@ -150,6 +151,7 @@ func NewContext(ui *UI) *Context {
 	ret.updateBatchTimer.Stop() // Start in stopped state
 
 	ret.trayManager = NewTrayManager(ret)
+	ret.modalManager = NewModalManager(ret)
 	ret.webviewManager = NewWebviewManager(ret)
 	ret.actionManager = NewActionManager(ret)
 	ret.episodeTabManager = NewEpisodeTabManager(ret)
@@ -175,6 +177,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	obj := vm.NewObject()
 
 	_ = obj.Set("newTray", c.trayManager.jsNewTray)
+	_ = obj.Set("newModal", c.modalManager.jsNewModal)
 	_ = obj.Set("newWebview", c.webviewManager.jsNewWebview)
 	_ = obj.Set("newForm", c.formManager.jsNewForm)
 
@@ -1288,6 +1291,9 @@ func (c *Context) triggerUIUpdate() {
 	// Trigger tray update if available
 	if c.trayManager != nil {
 		c.trayManager.renderTrayScheduled()
+	}
+	if c.modalManager != nil {
+		c.modalManager.renderScheduled()
 	}
 	// Trigger tray update if available
 	//if c.webviewManager != nil {
