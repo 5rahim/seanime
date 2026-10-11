@@ -24,7 +24,7 @@ import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/theme-h
 import React from "react"
 import { BiDotsVerticalRounded, BiExtension } from "react-icons/bi"
 import { LuExternalLink } from "react-icons/lu"
-import { SiAnilist } from "react-icons/si"
+import { SiAnilist, SiMyanimelist } from "react-icons/si"
 
 
 export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL_MangaDetailsById_Media | undefined, detailsLoading?: boolean }) {
@@ -128,6 +128,11 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                             onClick={() => openTab(`https://anilist.co/manga/${entry.mediaId}`)}
                         >
                             <SiAnilist /> Open on AniList
+                        </DropdownMenuItem>}
+                        {!!entry.media.idMal && <DropdownMenuItem
+                            onClick={() => openTab(`https://myanimelist.net/manga/${entry.media?.idMal}`)}
+                        >
+                            <SiMyanimelist /> Open on MAL
                         </DropdownMenuItem>}
                         {isCustomSource(entry.mediaId) && !!getCustomSourceMediaSiteUrl(entry.media) && <DropdownMenuItem
                             onClick={() => openTab(getCustomSourceMediaSiteUrl(entry.media)!)}

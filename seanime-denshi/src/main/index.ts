@@ -1199,10 +1199,6 @@ app.whenReady().then(async () => {
     if (_development) {
         denshiSettings.openInBackground = false
     }
-    // Disregard openInBackground on Linux
-    if (process.platform === "linux") {
-        denshiSettings.openInBackground = false
-    }
     logger.settings.info("Loaded", denshiSettings)
 
     let currentUpdateChannel = denshiSettings.updateChannel

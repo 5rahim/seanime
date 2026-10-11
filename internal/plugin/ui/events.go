@@ -18,6 +18,7 @@ type ClientPluginEvent struct {
 }
 
 const (
+	ClientModalClosedEvent                             ClientEventType = "modal:closed"
 	ClientRenderTrayEvent                              ClientEventType = "tray:render"     // Client wants to render the tray
 	ClientListTrayIconsEvent                           ClientEventType = "tray:list-icons" // Client wants to list all icons from all plugins
 	ClientTrayOpenedEvent                              ClientEventType = "tray:opened"     // When the tray is opened
@@ -68,6 +69,8 @@ const (
 )
 
 type ClientRenderTrayEventPayload struct{}
+
+type ClientModalClosedEventPayload struct{}
 type ClientListTrayIconsEventPayload struct{}
 type ClientTrayOpenedEventPayload struct{}
 type ClientTrayClosedEventPayload struct{}
@@ -228,6 +231,7 @@ const (
 	ServerTrayBadgeUpdatedEvent ServerEventType = "tray:badge-updated" // When the tray badge is updated
 	ServerTrayOpenEvent         ServerEventType = "tray:open"          // When the tray is opened
 	ServerTrayCloseEvent        ServerEventType = "tray:close"         // When the tray is closed
+	ServerModalUpdatedEvent     ServerEventType = "modal:updated"
 
 	ServerWebviewUpdatedEvent   ServerEventType = "webview:updated"    // When the webviews are updated
 	ServerWebviewIframeEvent    ServerEventType = "webview:iframe"     // When the webviews are updated
@@ -279,6 +283,14 @@ const (
 
 type ServerTrayUpdatedEventPayload struct {
 	Components interface{} `json:"components"`
+}
+
+type ServerModalUpdatedEventPayload struct {
+	Action      string      `json:"action"`
+	Title       string      `json:"title"`
+	Description string      `json:"description,omitempty"`
+	ClassName   string      `json:"className,omitempty"`
+	Components  interface{} `json:"components"`
 }
 
 type ServerCommandPaletteUpdatedEventPayload struct {

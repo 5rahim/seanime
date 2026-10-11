@@ -601,6 +601,7 @@ type BaseStream struct {
 	playbackTarget         PlaybackTarget
 	subtitleEventCache     *result.Map[string, *mkvparser.SubtitleEvent]
 	subtitleSendMu         sync.Mutex
+	subtitleSentEvents     map[string]struct{}
 	subtitleLastSent       time.Time
 	subtitleLastSentGen    int64
 	subtitleGeneration     atomic.Int64

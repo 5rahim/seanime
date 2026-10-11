@@ -112,7 +112,7 @@ func NewSimpleEntry(ctx context.Context, opts *NewSimpleAnimeEntryOptions) (*Sim
 	// |       Episodes      |
 	// +---------------------+
 
-	amw := opts.MetadataProviderRef.Get().GetAnimeMetadataWrapper(anilistEntry.Media, nil)
+	amw := opts.MetadataProviderRef.Get().GetAnimeMetadataWrapper(entry.Media, nil)
 
 	// Create episode entities
 	entry.hydrateEntryEpisodeData(amw)

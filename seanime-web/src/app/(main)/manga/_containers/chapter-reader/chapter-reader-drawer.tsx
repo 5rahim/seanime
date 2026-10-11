@@ -64,6 +64,33 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     const currentChapter = useCurrentChapter()
     const setCurrentChapter = useSetCurrentChapter()
 
+    const [cursorHidden, setCursorHidden] = React.useState(false)
+
+    React.useEffect(() => {
+        setCursorHidden(false)
+        if (!currentChapter) return
+
+        let timer: ReturnType<typeof setTimeout>
+        const reset = (event?: PointerEvent) => {
+            clearTimeout(timer)
+            setCursorHidden(false)
+            if (!event?.buttons) {
+                timer = setTimeout(() => setCursorHidden(true), 1_000)
+            }
+        }
+
+        reset()
+        window.addEventListener("pointermove", reset)
+        window.addEventListener("pointerdown", reset)
+        window.addEventListener("pointerup", reset)
+        return () => {
+            clearTimeout(timer)
+            window.removeEventListener("pointermove", reset)
+            window.removeEventListener("pointerdown", reset)
+            window.removeEventListener("pointerup", reset)
+        }
+    }, [currentChapter])
+
     const currentPageIndex = useAtomValue(__manga_currentPageIndexAtom)
     const setCurrentPageIndex = useSetAtom(__manga_currentPageIndexAtom)
     const setCurrentPaginationMapIndex = useSetAtom(__manga_currentPaginationMapIndexAtom)
@@ -447,6 +474,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                 className={cn(
                     "max-h-[calc(100dvh-3rem)] h-full overflow-hidden",
                     hiddenBar && "max-h-dvh",
+                    cursorHidden && !pageContainerLoading && !pageContainerError && "cursor-none [&_*]:!cursor-none",
                 )} tabIndex={-1}
             >
                 <MangaReaderActionDisplay />

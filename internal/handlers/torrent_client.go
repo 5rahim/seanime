@@ -223,6 +223,13 @@ func (h *Handler) HandleTorrentClientGetFiles(c echo.Context) error {
 		return h.RespondWithError(c, errors.New("missing arguments"))
 	}
 
+	if err := h.guardPrivilegedTorrentClient(c, h.App.Settings); err != nil {
+		return err
+	}
+	if !h.App.TorrentClientRepository.Start() {
+		return h.RespondWithError(c, errors.New("could not contact torrent client, verify your settings or make sure it's running"))
+	}
+
 	tempDir, err := os.MkdirTemp("", "torrent-")
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -242,7 +249,7 @@ func (h *Handler) HandleTorrentClientGetFiles(c echo.Context) error {
 		// Add the torrent
 		err = h.App.TorrentClientRepository.AddMagnets([]string{magnet}, tempDir)
 		if err != nil {
-			return err
+			return h.RespondWithError(c, err)
 		}
 	}
 
