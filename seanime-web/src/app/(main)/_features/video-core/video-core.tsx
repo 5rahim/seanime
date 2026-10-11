@@ -37,6 +37,7 @@ import { vc_cursorBusy } from "@/app/(main)/_features/video-core/video-core-atom
 import { vc_cursorPosition } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_busy } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { useVideoCoreVolumeBoost } from "@/app/(main)/_features/video-core/video-core-volume-boost"
 import { vc_containerElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_previousPausedState } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_lastKnownProgress } from "@/app/(main)/_features/video-core/video-core-atoms"
@@ -104,6 +105,7 @@ import {
     vc_storedMutedAtom,
     vc_storedPlaybackRateAtom,
     vc_storedVolumeAtom,
+    vc_storedVolumeBoostAtom,
     VideoCore_VideoPlaybackInfo,
     VideoCore_VideoSource,
     VideoCore_VideoSubtitleTrack,
@@ -745,6 +747,7 @@ export function VideoCore(props: VideoCoreProps) {
     const [autoPlay] = useAtom(vc_autoPlayVideoAtom)
     const [autoSkipOpeningOutro] = useAtom(vc_autoSkipOPEDAtom)
     const [volume] = useAtom(vc_storedVolumeAtom)
+    const volumeBoost = useAtomValue(vc_storedVolumeBoostAtom)
     const [muted] = useAtom(vc_storedMutedAtom)
     const [playbackRate, setPlaybackRate] = useAtom(vc_storedPlaybackRateAtom)
 
@@ -1503,6 +1506,9 @@ export function VideoCore(props: VideoCoreProps) {
             videoRef.current.volume = volume
         }
     }, [volume, videoRef.current])
+
+    // Amplify past 100%
+    useVideoCoreVolumeBoost(videoElement, volumeBoost)
 
     // Handle mute changes
     React.useEffect(() => {
