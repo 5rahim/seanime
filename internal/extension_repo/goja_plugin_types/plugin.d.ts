@@ -222,6 +222,9 @@ declare namespace $ui {
          */
         newTray(options: TrayOptions): Tray
 
+        /** Creates the plugin's native modal, which can be opened from an action. */
+        newModal(options: ModalOptions): Modal
+
         /**
          * Creates a new webview.
          * @param options - The options for the webview.
@@ -530,6 +533,14 @@ declare namespace $ui {
         /** Updates the badge number of the tray icon. 0 = no badge. Default intent is "info". */
         updateBadge(options: { number: number, intent?: "success" | "error" | "warning" | "info" | "alert" }): void
     }
+
+    interface ModalOptions {
+        title: string
+        description?: string
+        className?: string
+    }
+
+    type Modal = Omit<Tray, "htm" | "onClick" | "onOpen" | "onClose" | "updateBadge">
 
     interface WebviewOptions {
         slot: "screen" |

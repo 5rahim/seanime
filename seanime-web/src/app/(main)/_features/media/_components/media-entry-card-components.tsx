@@ -584,6 +584,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
     mediaId,
     progress,
     progressTotal,
+    forceShowProgress,
     showTrailer,
     disableAnimeCardTrailers,
     bannerImage,
@@ -599,6 +600,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
     trailerId?: string
     progress?: number
     progressTotal?: number
+    forceShowProgress?: boolean
     bannerImage?: string
     showProgressBar: boolean
     showTrailer?: boolean
@@ -686,6 +688,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                 <MediaEntryProgressBadge
                     progress={progress}
                     progressTotal={progressTotal}
+                    forceShowProgress={forceShowProgress}
                     forceShowTotal
                 />
             </div>
