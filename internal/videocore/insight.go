@@ -87,15 +87,15 @@ type InSightCharacterDetails struct {
 	About     string   `json:"about"`
 }
 
-type jikanCharacterFullResponse struct {
+type characterFullResponse struct {
 	Data InSightCharacterDetails `json:"data"`
 }
 
 var (
-	JikanSeriesCharactersUrl = "https://api.jikan.moe/v4/anime/%d/characters"
-	JikanCharacterUrl        = "https://api.jikan.moe/v4/characters/%d/full"
-	reBraces                 = regexp.MustCompile(`\{.*?\}`)
-	reTags                   = regexp.MustCompile(`<.*?>`)
+	seriesCharactersURL = "https://api.tenrai.org/v1/anime/%d/characters"
+	characterURL        = "https://api.tenrai.org/v1/characters/%d/full"
+	reBraces            = regexp.MustCompile(`\{.*?\}`)
+	reTags              = regexp.MustCompile(`<.*?>`)
 )
 
 func NewInSight(logger *zerolog.Logger, vc *VideoCore) *InSight {
@@ -234,7 +234,7 @@ func (is *InSight) checkStreamingEvents() bool {
 	return foundNew
 }
 
-type jikanAnimeCharactersResponse struct {
+type animeCharactersResponse struct {
 	Data []*struct {
 		Character struct {
 			MalID  int    `json:"mal_id"`
@@ -262,7 +262,7 @@ func (is *InSight) fetchCharacters(malId int) {
 	is.logger.Debug().Int("malId", malId).Msg("insight: Fetching characters")
 
 	is.rateLimiter.Wait()
-	resp, err := req.C().R().Get(fmt.Sprintf(JikanSeriesCharactersUrl, malId))
+	resp, err := req.C().R().Get(fmt.Sprintf(seriesCharactersURL, malId))
 	if err != nil {
 		is.logger.Error().Err(err).Msg("insight: Failed to fetch characters")
 		return
@@ -273,7 +273,7 @@ func (is *InSight) fetchCharacters(malId int) {
 		return
 	}
 
-	var data jikanAnimeCharactersResponse
+	var data animeCharactersResponse
 	if err := resp.UnmarshalJson(&data); err != nil {
 		is.logger.Error().Err(err).Msg("insight: Failed to parse characters response")
 		return
@@ -546,7 +546,7 @@ func (is *InSight) GetCharacterInfo(malId int) (*InSightCharacterDetails, error)
 
 	is.rateLimiter.Wait()
 
-	resp, err := req.C().R().Get(fmt.Sprintf(JikanCharacterUrl, malId))
+	resp, err := req.C().R().Get(fmt.Sprintf(characterURL, malId))
 	if err != nil {
 		return nil, err
 	}
@@ -555,7 +555,7 @@ func (is *InSight) GetCharacterInfo(malId int) (*InSightCharacterDetails, error)
 		return nil, fmt.Errorf("failed to fetch character info: %s", resp.Status)
 	}
 
-	var data jikanCharacterFullResponse
+	var data characterFullResponse
 	if err := resp.UnmarshalJson(&data); err != nil {
 		return nil, err
 	}
