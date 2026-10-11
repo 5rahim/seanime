@@ -41,6 +41,7 @@ import { formatVolumeBoost, VOLUME_BOOST_OPTIONS } from "@/app/(main)/_features/
 import { vc_dispatchAction } from "@/app/(main)/_features/video-core/video-core.utils"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { upath } from "@/lib/helpers/upath"
 import { useAtomValue } from "jotai"
@@ -516,20 +517,82 @@ export function VideoCoreSettingsMenu() {
                         />
                     </VideoCoreMenuOption>
                     <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed}>
-                        <VideoCoreSettingSelect
-                            options={[
-                                { label: "0.5x", value: 0.5 },
-                                { label: "0.9x", value: 0.9 },
-                                { label: "1x", value: 1 },
-                                { label: "1.1x", value: 1.1 },
-                                { label: "1.5x", value: 1.5 },
-                                { label: "2x", value: 2 },
-                            ]}
-                            onValueChange={(v: number) => {
-                                setPlaybackRate(v)
-                            }}
-                            value={playbackRate}
-                        />
+                        <p className="text-center font-semibold mt-2 select-none">
+                            {(playbackRate).toFixed(2)}x
+                        </p>
+                        <div className="flex gap-1.5 items-center mt-1">
+                            <Button
+                                className="px-1 pl-4 pr-4 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                aria-label="Decrease playback speed"
+                                disabled={playbackRate <= 0.25}
+                                onClick={() => setPlaybackRate(Math.max(0.25, Math.round((playbackRate - 0.05) * 100) / 100))}
+                            >
+                                -
+                            </Button>
+                            <Slider
+                                aria-label="Playback speed"
+                                value={[playbackRate]}
+                                defaultValue={[1]}
+                                min={0.25}
+                                max={2}
+                                step={0.05}
+                                onValueChange={(v) => setPlaybackRate(v[0])}>
+                            </Slider>
+                            <Button
+                                className="px-1 pl-4 pr-4 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                aria-label="Increase playback speed"
+                                disabled={playbackRate >= 2}
+                                onClick={() => setPlaybackRate(Math.min(2, Math.round((playbackRate + 0.05) * 100) / 100))}
+                            >
+                                +
+                            </Button>
+                        </div>
+                        <div className="flex gap-1.5 items-center mt-3">
+                            <Button
+                                className="px-1 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                onClick={() => setPlaybackRate(0.5)}
+                            >
+                                0.5
+                            </Button>
+                            <Button
+                                className="px-1 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                onClick={() => setPlaybackRate(1)}
+                            >
+                                1.0
+                            </Button>
+                            <Button
+                                className="px-1 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                onClick={() => setPlaybackRate(1.2)}
+                            >
+                                1.2
+                            </Button>
+                            <Button
+                                className="px-1 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                onClick={() => setPlaybackRate(1.5)}
+                            >
+                                1.5
+                            </Button>
+                            <Button
+                                className="px-1 !text-xs flex-1"
+                                intent="gray-subtle"
+                                size="sm"
+                                onClick={() => setPlaybackRate(2)}
+                            >
+                                2.0
+                            </Button>
+                        </div>
                     </VideoCoreMenuOption>
                     <VideoCoreMenuOption title="Volume Boost" icon={LuVolume2}>
                         <VideoCoreSettingSelect
