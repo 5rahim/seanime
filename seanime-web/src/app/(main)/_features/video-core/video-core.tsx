@@ -813,6 +813,28 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }, [isMiniPlayer, state.active, isTerminateConfirmOpen, closeTerminateConfirm])
 
+    const onHistoryPop = React.useEffectEvent(() => {
+        if (window.history.state?.videoCoreDrawer) {
+            if (isMiniPlayer) setIsMiniPlayer(false)
+        } else if (!isMiniPlayer) {
+            enterMiniPlayer()
+        }
+    })
+
+    React.useEffect(() => {
+        if (!state.active || inline) return
+
+        window.history.pushState({ ...window.history.state, videoCoreDrawer: true }, "")
+        window.addEventListener("popstate", onHistoryPop)
+
+        return () => {
+            window.removeEventListener("popstate", onHistoryPop)
+            if (window.history.state?.videoCoreDrawer) {
+                window.history.back()
+            }
+        }
+    }, [state.active, inline])
+
     React.useEffect(() => {
         if (!__isElectronDesktop__ || !window.electron?.on) return
 

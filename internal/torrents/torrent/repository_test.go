@@ -16,8 +16,39 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 	"github.com/stretchr/testify/require"
 )
+
+func TestPreviewBestReleaseBatch(t *testing.T) {
+	media := testmocks.NewBaseAnimeBuilder(979, "Blue Box").WithEpisodes(25).Build()
+	repo := newTorrentRepositoryForTests(nil, testmocks.NewFakeMetadataProviderBuilder().Build())
+	for _, tt := range []struct {
+		name    string
+		batch   bool
+		isBatch bool
+	}{
+		{name: "[Best] Blue Box - 01 (1080p).mkv"},
+		{name: "[Best] Blue Box - 01-25 (1080p)", isBatch: true},
+		{name: "[Best] Blue Box (1080p)", batch: true, isBatch: true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			torrent := &hibiketorrent.AnimeTorrent{
+				Name: tt.name, IsBestRelease: true, IsBatch: tt.batch, EpisodeNumber: -1,
+			}
+			preview := repo.createAnimeTorrentPreview(createAnimeTorrentPreviewOptions{
+				torrent: torrent, media: media,
+				animeMetadata: mo.None[*metadata.AnimeMetadata](),
+				searchOpts:    &AnimeSearchOptions{EpisodeNumber: 1},
+			})
+			require.NotNil(t, preview)
+			require.Equal(t, tt.isBatch, preview.Torrent.IsBatch)
+			if !tt.isBatch {
+				require.Equal(t, 1, preview.Torrent.EpisodeNumber)
+			}
+		})
+	}
+}
 
 func useTestHookManager(t *testing.T) hook.Manager {
 	t.Helper()

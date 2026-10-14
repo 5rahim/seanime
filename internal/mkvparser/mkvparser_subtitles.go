@@ -26,12 +26,12 @@ func isProbablySrt(content string) bool {
 func DetectSubtitleType(content string) int {
 	if strings.HasPrefix(strings.TrimSpace(content), "[Script Info]") {
 		return SubtitleTypeASS
+	} else if strings.HasPrefix(strings.TrimSpace(content), "WEBVTT") {
+		return SubtitleTypeWEBVTT
 	} else if isProbablySrt(content) {
 		return SubtitleTypeSRT
 	} else if strings.Contains(content, "<tt ") || strings.Contains(content, "<tt>") {
 		return SubtitleTypeTTML
-	} else if strings.HasPrefix(strings.TrimSpace(content), "WEBVTT") {
-		return SubtitleTypeWEBVTT
 	} else if strings.Contains(content, "{\\") || strings.Contains(content, "\\N") {
 		return SubtitleTypeSTL
 	}

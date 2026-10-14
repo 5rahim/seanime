@@ -572,8 +572,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 	}
 	parsedData = tMetadata.Metadata
 
-	isBatch := opts.torrent.IsBestRelease ||
-		opts.torrent.IsBatch ||
+	isBatch := opts.torrent.IsBatch ||
 		//comparison.ValueContainsBatchKeywords(opts.torrent.Name) || // Contains batch keywords
 		(!opts.media.IsMovieOrSingleEpisode() && (len(parsedData.EpisodeNumber) > 1 || len(parsedData.EpisodeNumber) == 0)) // Multiple episodes parsed & not a movie
 
