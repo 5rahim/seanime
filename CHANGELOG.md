@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## v3.10.4-canary.1
+## v3.10.4
 
 - ⚡️ Playlists: Increased episode limit to 200 #757
 - ⚡️ Plugins: Added API to open native modals from actions #772
