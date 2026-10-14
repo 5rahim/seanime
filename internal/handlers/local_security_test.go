@@ -502,6 +502,22 @@ func TestCanMutatePrivilegedSettings(t *testing.T) {
 			want: true,
 		},
 		{
+			name:    "rejects untrusted origin when mpv socket changes",
+			origin:  "https://evil.example",
+			reqHost: "192.168.1.10:43211",
+			nextMedia: &models.MediaPlayerSettings{
+				Default:   "vlc",
+				VlcPath:   "/Applications/VLC.app/Contents/MacOS/VLC",
+				MpvArgs:   "--no-config",
+				MpvSocket: "/tmp/evil-socket",
+			},
+			nextTorrent: &models.TorrentSettings{
+				Default:         "qbittorrent",
+				QBittorrentPath: "/Applications/qBittorrent.app/Contents/MacOS/qbittorrent",
+			},
+			want: false,
+		},
+		{
 			name:       "allows trusted local origin when passwordless",
 			origin:     "http://127.0.0.1:43211",
 			reqHost:    "127.0.0.1:43211",
@@ -663,6 +679,38 @@ func TestCanMutatePrivilegedSettings(t *testing.T) {
 	})
 }
 
+func TestScreenshotDirMutation(t *testing.T) {
+	security.SetSecureMode("")
+	t.Cleanup(func() { security.SetSecureMode("") })
+
+	prev := &models.Settings{MediaPlayer: &models.MediaPlayerSettings{ScreenshotDir: "/pictures"}}
+	tests := []struct {
+		name     string
+		origin   string
+		password string
+		dir      string
+		want     bool
+	}{
+		{name: "rejects missing origin", dir: "/other"},
+		{name: "rejects foreign origin", origin: "https://evil.example", dir: "/other"},
+		{name: "rejects clearing folder without origin", dir: ""},
+		{name: "allows unchanged folder without origin", dir: "/pictures", want: true},
+		{name: "allows localhost", origin: "http://localhost:43211", dir: "/other", want: true},
+		{name: "allows same server LAN browser", origin: "http://192.168.1.10:43211", dir: "/other", want: true},
+		{name: "allows authenticated requests", password: "configured", dir: "/other", want: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodPatch, "http://192.168.1.10:43211/api/v1/settings/media-player", nil)
+			req.RemoteAddr = "192.168.1.20:51111"
+			req.Header.Set("Origin", tt.origin)
+			next := *prev.MediaPlayer
+			next.ScreenshotDir = tt.dir
+			assert.Equal(t, tt.want, canMutatePrivilegedSettings(req, tt.password, prev, &next, nil))
+		})
+	}
+}
+
 func TestCanMutatePrivilegedMediastreamSettings(t *testing.T) {
 	prev := &models.MediastreamSettings{
 		FfmpegPath:  "ffmpeg",
@@ -733,6 +781,29 @@ func TestCanMutatePrivilegedMediastreamSettings(t *testing.T) {
 				FfprobePath: "/tmp/ffprobe-wrapper",
 			},
 			want: false,
+		},
+		{
+			name:    "rejects untrusted origin when hwaccel switches to custom",
+			origin:  "https://evil.example",
+			reqHost: "192.168.1.10:43211",
+			next: &models.MediastreamSettings{
+				FfmpegPath:                     "ffmpeg",
+				FfprobePath:                    "ffprobe",
+				TranscodeHwAccel:               "custom",
+				TranscodeHwAccelCustomSettings: `{"name":"custom","encodeFlags":["-f","mpegts"]}`,
+			},
+			want: false,
+		},
+		{
+			name:    "allows untrusted origin when hwaccel is not custom",
+			origin:  "https://evil.example",
+			reqHost: "192.168.1.10:43211",
+			next: &models.MediastreamSettings{
+				FfmpegPath:       "ffmpeg",
+				FfprobePath:      "ffprobe",
+				TranscodeHwAccel: "nvidia",
+			},
+			want: true,
 		},
 		{
 			name:           "allows authenticated mediastream writes without trusted origin",
@@ -1230,6 +1301,17 @@ func TestUsesPrivilegedCommandSettings(t *testing.T) {
 
 		assert.True(t, isPrivilegedMediaPlayer(settings))
 		assert.True(t, isPrivilegedTorrentClient(settings))
+		assert.True(t, isPrivilegedMediastream(mediastreamSettings))
+	})
+
+	t.Run("detects custom hwaccel profiles", func(t *testing.T) {
+		mediastreamSettings := &models.MediastreamSettings{
+			FfmpegPath:                     "ffmpeg",
+			FfprobePath:                    "ffprobe",
+			TranscodeHwAccel:               "custom",
+			TranscodeHwAccelCustomSettings: `{"name":"custom","encodeFlags":["-f","mpegts"]}`,
+		}
+
 		assert.True(t, isPrivilegedMediastream(mediastreamSettings))
 	})
 }

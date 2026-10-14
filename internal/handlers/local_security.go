@@ -778,6 +778,9 @@ func privilegedSettingsChanged(prev *models.Settings, nextMedia *models.MediaPla
 			prevMedia.MpvArgs != nextMedia.MpvArgs ||
 			prevMedia.IinaPath != nextMedia.IinaPath ||
 			prevMedia.IinaArgs != nextMedia.IinaArgs ||
+			prevMedia.MpvSocket != nextMedia.MpvSocket ||
+			prevMedia.IinaSocket != nextMedia.IinaSocket ||
+			prevMedia.ScreenshotDir != nextMedia.ScreenshotDir ||
 			translateEndpointChanged(prevMedia, nextMedia) {
 			return true
 		}
@@ -823,7 +826,11 @@ func privilegedMediastreamSettingsChanged(prev *models.MediastreamSettings, next
 		return isPrivilegedMediastream(next)
 	}
 
-	return prev.FfmpegPath != next.FfmpegPath || prev.FfprobePath != next.FfprobePath
+	if prev.FfmpegPath != next.FfmpegPath || prev.FfprobePath != next.FfprobePath {
+		return true
+	}
+
+	return isCustomHwAccel(next) && (prev.TranscodeHwAccel != next.TranscodeHwAccel || prev.TranscodeHwAccelCustomSettings != next.TranscodeHwAccelCustomSettings)
 }
 
 func isPrivilegedMediaPlayer(settings *models.Settings) bool {
@@ -861,7 +868,11 @@ func isPrivilegedMediastream(settings *models.MediastreamSettings) bool {
 		return false
 	}
 
-	return hasCustomExecutablePath(settings.FfmpegPath, defaultFFmpegPaths()...) || hasCustomExecutablePath(settings.FfprobePath, defaultFFprobePaths()...)
+	return isCustomHwAccel(settings) || hasCustomExecutablePath(settings.FfmpegPath, defaultFFmpegPaths()...) || hasCustomExecutablePath(settings.FfprobePath, defaultFFprobePaths()...)
+}
+
+func isCustomHwAccel(settings *models.MediastreamSettings) bool {
+	return settings.TranscodeHwAccel == "custom"
 }
 
 // hasCustomExecutablePath checks if the given path differs from the provided default executable paths. Returns true if a custom path is detected, false otherwise.

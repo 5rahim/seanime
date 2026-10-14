@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"seanime/internal/util"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -51,15 +52,26 @@ func (h *Handler) HandleVideoCoreSaveScreenshot(c echo.Context) error {
 		return h.RespondWithError(c, fmt.Errorf("missing required fields"))
 	}
 
+	if filepath.Base(req.Filename) != req.Filename {
+		return h.RespondWithError(c, fmt.Errorf("filename must not contain a path"))
+	}
+
+	if err := h.guardPrivilegedLocalExecution(c); err != nil {
+		return err
+	}
+
 	settings, err := h.App.Database.GetSettings()
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
-	if err := h.guardPrivilegedMediaPlayer(c, settings); err != nil {
-		return err
+	dir := settings.GetMediaPlayer().ScreenshotDir
+	if dir == "" {
+		return h.RespondWithError(c, fmt.Errorf("set a screenshot folder in settings first"))
 	}
-
-	dir := req.Dir
+	dir = util.ResolvePhysicalPath(dir)
+	if !util.IsSameDir(util.ResolvePhysicalPath(req.Dir), dir) {
+		return h.RespondWithError(c, fmt.Errorf("screenshots must be saved to the configured folder"))
+	}
 	if !filepath.IsAbs(dir) {
 		home, err := os.UserHomeDir()
 		if err == nil {
@@ -86,9 +98,12 @@ func (h *Handler) HandleVideoCoreSaveScreenshot(c echo.Context) error {
 		return h.RespondWithError(c, fmt.Errorf("failed to create directory: %w", err))
 	}
 
-	filePath := filepath.Join(dir, req.Filename)
-
-	if err := os.WriteFile(filePath, data, 0644); err != nil {
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return h.RespondWithError(c, fmt.Errorf("failed to open screenshot directory: %w", err))
+	}
+	defer root.Close()
+	if err := root.WriteFile(req.Filename, data, 0644); err != nil {
 		return h.RespondWithError(c, fmt.Errorf("failed to write file: %w", err))
 	}
 
