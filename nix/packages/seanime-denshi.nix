@@ -9,10 +9,10 @@
 }:
 let
   pname = "seanime-denshi";
-  version = "3.10.3";
+  version = "3.10.4";
   src = fetchurl {
     url = "${meta.downloadPage}/download/v${version}/${pname}-${version}_Linux_x86_64.AppImage";
-    hash = "sha256-dcjehaA+vTf3S8uP7ucQxwBOD9Z+RKFoi11oVX8pHlw=";
+    hash = "sha256-vB07WwRbG+E3j0UBr8Q2vygsBS1fslRROt3y469wFPU=";
   };
   meta = {
     description = "An anime+manga browser|downloader|viewer";
