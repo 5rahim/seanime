@@ -27,6 +27,7 @@ type animeTestWrapper struct {
 type animeTestMetadataProvider struct {
 	metadata_provider.Provider
 	overrides map[int]*metadata.AnimeMetadata
+	errors    map[int]error
 }
 
 func newAnimeTestWrapper(t *testing.T) *animeTestWrapper {
@@ -39,6 +40,7 @@ func newAnimeTestWrapper(t *testing.T) *animeTestWrapper {
 	metadataProvider := &animeTestMetadataProvider{
 		Provider:  metadata_provider.NewTestProviderWithEnv(env, database),
 		overrides: make(map[int]*metadata.AnimeMetadata),
+		errors:    make(map[int]error),
 	}
 	anilistClient := anilist.NewTestAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), util.NewRef(extension.NewUnifiedBank()), logger, database)
@@ -57,6 +59,9 @@ func newAnimeTestWrapper(t *testing.T) *animeTestWrapper {
 }
 
 func (p *animeTestMetadataProvider) GetAnimeMetadata(platform metadata.Platform, mediaID int) (*metadata.AnimeMetadata, error) {
+	if err := p.errors[mediaID]; err != nil {
+		return nil, err
+	}
 	if animeMetadata, ok := p.overrides[mediaID]; ok {
 		return animeMetadata, nil
 	}

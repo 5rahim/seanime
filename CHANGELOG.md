@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.10.4
+
+- ⚡️ Playlists: Increased episode limit to 200 #757
+- ⚡️ Plugins: Added API to open native modals from actions #772
+- ⚡️ UI: Show episode totals for unstarted anime on hover #872
+- ⚡️ Torrent Search: Allow batch searches for airing anime #904
+- ⚡️ Manga: Added MyAnimeList link to entry menu #921
+- ⚡️ Manga: Smoother keyboard scrolling and cursor hiding when idle #918
+- ⚡️ VideoCore/MpvCore: Volume boost up to 300% #964
+- ⚡️ VideoCore: Playback speed slider #865
+- 🦺 Torrent Download: Fixed torrent client startup before file selection #912
+- 🦺 qBittorrent: Fixed missing filenames in file selection #957
+- 🦺 Denshi: Fixed background startup on Linux #923
+- 🦺 Library: Show missing episodes when episode metadata is unavailable #951
+- 🦺 VideoCore: Fixed unnecessary source refresh at HLS playback startup #953
+- 🦺 VideoCore: Potential fix for disappearing subtitles after seeking #968
+- 🦺 Mediastream: Fixed embedded font extraction for filenames with spaces #971
+- 🦺 VideoCore: Fixed Anime4K memory leaks and cleanup #955
+- 🦺 InSight: Replaced Jikan with Tenrai for character data
+- 🦺 Torrent Search: Best releases no longer force batch status #979
+- 🦺 Plugins: Include playback state in start, stop and completion events #977
+- 🦺 Subtitles: Fixed VTT conversion dropping lines with custom placements #975
+
 ## v3.10.3
 
 - ⚡️ AniList: Last added, last updated filtering options

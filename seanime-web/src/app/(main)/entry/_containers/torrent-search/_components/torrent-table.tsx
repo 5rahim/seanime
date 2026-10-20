@@ -146,7 +146,7 @@ export const TorrentTable = memo((
                                             displayName: (episodeNumber ?? -1) >= 0
                                                 ? `Episode ${episodeNumber}`
                                                 : "",
-                                            isBatch: torrent.isBestRelease ? true : isBatch,
+                                            isBatch: isBatch,
                                             image: distance <= 20 ? episodeImage : undefined,
                                             fallbackImage: (entry?.media?.coverImage?.large || entry?.media?.bannerImage),
                                             confirmed: distance === 0,

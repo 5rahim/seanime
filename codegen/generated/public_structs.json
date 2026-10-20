@@ -37920,6 +37920,17 @@
         "comments": []
       },
       {
+        "name": "subtitleSentEvents",
+        "jsonName": "subtitleSentEvents",
+        "goType": "map[string]__STRUCT__",
+        "inlineStructType": "map[string]struct{\n}",
+        "typescriptType": "Record\u003cstring, { }\u003e",
+        "usedTypescriptType": "{ }",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "subtitleLastSent",
         "jsonName": "subtitleLastSent",
         "goType": "time.Time",
@@ -84308,6 +84319,17 @@
         ]
       },
       {
+        "name": "modalManager",
+        "jsonName": "modalManager",
+        "goType": "ModalManager",
+        "typescriptType": "PluginUI_ModalManager",
+        "usedTypescriptType": "PluginUI_ModalManager",
+        "usedStructName": "plugin_ui.ModalManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "webviewManager",
         "jsonName": "webviewManager",
         "goType": "WebviewManager",
@@ -84958,6 +84980,7 @@
       "goType": "string",
       "typescriptType": "string",
       "declaredValues": [
+        "\"modal:closed\"",
         "\"tray:render\"",
         "\"tray:list-icons\"",
         "\"tray:opened\"",
@@ -85053,6 +85076,15 @@
     "filename": "events.go",
     "name": "ClientRenderTrayEventPayload",
     "formattedName": "PluginUI_ClientRenderTrayEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientModalClosedEventPayload",
+    "formattedName": "PluginUI_ClientModalClosedEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -85898,6 +85930,7 @@
         "\"tray:badge-updated\"",
         "\"tray:open\"",
         "\"tray:close\"",
+        "\"modal:updated\"",
         "\"webview:updated\"",
         "\"webview:iframe\"",
         "\"webview:sidebar\"",
@@ -85994,6 +86027,61 @@
     "formattedName": "PluginUI_ServerTrayUpdatedEventPayload",
     "package": "plugin_ui",
     "fields": [
+      {
+        "name": "Components",
+        "jsonName": "components",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerModalUpdatedEventPayload",
+    "formattedName": "PluginUI_ServerModalUpdatedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Action",
+        "jsonName": "action",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClassName",
+        "jsonName": "className",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "Components",
         "jsonName": "components",
@@ -87502,6 +87590,104 @@
         "goType": "",
         "typescriptType": "any",
         "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/modal.go",
+    "filename": "modal.go",
+    "name": "ModalOptions",
+    "formattedName": "PluginUI_ModalOptions",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClassName",
+        "jsonName": "className",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/modal.go",
+    "filename": "modal.go",
+    "name": "ModalManager",
+    "formattedName": "PluginUI_ModalManager",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "Context",
+        "typescriptType": "PluginUI_Context",
+        "usedTypescriptType": "PluginUI_Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "componentManager",
+        "jsonName": "componentManager",
+        "goType": "ComponentManager",
+        "typescriptType": "PluginUI_ComponentManager",
+        "usedTypescriptType": "PluginUI_ComponentManager",
+        "usedStructName": "plugin_ui.ComponentManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "options",
+        "jsonName": "options",
+        "goType": "ModalOptions",
+        "typescriptType": "PluginUI_ModalOptions",
+        "usedTypescriptType": "PluginUI_ModalOptions",
+        "usedStructName": "plugin_ui.ModalOptions",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "renderFunc",
+        "jsonName": "renderFunc",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "open",
+        "jsonName": "open",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": false,
         "comments": []
       }
@@ -94387,7 +94573,7 @@
     "fields": [
       {
         "name": "Name",
-        "jsonName": "\tname",
+        "jsonName": "name",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -94396,7 +94582,7 @@
       },
       {
         "name": "Size",
-        "jsonName": "\tsize",
+        "jsonName": "size",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -94405,7 +94591,7 @@
       },
       {
         "name": "Progress",
-        "jsonName": "\tprogress",
+        "jsonName": "progress",
         "goType": "float64",
         "typescriptType": "number",
         "required": true,
@@ -94414,7 +94600,7 @@
       },
       {
         "name": "Priority",
-        "jsonName": "\tpriority",
+        "jsonName": "priority",
         "goType": "TorrentPriority",
         "typescriptType": "TorrentPriority",
         "usedTypescriptType": "TorrentPriority",
@@ -94425,7 +94611,7 @@
       },
       {
         "name": "IsSeed",
-        "jsonName": "\tis_seed",
+        "jsonName": "is_seed",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -94434,7 +94620,7 @@
       },
       {
         "name": "PieceRange",
-        "jsonName": "\tpiece_range",
+        "jsonName": "piece_range",
         "goType": "[]int",
         "typescriptType": "Array\u003cnumber\u003e",
         "required": false,
@@ -94443,7 +94629,7 @@
       },
       {
         "name": "Availability",
-        "jsonName": "\tavailability",
+        "jsonName": "availability",
         "goType": "float64",
         "typescriptType": "number",
         "required": true,

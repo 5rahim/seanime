@@ -67,7 +67,7 @@ type InSightCharacterDetails struct {
 	About     string   `json:"about"`
 }
 
-type jikanCharactersResponse struct {
+type charactersResponse struct {
 	Data []*struct {
 		Character InSightCharacter `json:"character"`
 		Role      string           `json:"role"`
@@ -75,7 +75,7 @@ type jikanCharactersResponse struct {
 	} `json:"data"`
 }
 
-type jikanCharacterResponse struct {
+type characterResponse struct {
 	Data InSightCharacterDetails `json:"data"`
 }
 
@@ -109,12 +109,12 @@ func (is *InSight) fetchCharacters(malID int) {
 		return
 	}
 	is.rateLimiter.Wait()
-	resp, err := req.C().R().Get(fmt.Sprintf("https://api.jikan.moe/v4/anime/%d/characters", malID))
+	resp, err := req.C().R().Get(fmt.Sprintf("https://api.tenrai.org/v1/anime/%d/characters", malID))
 	if err != nil || resp.IsErrorState() {
 		is.logger.Warn().Err(err).Int("malId", malID).Msg("mpvcore insight: failed to fetch characters")
 		return
 	}
-	var response jikanCharactersResponse
+	var response charactersResponse
 	if resp.UnmarshalJson(&response) != nil {
 		return
 	}
@@ -136,14 +136,14 @@ func (is *InSight) GetCharacterInfo(malID int) (*InSightCharacterDetails, error)
 		return cached, nil
 	}
 	is.rateLimiter.Wait()
-	resp, err := req.C().R().Get(fmt.Sprintf("https://api.jikan.moe/v4/characters/%d/full", malID))
+	resp, err := req.C().R().Get(fmt.Sprintf("https://api.tenrai.org/v1/characters/%d/full", malID))
 	if err != nil {
 		return nil, err
 	}
 	if resp.IsErrorState() {
 		return nil, fmt.Errorf("failed to fetch character info: %s", resp.Status)
 	}
-	var response jikanCharacterResponse
+	var response characterResponse
 	if err := resp.UnmarshalJson(&response); err != nil {
 		return nil, err
 	}

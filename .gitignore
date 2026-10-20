@@ -3,6 +3,7 @@ logs/
 testdata/
 .DS_Store
 .git
+.todo
 
 .*/
 !.github/

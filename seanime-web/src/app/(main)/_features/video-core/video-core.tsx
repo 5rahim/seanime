@@ -37,6 +37,7 @@ import { vc_cursorBusy } from "@/app/(main)/_features/video-core/video-core-atom
 import { vc_cursorPosition } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_busy } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_videoElement } from "@/app/(main)/_features/video-core/video-core-atoms"
+import { useVideoCoreVolumeBoost } from "@/app/(main)/_features/video-core/video-core-volume-boost"
 import { vc_containerElement } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_previousPausedState } from "@/app/(main)/_features/video-core/video-core-atoms"
 import { vc_lastKnownProgress } from "@/app/(main)/_features/video-core/video-core-atoms"
@@ -104,6 +105,7 @@ import {
     vc_storedMutedAtom,
     vc_storedPlaybackRateAtom,
     vc_storedVolumeAtom,
+    vc_storedVolumeBoostAtom,
     VideoCore_VideoPlaybackInfo,
     VideoCore_VideoSource,
     VideoCore_VideoSubtitleTrack,
@@ -745,6 +747,7 @@ export function VideoCore(props: VideoCoreProps) {
     const [autoPlay] = useAtom(vc_autoPlayVideoAtom)
     const [autoSkipOpeningOutro] = useAtom(vc_autoSkipOPEDAtom)
     const [volume] = useAtom(vc_storedVolumeAtom)
+    const volumeBoost = useAtomValue(vc_storedVolumeBoostAtom)
     const [muted] = useAtom(vc_storedMutedAtom)
     const [playbackRate, setPlaybackRate] = useAtom(vc_storedPlaybackRateAtom)
 
@@ -809,6 +812,28 @@ export function VideoCore(props: VideoCoreProps) {
             closeTerminateConfirm()
         }
     }, [isMiniPlayer, state.active, isTerminateConfirmOpen, closeTerminateConfirm])
+
+    const onHistoryPop = React.useEffectEvent(() => {
+        if (window.history.state?.videoCoreDrawer) {
+            if (isMiniPlayer) setIsMiniPlayer(false)
+        } else if (!isMiniPlayer) {
+            enterMiniPlayer()
+        }
+    })
+
+    React.useEffect(() => {
+        if (!state.active || inline) return
+
+        window.history.pushState({ ...window.history.state, videoCoreDrawer: true }, "")
+        window.addEventListener("popstate", onHistoryPop)
+
+        return () => {
+            window.removeEventListener("popstate", onHistoryPop)
+            if (window.history.state?.videoCoreDrawer) {
+                window.history.back()
+            }
+        }
+    }, [state.active, inline])
 
     React.useEffect(() => {
         if (!__isElectronDesktop__ || !window.electron?.on) return
@@ -1503,6 +1528,9 @@ export function VideoCore(props: VideoCoreProps) {
             videoRef.current.volume = volume
         }
     }, [volume, videoRef.current])
+
+    // Amplify past 100%
+    useVideoCoreVolumeBoost(videoElement, volumeBoost)
 
     // Handle mute changes
     React.useEffect(() => {

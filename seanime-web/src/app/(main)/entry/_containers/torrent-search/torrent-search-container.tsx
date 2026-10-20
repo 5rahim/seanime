@@ -394,7 +394,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         size="sm"
                                         fieldClass={cn(
                                             "flex flex-none w-fit md:justify-end gap-3 space-y-0",
-                                            { "opacity-50 cursor-not-allowed pointer-events-none": (smartSearchBatch || searchType != Torrent_SearchType.SMART) },
+                                            { "opacity-50 cursor-not-allowed pointer-events-none": searchType != Torrent_SearchType.SMART },
                                         )}
                                         fieldLabelClass={cn(
                                             "flex-none self-center font-normal !text-md sm:text-md lg:text-md",
@@ -407,10 +407,10 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         label="Batches"
                                         value={smartSearchBatch}
                                         onValueChange={setSmartSearchBatch}
-                                        disabled={smartSearchBest || !downloadInfo?.canBatch}
+                                        disabled={smartSearchBest}
                                         fieldClass={cn(
                                             "flex flex-none w-fit",
-                                            { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch || smartSearchBest },
+                                            { "opacity-50 cursor-not-allowed pointer-events-none": smartSearchBest },
                                         )}
                                         size="sm"
                                         containerClass="flex-row-reverse gap-1"

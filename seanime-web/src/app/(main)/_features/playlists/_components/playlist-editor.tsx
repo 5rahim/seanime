@@ -40,7 +40,7 @@ type PlaylistEditorProps = {
     libraryCollection?: Anime_LibraryCollection
 }
 
-const MAX_PLAYLIST_EPISODES = 20
+const MAX_PLAYLIST_EPISODES = 200
 
 export function PlaylistEditor(props: PlaylistEditorProps) {
 
@@ -117,7 +117,7 @@ export function PlaylistEditor(props: PlaylistEditorProps) {
                         leftIcon={<BiPlus className="text-2xl" />}
                         intent="white-subtle"
                         className="rounded-full"
-                        disabled={episodes.length >= 10}
+                        disabled={episodes.length >= MAX_PLAYLIST_EPISODES}
                     >Add episodes</Button>}
                 >
 
@@ -455,7 +455,7 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
                     return prev.filter(n => !playlist_isSameEpisode(n, ep))
                 }
                 if (prev.length >= MAX_PLAYLIST_EPISODES) {
-                    toast.error("You can't add more than 20 episodes to a playlist")
+                    toast.error(`You can't add more than ${MAX_PLAYLIST_EPISODES} episodes to a playlist`)
                     return prev
                 }
                 return [...prev, ep]
@@ -486,12 +486,12 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
                                 const availableSlots = Math.max(0, MAX_PLAYLIST_EPISODES - prev.length)
 
                                 if (availableSlots === 0) {
-                                    toast.error("You can't add more than 20 episodes to a playlist")
+                                    toast.error(`You can't add more than ${MAX_PLAYLIST_EPISODES} episodes to a playlist`)
                                     return prev
                                 }
 
                                 if (episodesToAdd.length > availableSlots) {
-                                    toast.error("You can't add more than 20 episodes to a playlist")
+                                    toast.error(`You can't add more than ${MAX_PLAYLIST_EPISODES} episodes to a playlist`)
                                 }
 
                                 return [...prev, ...episodesToAdd.slice(0, availableSlots)]

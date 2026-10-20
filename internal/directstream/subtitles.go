@@ -132,18 +132,6 @@ func subtitleEventId(event *mkvparser.SubtitleEvent) string {
 	return fmt.Sprintf("%d:%s:%f:%f:%x", event.TrackNumber, event.CodecID, event.StartTime, event.Duration, hash.Sum64())
 }
 
-func (s *BaseStream) shouldSendSubtitleEvent(event *mkvparser.SubtitleEvent) bool {
-	if event == nil {
-		return false
-	}
-	if s.subtitleEventCache == nil {
-		return true
-	}
-
-	_, loaded := s.subtitleEventCache.LoadOrStore(subtitleEventId(event), event)
-	return !loaded
-}
-
 func (s *BaseStream) sendSubtitleEvents(ctx context.Context, stream Stream, events []*mkvparser.SubtitleEvent, config subtitleFlushConfig, request subtitleRequest) bool {
 	if len(events) == 0 {
 		return true
@@ -167,6 +155,31 @@ func (s *BaseStream) sendSubtitleEvents(ctx context.Context, stream Stream, even
 		return false
 	}
 
+	if s.subtitleSentEvents == nil || s.subtitleLastSentGen != request.generation {
+		s.subtitleSentEvents = make(map[string]struct{})
+	}
+	batch := make([]*mkvparser.SubtitleEvent, 0, len(events))
+	ids := make([]string, 0, len(events))
+	seen := make(map[string]struct{}, len(events))
+	for _, event := range events {
+		if event == nil {
+			continue
+		}
+		id := subtitleEventId(event)
+		if _, ok := s.subtitleSentEvents[id]; ok {
+			continue
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		ids = append(ids, id)
+		batch = append(batch, event)
+	}
+	if len(batch) == 0 {
+		return true
+	}
+
 	if !s.subtitleLastSent.IsZero() && s.subtitleLastSentGen == request.generation && config.minSendInterval > 0 {
 		if !s.waitForSubtitleSend(ctx, config.minSendInterval) {
 			return false
@@ -176,7 +189,10 @@ func (s *BaseStream) sendSubtitleEvents(ctx context.Context, stream Stream, even
 		}
 	}
 
-	s.manager.nativePlayer.SubtitleEventsWithGen(stream.ClientId(), events, request.playbackID, request.generation, request.seekTime)
+	s.manager.nativePlayer.SubtitleEventsWithGen(stream.ClientId(), batch, request.playbackID, request.generation, request.seekTime)
+	for _, id := range ids {
+		s.subtitleSentEvents[id] = struct{}{}
+	}
 	s.subtitleLastSentGen = request.generation
 	s.subtitleLastSent = time.Now()
 	return true
@@ -550,8 +566,8 @@ func (s *BaseStream) startSubtitleStreamP(stream Stream, playbackCtx context.Con
 				if subtitle != nil {
 					onFirstEventSent()
 					setLastSubtitleEvent(subtitle)
-					if !s.shouldSendSubtitleEvent(subtitle) {
-						continue
+					if s.subtitleEventCache != nil {
+						s.subtitleEventCache.LoadOrStore(subtitleEventId(subtitle), subtitle)
 					}
 
 					eventBatch = append(eventBatch, subtitle)

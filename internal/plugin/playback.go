@@ -238,98 +238,70 @@ func (p *Playback) registerEventListener(callback func(event *PlaybackEvent)) (f
 
 	subscriber := playbackManager.SubscribeToPlaybackStatus(id)
 
-	go func() {
-		for event := range subscriber.EventCh {
-			switch e := event.(type) {
-			case playbackmanager.PlaybackStatusChangedEvent:
-				p.scheduler.ScheduleAsync(func() error {
-					callback(&PlaybackEvent{
-						Status: &e.Status,
-						State:  &e.State,
-					})
-					return nil
-				})
-			case playbackmanager.VideoStartedEvent:
-				p.scheduler.ScheduleAsync(func() error {
-					callback(&PlaybackEvent{
-						IsVideoStarted: true,
-						StartedEvent: &struct {
-							Filename string `json:"filename"`
-						}{
-							Filename: e.Filename,
-						},
-					})
-					return nil
-				})
-			case playbackmanager.VideoStoppedEvent:
-				p.scheduler.ScheduleAsync(func() error {
-					callback(&PlaybackEvent{
-						IsVideoStopped: true,
-						StoppedEvent: &struct {
-							Reason string `json:"reason"`
-						}{
-							Reason: e.Reason,
-						},
-					})
-					return nil
-				})
-			case playbackmanager.VideoCompletedEvent:
-				p.scheduler.ScheduleAsync(func() error {
-					callback(&PlaybackEvent{
-						IsVideoCompleted: true,
-						CompletedEvent: &struct {
-							Filename string `json:"filename"`
-						}{
-							Filename: e.Filename,
-						},
-					})
-					return nil
-				})
-			case playbackmanager.StreamStartedEvent:
-				p.scheduler.ScheduleAsync(func() error {
-					callback(&PlaybackEvent{
-						IsStreamStarted: true,
-						StartedEvent: &struct {
-							Filename string `json:"filename"`
-						}{
-							Filename: e.Filename,
-						},
-					})
-					return nil
-				})
-			case playbackmanager.StreamStoppedEvent:
-				p.scheduler.ScheduleAsync(func() error {
-					callback(&PlaybackEvent{
-						IsStreamStopped: true,
-						StoppedEvent: &struct {
-							Reason string `json:"reason"`
-						}{
-							Reason: e.Reason,
-						},
-					})
-					return nil
-				})
-			case playbackmanager.StreamCompletedEvent:
-				p.scheduler.ScheduleAsync(func() error {
-					callback(&PlaybackEvent{
-						IsStreamCompleted: true,
-						CompletedEvent: &struct {
-							Filename string `json:"filename"`
-						}{
-							Filename: e.Filename,
-						},
-					})
-					return nil
-				})
-			}
-		}
-	}()
+	go p.listen(subscriber, callback)
 
 	cancelFn := func() {
 		playbackManager.UnsubscribeFromPlaybackStatus(id)
 	}
 
 	return cancelFn, nil
+}
+
+func (p *Playback) listen(subscriber *playbackmanager.PlaybackStatusSubscriber, callback func(event *PlaybackEvent)) {
+	var state *playbackmanager.PlaybackState
+	var status *mediaplayer.PlaybackStatus
+
+	for event := range subscriber.EventCh {
+		data := &PlaybackEvent{State: state, Status: status}
+		switch e := event.(type) {
+		case playbackmanager.PlaybackStatusChangedEvent:
+			state, status = &e.State, &e.Status
+			data.State, data.Status = state, status
+
+		case playbackmanager.VideoStartedEvent:
+			data.IsVideoStarted = true
+			data.StartedEvent = &struct {
+				Filename string `json:"filename"`
+			}{Filename: e.Filename}
+
+		case playbackmanager.VideoStoppedEvent:
+			data.IsVideoStopped = true
+			data.StoppedEvent = &struct {
+				Reason string `json:"reason"`
+			}{Reason: e.Reason}
+
+		case playbackmanager.VideoCompletedEvent:
+			data.IsVideoCompleted = true
+			data.CompletedEvent = &struct {
+				Filename string `json:"filename"`
+			}{Filename: e.Filename}
+
+		case playbackmanager.StreamStartedEvent:
+			data.IsStreamStarted = true
+			data.StartedEvent = &struct {
+				Filename string `json:"filename"`
+			}{Filename: e.Filename}
+
+		case playbackmanager.StreamStoppedEvent:
+			data.IsStreamStopped = true
+			data.StoppedEvent = &struct {
+				Reason string `json:"reason"`
+			}{Reason: e.Reason}
+
+		case playbackmanager.StreamCompletedEvent:
+			data.IsStreamCompleted = true
+			data.CompletedEvent = &struct {
+				Filename string `json:"filename"`
+			}{Filename: e.Filename}
+
+		default:
+			continue
+		}
+		p.scheduler.ScheduleAsync(func() error {
+			callback(data)
+			return nil
+		})
+	}
 }
 
 func (p *Playback) pause() error {

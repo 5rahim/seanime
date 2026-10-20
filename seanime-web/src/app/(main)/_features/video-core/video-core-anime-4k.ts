@@ -176,6 +176,7 @@ export const isWebGPUAvailable = async (): Promise<boolean> => {
         if (!adapter) return false
 
         const device = await adapter.requestDevice()
+        device?.destroy()
         return !!device
     }
     catch {
