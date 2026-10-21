@@ -1,14 +1,12 @@
 package realdebrid
 
 import (
-	"bytes"
 	"cmp"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"math"
-	"mime/multipart"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -612,19 +610,9 @@ func (t *RealDebrid) selectCachedFiles(id string, idStr string) (err error) {
 }
 
 func (t *RealDebrid) _selectFiles(id string, idStr string) (err error) {
-
-	var body bytes.Buffer
-	writer := multipart.NewWriter(&body)
-
 	t.logger.Trace().Str("torrentId", id).Str("fileId", idStr).Msg("realdebrid: Selecting files")
-
-	err = writer.WriteField("files", idStr)
-	if err != nil {
-		t.logger.Error().Err(err).Msg("realdebrid: Failed to write field 'files'")
-		return fmt.Errorf("realdebrid: Failed to select files: %w", err)
-	}
-
-	_, err = t.doQuery("POST", t.baseUrl+fmt.Sprintf("/torrents/selectFiles/%s", id), &body, writer.FormDataContentType())
+	values := url.Values{"files": []string{idStr}}
+	_, err = t.doQuery("POST", t.baseUrl+fmt.Sprintf("/torrents/selectFiles/%s", id), strings.NewReader(values.Encode()), "application/x-www-form-urlencoded")
 	if err != nil {
 		t.logger.Error().Err(err).Msg("realdebrid: Failed to select files")
 		return fmt.Errorf("realdebrid: Failed to select files: %w", err)
@@ -639,19 +627,9 @@ type addMagnetResponse struct {
 }
 
 func (t *RealDebrid) addMagnet(magnet string) (ret *addMagnetResponse, err error) {
-
-	var body bytes.Buffer
-	writer := multipart.NewWriter(&body)
-
 	t.logger.Trace().Str("magnetLink", magnet).Msg("realdebrid: Adding torrent")
-
-	err = writer.WriteField("magnet", magnet)
-	if err != nil {
-		t.logger.Error().Err(err).Msg("realdebrid: Failed to write field 'magnet'")
-		return nil, fmt.Errorf("torbox: Failed to add torrent: %w", err)
-	}
-
-	resp, err := t.doQuery("POST", t.baseUrl+"/torrents/addMagnet", &body, writer.FormDataContentType())
+	values := url.Values{"magnet": []string{magnet}}
+	resp, err := t.doQuery("POST", t.baseUrl+"/torrents/addMagnet", strings.NewReader(values.Encode()), "application/x-www-form-urlencoded")
 	if err != nil {
 		t.logger.Error().Err(err).Msg("realdebrid: Failed to add torrent")
 		return nil, fmt.Errorf("realdebrid: Failed to add torrent: %w", err)
@@ -667,17 +645,8 @@ func (t *RealDebrid) addMagnet(magnet string) (ret *addMagnetResponse, err error
 }
 
 func (t *RealDebrid) unrestrictLink(link string) (ret *unrestrictLinkResponse, err error) {
-
-	var body bytes.Buffer
-	writer := multipart.NewWriter(&body)
-
-	err = writer.WriteField("link", link)
-	if err != nil {
-		t.logger.Error().Err(err).Msg("realdebrid: Failed to write field 'link'")
-		return nil, fmt.Errorf("realdebrid: Failed to unrestrict link: %w", err)
-	}
-
-	resp, err := t.doQuery("POST", t.baseUrl+"/unrestrict/link", &body, writer.FormDataContentType())
+	values := url.Values{"link": []string{link}}
+	resp, err := t.doQuery("POST", t.baseUrl+"/unrestrict/link", strings.NewReader(values.Encode()), "application/x-www-form-urlencoded")
 	if err != nil {
 		t.logger.Error().Err(err).Msg("realdebrid: Failed to unrestrict link")
 		return nil, fmt.Errorf("realdebrid: Failed to unrestrict link: %w", err)
