@@ -30,11 +30,13 @@ export function useMangaReaderUtils() {
     const { getHMACTokenQueryParam, password } = useServerHMACAuth()
     const [tokenQueryParam, setTokenQueryParam] = React.useState<string>("")
     const [localPageToken, setLocalPageToken] = React.useState<string>("")
+    const [suwayomiImageToken, setSuwayomiImageToken] = React.useState<string>("")
 
     React.useLayoutEffect(() => {
         (async () => {
             setTokenQueryParam(await getHMACTokenQueryParam("/api/v1/image-proxy", "&"))
             setLocalPageToken(await getHMACTokenQueryParam("/api/v1/manga/local-page", "?"))
+            setSuwayomiImageToken(await getHMACTokenQueryParam("/api/v1/manga/suwayomi-image", "&"))
         })()
     }, [password])
 
@@ -44,6 +46,9 @@ export function useMangaReaderUtils() {
         }
 
         if (!isDownloaded) {
+            if (headers?.["X-Seanime-Suwayomi"] === "1") {
+                return `${getServerBaseUrl()}/api/v1/manga/suwayomi-image?${new URLSearchParams({ url }).toString()}${suwayomiImageToken}`
+            }
             if (headers && Object.keys(headers).length > 0) {
                 const params = new URLSearchParams({
                     url,
@@ -56,10 +61,10 @@ export function useMangaReaderUtils() {
         }
 
         return `${getServerBaseUrl()}/manga-downloads/${url}`
-    }, [tokenQueryParam, localPageToken])
+    }, [tokenQueryParam, localPageToken, suwayomiImageToken])
 
     return {
-        isReady: (!serverStatus?.serverHasPassword) || (!!password && !!tokenQueryParam),
+        isReady: (!serverStatus?.serverHasPassword) || (!!password && !!tokenQueryParam && !!suwayomiImageToken),
         getChapterPageUrl,
     }
 

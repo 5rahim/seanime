@@ -182,6 +182,7 @@ type MangaSettings struct {
 	DefaultProvider      string `gorm:"column:default_manga_provider" json:"defaultMangaProvider"`
 	AutoUpdateProgress   bool   `gorm:"column:manga_auto_update_progress" json:"mangaAutoUpdateProgress"`
 	LocalSourceDirectory string `gorm:"column:manga_local_source_directory" json:"mangaLocalSourceDirectory"`
+	SuwayomiURL          string `gorm:"column:manga_suwayomi_url" json:"mangaSuwayomiUrl"`
 }
 
 type MediaPlayerSettings struct {

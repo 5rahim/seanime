@@ -7,8 +7,10 @@ import (
 	"seanime/internal/core"
 	"seanime/internal/extension"
 	"seanime/internal/extension_playground"
+	manga_providers "seanime/internal/manga/providers"
 	"seanime/internal/security"
 	"seanime/internal/util"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -285,8 +287,101 @@ func (h *Handler) HandleGetExtensionUpdateData(c echo.Context) error {
 //	@route /api/v1/extensions/list/manga-provider [GET]
 //	@returns []extension_repo.MangaProviderExtensionItem
 func (h *Handler) HandleListMangaProviderExtensions(c echo.Context) error {
+	h.refreshSuwayomiSources()
 	extensions := h.App.ExtensionRepository.ListMangaProviderExtensions()
 	return h.RespondWithData(c, extensions)
+}
+
+var suwayomiSourcesMu sync.Mutex
+
+func suwayomiSourceName(name, lang string) string {
+	code := strings.ToUpper(strings.TrimSpace(lang))
+	if code == "JA" {
+		code = "JP"
+	}
+	if code == "" {
+		return "Suwayomi: " + name
+	}
+	return "Suwayomi: " + name + " (" + code + ")"
+}
+
+// Refresh the bank when the provider menu is requested, so changes made in
+// Suwayomi become available without restarting Seanime.
+func (h *Handler) refreshSuwayomiSources() {
+	suwayomiSourcesMu.Lock()
+	defer suwayomiSourcesMu.Unlock()
+	settings, err := h.App.Database.GetSettings()
+	if err != nil || settings == nil {
+		return
+	}
+	rawURL := strings.TrimSpace(settings.GetManga().SuwayomiURL)
+	bank := h.App.ExtensionRepository.GetExtensionBank()
+	var old []string
+	bank.Range(func(id string, ext extension.BaseExtension) bool {
+		if strings.HasPrefix(id, "suwayomi-") && ext.GetManifestURI() == "builtin" {
+			old = append(old, id)
+		}
+		return true
+	})
+	// Suwayomi reserves source ID 0 for its local-files source.
+	for _, id := range old {
+		if strings.HasSuffix(id, "-0") {
+			bank.Delete(id)
+		}
+	}
+	if rawURL == "" {
+		for _, id := range old {
+			bank.Delete(id)
+		}
+		return
+	}
+	client, err := manga_providers.NewSuwayomi(rawURL, "")
+	if err != nil {
+		for _, id := range old {
+			bank.Delete(id)
+		}
+		h.App.Logger.Warn().Err(err).Msg("manga: invalid Suwayomi URL")
+		return
+	}
+	// Do not retain providers from an old server when the configured URL changes.
+	serverPrefix := client.ID()
+	for _, id := range old {
+		if !strings.HasPrefix(id, serverPrefix) {
+			bank.Delete(id)
+		}
+	}
+	sources, err := client.Sources()
+	if err != nil {
+		h.App.Logger.Warn().Err(err).Msg("manga: could not load Suwayomi sources")
+		return
+	}
+	current := make(map[string]bool, len(sources))
+	for _, source := range sources {
+		if source.ID == "0" {
+			continue
+		}
+		// Source IDs are signed 64-bit integers, represented as strings by GraphQL.
+		if _, err := strconv.ParseInt(source.ID, 10, 64); err != nil {
+			continue
+		}
+		provider, err := manga_providers.NewSuwayomi(rawURL, source.ID)
+		if err != nil {
+			continue
+		}
+		id := provider.ID()
+		current[id] = true
+		name := suwayomiSourceName(source.Name, source.Lang)
+		if existing, ok := bank.Get(id); ok && existing.GetName() == name && existing.GetLang() == source.Lang {
+			continue
+		}
+		ext := &extension.Extension{ID: id, Name: name, ManifestURI: "builtin", Language: extension.LanguageGo, Type: extension.TypeMangaProvider, Author: "Suwayomi", Lang: source.Lang}
+		bank.Set(id, extension.NewMangaProviderExtension(ext, provider))
+	}
+	for _, id := range old {
+		if !current[id] {
+			bank.Delete(id)
+		}
+	}
 }
 
 // HandleListOnlinestreamProviderExtensions
