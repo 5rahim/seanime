@@ -9,7 +9,8 @@ import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chap
 import { useHandleMangaChapters } from "@/app/(main)/manga/_lib/handle-manga-chapters"
 import { useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { __manga_preferencesHydratedAtom } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
-import { getChapterNumberFromChapter, useMangaChapterListRowSelection, useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
+import { getChapterNumberFromChapter, getDecimalFromChapter, useMangaChapterListRowSelection, useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
+import { sortMangaChaptersAscending } from "@/app/(main)/manga/_lib/sort-manga-chapters"
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { monochromeCheckboxClasses } from "@/components/shared/classnames"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
@@ -154,7 +155,7 @@ export function ChapterList(props: ChapterListProps) {
             size: 10,
             enableSorting: true,
             accessorFn: (row) => {
-                return chapterIdToNumbersMap.get(row.id)
+                return getDecimalFromChapter(row.chapter)
             },
         },
         {
@@ -192,8 +193,8 @@ export function ChapterList(props: ChapterListProps) {
         },
     ]), [chapterIdToNumbersMap, selectedExtension, isSendingDownloadRequest, isChapterDownloaded, downloadData, mediaId])
 
-    const unreadChapters = React.useMemo(() => chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [], [chapterContainer, entry])
-    const allChapters = React.useMemo(() => chapterContainer?.chapters?.toReversed() ?? [], [chapterContainer])
+    const allChapters = React.useMemo(() => sortMangaChaptersAscending(chapterContainer?.chapters ?? []), [chapterContainer])
+    const unreadChapters = React.useMemo(() => allChapters.filter(ch => retainUnreadChapters(ch)), [allChapters, retainUnreadChapters])
     const downloadableUnreadChapters = React.useMemo(() => unreadChapters.filter(chapter => {
         return !isChapterLocal(chapter) && !isChapterDownloaded(chapter) && !isChapterQueued(chapter)
     }), [unreadChapters, downloadData, isChapterDownloaded, isChapterLocal, isChapterQueued])
