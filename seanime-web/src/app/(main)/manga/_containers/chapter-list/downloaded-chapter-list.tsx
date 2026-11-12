@@ -9,7 +9,7 @@ import { useDeleteMangaDownloadedChapters } from "@/api/hooks/manga_download.hoo
 import { useSetCurrentChapter } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import { MangaDownloadChapterItem, useMangaEntryDownloadedChapters } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { useSelectedMangaProvider } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
-import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
+import { getDecimalFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -64,7 +64,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
     const chapterIdsToNumber = React.useMemo(() => {
         const map = new Map<string, number>()
         for (const chapter of tableData ?? []) {
-            map.set(chapter.chapterId, getChapterNumberFromChapter(chapter.chapterNumber))
+            map.set(chapter.chapterId, getDecimalFromChapter(chapter.chapterNumber))
         }
         return map
     }, [tableData])
