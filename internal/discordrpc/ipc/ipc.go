@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"io"
 	"net"
 	"os"
 )
@@ -28,25 +29,23 @@ type Socket struct {
 	net.Conn
 }
 
-// Read the socket response
+// Read reads one frame: 8-byte header (opcode, length) then payload
 func (socket *Socket) Read() (string, error) {
-	buf := make([]byte, 512)
-	payloadLength, err := socket.Conn.Read(buf)
-	if err != nil {
+	header := make([]byte, 8)
+	if _, err := io.ReadFull(socket.Conn, header); err != nil {
 		return "", err
 	}
 
-	buffer := new(bytes.Buffer)
-	for i := 8; i < payloadLength; i++ {
-		buffer.WriteByte(buf[i])
+	payload := make([]byte, binary.LittleEndian.Uint32(header[4:]))
+	if _, err := io.ReadFull(socket.Conn, payload); err != nil {
+		return "", err
 	}
 
-	r := buffer.String()
-	if r == "" {
+	if len(payload) == 0 {
 		return "", fmt.Errorf("empty response")
 	}
 
-	return r, nil
+	return string(payload), nil
 }
 
 // Send opcode and payload to the unix socket

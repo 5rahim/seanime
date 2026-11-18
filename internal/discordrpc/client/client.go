@@ -48,7 +48,7 @@ func New(clientId string) (*Client, error) {
 	}
 
 	if responseBody.Code > 1000 {
-		return nil, fmt.Errorf(responseBody.Message)
+		return nil, fmt.Errorf("%s", responseBody.Message)
 	}
 
 	return c, nil

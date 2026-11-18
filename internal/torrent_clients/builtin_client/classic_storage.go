@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	g "github.com/anacrolix/generics"
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/anacrolix/torrent/segments"
 	"github.com/anacrolix/torrent/storage"
@@ -240,14 +241,14 @@ func (p *classicPiece) WriteAt(b []byte, off int64) (int, error) {
 }
 
 func (p *classicPiece) MarkComplete() error {
-	if err := p.t.pc.Set(p.key(), true); err != nil {
+	if err := p.t.pc.Set(p.key(), g.Some(true)); err != nil {
 		return err
 	}
 	return p.sync()
 }
 
 func (p *classicPiece) MarkNotComplete() error {
-	return p.t.pc.Set(p.key(), false)
+	return p.t.pc.Set(p.key(), g.Some(false))
 }
 
 func (p *classicPiece) Completion() storage.Completion {
