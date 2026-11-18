@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.10.5-canary.1
+
 ## v3.10.4
 
 - ⚡️ Playlists: Increased episode limit to 200 #757
