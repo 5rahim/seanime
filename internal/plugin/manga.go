@@ -213,12 +213,18 @@ func (m *Manga) getMangaEntry(call goja.FunctionCall) goja.Value {
 		// Get the user's manga collection
 		mangaCollection, err := anilistPlatformRef.Get().GetMangaCollection(context.Background(), false)
 		if err != nil {
-			_ = reject(m.vm.ToValue(err.Error()))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(m.vm.ToValue(err.Error()))
+				return nil
+			})
 			return
 		}
 
 		if mangaCollection == nil {
-			_ = reject(goja_bindings.NewErrorString(m.vm, "anilist collection not found"))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(goja_bindings.NewErrorString(m.vm, "anilist collection not found"))
+				return nil
+			})
 			return
 		}
 
@@ -231,7 +237,10 @@ func (m *Manga) getMangaEntry(call goja.FunctionCall) goja.Value {
 			MangaCollection: mangaCollection,
 		})
 		if err != nil {
-			_ = reject(goja_bindings.NewError(m.vm, err))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(goja_bindings.NewError(m.vm, err))
+				return nil
+			})
 			return
 		}
 

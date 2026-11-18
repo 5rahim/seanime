@@ -76,7 +76,10 @@ func (m *Anime) getAnimeMetadata(call goja.FunctionCall) goja.Value {
 	go func() {
 		ret, err := metadataProviderRef.Get().GetAnimeMetadata(metadata.Platform(from), mediaId)
 		if err != nil {
-			_ = reject(m.vm.ToValue(err.Error()))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(m.vm.ToValue(err.Error()))
+				return nil
+			})
 			return
 		}
 
@@ -127,19 +130,28 @@ func (m *Anime) getAnimeEntry(call goja.FunctionCall) goja.Value {
 		// Get all the local files
 		lfs, _, err := db_bridge.GetLocalFiles(database)
 		if err != nil {
-			_ = reject(m.vm.ToValue(err.Error()))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(m.vm.ToValue(err.Error()))
+				return nil
+			})
 			return
 		}
 
 		// Get the user's anilist collection
 		animeCollection, err := anilistPlatformRef.Get().GetAnimeCollection(context.Background(), false)
 		if err != nil {
-			_ = reject(m.vm.ToValue(err.Error()))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(m.vm.ToValue(err.Error()))
+				return nil
+			})
 			return
 		}
 
 		if animeCollection == nil {
-			_ = reject(goja_bindings.NewErrorString(m.vm, "anilist collection not found"))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(goja_bindings.NewErrorString(m.vm, "anilist collection not found"))
+				return nil
+			})
 			return
 		}
 
@@ -152,7 +164,10 @@ func (m *Anime) getAnimeEntry(call goja.FunctionCall) goja.Value {
 			MetadataProviderRef: metadataProviderRef,
 		})
 		if err != nil {
-			_ = reject(goja_bindings.NewError(m.vm, err))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(goja_bindings.NewError(m.vm, err))
+				return nil
+			})
 			return
 		}
 
@@ -160,7 +175,10 @@ func (m *Anime) getAnimeEntry(call goja.FunctionCall) goja.Value {
 		fillerEvent.Entry = entry
 		err = hook.GlobalHookManager.OnAnimeEntryFillerHydration().Trigger(fillerEvent)
 		if err != nil {
-			_ = reject(goja_bindings.NewError(m.vm, err))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(goja_bindings.NewError(m.vm, err))
+				return nil
+			})
 			return
 		}
 		entry = fillerEvent.Entry
@@ -208,13 +226,19 @@ func (m *Anime) getEntryDownloadInfo(call goja.FunctionCall) goja.Value {
 	go func() {
 		lfs, _, err := db_bridge.GetLocalFiles(database)
 		if err != nil {
-			_ = reject(m.vm.ToValue(err.Error()))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(m.vm.ToValue(err.Error()))
+				return nil
+			})
 			return
 		}
 
 		animeCollection, err := anilistPlatformRef.Get().GetAnimeCollection(context.Background(), false)
 		if err != nil {
-			_ = reject(m.vm.ToValue(err.Error()))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(m.vm.ToValue(err.Error()))
+				return nil
+			})
 			return
 		}
 
@@ -237,14 +261,20 @@ func (m *Anime) getEntryDownloadInfo(call goja.FunctionCall) goja.Value {
 		if media == nil {
 			media, err = anilistPlatformRef.Get().GetAnime(context.Background(), int(mediaId))
 			if err != nil {
-				_ = reject(m.vm.ToValue(err.Error()))
+				m.scheduler.ScheduleAsync(func() error {
+					_ = reject(m.vm.ToValue(err.Error()))
+					return nil
+				})
 				return
 			}
 		}
 
 		animeMetadata, err := metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, int(mediaId))
 		if err != nil {
-			_ = reject(goja_bindings.NewError(m.vm, err))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(goja_bindings.NewError(m.vm, err))
+				return nil
+			})
 			return
 		}
 
@@ -257,7 +287,10 @@ func (m *Anime) getEntryDownloadInfo(call goja.FunctionCall) goja.Value {
 			MetadataProviderRef: metadataProviderRef,
 		})
 		if err != nil {
-			_ = reject(goja_bindings.NewError(m.vm, err))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(goja_bindings.NewError(m.vm, err))
+				return nil
+			})
 			return
 		}
 
@@ -294,7 +327,10 @@ func (m *Anime) getEpisodeCollection(call goja.FunctionCall) goja.Value {
 	go func() {
 		media, err := anilistPlatformRef.Get().GetAnime(context.Background(), int(mediaId))
 		if err != nil {
-			_ = reject(m.vm.ToValue(err.Error()))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(m.vm.ToValue(err.Error()))
+				return nil
+			})
 			return
 		}
 
@@ -304,7 +340,10 @@ func (m *Anime) getEpisodeCollection(call goja.FunctionCall) goja.Value {
 			Logger:              m.logger,
 		})
 		if err != nil {
-			_ = reject(goja_bindings.NewError(m.vm, err))
+			m.scheduler.ScheduleAsync(func() error {
+				_ = reject(goja_bindings.NewError(m.vm, err))
+				return nil
+			})
 			return
 		}
 
