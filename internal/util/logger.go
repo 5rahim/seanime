@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"strings"
@@ -36,6 +37,15 @@ const (
 var logBuffer bytes.Buffer
 var logBufferMutex = &sync.Mutex{}
 
+// logBufferWriter serializes writes to logBuffer
+type logBufferWriter struct{}
+
+func (logBufferWriter) Write(p []byte) (int, error) {
+	logBufferMutex.Lock()
+	defer logBufferMutex.Unlock()
+	return logBuffer.Write(p)
+}
+
 func NewLogger() *zerolog.Logger {
 
 	timeFormat := fmt.Sprintf("%s", time.DateTime)
@@ -44,7 +54,8 @@ func NewLogger() *zerolog.Logger {
 
 	// Set up logger
 	consoleOutput := zerolog.ConsoleWriter{
-		Out:           os.Stdout,
+		// Wrapped because zerolog closes writers that implement io.Closer on Fatal
+		Out:           struct{ io.Writer }{os.Stdout},
 		TimeFormat:    timeFormat,
 		FormatLevel:   ZerologFormatLevelPretty,
 		FormatMessage: ZerologFormatMessagePretty,
@@ -53,7 +64,7 @@ func NewLogger() *zerolog.Logger {
 	}
 
 	fileOutput := zerolog.ConsoleWriter{
-		Out:           &logBuffer,
+		Out:           logBufferWriter{},
 		TimeFormat:    timeFormat,
 		FormatMessage: ZerologFormatMessageSimple,
 		FormatLevel:   ZerologFormatLevelSimple,
@@ -79,6 +90,18 @@ func WriteGlobalLogBufferToFile(file *os.File) {
 		fmt.Print("Failed to write log buffer to file")
 	}
 	logBuffer.Reset()
+}
+
+// GlobalLogBufferTail returns a copy of the last max bytes of the log buffer without consuming it.
+func GlobalLogBufferTail(max int) []byte {
+	logBufferMutex.Lock()
+	defer logBufferMutex.Unlock()
+
+	data := logBuffer.Bytes()
+	if len(data) > max {
+		data = data[len(data)-max:]
+	}
+	return bytes.Clone(data)
 }
 
 func SetupLoggerSignalHandling(file *os.File) {
