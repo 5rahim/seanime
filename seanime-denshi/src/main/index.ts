@@ -1080,7 +1080,7 @@ function createSplashScreen() {
     setTimeout(showSplashScreen, 500)
 
     logStartupEvent("Loading splash screen")
-    splashScreen.loadFile(path.join(app.getAppPath(), "src/splash.html"))
+    splashScreen.loadFile(path.join(app.getAppPath(), "src/splash.html"), { query: { version: app.getVersion() } })
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
