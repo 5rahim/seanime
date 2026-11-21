@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Seanime Denshi Cast Receiver</title>
     <style>
-        html, body {
+        html,
+        body {
             margin: 0;
             padding: 0;
             width: 100%;
@@ -12,14 +14,14 @@
             background: #000;
             overflow: hidden;
         }
-        
+
         cast-media-player {
             --background-image: none;
             --logo-image: none;
             width: 100%;
             height: 100%;
         }
-        
+
         #subtitle-canvas {
             position: absolute;
             top: 0;
@@ -29,27 +31,28 @@
             pointer-events: none;
             z-index: 10;
         }
-        
+
         cast-media-player::part(captions) {
             display: none !important;
         }
     </style>
 </head>
+
 <body>
-<cast-media-player></cast-media-player>
+    <cast-media-player></cast-media-player>
 
-<script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
 
-<script src="jassub-worker.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jassub@1.7.17/dist/jassub.umd.js"></script>
+    <script src="jassub-worker.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jassub@1.7.17/dist/jassub.umd.js"></script>
 
-<script>
-    "use strict"
-    
-    const CUSTOM_NAMESPACE = "urn:x-cast:com.denshi.cast"
-    
-    const DEFAULT_FONT_NAME = "roboto medium"
-    const DEFAULT_SUBTITLE_HEADER = `[Script Info]
+    <script>
+        "use strict"
+
+        const CUSTOM_NAMESPACE = "urn:x-cast:com.denshi.cast"
+
+        const DEFAULT_FONT_NAME = "roboto medium"
+        const DEFAULT_SUBTITLE_HEADER = `[Script Info]
 Title: Default
 ScriptType: v4.00+
 WrapStyle: 0
@@ -62,57 +65,57 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
 Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,1.3,0,2,20,20,23,0
 [Events]
 `
-    
-    class DenshiCastReceiver {
-        constructor() {
-            this.context = cast.framework.CastReceiverContext.getInstance()
-            this.playerManager = this.context.getPlayerManager()
-            this.jassubRenderer = null
-            this.videoElement = null
-            this.tracks = {}
-            this.currentTrackNumber = -1
-            this.fontsLoaded = []
-            this.subtitleEventsCache = new Map() // trackNumber -> events[]
-            
-            this._init()
-        }
-        
-        _init() {
-            const mediaPlayer = document.querySelector("cast-media-player")
-            
-            this._waitForVideoElement(mediaPlayer).then((video) => {
-                this.videoElement = video
-                console.log("[DenshiReceiver] Video element found")
-                
-                // Init JASSUB
-                this._initJassub()
-            })
-            
-            // Custom message handler
-            this.context.addCustomMessageListener(CUSTOM_NAMESPACE, (event) => {
-                this._handleCustomMessage(event.data)
-            })
-            
-            // Intercept LOAD to accept spoofed MIME types
-            this.playerManager.setMessageInterceptor(
+
+        class DenshiCastReceiver {
+            constructor() {
+                this.context = cast.framework.CastReceiverContext.getInstance()
+                this.playerManager = this.context.getPlayerManager()
+                this.jassubRenderer = null
+                this.videoElement = null
+                this.tracks = {}
+                this.currentTrackNumber = -1
+                this.fontsLoaded = []
+                this.subtitleEventsCache = new Map() // trackNumber -> events[]
+
+                this._init()
+            }
+
+            _init() {
+                const mediaPlayer = document.querySelector("cast-media-player")
+
+                this._waitForVideoElement(mediaPlayer).then((video) => {
+                    this.videoElement = video
+                    console.log("[DenshiReceiver] Video element found")
+
+                    // Init JASSUB
+                    this._initJassub()
+                })
+
+                // Custom message handler
+                this.context.addCustomMessageListener(CUSTOM_NAMESPACE, (event) => {
+                    this._handleCustomMessage(event.data)
+                })
+
+                // Intercept LOAD to accept spoofed MIME types
+                this.playerManager.setMessageInterceptor(
                     cast.framework.messages.MessageType.LOAD,
                     (request) => {
                         console.log("[DenshiReceiver] LOAD intercepted:", request.media?.contentType)
-                        
+
                         // Clear previous subtitle state
                         this._clearSubtitles()
-                        
+
                         return request
                     }
-            )
-            
-            this.playerManager.addEventListener(
+                )
+
+                this.playerManager.addEventListener(
                     cast.framework.events.EventType.MEDIA_STATUS,
                     (event) => {
                     }
-            )
-            
-            this.playerManager.addEventListener(
+                )
+
+                this.playerManager.addEventListener(
                     cast.framework.events.EventType.SEEKED,
                     () => {
                         // Re-sync subtitles on seek
@@ -120,234 +123,213 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                             this.jassubRenderer.resize()
                         }
                     }
-            )
-            
-            const options = new cast.framework.CastReceiverOptions()
-            options.disableIdleTimeout = true
-            options.customNamespaces = {}
-            options.customNamespaces[CUSTOM_NAMESPACE] = cast.framework.system.MessageType.JSON
-            
-            this.context.start(options)
-            
-            console.log("[DenshiReceiver] Receiver started")
-            
-            // Notify sender that receiver is ready
-            this._sendToSender({ type: "receiverReady" })
-        }
-        
-        async _waitForVideoElement(mediaPlayer, maxAttempts = 50) {
-            for (let i = 0; i < maxAttempts; i++) {
-                if (mediaPlayer.shadowRoot) {
-                    const video = mediaPlayer.shadowRoot.querySelector("video")
+                )
+
+                const options = new cast.framework.CastReceiverOptions()
+                options.disableIdleTimeout = true
+                options.customNamespaces = {}
+                options.customNamespaces[CUSTOM_NAMESPACE] = cast.framework.system.MessageType.JSON
+
+                this.context.start(options)
+
+                console.log("[DenshiReceiver] Receiver started")
+
+                // Notify sender that receiver is ready
+                this._sendToSender({type: "receiverReady"})
+            }
+
+            async _waitForVideoElement(mediaPlayer, maxAttempts = 50) {
+                for (let i = 0; i < maxAttempts; i++) {
+                    if (mediaPlayer.shadowRoot) {
+                        const video = mediaPlayer.shadowRoot.querySelector("video")
+                        if (video) return video
+                    }
+                    // Try direct child
+                    const video = mediaPlayer.querySelector("video")
                     if (video) return video
+                    const docVideo = document.querySelector("video")
+                    if (docVideo) return docVideo
+
+                    await new Promise(r => setTimeout(r, 200))
                 }
-                // Try direct child
-                const video = mediaPlayer.querySelector("video")
-                if (video) return video
-                const docVideo = document.querySelector("video")
-                if (docVideo) return docVideo
-                
-                await new Promise(r => setTimeout(r, 200))
+                throw new Error("Could not find video element")
             }
-            throw new Error("Could not find video element")
-        }
-        
-        _initJassub() {
-            if (!this.videoElement || this.jassubRenderer) return
-            
-            try {
-                this.jassubRenderer = new JASSUB({
-                    video: this.videoElement,
-                    subContent: DEFAULT_SUBTITLE_HEADER,
-                    workerUrl: "jassub-worker.js",
-                    wasmUrl: "jassub-worker.wasm",
-                    modernWasmUrl: "jassub-worker-modern.wasm",
-                    fonts: [],
-                    defaultFont: DEFAULT_FONT_NAME,
-                    availableFonts: {
-                        [DEFAULT_FONT_NAME]: "fonts/Roboto-Medium.ttf",
-                    },
-                    debug: false,
-                })
-                
-                console.log("[DenshiReceiver] JASSUB initialized")
-            } catch (e) {
-                console.error("[DenshiReceiver] Failed to initialize JASSUB:", e)
-                this._sendToSender({ type: "error", payload: "Failed to init JASSUB: " + e.message })
-            }
-        }
-        
-        _handleCustomMessage(data) {
-            console.log("[DenshiReceiver] Custom message:", data.type)
-            
-            switch (data.type) {
-                case "subtitleEvents":
-                    this._onSubtitleEvents(data.payload)
-                    break
-                case "setTracks":
-                    this._onSetTracks(data.payload)
-                    break
-                case "switchTrack":
-                    this._onSwitchTrack(data.payload.trackNumber)
-                    break
-                case "fonts":
-                    this._onFonts(data.payload)
-                    break
-                case "subtitleHeader":
-                    this._onSubtitleHeader(data.payload)
-                    break
-                case "disableSubtitles":
-                    this._clearSubtitles()
-                    break
-            }
-        }
-        
-        // Feed subtitle events into JASSUB
-        _onSubtitleEvents(events) {
-            if (!this.jassubRenderer || !events || !Array.isArray(events)) return
-            
-            for (const event of events) {
-                if (!this.subtitleEventsCache.has(event.trackNumber)) {
-                    this.subtitleEventsCache.set(event.trackNumber, [])
-                }
-                this.subtitleEventsCache.get(event.trackNumber).push(event)
-                
-                // Only render for the active track
-                if (event.trackNumber === this.currentTrackNumber) {
-                    this._addEventToJassub(event)
+
+            _initJassub() {
+                if (!this.videoElement || this.jassubRenderer) return
+
+                try {
+                    this.jassubRenderer = new JASSUB({
+                        video: this.videoElement,
+                        subContent: DEFAULT_SUBTITLE_HEADER,
+                        workerUrl: "jassub-worker.js",
+                        wasmUrl: "jassub-worker.wasm",
+                        modernWasmUrl: "jassub-worker-modern.wasm",
+                        fonts: [],
+                        defaultFont: DEFAULT_FONT_NAME,
+                        availableFonts: {
+                            [DEFAULT_FONT_NAME]: "fonts/Roboto-Medium.ttf",
+                        },
+                        debug: false,
+                    })
+
+                    console.log("[DenshiReceiver] JASSUB initialized")
+                } catch (e) {
+                    console.error("[DenshiReceiver] Failed to initialize JASSUB:", e)
+                    this._sendToSender({type: "error", payload: "Failed to init JASSUB: " + e.message})
                 }
             }
-        }
-        
-        _addEventToJassub(event) {
-            if (!this.jassubRenderer) return
-            
-            try {
-                const assEvent = {
-                    Start: event.startTime / 1000,
-                    Duration: event.duration / 1000,
-                    Style: event.style || "Default",
-                    Name: "",
-                    MarginL: 0,
-                    MarginR: 0,
-                    MarginV: 0,
-                    Effect: "",
-                    Text: event.text,
-                    ReadOrder: 0,
-                    Layer: event.layer || 0,
+
+            _handleCustomMessage(data) {
+                console.log("[DenshiReceiver] Custom message:", data.type)
+
+                switch (data.type) {
+                    case "subtitleEvents":
+                        this._onSubtitleEvents(data.payload)
+                        break
+                    case "setTracks":
+                        this._onSetTracks(data.payload)
+                        break
+                    case "switchTrack":
+                        this._onSwitchTrack(data.payload.trackNumber)
+                        break
+                    case "fonts":
+                        this._onFonts(data.payload)
+                        break
+                    case "subtitleHeader":
+                        this._onSubtitleHeader(data.payload)
+                        break
+                    case "disableSubtitles":
+                        this._clearSubtitles()
+                        break
                 }
-                
-                this.jassubRenderer.createEvent(assEvent)
-            } catch (e) {
-                console.error("[DenshiReceiver] Error adding subtitle event:", e)
             }
-        }
-        
-        // Receive track info from the sender
-        _onSetTracks(tracks) {
-            this.tracks = {}
-            for (const track of tracks) {
-                this.tracks[track.number] = track
-            }
-            console.log("[DenshiReceiver] Tracks set:", Object.keys(this.tracks).length)
-        }
-        
-        _onSwitchTrack(trackNumber) {
-            console.log("[DenshiReceiver] Switching to track:", trackNumber)
-            this.currentTrackNumber = trackNumber
-            
-            const track = this.tracks[trackNumber]
-            if (!track) {
-                this._clearSubtitles()
-                return
-            }
-            
-            // Set ASS header for this track
-            const header = track.codecPrivate || DEFAULT_SUBTITLE_HEADER
-            if (this.jassubRenderer) {
-                this.jassubRenderer.setTrack(header)
-                
-                // Re-add cached events
-                const cachedEvents = this.subtitleEventsCache.get(trackNumber)
-                if (cachedEvents) {
-                    for (const event of cachedEvents) {
+
+            // Feed subtitle events into JASSUB
+            _onSubtitleEvents(events) {
+                if (!this.jassubRenderer || !events || !Array.isArray(events)) return
+
+                for (const event of events) {
+                    if (!this.subtitleEventsCache.has(event.trackNumber)) {
+                        this.subtitleEventsCache.set(event.trackNumber, [])
+                    }
+                    this.subtitleEventsCache.get(event.trackNumber).push(event)
+
+                    // Only render for the active track
+                    if (event.trackNumber === this.currentTrackNumber) {
                         this._addEventToJassub(event)
                     }
                 }
-                
-                this.jassubRenderer.resize()
             }
-            
-            this._sendToSender({
-                type: "subtitleTrackChanged",
-                payload: { trackNumber },
-            })
-        }
-        
-        // Load fonts
-        async _onFonts(fontUrls) {
-            if (!this.jassubRenderer || !fontUrls) return
-            
-            try {
-                const newFonts = fontUrls.filter(url => !this.fontsLoaded.includes(url))
-                if (newFonts.length > 0) {
-                    await this.jassubRenderer.addFonts(newFonts)
-                    this.fontsLoaded.push(...newFonts)
-                    console.log("[DenshiReceiver] Loaded", newFonts.length, "fonts")
+
+            _addEventToJassub(event) {
+                if (!this.jassubRenderer) return
+
+                try {
+                    const assEvent = {
+                        Start: event.startTime / 1000,
+                        Duration: event.duration / 1000,
+                        Style: event.style || "Default",
+                        Name: "",
+                        MarginL: 0,
+                        MarginR: 0,
+                        MarginV: 0,
+                        Effect: "",
+                        Text: event.text,
+                        ReadOrder: 0,
+                        Layer: event.layer || 0,
+                    }
+
+                    this.jassubRenderer.createEvent(assEvent)
+                } catch (e) {
+                    console.error("[DenshiReceiver] Error adding subtitle event:", e)
                 }
-            } catch (e) {
-                console.error("[DenshiReceiver] Error loading fonts:", e)
             }
-        }
-        
-        _onSubtitleHeader(header) {
-            if (!this.jassubRenderer) return
-            this.jassubRenderer.setTrack(header)
-            this.jassubRenderer.resize()
-        }
-        
-        _clearSubtitles() {
-            this.currentTrackNumber = -1
-            if (this.jassubRenderer) {
-                this.jassubRenderer.setTrack(DEFAULT_SUBTITLE_HEADER)
+
+            // Receive track info from the sender
+            _onSetTracks(tracks) {
+                this.tracks = {}
+                for (const track of tracks) {
+                    this.tracks[track.number] = track
+                }
+                console.log("[DenshiReceiver] Tracks set:", Object.keys(this.tracks).length)
+            }
+
+            _onSwitchTrack(trackNumber) {
+                console.log("[DenshiReceiver] Switching to track:", trackNumber)
+                this.currentTrackNumber = trackNumber
+
+                const track = this.tracks[trackNumber]
+                if (!track) {
+                    this._clearSubtitles()
+                    return
+                }
+
+                // Set ASS header for this track
+                const header = track.codecPrivate || DEFAULT_SUBTITLE_HEADER
+                if (this.jassubRenderer) {
+                    this.jassubRenderer.setTrack(header)
+
+                    // Re-add cached events
+                    const cachedEvents = this.subtitleEventsCache.get(trackNumber)
+                    if (cachedEvents) {
+                        for (const event of cachedEvents) {
+                            this._addEventToJassub(event)
+                        }
+                    }
+
+                    this.jassubRenderer.resize()
+                }
+
+                this._sendToSender({
+                    type: "subtitleTrackChanged",
+                    payload: {trackNumber},
+                })
+            }
+
+            // Load fonts
+            async _onFonts(fontUrls) {
+                if (!this.jassubRenderer || !fontUrls) return
+
+                try {
+                    const newFonts = fontUrls.filter(url => !this.fontsLoaded.includes(url))
+                    if (newFonts.length > 0) {
+                        await this.jassubRenderer.addFonts(newFonts)
+                        this.fontsLoaded.push(...newFonts)
+                        console.log("[DenshiReceiver] Loaded", newFonts.length, "fonts")
+                    }
+                } catch (e) {
+                    console.error("[DenshiReceiver] Error loading fonts:", e)
+                }
+            }
+
+            _onSubtitleHeader(header) {
+                if (!this.jassubRenderer) return
+                this.jassubRenderer.setTrack(header)
                 this.jassubRenderer.resize()
             }
-        }
-        
-        _sendToSender(message) {
-            try {
-                this.context.sendCustomMessage(CUSTOM_NAMESPACE, undefined, message)
-            } catch (e) {
-                console.error("[DenshiReceiver] Error sending to sender:", e)
+
+            _clearSubtitles() {
+                this.currentTrackNumber = -1
+                if (this.jassubRenderer) {
+                    this.jassubRenderer.setTrack(DEFAULT_SUBTITLE_HEADER)
+                    this.jassubRenderer.resize()
+                }
+            }
+
+            _sendToSender(message) {
+                try {
+                    this.context.sendCustomMessage(CUSTOM_NAMESPACE, undefined, message)
+                } catch (e) {
+                    console.error("[DenshiReceiver] Error sending to sender:", e)
+                }
             }
         }
-    }
-    
-    window.addEventListener("load", () => {
-        new DenshiCastReceiver()
-    })
-</script>
+
+        window.addEventListener("load", () => {
+            new DenshiCastReceiver()
+        })
+    </script>
 </body>
+
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
