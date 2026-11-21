@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Version              = "3.10.5-canary.1"
+	Version              = "3.10.5"
 	VersionName          = "Saisei"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"

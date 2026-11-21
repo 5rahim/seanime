@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## v3.10.5-canary.1
+## v3.10.5
 
 - ⚡️ Mobile: Record crash reports and startup failures
 - 🦺 Torrent streaming: Fixed torrents not being announced after file selection
