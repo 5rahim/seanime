@@ -184,7 +184,17 @@ func mangaSourceChanged(prev *models.MangaSettings, next *models.MangaSettings) 
 		nextPath = next.LocalSourceDirectory
 	}
 
-	return normalizeStrictPath(prevPath) != normalizeStrictPath(nextPath)
+	if normalizeStrictPath(prevPath) != normalizeStrictPath(nextPath) {
+		return true
+	}
+	prevURL, nextURL := "", ""
+	if prev != nil {
+		prevURL = prev.SuwayomiURL
+	}
+	if next != nil {
+		nextURL = next.SuwayomiURL
+	}
+	return prevURL != nextURL
 }
 
 func mediastreamRootsChanged(prev *models.MediastreamSettings, next *models.MediastreamSettings) bool {

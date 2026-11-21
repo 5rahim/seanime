@@ -121,6 +121,15 @@ export function MangaSettings(props: MangaSettingsProps) {
                 />
             </SettingsCard>
 
+            <SettingsCard title="Suwayomi Server" description="Use sources installed on your Suwayomi server in the manga reader.">
+                <Field.Text
+                    name="mangaSuwayomiUrl"
+                    label="Server URL"
+                    placeholder="http://localhost:4567"
+                    help="Enter the address of your Suwayomi server and save. Its installed sources will appear in the manga provider menu."
+                />
+            </SettingsCard>
+
             <ConfirmationDialog {...confirmDialog} />
 
             <SettingsSubmitButton isPending={isPending} />

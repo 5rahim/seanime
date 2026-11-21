@@ -79,6 +79,7 @@ export const settingsSchema = z.object({
     disableAnimeCardTrailers: z.boolean().optional().default(false),
     enableManga: z.boolean().optional().default(true),
     mangaLocalSourceDirectory: z.string().optional().default(""),
+    mangaSuwayomiUrl: z.string().optional().default(""),
     enableRichPresence: z.boolean().optional().default(false),
     enableAnimeRichPresence: z.boolean().optional().default(false),
     enableMangaRichPresence: z.boolean().optional().default(false),
@@ -191,6 +192,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         defaultMangaProvider: "",
         mangaAutoUpdateProgress: false,
         mangaLocalSourceDirectory: "",
+        mangaSuwayomiUrl: "",
     },
     mediaPlayer: {
         host: data.mediaPlayerHost,

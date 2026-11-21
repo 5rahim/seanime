@@ -4131,6 +4131,7 @@ export type Models_MangaSettings = {
     defaultMangaProvider: string
     mangaAutoUpdateProgress: boolean
     mangaLocalSourceDirectory: string
+    mangaSuwayomiUrl: string
 }
 
 /**

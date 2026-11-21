@@ -40,6 +40,27 @@ export const EXTENSION_TYPE = {
     "custom-source": "Custom Source",
 }
 
+const suwayomiExtension: Extension_Extension = {
+    id: "builtin-suwayomi",
+    name: "Suwayomi",
+    version: "",
+    manifestURI: "builtin",
+    language: "go",
+    type: "manga-provider",
+    description: "Read manga using sources from your Suwayomi server.",
+    author: "Suwayomi",
+    icon: "/suwayomi-logo.png",
+    website: "https://suwayomi.org/",
+    readme: "",
+    lang: "multi",
+    payload: "",
+}
+
+function isSuwayomiSource(extension: Extension_Extension) {
+    return extension.type === "manga-provider" && extension.manifestURI === "builtin" &&
+        extension.author === "Suwayomi" && extension.id.startsWith("suwayomi-")
+}
+
 export function ExtensionList(props: ExtensionListProps) {
 
     const {
@@ -92,7 +113,10 @@ export function ExtensionList(props: ExtensionListProps) {
         ...(allExtensions?.disabledExtensions ?? []),
     ]
 
-    const enabledExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(matchesSearchTerm)
+    const enabledExtensions = orderExtensions([
+        ...(allExtensions?.extensions ?? []).filter(extension => !isSuwayomiSource(extension)),
+        suwayomiExtension,
+    ]).filter(matchesSearchTerm)
     const disabledExtensions = orderExtensions(allExtensions?.disabledExtensions ?? []).filter(matchesSearchTerm)
 
     const pluginExtensions = enabledExtensions.filter(n => n.type === "plugin")

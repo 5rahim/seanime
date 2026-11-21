@@ -387,6 +387,7 @@ export default function Page() {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
                                         mangaAutoUpdateProgress: data.mangaAutoUpdateProgress ?? false,
                                         mangaLocalSourceDirectory: data.mangaLocalSourceDirectory || "",
+                                        mangaSuwayomiUrl: data.mangaSuwayomiUrl || "",
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,
@@ -561,6 +562,7 @@ export default function Page() {
                                 scannerMatchingThreshold: status?.settings?.library?.scannerMatchingThreshold ?? 0.5,
                                 scannerMatchingAlgorithm: status?.settings?.library?.scannerMatchingAlgorithm || "-",
                                 mangaLocalSourceDirectory: status?.settings?.manga?.mangaLocalSourceDirectory || "",
+                                mangaSuwayomiUrl: status?.settings?.manga?.mangaSuwayomiUrl || "",
                                 autoSyncToLocalAccount: status?.settings?.library?.autoSyncToLocalAccount ?? false,
                                 nakamaEnabled: status?.settings?.nakama?.enabled ?? false,
                                 nakamaUsername: status?.settings?.nakama?.username ?? "",
