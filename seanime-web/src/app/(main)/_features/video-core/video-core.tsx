@@ -58,6 +58,7 @@ import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-dr
 import { useVideoCoreSetupEvents } from "@/app/(main)/_features/video-core/video-core-events"
 import { vc_fullscreenManager, VideoCoreFullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import {
+    isHLSSrc,
     useVideoCoreHls,
     vc_hlsAudioTracks,
     vc_hlsCurrentAudioTrack,
@@ -595,6 +596,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
 PlayerContent.displayName = "PlayerContent"
 
 const PLAYBACK_STALL_TIMEOUT_MS = 12_000
+const HAVE_FUTURE_DATA = 3
 
 export interface VideoCoreProps {
     id: string
@@ -1077,6 +1079,98 @@ export function VideoCore(props: VideoCoreProps) {
 
         return () => window.clearTimeout(timeout)
     }, [state.playbackInfo?.id, streamUrl, buffering, onStalled])
+
+    // ---------------------------------------------------------------------------------------
+    // Playback recovery after the device was locked or the tab was suspended.
+    //
+    // Direct streams are served as a single long-lived HTTP response. When the phone sleeps,
+    // the connection behind that response dies silently. On resume the media element waits
+    // for data that will never arrive, so the player is left on a black frame with the
+    // buffering spinner and never recovers on its own.
+    // Here we detect that situation and force a fresh request for the same stream, keeping
+    // the playback position, then surface an error instead of spinning forever if it fails.
+    // ---------------------------------------------------------------------------------------
+
+    const dispatchVideoErrorEventRef = React.useRef(dispatchVideoErrorEvent)
+    dispatchVideoErrorEventRef.current = dispatchVideoErrorEvent
+
+    const isDirectStreamRef = React.useRef(true)
+    React.useEffect(() => {
+        isDirectStreamRef.current = !(streamType === "hls" || (!!streamUrl && isHLSSrc(streamUrl)))
+    }, [streamType, streamUrl])
+
+    const resumeStateRef = React.useRef<{ wasPlaying: boolean, currentTime: number, hiddenAt: number } | null>(null)
+
+    React.useEffect(() => {
+        if (!streamUrl) return
+
+        const handleVisibilityChange = () => {
+            const video = videoRef.current
+            if (!video) return
+
+            if (document.visibilityState === "hidden") {
+                resumeStateRef.current = {
+                    wasPlaying: !video.paused && !video.ended,
+                    currentTime: video.currentTime,
+                    hiddenAt: Date.now(),
+                }
+                return
+            }
+
+            const previous = resumeStateRef.current
+            resumeStateRef.current = null
+
+            // Only try to recover playback that was running before the page was hidden
+            if (!previous?.wasPlaying) return
+            if (Date.now() - previous.hiddenAt < 1500) return
+
+            // Give the browser a moment to resume the media element on its own
+            window.setTimeout(() => {
+                const v = videoRef.current
+                if (!v || v.ended) return
+                if (!v.paused && v.readyState >= 3) return // Playback resumed normally
+
+                // HLS.js manages its own segment requests and recovery
+                if (!isDirectStreamRef.current) return
+
+                if (v.readyState >= HAVE_FUTURE_DATA) {
+                    // The buffer is still usable, the browser simply paused playback
+                    v.play().catch(() => undefined)
+                    return
+                }
+
+                log.info("Recovering playback after resume", { currentTime: previous.currentTime })
+
+                const resumeAt = v.currentTime > 1 ? v.currentTime : previous.currentTime
+                const recoveryTimeout = window.setTimeout(() => {
+                    if (v.readyState < HAVE_FUTURE_DATA) {
+                        dispatchVideoErrorEventRef.current?.("Playback did not resume after unlocking the device")
+                    }
+                }, PLAYBACK_STALL_TIMEOUT_MS)
+
+                v.addEventListener("loadedmetadata", () => {
+                    window.clearTimeout(recoveryTimeout)
+                    try {
+                        v.currentTime = Number.isFinite(v.duration) && v.duration > 0
+                            ? Math.min(resumeAt, Math.max(0, v.duration - 0.25))
+                            : resumeAt
+                    }
+                    catch {
+                        // Ignore, the media element will keep its default position
+                    }
+                    v.play().catch(() => undefined)
+                }, { once: true })
+
+                v.pause()
+                // Re-assigning the same source forces the browser to open a new request
+                v.src = streamUrl
+                v.load()
+            }, 1200)
+        }
+
+        document.addEventListener("visibilitychange", handleVisibilityChange)
+        return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }, [streamUrl])
 
     const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
 
