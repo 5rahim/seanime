@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -36,13 +37,59 @@ type FileStreamReader interface {
 	io.ReadSeekCloser
 }
 
+func fileStreamTempDir(baseDir string) string {
+	return filepath.Join(baseDir, "seanime", "filestream")
+}
+
+// CleanupStaleFileStreams removes orphaned filestream temp files from previous runs.
+func CleanupStaleFileStreams(logger *zerolog.Logger) {
+	cleanupStaleFileStreams(fileStreamTempDir(os.TempDir()), logger)
+}
+
+func cleanupStaleFileStreams(dir string, logger *zerolog.Logger) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return
+		}
+		if logger != nil {
+			logger.Warn().Err(err).Str("dir", dir).Msg("httputil: Failed to read filestream temp directory")
+		}
+		return
+	}
+
+	removed := 0
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		filePath := filepath.Join(dir, entry.Name())
+		if err := os.Remove(filePath); err != nil {
+			if !errors.Is(err, os.ErrNotExist) && logger != nil {
+				logger.Warn().Err(err).Str("path", filePath).Msg("httputil: Failed to remove stale filestream temp file")
+			}
+			continue
+		}
+		removed++
+	}
+
+	if removed > 0 && logger != nil {
+		logger.Debug().Int("count", removed).Str("dir", dir).Msg("httputil: Removed stale filestream temp files")
+	}
+}
+
 // NewFileStream creates a new FileStream instance with a temporary file
 func NewFileStream(ctx context.Context, logger *zerolog.Logger, contentLength int64) (*FileStream, error) {
 	if ctx == nil {
 		return nil, errors.New("context is required")
 	}
 
-	file, err := os.CreateTemp("", "filestream_*.tmp")
+	tempDir := fileStreamTempDir(os.TempDir())
+	if err := os.MkdirAll(tempDir, 0755); err != nil {
+		return nil, err
+	}
+
+	file, err := os.CreateTemp(tempDir, "filestream_*.tmp")
 	if err != nil {
 		return nil, err
 	}

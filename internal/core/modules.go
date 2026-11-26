@@ -44,6 +44,7 @@ import (
 	"seanime/internal/torrentstream"
 	"seanime/internal/user"
 	"seanime/internal/util"
+	httputil "seanime/internal/util/http"
 	"seanime/internal/videocore"
 
 	"github.com/cli/browser"
@@ -281,6 +282,8 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 	// |   Direct Stream     |
 	// +---------------------+
+
+	httputil.CleanupStaleFileStreams(a.Logger)
 
 	a.DirectStreamManager = directstream.NewManager(directstream.NewManagerOptions{
 		Logger:              a.Logger,
